@@ -20,6 +20,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
         this.columns = [
             {
                 xtype: 'reading-type-column',
+                header: Uni.I18n.translate('loadprofileconfiguration.loadprofilechannelconfiguation', 'MDC', 'Channel configuration'),
                 dataIndex: 'readingType',
                 flex: 3
             },

@@ -110,7 +110,7 @@ Ext.define('Mdc.controller.Main', {
             Uni.store.MenuItems.add(devicesMenuItem);
 
             var portalItem = Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.deviceGroups', 'MDC', 'Device groups'),
+                title: Uni.I18n.translate('general.deviceGroups', 'MDC', 'Device group'),
                 portal: 'devices',
                 route: 'devices',
                 items: [
