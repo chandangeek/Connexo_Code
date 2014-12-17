@@ -65,7 +65,7 @@ Ext.define('Yfn.view.controls.MultiSelectBoundList', {
                     text: 'Select All',
                     handler: function(btn, e) {
                         combo.select(combo.getStore().getRange());
-                        combo.setSelectedCount(combo.getStore().getRange().length);
+                        //combo.setSelectedCount(combo.getStore().getRange().length);
                         e.stopEvent();
                     }
                 },
@@ -75,7 +75,7 @@ Ext.define('Yfn.view.controls.MultiSelectBoundList', {
                     cls:'x-btn-default-small',
                     handler: function(btn, e) {
                         combo.select([]);
-                        combo.setSelectedCount(0);
+                        //combo.setSelectedCount(0);
                         //combo.reset();
                         e.stopEvent();
                     }

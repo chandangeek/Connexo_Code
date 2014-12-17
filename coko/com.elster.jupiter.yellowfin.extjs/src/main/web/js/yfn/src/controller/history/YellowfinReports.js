@@ -6,19 +6,12 @@ Ext.define('Yfn.controller.history.YellowfinReports', {
     currentPath: null,
 
     routeConfig: {
-        administration: {
-            title: 'Administration',
-            route: 'administration',
-            disabled: true,
-            items: {
-                generateReport: {
-                    title: Uni.I18n.translate('generatereport.title', 'YFN', 'Report generator'),
-                    route: 'generatereport',
-                    controller: 'Yfn.controller.setup.GenerateReportWizard',
-                    privileges: ['privilege.view.device'],
-                    action: 'showGenerateReportWizard'
-                }
-            }
+         generatereport: {
+             title: Uni.I18n.translate('generatereport.title', 'YFN', 'Report generator'),
+                 route: 'administration/generatereport',
+                 controller: 'Yfn.controller.setup.GenerateReportWizard',
+                 privileges: ['privilege.view.device'],
+                 action: 'showGenerateReportWizard'
         },
         viewreport: {
             title: Uni.I18n.translate('generatereport.title', 'YFN', 'View Report'),

@@ -118,7 +118,7 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
         wizard.selectedReportUUID = reportUUID;
         var reportFiltersView = me.getReportFiltersView();
 
-        me.reportFilters = Ext.JSON.decode(decodeURIComponent(router.queryParams.filter));
+        me.reportFilters = Ext.JSON.decode(decodeURIComponent(router.queryParams.filter)) || {};
         reportFiltersView.setLoading(true);
 
         var reportPromptsContainer = reportFiltersView.down('#reportPrompts');
@@ -131,6 +131,12 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
                 reportInfo = records[0];
                 reportFiltersView.setTitle(reportInfo.get('name'));
                 me.reportId = reportInfo.get('reportId')
+
+                //var reportDescription = reportFiltersView.down('#report-description');
+
+                //reportDescription.setFieldLabel(Uni.I18n.translate('generatereport.reportNameTitle', 'YFN', reportInfo.get('name')));
+                //reportDescription.setValue( reportRecord.get('description'));
+
 
             }
         });
@@ -223,20 +229,19 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
         }
         catch(e){}
 
-        console.log(display);
 
         me.reportOptions = {
             reportUUID: me.reportUUID,
             display:display,
             element: reportContent.getEl().dom,
             showFilters:false,
-            //showTitle:true,
+            showTitle:true,
             filters:me.filterValues,
             width:reportContent.getWidth()-3,
             height:reportContent.getHeight()-38,
-            //showExport:true,
-            //showSeries:true,
-            //showInfo:false,
+            showExport:true,
+            showSeries:true,
+            showInfo:false,
             token: data.token,
             fitTableWidth:false
         }
@@ -267,7 +272,14 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
         var filterDisplayType = filterRecord.get('filterDisplayType');
         if(filterType == "BETWEEN")
             return [queryValue.from, queryValue.to];
-        else return queryValue;
+        if(filterType == "INLIST" || filterType == "NOTINLIST") {
+            if (Ext.isArray(queryValue))
+                return queryValue;
+            else if (Ext.isString(queryValue)) {
+                return queryValue.split(',');
+            }
+        }
+        return queryValue;
     }
 
 });

@@ -23,14 +23,6 @@ Ext.define('Yfn.view.generatereport.Step2', {
             text: Uni.I18n.translate('generatereport.noDevicesSelected', 'MDC', 'Please select at least one device.')
         },
         {
-            xtype: 'uni-form-info-message',
-            itemId: 'info-no-fields',
-            title: Uni.I18n.translate('generatereport.noReportFilters', 'YFN', 'No report filters defined.'),
-            text:Uni.I18n.translate('generatereport.noReportFilter', 'YFN', 'There are no filter defined for this report. You could continue with next step'),
-            hidden: true
-
-        },
-        {
             xtype: 'form',
             layout: {
                 type: 'vbox',
@@ -48,44 +40,100 @@ Ext.define('Yfn.view.generatereport.Step2', {
                     value: ''
                 },
                 {
-                    xtype: 'fieldcontainer',
-                    itemId:'report-mandatory-filters',
-                    labelCls:'x-panel-header-text-container-small',
-                    labelAlign: 'top',
-                    fieldLabel:Uni.I18n.translate('generatereport.wizard.mandatoryFilters', 'YFN', 'Mandatory filters'),
-                    layout: 'column',
-                    hidden:true,
-                    listeners: {
-                        after2render: function (component) {
-                            new Ext.ToolTip({
-                                target: component.getEl(),
-                                html: Uni.I18n.translate('generatereport.wizard.mandatoryFiltersTooltip',
-                                    'YFN',
-                                    'Reports allow you to look up a lot of data. A mandatory filter is a minimum ' +
-                                    'required selection to help narrow down the results, so to avoid performance ' +
-                                    'issues when generation the report')
+                    xtype: 'container',
+                    itemId:'report-mandatory-filters-title',
+                    layout: {
+                        type: 'hbox',
+                        align: 'left'
+                    },
+                    items: [
+                        {
+                            xtype: 'label',
+                            itemId: 'report-mandatory-filters-label',
+                            text: Uni.I18n.translate('generatereport.wizard.mandatoryFilters', 'YFN', 'Mandatory filters')
+                        },
+                        {
+                            xtype: 'box',
+                            itemId: 'report-mandatory-filters-info',
+                            cls: 'uni-info-icon',
+                            autoEl: {
+                                tag: 'img',
+                                src: '../sky/build/resources/images/shared/icon-info-small.png',
+                                width: 16,
+                                height:16
+                            },
+                            margin: '6 0 0 10',
+                            style: {
+                                cursor: 'help'
+                            },
+                            listeners: {
+                                afterrender: function (component) {
+                                    new Ext.ToolTip({
+                                        target: component.getEl(),
+                                        html: Uni.I18n.translate('generatereport.wizard.mandatoryFiltersTooltip',
+                                            'YFN',
+                                            'Reports allow you to look up a lot of data. A mandatory filter is a minimum ' +
+                                            'required selection to help narrow down the results, so to avoid performance ' +
+                                            'issues when generation the report')
 
-                            });
+                                    });
+                                }
+                            }
                         }
-                    }
+                    ]
                 },
                 {
-                    xtype: 'fieldcontainer',
-                    labelCls:'x-panel-header-text-container-small',
-                    labelAlign: 'top',
-                    fieldLabel:Uni.I18n.translate('generatereport.wizard.optionalFilters', 'YFN', 'In report filters'),
-                    itemId:'report-optional-filters',
-                    hidden:true,
+                    xtype: 'container',
+                    itemId:'report-mandatory-filters',
                     layout: 'column',
-                    listeners: {
-                        after2render: function (component) {
-                            new Ext.ToolTip({
-                                target: component.getEl(),
-                                html: Uni.I18n.translate('generatereport.wizard.optionalFiltersTooltip', 'YFN', '')
+                    hidden:true
+                },
+                {
+                    xtype: 'container',
+                    itemId:'report-optional-filters-title',
+                    layout: {
+                        type: 'hbox',
+                        align: 'left'
+                    },
+                    items: [
+                        {
+                            xtype: 'label',
+                            itemId: 'report-mandatory-filters-label',
+                            text: Uni.I18n.translate('generatereport.wizard.optionalFilters', 'YFN', 'In report filters'),
+                        },
+                        {
+                            xtype: 'box',
+                            itemId: 'report-mandatory-filters-info',
+                            cls: 'uni-info-icon',
+                            autoEl: {
+                                tag: 'img',
+                                src: '../sky/build/resources/images/shared/icon-info-small.png',
+                                width: 16,
+                                height:16
+                            },
+                            margin: '6 0 0 10',
+                            style: {
+                                cursor: 'help'
+                            },
+                            listeners: {
+                                afterrender: function (component) {
+                                    new Ext.ToolTip({
+                                        target: component.getEl(),
+                                        html: Uni.I18n.translate('generatereport.wizard.mandatoryFiltersTooltip',
+                                            'YFN',
+                                            'Filtering on the data that is in the report data set')
 
-                            });
+                                    });
+                                }
+                            }
                         }
-                    }
+                    ]
+                },
+                {
+                    xtype: 'container',
+                    itemId:'report-optional-filters',
+                    layout: 'column',
+                    hidden:true
                 }
             ]
 

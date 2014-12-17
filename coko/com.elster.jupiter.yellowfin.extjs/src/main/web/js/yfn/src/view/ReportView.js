@@ -15,9 +15,9 @@ Ext.define('Yfn.view.ReportView', {
             items: [
                 {
                     collapseDirection: 'top',
-                    title: 'Report Name',
+                    title: '',
                     xtype: 'panel',
-                    ui: 'medium',
+                    ui: 'large',
                     itemId:'reportFilters',
                     autoScroll:true,
                     padding:10,
@@ -134,7 +134,7 @@ Ext.define('Yfn.view.ReportView', {
                                 {
                                     xtype: 'button',
                                     itemId: 'refresh-btn',
-                                    text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'DSH', 'Refresh'),
+                                    text: Uni.I18n.translate('generatereport.applyFiltersBtnTxt', 'YFN', 'Apply filters'),
                                     icon: '/apps/sky/resources/images/form/restore.png'
                                 }
                             ]
@@ -144,7 +144,7 @@ Ext.define('Yfn.view.ReportView', {
                 {
                     xtype: 'container',
                     itemId:'reportContent',
-                    //flex:1,
+                    flex:1,
                     border:1,
                     style: {
                         borderColor: 'lightgray',

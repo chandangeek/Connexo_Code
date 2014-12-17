@@ -148,25 +148,21 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
 
     finishClick: function () {
         var me = this;
-        console.log(me.selectedFilterValues);
         var link = me.getGenerateReportLink();
         var href = '../reports/index.html#/reports/view?reportUUID='+me.selectedReportUUID+'&filter='+encodeURIComponent(Ext.JSON.encode(me.selectedFilterValues));
         link.getEl().dom.href = href;
         link.getEl().dom.target = '_blank';
         link.getEl().dom.click();
+        Ext.util.History.back();
     },
 
     cancelClick: function () {
         this.generateReportWizardWidget = null;
-        var router = this.getController('Uni.controller.history.Router');
-        router.getRoute('devices/devicegroups').forward();
+        Ext.util.History.back();
     },
 
     showGenerateReportWizard: function () {
-        //if (this.generateReportWizardWidget == null) {
         this.generateReportWizardWidget = Ext.widget('generatereport-browse');
-        //}
-
         this.loadReportTypes();
         this.getApplication().fireEvent('changecontentevent', this.generateReportWizardWidget);
     },
@@ -202,7 +198,6 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         var step1 = me.getStep1();
         var step1Form = step1.down('form').getForm();
         var step1Values = step1Form.getFieldValues();
-        //console.log(step1Values);
         if( !step1Values.reportUUID || step1Values.reportUUID.length == 0) {
             step1.down('#step1-generatereport-errors').setVisible(true);
             return false;
@@ -367,7 +362,6 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                         mandatoryFiltersPanel.setVisible(true);
                     }
                 });
-                //step2.down('#info-no-fields').setVisible(!hasFilters);
                 step2Form.setLoading(false);
                 Ext.resumeLayouts(true);
             });
@@ -383,12 +377,10 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
     activateStep2: function (component) {
         var me = this;
         var step2 = me.getStep2();
-        step2.down('#info-no-fields').setVisible(false);
         var me = this;
         var step1 = me.getStep1();
         var step1Form = step1.down('form').getForm();
         var step1Values = step1Form.getFieldValues();
-        //console.log(step1Values);
         if( step1Values.reportUUID) {
             if (me.selectedReportUUID != step1Values.reportUUID) {
                 me.selectedReportUUID = step1Values.reportUUID;
@@ -413,7 +405,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
             return me.createMultiSelectListControls(filterRecord, fieldType, initialValue);
         switch (filterDisplayType) {
             case "DATE":
-                if(filterType == "BETWEEN")
+                if((filterType == "BETWEEN") || (filterType == "NOTBETWEEN"))
                     return me.createDateBetweenControls(filterRecord, fieldType, initialValue);
                 else
                     return me.createDateControls(filterRecord, fieldType, initialValue);
@@ -439,11 +431,11 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     record:filterRecord,
                     dateConfig:{
                         allowBlank: fieldType == 'filter',
-                        disabled:fieldType != 'filter' && defaultValue,
+                        //disabled: fieldType != 'filter' && defaultValue
                     },
                     dateTimeSeparatorConfig: {
                         margin: '0 50 0 10',
-                        disabled:fieldType != 'filter' && defaultValue,
+                        //disabled:fieldType != 'filter' && defaultValue
                     },
                     value:defaultValue ||  me.getDefaultDateValue(filterRecord.get('filterDefaultValue1')),
                     border: false,
@@ -487,7 +479,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     record:filterRecord,
                     allowBlank: fieldType == 'filter',
                     value: defaultValue,
-                    disabled:fieldType != 'filter' && defaultValue,
+                    //disabled:fieldType != 'filter' && defaultValue,
                     initComponent: function () {
                         this.callParent(arguments);
 
@@ -535,14 +527,14 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     items: [
                         {
                             xtype: 'date-time',
-                            disabled:fieldType != 'filter' && defaultValue,
+                            //disabled:fieldType != 'filter' && defaultValue,
                             value: (defaultValue && defaultValue.from) || me.getDefaultDateValue(filterRecord.get('filterDefaultValue1')),
                             dateConfig:{
                                 allowBlank: fieldType == 'filter'
                             },
                             dateTimeSeparatorConfig: {
                                 margin: '0 50 0 10',
-                                disabled:fieldType != 'filter' && defaultValue,
+                                //disabled:fieldType != 'filter' && defaultValue
                             },
                             name: 'from'
                         },
@@ -555,7 +547,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                             },
                             dateTimeSeparatorConfig: {
                                 margin: '0 50 0 10',
-                                disabled:fieldType != 'filter' && defaultValue,
+                                //disabled:fieldType != 'filter' && defaultValue
                             },
                             name: 'to'
                         }
@@ -618,7 +610,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                             value: fromDate,
                             width: '100%',
                             name: 'from',
-                            disabled:fieldType != 'filter' && defaultValue,
+                            //disabled:fieldType != 'filter' && defaultValue,
                             initComponent: function () {
                                 this.callParent(arguments);
 
@@ -630,7 +622,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                         {
                             xtype: 'datefield',
                             value : toDate,
-                            disabled:fieldType != 'filter' && defaultValue,
+                            //disabled:fieldType != 'filter' && defaultValue,
                             allowBlank: fieldType == 'filter',
                             width: '100%',
                             name: 'to',
@@ -685,7 +677,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     record:filterRecord,
                     allowBlank: fieldType == 'filter',
                     value: defaultValue || filterRecord.get('filterDefaultValue1'),
-                    disabled:fieldType != 'filter' && defaultValue,
+                    //disabled:fieldType != 'filter' && defaultValue,
                     name: filterName,
                     getFieldValue : function(){
                         return this.getValue();
@@ -703,6 +695,9 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         var filterType = filterRecord.get('filterType');
         var filterName = filterRecord.get('filterName');
 
+        defaultValue = Ext.isString(defaultValue) && defaultValue.split(', ') || defaultValue ;
+        defaultValue = _.isArray(defaultValue) && _.compact(defaultValue) || defaultValue;
+
         var store =  Ext.create('Yfn.store.ReportFilterListItems',{});
         store.getProxy().setExtraParam('reportUUID', me.selectedReportUUID);
         store.getProxy().setExtraParam('filterId', filterRecord.get('id'));
@@ -717,7 +712,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     allowBlank: fieldType == 'filter',
                     fieldType:fieldType,
                     record:filterRecord,
-                    disabled:fieldType != 'filter' && defaultValue,
+                    //disabled:fieldType != 'filter' && defaultValue,
                     value: defaultValue || filterRecord.get('filterDefaultValue1').split('|'),
                     valueField: 'value2',
                     store: store,
@@ -779,7 +774,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         if(!hasPrompts) {
             fieldsContainer.add({
                 xtype: 'displayfield',
-                value: Uni.I18n.translate('generatereport.reportNoFilters', 'YFN', 'No prompts')
+                value: Uni.I18n.translate('generatereport.reportNoMandatoryFilters', 'YFN', 'No mandatory filters')
             });
         }
 
@@ -813,7 +808,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         if(!hasFilters) {
             fieldsContainer.add({
                 xtype: 'displayfield',
-                value: Uni.I18n.translate('generatereport.reportNoFilters', 'YFN', 'No filters')
+                value: Uni.I18n.translate('generatereport.reportNoOptionalFilters', 'YFN', 'No optional filters')
             });
         }
 
