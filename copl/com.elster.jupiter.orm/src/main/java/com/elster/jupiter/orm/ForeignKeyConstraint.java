@@ -27,6 +27,7 @@ public interface ForeignKeyConstraint extends TableConstraint {
 		Builder reverseMapCurrent(String field);
 		Builder composition();
 		Builder refPartition();
+		Builder noDdl();
 		ForeignKeyConstraint add();		
 	}
 

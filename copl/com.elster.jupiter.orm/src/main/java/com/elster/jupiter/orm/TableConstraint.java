@@ -13,5 +13,14 @@ public interface TableConstraint {
 	boolean isUnique();
 	boolean isForeignKey();
 	boolean hasColumn(Column column);
+	/*
+	 * return true if all columns of the constraint are not null columns
+	 */	
 	boolean isNotNull();
+	/*
+	 * true if the constraint is only used for Object Relational Mapping,
+	 * but not enforced in the RDBMS.
+	 * Useful when using partitioning 
+	 */
+	boolean noDdl();
 }

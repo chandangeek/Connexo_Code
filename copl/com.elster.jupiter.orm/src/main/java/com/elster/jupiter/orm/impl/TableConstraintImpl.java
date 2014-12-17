@@ -91,6 +91,11 @@ public abstract class TableConstraintImpl implements TableConstraint {
     public boolean isForeignKey() {
         return false;
     }
+    
+    @Override
+    public boolean noDdl() {
+    	return false;
+    }
 
     @Override
     public boolean hasColumn(Column column) {

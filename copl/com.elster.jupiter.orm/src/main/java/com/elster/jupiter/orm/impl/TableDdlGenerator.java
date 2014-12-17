@@ -48,7 +48,7 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         		break;
         	}
         	for (ForeignKeyConstraintImpl constraint : created.getForeignKeyConstraints()) {
-        		if (constraint.getReferencedTable().equals(table)) {
+        		if (constraint.getReferencedTable().equals(table) && !constraint.noDdl()) {
         			ddl.add("alter table " + constraint.getTable().getName() + " add " + getConstraintFragment(constraint));
         		}
         	}
@@ -62,7 +62,7 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         sb.append("(");
         doAppendColumns(sb, table.getColumns(), true, true);
         for (TableConstraintImpl constraint : table.getConstraints()) {
-        	if (!constraint.delayDdl()) {
+        	if (!constraint.delayDdl() && !constraint.noDdl()) {
         		sb.append(", ");
         		sb.append(getConstraintFragment(constraint));
         	}

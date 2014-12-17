@@ -34,6 +34,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
     private String reverseCurrentFieldName;
     private boolean composition;
     private boolean refPartitioned;
+    private boolean noDdl;
 
     private final Reference<TableImpl<?>> referencedTable = ValueReference.absent();
 
@@ -156,6 +157,11 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
     public boolean isRefPartition() {
     	return refPartitioned;
     }
+    
+    @Override
+	public boolean noDdl() {
+		return noDdl;
+	}
     
     @Override
     void validate() {
@@ -423,14 +429,16 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
         }
 
         @Override
+        public Builder  noDdl() {
+        	constraint.noDdl = true;
+        	return this;
+        }
+
+        @Override
         public ForeignKeyConstraint add() {
             constraint.validate();
             constraint.getTable().add(constraint);
             return constraint;
-        }
-        
-       
+        }           
     }
-
-
 }
