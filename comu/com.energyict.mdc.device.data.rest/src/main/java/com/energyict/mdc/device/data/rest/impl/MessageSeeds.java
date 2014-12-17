@@ -192,7 +192,8 @@ public enum MessageSeeds implements MessageSeed {
     NOT_APPLICABLE(222, "NotApplicable", "Not applicable"),
     NO_RESTRICTIONS(223, "NoRestrictions", "No restrictions"),
     RUN_CONNECTIONTASK_IMPOSSIBLE(224,"runConTaskImpossible", "Running of this connection task is impossible"),
-    NO_SUCH_COMMUNICATION(225, "NoSuchComTaskExecution", "No such communication with id ''{0}'' on device ''{1}''"),    
+    NO_SUCH_COMMUNICATION(225, "NoSuchComTaskExecution", "No such communication with id ''{0}'' on device ''{1}''"),
+    NO_SUCH_KPI(226, "NoSuchKpi", "No data collection with id ''{0}'' could be found"),
     ;
 
 
