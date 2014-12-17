@@ -30,6 +30,12 @@
     height: 23px;
 }
 
+.icon-help {
+  background-image: url('images/container/help.png');
+  width: 34px;
+  height: 34px;
+}
+
 .icon-appcenter {
     background-image: url('images/container/applicationCenter.png');
     width: 20px;
@@ -68,6 +74,12 @@
             margin: 13px 2px;
             width: 22px;
             height: 23px;
+        }
+
+        .icon-help {
+          width: 34px;
+          height: 34px;
+          margin: 7px 2px;
         }
 
         .icon-appcenter {

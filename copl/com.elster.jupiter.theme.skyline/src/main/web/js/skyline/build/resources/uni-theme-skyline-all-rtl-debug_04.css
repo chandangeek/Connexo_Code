@@ -1,3 +1,33 @@
+/* line 356, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-notification-tl,
+.x-window-notification-bl,
+.x-window-notification-ml {
+  padding-left: 3px;
+}
+
+/* line 360, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-notification-tc {
+  height: 3px;
+}
+
+/* line 363, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-notification-bc {
+  height: 3px;
+}
+
+/* line 374, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-notification-tl,
+.x-window-notification-bl,
+.x-window-notification-tr,
+.x-window-notification-br,
+.x-window-notification-tc,
+.x-window-notification-bc,
+.x-window-notification-ml,
+.x-window-notification-mr {
+  zoom: 1;
+  background-image: url(images/window/window-notification-corners.gif);
+}
+
 /* line 418, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-notification-ml,
 .x-window-notification-mr {

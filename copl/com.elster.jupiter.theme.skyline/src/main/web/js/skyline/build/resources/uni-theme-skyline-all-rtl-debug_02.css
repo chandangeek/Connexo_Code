@@ -1135,13 +1135,20 @@ h6 {
 }
 
 /* line 33, ../../sass/src/container/NavigationHeader.scss */
+.icon-help {
+  background-image: url("images/container/help.png");
+  width: 34px;
+  height: 34px;
+}
+
+/* line 39, ../../sass/src/container/NavigationHeader.scss */
 .icon-appcenter {
   background-image: url("images/container/applicationCenter.png");
   width: 20px;
   height: 18px;
 }
 
-/* line 39, ../../sass/src/container/NavigationHeader.scss */
+/* line 45, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader {
   background-color: #2e587e;
   color: white;
@@ -1156,7 +1163,7 @@ h6 {
   background: linear-gradient(to right, #2e587e, #529ebe);
   /* Standard syntax */
 }
-/* line 58, ../../sass/src/container/NavigationHeader.scss */
+/* line 64, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .uni-nav-appcenter, .x-container-navigationheader .nav-toggler, .x-container-navigationheader .notifications-anchor, .x-container-navigationheader .nav-help, .x-container-navigationheader .search-button, .x-container-navigationheader .user-menu {
   background: none;
   border: none;
@@ -1183,29 +1190,35 @@ h6 {
   margin-top: 3px;
   margin-left: 10px;
 }
-/* line 61, ../../sass/src/container/NavigationHeader.scss */
+/* line 67, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .uni-nav-appcenter .icon-user, .x-container-navigationheader .nav-toggler .icon-user, .x-container-navigationheader .notifications-anchor .icon-user, .x-container-navigationheader .nav-help .icon-user, .x-container-navigationheader .search-button .icon-user, .x-container-navigationheader .user-menu .icon-user {
   margin: 14px 16px;
   width: 20px;
   height: 20px;
 }
-/* line 67, ../../sass/src/container/NavigationHeader.scss */
+/* line 73, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .uni-nav-appcenter .icon-search, .x-container-navigationheader .nav-toggler .icon-search, .x-container-navigationheader .notifications-anchor .icon-search, .x-container-navigationheader .nav-help .icon-search, .x-container-navigationheader .search-button .icon-search, .x-container-navigationheader .user-menu .icon-search {
   margin: 13px 2px;
   width: 22px;
   height: 23px;
 }
-/* line 73, ../../sass/src/container/NavigationHeader.scss */
+/* line 79, ../../sass/src/container/NavigationHeader.scss */
+.x-container-navigationheader .uni-nav-appcenter .icon-help, .x-container-navigationheader .nav-toggler .icon-help, .x-container-navigationheader .notifications-anchor .icon-help, .x-container-navigationheader .nav-help .icon-help, .x-container-navigationheader .search-button .icon-help, .x-container-navigationheader .user-menu .icon-help {
+  width: 34px;
+  height: 34px;
+  margin: 7px 2px;
+}
+/* line 85, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .uni-nav-appcenter .icon-appcenter, .x-container-navigationheader .nav-toggler .icon-appcenter, .x-container-navigationheader .notifications-anchor .icon-appcenter, .x-container-navigationheader .nav-help .icon-appcenter, .x-container-navigationheader .search-button .icon-appcenter, .x-container-navigationheader .user-menu .icon-appcenter {
   margin: 15px 8px;
   width: 20px;
   height: 18px;
 }
-/* line 79, ../../sass/src/container/NavigationHeader.scss */
+/* line 91, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .uni-nav-appcenter:hover, .x-container-navigationheader .nav-toggler:hover, .x-container-navigationheader .notifications-anchor:hover, .x-container-navigationheader .nav-help:hover, .x-container-navigationheader .search-button:hover, .x-container-navigationheader .user-menu:hover {
   background-color: #71adc7;
 }
-/* line 85, ../../sass/src/container/NavigationHeader.scss */
+/* line 97, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .x-menu-active {
   background-color: #71adc7;
 }
@@ -1221,19 +1234,19 @@ h6 {
 .x-container-navigationheader .nav-toggler .x-btn-arrow-bottom {
   padding-bottom: inherit;
 }
-/* line 92, ../../sass/src/container/NavigationHeader.scss */
+/* line 104, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-glyph {
   opacity: 0.5;
 }
-/* line 96, ../../sass/src/container/NavigationHeader.scss */
+/* line 108, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .nav-toggler:hover .x-btn-button .x-btn-glyph {
   opacity: 1.0;
 }
-/* line 101, ../../sass/src/container/NavigationHeader.scss */
+/* line 113, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .x-pressed .x-btn-button .x-btn-glyph {
   opacity: 1.0;
 }
-/* line 107, ../../sass/src/container/NavigationHeader.scss */
+/* line 119, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .nav-toggler .x-pressed .x-btn-button .x-btn-glyph {
   opacity: 1.0;
 }
@@ -1249,28 +1262,28 @@ h6 {
 .x-container-navigationheader .uni-nav-appcenter .x-btn-arrow-bottom, .x-container-navigationheader .notifications-anchor .x-btn-arrow-bottom {
   padding-bottom: inherit;
 }
-/* line 117, ../../sass/src/container/NavigationHeader.scss */
+/* line 129, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .uni-nav-appcenter {
   border-right: 1px solid #597d9d;
   margin-right: 0 !important;
 }
-/* line 121, ../../sass/src/container/NavigationHeader.scss */
+/* line 133, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .uni-nav-appcenter .x-btn-button {
   padding-right: 8px;
 }
-/* line 125, ../../sass/src/container/NavigationHeader.scss */
+/* line 137, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .uni-nav-appcenter.x-menu-active {
   background-color: #2e587e;
 }
-/* line 130, ../../sass/src/container/NavigationHeader.scss */
+/* line 142, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-field {
   width: 240px;
 }
-/* line 134, ../../sass/src/container/NavigationHeader.scss */
+/* line 146, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-field .x-form-item-body {
   float: right;
 }
-/* line 137, ../../sass/src/container/NavigationHeader.scss */
+/* line 149, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-field .x-form-item-body input {
   border-radius: 10px;
   -moz-border-radius: 10px;
@@ -1283,16 +1296,16 @@ h6 {
   width: 120px;
   height: 24px;
 }
-/* line 151, ../../sass/src/container/NavigationHeader.scss */
+/* line 163, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-field .x-form-item-body input:focus, .x-container-navigationheader .search-field .x-form-item-body input:hover {
   width: 240px;
 }
-/* line 158, ../../sass/src/container/NavigationHeader.scss */
+/* line 170, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .user-menu {
   padding-left: 0;
   padding-right: 8px;
 }
-/* line 163, ../../sass/src/container/NavigationHeader.scss */
+/* line 175, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-button {
   background: none;
   border: none;
@@ -1320,7 +1333,7 @@ h6 {
   margin-top: 3px;
   margin-left: 10px;
 }
-/* line 168, ../../sass/src/container/NavigationHeader.scss */
+/* line 180, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-button:hover {
   background-color: #71adc7;
 }
@@ -15037,56 +15050,4 @@ a:hover, a.x-btn:hover {
 .x-btn-sort-small-disabled:after {
   display: none;
   content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-sort-small-disabled-corners.gif), sides:url(images/btn/btn-sort-small-disabled-sides.gif), frame-bg:url(images/btn/btn-sort-small-disabled-fbg.gif), bg:url(images/btn/btn-sort-small-disabled-bg.gif)";
-}
-
-/*</if slicer>*/
-/* */
-/* line 255, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-sort-medium {
-  border-color: transparent;
-}
-
-/* line 137, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium {
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  -ms-border-radius: 5px;
-  -o-border-radius: 5px;
-  border-radius: 5px;
-  padding: 4px 4px 4px 4px;
-  border-width: 1px;
-  border-style: solid;
-  background-color: #d8d8d8;
-}
-
-/* line 187, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-mc {
-  background-color: #d8d8d8;
-}
-
-/* line 234, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-nbr .x-btn-sort-medium {
-  padding: 0 !important;
-  border-width: 0 !important;
-  -webkit-border-radius: 0px;
-  -moz-border-radius: 0px;
-  -ms-border-radius: 0px;
-  -o-border-radius: 0px;
-  border-radius: 0px;
-  background-color: transparent;
-}
-
-/* line 249, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-frameInfo {
-  font-family: th-5-5-5-5-1-1-1-1-4-4-4-4;
-}
-
-/* line 315, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-tl {
-  background-position: 0 -10px;
-}
-
-/* line 319, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-tr {
-  background-position: right -15px;
 }
