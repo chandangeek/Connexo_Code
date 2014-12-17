@@ -32,7 +32,7 @@ public class YellowfinConsoleService {
     }
 
     @Reference
-    public void setBpmService(YellowfinService yellowfinService) {
+    public void setYellowfinService(YellowfinService yellowfinService) {
 
         this.yellowfinService = yellowfinService;
     }
