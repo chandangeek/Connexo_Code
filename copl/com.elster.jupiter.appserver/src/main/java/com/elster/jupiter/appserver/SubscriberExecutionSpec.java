@@ -10,7 +10,4 @@ public interface SubscriberExecutionSpec {
 
     AppServer getAppServer();
 
-    void setThreadCount(int threads);
-
-    void update();
 }

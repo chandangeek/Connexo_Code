@@ -2,14 +2,13 @@ package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
-import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
-import static com.elster.jupiter.orm.Table.*;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 public enum TableSpecs {
 
@@ -29,7 +28,7 @@ public enum TableSpecs {
     APS_SUBSCRIBEREXECUTIONSPEC {
         @Override
         void addTo(DataModel dataModel) {
-        	Table<SubscriberExecutionSpec> table = dataModel.addTable(name(), SubscriberExecutionSpec.class);       
+        	Table<SubscriberExecutionSpecImpl> table = dataModel.addTable(name(), SubscriberExecutionSpecImpl.class);
             table.map(SubscriberExecutionSpecImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.column("THREADCOUNT").type("NUMBER").notNull().conversion(NUMBER2INT).map("threadCount").add();

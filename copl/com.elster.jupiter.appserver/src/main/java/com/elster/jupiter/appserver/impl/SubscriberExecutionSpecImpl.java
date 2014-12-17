@@ -64,17 +64,14 @@ public class SubscriberExecutionSpecImpl implements SubscriberExecutionSpec {
         return appServer;
     }
 
-    @Override
-    public void setThreadCount(int threadCount) {
+    void setThreadCount(int threadCount) {
         if (threadCount < 1) {
             throw new IllegalArgumentException("Cannot have fewer than 1 thread assigned.");
         }
         this.threadCount = threadCount;
     }
 
-    @Override
-    public void update() {
+    void update() {
         dataModel.mapper(SubscriberExecutionSpec.class).update(this);
-        getAppServer().sendCommand(new AppServerCommand(Command.CONFIG_CHANGED));
     }
 }

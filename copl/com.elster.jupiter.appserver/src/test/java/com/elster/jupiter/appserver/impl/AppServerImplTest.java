@@ -42,13 +42,13 @@ public class AppServerImplTest {
     @Mock
     private SubscriberSpec subscriberSpec;
     @Mock
-    private DataMapper<SubscriberExecutionSpec> subscriberExecutionSpecFactory;
+    private DataMapper<SubscriberExecutionSpecImpl> subscriberExecutionSpecFactory;
     @Mock
     private CronExpression cronExpression;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DestinationSpec destination;
     @Mock
-    private SubscriberExecutionSpec exSpec1, exSpec2;
+    private SubscriberExecutionSpecImpl exSpec1, exSpec2;
     @Mock
     private AppServerCommand command;
     @Mock
@@ -69,7 +69,7 @@ public class AppServerImplTest {
     @Before
     public void setUp() {
 
-        when(dataModel.mapper(SubscriberExecutionSpec.class)).thenReturn(subscriberExecutionSpecFactory);
+        when(dataModel.mapper(SubscriberExecutionSpecImpl.class)).thenReturn(subscriberExecutionSpecFactory);
         when(subscriberSpec.getDestination()).thenReturn(destination);
         when(dataModel.getInstance(AppServerImpl.class)).thenReturn(new AppServerImpl(dataModel, cronExpressionParser, messageService, jsonService, thesaurus));
         when(dataModel.getInstance(SubscriberExecutionSpecImpl.class)).thenReturn(new SubscriberExecutionSpecImpl(dataModel, messageService));
@@ -85,7 +85,7 @@ public class AppServerImplTest {
 
     @Test
     public void testCreateSubscriberExecutionSpecIsPersisted() {
-        SubscriberExecutionSpec spec = appServer.createSubscriberExecutionSpec(subscriberSpec, 5);
+        SubscriberExecutionSpecImpl spec = appServer.createSubscriberExecutionSpec(subscriberSpec, 5);
 
         verify(subscriberExecutionSpecFactory).persist(spec);
     }

@@ -283,7 +283,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
         });
     }
 
-    private void doReconfigure(List<SubscriberExecutionSpec> subscriberExecutionSpec) {
+    private void doReconfigure(List<? extends SubscriberExecutionSpec> subscriberExecutionSpec) {
         subscriberExecutionSpec.forEach(this::doReconfigure);
         Set<MessageHandlerFactory> toRemove = executors.keySet().stream()
                 .filter(factory -> subscriberExecutionSpec.stream()

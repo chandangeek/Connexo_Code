@@ -33,6 +33,7 @@ public class AppServerImpl implements AppServer {
     private final MessageService messageService;
     private final JsonService jsonService;
     private final Thesaurus thesaurus;
+    private List<SubscriberExecutionSpecImpl> executionSpecs;
 
     @Inject
 	AppServerImpl(DataModel dataModel, CronExpressionParser cronExpressionParser, MessageService messageService, JsonService jsonService, Thesaurus thesaurus) {
@@ -56,19 +57,22 @@ public class AppServerImpl implements AppServer {
 
     @Override
 	public SubscriberExecutionSpecImpl createSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount) {
-        SubscriberExecutionSpecImpl subscriberExecutionSpec = SubscriberExecutionSpecImpl.from(dataModel, this, subscriberSpec, threadCount);
-        getSubscriberExecutionSpecFactory().persist(subscriberExecutionSpec);
-        sendCommand(new AppServerCommand(Command.CONFIG_CHANGED));
-        return subscriberExecutionSpec;
+        try(BatchUpdateImpl updater = forBatchUpdate()) {
+            return updater.createSubscriberExecutionSpec(subscriberSpec, threadCount);
+        }
     }
 
-    private DataMapper<SubscriberExecutionSpec> getSubscriberExecutionSpecFactory() {
-        return dataModel.mapper(SubscriberExecutionSpec.class);
+    private DataMapper<SubscriberExecutionSpecImpl> getSubscriberExecutionSpecFactory() {
+        return dataModel.mapper(SubscriberExecutionSpecImpl.class);
     }
 
     @Override
-	public List<SubscriberExecutionSpec> getSubscriberExecutionSpecs() {
-    	return getSubscriberExecutionSpecFactory().find("appServer", this);
+	public List<SubscriberExecutionSpecImpl> getSubscriberExecutionSpecs() {
+        List<SubscriberExecutionSpec> specs = null;
+        if (executionSpecs == null) {
+            executionSpecs = getSubscriberExecutionSpecFactory().find("appServer", this);
+        }
+        return executionSpecs;
     }
     
     @Override
@@ -115,29 +119,101 @@ public class AppServerImpl implements AppServer {
     @Override
     public void activate() {
         if (!active) {
-            active = true;
-            dataModel.mapper(AppServer.class).update(this);
-            sendCommand(new AppServerCommand(Command.CONFIG_CHANGED));
+            try (BatchUpdate updater = forBatchUpdate()) {
+                updater.activate();
+            }
         }
     }
 
     @Override
     public void deactivate() {
         if (active) {
-            active = false;
-            dataModel.mapper(AppServer.class).update(this);
+            try (BatchUpdate updater = forBatchUpdate()) {
+                updater.deactivate();
+            }
+        }
+    }
+
+    @Override
+    public void setThreadCount(SubscriberExecutionSpec subscriberExecutionSpec, int threads) {
+        try (BatchUpdate updater = forBatchUpdate()) {
+            updater.setThreadCount(subscriberExecutionSpec, threads);
+        }
+    }
+
+    @Override
+    public BatchUpdateImpl forBatchUpdate() {
+       return new BatchUpdateImpl();
+    }
+
+    private class BatchUpdateImpl implements BatchUpdate {
+
+        boolean needsUpdate = false;
+
+        @Override
+        public SubscriberExecutionSpecImpl createSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount) {
+            SubscriberExecutionSpecImpl subscriberExecutionSpec = SubscriberExecutionSpecImpl.from(dataModel, AppServerImpl.this, subscriberSpec, threadCount);
+            getSubscriberExecutionSpecFactory().persist(subscriberExecutionSpec);
+            return subscriberExecutionSpec;
+        }
+
+        @Override
+        public void removeSubscriberExecutionSpec(SubscriberExecutionSpec subscriberExecutionSpec) {
+            SubscriberExecutionSpecImpl found = getSubscriberExecutionSpec(subscriberExecutionSpec);
+            getSubscriberExecutionSpecFactory().remove(found);
+            executionSpecs.remove(found);
+        }
+
+        @Override
+        public void setRecurrentTaskActive(boolean recurrentTaskActive) {
+            AppServerImpl.this.recurrentTaskActive = recurrentTaskActive;
+            needsUpdate = true;
+        }
+
+        @Override
+        public void setThreadCount(SubscriberExecutionSpec subscriberExecutionSpec, int threads) {
+            SubscriberExecutionSpecImpl executionSpec = getSubscriberExecutionSpec(subscriberExecutionSpec);
+            executionSpec.setThreadCount(threads);
+            executionSpec.update();
+        }
+
+        @Override
+        public void activate() {
+            if (!active) {
+                active = true;
+                needsUpdate = true;
+            }
+        }
+
+        @Override
+        public void deactivate() {
+            if (active) {
+                active = false;
+                needsUpdate = true;
+            }
+        }
+
+        @Override
+        public void close() {
+            if (needsUpdate) {
+                dataModel.mapper(AppServer.class).update(AppServerImpl.this);
+            }
             sendCommand(new AppServerCommand(Command.CONFIG_CHANGED));
         }
     }
 
     @Override
     public void removeSubscriberExecutionSpec(SubscriberExecutionSpec subscriberExecutionSpec) {
-        SubscriberExecutionSpec toRemove = getSubscriberExecutionSpecs().stream()
-                .filter(sp -> sp.getSubscriberSpec().getDestination().getName().equals(subscriberExecutionSpec.getSubscriberSpec().getDestination().getName()))
-                .filter(sp -> sp.getSubscriberSpec().getName().equals(subscriberExecutionSpec.getSubscriberSpec().getName()))
-                .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
-        getSubscriberExecutionSpecFactory().remove(toRemove);
-        sendCommand(new AppServerCommand(Command.CONFIG_CHANGED));
+        try(BatchUpdate updater = forBatchUpdate()) {
+            updater.removeSubscriberExecutionSpec(subscriberExecutionSpec);
+        }
+    }
+
+    private SubscriberExecutionSpecImpl getSubscriberExecutionSpec(SubscriberExecutionSpec subscriberExecutionSpec) {
+        return getSubscriberExecutionSpecs().stream()
+                    .filter(sp -> sp.getSubscriberSpec().getDestination().getName().equals(subscriberExecutionSpec.getSubscriberSpec().getDestination().getName()))
+                    .filter(sp -> sp.getSubscriberSpec().getName().equals(subscriberExecutionSpec.getSubscriberSpec().getName()))
+                    .findFirst()
+                    .orElseThrow(IllegalArgumentException::new);
     }
 }

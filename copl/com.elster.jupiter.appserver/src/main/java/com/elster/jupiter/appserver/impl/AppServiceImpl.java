@@ -78,7 +78,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
     private volatile Thesaurus thesaurus;
 
     private volatile AppServerImpl appServer;
-    private volatile List<SubscriberExecutionSpec> subscriberExecutionSpecs = Collections.emptyList();
+    private volatile List<? extends SubscriberExecutionSpec> subscriberExecutionSpecs = Collections.emptyList();
     private SubscriberSpec allServerSubscriberSpec;
     private final List<Runnable> deactivateTasks = new ArrayList<>();
     private List<CommandListener> commandListeners = new CopyOnWriteArrayList<>();

@@ -11,7 +11,7 @@ public interface AppServer {
 
     String getName();
 
-	List<SubscriberExecutionSpec> getSubscriberExecutionSpecs();
+	List<? extends SubscriberExecutionSpec> getSubscriberExecutionSpecs();
 
 	SubscriberExecutionSpec createSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount);
 
@@ -28,4 +28,26 @@ public interface AppServer {
     void activate();
 
     void deactivate();
+
+    void setThreadCount(SubscriberExecutionSpec subscriberExecutionSpec, int threads);
+
+    BatchUpdate forBatchUpdate();
+
+    interface BatchUpdate extends AutoCloseable {
+
+        SubscriberExecutionSpec createSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount);
+
+        void removeSubscriberExecutionSpec(SubscriberExecutionSpec subscriberExecutionSpec);
+
+        void setRecurrentTaskActive(boolean recurrentTaskActive);
+
+        void setThreadCount(SubscriberExecutionSpec subscriberExecutionSpec, int threads);
+
+        void activate();
+
+        void deactivate();
+
+        @Override
+        void close();
+    }
 }

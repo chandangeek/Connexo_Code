@@ -133,7 +133,7 @@ public class AppServiceImplTest {
         when(dataModel.mapper(AppServer.class)).thenReturn(appServerFactory);
         when(dataModel.mapper(ImportScheduleOnAppServer.class)).thenReturn(importScheduleOnAppServerFactory);
         when(dataModel.isInstalled()).thenReturn(true);
-        when(appServer.getSubscriberExecutionSpecs()).thenReturn(Collections.<SubscriberExecutionSpec>emptyList());
+        doReturn(Collections.<SubscriberExecutionSpec>emptyList()).when(appServer).getSubscriberExecutionSpecs();
         when(importScheduleOnAppServerFactory.find("appServer", appServer)).thenReturn(Collections.<ImportScheduleOnAppServer>emptyList());
         when(appServer.isRecurrentTaskActive()).thenReturn(false);
         when(appServer.messagingName()).thenReturn(MESSAGING_NAME);

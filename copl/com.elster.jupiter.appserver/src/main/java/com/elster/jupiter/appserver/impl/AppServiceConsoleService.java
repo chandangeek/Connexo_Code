@@ -73,10 +73,10 @@ public class AppServiceConsoleService {
                         .filter(subscriber -> subscriber.getSubscriberSpec().getDestination().getName().equals(destinationName))
                         .filter(subscriber -> subscriber.getSubscriberSpec().getName().equals(subscriberName))
                         .findFirst()
+                        .map(SubscriberExecutionSpec.class::cast)
                         .orElseGet(() -> appServer.createSubscriberExecutionSpec(subscriberSpec.get(), threads));
                 if (subscriberExecutionSpec.getThreadCount() != threads) {
-                    subscriberExecutionSpec.setThreadCount(threads);
-                    subscriberExecutionSpec.update();
+                    appServer.setThreadCount(subscriberExecutionSpec, threads);
                 }
             }
         });
