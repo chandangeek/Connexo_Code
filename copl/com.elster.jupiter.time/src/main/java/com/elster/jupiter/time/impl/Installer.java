@@ -1,12 +1,17 @@
 package com.elster.jupiter.time.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsKey;
+import com.elster.jupiter.nls.SimpleNlsKey;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.EventType;
-import com.elster.jupiter.time.security.Privileges;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.time.security.Privileges;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,32 +36,37 @@ public class Installer {
     }
 
     public void install(boolean executeDdl) {
-        try {
-            this.dataModel.install(executeDdl, true);
-        } catch (Exception e) {
-            this.logger.log(Level.SEVERE, e.getMessage(), e);
-        }
-        createTranslations();
-        createPrivileges(userService);
-        createEventTypes();
+        ExceptionCatcher.executing(
+                () -> this.dataModel.install(executeDdl, true),
+                this::createMessageSeedTranslations,
+                this::createLabelTranslations,
+                this::createPrivileges,
+                this::createEventTypes
+        ).andHandleExceptionsWith(e -> logger.log(Level.SEVERE, e.getMessage(), e))
+                .execute();
     }
 
-    private void createPrivileges(UserService userService) {
+    private void createPrivileges() {
         userService.createResourceWithPrivileges("SYS", "period.periods", "period.periods.description", new String[]
                 {Privileges.VIEW_RELATIVE_PERIOD, Privileges.ADMINISTRATE_RELATIVE_PERIOD});
     }
 
-    private void createTranslations() {
-        try {
-            List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
-            for (MessageSeeds messageSeed : MessageSeeds.values()) {
-                SimpleNlsKey nlsKey = SimpleNlsKey.key(TimeService.COMPONENT_NAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
-                translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
-            }
-            thesaurus.addTranslations(translations);
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
+    private void createMessageSeedTranslations() {
+        List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+            SimpleNlsKey nlsKey = SimpleNlsKey.key(TimeService.COMPONENT_NAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
+            translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
         }
+        thesaurus.addTranslations(translations);
+    }
+
+    private void createLabelTranslations() {
+        List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
+        for (Labels label : Labels.values()) {
+            SimpleNlsKey nlsKey = SimpleNlsKey.key(TimeService.COMPONENT_NAME, Layer.DOMAIN, label.getKey()).defaultMessage(label.getDefaultFormat());
+            translations.add(toTranslation(nlsKey, Locale.ENGLISH, label.getDefaultFormat()));
+        }
+        thesaurus.addTranslations(translations);
     }
 
     private Translation toTranslation(SimpleNlsKey nlsKey, Locale locale, String translation) {

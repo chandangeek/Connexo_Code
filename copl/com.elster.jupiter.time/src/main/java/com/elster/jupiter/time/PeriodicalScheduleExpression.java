@@ -1,7 +1,10 @@
 package com.elster.jupiter.time;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
+import java.text.ChoiceFormat;
+import java.text.Format;
 import java.text.MessageFormat;
 import java.time.DayOfWeek;
 import java.time.ZonedDateTime;
@@ -29,6 +32,19 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
         List<String> stringElements();
 
         TemporalUnit getTemporalUnit();
+
+        default String toString(int count, Thesaurus thesaurus) {
+            MessageFormat format = new MessageFormat("");
+            ChoiceFormat choiceFormat = new ChoiceFormat(new double[] {1, 2}, new String[] {getSingular(thesaurus), getPlural(thesaurus)});
+            format.applyPattern("{0}");
+            format.setFormats(new Format[] {choiceFormat});
+            return format.format(new Object[]{count});
+        }
+
+        String getPlural(Thesaurus thesaurus);
+
+        String getSingular(Thesaurus thesaurus);
+
     }
 
     private static class Minutely implements Offset {
@@ -62,6 +78,16 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
             strings.add(period.name());
             strings.add(String.valueOf(secondOfMinute));
             return strings;
+        }
+
+        @Override
+        public String getPlural(Thesaurus thesaurus) {
+            return thesaurus.getString("tme.minutes", "every {0} minutes");
+        }
+
+        @Override
+        public String getSingular(Thesaurus thesaurus) {
+            return thesaurus.getString("tme.minute", "every minute");
         }
 
         @Override
@@ -100,6 +126,16 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
             List<String> strings = super.stringElements();
             strings.add(String.valueOf(minuteOfHour));
             return strings;
+        }
+
+        @Override
+        public String getPlural(Thesaurus thesaurus) {
+            return thesaurus.getString("tme.hours", "every {0} hours");
+        }
+
+        @Override
+        public String getSingular(Thesaurus thesaurus) {
+            return thesaurus.getString("tme.hour", "every hour");
         }
 
         @Override
@@ -142,6 +178,16 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
         }
 
         @Override
+        public String getPlural(Thesaurus thesaurus) {
+            return thesaurus.getString("tme.days", "every {0} days");
+        }
+
+        @Override
+        public String getSingular(Thesaurus thesaurus) {
+            return thesaurus.getString("tme.day", "every day");
+        }
+
+        @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
@@ -150,7 +196,6 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
             Daily daily = (Daily) o;
 
             return hourOfDay == daily.hourOfDay;
-
         }
 
         @Override
@@ -177,6 +222,16 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
             List<String> strings = super.stringElements();
             strings.add(dayOfWeek.name());
             return strings;
+        }
+
+        @Override
+        public String getPlural(Thesaurus thesaurus) {
+            return thesaurus.getString("tme.weeks", "every {0} weeks");
+        }
+
+        @Override
+        public String getSingular(Thesaurus thesaurus) {
+            return thesaurus.getString("tme.week", "every week");
         }
 
         @Override
@@ -218,6 +273,16 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
         }
 
         @Override
+        public String getPlural(Thesaurus thesaurus) {
+            return thesaurus.getString("tme.months", "every {0} months");
+        }
+
+        @Override
+        public String getSingular(Thesaurus thesaurus) {
+            return thesaurus.getString("tme.month", "every month");
+        }
+
+        @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
@@ -254,6 +319,16 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
             List<String> strings = super.stringElements();
             strings.add(String.valueOf(monthOfYear));
             return strings;
+        }
+
+        @Override
+        public String getPlural(Thesaurus thesaurus) {
+            return thesaurus.getString("tme.years", "every {0} years");
+        }
+
+        @Override
+        public String getSingular(Thesaurus thesaurus) {
+            return thesaurus.getString("tme.year", "every year");
         }
 
         @Override
@@ -511,6 +586,10 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
     @Override
     public String toString() {
         return encoded();
+    }
+
+    public String toString(Thesaurus timeServicesThesaurus) {
+        return offset.toString(count, timeServicesThesaurus);
     }
 
     private static void checkRange(int actual, int lower, int upper) {

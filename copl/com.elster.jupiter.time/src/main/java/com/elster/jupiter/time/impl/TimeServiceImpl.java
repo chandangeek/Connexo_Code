@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
@@ -143,6 +144,11 @@ public class TimeServiceImpl implements TimeService, InstallService {
     @Override
     public void install() {
         new Installer(dataModel, thesaurus, userService, eventService).install(true);
+    }
+
+    @Override
+    public String toLocalizedString(PeriodicalScheduleExpression expression) {
+        return expression.toString(thesaurus);
     }
 
     @Reference

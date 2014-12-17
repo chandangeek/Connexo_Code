@@ -19,4 +19,6 @@ public interface TimeService {
     List<RelativePeriodCategory> getRelativePeriodCategories();
 
     Query<? extends RelativePeriod> getRelativePeriodQuery();
+
+    String toLocalizedString(PeriodicalScheduleExpression expression);
 }
