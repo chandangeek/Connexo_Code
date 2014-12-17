@@ -103,6 +103,7 @@ public class AppServerResource {
         AppServer appServer = fetchAppServer(info.name);
         try(TransactionContext context = transactionService.getContext()) {
             AppServer.BatchUpdate batchUpdate = appServer.forBatchUpdate();
+            //TODO
             context.commit();
         }
         return Response.status(Response.Status.CREATED).entity(AppServerInfo.of(appServer)).build();
