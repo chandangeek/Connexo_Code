@@ -12,6 +12,7 @@ Ext.define('Mdc.model.Channel', {
         {name: 'unitOfMeasure', type: 'auto', useNull: true},
         'measurementType',
         {name: 'readingType', mapping: 'measurementType.readingType'},
+        {name: 'calculatedReadingType', mapping: 'measurementType.calculatedReadingType'},
         {name: 'nbrOfFractionDigits', type: 'int'}
     ],
     idProperty: 'id',

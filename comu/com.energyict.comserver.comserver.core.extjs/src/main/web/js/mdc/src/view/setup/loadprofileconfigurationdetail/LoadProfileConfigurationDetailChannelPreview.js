@@ -34,6 +34,11 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                             name: 'readingType'
                         },
                         {
+                            xtype: 'reading-type-displayfield',
+                            name: 'calculatedReadingType',
+                            hidden: true
+                        },
+                        {
                             xtype: 'obis-displayfield',
                             name: 'overruledObisCode'
                         },

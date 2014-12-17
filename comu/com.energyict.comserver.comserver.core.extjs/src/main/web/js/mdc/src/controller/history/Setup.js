@@ -149,14 +149,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 generalattributes: {
                                                     title: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
                                                     route: 'generalattributes',
-                                                    privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
+                                                    privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                                                     controller: 'Mdc.controller.setup.GeneralAttributes',
                                                     action: 'showGeneralAttributesView',
                                                     items: {
                                                         edit: {
                                                             title: Uni.I18n.translate('deviceconfiguration.generalAttributes.edit', 'MDC', 'Edit general attributes'),
                                                             route: 'edit',
-                                                            privileges: ['privilege.administrate.deviceConfiguration'],
+                                                            privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.GeneralAttributes',
                                                             action: 'showEditGeneralAttributesView'
                                                         }
@@ -410,13 +410,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     title: 'Validation rule sets',
                                                     route: 'validationrulesets',
                                                     controller: 'Mdc.controller.setup.ValidationRuleSets',
-                                                    privileges:['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration'],
+                                                    privileges:['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
                                                     action: 'showValidationRuleSetsOverview',
                                                     items: {
                                                         add: {
                                                             title: 'Add validation rule sets',
                                                             route: 'add',
                                                             controller: 'Mdc.controller.setup.ValidationRuleSets',
+                                                            privileges:['privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
                                                             action: 'showAddValidationRuleSets'
                                                         }
                                                     }
@@ -929,14 +930,15 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Commands',
                             route: 'commands',
                             controller: 'Mdc.controller.setup.DeviceCommands',
-                            privileges: ['privilege.administrate.device', 'privilege.view.device'],
+                            privileges: ['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication',
+                                'execute.device.message.level1','execute.device.message.level2','execute.device.message.level3','execute.device.message.level4'],
                             action: 'showOverview',
                             items: {
                                 add: {
                                     title: 'Add command',
                                     route: 'add',
                                     controller: 'Mdc.controller.setup.DeviceCommands',
-                                    privileges: ['privilege.administrate.device', 'privilege.view.device'],
+                                    privileges: ['execute.device.message.level1','execute.device.message.level2','execute.device.message.level3','execute.device.message.level4'],
                                     action: 'showAddOverview'
                                 }
                             }
@@ -1113,7 +1115,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Data validation',
                             route: 'datavalidation',
                             controller: 'Mdc.controller.setup.DeviceDataValidation',
-                            privileges: ['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration'],
+                            privileges: ['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDevice'],
                             action: 'showDeviceDataValidationMainView'
                         },
                         communicationschedules: {
@@ -1323,12 +1325,17 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Security settings',
                             route: 'securitysettings',
                             controller: 'Mdc.controller.setup.DeviceSecuritySettings',
+                            privileges: ['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication',
+                                'view.device.security.properties.level1','view.device.security.properties.level2','view.device.security.properties.level3','view.device.security.properties.level4',
+                                'edit.device.security.properties.level1','edit.device.security.properties.level2','edit.device.security.properties.level3','edit.device.security.properties.level4'],
                             action: 'showDeviceSecuritySettings',
                             items: {
                                 edit: {
                                     title: 'Edit security setting',
                                     route: '{securitySettingId}/edit',
                                     controller: 'Mdc.controller.setup.DeviceSecuritySettings',
+                                    privileges: ['view.device.security.properties.level1','view.device.security.properties.level2','view.device.security.properties.level3','view.device.security.properties.level4',
+                                                'edit.device.security.properties.level1','edit.device.security.properties.level2','edit.device.security.properties.level3','edit.device.security.properties.level4'],
                                     action: 'showDeviceSecuritySettingEditView',
                                     callback: function (route) {
                                         this.getApplication().on('loadDeviceSecuritySetting', function (record) {

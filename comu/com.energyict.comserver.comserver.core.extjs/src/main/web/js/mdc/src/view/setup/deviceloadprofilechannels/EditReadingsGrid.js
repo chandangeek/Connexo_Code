@@ -23,9 +23,8 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.EditReadingsGrid', {
 
     initComponent: function () {
         var me = this,
-            readingType = me.channel.get('cimReadingType'),
-            measurementType = me.channel.get('unitOfMeasure_formatted'),
-            accumulationBehavior;
+            calculatedReadingType = me.channel.get('calculatedReadingType'),
+            measurementType = me.channel.get('unitOfMeasure_formatted');
 
         me.columns = [
             {
@@ -82,6 +81,16 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.EditReadingsGrid', {
                 header: '',
                 dataIndex: 'modificationState',
                 width: 30
+            },
+            {
+                header: Uni.I18n.translate('deviceloadprofiles.channels.bulkValue', 'MDC', 'Bulk value') + ' (' + measurementType + ')',
+                dataIndex: 'collectedValue',
+                flex: 1,
+                align: 'right',
+                hidden: Ext.isEmpty(calculatedReadingType),
+                renderer: function (value) {
+                    return !Ext.isEmpty(value) ? value : '';
+                }
             },
             {
                 xtype: 'interval-flags-column',
