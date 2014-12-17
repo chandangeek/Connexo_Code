@@ -1152,7 +1152,7 @@ public class DeviceImpl implements Device, CanLock {
                                 //code below is the processing of removed readings
                                 Optional<? extends ReadingQuality> readingQuality = s.getReadingQualities().stream().filter(rq -> rq.getType().equals(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED))).findAny();
                                 if (readingQuality.isPresent()) {
-                                    loadProfileReading.setReadingTime(((ReadingQualityRecord)readingQuality.get()).getTimestamp());
+                                    loadProfileReading.setReadingTime(((ReadingQualityRecord) readingQuality.get()).getTimestamp());
                                 }
                             }
                         });
@@ -1723,6 +1723,20 @@ public class DeviceImpl implements Device, CanLock {
     @Override
     public DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId) {
         return new InternalDeviceMessageBuilder(deviceMessageId);
+    }
+
+    public Optional<com.elster.jupiter.metering.Channel> getKoreChannel(Channel mdcChannel){
+        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
+        if (amrSystem.isPresent()) {
+            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
+            if (meter.isPresent()) {
+                return this.getSortedMeterActivations(meter.get(), Interval.sinceEpoch()).stream()
+                        .flatMap(ma -> ma.getChannels().stream())
+                        .filter(c -> c.getReadingTypes().contains(mdcChannel.getReadingType()))
+                        .findFirst();
+            }
+        }
+        return Optional.empty();
     }
 
     private class InternalDeviceMessageBuilder implements DeviceMessageBuilder{
