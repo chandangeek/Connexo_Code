@@ -40,6 +40,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -117,9 +118,9 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
             @Override
             protected void configure() {
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(ConnectionTaskService.class).toInstance(connectionTaskService);
                 bind(CommunicationTaskService.class).toInstance(communicationTaskService);
-                bind(Thesaurus.class).toInstance(thesaurus);
                 bind(TopologyService.class).toInstance(TopologyServiceImpl.this);
                 bind(ServerTopologyService.class).toInstance(TopologyServiceImpl.this);
             }
