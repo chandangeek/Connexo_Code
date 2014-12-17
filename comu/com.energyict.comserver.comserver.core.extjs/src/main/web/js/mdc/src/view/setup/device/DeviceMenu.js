@@ -55,73 +55,81 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 hrefTarget: '_self'
             });
         }
-        this.add({
-            text: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
-            itemId: 'deviceGeneralAttributesLink',
-            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
-            href: '#/devices/' + mRID + '/generalattributes',
-            hrefTarget: '_self'
-        });
-        this.add({
-            text: Uni.I18n.translate('devicemenu.connectionMethods', 'MDC', 'Connection methods'),
-            itemId: 'connectionMethodsLink',
-            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
-            href: '#/devices/' + mRID + '/connectionmethods',
-            hrefTarget: '_self'
-        });
-        this.add({
-            text: Uni.I18n.translate('devicemenu.protocols', 'MDC', 'Protocol dialects'),
-            itemId: 'protocolLink',
-            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
-            href: '#/devices/' + mRID + '/protocols',
-            hrefTarget: '_self'
-        });
-        this.add({
-            text: Uni.I18n.translate('devicemenu.communicationTasks', 'MDC', 'Communication tasks'),
-            itemId: 'communicationTasksLink',
-            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
-            href: '#/devices/' + mRID + '/communicationtasks',
-            hrefTarget: '_self'
-        });
-        this.add({
-            text: Uni.I18n.translate('devicemenu.communicationPlanning', 'MDC', 'Communication planning'),
-            itemId: 'communicationSchedulesLink',
-            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
-            href: '#/devices/' + mRID + '/communicationplanning',
-            hrefTarget: '_self'
-        });
-        this.add({
-            text: Uni.I18n.translate('devicemenu.commands', 'MDC', 'Commands'),
-            itemId: 'deviceCommands',
-            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
-            href: '#/devices/' + mRID + '/commands',
-            hrefTarget: '_self'
-        });
-        if (this.device.get('hasLogBooks') || this.device.get('hasLoadProfiles') || this.device.get('hasRegisters')) {
+        if (Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'])) {
+            this.add({
+                text: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
+                itemId: 'deviceGeneralAttributesLink',
+                href: '#/devices/' + mRID + '/generalattributes',
+                hrefTarget: '_self'
+            });
+        }
+        if (Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'])) {
+            this.add({
+                text: Uni.I18n.translate('devicemenu.connectionMethods', 'MDC', 'Connection methods'),
+                itemId: 'connectionMethodsLink',
+                href: '#/devices/' + mRID + '/connectionmethods',
+                hrefTarget: '_self'
+            });
+        }
+        if (Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'])) {
+            this.add({
+                text: Uni.I18n.translate('devicemenu.protocols', 'MDC', 'Protocol dialects'),
+                itemId: 'protocolLink',
+                href: '#/devices/' + mRID + '/protocols',
+                hrefTarget: '_self'
+            });
+        }
+        if (Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'])) {
+            this.add({
+                text: Uni.I18n.translate('devicemenu.communicationTasks', 'MDC', 'Communication tasks'),
+                itemId: 'communicationTasksLink',
+                href: '#/devices/' + mRID + '/communicationtasks',
+                hrefTarget: '_self'
+            });
+        }
+        if (Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'])) {
+            this.add({
+                text: Uni.I18n.translate('devicemenu.communicationPlanning', 'MDC', 'Communication planning'),
+                itemId: 'communicationSchedulesLink',
+                href: '#/devices/' + mRID + '/communicationplanning',
+                hrefTarget: '_self'
+            });
+        }
+        if (Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication',
+            'execute.device.message.level1','execute.device.message.level3','execute.device.message.level2','execute.device.message.level4'])) {
+            this.add({
+                text: Uni.I18n.translate('devicemenu.commands', 'MDC', 'Commands'),
+                itemId: 'deviceCommands',
+                href: '#/devices/' + mRID + '/commands',
+                hrefTarget: '_self'
+            });
+        }
+        if ((this.device.get('hasLogBooks') || this.device.get('hasLoadProfiles') || this.device.get('hasRegisters')) && Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDevice'])) {
             this.add({
                 text: Uni.I18n.translate('devicemenu.dataValidation', 'MDC', 'Data validation'),
                 itemId: 'dataValidationLink',
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDevice']),
                 href: '#/devices/' + mRID + '/datavalidation',
                 hrefTarget: '_self'
             });
         }
-        this.add({
-            text: Uni.I18n.translate('devicemenu.security', 'MDC', 'Security settings'),
-            itemId: 'securitySettingLink',
-            href: '#/devices/' + mRID + '/securitysettings',
-            hrefTarget: '_self'
-        });
-        if (this.device.get('gatewayType') === 'LAN') {
+        if (Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication',
+            'view.device.security.properties.level1','view.device.security.properties.level2','view.device.security.properties.level3','view.device.security.properties.level4',
+            'edit.device.security.properties.level1','edit.device.security.properties.level2','edit.device.security.properties.level3','edit.device.security.properties.level4'])){
+            this.add({
+                text: Uni.I18n.translate('devicemenu.security', 'MDC', 'Security settings'),
+                itemId: 'securitySettingLink',
+                href: '#/devices/' + mRID + '/securitysettings',
+                hrefTarget: '_self'
+            });
+        }
+        if (this.device.get('gatewayType') === 'LAN' && Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'])) {
             this.add({
                 text: Uni.I18n.translate('deviceCommunicationTopology.topologyTitle', 'MDC', 'Communication topology'),
                 itemId: 'topologyLink',
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
                 href: '#/devices/' + mRID + '/topology',
                 hrefTarget: '_self'
             });
         }
-
 
         this.toggleByItemId(this.toggleId);
         this.setTitle(mRID);
