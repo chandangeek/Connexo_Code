@@ -2,6 +2,8 @@ package com.energyict.mdc.device.topology.impl;
 
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.topology.CommunicationPathSegment;
+import com.energyict.mdc.device.topology.G3DeviceAddressInformation;
+import com.energyict.mdc.device.topology.PLCNeighbor;
 
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
@@ -9,6 +11,7 @@ import com.elster.jupiter.orm.Table;
 
 import java.util.List;
 
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
@@ -76,6 +79,63 @@ public enum TableSpecs {
                     references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
                     onDelete(CASCADE).
                     map(CommunicationPathSegmentImpl.Field.NEXT_HOP.fieldName()).
+                    add();
+        }
+    },
+
+    DTL_PLCNEIGHBOR {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<PLCNeighbor> table = dataModel.addTable(name(), PLCNeighbor.class);
+            table.map(PLCNeighborImpl.IMPLEMENTERS);
+            Column device = table.column("DEVICE").notNull().number().conversion(NUMBER2LONG).add();
+            Column neighbor = table.column("NEIGHBOR").notNull().number().conversion(NUMBER2LONG).add();
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
+            table.addAuditColumns();
+            table.addDiscriminatorColumn("DISCRIMINATOR", "number");
+            table.column("MODULATION_SCHEME").number().conversion(NUMBER2ENUM).notNull().map(PLCNeighborImpl.Field.MODULATION_SCHEME.fieldName()).add();
+            table.column("MODULATION").number().conversion(NUMBER2ENUM).notNull().map(PLCNeighborImpl.Field.MODULATION.fieldName()).add();
+            table.column("TXGAIN").number().conversion(NUMBER2INT).map(PLCNeighborImpl.Field.TX_GAIN.fieldName()).add();
+            table.column("TXRES").number().conversion(NUMBER2INT).map(PLCNeighborImpl.Field.TX_RESOLUTION.fieldName()).add();
+            table.column("TXCOEFF").number().conversion(NUMBER2INT).map(PLCNeighborImpl.Field.TX_COEFFICIENT.fieldName()).add();
+            table.column("TXLQI").number().conversion(NUMBER2INT).map(PLCNeighborImpl.Field.LINK_QUALITY_INDICATOR.fieldName()).add();
+            table.column("TIMETOLIVE_SECS").number().conversion(NUMBER2LONG).map(PLCNeighborImpl.Field.TIME_TO_LIVE.fieldName()).add();
+            table.column("TONEMAP").number().conversion(NUMBER2LONG).map(PLCNeighborImpl.Field.TONE_MAP.fieldName()).add();
+            table.column("TM_TIMETOLIVE_SECS").number().conversion(NUMBER2LONG).map(PLCNeighborImpl.Field.TONE_MAP_TIME_TO_LIVE.fieldName()).add();
+            table.column("PHASEINFO").number().conversion(NUMBER2ENUM).map(PLCNeighborImpl.Field.PHASE_INFO.fieldName()).add();
+            table.primaryKey("PK_DTL_PLCNEIGHBOR").on(device, neighbor, intervalColumns.get(0)).add();
+            table.foreignKey("FK_DTL_PLCNEIGHBOR_DEV").
+                    on(device).
+                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
+                    onDelete(CASCADE).
+                    map(PLCNeighborImpl.Field.DEVICE.fieldName()).
+                    add();
+            table.foreignKey("FK_DTL_PLCNEIGHBOR_NEIGHBOR").
+                    on(neighbor).
+                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
+                    onDelete(CASCADE).
+                    map(PLCNeighborImpl.Field.NEIGHBOR.fieldName()).
+                    add();
+        }
+    },
+
+    DTL_G3DEVICEADDRESS {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<G3DeviceAddressInformation> table = dataModel.addTable(name(), G3DeviceAddressInformation.class);
+            table.map(G3DeviceAddressInformationImpl.class);
+            Column device = table.column("DEVICE").notNull().number().conversion(NUMBER2LONG).add();
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
+            table.addAuditColumns();
+            table.column("IPV6ADDRESS").varChar().notNull().map(G3DeviceAddressInformationImpl.Field.IPV6_ADDRESS.fieldName()).add();
+            table.column("SHORTIPV6ADDRESS").number().conversion(NUMBER2INT).notNull().map(G3DeviceAddressInformationImpl.Field.IPV6_SHORT_ADDRESS.fieldName()).add();
+            table.column("LOGICALDEVICEID").number().conversion(NUMBER2INT).notNull().map(G3DeviceAddressInformationImpl.Field.LOGICAL_DEVICE_ID.fieldName()).add();
+            table.primaryKey("PK_DTL_G3ADDRESSINFO").on(device, intervalColumns.get(0)).add();
+            table.foreignKey("FK_DTL_G3ADDRESSINFO_DEVICE").
+                    on(device).
+                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
+                    onDelete(CASCADE).
+                    map(G3DeviceAddressInformationImpl.Field.DEVICE.fieldName()).
                     add();
         }
     }

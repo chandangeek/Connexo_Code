@@ -90,6 +90,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
+import javax.validation.MessageInterpolator;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.Principal;
@@ -348,8 +349,12 @@ public class InMemoryIntegrationPersistence {
         return schedulingService;
     }
 
-    public DataModel getDataModel() {
+    public DataModel getDeviceDataModel() {
         return this.deviceDataModelService.dataModel();
+    }
+
+    public DataModel getTopologyDataModel() {
+        return this.topologyService.dataModel();
     }
 
     public Thesaurus getThesaurus() {

@@ -22,6 +22,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DEVICE_CANNOT_BE_PHYSICAL_GATEWAY_FOR_ITSELF(102, Keys.DEVICE_CANNOT_BE_PHYSICAL_GATEWAY_FOR_ITSELF, "A device cannot be its own gateway", Level.SEVERE),
     @SuppressWarnings("unused")
     COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE(103, Keys.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE, "You can not make comtaskexecution {0} for device {1} obsolete because it is currently execution on comserver {2}", Level.SEVERE),
+    INVALID_IPV6_ADDRESS(104, Keys.INVALID_IPV6_ADDRESS, "Invalid IPv6 address", Level.SEVERE),
     ;
 
     private final int number;
@@ -69,6 +70,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY = "device.delete.linked.communication.gateway";
         public static final String DEVICE_CANNOT_BE_PHYSICAL_GATEWAY_FOR_ITSELF = "gateway.not.origin";
         public static final String COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE = "comTaskExecutionCannotObsoleteCurrentlyExecuting";
+        public static final String INVALID_IPV6_ADDRESS = "g3.ipv6Adress.invalid";
     }
 
 }
