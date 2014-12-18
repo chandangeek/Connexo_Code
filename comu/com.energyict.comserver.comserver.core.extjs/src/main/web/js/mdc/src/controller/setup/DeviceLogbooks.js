@@ -71,7 +71,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
 
         switch (item.action) {
             case 'viewEvents':
-                route = 'devices/device/logbooks/logbook/events';
+                route = 'devices/device/logbooks/logbook/data';
                 break;
             case 'viewDetails':
                 route = 'devices/device/logbooks/logbook/overview';
