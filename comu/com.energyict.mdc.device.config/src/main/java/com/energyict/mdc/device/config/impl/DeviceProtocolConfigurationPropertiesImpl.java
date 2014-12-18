@@ -10,7 +10,6 @@ import com.elster.jupiter.properties.ValueFactory;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link DeviceProtocolConfigurationProperties} interface.
@@ -78,35 +77,13 @@ public class DeviceProtocolConfigurationPropertiesImpl implements DeviceProtocol
     }
 
     private TypedProperties initializeProperties() {
-        Optional<TypedProperties> defaultProperties = this.getDefaultProperties();
-        TypedProperties properties;
-        if (defaultProperties.isPresent()) {
-            properties = TypedProperties.inheritingFrom(defaultProperties.get());
-        }
-        else {
-            properties = TypedProperties.empty();
-        }
+        TypedProperties defaultProperties = this.deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().getProperties();
+        TypedProperties properties = TypedProperties.inheritingFrom(defaultProperties);
         for (DeviceProtocolConfigurationProperty property : this.deviceConfiguration.getProtocolPropertyList()) {
             ValueFactory<?> valueFactory = this.getPropertySpec(property.getName()).getValueFactory();
             properties.setProperty(property.getName(), valueFactory.fromStringValue(property.getValue()));
         }
         return properties;
-    }
-
-    private Optional<TypedProperties> getDefaultProperties() {
-        List<PropertySpec> specsWithDefault = this.getPropertySpecs()
-                .stream()
-                .filter(s -> s.getPossibleValues() != null)
-                .filter(s -> s.getPossibleValues().getDefault() != null)
-                .collect(Collectors.toList());
-        if (specsWithDefault.isEmpty()) {
-            return Optional.empty();
-        }
-        else {
-            TypedProperties defaultProperties = TypedProperties.empty();
-            specsWithDefault.forEach(s -> defaultProperties.setProperty(s.getName(), s.getPossibleValues().getDefault()));
-            return Optional.of(defaultProperties);
-        }
     }
 
     @Override
