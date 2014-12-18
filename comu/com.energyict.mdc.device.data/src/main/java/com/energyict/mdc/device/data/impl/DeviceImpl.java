@@ -960,7 +960,7 @@ public class DeviceImpl implements Device, CanLock {
                                 //code below is the processing of removed readings
                                 Optional<? extends ReadingQuality> readingQuality = s.getReadingQualities().stream().filter(rq -> rq.getType().equals(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED))).findAny();
                                 if (readingQuality.isPresent()) {
-                                    loadProfileReading.setReadingTime(((ReadingQualityRecord)readingQuality.get()).getTimestamp());
+                                    loadProfileReading.setReadingTime(((ReadingQualityRecord) readingQuality.get()).getTimestamp());
                                 }
                             }
                         });
