@@ -716,7 +716,11 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public List<ComTaskExecution> findComTasksByDefaultConnectionTask(Device device) {
-        return this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).find(ComTaskExecutionFields.DEVICE.fieldName(), device, ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName(), true);
+        return this.deviceDataModelService.dataModel()
+                .query(ComTaskExecution.class)
+                .select( where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device)
+                    .and(where(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).isEqualTo(true))
+                    .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull()));
     }
 
     @Override

@@ -60,7 +60,6 @@ public class Installer {
         }
         try {
             this.createPrivileges();
-            this.assignPrivilegesToDefaultRoles();
         } catch (Exception e) {
             this.logger.severe(e.getMessage());
         }
@@ -72,6 +71,7 @@ public class Installer {
     }
 
     private void createKpiCalculatorDestination() {
+
         DestinationSpec destination =
                 this.messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get().
                         createDestinationSpec(
@@ -82,20 +82,11 @@ public class Installer {
     }
 
     private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", "device.devices", "device.devices.description", new String[]{Privileges.ADMINISTRATE_DEVICE, Privileges.VIEW_DEVICE, Privileges.VALIDATE_MANUAL, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION, Privileges.SCHEDULE_DEVICE});
+        this.userService.createResourceWithPrivileges("MDC", "device.devices", "device.devices.description", new String[]{Privileges.ADD_DEVICE, Privileges.VIEW_DEVICE, Privileges.REMOVE_DEVICE});
+        this.userService.createResourceWithPrivileges("MDC", "deviceData.deviceData", "deviceData.deviceData.description", new String[]{Privileges.ADMINISTRATE_DEVICE_DATA});
+        this.userService.createResourceWithPrivileges("MDC", "deviceCommunication.deviceCommunications", "deviceCommunication.deviceCommunications.description", new String[]{Privileges.ADMINISTRATE_DEVICE_COMMUNICATION,Privileges.OPERATE_DEVICE_COMMUNICATION});
         this.userService.createResourceWithPrivileges("MDC", "deviceGroup.deviceGroups", "deviceGroup.deviceGroups.description", new String[]{Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL});
-        this.userService.createResourceWithPrivileges("MDC", "inventoryManagement.inventoryManagements", "inventoryManagement.inventoryManagements.description", new String[]{Privileges.IMPORT_INVENTORY_MANAGEMENT, Privileges.REVOKE_INVENTORY_MANAGEMENT, Privileges.CREATE_INVENTORY_MANAGEMENT});
-        this.userService.createResourceWithPrivileges("MDC", "deviceSecurity.deviceSecurities", "deviceSecurity.deviceSecurities.description", new String[]{Privileges.ADMINISTRATE_DEVICE_SECURITY, Privileges.VIEW_DEVICE_SECURITY});
-    }
-
-    private void assignPrivilegesToDefaultRoles() {
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[]{
-                Privileges.ADMINISTRATE_DEVICE, Privileges.VIEW_DEVICE, Privileges.VALIDATE_MANUAL, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION, Privileges.SCHEDULE_DEVICE,
-                Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL,
-                Privileges.IMPORT_INVENTORY_MANAGEMENT, Privileges.REVOKE_INVENTORY_MANAGEMENT, Privileges.CREATE_INVENTORY_MANAGEMENT,
-                Privileges.ADMINISTRATE_DEVICE_SECURITY, Privileges.VIEW_DEVICE_SECURITY
-        });
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_OPERATOR_ROLE, new String[]{Privileges.VIEW_DEVICE});
+        this.userService.createResourceWithPrivileges("MDC", "inventoryManagement.inventoryManagements", "inventoryManagement.inventoryManagements.description", new String[]{Privileges.IMPORT_INVENTORY_MANAGEMENT, Privileges.REVOKE_INVENTORY_MANAGEMENT});
     }
 
     private void createMessageHandlers() {

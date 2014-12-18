@@ -258,5 +258,14 @@ public class LoadProfileImpl implements LoadProfile {
             return LoadProfileImpl.this.device.get().getChannelData(this, interval);
         }
 
+        @Override
+        public Optional<Instant> getLastDateTime() {
+            Optional<com.elster.jupiter.metering.Channel> koreChannel = LoadProfileImpl.this.device.get().findKoreChannel(this, Instant.now());
+            if (koreChannel.isPresent()) {
+                return Optional.of(koreChannel.get().getLastDateTime());
+            }
+            return Optional.<Instant>empty();
+        }
+
     }
 }
