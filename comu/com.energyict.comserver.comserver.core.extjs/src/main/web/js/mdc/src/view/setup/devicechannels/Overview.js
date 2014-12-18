@@ -110,7 +110,7 @@ Ext.define('Mdc.view.setup.devicechannels.Overview', {
                                                 var res = '',
                                                     device;
                                                 if (value instanceof Mdc.model.LoadProfileOfDevice) {
-                                                    var url = me.router.getRoute('devices/device/loadprofiles/loadprofile/data').buildUrl({mRID: me.mRID, loadProfileId: value.get('id')});
+                                                    var url = me.router.getRoute('devices/device/loadprofiles/loadprofiledata').buildUrl({mRID: me.mRID, loadProfileId: value.get('id')});
                                                     res = '<a href="' + url + '">' + value.get('name') + '</a>';
                                                 } else if (Ext.isNumber(value)) {
                                                     var loadProfile = Mdc.model.LoadProfileOfDevice;
