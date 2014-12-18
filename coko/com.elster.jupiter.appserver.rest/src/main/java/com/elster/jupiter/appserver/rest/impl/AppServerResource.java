@@ -11,6 +11,8 @@ import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.collections.Zipper;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 
@@ -18,6 +20,7 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -95,18 +98,63 @@ public class AppServerResource {
         return Response.status(Response.Status.CREATED).entity(AppServerInfo.of(appServer)).build();
     }
 
-    @POST
+    @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{appserverName}")
     public Response updateAppServer(AppServerInfo info) {
         AppServer appServer = fetchAppServer(info.name);
         try(TransactionContext context = transactionService.getContext()) {
-            AppServer.BatchUpdate batchUpdate = appServer.forBatchUpdate();
-            //TODO
+            doUpdateAppServer(info, appServer);
             context.commit();
         }
         return Response.status(Response.Status.CREATED).entity(AppServerInfo.of(appServer)).build();
+    }
+
+    private void doUpdateAppServer(AppServerInfo info, AppServer appServer) {
+        Zipper<SubscriberExecutionSpec, SubscriberExecutionSpecInfo> zipper = new Zipper<>((s, i) -> i.matches(s));
+        List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairs = zipper.zip(appServer.getSubscriberExecutionSpecs(), info.executionSpecs);
+
+        try (AppServer.BatchUpdate updater = appServer.forBatchUpdate()) {
+            doThreadUpdates(pairs, updater);
+            doRemovals(pairs, updater);
+            doAdditions(pairs, updater);
+
+            if (info.active) {
+                updater.activate();
+            } else {
+                updater.deactivate();
+            }
+        }
+    }
+
+    private void doAdditions(List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairs, AppServer.BatchUpdate updater) {
+        List<Pair<SubscriberSpec, SubscriberExecutionSpecInfo>> toAdd = pairs.stream()
+                .filter(pair -> pair.getFirst() == null)
+                .map(pair -> pair.withFirst((f, l) -> messageService.getSubscriberSpec(l.subscriberSpec.destination, l.subscriberSpec.subsriber).orElse(null)))
+                .collect(Collectors.toList());
+
+        if (toAdd.stream().anyMatch(pair -> pair.getFirst() == null)) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
+        toAdd.forEach(pair -> updater.createSubscriberExecutionSpec(pair.getFirst(), pair.getLast().numberOfThreads));
+    }
+
+    private void doRemovals(List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairs, AppServer.BatchUpdate updater) {
+        pairs.stream()
+                .filter(pair -> pair.getLast() == null)
+                .map(Pair::getFirst)
+                .forEach(updater::removeSubscriberExecutionSpec);
+    }
+
+    private void doThreadUpdates(List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairs, AppServer.BatchUpdate updater) {
+        pairs.stream()
+                .filter(pair -> pair.getFirst() != null)
+                .filter(pair -> pair.getLast() != null)
+                .filter(pair -> pair.getFirst().getThreadCount() != pair.getLast().numberOfThreads)
+                .map(pair -> pair.withLast((f, l) -> l.numberOfThreads))
+                .forEach(pair -> updater.setThreadCount(pair.getFirst(), pair.getLast()));
     }
 
     @GET

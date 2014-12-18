@@ -18,4 +18,8 @@ public class SubscriberExecutionSpecInfo {
     public static SubscriberExecutionSpecInfo of(SubscriberExecutionSpec executionSpec) {
         return new SubscriberExecutionSpecInfo(SubscriberSpecInfo.of(executionSpec), executionSpec.getThreadCount());
     }
+
+    public boolean matches(SubscriberExecutionSpec executionSpec) {
+        return subscriberSpec != null && executionSpec != null && subscriberSpec.matches(executionSpec.getSubscriberSpec());
+    }
 }

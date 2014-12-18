@@ -31,4 +31,8 @@ public class SubscriberSpecInfo {
     public String getSubsriber() {
         return subsriber;
     }
+
+    public boolean matches(SubscriberSpec subscriberSpec) {
+        return subscriberSpec.getName().equals(subsriber) && subscriberSpec.getDestination().getName().equals(destination);
+    }
 }
