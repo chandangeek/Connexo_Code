@@ -1,6 +1,11 @@
 Ext.define('Yfn.controller.history.YellowfinReports', {
     extend: 'Uni.controller.history.Converter',
 
+    requires: [
+        'Yfn.controller.YellowfinReportsController',
+        'Yfn.controller.setup.GenerateReportWizard'
+    ],
+
     rootToken: 'reports',
     previousPath: '',
     currentPath: null,
