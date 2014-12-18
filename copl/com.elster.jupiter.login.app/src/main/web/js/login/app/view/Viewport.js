@@ -83,9 +83,43 @@ Ext.define('Login.view.Viewport', {
                             itemId: 'loginButton',
                             text: 'Login'
                         }
+
                     ]
                 }
             ]
+        },
+        {
+            xtype: 'container',
+
+            defaults: {
+                xtype: 'button',
+                margin: '50 0 0 0'
+            },
+            maxWidth: 500,
+            items: [
+                {
+                    itemId: 'documentation',
+                    ui: 'link',
+                    href: '/apps/login/documentation.html',
+                    text: 'Documentation'
+                },
+                {
+                    itemId: 'contactsupport',
+                    ui: 'link',
+                    text: 'Contact Support',
+                    handler:function(){
+                        window.location.href = "mailto:support@elster.com";
+                    }
+                },
+                {
+                    itemId: 'about',
+                    ui: 'link',
+                    href: '/apps/login/about.html',
+                    text: 'About'
+                }
+            ]
+
         }
     ]
+
 });
