@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.generatereport.Step1', {
+Ext.define('Yfn.view.generatereport.Step1', {
     extend: 'Ext.panel.Panel',
     xtype: 'generatereport-wizard-step1',
     name: 'generateReportWizardStep1',
