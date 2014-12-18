@@ -261,7 +261,9 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
             token: data.token,
             fitTableWidth:false
         }
-
+        if(typeof yellowfin == "undefined"){
+            return;//
+        }
         yellowfin.loadReport(me.reportOptions);
 
 
