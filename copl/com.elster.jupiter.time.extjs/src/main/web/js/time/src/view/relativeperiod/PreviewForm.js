@@ -80,9 +80,9 @@ Ext.define('Tme.view.relativeperiod.PreviewForm', {
             switch(value.startPeriodAgo) {
                 case 'months':
                     if (value.onDayOfMonth) {
-                        str += ' ' + Uni.I18n.translate('general.on', 'TME', 'on') + ' ' + Uni.I18n.translate('general.day', 'TME', 'day') +  ' ' + value.onDayOfMonth + ' ' + Uni.I18n.translate('general.ofMonth', 'TME', 'of month');
+                        str += ' ' + Uni.I18n.translate('general.on', 'TME', 'on') + ' ' + Uni.I18n.translate('general.day', 'TME', 'day') +  ' ' + value.onDayOfMonth + ' ' + Uni.I18n.translate('general.ofTheMonth', 'TME', 'of the month');
                     } else {
-                        str += ' ' + Uni.I18n.translate('general.onCurrentDayOfMonth', 'TME', 'on current day of month');
+                        str += ' ' + Uni.I18n.translate('general.onCurrentDayOfTheMonth', 'TME', 'on current day of the month');
                     }
                     str += ' ' + Uni.I18n.translate('general.at', 'TME', 'at') + ' ' + hoursMinutes;
                     break;
