@@ -401,6 +401,9 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
                 case CONFIG_CHANGED:
                     appServer = (AppServerImpl) findAppServer(appServer.getName()).orElse(null);
                     subscriberExecutionSpecs = appServer == null ? Collections.emptyList() : appServer.getSubscriberExecutionSpecs();
+                    if (appServer == null) {
+                        stopAppServer();
+                    }
                 default:
             }
             commandListeners.forEach(listener -> listener.notify(command));

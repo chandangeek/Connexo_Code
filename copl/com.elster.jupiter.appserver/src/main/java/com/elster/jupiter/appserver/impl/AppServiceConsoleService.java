@@ -29,6 +29,7 @@ import java.util.TimeZone;
         property = {"name=" + "APS" + ".console",
                 "osgi.command.scope=appserver",
                 "osgi.command.function=create",
+                "osgi.command.function=remove",
                 "osgi.command.function=serve",
                 "osgi.command.function=stopServing",
                 "osgi.command.function=activate",
@@ -175,6 +176,16 @@ public class AppServiceConsoleService {
             threadPrincipalService.clear();
         }
     }
+
+    public void remove(String appServerName) {
+        AppServer appServer = findAppServer(appServerName).orElseThrow(IllegalArgumentException::new);
+        try (TransactionContext context = transactionService.getContext()) {
+            appServer.delete();
+
+            context.commit();
+        }
+    }
+
 
     public void appServers() {
         appService.findAppServers().stream()

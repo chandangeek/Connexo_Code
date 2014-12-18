@@ -33,6 +33,8 @@ public interface AppServer {
 
     BatchUpdate forBatchUpdate();
 
+    void delete();
+
     interface BatchUpdate extends AutoCloseable {
 
         SubscriberExecutionSpec createSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount);
@@ -49,5 +51,7 @@ public interface AppServer {
 
         @Override
         void close();
+
+        void delete();
     }
 }

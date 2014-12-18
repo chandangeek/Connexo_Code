@@ -16,6 +16,7 @@ import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -142,6 +143,14 @@ public class AppServerImpl implements AppServer {
     }
 
     @Override
+    public void delete() {
+        try (BatchUpdate updater = forBatchUpdate()) {
+            new ArrayList<>(getSubscriberExecutionSpecs()).forEach(updater::removeSubscriberExecutionSpec);
+            updater.delete();
+        }
+    }
+
+    @Override
     public BatchUpdateImpl forBatchUpdate() {
        return new BatchUpdateImpl();
     }
@@ -199,6 +208,11 @@ public class AppServerImpl implements AppServer {
                 dataModel.mapper(AppServer.class).update(AppServerImpl.this);
             }
             sendCommand(new AppServerCommand(Command.CONFIG_CHANGED));
+        }
+
+        @Override
+        public void delete() {
+            dataModel.mapper(AppServer.class).remove(AppServerImpl.this);
         }
     }
 

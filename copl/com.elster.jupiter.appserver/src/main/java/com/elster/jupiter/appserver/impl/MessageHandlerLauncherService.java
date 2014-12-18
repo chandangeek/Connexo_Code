@@ -275,13 +275,13 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     }
 
     private void reconfigure() {
-        appService.getAppServer().ifPresent(appServer -> {
+        appService.getAppServer().map(appServer -> (Runnable) () -> {
             if (!appServer.isActive()) {
                 stopLaunched();
                 return;
             }
             doReconfigure(appServer.getSubscriberExecutionSpecs());
-        });
+        }).orElse(this::appServerStopped).run();
     }
 
     private void doReconfigure(List<? extends SubscriberExecutionSpec> subscriberExecutionSpec) {
