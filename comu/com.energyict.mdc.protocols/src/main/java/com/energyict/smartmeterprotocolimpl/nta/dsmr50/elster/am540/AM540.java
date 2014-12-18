@@ -232,13 +232,4 @@ public class AM540 extends E350 {
         return "$Date: 2014-11-26 14:22:54 +0100 (Wed, 26 Nov 2014) $";
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        List<String> optionalKeys = getProtocolProperties().getOptionalKeys();
-        optionalKeys.add(G3GatewayProperties.G3_LOGICAL_DEVICE_ID_PROP_NAME);
-        optionalKeys.add(G3GatewayProperties.G3_MAC_ADDRESS_PROP_NAME);
-        optionalKeys.add(G3GatewayProperties.G3_SHORT_ADDRESS_PROP_NAME);
-        return PropertySpecFactory.toPropertySpecs(optionalKeys);
-    }
-
 }
