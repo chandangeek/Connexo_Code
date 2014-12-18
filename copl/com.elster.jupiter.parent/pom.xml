@@ -15,10 +15,6 @@
         <url>www.elster.com</url>
     </organization>
 
-    <modules>
-        <module>drools-integration</module>
-    </modules>
-
     <scm>
         <connection>scm:git:ssh://git@source.eict.vpdc/com/elster/jupiter/parent</connection>
     </scm>
@@ -26,136 +22,41 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.osgi</groupId>
-                <artifactId>org.osgi.core</artifactId>
-                <version>4.3.1</version>
-                <scope>provided</scope>
+                <groupId>com.elster.jupiter.subsystem</groupId>
+                <artifactId>third-party</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- dependencies for soap webservices -->
+            <dependency>
+                <groupId>javax.xml.ws</groupId>
+                <artifactId>jaxws-api</artifactId>
+                <version>2.1-1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.jws</groupId>
+                        <artifactId>jsr181</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
-                <groupId>org.osgi</groupId>
-                <artifactId>org.osgi.compendium</artifactId>
-                <version>4.3.1</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.ws.rs</groupId>
-                <artifactId>javax.ws.rs-api</artifactId>
-                <version>2.0</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.validation</groupId>
-                <artifactId>validation-api</artifactId>
-                <version>1.1.0.Final</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>14.0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.inject</groupId>
-                <artifactId>guice</artifactId>
-                <version>3.0</version>
-            </dependency>
-            <dependency>
-                <groupId>joda-time</groupId>
-                <artifactId>joda-time</artifactId>
-                <version>2.1</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.annotation</groupId>
-                <artifactId>javax.annotation-api</artifactId>
-                <version>1.2</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>javax.annotation</groupId>
-                <artifactId>jsr250-api</artifactId>
-                <version>1.0</version>
-            </dependency>
-            <dependency>
-                <groupId>net.jcip</groupId>
-                <artifactId>jcip-annotations</artifactId>
-                <version>1.0</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish.jersey.containers</groupId>
-                <artifactId>jersey-container-servlet-core</artifactId>
-                <version>2.5</version>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish.jersey.core</groupId>
-                <artifactId>jersey-server</artifactId>
-                <version>2.5</version>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish.jersey.core</groupId>
-                <artifactId>jersey-client</artifactId>
-                <version>2.5</version>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish.jersey.media</groupId>
-                <artifactId>jersey-media-json-jackson</artifactId>
-                <version>2.5</version>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish.jersey.media</groupId>
-                <artifactId>jersey-media-multipart</artifactId>
-                <version>2.5</version>
+                <groupId>javax.jws</groupId>
+                <artifactId>jsr181-api</artifactId>
+                <version>1.0-MR1</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.test-framework.providers</groupId>
                 <artifactId>jersey-test-framework-provider-inmemory</artifactId>
-                <version>2.5</version>
+                <version>2.13</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-core-asl</artifactId>
-                <version>1.9.13</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-jaxrs</artifactId>
-                <version>1.9.13</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-mapper-asl</artifactId>
-                <version>1.9.13</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-xc</artifactId>
-                <version>1.9.13</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-validator</artifactId>
-                <version>5.0.1.Final</version>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish.web</groupId>
-                <artifactId>javax.el</artifactId>
-                <version>2.2.4</version>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish.hk2</groupId>
-                <artifactId>hk2-api</artifactId>
-                <version>2.2.0-b21</version>
-            </dependency>
-            <dependency>
                 <groupId>javax.servlet</groupId>
-                <artifactId>servlet-api</artifactId>
+                <artifactId>javax.servlet-api</artifactId>
                 <scope>provided</scope>
-                <version>2.5</version>
+                <version>3.0.1</version>
             </dependency>
-            <dependency>
-                <groupId>org.ow2.util.base64</groupId>
-                <artifactId>base64</artifactId>
-                <version>2.0.0</version>
-            </dependency>
-
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -165,19 +66,13 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-all</artifactId>
-                <version>1.9.5</version>
+                <version>1.10.8</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
-                <version>1.5.0</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.assertj</groupId>
-                <artifactId>assertj-guava</artifactId>
-                <version>1.0.0</version>
+                <version>1.7.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -215,15 +110,9 @@
     </dependencyManagement>
 
     <dependencies>
-        <!--<dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
-            <version>1</version>
-        </dependency>-->
         <dependency>
             <groupId>org.glassfish.hk2.external</groupId>
             <artifactId>javax.inject</artifactId>
-            <version>2.2.0-b21</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -236,10 +125,6 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-guava</artifactId>
         </dependency>
         <dependency>
             <groupId>org.easytesting</groupId>
@@ -266,7 +151,6 @@
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.aopalliance</artifactId>
-            <version>1.0_6</version>
         </dependency>
     </dependencies>
     <!-- Repositories specification. -->
@@ -287,6 +171,17 @@
             <id>eict-public</id>
             <name>EnergyICT public repository group</name>
             <url>http://source.eict.vpdc/nexus/content/groups/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>eict-third-party</id>
+            <name>EnergyICT public releases repository</name>
+            <url>http://source.eict.vpdc/nexus/content/repositories/thirdparty/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -339,7 +234,24 @@
         <pluginRepository>
             <id>miredot</id>
             <name>MireDot Releases</name>
+            <url>http://nexus.qmino.com/content/repositories/miredot</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>miredot-snapshots</id>
+            <name>MireDot Snapshots</name>
             <url>http://nexus.qmino.com/content/repositories/miredot-snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </pluginRepository>
     </pluginRepositories>
 
@@ -379,7 +291,7 @@
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
-                    <version>2.4.0</version>
+                    <version>2.5.3</version>
                     <extensions>true</extensions>
                 </plugin>
                 <plugin>
@@ -401,6 +313,44 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>buildnumber-maven-plugin</artifactId>
                     <version>1.3</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>1.3.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.qmino</groupId>
+                    <artifactId>miredot-plugin</artifactId>
+                    <version>1.6.0-SNAPSHOT</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jvnet.jax-ws-commons</groupId>
+                    <artifactId>jaxws-maven-plugin</artifactId>
+                    <version>2.2</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.sun.xml.ws</groupId>
+                            <artifactId>jaxws-tools</artifactId>
+                            <version>2.1.4</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>javax.xml.ws</groupId>
+                            <artifactId>jaxws-api</artifactId>
+                            <version>2.1-1</version>
+                            <exclusions>
+                                <exclusion>
+                                    <groupId>javax.jws</groupId>
+                                    <artifactId>jsr181</artifactId>
+                                </exclusion>
+                            </exclusions>
+                        </dependency>
+                        <dependency>
+                            <groupId>javax.jws</groupId>
+                            <artifactId>jsr181-api</artifactId>
+                            <version>1.0-MR1</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -503,7 +453,7 @@
             <plugin>
                 <groupId>com.qmino</groupId>
                 <artifactId>miredot-plugin</artifactId>
-                <version>1.5.1-SNAPSHOT</version>
+                <version>1.6.0-SNAPSHOT</version>
                 <configuration>
                     <licence>
                         T3JnYW5pc2F0aW9ufGNvbS5lbHN0ZXIuanVwaXRlcnwyMDE1LTEwLTAyfHRydWUjTUN3Q0ZEcVFsWEFSY2FTWkd2V29qZm5zTmFvWnkycDlBaFJHL1R1SWtKRHQ5RzA3UVB4d1cxNnIvbTBFN1E9PQ==
@@ -511,12 +461,34 @@
                     <!-- insert other configuration here (optional) -->
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.3.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-no-snapshots</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireReleaseDeps>
+                                    <message>No Snapshots Allowed during release</message>
+                                    <onlyWhenRelease>true</onlyWhenRelease>
+                                </requireReleaseDeps>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
     <profiles>
         <profile>
-            <id>all</id>
+            <id>platform</id>
             <modules>
                 <module>../com.elster.jupiter.appserver</module>
                 <module>../com.elster.jupiter.bootstrap</module>
@@ -525,41 +497,22 @@
                 <module>../com.elster.jupiter.bpm.extjs</module>
                 <module>../com.elster.jupiter.bpm.handler</module>
                 <module>../com.elster.jupiter.bpm.rest</module>
-                <module>../com.elster.jupiter.bpmissueaction</module>
-                <module>../com.elster.jupiter.cbo</module>
-                <module>../com.elster.jupiter.config.extjs</module>
+                <module>../com.elster.jupiter.datavault</module>
                 <module>../com.elster.jupiter.domain.util</module>
-                <module>../com.elster.jupiter.export</module>
-                <module>../com.elster.jupiter.export.extjs</module>
-                <module>../com.elster.jupiter.export.processors</module>
-                <module>../com.elster.jupiter.export.rest</module>
                 <module>../com.elster.jupiter.extjs</module>
                 <module>../com.elster.jupiter.events</module>
                 <module>../com.elster.jupiter.events.rest</module>
                 <module>../com.elster.jupiter.fileimport</module>
-                <module>../com.elster.jupiter.gogo</module>
                 <module>../com.elster.jupiter.http.whiteboard</module>
-                <module>../com.elster.jupiter.ids</module>
                 <module>../com.elster.jupiter.install</module>
-                <module>../com.elster.jupiter.issue</module>
-                <module>../com.elster.jupiter.issue.extjs</module>
-                <module>../com.elster.jupiter.issue.rest</module>
-                <module>../com.elster.jupiter.kpi</module>
                 <module>../com.elster.jupiter.loaderjs</module>
                 <module>../com.elster.jupiter.login.app</module>
                 <module>../com.elster.jupiter.messaging</module>
                 <module>../com.elster.jupiter.messaging.oracle</module>
-                <module>../com.elster.jupiter.metering</module>
-                <module>../com.elster.jupiter.metering.cim</module>
-                <module>../com.elster.jupiter.metering.extjs</module>
-                <module>../com.elster.jupiter.metering.groups</module>
-                <module>../com.elster.jupiter.metering.rest</module>
                 <module>../com.elster.jupiter.nls.rest</module>
                 <module>../com.elster.jupiter.orm</module>
                 <module>../com.elster.jupiter.orm.schema.oracle</module>
                 <module>../com.elster.jupiter.osgi.goodies</module>
-                <module>../com.elster.jupiter.parties</module>
-                <module>../com.elster.jupiter.parties.rest</module>
                 <module>../com.elster.jupiter.properties</module>
                 <module>../com.elster.jupiter.pubsub</module>
                 <module>../com.elster.jupiter.rest.util</module>
@@ -567,10 +520,8 @@
                 <module>../com.elster.jupiter.security.thread</module>
                 <module>../com.elster.jupiter.soap.whiteboard</module>
                 <module>../com.elster.jupiter.soap.whiteboard.cxf</module>
-                <module>../com.elster.jupiter.system.app</module>
+                <!-- todo rename to license -->
                 <module>../com.elster.jupiter.systemadmin</module>
-                <module>../com.elster.jupiter.systemadmin.extjs</module>
-                <module>../com.elster.jupiter.systemadmin.rest</module>
                 <module>../com.elster.jupiter.tasks</module>
                 <module>../com.elster.jupiter.theme.skyline</module>
                 <module>../com.elster.jupiter.time</module>
@@ -582,9 +533,6 @@
                 <module>../com.elster.jupiter.users.extjs</module>
                 <module>../com.elster.jupiter.users.rest</module>
                 <module>../com.elster.jupiter.util</module>
-                <module>../com.elster.jupiter.validation</module>
-                <module>../com.elster.jupiter.validators</module>
-                <module>../com.elster.jupiter.validation.rest</module>
                 <module>../com.elster.jupiter.yellowfin</module>
                 <module>../com.elster.jupiter.yellowfin.rest</module>
                 <module>../com.elster.jupiter.yellowfin.app</module>
