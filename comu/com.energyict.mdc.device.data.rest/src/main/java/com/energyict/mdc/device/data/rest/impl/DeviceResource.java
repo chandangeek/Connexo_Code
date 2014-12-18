@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
@@ -20,6 +20,7 @@ import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -60,6 +62,7 @@ public class DeviceResource {
     private final TopologyService topologyService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final ResourceHelper resourceHelper;
+    private final ExceptionFactory exceptionFactory; 
     private final IssueService issueService;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
     private final Provider<LoadProfileResource> loadProfileResourceProvider;
@@ -84,6 +87,7 @@ public class DeviceResource {
     @Inject
     public DeviceResource(
             ResourceHelper resourceHelper,
+            ExceptionFactory exceptionFactory,
             DeviceImportService deviceImportService,
             DeviceService deviceService,
             TopologyService topologyService,
@@ -110,6 +114,7 @@ public class DeviceResource {
             Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider) {
 
         this.resourceHelper = resourceHelper;
+        this.exceptionFactory = exceptionFactory;
         this.deviceImportService = deviceImportService;
         this.deviceService = deviceService;
         this.topologyService = topologyService;
@@ -182,13 +187,29 @@ public class DeviceResource {
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION)
     public DeviceInfo updateDevice(@PathParam("mRID") String id, DeviceInfo info, @Context SecurityContext securityContext) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        if (info.masterDevicemRID == null) {
-            topologyService.clearPhysicalGateway(device);
+        if (info.masterDevicemRID != null) {
+            updateGateway(device, info.masterDevicemRID);
         } else {
-            Device gateway = resourceHelper.findDeviceByMrIdOrThrowException(info.masterDevicemRID);
-            topologyService.setPhysicalGateway(device, gateway);
+            removeGateway(device);
         }
         return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService);
+    }
+
+    private void updateGateway(Device device, String gatewayMRID) {
+        if (device.getDeviceConfiguration().canBeDirectlyAddressable()) {
+            throw exceptionFactory.newException(MessageSeeds.IMPOSSIBLE_TO_SET_MASTER_DEVICE, device.getmRID());
+        }
+        Optional<Device> currentGateway = topologyService.getPhysicalGateway(device);
+        if (!currentGateway.isPresent() || !currentGateway.get().getmRID().equals(gatewayMRID)) {
+            Device newGateway = resourceHelper.findDeviceByMrIdOrThrowException(gatewayMRID);
+            topologyService.setPhysicalGateway(device, newGateway);
+        }
+    }
+
+    private void removeGateway(Device device) {
+        if (topologyService.getPhysicalGateway(device).isPresent()) {
+            topologyService.clearPhysicalGateway(device);
+        }
     }
 
     private List<DeviceTopologyInfo> getSlaveDevicesForDevice(Device device) {

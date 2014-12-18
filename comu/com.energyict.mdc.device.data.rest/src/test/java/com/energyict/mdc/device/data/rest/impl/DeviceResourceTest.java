@@ -1170,7 +1170,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("device")).thenReturn(device);
         when(deviceService.findByUniqueMrid("gateway")).thenReturn(gateway);
         when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
-        when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(gateway));
+        Device oldGateway = mockDeviceForTopologyTest("oldGateway");
+        when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldGateway));
         
         DeviceInfo info = new DeviceInfo();
         info.masterDeviceId = gateway.getId();
@@ -1183,11 +1184,28 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
     
     @Test
+    public void testImpossibleToSetMasterDeviceBecauseItIsGateway() {
+        Device device = mockDeviceForTopologyTest("device");
+        DeviceConfiguration deviceConfig = device.getDeviceConfiguration();
+        when(deviceConfig.canBeDirectlyAddressable()).thenReturn(true);
+        when(deviceService.findByUniqueMrid("device")).thenReturn(device);
+        
+        DeviceInfo info = new DeviceInfo();
+        info.masterDeviceId = 1L;
+        info.masterDevicemRID = "1";
+        
+        Response response = target("/devices/device").request().put(Entity.json(info));
+        
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+    
+    @Test
     public void testDeleteMasterDevice() {
         Device device = mockDeviceForTopologyTest("device");
         when(deviceService.findByUniqueMrid("device")).thenReturn(device);
         when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
-        when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
+        Device oldMaster = mock(Device.class);
+        when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldMaster));
         
         DeviceInfo info = new DeviceInfo();
         info.masterDevicemRID = null;
