@@ -454,7 +454,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                         else
                             return "";
                     }
-                },
+                }
             ];
 
         return controls;
@@ -502,7 +502,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                         else
                             return "";
                     }
-                },
+                }
             ];
 
         return controls;
