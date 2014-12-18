@@ -385,7 +385,7 @@ public class RequestFactory {
         if (this.connection == null) {
             if (ComChannelType.OpticalComChannel.is(comChannel)) {
                 this.connection = new OpticalConnection(getComChannel(), getProperties());
-            } else if (ComChannelType.SerialComChannel.is(comChannel)) {
+            } else if (ComChannelType.SerialComChannel.is(comChannel) || ComChannelType.SocketComChannel.is(comChannel)) { // Serial ComChannel or a transparent socket ComChannel
                 this.connection = new SerialConnection(getComChannel(), getProperties());
             } else {
                 throw MdcManager.getComServerExceptionFactory().createUnexpectedComChannel(ComChannelType.SerialComChannel.name() + ", " + ComChannelType.OpticalComChannel.name(), comChannel.getClass().getSimpleName());
