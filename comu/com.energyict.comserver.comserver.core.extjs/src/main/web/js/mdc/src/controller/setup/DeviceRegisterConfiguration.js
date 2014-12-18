@@ -43,7 +43,6 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     },
 
     chooseAction: function (menu, item) {
-        debugger;
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             routeParams = router.arguments,
