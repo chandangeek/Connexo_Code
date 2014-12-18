@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
 //    toggleId: null,
     device: null,
 
-    title: 'Meter',
+    title: Uni.I18n.translate('devicemenu.title', 'MDC', 'Meter'),
 
     initComponent: function () {
         var me = this,
@@ -91,7 +91,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         href: '#/devices/' + mRID + '/securitysettings'
                     },
                     {
-                        text: Uni.I18n.translate('deviceCommunicationTopology.topologyTitle', 'MDC', 'Communication topology'),
+                        text: Uni.I18n.translate('deviceCommunicationTopology.topologyTitle', 'MDC', 'Topology'),
                         itemId: 'topologyLink',
                         href: '#/devices/' + mRID + '/topology',
                         showCondition: me.device.get('gatewayType') === 'LAN'

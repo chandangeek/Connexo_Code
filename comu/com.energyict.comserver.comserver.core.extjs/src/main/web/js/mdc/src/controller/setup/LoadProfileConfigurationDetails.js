@@ -348,6 +348,15 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             this.displayedItemId = recordData.id;
             this.getLoadProfileDetailChannelPreview().setTitle(recordData.name);
             form.loadRecord(channelConfig);
+
+            if (channelConfig.get('calculatedReadingType')) {
+                var readingTypeField = me.getPage().down('reading-type-displayfield[name=readingType]'),
+                    calculatedReadingTypeField = me.getPage().down('reading-type-displayfield[name=calculatedReadingType]');
+                readingTypeField.labelEl.update(Uni.I18n.translate('deviceloadprofiles.channels.readingTypeForBulk', 'MDC', 'Collected reading type'));
+                calculatedReadingTypeField.labelEl.update(Uni.I18n.translate('deviceloadprofiles.channels.calculatedReadingType', 'MDC', 'Calculated reading type'));
+                calculatedReadingTypeField.setVisible(true)
+            }
+
             this.getPage().down('#rulesForChannelConfig').setTitle(channelConfig.get('name') + ' validation rules');
             if (me.getPage().down('#rulesForChannelPreviewContainer')) {
                 me.getPage().down('#rulesForChannelPreviewContainer').destroy();
@@ -419,7 +428,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                     widget = Ext.widget('loadProfileConfigurationDetailSetup', {intervalStore: me.intervalStore, deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigurationId, loadProfileConfigurationId: loadProfileConfigurationId});
                                 me.getApplication().fireEvent('loadLoadProfile', loadProfileConfiguration);
                                 widget.down('#loadProfileConfigurationDetailTitle').html = '<h1>' + loadProfileConfiguration.name + '</h1>';
-                                widget.down('#loadProfileConfigurationDetailChannelConfigurationTitle').html = '<h3>' + Uni.I18n.translate('loadprofileconfiguration.loadprofilechannelconfiguation', 'MDC', 'Channel configurations') + '</h3>';
+                                widget.down('#loadProfileConfigurationDetailChannelConfigurationTitle').html = '<h3>' + Uni.I18n.translate('loadprofileconfiguration.loadprofilechannelconfiguations', 'MDC', 'Channel configurations') + '</h3>';
                                 me.deviceTypeName = deviceType.get('name');
                                 me.deviceConfigName = deviceConfig.get('name');
                                 me.getApplication().fireEvent('changecontentevent', widget);

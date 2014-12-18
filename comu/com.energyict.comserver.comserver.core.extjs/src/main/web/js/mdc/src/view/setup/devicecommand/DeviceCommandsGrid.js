@@ -76,6 +76,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
 
             {
                 xtype: 'uni-actioncolumn',
+                hidden: !Uni.Auth.hasAnyPrivilege(['execute.device.message.level1','execute.device.message.level2','execute.device.message.level3','execute.device.message.level4']),
                 itemId: 'commands-action-column',
                 menu: {
                     xtype: 'device-command-action-menu'
@@ -100,6 +101,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 items: [
                     {
                         xtype: 'button',
+                        hidden: !Uni.Auth.hasAnyPrivilege(['execute.device.message.level1','execute.device.message.level2','execute.device.message.level3','execute.device.message.level4']),
                         text: 'Add command',
                         itemId: 'deviceAddCommandButton',
                         mRID: me.mRID
