@@ -12,6 +12,8 @@
 
     .#{$prefix}tab-bar-body-#{$ui}-top {
         padding-bottom: $strip-width * 2;
+        position: relative;
+        top: -3px;
     }
 
     .#{$prefix}tab-bar-#{$ui} {

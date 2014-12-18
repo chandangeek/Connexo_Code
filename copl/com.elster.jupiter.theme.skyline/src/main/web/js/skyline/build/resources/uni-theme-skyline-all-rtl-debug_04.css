@@ -10433,11 +10433,12 @@ a.x-datepicker-date:hover {
 .x-tab-default .x-tab-inner {
   font-family: 'Open Sans Condensed', helvetica, arial, verdana, sans-serif;
   font-weight: bold;
+  line-height: 19px;
   font-size: 16px;
   color: #686868;
 }
 
-/* line 15, ../../sass/src/tab/Tab.scss */
+/* line 16, ../../sass/src/tab/Tab.scss */
 .x-tab-default-top {
   border-bottom: transparent solid 4px !important;
   background-color: transparent;
@@ -10447,21 +10448,21 @@ a.x-datepicker-date:hover {
   padding-right: 8px;
   padding-left: 8px;
 }
-/* line 30, ../../sass/src/tab/Tab.scss */
+/* line 31, ../../sass/src/tab/Tab.scss */
 .x-tab-default-top:hover {
   border-bottom: #c9dbe3 solid 4px !important;
 }
-/* line 33, ../../sass/src/tab/Tab.scss */
+/* line 34, ../../sass/src/tab/Tab.scss */
 .x-tab-default-top:hover .x-tab-inner {
   font-weight: bold;
   color: #686868;
 }
-/* line 39, ../../sass/src/tab/Tab.scss */
+/* line 40, ../../sass/src/tab/Tab.scss */
 .x-tab-default-top.x-tab-default-active {
   border-bottom: #70bb51 solid 4px !important;
   background-color: transparent;
 }
-/* line 43, ../../sass/src/tab/Tab.scss */
+/* line 44, ../../sass/src/tab/Tab.scss */
 .x-tab-default-top.x-tab-default-active .x-tab-inner {
   font-weight: bold;
   color: #333333;
@@ -10471,11 +10472,12 @@ a.x-datepicker-date:hover {
 .x-tab-large .x-tab-inner {
   font-family: 'Open Sans Condensed', helvetica, arial, verdana, sans-serif;
   font-weight: bold;
+  line-height: 19px;
   font-size: 16px;
   color: #686868;
 }
 
-/* line 15, ../../sass/src/tab/Tab.scss */
+/* line 16, ../../sass/src/tab/Tab.scss */
 .x-tab-large-top {
   border-bottom: transparent solid 4px !important;
   background-color: transparent;
@@ -10485,21 +10487,21 @@ a.x-datepicker-date:hover {
   padding-right: 8px;
   padding-left: 8px;
 }
-/* line 30, ../../sass/src/tab/Tab.scss */
+/* line 31, ../../sass/src/tab/Tab.scss */
 .x-tab-large-top:hover {
   border-bottom: #c9dbe3 solid 4px !important;
 }
-/* line 33, ../../sass/src/tab/Tab.scss */
+/* line 34, ../../sass/src/tab/Tab.scss */
 .x-tab-large-top:hover .x-tab-inner {
   font-weight: bold;
   color: #686868;
 }
-/* line 39, ../../sass/src/tab/Tab.scss */
+/* line 40, ../../sass/src/tab/Tab.scss */
 .x-tab-large-top.x-tab-large-active {
   border-bottom: #70bb51 solid 4px !important;
   background-color: transparent;
 }
-/* line 43, ../../sass/src/tab/Tab.scss */
+/* line 44, ../../sass/src/tab/Tab.scss */
 .x-tab-large-top.x-tab-large-active .x-tab-inner {
   font-weight: bold;
   color: #333333;
@@ -10509,11 +10511,12 @@ a.x-datepicker-date:hover {
 .x-tab-medium .x-tab-inner {
   font-family: 'Open Sans Condensed', helvetica, arial, verdana, sans-serif;
   font-weight: bold;
+  line-height: 19px;
   font-size: 16px;
   color: #686868;
 }
 
-/* line 15, ../../sass/src/tab/Tab.scss */
+/* line 16, ../../sass/src/tab/Tab.scss */
 .x-tab-medium-top {
   border-bottom: transparent solid 4px !important;
   background-color: transparent;
@@ -10523,21 +10526,21 @@ a.x-datepicker-date:hover {
   padding-right: 8px;
   padding-left: 8px;
 }
-/* line 30, ../../sass/src/tab/Tab.scss */
+/* line 31, ../../sass/src/tab/Tab.scss */
 .x-tab-medium-top:hover {
   border-bottom: #c9dbe3 solid 4px !important;
 }
-/* line 33, ../../sass/src/tab/Tab.scss */
+/* line 34, ../../sass/src/tab/Tab.scss */
 .x-tab-medium-top:hover .x-tab-inner {
   font-weight: bold;
   color: #686868;
 }
-/* line 39, ../../sass/src/tab/Tab.scss */
+/* line 40, ../../sass/src/tab/Tab.scss */
 .x-tab-medium-top.x-tab-medium-active {
   border-bottom: #70bb51 solid 4px !important;
   background-color: transparent;
 }
-/* line 43, ../../sass/src/tab/Tab.scss */
+/* line 44, ../../sass/src/tab/Tab.scss */
 .x-tab-medium-top.x-tab-medium-active .x-tab-inner {
   font-weight: bold;
   color: #333333;
@@ -10547,11 +10550,12 @@ a.x-datepicker-date:hover {
 .x-tab-small .x-tab-inner {
   font-family: 'Open Sans Condensed', helvetica, arial, verdana, sans-serif;
   font-weight: bold;
+  line-height: 19px;
   font-size: 16px;
   color: #686868;
 }
 
-/* line 15, ../../sass/src/tab/Tab.scss */
+/* line 16, ../../sass/src/tab/Tab.scss */
 .x-tab-small-top {
   border-bottom: transparent solid 4px !important;
   background-color: transparent;
@@ -10561,21 +10565,21 @@ a.x-datepicker-date:hover {
   padding-right: 8px;
   padding-left: 8px;
 }
-/* line 30, ../../sass/src/tab/Tab.scss */
+/* line 31, ../../sass/src/tab/Tab.scss */
 .x-tab-small-top:hover {
   border-bottom: #c9dbe3 solid 4px !important;
 }
-/* line 33, ../../sass/src/tab/Tab.scss */
+/* line 34, ../../sass/src/tab/Tab.scss */
 .x-tab-small-top:hover .x-tab-inner {
   font-weight: bold;
   color: #686868;
 }
-/* line 39, ../../sass/src/tab/Tab.scss */
+/* line 40, ../../sass/src/tab/Tab.scss */
 .x-tab-small-top.x-tab-small-active {
   border-bottom: #70bb51 solid 4px !important;
   background-color: transparent;
 }
-/* line 43, ../../sass/src/tab/Tab.scss */
+/* line 44, ../../sass/src/tab/Tab.scss */
 .x-tab-small-top.x-tab-small-active .x-tab-inner {
   font-weight: bold;
   color: #333333;
@@ -10593,9 +10597,11 @@ a.x-datepicker-date:hover {
 /* line 13, ../../sass/src/tab/Bar.scss */
 .x-tab-bar-body-default-top {
   padding-bottom: 2px;
+  position: relative;
+  top: -3px;
 }
 
-/* line 17, ../../sass/src/tab/Bar.scss */
+/* line 19, ../../sass/src/tab/Bar.scss */
 .x-tab-bar-default {
   background-color: transparent;
 }
@@ -10612,9 +10618,11 @@ a.x-datepicker-date:hover {
 /* line 13, ../../sass/src/tab/Bar.scss */
 .x-tab-bar-body-large-top {
   padding-bottom: 2px;
+  position: relative;
+  top: -3px;
 }
 
-/* line 17, ../../sass/src/tab/Bar.scss */
+/* line 19, ../../sass/src/tab/Bar.scss */
 .x-tab-bar-large {
   background-color: transparent;
 }
@@ -10631,9 +10639,11 @@ a.x-datepicker-date:hover {
 /* line 13, ../../sass/src/tab/Bar.scss */
 .x-tab-bar-body-medium-top {
   padding-bottom: 2px;
+  position: relative;
+  top: -3px;
 }
 
-/* line 17, ../../sass/src/tab/Bar.scss */
+/* line 19, ../../sass/src/tab/Bar.scss */
 .x-tab-bar-medium {
   background-color: transparent;
 }
@@ -10650,9 +10660,11 @@ a.x-datepicker-date:hover {
 /* line 13, ../../sass/src/tab/Bar.scss */
 .x-tab-bar-body-small-top {
   padding-bottom: 2px;
+  position: relative;
+  top: -3px;
 }
 
-/* line 17, ../../sass/src/tab/Bar.scss */
+/* line 19, ../../sass/src/tab/Bar.scss */
 .x-tab-bar-small {
   background-color: transparent;
 }
