@@ -91,4 +91,21 @@ public class PairTest {
                 .containsValue("B");
     }
 
+    @Test
+    public void testWithFirstWithFunction() {
+        Pair<String, Integer> pair = Pair.of("A", 5).withFirst((a, b) -> a.toLowerCase() + b);
+        assertThat(pair).isEqualTo(Pair.of("a5", 5));
+    }
+
+    @Test
+    public void testWithLastWithFunction() {
+        Pair<String, String> pair = Pair.of("A", 5).withLast((a, b) -> a.toLowerCase() + b);
+        assertThat(pair).isEqualTo(Pair.of("A", "a5"));
+    }
+
+    @Test
+    public void testFlipped() {
+        assertThat(Pair.of("A", 5).flipped()).isEqualTo(Pair.of(5, "A"));
+    }
+
 }

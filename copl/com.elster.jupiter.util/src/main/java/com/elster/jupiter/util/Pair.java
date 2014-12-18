@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
+import java.util.function.BiFunction;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -38,6 +39,10 @@ public final class Pair<F, L> {
         return new Pair<>(newFirst, last);
     }
 
+    public <N> Pair<N, L> withFirst(BiFunction<? super F, ? super L, N> function) {
+        return new Pair<>(function.apply(first, last), last);
+    }
+
     public L getLast() {
         return last;
     }
@@ -46,8 +51,16 @@ public final class Pair<F, L> {
         return new Pair<>(first, newLast);
     }
 
+    public <N> Pair<F, N> withLast(BiFunction<? super F, ? super L, N> function) {
+        return new Pair<>(first, function.apply(first, last));
+    }
+
     public Map<F, L> asMap() {
         return ImmutableMap.of(first, last);
+    }
+
+    public Pair<L, F> flipped() {
+        return Pair.of(last, first);
     }
 
     @Override
