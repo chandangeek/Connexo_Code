@@ -4,9 +4,7 @@ Ext.define('Yfn.view.generatereport.Wizard', {
         'Ext.layout.container.Card',
         'Yfn.view.generatereport.Step1',
         'Yfn.view.generatereport.Step2',
-        'Yfn.view.generatereport.Step3',
-        'Yfn.view.generatereport.Step4'
-
+        'Yfn.view.generatereport.Step3'
     ],
     alias: 'widget.generatereport-wizard',
     autoHeight: true,
