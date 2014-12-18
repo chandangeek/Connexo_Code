@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
 //    toggleId: null,
     device: null,
 
-    title: Uni.I18n.translate('devicemenu.title', 'MDC', 'Meter'),
+    title: Uni.I18n.translate('devicemenu.title', 'MDC', 'Device'),
 
     initComponent: function () {
         var me = this,
