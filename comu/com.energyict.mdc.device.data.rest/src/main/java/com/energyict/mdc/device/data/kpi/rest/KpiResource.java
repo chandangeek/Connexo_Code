@@ -5,7 +5,6 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
@@ -48,7 +47,7 @@ public class KpiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getAllKpis(@BeanParam QueryParameters queryParameters) {
         List<DataCollectionKpiInfo> collection = dataCollectionKpiService.dataCollectionKpiFinder().
-                from(queryParameters).defaultSortColumn(DataCollectionKpiImpl.Fields.END_DEVICE_GROUP + ".label").
+                from(queryParameters).defaultSortColumn("endDeviceGroup.label").
                 stream().
                 map(dataCollectionKpiInfoFactory::from).
                 collect(toList());
