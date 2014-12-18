@@ -19,7 +19,6 @@
     </description>
 
     <properties>
-        <fest-assertions.version>2.0M8</fest-assertions.version>
         <protocol.mockito.version>1.9.0</protocol.mockito.version>
         <proguard.maven.version>2.0.4</proguard.maven.version>
         <proguard.version>4.8</proguard.version>
@@ -71,12 +70,6 @@
             <groupId>org.powermock</groupId>
             <artifactId>powermock-api-mockito</artifactId>
             <version>1.4.10</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.easytesting</groupId>
-            <artifactId>fest-assert-core</artifactId>
-            <version>${fest-assertions.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
