@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.api.device.data;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -59,4 +60,7 @@ public interface CollectedTopology extends CollectedData {
 
     public void setDataCollectionConfiguration (DataCollectionConfiguration configuration);
 
+    public void addPathSegmentFor(DeviceIdentifier source, DeviceIdentifier target, DeviceIdentifier intermediateHop, Duration timeToLive, int cost);
+
+    public List<TopologyPathSegment> getTopologyPathSegments();
 }

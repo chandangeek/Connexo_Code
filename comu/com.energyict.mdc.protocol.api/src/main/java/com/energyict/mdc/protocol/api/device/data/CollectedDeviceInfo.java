@@ -17,4 +17,6 @@ public interface CollectedDeviceInfo extends CollectedData {
      */
     public DeviceIdentifier getDeviceIdentifier();
 
+    public void setDataCollectionConfiguration (DataCollectionConfiguration configuration);
+
 }
