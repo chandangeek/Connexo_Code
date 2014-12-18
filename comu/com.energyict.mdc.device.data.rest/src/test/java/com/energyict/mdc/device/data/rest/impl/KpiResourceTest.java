@@ -140,6 +140,47 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         verify(kpiBuilder).save();
     }
 
+    @Test
+    public void testUpdateKpiWithConnectionKpi() throws Exception {
+        DataCollectionKpiInfo info = new DataCollectionKpiInfo();
+        info.connectionTarget=BigDecimal.valueOf(99.1);
+        info.deviceGroup=new LongIdWithNameInfo(102L, "some group");
+        info.frequency = new TemporalExpressionInfo();
+        info.frequency.every = new TimeDurationInfo();
+        info.frequency.every.timeUnit="minutes";
+        info.frequency.every.count=15;
+        long kpiId = 71L;
+        DataCollectionKpi kpiMock = mockKpi(kpiId, mockDeviceGroup("end device group bis", 2),Duration.ofMinutes(15), BigDecimal.valueOf(50.0), null);
+        when(dataCollectionKpiService.findDataCollectionKpi(kpiId)).thenReturn(Optional.of(kpiMock));
+
+        Response response = target("/kpis/71").request().put(Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(kpiMock).calculateConnectionKpi(BigDecimal.valueOf(99.1));
+        verify(kpiMock, never()).calculateComTaskExecutionKpi(anyObject());
+    }
+
+    @Test
+    public void testUpdateKpiWithCommunicationKpi() throws Exception {
+        DataCollectionKpiInfo info = new DataCollectionKpiInfo();
+        info.communicationTarget=BigDecimal.valueOf(99.1);
+        info.connectionTarget=BigDecimal.valueOf(50.0);
+        info.deviceGroup=new LongIdWithNameInfo(102L, "some group");
+        info.frequency = new TemporalExpressionInfo();
+        info.frequency.every = new TimeDurationInfo();
+        info.frequency.every.timeUnit="minutes";
+        info.frequency.every.count=15;
+        long kpiId = 71L;
+        DataCollectionKpi kpiMock = mockKpi(kpiId, mockDeviceGroup("end device group bis", 2), Duration.ofMinutes(15), null, BigDecimal.valueOf(50.0));
+        when(dataCollectionKpiService.findDataCollectionKpi(kpiId)).thenReturn(Optional.of(kpiMock));
+
+        Response response = target("/kpis/71").request().put(Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(kpiMock).calculateComTaskExecutionKpi(BigDecimal.valueOf(99.1));
+        verify(kpiMock, never()).calculateConnectionKpi(anyObject());
+    }
+
     private DataCollectionKpi mockKpi(long kpiId, QueryEndDeviceGroup endDeviceGroup) {
         DataCollectionKpi kpiMock = mock(DataCollectionKpi.class);
         when(kpiMock.getDeviceGroup()).thenReturn(endDeviceGroup);
@@ -148,6 +189,32 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(kpiMock.connectionSetupKpiCalculationIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
         when(kpiMock.getStaticCommunicationKpiTarget()).thenReturn(Optional.of(BigDecimal.valueOf(15.8)));
         when(kpiMock.getStaticConnectionKpiTarget()).thenReturn(Optional.empty());
+        when(kpiMock.getLatestCalculation()).thenReturn(Optional.of(Instant.ofEpochMilli(10000000L)));
+        return kpiMock;
+    }
+
+    private DataCollectionKpi mockKpi(long kpiId, QueryEndDeviceGroup endDeviceGroup, TemporalAmount frequency, BigDecimal staticConnectionTarget, BigDecimal staticCommunicationTarget) {
+        DataCollectionKpi kpiMock = mock(DataCollectionKpi.class);
+        when(kpiMock.getDeviceGroup()).thenReturn(endDeviceGroup);
+        when(kpiMock.getId()).thenReturn(kpiId);
+        if (staticCommunicationTarget!=null) {
+            when(kpiMock.comTaskExecutionKpiCalculationIntervalLength()).thenReturn(Optional.ofNullable(frequency));
+            when(kpiMock.getStaticCommunicationKpiTarget()).thenReturn(Optional.of(staticCommunicationTarget));
+            when(kpiMock.calculatesComTaskExecutionKpi()).thenReturn(true);
+        } else {
+            when(kpiMock.comTaskExecutionKpiCalculationIntervalLength()).thenReturn(Optional.empty());
+            when(kpiMock.getStaticCommunicationKpiTarget()).thenReturn(Optional.empty());
+            when(kpiMock.calculatesComTaskExecutionKpi()).thenReturn(false);
+        }
+        if (staticConnectionTarget!=null) {
+            when(kpiMock.connectionSetupKpiCalculationIntervalLength()).thenReturn(Optional.ofNullable(frequency));
+            when(kpiMock.getStaticConnectionKpiTarget()).thenReturn(Optional.of(staticConnectionTarget));
+            when(kpiMock.calculatesConnectionSetupKpi()).thenReturn(true);
+        } else {
+            when(kpiMock.connectionSetupKpiCalculationIntervalLength()).thenReturn(Optional.empty());
+            when(kpiMock.getStaticConnectionKpiTarget()).thenReturn(Optional.empty());
+            when(kpiMock.calculatesConnectionSetupKpi()).thenReturn(false);
+        }
         when(kpiMock.getLatestCalculation()).thenReturn(Optional.of(Instant.ofEpochMilli(10000000L)));
         return kpiMock;
     }

@@ -15,6 +15,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -60,7 +61,7 @@ public class KpiResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
     public DataCollectionKpiInfo getKpiById(@PathParam("id") long id) {
-        DataCollectionKpi dataCollectionKpi = dataCollectionKpiService.findDataCollectionKpi(id).orElseThrow(()->exceptionFactory.newException(MessageSeeds.NO_SUCH_KPI, id));
+        DataCollectionKpi dataCollectionKpi = dataCollectionKpiService.findDataCollectionKpi(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_KPI, id));
         return dataCollectionKpiInfoFactory.from(dataCollectionKpi);
     }
 
@@ -87,6 +88,30 @@ public class KpiResource {
         }
         DataCollectionKpi dataCollectionKpi = dataCollectionKpiBuilder.save();
         return Response.status(Response.Status.CREATED).entity(dataCollectionKpiInfoFactory.from(dataCollectionKpi)).build();
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{id}")
+    public Response updateKpi(@PathParam("id") long id, DataCollectionKpiInfo kpiInfo) {
+        DataCollectionKpi kpi = dataCollectionKpiService.findDataCollectionKpi(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_KPI, id));
+
+        if (kpiInfo.communicationTarget!=null && kpiInfo.frequency !=null && kpiInfo.frequency.every!=null) {
+                if (!kpi.calculatesComTaskExecutionKpi() || (kpi.calculatesComTaskExecutionKpi() && (!kpiInfo.frequency.every.asTimeDuration().asTemporalAmount().equals(kpi.comTaskExecutionKpiCalculationIntervalLength().get()) ||
+                        !kpiInfo.communicationTarget.equals(kpi.getStaticCommunicationKpiTarget().get())))) {
+                    // something changed about communication KPI
+                    kpi.calculateComTaskExecutionKpi(kpiInfo.communicationTarget);
+                }
+        }
+        if (kpiInfo.connectionTarget!=null && kpiInfo.frequency !=null && kpiInfo.frequency.every!=null) {
+            if (!kpi.calculatesConnectionSetupKpi() || (kpi.calculatesConnectionSetupKpi() && (!kpiInfo.frequency.every.asTimeDuration().asTemporalAmount().equals(kpi.connectionSetupKpiCalculationIntervalLength().get()) ||
+                    !kpiInfo.connectionTarget.equals(kpi.getStaticConnectionKpiTarget().get())))) {
+                // something changed about connection KPI
+                kpi.calculateConnectionKpi(kpiInfo.connectionTarget);
+            }
+        }
+        return Response.ok(dataCollectionKpiInfoFactory.from(dataCollectionKpiService.findDataCollectionKpi(id).get())).build();
     }
 
 
