@@ -140,6 +140,7 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                 {
                     xtype: 'uni-actioncolumn',
                     menu: {
+                        plain: true,
                         xtype: 'device-connection-action-menu',
                         itemId: 'connectionsActionMenu',
                         router: me.router

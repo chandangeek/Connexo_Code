@@ -294,11 +294,17 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                             {
                                 xtype: 'button',
                                 itemId: 'activate-all',
+                                style: {
+                                    'background-color': '#71adc7'
+                                },
                                 text: Uni.I18n.translate('device.communications.activate', 'DSH', 'Activate all')
                             },
                             {
                                 xtype: 'button',
                                 itemId: 'deactivate-all',
+                                style: {
+                                    'background-color': '#71adc7'
+                                },
                                 text: Uni.I18n.translate('device.communications.deactivate', 'DSH', 'Deactivate all')
                             }
                         ]
