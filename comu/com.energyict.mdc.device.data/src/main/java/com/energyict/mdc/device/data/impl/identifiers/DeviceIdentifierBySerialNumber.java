@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl.identifiers;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
@@ -51,7 +52,7 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMul
         if (this.device == null) {
             fetchAllDevices();
             if (this.allDevices.isEmpty()) {
-                throw new NotFoundException("Device with serialnumber " + this.serialNumber + " not found");
+                throw CanNotFindForIdentifier.device(this);
             }
             else {
                 if (this.allDevices.size() > 1) {

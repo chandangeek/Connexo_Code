@@ -94,6 +94,10 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_MESSAGE_INVALID_REVOKE(2063, Keys.DEVICE_MESSAGE_INVALID_REVOKE, "You can not revoke this command anymore", Level.SEVERE),
     RELEASE_DATE_IS_REQUIRED(2064, Keys.DEVICE_MESSAGE_RELEASE_DATE_IS_REQUIRED, "The release date is required for a device message", Level.SEVERE),
     DUPLICATE_FOUND(2065, Keys.DUPLICATE_FOUND, "A duplicate '{0}' was found when a unique result was expected for '{1}'", Level.SEVERE),
+    CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER(2066, Keys.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER, "Could not find a device for identifier '{0}'", Level.SEVERE),
+    CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER(2067, Keys.CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER, "Could not find a loadprofile for identifier '{0}'", Level.SEVERE),
+    CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER(2068, Keys.CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER, "Could not find a logbook for identifier '{0}'", Level.SEVERE),
+    CAN_NOT_FIND_FOR_MESSAGE_IDENTIFIER(2069, Keys.CAN_NOT_FIND_FOR_MESSAGE_IDENTIFIER, "Could not find a message for identifier '{0}'", Level.SEVERE),
 
     ;
 
@@ -219,6 +223,10 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DEVICE_MESSAGE_INVALID_REVOKE = "deviceMessage.revoke.invalid.status";
         public static final String DEVICE_MESSAGE_RELEASE_DATE_IS_REQUIRED = "releaseDateIsRequired.deviceMessage";
         public static final String DUPLICATE_FOUND = "duplicateFound";
+        public static final String CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER = "deviceIdentifier.not.found";
+        public static final String CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER = "loadprofileIdentifier.not.found";
+        public static final String CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER = "logbookIdentifier.not.found";
+        public static final String CAN_NOT_FIND_FOR_MESSAGE_IDENTIFIER = "messageIdentifier.not.found";
     }
 
 }

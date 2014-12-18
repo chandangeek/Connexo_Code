@@ -4,6 +4,7 @@ import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.protocol.api.device.BaseLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
@@ -38,7 +39,7 @@ public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier<L
                 .stream()
                 .filter(lb -> lb.getDeviceObisCode().equals(this.logBookObisCode))
                 .findFirst()
-                .orElseThrow(() -> new NotFoundException("No logbook found with obiscode '" + this.logBookObisCode.toString() + "'for device identified by '" + this.deviceIdentifier.toString() + "'"));
+                .orElseThrow(() -> CanNotFindForIdentifier.logBook(this));
     }
 
     @Override

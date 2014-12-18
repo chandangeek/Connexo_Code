@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
 
@@ -41,7 +41,7 @@ public final class DeviceIdentifierByMRID implements DeviceIdentifier<Device> {
         if (this.device == null) {
             this.device = this.deviceService.findByUniqueMrid(this.mrid);
             if (device == null) {
-                throw new NotFoundException("Device with mrid " + this.mrid + " not found");
+                throw CanNotFindForIdentifier.device(this);
             }
         }
         return device;

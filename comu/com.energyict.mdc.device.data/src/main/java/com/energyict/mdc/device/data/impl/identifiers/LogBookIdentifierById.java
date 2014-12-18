@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl.identifiers;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.protocol.api.device.BaseLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 
@@ -31,12 +32,7 @@ public final class LogBookIdentifierById implements LogBookIdentifier<LogBook> {
 
     @Override
     public LogBook getLogBook() {
-        Optional<LogBook> logBook = this.logBookService.findById(this.logBookId);
-        if (!logBook.isPresent()) {
-            throw new NotFoundException("LogBook with id " + this.logBookId + " not found");
-        } else {
-            return logBook.get();
-        }
+        return this.logBookService.findById(this.logBookId).orElseThrow(() -> CanNotFindForIdentifier.logBook(this));
     }
 
     @Override

@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
@@ -47,7 +47,7 @@ public class DeviceIdentifierByPropertyValue implements DeviceIdentifier, FindMu
         if(this.device == null){
             fetchAllDevices();
             if (this.allDevices.isEmpty()) {
-                throw new NotFoundException("BaseDevice with callHomeId " + this.propertyValue + " not found");
+                throw CanNotFindForIdentifier.device(this);
             } else {
                 if (this.allDevices.size() > 1) {
                     throw new DuplicateException(MessageSeeds.DUPLICATE_FOUND, Device.class, this.toString());
@@ -65,7 +65,7 @@ public class DeviceIdentifierByPropertyValue implements DeviceIdentifier, FindMu
 
     @Override
     public String toString() {
-        return "device with call home id " + this.propertyValue;
+        return "device with property '" + this.propertyName + "' and value '" + this.propertyValue + "'";
     }
 
     @XmlElement(name = "type")

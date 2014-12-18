@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl.identifiers;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifierType;
@@ -49,7 +50,7 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
     public LoadProfile findLoadProfile() {
         if (loadProfile == null) {
             Device device = deviceIdentifier.findDevice();
-            this.loadProfile = device.getLoadProfiles().stream().filter(loadProfile -> loadProfile.getDeviceObisCode().equals(loadProfileObisCode)).findFirst().orElse(null);
+            this.loadProfile = device.getLoadProfiles().stream().filter(loadProfile -> loadProfile.getDeviceObisCode().equals(loadProfileObisCode)).findFirst().orElseThrow(() -> CanNotFindForIdentifier.loadProfile(this));
         }
         return loadProfile;
     }
