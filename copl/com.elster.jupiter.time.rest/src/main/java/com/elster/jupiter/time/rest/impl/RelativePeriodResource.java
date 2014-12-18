@@ -154,7 +154,7 @@ public class RelativePeriodResource {
 
     @Path("/{id}/preview")
     @PUT
-    @RolesAllowed(Privileges.ADMINISTRATE_RELATIVE_PERIOD)
+    @RolesAllowed({Privileges.ADMINISTRATE_RELATIVE_PERIOD, Privileges.VIEW_RELATIVE_PERIOD})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public RelativePeriodPreviewInfo pregviewRelativePeriod(@PathParam("id") long id, RelativeDatePreviewInfo relativeDatePreviewInfo) {
@@ -167,7 +167,7 @@ public class RelativePeriodResource {
 
     @Path("/preview")
     @PUT
-    @RolesAllowed(Privileges.ADMINISTRATE_RELATIVE_PERIOD)
+    @RolesAllowed({Privileges.ADMINISTRATE_RELATIVE_PERIOD, Privileges.VIEW_RELATIVE_PERIOD})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public RelativeDatePreviewInfo previewRelativeDate(RelativeDatePreviewInfo relativeDatePreviewInfo) {
