@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.abnt.elster;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
@@ -37,6 +38,7 @@ import com.energyict.protocolimplv2.abnt.common.RegisterFactory;
 import com.energyict.protocolimplv2.abnt.common.RequestFactory;
 import com.energyict.protocolimplv2.abnt.common.dialects.AbntOpticalDeviceProtocolDialect;
 import com.energyict.protocolimplv2.abnt.common.dialects.AbntSerialDeviceProtocolDialect;
+import com.energyict.protocolimplv2.abnt.common.dialects.AbntTransparentTCPDeviceProtocolDialect;
 import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.field.DateTimeField;
@@ -113,13 +115,14 @@ public class A1055 extends AbstractAbntProtocol {
                 new SioSerialConnectionType(),
                 new RxTxSerialConnectionType(),
                 new SioOpticalConnectionType(),
-                new RxTxOpticalConnectionType()
+                new RxTxOpticalConnectionType(),
+                new OutboundTcpIpConnectionType()
         );
     }
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new AbntSerialDeviceProtocolDialect(), new AbntOpticalDeviceProtocolDialect());
+        return Arrays.<DeviceProtocolDialect>asList(new AbntSerialDeviceProtocolDialect(), new AbntOpticalDeviceProtocolDialect(), new AbntTransparentTCPDeviceProtocolDialect());
     }
 
     @Override
