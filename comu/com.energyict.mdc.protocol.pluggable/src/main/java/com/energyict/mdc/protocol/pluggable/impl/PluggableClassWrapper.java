@@ -13,7 +13,6 @@ import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesExcep
 
 import java.net.URL;
 import java.time.Instant;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -100,7 +99,7 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
     }
 
     private Set<String> asSet(String propertySpecName) {
-        HashSet<String> set = new HashSet<>();
+        Set<String> set = new HashSet<>();
         set.add(propertySpecName);
         return set;
 
