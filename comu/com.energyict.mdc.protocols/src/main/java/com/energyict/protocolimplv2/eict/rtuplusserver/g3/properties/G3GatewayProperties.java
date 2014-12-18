@@ -7,6 +7,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.protocolimplv2.edp.EDPProperties;
 import com.energyict.protocolimplv2.dlms.DlmsProperties;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,15 +20,18 @@ import java.util.List;
  */
 public class G3GatewayProperties extends DlmsProperties {
 
-    public static final String AARQ_TIMEOUT = "AARQ_Timeout";
+    public static final String AARQ_TIMEOUT_PROP_NAME = "AARQ_Timeout";
     public static final TimeDuration AARQ_TIMEOUT_DEFAULT = TimeDuration.NONE;
+    public static final String G3_MAC_ADDRESS_PROP_NAME = "MAC_address";
+    public static final String G3_SHORT_ADDRESS_PROP_NAME = "Short_MAC_address";
+    public static final String G3_LOGICAL_DEVICE_ID_PROP_NAME ="Logical_device_id";
 
     public G3GatewayProperties(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }
 
     public long getAarqTimeout() {
-        return getProperties().getTypedProperty(AARQ_TIMEOUT, AARQ_TIMEOUT_DEFAULT).getMilliSeconds();
+        return getProperties().getTypedProperty(AARQ_TIMEOUT_PROP_NAME, AARQ_TIMEOUT_DEFAULT).getMilliSeconds();
     }
 
     public boolean isReadCache() {
@@ -37,7 +41,14 @@ public class G3GatewayProperties extends DlmsProperties {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.addAll(Arrays.asList(validateInvokeIdPropertySpec(), aarqTimeoutPropertySpec(), readCachePropertySpec(), forcedDelayPropertySpec(), maxRecPduSizePropertySpec()));
+        propertySpecs.addAll(Arrays.asList(validateInvokeIdPropertySpec(),
+                aarqTimeoutPropertySpec(),
+                readCachePropertySpec(),
+                forcedDelayPropertySpec(),
+                maxRecPduSizePropertySpec(),
+                getMacAddressPropertySPec(),
+                getShortAddressPropertySpec(),
+                getLogicalDeviceIdPropertySpec()));
         return propertySpecs;
     }
 
@@ -46,7 +57,7 @@ public class G3GatewayProperties extends DlmsProperties {
     }
 
     private PropertySpec aarqTimeoutPropertySpec() {
-        return getPropertySpecService().timeDurationPropertySpec(G3GatewayProperties.AARQ_TIMEOUT, false, G3GatewayProperties.AARQ_TIMEOUT_DEFAULT);
+        return getPropertySpecService().timeDurationPropertySpec(G3GatewayProperties.AARQ_TIMEOUT_PROP_NAME, false, G3GatewayProperties.AARQ_TIMEOUT_DEFAULT);
     }
 
     private PropertySpec readCachePropertySpec() {
@@ -59,6 +70,18 @@ public class G3GatewayProperties extends DlmsProperties {
 
     private PropertySpec maxRecPduSizePropertySpec() {
         return getPropertySpecService().bigDecimalPropertySpec(MAX_REC_PDU_SIZE, false, DEFAULT_MAX_REC_PDU_SIZE);
+    }
+
+    public PropertySpec getMacAddressPropertySPec() {
+        return getPropertySpecService().stringPropertySpec(G3_MAC_ADDRESS_PROP_NAME, false, "");
+    }
+
+    public PropertySpec getShortAddressPropertySpec() {
+        return getPropertySpecService().bigDecimalPropertySpec(G3_SHORT_ADDRESS_PROP_NAME, false, BigDecimal.ZERO);
+    }
+
+    public PropertySpec getLogicalDeviceIdPropertySpec() {
+        return getPropertySpecService().bigDecimalPropertySpec(G3_LOGICAL_DEVICE_ID_PROP_NAME, false, BigDecimal.ZERO);
     }
 
 }

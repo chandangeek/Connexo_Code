@@ -14,8 +14,11 @@ import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.protocolimpl.base.RTUCache;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
+import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350;
@@ -26,6 +29,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.registers.AM
 import javax.inject.Inject;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -226,6 +230,15 @@ public class AM540 extends E350 {
     @Override
     public String getVersion() {
         return "$Date: 2014-11-26 14:22:54 +0100 (Wed, 26 Nov 2014) $";
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        List<String> optionalKeys = getProtocolProperties().getOptionalKeys();
+        optionalKeys.add(G3GatewayProperties.G3_LOGICAL_DEVICE_ID_PROP_NAME);
+        optionalKeys.add(G3GatewayProperties.G3_MAC_ADDRESS_PROP_NAME);
+        optionalKeys.add(G3GatewayProperties.G3_SHORT_ADDRESS_PROP_NAME);
+        return PropertySpecFactory.toPropertySpecs(optionalKeys);
     }
 
 }
