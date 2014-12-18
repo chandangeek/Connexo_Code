@@ -7,9 +7,9 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.cron.CronExpression;
-import java.util.Optional;
 
 import javax.inject.Inject;
+import java.util.Optional;
 
 public class DefaultAppServerCreator implements AppServerCreator {
 
@@ -27,6 +27,12 @@ public class DefaultAppServerCreator implements AppServerCreator {
     public AppServer createAppServer(final String name, final CronExpression cronExpression) {
         AppServerImpl server = AppServerImpl.from(dataModel, name, cronExpression);
         dataModel.mapper(AppServer.class).persist(server);
+
+        Optional<DestinationSpec> found = messageService.getDestinationSpec(server.messagingName());
+        if (found.isPresent()) { // possibly queue exists from before.
+            return server;
+        }
+
         QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
         DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(server.messagingName(), DEFAULT_RETRY_DELAY_IN_SECONDS);
         destinationSpec.activate();
