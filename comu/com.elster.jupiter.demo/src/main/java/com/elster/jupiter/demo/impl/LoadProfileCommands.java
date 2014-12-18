@@ -1,20 +1,6 @@
 package com.elster.jupiter.demo.impl;
 
-import java.io.File;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.security.Principal;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-
 import com.elster.jupiter.metering.EndDevice;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -36,7 +22,28 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
-import static com.elster.jupiter.util.Checks.*;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.security.Principal;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Scanner;
+
+import static com.elster.jupiter.util.Checks.is;
 
 @Component(name = "com.elster.jupiter.demo.loadprofile", service = LoadProfileCommands.class, property = { "osgi.command.scope=loadprofile",
         "osgi.command.function=uploadData",

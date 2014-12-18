@@ -8,7 +8,10 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Store {
@@ -21,6 +24,8 @@ public class Store {
     private Map<String, OutboundComPortPool> outboundComPortPools;
     private Map<String, ComSchedule> comSchedules;
 
+    private Map<Class, List<?>> objetcs;
+
     public Store() {
         properties = new HashMap<>();
         registerTypes = new HashMap<>();
@@ -30,6 +35,8 @@ public class Store {
         comTasks = new HashMap<>();
         outboundComPortPools = new HashMap<>();
         comSchedules = new HashMap<>();
+
+        objetcs = new HashMap<>();
     }
 
     public Map<String, RegisterType> getRegisterTypes() {
@@ -64,4 +71,17 @@ public class Store {
         return properties;
     }
 
+    public <T> List<T> get(Class<T> clazz){
+        List<T> list = (List<T>) objetcs.get(clazz);
+        return list != null ? list : Collections.<T>emptyList();
+    }
+
+    public <T> void add(Class<T> clazz, T obj){
+        List<T> list = (List<T>) objetcs.get(clazz);
+        if (list == null){
+            list = new ArrayList<>();
+            objetcs.put(clazz, list);
+        }
+        list.add(obj);
+    }
 }

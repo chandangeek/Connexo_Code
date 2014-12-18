@@ -6,6 +6,9 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.issue.impl.service.InstallServiceImpl;
+import com.elster.jupiter.issue.impl.service.IssueCreationServiceImpl;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
@@ -50,6 +53,10 @@ import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.io.impl.SerialIONoModemComponentServiceImpl;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionModule;
+import com.energyict.mdc.issue.datacollection.impl.templates.AbstractTemplate;
+import com.energyict.mdc.issue.datacollection.impl.templates.BasicDatacollectionRuleTemplate;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
@@ -71,6 +78,9 @@ import com.google.inject.Scopes;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.kie.api.io.KieResources;
+import org.kie.internal.KnowledgeBaseFactoryService;
+import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -79,11 +89,14 @@ import javax.validation.MessageInterpolator;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -109,6 +122,9 @@ public class DemoTest {
             bind(LicenseService.class).toInstance(licenseService);
             bind(SerialComponentService.class).to(SerialIONoModemComponentServiceImpl.class).in(Scopes.SINGLETON);
             bind(LogService.class).toInstance(mock(LogService.class));
+            bind(KieResources.class).toInstance(mock(KieResources.class));
+            bind(KnowledgeBaseFactoryService.class).toInstance(mock(KnowledgeBaseFactoryService.class, RETURNS_DEEP_STUBS));
+            bind(KnowledgeBuilderFactoryService.class).toInstance(mock(KnowledgeBuilderFactoryService.class, RETURNS_DEEP_STUBS));
         }
 
         private License mockLicense() {
@@ -148,6 +164,7 @@ public class DemoTest {
                 new MeteringGroupsModule(),
                 new KpiModule(),
                 new TaskModule(),
+                new com.elster.jupiter.issue.impl.module.IssueModule(),
 
                 new MdcIOModule(),
                 new MdcCommonModule(),
@@ -167,6 +184,7 @@ public class DemoTest {
                 new IssuesModule(),
                 new SchedulingModule(),
                 new ProtocolApiModule(),
+                new IssueDataCollectionModule(),
 
                 new DemoModule()
         );
@@ -232,5 +250,17 @@ public class DemoTest {
         ((ValidationServiceImpl)injector.getInstance(ValidationService.class)).addResource(defaultValidatorFactory);
 
         ((DeviceConfigurationServiceImpl)injector.getInstance(DeviceConfigurationService.class)).setQueryService(injector.getInstance(QueryService.class));
+
+        injector.getInstance(InstallServiceImpl.class);
+        injector.getInstance(IssueDataCollectionService.class);
+        fixIssueTemplates();
+    }
+
+    private void fixIssueTemplates() {
+        AbstractTemplate template = injector.getInstance(BasicDatacollectionRuleTemplate.class);
+        IssueCreationServiceImpl creationService = (IssueCreationServiceImpl) injector.getInstance(IssueCreationService.class);
+        Map<String, Object> map = new HashMap<>();
+        map.put("uuid", BasicDatacollectionRuleTemplate.BASIC_TEMPLATE_UUID);
+        creationService.addRuleTemplate(template, map);
     }
 }

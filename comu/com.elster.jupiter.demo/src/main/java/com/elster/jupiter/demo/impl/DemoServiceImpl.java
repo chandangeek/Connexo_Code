@@ -1,10 +1,18 @@
 package com.elster.jupiter.demo.impl;
 
 import com.elster.jupiter.demo.DemoService;
+import com.elster.jupiter.demo.impl.generators.DeviceGroupGenerator;
+import com.elster.jupiter.demo.impl.generators.IssueGenerator;
+import com.elster.jupiter.demo.impl.generators.IssueRuleGenerator;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
@@ -21,14 +29,33 @@ import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.engine.model.*;
-import com.energyict.mdc.masterdata.*;
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
+import com.energyict.mdc.masterdata.ChannelType;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
@@ -42,6 +69,10 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -50,7 +81,13 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -108,6 +145,9 @@ public class DemoServiceImpl implements DemoService {
     public static final String USER_NAME_SYSTEM = "System";
     public static final String VALIDATION_DETECT_MISSING_VALUES = "Detect missing values";
 
+    public static final String DEVICE_GROUP_SOUTH_REGION = "South region";
+    public static final String DEVICE_GROUP_NORTH_REGION = "North region";
+
     private final boolean rethrowExceptions;
     private volatile EngineModelService engineModelService;
     private volatile UserService userService;
@@ -123,6 +163,13 @@ public class DemoServiceImpl implements DemoService {
     private volatile ConnectionTaskService connectionTaskService;
     private volatile SchedulingService schedulingService;
     private volatile LicenseService licenseService;
+    private volatile DataModel dataModel;
+    private volatile IssueService issueService;
+    private volatile IssueCreationService issueCreationService;
+    private volatile MeteringGroupsService meteringGroupsService;
+
+    private Store store;
+    private Injector injector;
 
     // For OSGi framework
     @SuppressWarnings("unused")
@@ -146,22 +193,61 @@ public class DemoServiceImpl implements DemoService {
             DeviceService deviceService,
             ConnectionTaskService connectionTaskService,
             SchedulingService schedulingService,
-            LicenseService licenseService) {
-        this.engineModelService = engineModelService;
-        this.userService = userService;
-        this.validationService = validationService;
-        this.transactionService = transactionService;
-        this.threadPrincipalService = threadPrincipalService;
-        this.protocolPluggableService = protocolPluggableService;
-        this.masterDataService = masterDataService;
-        this.meteringService = meteringService;
-        this.taskService = taskService;
-        this.deviceConfigurationService = deviceConfigurationService;
-        this.deviceService = deviceService;
-        this.connectionTaskService = connectionTaskService;
-        this.schedulingService = schedulingService;
-        this.licenseService = licenseService;
+            LicenseService licenseService,
+            OrmService ormService,
+            IssueService issueService,
+            IssueCreationService issueCreationService,
+            MeteringGroupsService meteringGroupsService) {
+        setEngineModelService(engineModelService);
+        setUserService(userService);
+        setValidationService(validationService);
+        setTransactionService(transactionService);
+        setThreadPrincipalService(threadPrincipalService);
+        setProtocolPluggableService(protocolPluggableService);
+        setMasterDataService(masterDataService);
+        setMeteringService(meteringService);
+        setTaskService(taskService);
+        setDeviceConfigurationService(deviceConfigurationService);
+        setDeviceService(deviceService);
+        setConnectionTaskService(connectionTaskService);
+        setSchedulingService(schedulingService);
+        setLicenseService(licenseService);
+        setOrmService(ormService);
+        setIssueService(issueService);
+        setIssueCreationService(issueCreationService);
+        setMeteringGroupsService(meteringGroupsService);
         rethrowExceptions = true;
+
+        activate();
+    }
+
+    @Activate
+    public void activate(){
+        store = new Store();
+        this.injector = Guice.createInjector(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(Store.class).toInstance(store);
+                bind(EngineModelService.class).toInstance(engineModelService);
+                bind(UserService.class).toInstance(userService);
+                bind(ValidationService.class).toInstance(validationService);
+                bind(TransactionService.class).toInstance(transactionService);
+                bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
+                bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
+                bind(MasterDataService.class).toInstance(masterDataService);
+                bind(MeteringService.class).toInstance(meteringService);
+                bind(TaskService.class).toInstance(taskService);
+                bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
+                bind(DeviceService.class).toInstance(deviceService);
+                bind(ConnectionTaskService.class).toInstance(connectionTaskService);
+                bind(SchedulingService.class).toInstance(schedulingService);
+                bind(LicenseService.class).toInstance(licenseService);
+                bind(DataModel.class).toInstance(dataModel);
+                bind(IssueService.class).toInstance(issueService);
+                bind(IssueCreationService.class).toInstance(issueCreationService);
+                bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
+            }
+        });
     }
 
     @Override
@@ -170,10 +256,9 @@ public class DemoServiceImpl implements DemoService {
             @Override
             protected void doPerform() {
                 Optional<License> license = licenseService.getLicenseForApplication("MDC");
-                if (!license.isPresent() || !License.Status.ACTIVE.equals(license.get().getStatus())){
+                if (!license.isPresent() || !License.Status.ACTIVE.equals(license.get().getStatus())) {
                     throw new IllegalStateException("MDC License isn't installed correctly");
                 }
-                Store store = new Store();
                 store.getProperties().put("host", host);
 
                 OnlineComServer deitvs099ComServer = createComServer("Deitvs099");
@@ -189,10 +274,23 @@ public class DemoServiceImpl implements DemoService {
                 createCommunicationTasks(store);
                 createCommunicationSchedules(store);
                 createDeviceTypes(store);
+                createDeviceGroups();
                 createDemoUsersImpl();
                 createValidationRulesImpl();
+
+                createCreationRule();
+                createIssues();
             }
         });
+    }
+
+    private void createCreationRule(){
+        injector.getInstance(IssueRuleGenerator.class).withName("Connection lost rule").create();
+    }
+
+    private void createDeviceGroups(){
+        injector.getInstance(DeviceGroupGenerator.class).withName(DEVICE_GROUP_NORTH_REGION).withDeviceTypes(DEVICE_TYPES_NAMES[0], DEVICE_TYPES_NAMES[2], DEVICE_TYPES_NAMES[3]).create();
+        injector.getInstance(DeviceGroupGenerator.class).withName(DEVICE_GROUP_SOUTH_REGION).withDeviceTypes(DEVICE_TYPES_NAMES[1], DEVICE_TYPES_NAMES[4], DEVICE_TYPES_NAMES[5]).create();
     }
 
     private OnlineComServer createComServer(String name) {
@@ -638,6 +736,14 @@ public class DemoServiceImpl implements DemoService {
         connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
     }
 
+    private void createIssues(){
+        List<Device> devices = deviceService.findAllDevices();
+        IssueGenerator issueGenerator = injector.getInstance(IssueGenerator.class);
+        for (Device device : devices) {
+            issueGenerator.withDevice(device).create();
+        }
+    }
+
     @Override
     public void createDemoUsers(){
         executeTransaction(new VoidTransaction() {
@@ -793,6 +899,30 @@ public class DemoServiceImpl implements DemoService {
     @SuppressWarnings("unused")
     public void setLicenseService(LicenseService licenseService) {
         this.licenseService = licenseService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setOrmService(OrmService ormService) {
+        this.dataModel = ormService.newDataModel("DEMO", "");
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setIssueCreationService(IssueCreationService issueCreationService) {
+        this.issueCreationService = issueCreationService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     private <T> T executeTransaction(Transaction<T> transaction) {
