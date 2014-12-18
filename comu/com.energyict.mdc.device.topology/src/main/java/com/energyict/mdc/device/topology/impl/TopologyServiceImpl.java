@@ -395,7 +395,11 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     }
 
     @Override
-    public G3CommunicationPathSegment addCommunicationSegment(Device source, Device target, Device intermediateHop, Duration timeToLive, int cost) {
+    public G3CommunicationPathSegmentBuilder addCommunicationSegments(Device source) {
+        return new G3CommunicationPathSegmentBuilderImpl(this, this.clock, source);
+    }
+
+    G3CommunicationPathSegment addCommunicationSegment(Instant now, Device source, Device target, Device intermediateHop, Duration timeToLive, int cost) {
         Optional<Device> nextHop;
         if (intermediateHop == null || intermediateHop.getId() == target.getId()) {
             nextHop = Optional.empty();
@@ -403,11 +407,10 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         else {
             nextHop = Optional.of(intermediateHop);
         }
-        return this.addCommunicationSegment(source, target, nextHop, timeToLive, cost);
+        return this.addCommunicationSegment(now, source, target, nextHop, timeToLive, cost);
     }
 
-    private G3CommunicationPathSegment addCommunicationSegment(Device source, Device target, Optional<Device> intermediateHop, Duration timeToLive, int cost) {
-        Instant now = this.clock.instant();
+    private G3CommunicationPathSegment addCommunicationSegment(Instant now, Device source, Device target, Optional<Device> intermediateHop, Duration timeToLive, int cost) {
         DataMapper<G3CommunicationPathSegment> mapper = this.dataModel.mapper(G3CommunicationPathSegment.class);
         G3CommunicationPathSegmentImpl segment;
         if (intermediateHop.isPresent()) {

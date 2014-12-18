@@ -94,20 +94,13 @@ public interface TopologyService {
     public G3CommunicationPath getCommunicationPath(Device source, Device target);
 
     /**
-     * Adds a {@link G3CommunicationPathSegment} from the source to the target
-     * {@link Device}, using the specified intermediate Device.
-     * It is allowed that the intermediate Device is null or
-     * the same as the  target Device, in that case,
-     * the added segment will be a direct or final segment.
+     * Starts the process to add {@link G3CommunicationPathSegment}s
+     * from the source to multiple target {@link Device}s.
      *
      * @param source The source Device
-     * @param target The target Device
-     * @param intermediateHop The intermediate Device
-     * @param timeToLive The time to live
-     * @param cost The segment's cost
-     * @return The newly created segment
+     * @return The G3CommunicationPathSegmentBuilder
      */
-    public G3CommunicationPathSegment addCommunicationSegment(Device source, Device target, Device intermediateHop, Duration timeToLive, int cost);
+    public G3CommunicationPathSegmentBuilder addCommunicationSegments(Device source);
 
     /**
      * Counts the number of communication errors that have occurred in the specified
@@ -215,6 +208,35 @@ public interface TopologyService {
      * @return The newly created G3DeviceAddressInformation or the existing one if nothing was changed
      */
     public G3DeviceAddressInformation setG3DeviceAddressInformation(Device device, String ipv6Address, int ipv6ShortAddress, int logicalDeviceId);
+
+    public interface G3CommunicationPathSegmentBuilder {
+
+        /**
+         * Adds a {@link G3CommunicationPathSegment} from the source to the target
+         * {@link Device}, using the specified intermediate Device.
+         * The source Device is the one that was specified in the
+         * {@link #addCommunicationSegments(Device)} method
+         * that returned this Builder in the first place.
+         * It is allowed that the intermediate Device is null or
+         * the same as the  target Device, in that case,
+         * the added segment will be a direct or final segment.
+         *
+         * @param target The target Device
+         * @param intermediateHop The intermediate Device
+         * @param timeToLive The time to live
+         * @param cost The segment's cost
+         */
+        public G3CommunicationPathSegmentBuilder add(Device target, Device intermediateHop, Duration timeToLive, int cost);
+
+        /**
+         * Completes the building process, effectively creating all segments
+         * and making sure they all have the same effective timestamp.
+         *
+         * @return The newly created segments
+         */
+        public List<G3CommunicationPathSegment> complete();
+
+    }
 
     /**
      * Build all the neighbors of one {@link Device}.
