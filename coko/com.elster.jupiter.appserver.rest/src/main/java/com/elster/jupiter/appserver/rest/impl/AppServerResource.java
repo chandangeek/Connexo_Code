@@ -18,6 +18,7 @@ import com.elster.jupiter.util.cron.CronExpressionParser;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -102,13 +103,25 @@ public class AppServerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{appserverName}")
-    public Response updateAppServer(AppServerInfo info) {
-        AppServer appServer = fetchAppServer(info.name);
+    public Response updateAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info) {
+        AppServer appServer = fetchAppServer(appServerName);
         try(TransactionContext context = transactionService.getContext()) {
             doUpdateAppServer(info, appServer);
             context.commit();
         }
         return Response.status(Response.Status.CREATED).entity(AppServerInfo.of(appServer)).build();
+    }
+
+    @DELETE
+    @Path("/{appserverName}/")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response removeDataExportTask(@PathParam("appserverName") String appServerName) {
+        AppServer appServer = fetchAppServer(appServerName);
+        try(TransactionContext context = transactionService.getContext()) {
+            appServer.delete();
+            context.commit();
+        }
+        return Response.status(Response.Status.OK).build();
     }
 
     private void doUpdateAppServer(AppServerInfo info, AppServer appServer) {
