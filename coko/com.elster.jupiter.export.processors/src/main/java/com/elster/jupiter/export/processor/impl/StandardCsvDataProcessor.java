@@ -105,7 +105,7 @@ public class StandardCsvDataProcessor implements DataProcessor {
     }
 
     private String getStringProperty(Map<String, Object> propertyMap, String key, String defaultValue) {
-        return propertyMap.containsKey(key) ? propertyMap.get(key).toString() : defaultValue;
+        return propertyMap.get(key) != null ? propertyMap.get(key).toString() : defaultValue;
     }
 
     @Override
