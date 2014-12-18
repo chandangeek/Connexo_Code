@@ -11,11 +11,9 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
@@ -37,10 +35,13 @@ public class YellowfinDeviceGroupsResource {
     }
 
     @POST
-    @Path("/dynamic/{groupname}")
-    public void cacheDynamicGroup(@PathParam("groupname") String groupname) {
+    @Path("/dynamic")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void cacheDynamicGroup(YellowfinDeviceGroupInfos groupInfos) {
         try(TransactionContext context = transactionService.getContext()){
-            yellowfinGroupsService.cacheDynamicDeviceGroup(groupname);
+            for(YellowfinDeviceGroupInfo group : groupInfos.groups){
+                yellowfinGroupsService.cacheDynamicDeviceGroup(group.name);
+            }
             context.commit();
         }
     }
