@@ -34,7 +34,9 @@ Ext.define('Tme.view.relativeperiod.Setup', {
                         stepItems: [
                             {
                                 text: Uni.I18n.translate('relativeperiod.add', 'TME', 'Add relative period'),
-                                href: me.router.getRoute('administration/relativeperiods/add').buildUrl()
+                                privileges: ['privilege.administrate.period'],
+                                href: typeof me.router.getRoute('administration/relativeperiods/add') !== 'undefined'
+                                    ? me.router.getRoute('administration/relativeperiods/add').buildUrl() : null
                             }
                         ]
                     },

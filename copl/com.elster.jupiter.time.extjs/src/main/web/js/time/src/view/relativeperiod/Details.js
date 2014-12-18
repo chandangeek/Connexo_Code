@@ -30,6 +30,7 @@ Ext.define('Tme.view.relativeperiod.Details', {
             {
                 xtype: 'button',
                 text: Uni.I18n.translate('general.actions', 'TME', 'Actions'),
+                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.period'),
                 iconCls: 'x-uni-action-iconD',
                 margin: '20 0 0 0',
                 menu: {
