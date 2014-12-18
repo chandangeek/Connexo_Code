@@ -26,6 +26,10 @@ Ext.onReady(function () {
         {
             name: 'Dsh',
             path: '../../apps/dsh/src'
+        },
+        {
+            name: 'Yfn',
+            path: '../../apps/yfn/src'
         }
     ];
 
