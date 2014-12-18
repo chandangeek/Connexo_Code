@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.PagedInfoList;
@@ -60,6 +61,7 @@ public class DeviceResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final ResourceHelper resourceHelper;
     private final IssueService issueService;
+    private final MeteringService meteringService;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
     private final Provider<LoadProfileResource> loadProfileResourceProvider;
     private final Provider<LogBookResource> logBookResourceProvider;
@@ -88,6 +90,7 @@ public class DeviceResource {
             TopologyService topologyService,
             DeviceConfigurationService deviceConfigurationService,
             IssueService issueService,
+            MeteringService meteringService,
             Provider<ProtocolDialectResource> protocolDialectResourceProvider,
             Provider<LoadProfileResource> loadProfileResourceProvider,
             Provider<LogBookResource> logBookResourceProvider,
@@ -114,6 +117,7 @@ public class DeviceResource {
         this.topologyService = topologyService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.issueService = issueService;
+        this.meteringService = meteringService;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
         this.loadProfileResourceProvider = loadProfileResourceProvider;
         this.logBookResourceProvider = logBookResourceProvider;
@@ -171,7 +175,7 @@ public class DeviceResource {
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
 
         this.deviceImportService.addDeviceToBatch(newDevice, info.batch);
-        return DeviceInfo.from(newDevice, getSlaveDevicesForDevice(newDevice), deviceImportService, topologyService, issueService);
+        return DeviceInfo.from(newDevice, getSlaveDevicesForDevice(newDevice), deviceImportService, topologyService, issueService, meteringService);
     }
 
     private List<DeviceTopologyInfo> getSlaveDevicesForDevice(Device device) {
@@ -200,7 +204,7 @@ public class DeviceResource {
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public DeviceInfo findDeviceTypeBymRID(@PathParam("mRID") String id, @Context SecurityContext securityContext) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService);
+        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService, meteringService);
     }
 
     /**

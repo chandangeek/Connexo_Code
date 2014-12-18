@@ -23,6 +23,7 @@ public class ChannelInfo {
     public TimeDurationInfo interval;
     public PhenomenonInfo unitOfMeasure;
     public Instant lastReading;
+    public Instant lastValueTimestamp;
     public ReadingTypeInfo readingType;
     public ReadingTypeInfo calculatedReadingType;
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
@@ -43,6 +44,7 @@ public class ChannelInfo {
         info.interval = new TimeDurationInfo(channel.getInterval());
         info.unitOfMeasure = PhenomenonInfo.from(channel.getPhenomenon());
         info.lastReading = channel.getLastReading().orElse(null);
+        info.lastValueTimestamp = channel.getLastDateTime().orElse(null);
         info.readingType = new ReadingTypeInfo(channel.getReadingType());
         if (channel.getReadingType().isCumulative()) {
             channel.getReadingType().getCalculatedReadingType().ifPresent(
