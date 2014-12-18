@@ -1,2 +1,19 @@
 -classpath: target/classes
 -dsannotations: *
+
+Export-Package:
+Private-Package:  \
+    com.energyict.assembly,\
+    com.energyict.dialer.*,\
+    com.energyict.dlms.*,\
+    com.energyict.encryption.*,\
+    com.energyict.genericprotocolimpl.*,\
+    com.energyict.license.*,\
+    com.energyict.mdw.cpo.*,\
+    com.energyict.mdw.dynamicattributes.*,\
+    com.energyict.protocolimpl.*,\
+    com.energyict.protocolimplv2.*,\
+    com.energyict.protocols.*,\
+    com.energyict.protocols.*,\
+    com.energyict.smartmeterprotocolimpl.*,\
+    com.energyict.xml.*
