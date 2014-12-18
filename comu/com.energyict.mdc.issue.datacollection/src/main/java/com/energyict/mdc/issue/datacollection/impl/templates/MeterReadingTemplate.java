@@ -17,6 +17,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.util.Map;
 import java.util.Optional;
 
@@ -28,6 +29,17 @@ public class MeterReadingTemplate extends AbstractTemplate {
 
     private volatile MeteringService meteringService;
 
+    public MeterReadingTemplate() {
+    }
+
+    @Inject
+    public MeterReadingTemplate(MeteringService meteringService, NlsService nlsService){
+        setMeteringService(meteringService);
+        setNlsService(nlsService);
+
+        activate();
+    }
+    
     @Activate
     @SuppressWarnings("unused")
     public void activate() {
