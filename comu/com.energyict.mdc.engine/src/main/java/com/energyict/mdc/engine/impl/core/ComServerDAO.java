@@ -411,5 +411,5 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
 
     public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook);
 
-    public void storePathSegments(TopologyPathSegment topologyPathSegment);
+    public void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegments);
 }

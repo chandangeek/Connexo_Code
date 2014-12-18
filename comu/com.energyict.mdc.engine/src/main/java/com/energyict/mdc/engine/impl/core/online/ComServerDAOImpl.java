@@ -664,13 +664,15 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void storePathSegments(TopologyPathSegment topologyPathSegment) {
-        serviceProvider.topologyService().addCommunicationSegment(
-                ((Device) topologyPathSegment.getSource().findDevice()),
+    public void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegments) {
+        TopologyService.G3CommunicationPathSegmentBuilder g3CommunicationPathSegmentBuilder = serviceProvider.topologyService().addCommunicationSegments(((Device) sourceDeviceIdentifier.findDevice()));
+        topologyPathSegments.stream().forEach(topologyPathSegment -> g3CommunicationPathSegmentBuilder.add(
                 ((Device) topologyPathSegment.getTarget().findDevice()),
                 ((Device) topologyPathSegment.getIntermediateHop().findDevice()),
                 topologyPathSegment.getTimeToLive(),
-                topologyPathSegment.getCost());
+                topologyPathSegment.getCost()
+        ));
+        g3CommunicationPathSegmentBuilder.complete();
     }
 
     @Override

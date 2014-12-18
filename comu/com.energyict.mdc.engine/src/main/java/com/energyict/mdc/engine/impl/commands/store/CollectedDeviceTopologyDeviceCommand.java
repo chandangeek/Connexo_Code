@@ -101,7 +101,9 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
     }
 
     private void doStorePathSegments(ComServerDAO comServerDAO) {
-        this.deviceTopology.getTopologyPathSegments().stream().forEach(pathSegment -> comServerDAO.storePathSegments(pathSegment));
+        if(this.deviceTopology.getTopologyPathSegments().size() >= 1){
+            comServerDAO.storePathSegments(this.deviceTopology.getTopologyPathSegments().get(0).getSource(), this.deviceTopology.getTopologyPathSegments());
+        }
     }
 
     private void doExecuteCollectedDeviceInfoCommands(ComServerDAO comServerDAO) {

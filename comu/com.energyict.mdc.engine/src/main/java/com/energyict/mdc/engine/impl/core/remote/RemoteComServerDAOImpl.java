@@ -227,7 +227,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void storePathSegments(TopologyPathSegment topologyPathSegment) {
+    public void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegment) {
 
     }
 
