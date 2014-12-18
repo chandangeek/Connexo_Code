@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
@@ -209,7 +210,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
             Future<?> future = submitTask(executorService, subscriberSpec, factory);
             submittedFutures.add(future);
         }
-        futures.put(executorService, submittedFutures);
+        futures.put(executorService, new CopyOnWriteArrayList<>(submittedFutures));
     }
 
     private Future<?> submitTask(CancellableTaskExecutorService executorService, SubscriberSpec subscriberSpec, MessageHandlerFactory factory) {

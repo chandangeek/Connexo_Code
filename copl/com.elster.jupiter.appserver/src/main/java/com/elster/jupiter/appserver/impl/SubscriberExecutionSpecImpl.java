@@ -1,8 +1,6 @@
 package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppServer;
-import com.elster.jupiter.appserver.AppServerCommand;
-import com.elster.jupiter.appserver.Command;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
@@ -72,6 +70,6 @@ public class SubscriberExecutionSpecImpl implements SubscriberExecutionSpec {
     }
 
     void update() {
-        dataModel.mapper(SubscriberExecutionSpec.class).update(this);
+        dataModel.mapper(SubscriberExecutionSpecImpl.class).update(this);
     }
 }
