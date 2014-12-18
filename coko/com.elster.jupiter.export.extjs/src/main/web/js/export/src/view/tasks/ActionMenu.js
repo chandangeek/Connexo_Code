@@ -36,6 +36,7 @@ Ext.define('Dxp.view.tasks.ActionMenu', {
         {
             itemId: 'run',
             text: Uni.I18n.translate('general.run', 'DES', 'Run'),
+            hidden: Uni.Auth.hasNoPrivilege('privilege.run.dataExportTask'),
             action: 'run',
             hidden: true
         }
