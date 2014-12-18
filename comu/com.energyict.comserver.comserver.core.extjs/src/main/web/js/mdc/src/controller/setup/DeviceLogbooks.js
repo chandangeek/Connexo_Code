@@ -59,7 +59,6 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
 
         preview.setTitle(record.get('name'));
         preview.down('#deviceLogbooksPreviewForm').loadRecord(record);
-        preview.down('#deviceLogbooksActionMenu').record = record;
     },
 
     chooseAction: function (menu, item) {
