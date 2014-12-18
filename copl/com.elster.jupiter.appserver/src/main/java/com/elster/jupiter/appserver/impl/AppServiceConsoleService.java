@@ -1,7 +1,9 @@
 package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppServerCommand;
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.Command;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
@@ -38,6 +40,7 @@ import java.util.TimeZone;
                 "osgi.command.function=appServers",
                 "osgi.command.function=identify",
                 "osgi.command.function=stopAppServer",
+                "osgi.command.function=stopServer",
                 "osgi.command.function=become",
                 "osgi.command.function=setLocale",
                 "osgi.command.function=setTimeZone",
@@ -227,6 +230,14 @@ public class AppServiceConsoleService {
         AppServer appServer = findAppServer(appServerName).orElseThrow(IllegalArgumentException::new);
         try(TransactionContext context = transactionService.getContext()) {
             appServer.deactivate();
+            context.commit();
+        }
+    }
+
+    public void stopServer(String appServerName) {
+        AppServer appServer = findAppServer(appServerName).orElseThrow(IllegalArgumentException::new);
+        try(TransactionContext context = transactionService.getContext()) {
+            appServer.sendCommand(new AppServerCommand(Command.STOP));
             context.commit();
         }
     }
