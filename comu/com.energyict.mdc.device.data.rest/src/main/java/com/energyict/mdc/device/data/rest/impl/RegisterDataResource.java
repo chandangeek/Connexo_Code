@@ -79,9 +79,9 @@ public class RegisterDataResource {
         /* And fill a delta value for cumulative reading type. The delta is the difference with the previous record.
            The Delta value won't be stored in the database yet, as it has a performance impact */
         if (register.getReadingType().isCumulative()){
-            for (int i = queryParameters.getStart() + 1; i < queryParameters.getStart() + queryParameters.getLimit() && i < readingInfos.size(); i++){
-                calculateDeltaForNumericalReading(readingInfos.get(i - 1), readingInfos.get(i));
-                calculateDeltaForBillingReading(readingInfos.get(i - 1), readingInfos.get(i));
+            for (int i = queryParameters.getStart(); i < queryParameters.getStart() + queryParameters.getLimit() && i < readingInfos.size() - 1; i++){
+                calculateDeltaForNumericalReading(readingInfos.get(i + 1), readingInfos.get(i));
+                calculateDeltaForBillingReading(readingInfos.get(i + 1), readingInfos.get(i));
             }
         }
         List<ReadingInfo> paginatedReadingInfo = ListPager.of(readingInfos).from(queryParameters).find();
