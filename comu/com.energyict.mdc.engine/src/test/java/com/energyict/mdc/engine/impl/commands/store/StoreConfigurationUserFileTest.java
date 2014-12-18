@@ -49,7 +49,7 @@ public class StoreConfigurationUserFileTest {
 
         // Asserts
         verify(comServerDAO).storeConfigurationFile(any(DeviceIdentifier.class), any(DateFormat.class), anyString(), any(byte[].class));
-        verify(comServerDAO, never()).findDevice(deviceIdentifier);
+        verify(comServerDAO, never()).findOfflineDevice(deviceIdentifier);
     }
 
     @Test

@@ -110,7 +110,7 @@ public class ComServletTest {
         when(comPort.getComPortPool()).thenReturn(comPortPool);
         when(comPort.getComServer()).thenReturn(comServer);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        when(comServerDAO.findDevice(any(DeviceIdentifier.class))).thenReturn(null);
+        when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(null);
         ComServlet comServlet = new ComServlet(comPort, comServerDAO, mock(DeviceCommandExecutor.class), this.serviceProvider);
         HttpServletRequest servletRequest = mock(HttpServletRequest.class);
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);

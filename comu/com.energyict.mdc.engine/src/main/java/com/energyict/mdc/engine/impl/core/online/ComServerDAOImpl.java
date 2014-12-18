@@ -22,7 +22,6 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.offline.DeviceOffline;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
@@ -47,6 +46,7 @@ import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
+import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
@@ -54,13 +54,12 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
 import com.elster.jupiter.events.EventService;
@@ -259,10 +258,15 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public OfflineDevice findDevice(DeviceIdentifier<?> identifier) {
+    public OfflineDevice findOfflineDevice(DeviceIdentifier<?> identifier) {
+        return findOfflineDevice(identifier, DeviceOffline.needsEverything);
+    }
+
+    @Override
+    public OfflineDevice findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
         BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister> device = identifier.findDevice();
         if (device != null) {
-            return new OfflineDeviceImpl((Device) device, DeviceOffline.needsEverything, new OfflineDeviceServiceProvider());
+            return new OfflineDeviceImpl((Device) device, offlineDeviceContext, new OfflineDeviceServiceProvider());
         } else {
             return null;
         }
@@ -657,6 +661,16 @@ public class ComServerDAOImpl implements ComServerDAO {
         logBookUpdater.setLastLogBookIfLater(lastLogBook);
         logBookUpdater.setLastReadingIfLater(Date.from(getClock().instant())); // We assume the event will be persisted with a time difference of only a few milliseconds
         logBookUpdater.update();
+    }
+
+    @Override
+    public void storePathSegments(TopologyPathSegment topologyPathSegment) {
+        serviceProvider.topologyService().addCommunicationSegment(
+                ((Device) topologyPathSegment.getSource().findDevice()),
+                ((Device) topologyPathSegment.getTarget().findDevice()),
+                ((Device) topologyPathSegment.getIntermediateHop().findDevice()),
+                topologyPathSegment.getTimeToLive(),
+                topologyPathSegment.getCost());
     }
 
     @Override

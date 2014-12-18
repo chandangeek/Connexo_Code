@@ -10,6 +10,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
@@ -51,6 +52,7 @@ public class TopologyCommandImpl extends SimpleComCommand implements TopologyCom
         this.deviceTopology = deviceProtocol.getDeviceTopology();
         this.deviceTopology.setTopologyAction(this.topologyAction);
         this.deviceTopology.setDataCollectionConfiguration(this.comTaskExecution);
+        this.deviceTopology.getAdditionalCollectedDeviceInfo().stream().forEach(collectedDeviceInfo -> collectedDeviceInfo.setDataCollectionConfiguration(comTaskExecution));
         addCollectedDataItem(this.deviceTopology);
     }
 
@@ -90,6 +92,7 @@ public class TopologyCommandImpl extends SimpleComCommand implements TopologyCom
         appendSlaves(originalSlavesBuilder, getSlaveIdentifiersFromOfflineDevices());
         PropertyDescriptionBuilder receivedSlavesBuilder = builder.addListProperty("receivedSlaves");
         appendSlaves(receivedSlavesBuilder, this.deviceTopology.getSlaveDeviceIdentifiers());
+        appendCollectedDeviceInfo(builder, this.deviceTopology.getAdditionalCollectedDeviceInfo());
     }
 
     private void appendSlaves(PropertyDescriptionBuilder builder, List<DeviceIdentifier> slaveDeviceIdentifiers) {
@@ -103,4 +106,13 @@ public class TopologyCommandImpl extends SimpleComCommand implements TopologyCom
         }
     }
 
+    private void appendCollectedDeviceInfo(DescriptionBuilder builder, List<CollectedDeviceInfo> additionalCollectedDeviceInfo) {
+        if (!additionalCollectedDeviceInfo.isEmpty()) {
+            PropertyDescriptionBuilder deviceInfoListBuilder = builder.addListProperty("additionalDeviceInfo");
+            for (CollectedDeviceInfo collectedDeviceInfo : additionalCollectedDeviceInfo) {
+                deviceInfoListBuilder.append(collectedDeviceInfo.toString());
+                deviceInfoListBuilder.next();
+            }
+        }
+    }
 }

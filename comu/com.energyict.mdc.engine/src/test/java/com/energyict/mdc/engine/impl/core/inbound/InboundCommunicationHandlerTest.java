@@ -214,7 +214,7 @@ public class InboundCommunicationHandlerTest {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         when(inboundDeviceProtocol.getDeviceIdentifier()).thenReturn(mock(DeviceIdentifier.class));
-        when(this.comServerDAO.findDevice(any(DeviceIdentifier.class))).thenReturn(null);
+        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(null);
 
         // Business method
         this.handler.handle(inboundDeviceProtocol, context);
@@ -263,7 +263,7 @@ public class InboundCommunicationHandlerTest {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         when(inboundDeviceProtocol.getDeviceIdentifier()).thenReturn(mock(DeviceIdentifier.class));
-        when(this.comServerDAO.findDevice(any(DeviceIdentifier.class))).thenReturn(null);
+        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(null);
 
         // Business method
         this.handler.handle(inboundDeviceProtocol, context);
@@ -294,7 +294,7 @@ public class InboundCommunicationHandlerTest {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         OfflineDevice device = mock(OfflineDevice.class);
-        when(this.comServerDAO.findDevice(any(DeviceIdentifier.class))).thenReturn(device);
+        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(device);
         when(this.comServerDAO.findExecutableInboundComTasks(device, this.comPort)).thenReturn(new ArrayList<ComTaskExecution>(0));
 
         // Business method
@@ -344,7 +344,7 @@ public class InboundCommunicationHandlerTest {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         OfflineDevice device = mock(OfflineDevice.class);
-        when(this.comServerDAO.findDevice(any(DeviceIdentifier.class))).thenReturn(device);
+        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(device);
         when(this.comServerDAO.findExecutableInboundComTasks(device, this.comPort)).thenReturn(new ArrayList<ComTaskExecution>(0));
 
         // Business method
@@ -371,7 +371,7 @@ public class InboundCommunicationHandlerTest {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         OfflineDevice device = mock(OfflineDevice.class);
-        when(this.comServerDAO.findDevice(any(DeviceIdentifier.class))).thenReturn(device);
+        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(device);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
@@ -405,7 +405,7 @@ public class InboundCommunicationHandlerTest {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         OfflineDevice device = mock(OfflineDevice.class);
-        when(this.comServerDAO.findDevice(any(DeviceIdentifier.class))).thenReturn(device);
+        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(device);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(this.comServerDAO.findExecutableInboundComTasks(device, this.comPort)).thenReturn(Arrays.asList(comTaskExecution));
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(new ArrayList<>(0));
@@ -437,7 +437,7 @@ public class InboundCommunicationHandlerTest {
         collectedData.add(collectedRegister);
         when(inboundDeviceProtocol.getCollectedData()).thenReturn(collectedData);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        when(this.comServerDAO.findDevice(any(DeviceIdentifier.class))).thenReturn(offlineDevice);
+        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(offlineDevice);
         ComTask comTask = mock(ComTask.class);
 // Todo (JP-2013): wait for ComTaskConfiguration interface to be committed
 //        when(comTask.isConfiguredToCollectRegisterData()).thenReturn(true);
@@ -497,7 +497,7 @@ public class InboundCommunicationHandlerTest {
         Device device = getMockedDevice();
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         when(offlineDevice.getId()).thenReturn(DEVICE_ID);
-        when(this.comServerDAO.findDevice(any(DeviceIdentifier.class))).thenReturn(offlineDevice);
+        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(offlineDevice);
         ComTask comTask = mock(ComTask.class);
 //        when(comTask.isConfiguredToCollectRegisterData()).thenReturn(true);
         ConnectionTask connectionTask = mock(InboundConnectionTask.class);
@@ -541,7 +541,7 @@ public class InboundCommunicationHandlerTest {
         when(offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         Device device = getMockedDevice();
-        when(this.comServerDAO.findDevice(any(DeviceIdentifier.class))).thenReturn(offlineDevice);
+        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(offlineDevice);
         when(device.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
         when(device.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         ComTask comTask = mock(ComTask.class);
@@ -618,7 +618,7 @@ public class InboundCommunicationHandlerTest {
         collectedData.add(collectedRegister);
         when(inboundDeviceProtocol.getCollectedData()).thenReturn(collectedData);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        when(this.comServerDAO.findDevice(any(DeviceIdentifier.class))).thenReturn(offlineDevice);
+        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(offlineDevice);
         ComTask comTask = mock(ComTask.class);
 // Todo (JP-2013): wait for ComTaskConfiguration interface to be committed
 //        when(comTask.isConfiguredToCollectRegisterData()).thenReturn(false);

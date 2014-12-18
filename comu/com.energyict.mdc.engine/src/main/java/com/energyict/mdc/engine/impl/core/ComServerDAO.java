@@ -12,12 +12,14 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -279,6 +281,16 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     public void storeMeterReadings(DeviceIdentifier<Device> deviceIdentifier, MeterReading meterReading);
 
     /**
+     * Finds the OfflineDevice that is uniquely identified
+     * by the specified {@link DeviceIdentifier}.
+     *
+     * @param identifier The DeviceIdentifier
+     * @param offlineDeviceContext  the offlineContext identifying what needs to be offline
+     * @return The offline version of the Device that is identified by the DeviceIdentifier
+     */
+    public OfflineDevice findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext);
+
+    /**
      * Finds the BaseRegister that is uniquely identified
      * by the specified RegisterIdentifier.
      *
@@ -399,4 +411,5 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
 
     public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook);
 
+    public void storePathSegments(TopologyPathSegment topologyPathSegment);
 }

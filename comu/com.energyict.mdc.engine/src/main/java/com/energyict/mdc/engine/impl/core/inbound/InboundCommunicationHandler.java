@@ -134,7 +134,7 @@ public class InboundCommunicationHandler {
         InboundDeviceProtocol.DiscoverResultType discoverResultType;
         try {
             discoverResultType = this.doDiscovery(inboundDeviceProtocol);
-            device = this.comServerDAO.findDevice(inboundDeviceProtocol.getDeviceIdentifier());
+            device = this.comServerDAO.findOfflineDevice(inboundDeviceProtocol.getDeviceIdentifier());
             if (device == null) {
                 this.handleUnknownDevice(inboundDeviceProtocol);
             } else {

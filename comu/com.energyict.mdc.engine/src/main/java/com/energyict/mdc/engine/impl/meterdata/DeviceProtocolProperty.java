@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.meterdata;
 
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceProtocolProperty;
@@ -22,6 +23,7 @@ public class DeviceProtocolProperty extends CollectedDeviceData implements Colle
     private DeviceIdentifier deviceIdentifier;
     private PropertySpec propertySpec;
     private Object propertyValue;
+    private ComTaskExecution comTaskExecution;
 
     public DeviceProtocolProperty(DeviceIdentifier deviceIdentifier, PropertySpec propertySpec, Object propertyValue) {
         this.deviceIdentifier = deviceIdentifier;
@@ -34,6 +36,11 @@ public class DeviceProtocolProperty extends CollectedDeviceData implements Colle
         return deviceIdentifier;
     }
 
+    @Override
+    public void setDataCollectionConfiguration(DataCollectionConfiguration configuration) {
+        this.comTaskExecution = (ComTaskExecution) configuration;
+    }
+
     public PropertySpec getPropertySpec() {
         return propertySpec;
     }
@@ -44,7 +51,7 @@ public class DeviceProtocolProperty extends CollectedDeviceData implements Colle
 
     @Override
     public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
-        return new UpdateDeviceProtocolProperty(this, issueService);
+        return new UpdateDeviceProtocolProperty(this, issueService, comTaskExecution);
     }
 
     @Override

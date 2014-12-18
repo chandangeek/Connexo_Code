@@ -7,10 +7,12 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
+import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,16 +48,15 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
      */
     private List<CollectedDeviceInfo> additionalCollectedDeviceInfo;
 
+    private List<TopologyPathSegment> topologyPathSegments;
+
     /**
      * Default constructor
      *
      * @param deviceIdentifier unique identification of the device which need s to update his cache
      */
     public DeviceTopology(DeviceIdentifier deviceIdentifier) {
-        super();
-        this.deviceIdentifier = deviceIdentifier;
-        this.slaveDeviceIdentifiers = new ArrayList<>();
-        this.additionalCollectedDeviceInfo = new ArrayList<>();
+        this(deviceIdentifier, new ArrayList<>());
     }
 
     public DeviceTopology(DeviceIdentifier deviceIdentifier, List<DeviceIdentifier> slaveDeviceIdentifiers) {
@@ -63,6 +64,7 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
         this.deviceIdentifier = deviceIdentifier;
         this.slaveDeviceIdentifiers = slaveDeviceIdentifiers;
         this.additionalCollectedDeviceInfo = new ArrayList<>();
+        this.topologyPathSegments = new ArrayList<>();
     }
 
     @Override
@@ -72,7 +74,7 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
 
     @Override
     public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
-        return new CollectedDeviceTopologyDeviceCommand(this, comTaskExecution);
+        return new CollectedDeviceTopologyDeviceCommand(this, comTaskExecution, meterDataStoreCommand);
     }
 
     @Override
@@ -124,4 +126,13 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
         this.comTaskExecution = (ComTaskExecution) configuration;
     }
 
+    @Override
+    public void addPathSegmentFor(DeviceIdentifier source, DeviceIdentifier target, DeviceIdentifier intermediateHop, Duration timeToLive, int cost) {
+        topologyPathSegments.add(new TopologyPathSegment(source, target, intermediateHop, timeToLive, cost));
+    }
+
+    @Override
+    public List<TopologyPathSegment> getTopologyPathSegments() {
+        return this.topologyPathSegments;
+    }
 }

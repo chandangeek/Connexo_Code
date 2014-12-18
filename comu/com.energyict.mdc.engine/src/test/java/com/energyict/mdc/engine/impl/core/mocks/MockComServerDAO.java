@@ -17,12 +17,14 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
@@ -245,10 +247,14 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public OfflineDevice findDevice (DeviceIdentifier identifier) {
+    public OfflineDevice findOfflineDevice(DeviceIdentifier identifier) {
         return null;
     }
 
+    @Override
+    public OfflineDevice findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
+        return null;
+    }
     @Override
     public OfflineRegister findOfflineRegister(RegisterIdentifier identifier) {
         return null;
@@ -461,6 +467,11 @@ public class MockComServerDAO implements ComServerDAO {
 
     @Override
     public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook) {
+
+    }
+
+    @Override
+    public void storePathSegments(TopologyPathSegment topologyPathSegment) {
 
     }
 

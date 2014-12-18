@@ -5,11 +5,17 @@ import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
+import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolProperty;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface
@@ -26,10 +32,12 @@ public class UpdateDeviceProtocolProperty extends DeviceCommandImpl {
     private final PropertySpec propertySpec;
     private final Object propertyValue;
     private final IssueService issueService;
+    private final ComTaskExecution comTaskExecution;
 
-    public UpdateDeviceProtocolProperty(DeviceProtocolProperty deviceProtocolProperty, IssueService issueService) {
+    public UpdateDeviceProtocolProperty(DeviceProtocolProperty deviceProtocolProperty, IssueService issueService, ComTaskExecution comTaskExecution) {
         super();
         this.issueService = issueService;
+        this.comTaskExecution = comTaskExecution;
         this.deviceIdentifier = deviceProtocolProperty.getDeviceIdentifier();
         this.propertySpec = deviceProtocolProperty.getPropertySpec();
         this.propertyValue = deviceProtocolProperty.getPropertyValue();
@@ -37,20 +45,22 @@ public class UpdateDeviceProtocolProperty extends DeviceCommandImpl {
 
     @Override
     protected void doExecute(ComServerDAO comServerDAO) {
-        if (comServerDAO.findDevice(deviceIdentifier) != null) {
-            try {
-                if (propertySpec.validateValueIgnoreRequired(propertyValue)) {
-                    comServerDAO.updateDeviceProtocolProperty(deviceIdentifier, propertySpec.getName(), propertyValue);
+        try {
+            if (comServerDAO.findOfflineDevice(deviceIdentifier, new DeviceOfflineFlags(DeviceOfflineFlags.SLAVE_DEVICES_FLAG)) != null) {
+                try {
+                    if (propertySpec.validateValueIgnoreRequired(propertyValue)) {
+                        comServerDAO.updateDeviceProtocolProperty(deviceIdentifier, propertySpec.getName(), propertyValue);
+                    }
+                } catch (InvalidValueException | DeviceProtocolPropertyException e) {
+                    getExecutionLogger().addIssue(
+                            CompletionCode.ConfigurationWarning,
+                            getIssueService().newWarning(this, MessageSeeds.PROPERTY_VALIDATION_FAILED.getKey(), propertySpec.getName(), propertyValue), comTaskExecution);
                 }
-            } catch (InvalidValueException e) {
-                //TODO this will probably don't log much ..
-                issueService.newIssueCollector().addWarning(this, "invalidDeviceProtocolPropertyCollected", propertySpec);
-            } catch (NotFoundException e) {
-                   //Do nothing, move on. We can't update the property on a non-existing device.
             }
-        } else {
-            //TODO this will probably don't log much ..
-            issueService.newIssueCollector().addWarning(this, "collectedDeviceProtocolPropertyForUnknownDevice", deviceIdentifier);
+        } catch (CanNotFindForIdentifier e) {
+            getExecutionLogger().addIssue(
+                    CompletionCode.ConfigurationWarning,
+                    getIssueService().newWarning(deviceIdentifier, e.getMessageSeed().getKey()), comTaskExecution);
         }
     }
 

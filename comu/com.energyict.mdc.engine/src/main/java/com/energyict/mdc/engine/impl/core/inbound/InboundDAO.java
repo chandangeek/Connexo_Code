@@ -81,6 +81,6 @@ public interface InboundDAO {
      * @param identifier The DeviceIdentifier
      * @return The offline version of the Device that is identified by the DeviceIdentifier
      */
-    public OfflineDevice findDevice(DeviceIdentifier<?> identifier);
+    public OfflineDevice findOfflineDevice(DeviceIdentifier<?> identifier);
 
 }

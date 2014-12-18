@@ -71,10 +71,10 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         when(slave2Identifier.getIdentifier()).thenReturn(SLAVE_2_SERIAL_NUMBER);
         ServiceProvider.instance.set(serviceProvider);
         serviceProvider.setIssueService(issueService);
-        when(comServerDAO.findDevice(deviceIdentifier)).thenReturn(offlineDevice);
+        when(comServerDAO.findOfflineDevice(deviceIdentifier)).thenReturn(offlineDevice);
         when(deviceIdentifier.findDevice()).thenReturn(device);
-        when(comServerDAO.findDevice(slave1Identifier)).thenReturn(offlineSlave_1);
-        when(comServerDAO.findDevice(slave2Identifier)).thenReturn(offlineSlave_2);
+        when(comServerDAO.findOfflineDevice(slave1Identifier)).thenReturn(offlineSlave_1);
+        when(comServerDAO.findOfflineDevice(slave2Identifier)).thenReturn(offlineSlave_2);
 
         when(offlineSlave_1.getSerialNumber()).thenReturn(SLAVE_1_SERIAL_NUMBER);
         when(offlineSlave_2.getSerialNumber()).thenReturn(SLAVE_2_SERIAL_NUMBER);
@@ -103,8 +103,8 @@ public class CollectedDeviceTopologyDeviceCommandTest {
      */
     @Test
     public void testAddedSlave_UpdateAction() throws Exception {
-        when(comServerDAO.findDevice(slave1Identifier)).thenReturn(offlineSlave_1);  // Already known in EIServer
-        when(comServerDAO.findDevice(slave2Identifier)).thenReturn(null);            // Not yet present in EIServer
+        when(comServerDAO.findOfflineDevice(slave1Identifier)).thenReturn(offlineSlave_1);  // Already known in EIServer
+        when(comServerDAO.findOfflineDevice(slave2Identifier)).thenReturn(null);            // Not yet present in EIServer
 
         when(offlineDevice.getAllSlaveDevices()).thenReturn(new ArrayList<>());
 
@@ -112,7 +112,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.UPDATE);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution);
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, meterDataStoreCommand);
         DeviceCommand.ExecutionLogger mockedExecutionLogger = mock(DeviceCommand.ExecutionLogger.class);
         command.logExecutionWith(mockedExecutionLogger);
 
@@ -145,8 +145,8 @@ public class CollectedDeviceTopologyDeviceCommandTest {
      */
     @Test
     public void testAddedSlave_VerifyAction() throws Exception {
-        when(comServerDAO.findDevice(slave1Identifier)).thenReturn(offlineSlave_1);  // Already known in EIServer
-        when(comServerDAO.findDevice(slave2Identifier)).thenReturn(null);            // Not yet present in EIServer
+        when(comServerDAO.findOfflineDevice(slave1Identifier)).thenReturn(offlineSlave_1);  // Already known in EIServer
+        when(comServerDAO.findOfflineDevice(slave2Identifier)).thenReturn(null);            // Not yet present in EIServer
 
         when(offlineDevice.getAllSlaveDevices()).thenReturn(new ArrayList<OfflineDevice>());
 
@@ -154,7 +154,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.VERIFY);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution);
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, meterDataStoreCommand);
         DeviceCommand.ExecutionLogger mockedExecutionLogger = mock(DeviceCommand.ExecutionLogger.class);
         command.logExecutionWith(mockedExecutionLogger);
         // Business method
@@ -195,7 +195,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.UPDATE);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution);
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, meterDataStoreCommand);
         DeviceCommand.ExecutionLogger mockedExecutionLogger = mock(DeviceCommand.ExecutionLogger.class);
         command.logExecutionWith(mockedExecutionLogger);
         // Business method
@@ -232,7 +232,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.VERIFY);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution);
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, meterDataStoreCommand);
         DeviceCommand.ExecutionLogger mockedExecutionLogger = mock(DeviceCommand.ExecutionLogger.class);
         command.logExecutionWith(mockedExecutionLogger);
         // Business method
@@ -255,7 +255,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         DeviceTopology deviceTopology = new DeviceTopology(this.deviceIdentifier, slaveDeviceIdentifiers);
         TopologyAction topologyAction = TopologyAction.VERIFY;
         deviceTopology.setTopologyAction(topologyAction);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution);
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, meterDataStoreCommand);
 
         // Business method
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
