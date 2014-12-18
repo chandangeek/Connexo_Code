@@ -27,33 +27,16 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Detail', {
                             align: 'stretch'
                         },
                         width: '100%',
-                        tbar: [
-                            {
-                                xtype: 'component',
-                                flex: 1
-                            },
-                            '->',
-                            {
-                                xtype: 'button',
-                                text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
-                                iconCls: 'x-uni-action-iconD',
-                                itemId: 'detailActionMenu',
-                                menu: {
-                                    xtype: 'deviceRegisterConfigurationActionMenu'
-                                }
-                            }
-                        ],
-
                         items: [
                             {
                                 xtype: 'container',
                                 layout: {
-                                    type: 'column',
-                                    align: 'stretch'
+                                    type: 'hbox'
                                 },
                                 items: [
                                     {
                                         xtype: 'fieldcontainer',
+                                        flex: 1,
                                         fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.general', 'MDC', 'General'),
                                         labelAlign: 'top',
                                         layout: 'vbox',
@@ -139,6 +122,16 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Detail', {
                                                 }
                                             }
                                         ]
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+                                        iconCls: 'x-uni-action-iconD',
+                                        itemId: 'detailActionMenu',
+                                        margin: '20 0 0 0',
+                                        menu: {
+                                            xtype: 'deviceRegisterConfigurationActionMenu'
+                                        }
                                     }
                                 ]
                             },

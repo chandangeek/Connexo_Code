@@ -41,12 +41,6 @@ Ext.define('Mdc.view.setup.devicelogbooks.Grid', {
                     return value ? Uni.I18n.formatDate('devicelogbooks.preview.lastEventDate.dateFormat', value, 'MDC', 'F d Y, H:i:s') : '';
                 },
                 flex: 1
-            },
-            {
-                xtype: 'uni-actioncolumn',
-                menu: {
-                    xtype: 'deviceLogbooksActionMenu'
-                }
             }
         ];
 

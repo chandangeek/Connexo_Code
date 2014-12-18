@@ -47,14 +47,14 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.flags.Detail', {
                             {
                                 xtype: 'container',
                                 layout: {
-                                    type: 'column',
-                                    align: 'stretch'
+                                    type: 'hbox'
                                 },
                                 items: [
                                     {
                                         xtype:'fieldcontainer',
                                         fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.general', 'MDC', 'General'),
                                         labelAlign: 'top',
+                                        flex: 1,
                                         layout: 'vbox',
                                         defaults: {
                                             xtype: 'displayfield',
@@ -98,6 +98,15 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.flags.Detail', {
                                                 name: 'numberOfFractionDigits'
                                             }
                                         ]
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+                                        iconCls: 'x-uni-action-iconD',
+                                        itemId: 'detailActionMenu',
+                                        menu: {
+                                            xtype: 'deviceRegisterConfigurationActionMenu'
+                                        }
                                     }
                                 ]
                             }
