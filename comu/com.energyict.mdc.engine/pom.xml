@@ -55,10 +55,6 @@
             <artifactId>mdc.engine.config</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>javassist</groupId>

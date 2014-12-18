@@ -56,7 +56,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import org.apache.log4j.PropertyConfigurator;
 
 import java.io.File;
 import java.io.IOException;
@@ -230,7 +229,6 @@ public class MultiThreadedScheduledComPortTest {
 
     @BeforeClass
     public static void initializeLogging() {
-        initializeLog4J();
         initializeJavaUtilLogging();
     }
 
@@ -242,27 +240,6 @@ public class MultiThreadedScheduledComPortTest {
             System.err.println("Logging will most likely not work as expected due to the error below.");
             e.printStackTrace(System.err);
         }
-    }
-
-    private static void initializeLog4J() {
-        try {
-            URL configURL = MultiThreadedScheduledComPortTest.class.getClassLoader().getResource(LOG4J_PROPERTIES_FILE_NAME);
-            if (configURL == null) {
-                initializeLog4JWithFingersCrossed();
-            } else {
-                PropertyConfigurator.configure(configURL);
-                File configFile = new File(configURL.toURI());
-                PropertyConfigurator.configureAndWatch(configFile.getAbsolutePath());
-            }
-        } catch (URISyntaxException e) {
-            initializeLog4JWithFingersCrossed();
-        }
-    }
-
-    private static void initializeLog4JWithFingersCrossed() {
-        String configFilename = LOG4J_PROPERTIES_FILE_NAME;
-        PropertyConfigurator.configure(configFilename);
-        PropertyConfigurator.configureAndWatch(configFilename);
     }
 
     public void setupServiceProvider() {
