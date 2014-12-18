@@ -1,9 +1,15 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfo;
+import com.energyict.mdc.device.data.kpi.rest.LongIdWithNameInfo;
+import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.jayway.jsonpath.JsonModel;
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -12,14 +18,17 @@ import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -65,6 +74,70 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         Response response = target("/kpis/71").request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(kpiMock).delete();
+    }
+
+    @Test
+    public void testCreateKpiForDataCommunication() throws Exception {
+        DataCollectionKpiInfo info = new DataCollectionKpiInfo();
+        info.communicationTarget=BigDecimal.valueOf(99.9);
+        info.deviceGroup=new LongIdWithNameInfo(101L, "some group");
+        info.frequency = new TemporalExpressionInfo();
+        info.frequency.every = new TimeDurationInfo();
+        info.frequency.every.timeUnit="minutes";
+        info.frequency.every.count=15;
+        Optional<EndDeviceGroup> endDeviceGroupOptional = Optional.of(mock(EndDeviceGroup.class));
+        when(meteringGroupService.findEndDeviceGroup(101L)).thenReturn(endDeviceGroupOptional);
+        DataCollectionKpiService.DataCollectionKpiBuilder kpiBuilder = mock(DataCollectionKpiService.DataCollectionKpiBuilder.class);
+        DataCollectionKpiService.KpiTargetBuilder connectionKpiTargetBuilder = mock(DataCollectionKpiService.KpiTargetBuilder.class);
+        DataCollectionKpiService.KpiTargetBuilder communicationKpiTargetBuilder = mock(DataCollectionKpiService.KpiTargetBuilder.class);
+        when(kpiBuilder.calculateComTaskExecutionKpi(anyObject())).thenReturn(communicationKpiTargetBuilder);
+        when(kpiBuilder.calculateConnectionSetupKpi(anyObject())).thenReturn(connectionKpiTargetBuilder);
+        long kpiId = 71L;
+        DataCollectionKpi kpiMock = mockKpi(kpiId, mockDeviceGroup("end device group bis", 2));
+        when(kpiBuilder.save()).thenReturn(kpiMock);
+        when(dataCollectionKpiService.newDataCollectionKpi(endDeviceGroupOptional.get())).thenReturn(kpiBuilder);
+
+        Response response = target("/kpis/").request().post(Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        verify(dataCollectionKpiService).newDataCollectionKpi(endDeviceGroupOptional.get());
+        verify(kpiBuilder).calculateComTaskExecutionKpi(Duration.ofMinutes(15));
+        verify(kpiBuilder, never()).calculateConnectionSetupKpi(anyObject());
+        verify(communicationKpiTargetBuilder).expectingAsMaximum(BigDecimal.valueOf(99.9));
+        verify(connectionKpiTargetBuilder, never()).expectingAsMaximum(anyObject());
+        verify(kpiBuilder).save();
+    }
+
+    @Test
+    public void testCreateKpiForDataCoConnection() throws Exception {
+        DataCollectionKpiInfo info = new DataCollectionKpiInfo();
+        info.connectionTarget=BigDecimal.valueOf(99.1);
+        info.deviceGroup=new LongIdWithNameInfo(102L, "some group");
+        info.frequency = new TemporalExpressionInfo();
+        info.frequency.every = new TimeDurationInfo();
+        info.frequency.every.timeUnit="hours";
+        info.frequency.every.count=1;
+        Optional<EndDeviceGroup> endDeviceGroupOptional = Optional.of(mock(EndDeviceGroup.class));
+        when(meteringGroupService.findEndDeviceGroup(102L)).thenReturn(endDeviceGroupOptional);
+        DataCollectionKpiService.DataCollectionKpiBuilder kpiBuilder = mock(DataCollectionKpiService.DataCollectionKpiBuilder.class);
+        DataCollectionKpiService.KpiTargetBuilder connectionKpiTargetBuilder = mock(DataCollectionKpiService.KpiTargetBuilder.class);
+        DataCollectionKpiService.KpiTargetBuilder communicationKpiTargetBuilder = mock(DataCollectionKpiService.KpiTargetBuilder.class);
+        when(kpiBuilder.calculateComTaskExecutionKpi(anyObject())).thenReturn(communicationKpiTargetBuilder);
+        when(kpiBuilder.calculateConnectionSetupKpi(anyObject())).thenReturn(connectionKpiTargetBuilder);
+        long kpiId = 71L;
+        DataCollectionKpi kpiMock = mockKpi(kpiId, mockDeviceGroup("end device group bis", 2));
+        when(kpiBuilder.save()).thenReturn(kpiMock);
+        when(dataCollectionKpiService.newDataCollectionKpi(endDeviceGroupOptional.get())).thenReturn(kpiBuilder);
+
+        Response response = target("/kpis/").request().post(Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        verify(dataCollectionKpiService).newDataCollectionKpi(endDeviceGroupOptional.get());
+        verify(kpiBuilder).calculateConnectionSetupKpi(Duration.ofHours(1));
+        verify(kpiBuilder, never()).calculateComTaskExecutionKpi(anyObject());
+        verify(connectionKpiTargetBuilder).expectingAsMaximum(BigDecimal.valueOf(99.1));
+        verify(communicationKpiTargetBuilder, never()).expectingAsMaximum(anyObject());
+        verify(kpiBuilder).save();
     }
 
     private DataCollectionKpi mockKpi(long kpiId, QueryEndDeviceGroup endDeviceGroup) {

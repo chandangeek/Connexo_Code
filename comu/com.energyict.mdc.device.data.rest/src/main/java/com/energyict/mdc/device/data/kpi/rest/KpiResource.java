@@ -77,17 +77,17 @@ public class KpiResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public DataCollectionKpiInfo createKpi(DataCollectionKpiInfo kpiInfo) {
-        EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup((Long) kpiInfo.deviceGroup.id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_GROUP, kpiInfo.deviceGroup.id));
+    public Response createKpi(DataCollectionKpiInfo kpiInfo) {
+        EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(kpiInfo.deviceGroup.id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_GROUP, kpiInfo.deviceGroup.id));
         DataCollectionKpiService.DataCollectionKpiBuilder dataCollectionKpiBuilder = dataCollectionKpiService.newDataCollectionKpi(endDeviceGroup);
-        if (kpiInfo.communicationTarget!=null) {
-            dataCollectionKpiBuilder.calculateComTaskExecutionKpi(kpiInfo.frequency.every.asTemporalAmount()).expectingAsMaximum(kpiInfo.communicationTarget);
+        if (kpiInfo.communicationTarget!=null && kpiInfo.frequency !=null && kpiInfo.frequency.every!=null) {
+            dataCollectionKpiBuilder.calculateComTaskExecutionKpi(kpiInfo.frequency.every.asTimeDuration().asTemporalAmount()).expectingAsMaximum(kpiInfo.communicationTarget);
         }
-        if (kpiInfo.connectionTarget!=null) {
-            dataCollectionKpiBuilder.calculateConnectionSetupKpi(kpiInfo.frequency.every.asTemporalAmount()).expectingAsMaximum(kpiInfo.connectionTarget);
+        if (kpiInfo.connectionTarget!=null && kpiInfo.frequency !=null && kpiInfo.frequency.every!=null) {
+            dataCollectionKpiBuilder.calculateConnectionSetupKpi(kpiInfo.frequency.every.asTimeDuration().asTemporalAmount()).expectingAsMaximum(kpiInfo.connectionTarget);
         }
         DataCollectionKpi dataCollectionKpi = dataCollectionKpiBuilder.save();
-        return dataCollectionKpiInfoFactory.from(dataCollectionKpi);
+        return Response.status(Response.Status.CREATED).entity(dataCollectionKpiInfoFactory.from(dataCollectionKpi)).build();
     }
 
 
