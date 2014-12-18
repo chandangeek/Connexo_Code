@@ -18,6 +18,7 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -245,4 +246,22 @@ public class MeterActivationImpl implements MeterActivation {
         }
         return Optional.empty();
     }
+
+	@Override
+	public void setUsagePoint(UsagePoint usagePoint) {		
+		if (this.usagePoint.isPresent()) {
+			throw new RuntimeException("MeterActivation is already linked with usagepoint");
+		}
+		this.usagePoint.set(usagePoint);
+		this.save();
+	}
+
+	@Override
+	public void setMeter(Meter meter) {
+		if (this.meter.isPresent()) {
+			throw new RuntimeException("MeterActivation is already linked with usagepoint");			
+		}
+		this.meter.set(meter);
+		this.save();
+	}
 }

@@ -26,6 +26,7 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +66,9 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
 
     @Override
     public MeterActivationImpl activate(Instant start) {
+    	if (meterActivations.stream().anyMatch(meterActivation -> meterActivation.isEffectiveAt(start))) {
+    		throw new RuntimeException("Meter already active at " + start); 
+    	}
         MeterActivationImpl result = meterActivationFactory.get().init(this, start);
         getDataModel().persist(result);
         meterActivations.add(result);
