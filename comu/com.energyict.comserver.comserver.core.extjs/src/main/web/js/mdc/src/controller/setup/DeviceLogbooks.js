@@ -74,7 +74,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
                 route = 'devices/device/logbooks/logbook/events';
                 break;
             case 'viewDetails':
-                route = 'devices/device/logbooks/logbook/overview';
+                route = 'devices/device/logbooks/logbookoverview';
                 break;
         }
 

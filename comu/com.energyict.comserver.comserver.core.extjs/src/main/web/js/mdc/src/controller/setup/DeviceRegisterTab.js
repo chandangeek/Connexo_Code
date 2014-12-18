@@ -50,7 +50,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterTab', {
             if (tab.itemId === 'register-data') {
                 routeParams.registerId = this.registerId;
                 filterParams.onlySuspect = false;
-                route = 'devices/device/registers/register/data';
+                route = 'devices/device/registers/registerdata';
                 route && (route = router.getRoute(route));
                 route && route.forward(routeParams, filterParams);
             } else if (tab.itemId === 'register-specifications') {

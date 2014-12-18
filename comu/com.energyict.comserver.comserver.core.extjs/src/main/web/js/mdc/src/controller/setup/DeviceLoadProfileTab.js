@@ -59,7 +59,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileTab', {
             if (tab.itemId === 'loadProfile-data') {
                 routeParams.loadProfileId = this.loadProfileId;
                 filterParams.onlySuspect = false;
-                route = 'devices/device/loadprofiles/loadprofile/data';
+                route = 'devices/device/loadprofiles/loadprofiledata';
                 route && (route = router.getRoute(route));
                 route && route.forward(routeParams, filterParams);
             } else if (tab.itemId === 'loadProfile-specifications') {

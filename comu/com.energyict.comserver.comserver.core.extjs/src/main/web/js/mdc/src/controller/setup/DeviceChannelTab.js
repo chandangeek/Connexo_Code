@@ -62,7 +62,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelTab', {
             if (tab.itemId === 'channel-data') {
                 routeParams.channelId = this.channelId;
                 filterParams.onlySuspect = false;
-                route = 'devices/device/channels/channel/data';
+                route = 'devices/device/channels/channeldata';
                 route && (route = router.getRoute(route));
                 route && route.forward(routeParams, filterParams);
             } else if (tab.itemId === 'channel-specifications') {
