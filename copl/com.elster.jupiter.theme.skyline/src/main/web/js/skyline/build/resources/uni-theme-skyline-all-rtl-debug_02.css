@@ -1137,8 +1137,8 @@ h6 {
 /* line 33, ../../sass/src/container/NavigationHeader.scss */
 .icon-help {
   background-image: url("images/container/help.png");
-  width: 34px;
-  height: 34px;
+  width: 24px;
+  height: 24px;
 }
 
 /* line 39, ../../sass/src/container/NavigationHeader.scss */
@@ -1204,9 +1204,9 @@ h6 {
 }
 /* line 79, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .uni-nav-appcenter .icon-help, .x-container-navigationheader .nav-toggler .icon-help, .x-container-navigationheader .notifications-anchor .icon-help, .x-container-navigationheader .nav-help .icon-help, .x-container-navigationheader .search-button .icon-help, .x-container-navigationheader .user-menu .icon-help {
-  width: 34px;
-  height: 34px;
-  margin: 7px 2px;
+  width: 24px;
+  height: 24px;
+  margin: 12px 6px;
 }
 /* line 85, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .uni-nav-appcenter .icon-appcenter, .x-container-navigationheader .nav-toggler .icon-appcenter, .x-container-navigationheader .notifications-anchor .icon-appcenter, .x-container-navigationheader .nav-help .icon-appcenter, .x-container-navigationheader .search-button .icon-appcenter, .x-container-navigationheader .user-menu .icon-appcenter {
