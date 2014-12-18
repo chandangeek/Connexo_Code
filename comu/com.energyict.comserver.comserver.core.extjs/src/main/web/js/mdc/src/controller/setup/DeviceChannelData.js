@@ -269,9 +269,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             showTable = button.action === 'showTableView';
 
         if (showTable) {
-            router.getRoute('devices/device/channels/channel/tableData').forward(router.arguments, router.queryParams);
+            router.getRoute('devices/device/channels/channeltableData').forward(router.arguments, router.queryParams);
         } else {
-            router.getRoute('devices/device/channels/channel/data').forward(router.arguments, router.queryParams);
+            router.getRoute('devices/device/channels/channeldata').forward(router.arguments, router.queryParams);
         }
 
     },

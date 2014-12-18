@@ -50,7 +50,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelDataEditReadings', {
             router = me.getController('Uni.controller.history.Router'),
             preloader = Ext.create('Ext.container.Container'),
             widget;
-
         dataStore.removeAll(true);
 
         me.getApplication().fireEvent('changecontentevent', preloader);

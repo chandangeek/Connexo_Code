@@ -266,8 +266,10 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                     router: me.router
                 },
                 bindStore: function(store) {
-                    var me = this;
-                    me.down('device-connections-list').reconfigure(store);
+                    var me = this,
+                        connList = me.down('device-connections-list');
+                    connList.bindStore(store);
+                    connList.reconfigure();
                     me.setTitle(Uni.I18n.translatePlural('device.connections.title', store.count(), 'DSH', 'Connections ({0})'));
                 }
             },
@@ -310,8 +312,10 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 ],
 
                 bindStore: function(store) {
-                    var me = this;
-                    me.down('device-communications-list').reconfigure(store);
+                    var me = this,
+                        commList = me.down('device-communications-list');
+                    commList.bindStore(store);
+                    commList.reconfigure();
                     me.setTitle(Uni.I18n.translatePlural('device.communications.title', store.count(), 'DSH', 'Communication tasks ({0})'));
                 }
             }

@@ -186,7 +186,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             lastSelected = grid.getView().getSelectionModel().getLastSelected(),
             router = me.getController('Uni.controller.history.Router');
 
-        router.getRoute('devices/device/registers/register/data/edit').forward({timestamp: lastSelected.getData().timeStamp});
+        router.getRoute('devices/device/registers/registerdata/edit').forward({timestamp: lastSelected.getData().timeStamp});
     },
 
     showDeviceRegisterConfigurationDataEditView: function (mRID, registerId, timestamp) {
@@ -209,7 +209,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                                 var type = register.get('type');
                                 var widget = Ext.widget('deviceregisterreportedit-' + type, {
                                     edit: true,
-                                    returnLink: router.getRoute('devices/device/registers/register/data').buildUrl({mRID: mRID, registerId: registerId}),
+                                    returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({mRID: mRID, registerId: registerId}),
                                     registerType: type
                                 });
                                 me.getApplication().fireEvent('loadRegisterConfiguration', register);
@@ -245,7 +245,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                         var type = register.get('type');
                         var widget = Ext.widget('deviceregisterreportedit-' + type, {
                             edit: false,
-                            returnLink: router.getRoute('devices/device/registers/register/data').buildUrl({mRID: mRID, registerId: registerId}),
+                            returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({mRID: mRID, registerId: registerId}),
                             registerType: type
                         });
                         widget.setValues(register);
