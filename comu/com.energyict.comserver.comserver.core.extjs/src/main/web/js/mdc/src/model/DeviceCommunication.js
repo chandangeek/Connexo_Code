@@ -15,7 +15,7 @@ Ext.define('Mdc.model.DeviceCommunication', {
         {name: 'plannedDate', type: 'date', dateFormat: 'time'},
         {name: 'connectionMethod', type: 'string'},
         {name: 'connectionStrategy', type: 'auto', defaultValue: undefined},
-        {name: 'isOnHold', type: 'string'},
+        {name: 'isOnHold', type: 'boolean'},
 
         // mapped fields
         {name: 'frequency', type: 'string', mapping: function (data) {

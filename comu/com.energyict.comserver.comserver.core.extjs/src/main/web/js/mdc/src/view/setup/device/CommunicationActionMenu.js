@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
             text: 'Activate',
             action: 'toggleActivation',
             visible: function() {
-                return this.record.get('isOnHold')
+                return !!this.record.get('isOnHold')
             }
         },
         {
