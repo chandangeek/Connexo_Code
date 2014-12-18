@@ -73,7 +73,6 @@ public class DeviceProtocolPropertyResource {
                 device.setProtocolProperty(propertySpec.getName(), value);
             }
         }
-        device.save();
         return Response.ok().build();
     }
 }
