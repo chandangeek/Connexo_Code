@@ -91,9 +91,9 @@ public class DeviceGroupResource {
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL})
     public DeviceGroupInfo getDeviceGroup(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        return DeviceGroupInfo.from(fetchDeviceGroup(id, securityContext), deviceConfigurationService);
+        return DeviceGroupInfo.from(fetchDeviceGroup(id, securityContext), deviceConfigurationService, deviceService);
     }
 
     private EndDeviceGroup fetchDeviceGroup(long id, @Context SecurityContext securityContext) {
@@ -103,7 +103,7 @@ public class DeviceGroupResource {
     @GET
     @Path("/{id}/devices")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL})
     public PagedInfoList getDevices(@BeanParam QueryParameters queryParameters, @PathParam("id") long deviceGroupId, @Context SecurityContext securityContext) {
         EndDeviceGroup endDeviceGroup = fetchDeviceGroup(deviceGroupId, securityContext);
         List<? extends EndDevice> allEndDevices = endDeviceGroup.getMembers(Instant.now());
@@ -125,6 +125,7 @@ public class DeviceGroupResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
     public PagedInfoList getDeviceGroups(@BeanParam QueryParameters queryParameters, @QueryParam("type") String typeName, @Context UriInfo uriInfo) {
 
         com.elster.jupiter.rest.util.QueryParameters koreQueryParameters =
@@ -137,7 +138,7 @@ public class DeviceGroupResource {
         }
         RestQuery<EndDeviceGroup> restQuery = restQueryService.wrap(query);
         List<EndDeviceGroup> allDeviceGroups = restQuery.select(koreQueryParameters, Order.ascending("upper(name)"));
-        List<DeviceGroupInfo> deviceGroupInfos = DeviceGroupInfo.from(allDeviceGroups, deviceConfigurationService);
+        List<DeviceGroupInfo> deviceGroupInfos = DeviceGroupInfo.from(allDeviceGroups, deviceConfigurationService, deviceService);
         return PagedInfoList.asJson("devicegroups", deviceGroupInfos, queryParameters);
     }
 
@@ -164,7 +165,7 @@ public class DeviceGroupResource {
             syncListWithInfo((EnumeratedEndDeviceGroup) endDeviceGroup, deviceGroupInfo);
         }
         endDeviceGroup.save();
-        return Response.status(Response.Status.CREATED).entity(DeviceGroupInfo.from(endDeviceGroup, deviceConfigurationService)).build();
+        return Response.status(Response.Status.CREATED).entity(DeviceGroupInfo.from(endDeviceGroup, deviceConfigurationService, deviceService)).build();
     }
 
     @DELETE
