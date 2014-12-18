@@ -1,11 +1,8 @@
 package com.energyict.mdc.device.data.kpi;
 
-import com.energyict.mdc.common.HasId;
-
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
-
+import com.energyict.mdc.common.HasId;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
@@ -102,4 +99,17 @@ public interface DataCollectionKpi extends HasId {
      * @return the most recent Instant either a connection task or communication task KPI was calculated by a recurrent task
      */
     public Optional<Instant> getLatestCalculation();
+
+    /**
+     * Add a communication task KPI to this data collection KPI with the given frequency and static target
+     * @param staticTarget target
+     */
+    public void calculateComTaskExecutionKpi(BigDecimal staticTarget);
+
+    /**
+     * Add a communication task KPI to this data collection KPI with the given frequency and static target
+     * @param staticTarget target
+     */
+    public void calculateConnectionKpi(BigDecimal staticTarget);
+
 }

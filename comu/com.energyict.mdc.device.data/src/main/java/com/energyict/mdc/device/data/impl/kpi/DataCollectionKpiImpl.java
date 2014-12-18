@@ -4,9 +4,11 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiBuilder;
 import com.elster.jupiter.kpi.KpiMember;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -21,6 +23,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import com.energyict.mdc.device.data.exceptions.CannotReplaceExistingKPI;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
@@ -67,6 +70,8 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     private final DataModel dataModel;
     private final TaskService taskService;
     private final MessageService messageService;
+    private final KpiService kpiService;
+    private final Thesaurus thesaurus;
 
     private long id;
     private Reference<Kpi> connectionKpi = ValueReference.absent();
@@ -79,11 +84,13 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     private RecurrentTaskSaveStrategy recurrentTaskSaveStrategy = new CreateAllSchedules();
 
     @Inject
-    public DataCollectionKpiImpl(DataModel dataModel, TaskService taskService, MessageService messageService) {
+    public DataCollectionKpiImpl(DataModel dataModel, TaskService taskService, MessageService messageService, KpiService kpiService, Thesaurus thesaurus) {
         super();
         this.dataModel = dataModel;
         this.taskService = taskService;
         this.messageService = messageService;
+        this.kpiService = kpiService;
+        this.thesaurus = thesaurus;
     }
 
     DataCollectionKpiImpl initialize(EndDeviceGroup group) {
@@ -132,6 +139,20 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         else {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public void calculateComTaskExecutionKpi(BigDecimal staticTarget) {
+        KpiBuilder kpiBuilder = kpiService.newKpi().interval(this.connectionKpi.get().getIntervalLength()).member().withTargetSetAt(staticTarget).add();
+        this.communicationKpiBuilder(kpiBuilder);
+        this.save();
+    }
+
+    @Override
+    public void calculateConnectionKpi(BigDecimal staticTarget) {
+        KpiBuilder kpiBuilder = kpiService.newKpi().interval(this.communicationKpi.get().getIntervalLength()).member().withTargetSetAt(staticTarget).add();
+        this.connectionKpiBuilder(kpiBuilder);
+        this.save();
     }
 
     Optional<Kpi> connectionKpi() {
@@ -326,19 +347,33 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     private class KpiSaveStrategyForUpdate implements CompositeKpiSaveStrategy {
+        private KpiSaveStrategy connectionKpi = new StubKpiSaveStrategy();
+        private KpiSaveStrategy communicationKpi = new StubKpiSaveStrategy();
+
         @Override
         public void connectionKpiBuilder(KpiBuilder builder) {
-            // Todo: support updates
+            if (builder != null) {
+                if (DataCollectionKpiImpl.this.connectionKpi.isPresent()) {
+                    throw new CannotReplaceExistingKPI(thesaurus);
+                }
+                this.connectionKpi = new BuildAndSave(DataCollectionKpiImpl.this.connectionKpi, builder);
+            }
         }
 
         @Override
         public void communicationKpiBuilder(KpiBuilder builder) {
-            // Todo: support updates
+            if (builder != null) {
+                if (DataCollectionKpiImpl.this.communicationKpi.isPresent()) {
+                    throw new CannotReplaceExistingKPI(thesaurus);
+                }
+                this.communicationKpi = new BuildAndSave(DataCollectionKpiImpl.this.communicationKpi, builder);
+            }
         }
 
         @Override
         public void save() {
-            // Todo: support updates
+            this.connectionKpi.save();
+            this.communicationKpi.save();
         }
     }
 
@@ -396,8 +431,8 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
             }
         }
 
-        protected RecurrentTask getRecurrentTask() {
-            return this.recurrentTask.get();
+        protected Optional<RecurrentTask> getRecurrentTask() {
+            return this.recurrentTask.getOptional();
         }
 
         protected void setRecurrentTask(RecurrentTask recurrentTask) {
@@ -588,9 +623,12 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         @Override
         public void save() {
             /* Todo: updating a RecurrentTask is not supported yet,
-             *       delete the existing one and recreate it. */
-            this.getRecurrentTask().delete();
-            super.save();
+             * Deleting and re-creating results in a constraint violation, so looks like that is not an option.
+              * Will only support adding a recurrentTask for newly added KPI at this point
+             */
+            if (!this.getRecurrentTask().isPresent()) {
+                super.save();
+            }
         }
     }
 
