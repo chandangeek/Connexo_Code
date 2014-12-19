@@ -244,16 +244,13 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
     protected void createLogBookReaders(final OfflineDevice device) {
         List<OfflineLogBook> listOfAllLogBooks = device.getAllOfflineLogBooks();
         if (this.logBooksTask.getLogBookTypes().isEmpty()) {
-            for (OfflineLogBook logBook : listOfAllLogBooks) {
-                addLogBookToReaderList(logBook);
-            }
+            listOfAllLogBooks.forEach(this::addLogBookToReaderList);
         } else {
             for (LogBookType logBookType : this.logBooksTask.getLogBookTypes()) {
-                for (OfflineLogBook logBook : listOfAllLogBooks) {
-                    if (logBookType.getId() == logBook.getLogBookTypeId()) {
-                        addLogBookToReaderList(logBook);
-                    }
-                }
+                listOfAllLogBooks
+                        .stream()
+                        .filter(logBook -> logBookType.getId() == logBook.getLogBookTypeId())
+                        .forEach(this::addLogBookToReaderList);
             }
         }
     }
@@ -264,8 +261,7 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
      * @param logBook the logBook to add
      */
     protected void addLogBookToReaderList(final OfflineLogBook logBook) {
-        LogBookReader logBookReader = new LogBookReader(logBook.getObisCode(),
-                logBook.getLastLogBook(), logBook.getLogBookIdentifier(), logBook.getDeviceIdentifier());
+        LogBookReader logBookReader = new LogBookReader(logBook.getObisCode(), logBook.getLastLogBook(), logBook.getLogBookIdentifier(), logBook.getDeviceIdentifier());
         this.logBookReaders.add(logBookReader);
     }
 

@@ -39,6 +39,7 @@ import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import java.util.Optional;
 
@@ -89,6 +90,8 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     private DeviceService deviceService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ConnectionTaskService connectionTaskService;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private IdentificationService identificationService;
 
     private Clock clock = Clock.systemUTC();
     private Clock frozenClock;
@@ -99,6 +102,8 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         serviceProvider.setClock(clock);
         serviceProvider.setConnectionTaskService(this.connectionTaskService);
         serviceProvider.setDeviceService(this.deviceService);
+        serviceProvider.setIdentificationService(this.identificationService);
+        when(this.commandRoot.getServiceProvider()).thenReturn(this.serviceProvider);
         List<CollectedData> collectedDataList = new ArrayList<>();
         collectedDataList.add(deviceLoadProfile);
         when(loadProfileCommand.getCollectedData()).thenReturn(collectedDataList);
@@ -110,7 +115,6 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         when(loadProfileCommand.getOfflineDevice()).thenReturn(device);
         when(device.getId()).thenReturn(DEVICE_ID);
     }
-
 
     @After
     public void initAfter() {

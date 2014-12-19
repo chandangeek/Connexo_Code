@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -11,11 +12,10 @@ import com.energyict.mdc.engine.impl.events.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.engine.impl.meterdata.CollectedDeviceData;
 import com.energyict.mdc.engine.impl.meterdata.DeviceTopology;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,8 +30,8 @@ import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.S
 public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
 
     private final DeviceTopology deviceTopology;
-    private ComTaskExecution comTaskExecution;
-    private MeterDataStoreCommand meterDataStoreCommand;
+    private final ComTaskExecution comTaskExecution;
+    private final MeterDataStoreCommand meterDataStoreCommand;
     private boolean topologyChanged;
     /**
      * List containing the serial numbers of all slave devices removed from the device
@@ -51,7 +51,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
     /**
      * List of nested commands that should also be executed (e.g. to change properties)
      */
-    private ArrayList<DeviceCommand> collectedDeviceInfoCommands;
+    private List<DeviceCommand> collectedDeviceInfoCommands;
 
     public CollectedDeviceTopologyDeviceCommand(DeviceTopology deviceTopology, ComTaskExecution comTaskExecution, MeterDataStoreCommand meterDataStoreCommand) {
         super();
@@ -73,14 +73,14 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
         OfflineDevice device = comServerDAO.findOfflineDevice(deviceTopology.getDeviceIdentifier(), new DeviceOfflineFlags(SLAVE_DEVICES_FLAG));
         if (device != null) {
             this.topologyChanged = false;
-
             try {
                 handlePhysicalTopologyUpdate(comServerDAO, device);
                 signalTopologyChangedEvent(comServerDAO);
                 updateLogging();
                 handleAdditionalInformation(comServerDAO);
             } catch (CanNotFindForIdentifier e) {
-                getExecutionLogger().addIssue(CompletionCode.ConfigurationWarning,
+                getExecutionLogger().addIssue(
+                        CompletionCode.ConfigurationWarning,
                         getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), e),
                         comTaskExecution);
             }
@@ -214,10 +214,19 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
 
     private List<DeviceCommand> getCollectedDeviceInfoCommands() {
         if (collectedDeviceInfoCommands == null) {
-            collectedDeviceInfoCommands = new ArrayList<>();
-            collectedDeviceInfoCommands.addAll(deviceTopology.getAdditionalCollectedDeviceInfo().stream().filter(collectedDeviceInfo -> collectedDeviceInfo instanceof CollectedDeviceData).map(collectedDeviceInfo -> ((CollectedDeviceData) collectedDeviceInfo).toDeviceCommand(getIssueService(), meterDataStoreCommand)).collect(Collectors.toList()));
+            collectedDeviceInfoCommands =
+                    deviceTopology.getAdditionalCollectedDeviceInfo()
+                            .stream()
+                            .filter(collectedDeviceInfo -> collectedDeviceInfo instanceof CollectedDeviceData)
+                            .map(CollectedDeviceData.class::cast)
+                            .map(this::toDeviceCommand)
+                            .collect(Collectors.toList());
         }
         return collectedDeviceInfoCommands;
+    }
+
+    private DeviceCommand toDeviceCommand(CollectedDeviceData collectedDeviceInfo) {
+        return collectedDeviceInfo.toDeviceCommand(getIssueService(), meterDataStoreCommand);
     }
 
     /**

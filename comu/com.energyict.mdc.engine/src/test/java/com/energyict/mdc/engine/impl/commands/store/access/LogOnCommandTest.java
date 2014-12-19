@@ -34,15 +34,12 @@ import static org.mockito.Mockito.when;
  */
 public class LogOnCommandTest extends AbstractComCommandExecuteTest {
 
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
-
     @Before
     public void setUp() {
         EventPublisherImpl eventPublisher = mock(EventPublisherImpl.class);
         when(eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
         EventPublisherImpl.setInstance(eventPublisher);
-        ServiceProvider.instance.set(serviceProvider);
-        serviceProvider.setClock(Clock.systemDefaultZone());
+        ((FakeServiceProvider) serviceProvider).setClock(Clock.systemDefaultZone());
     }
 
     @After

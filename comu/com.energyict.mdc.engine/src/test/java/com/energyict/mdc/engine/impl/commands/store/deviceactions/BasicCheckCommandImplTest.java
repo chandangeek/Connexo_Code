@@ -5,6 +5,7 @@ import java.time.ZoneId;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
@@ -88,7 +89,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
     @Test
     public void verifyTimeDifferenceWithinBoundariesTest() {
         Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(),ZoneId.systemDefault());
-        serviceProvider.setClock(frozenClock);
+        ((FakeServiceProvider) serviceProvider).setClock(frozenClock);
         final long timeDifferenceInMillis = 3000L;
         long deviceTime = frozenClock.millis() - timeDifferenceInMillis;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 3 seconds time difference
@@ -115,7 +116,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
     @Test
     public void verifyTimeDifferenceOutsideBoundariesTest() {
         Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
-        serviceProvider.setClock(frozenClock);
+        ((FakeServiceProvider) serviceProvider).setClock(frozenClock);
         long timeDifferenceInMillis = 60000L;
         long deviceTime = frozenClock.millis() - timeDifferenceInMillis;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 60 seconds time difference

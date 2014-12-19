@@ -2,6 +2,8 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.time.TimeDuration;
 import java.time.Clock;
+
+import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
@@ -42,7 +44,7 @@ public class VerifyTimeDifferenceCommandImplTest extends CommonCommandImplTests 
         Date meterTime = new DateTime(2013, 9, 18, 16, 0, 0, 0).toDate();
         Clock systemTime = mock(Clock.class);
         when(systemTime.instant()).thenReturn(new DateTime(2013, 9, 18, 15, 0, 0, 0).toDate().toInstant());
-        serviceProvider.setClock(systemTime);
+        ((FakeServiceProvider) serviceProvider).setClock(systemTime);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getTime()).thenReturn(meterTime);
         BasicCheckCommand basicCheckCommand = mock(BasicCheckCommand.class);

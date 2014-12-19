@@ -23,6 +23,8 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
+
 import java.util.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -32,6 +34,8 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import org.mockito.Mock;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -49,6 +53,8 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
     Date currentTimeStamp = new DateTime(2014, 1, 13, 10, 0, 0, 0, DateTimeZone.UTC).toDate();
     LogBookType logBookType;
     DeviceCreator deviceCreator;
+    @Mock
+    private IdentificationService identificationService;
 
     @Before
     public void setUp() {
@@ -72,7 +78,7 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("simplePreStoreWithoutIssuesTest").logBookTypes(this.logBookType).create();
         LogBook logBook = device.getLogBooks().get(0);
         CollectedLogBook collectedLogBook = enhanceCollectedLogBook(logBook, createMockedCollectedLogBook());
-        OfflineLogBookImpl offlineLogBook = new OfflineLogBookImpl(logBook, identificationService);
+        OfflineLogBookImpl offlineLogBook = new OfflineLogBookImpl(logBook, this.identificationService);
 
         final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLogBook);
 

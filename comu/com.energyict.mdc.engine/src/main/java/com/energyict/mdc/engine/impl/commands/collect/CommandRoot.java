@@ -39,7 +39,7 @@ public interface CommandRoot extends CompositeComCommand {
 
         public LogBookService logBookService();
 
-        public DeviceService deviceDataService();
+        public DeviceService deviceService();
 
         public MdcReadingTypeUtilService mdcReadingTypeUtilService();
 

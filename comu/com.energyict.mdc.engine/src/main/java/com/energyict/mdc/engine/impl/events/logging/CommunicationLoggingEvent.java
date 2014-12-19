@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.events.logging;
 
 import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ComPortPoolRelatedEvent;
@@ -13,7 +14,6 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
@@ -77,7 +77,7 @@ public class CommunicationLoggingEvent extends AbstractComServerEventImpl implem
     }
 
     @Override
-    public BaseDevice getDevice () {
+    public Device getDevice () {
         return this.getConnectionTask().getDevice();
     }
 

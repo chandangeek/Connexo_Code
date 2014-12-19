@@ -24,6 +24,7 @@ import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
@@ -35,6 +36,7 @@ import org.joda.time.DateTimeZone;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
@@ -79,10 +81,10 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     Date futureIntervalEndTime1 = new DateTime(2014, 2, 2, 10, 45, 0, 0, DateTimeZone.UTC).toDate();
     Date futureIntervalEndTime2 = new DateTime(2014, 2, 2, 11, 0, 0, 0, DateTimeZone.UTC).toDate();
 
-
     DeviceCreator deviceCreator;
-
     LoadProfileType loadProfileType;
+    @Mock
+    private IdentificationService identificationService;
 
     public List<IntervalValue> getIntervalValues(int addition) {
         List<IntervalValue> intervalValues = new ArrayList<>();
@@ -228,7 +230,12 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     }
 
     public OfflineLoadProfile createMockedOfflineLoadProfile(Device device) {
-        return new OfflineLoadProfileImpl(device.getLoadProfiles().get(0), mock(TopologyService.class), mock(IdentificationService.class));
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+        when(deviceIdentifier.findDevice()).thenReturn(device);
+        when(deviceIdentifier.getDeviceIdentifierType()).thenReturn(DeviceIdentifierType.ActualDevice);
+        when(deviceIdentifier.getIdentifier()).thenReturn(String.valueOf(device.getId()));
+        when(this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device)).thenReturn(deviceIdentifier);
+        return new OfflineLoadProfileImpl(device.getLoadProfiles().get(0), mock(TopologyService.class), this.identificationService);
     }
 
     @Test
@@ -309,12 +316,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     protected ComServerDAOImpl mockComServerDAOWithOfflineLoadProfile(OfflineLoadProfile offlineLoadProfile) {
         final ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         doCallRealMethod().when(comServerDAO).storeMeterReadings(any(DeviceIdentifier.class), any(MeterReading.class));
-        when(comServerDAO.executeTransaction(any())).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                return ((Transaction<?>) invocation.getArguments()[0]).perform();
-            }
-        });
+        when(comServerDAO.executeTransaction(any())).thenAnswer(invocation -> ((Transaction<?>) invocation.getArguments()[0]).perform());
         when(comServerDAO.findOfflineLoadProfile(any(LoadProfileIdentifier.class))).thenReturn(offlineLoadProfile);
         DeviceIdentifier<Device> deviceIdentifier = (DeviceIdentifier<Device>) offlineLoadProfile.getDeviceIdentifier();
         when(comServerDAO.getDeviceIdentifierFor(any(LoadProfileIdentifier.class))).thenReturn(deviceIdentifier);

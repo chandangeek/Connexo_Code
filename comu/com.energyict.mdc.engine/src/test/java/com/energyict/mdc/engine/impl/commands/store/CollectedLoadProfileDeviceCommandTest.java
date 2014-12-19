@@ -39,6 +39,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -51,7 +52,6 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-12-12 (11:51)
  */
-@RunWith(MockitoJUnitRunner.class)
 public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTest {
 
     @Rule
@@ -90,8 +90,10 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).isEqualTo(CollectedLoadProfileDeviceCommand.class.getSimpleName()
-                + " {load profile: 1.33.1.8.0.255; interval data period: Interval{start=null, end=null}; channels: }");
+        assertThat(journalMessage).matches(
+                Pattern.compile(
+                        CollectedLoadProfileDeviceCommand.class.getSimpleName()
+                        + " \\{load profile:.*1\\.33\\.1\\.8\\.0\\.255.*; interval data period: Interval\\{start=null, end=null\\}; channels: \\}"));
     }
 
     @Test
@@ -108,8 +110,10 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).isEqualTo(CollectedLoadProfileDeviceCommand.class.getSimpleName()
-                + " {load profile: 1.33.1.8.0.255; interval data period: Interval{start=2012-12-12T12:53:05Z, end=2012-12-12T12:53:05Z}; channels: 2}");
+        assertThat(journalMessage).matches(
+                Pattern.compile(
+                        CollectedLoadProfileDeviceCommand.class.getSimpleName()
+                        + " \\{load profile:.*1\\.33\\.1\\.8\\.0\\.255.*interval data period: Interval\\{start=2012-12-12T12:53:05Z, end=2012-12-12T12:53:05Z\\}; channels: 2\\}"));
     }
 
     @Test
@@ -136,8 +140,10 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).isEqualTo(CollectedLoadProfileDeviceCommand.class.getSimpleName()
-                + " {load profile: 1.33.1.8.0.255; interval data period: Interval{start=2012-12-12T12:45:00Z, end=2012-12-12T13:30:00Z}; channels: 2}");
+        assertThat(journalMessage).matches(
+                Pattern.compile(
+                        CollectedLoadProfileDeviceCommand.class.getSimpleName()
+                        + " \\{load profile:.*1\\.33\\.1\\.8\\.0\\.255.*; interval data period: Interval\\{start=2012-12-12T12:45:00Z, end=2012-12-12T13:30:00Z\\}; channels: 2\\}"));
     }
 
     @Test
@@ -169,8 +175,10 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).isEqualTo(CollectedLoadProfileDeviceCommand.class.getSimpleName() +
-                " {load profile: 1.33.1.8.0.255; interval data period: Interval{start=2012-12-12T12:45:00Z, end=2012-12-12T13:00:00Z}; channels: 2, 3}");
+        assertThat(journalMessage).matches(
+                Pattern.compile(
+                        CollectedLoadProfileDeviceCommand.class.getSimpleName() +
+                        " \\{load profile:.*1\\.33\\.1\\.8\\.0\\.255.*; interval data period: Interval\\{start=2012-12-12T12:45:00Z, end=2012-12-12T13:00:00Z\\}; channels: 2, 3\\}"));
     }
 
 

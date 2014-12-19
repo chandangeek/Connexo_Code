@@ -1,14 +1,16 @@
 package com.energyict.mdc.engine.impl.meterdata.identifiers;
 
-import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.protocol.api.device.BaseLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+
 import java.util.Optional;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -31,7 +33,7 @@ public class LogBookIdentifierByIdImplTest {
     @Mock
     private LogBookService logBookService;
 
-    @Test(expected = NotFoundException.class)
+    @Test(expected = CanNotFindForIdentifier.class)
     public void testLogBookDoesNotExist() {
         when(this.logBookService.findById(LOGBOOK_ID)).thenReturn(Optional.empty());
 

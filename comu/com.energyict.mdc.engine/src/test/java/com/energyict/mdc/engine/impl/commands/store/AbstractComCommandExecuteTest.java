@@ -52,7 +52,7 @@ public abstract class AbstractComCommandExecuteTest {
     private static final long COM_TASK_EXECUTION_ID = DEVICE_ID + 1;
     private static final long PROTOCOL_DIALECT_CONFIG_PROPS_ID = 6516;
 
-    protected static final FakeServiceProvider serviceProvider = new FakeServiceProvider();
+    protected static final ServiceProvider serviceProvider = new FakeServiceProvider();
     protected static CommandRoot.ServiceProvider commandRootServiceProvider = new CommandRootServiceProviderAdapter(serviceProvider);
 
     @Mock
@@ -70,13 +70,14 @@ public abstract class AbstractComCommandExecuteTest {
     }
 
     private void setupServiceProvider() {
-        serviceProvider.setDeviceConfigurationService(deviceConfigurationService);
+        FakeServiceProvider fakeServiceProvider = (FakeServiceProvider) serviceProvider;
+        fakeServiceProvider.setDeviceConfigurationService(deviceConfigurationService);
         Clock clock = Clock.systemDefaultZone();
-        serviceProvider.setClock(clock);
-        serviceProvider.setIssueService(new IssueServiceImpl(clock));
-        serviceProvider.setConnectionTaskService(mock(ConnectionTaskService.class, RETURNS_DEEP_STUBS));
-        serviceProvider.setDeviceService(mock(DeviceService.class, RETURNS_DEEP_STUBS));
-        ServiceProvider.instance.set(serviceProvider);
+        fakeServiceProvider.setClock(clock);
+        fakeServiceProvider.setIssueService(new IssueServiceImpl(clock));
+        fakeServiceProvider.setConnectionTaskService(mock(ConnectionTaskService.class, RETURNS_DEEP_STUBS));
+        fakeServiceProvider.setDeviceService(mock(DeviceService.class, RETURNS_DEEP_STUBS));
+        ServiceProvider.instance.set(fakeServiceProvider);
     }
 
     protected ComServerEventServiceProviderAdapter comServerEventServiceProviderAdapter() {
@@ -90,7 +91,7 @@ public abstract class AbstractComCommandExecuteTest {
     }
 
     private void resetServiceProvider() {
-        serviceProvider.setClock(Clock.systemDefaultZone());
+        ((FakeServiceProvider) serviceProvider).setClock(Clock.systemDefaultZone());
         ServiceProvider.instance.set(null);
     }
 

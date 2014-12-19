@@ -10,10 +10,16 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
+
 import org.junit.Test;
+import org.junit.runner.*;
 
 import java.util.Arrays;
 import java.util.Collections;
+
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -27,6 +33,7 @@ import static org.mockito.Mockito.withSettings;
  * @author gna
  * @since 14/06/12 - 10:33
  */
+@RunWith(MockitoJUnitRunner.class)
 public class OfflineRtuRegisterImplTest {
 
     public static final ObisCode RTU_REGISTER_MAPPING_OBISCODE = ObisCode.fromString("1.0.1.8.0.255");
@@ -36,6 +43,8 @@ public class OfflineRtuRegisterImplTest {
     private static final int DEFAULT_RTU_REGISTER_GROUP_ID = 0;
     private static final String METER_SERIAL_NUMBER = "MeterSerialNumber";
     private static final long REGISTER_SPEC_ID = 48654;
+    @Mock
+    private IdentificationService identificationService;
 
     public static RegisterSpec getMockedRegisterSpec(RegisterGroup registerGroup) {
         RegisterType mockedMeasurementType = getMockedRegisterType(registerGroup);
@@ -70,7 +79,7 @@ public class OfflineRtuRegisterImplTest {
         when(rtuRegister.getDevice()).thenReturn(rtu);
 
         //Business Methods
-        OfflineRegister offlineRegister = new OfflineRegisterImpl(rtuRegister, identificationService);
+        OfflineRegister offlineRegister = new OfflineRegisterImpl(rtuRegister, this.identificationService);
 
         // asserts
         assertThat(offlineRegister).isNotNull();

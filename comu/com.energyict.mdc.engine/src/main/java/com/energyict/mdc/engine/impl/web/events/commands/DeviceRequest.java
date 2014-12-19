@@ -1,12 +1,13 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link Request} interface
@@ -19,7 +20,7 @@ import java.util.Set;
 public class DeviceRequest extends IdBusinessObjectRequest {
 
     private final IdentificationService identificationService;
-    private List<BaseDevice> devices;
+    private List<Device> devices;
 
     public DeviceRequest(IdentificationService identificationService, Set<Long> deviceIds) {
         super(deviceIds);
@@ -28,10 +29,12 @@ public class DeviceRequest extends IdBusinessObjectRequest {
     }
 
     private void validateDeviceIds() {
-        this.devices = new ArrayList<>(this.getBusinessObjectIds().size());
-        for (Long deviceId : this.getBusinessObjectIds()) {
-            this.devices.add(identificationService.createDeviceIdentifierByDatabaseId(deviceId).findDevice());
-        }
+        this.devices = this.getBusinessObjectIds()
+                .stream()
+                .map(identificationService::createDeviceIdentifierByDatabaseId)
+                .map(DeviceIdentifier::findDevice)
+                .map(Device.class::cast)
+                .collect(Collectors.toList());
     }
 
     @Override

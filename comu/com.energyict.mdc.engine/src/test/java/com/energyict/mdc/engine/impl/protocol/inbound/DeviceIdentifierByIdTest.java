@@ -1,12 +1,13 @@
 package com.energyict.mdc.engine.impl.protocol.inbound;
 
-import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -15,7 +16,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById} component.
+ * Tests the {@link DeviceIdentifierById} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-12 (11:19)
@@ -28,14 +29,14 @@ public class DeviceIdentifierByIdTest {
     @Mock
     private DeviceService deviceService;
 
-    @Test(expected = NotFoundException.class)
+    @Test(expected = CanNotFindForIdentifier.class)
     public void testDeviceDoesNotExist() {
         when(this.deviceService.findDeviceById(DEVICE_ID)).thenReturn(null);
 
         // Business method
         new DeviceIdentifierById(DEVICE_ID, this.deviceService).findDevice();
 
-        // Expected a NotFoundException
+        // Expected a CanNotFindForIdentifier
     }
 
     @Test

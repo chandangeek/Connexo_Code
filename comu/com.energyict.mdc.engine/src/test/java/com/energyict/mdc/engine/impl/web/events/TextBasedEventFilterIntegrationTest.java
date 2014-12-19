@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.web.events;
 
-import java.time.Clock;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
@@ -15,24 +15,25 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.tasks.ComTask;
+
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
 import org.eclipse.jetty.websocket.WebSocketClientFactory;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -335,14 +336,14 @@ public class TextBasedEventFilterIntegrationTest {
     }
 
     private class EventGenerator extends EventPublisherImpl {
-        private BaseDevice device;
+        private Device device;
         private OutboundConnectionTask connectionTask;
         private OutboundComPort comPort;
         private OutboundComPortPool comPortPool;
 
         private EventGenerator() {
             super(runningComServer, clock);
-            this.device = mock(BaseDevice.class);
+            this.device = mock(Device.class);
             this.connectionTask = mock(OutboundConnectionTask.class);
             this.comPort = mock(OutboundComPort.class);
             this.comPortPool = mock(OutboundComPortPool.class);

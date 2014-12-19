@@ -1,13 +1,13 @@
 package com.energyict.mdc.engine.impl.events;
 
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 
 import java.util.List;
 import java.util.Set;
@@ -50,7 +50,7 @@ public interface EventPublisher {
      * @param receiver The EventReceiver
      * @param devices The devices
      */
-    public void narrowInterestToDevices (EventReceiver receiver, List<BaseDevice> devices);
+    public void narrowInterestToDevices (EventReceiver receiver, List<Device> devices);
 
     /**
      * Widens the registered interest so that not only events

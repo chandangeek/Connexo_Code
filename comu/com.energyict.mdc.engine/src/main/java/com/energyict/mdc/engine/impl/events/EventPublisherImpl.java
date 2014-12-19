@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.events;
 
-import java.time.Clock;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
@@ -9,8 +9,8 @@ import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 
+import java.time.Clock;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -88,7 +88,7 @@ public class EventPublisherImpl implements EventPublisher {
     }
 
     @Override
-    public void narrowInterestToDevices(EventReceiver receiver, List<BaseDevice> devices) {
+    public void narrowInterestToDevices(EventReceiver receiver, List<Device> devices) {
         synchronized (this.filters) {
             FilteringEventReceiver filter = this.findOrCreateFilter(receiver);
             filter.narrowToDevices(devices);

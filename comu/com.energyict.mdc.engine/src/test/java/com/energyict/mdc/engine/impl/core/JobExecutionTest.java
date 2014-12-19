@@ -153,22 +153,23 @@ public class JobExecutionTest {
     @Mock
     private Thesaurus thesaurus;
 
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
+    private ServiceProvider serviceProvider;
     private IssueService issueService = new FakeIssueService();
     private CommandRootImpl root;
-    private CommandRootImpl root2;
 
     public void setupServiceProvider() {
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
         when(this.thesaurus.getString(anyString(), anyString())).thenReturn("Translation not supported in unit testing");
-        this.serviceProvider.setIssueService(this.issueService);
-        this.serviceProvider.setTransactionService(new FakeTransactionService());
-        this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
-        this.serviceProvider.setDeviceService(this.deviceService);
-        this.serviceProvider.setEngineService(this.engineService);
-        this.serviceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
-        this.serviceProvider.setNlsService(this.nlsService);
-        this.serviceProvider.setClock(this.clock);
+        FakeServiceProvider fakeServiceProvider = new FakeServiceProvider();
+        fakeServiceProvider.setIssueService(this.issueService);
+        fakeServiceProvider.setTransactionService(new FakeTransactionService());
+        fakeServiceProvider.setConnectionTaskService(this.connectionTaskService);
+        fakeServiceProvider.setDeviceService(this.deviceService);
+        fakeServiceProvider.setEngineService(this.engineService);
+        fakeServiceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
+        fakeServiceProvider.setNlsService(this.nlsService);
+        fakeServiceProvider.setClock(this.clock);
+        this.serviceProvider = fakeServiceProvider;
         ServiceProvider.instance.set(this.serviceProvider);
     }
 
@@ -233,7 +234,7 @@ public class JobExecutionTest {
 
         ExecutionContext executionContext = newTestExecutionContext();
         root = spy(new CommandRootImpl(offlineDevice, executionContext, this.serviceProvider));
-        root2 = spy(new CommandRootImpl(offlineDevice, executionContext, this.serviceProvider));
+        CommandRootImpl root2 = spy(new CommandRootImpl(offlineDevice, executionContext, this.serviceProvider));
         doNothing().when(root).execute(any(DeviceProtocol.class), any(ExecutionContext.class));
         doNothing().when(root2).execute(any(DeviceProtocol.class), any(ExecutionContext.class));
         when(genericDeviceProtocol.organizeComCommands(root)).thenReturn(root2);

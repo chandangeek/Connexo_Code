@@ -1,10 +1,10 @@
 package com.energyict.mdc.engine.impl.meterdata.identifiers;
 
-import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
@@ -17,11 +17,12 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link com.energyict.mdc.engine.impl.LoadProfileIdentifierByObisCodeAndDevice}.
+ * Tests the {@link LoadProfileIdentifierByObisCodeAndDevice}.
  * <p/>
  * Copyrights EnergyICT
  * Date: 16/10/12
@@ -41,7 +42,7 @@ public class LoadProfileDataIdentifierTest {
         return deviceIdentifier;
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test(expected = CanNotFindForIdentifier.class)
     public void loadProfileDoesNotExist() {
         when(this.device.getLoadProfiles()).thenReturn(new ArrayList<LoadProfile>(0));
 
@@ -49,10 +50,10 @@ public class LoadProfileDataIdentifierTest {
         new LoadProfileIdentifierByObisCodeAndDevice(loadProfileObisCode, getMockedDeviceIdentifier()).findLoadProfile();
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test(expected = CanNotFindForIdentifier.class)
     public void deviceDoesNotExist() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceIdentifier.findDevice()).thenReturn(null);
+        doThrow(CanNotFindForIdentifier.class).when(deviceIdentifier).findDevice();
 
         // Business method
         new LoadProfileIdentifierByObisCodeAndDevice(loadProfileObisCode, deviceIdentifier).findLoadProfile();

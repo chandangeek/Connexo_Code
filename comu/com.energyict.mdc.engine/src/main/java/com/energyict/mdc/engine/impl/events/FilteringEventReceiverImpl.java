@@ -1,5 +1,8 @@
 package com.energyict.mdc.engine.impl.events;
 
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.events.filtering.CategoryFilter;
@@ -13,16 +16,13 @@ import com.energyict.mdc.engine.impl.events.filtering.LogLevelFilter;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link FilteringEventReceiver} interface.
@@ -33,7 +33,7 @@ import java.util.Set;
 public class FilteringEventReceiverImpl implements FilteringEventReceiver {
 
     private EventReceiver actualReceiver;
-    private List<EventFilterCriterion> criteria = new LinkedList<EventFilterCriterion>();
+    private List<EventFilterCriterion> criteria = new LinkedList<>();
 
     public FilteringEventReceiverImpl (EventReceiver actualReceiver) {
         super();
@@ -75,7 +75,7 @@ public class FilteringEventReceiverImpl implements FilteringEventReceiver {
     }
 
     @Override
-    public void narrowToDevices (List<BaseDevice> device) {
+    public void narrowToDevices (List<Device> device) {
         synchronized (this.criteria) {
             for (EventFilterCriterion criterion : this.criteria) {
                 if (criterion instanceof DeviceFilter) {
@@ -108,12 +108,8 @@ public class FilteringEventReceiverImpl implements FilteringEventReceiver {
         }
     }
 
-    private List<BaseDevice> collectDevicesFrom (List<ConnectionTask> connectionTasks) {
-        List<BaseDevice> devices = new ArrayList<BaseDevice>(connectionTasks.size());
-        for (ConnectionTask connectionTask : connectionTasks) {
-            devices.add(connectionTask.getDevice());
-        }
-        return devices;
+    private List<Device> collectDevicesFrom (List<ConnectionTask> connectionTasks) {
+        return connectionTasks.stream().map(ConnectionTask::getDevice).collect(Collectors.toList());
     }
 
     @Override

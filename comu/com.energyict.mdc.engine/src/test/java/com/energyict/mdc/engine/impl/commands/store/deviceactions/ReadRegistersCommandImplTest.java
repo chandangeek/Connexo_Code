@@ -27,6 +27,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.RegistersTask;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -56,6 +57,8 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
 
     @Mock
     private ComTaskExecution comTaskExecution;
+    @Mock
+    private IdentificationService identificationService;
 
     @Test
     public void commandTypeTest() {
@@ -102,7 +105,7 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
 
         CommandRoot commandRoot = new CommandRootImpl(device, AbstractComCommandExecuteTest.newTestExecutionContext(), commandRootServiceProvider);
         ReadRegistersCommandImpl readRegistersCommand = (ReadRegistersCommandImpl) commandRoot.getReadRegistersCommand(commandRoot, comTaskExecution);
-        OfflineRegister register1 = new OfflineRegisterImpl(reg1, identificationService);
+        OfflineRegister register1 = new OfflineRegisterImpl(reg1, this.identificationService);
         OfflineRegister register2 = new OfflineRegisterImpl(reg2, identificationService);
         OfflineRegister register3 = new OfflineRegisterImpl(reg3, identificationService);
         OfflineRegister register4 = new OfflineRegisterImpl(reg4, identificationService);

@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.ZoneId;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
@@ -56,7 +57,7 @@ public class SingleExecutionCommandTest extends CommonCommandImplTests {
     @Test
     public void executionTest() {
         Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
-        serviceProvider.setClock(frozenClock);
+        ((FakeServiceProvider) serviceProvider).setClock(frozenClock);
         final long timeDifferenceInMillis = 1000L;
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
 
@@ -93,14 +94,14 @@ public class SingleExecutionCommandTest extends CommonCommandImplTests {
     @Test
     public void multipleExecutionTest(){
         Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
-        serviceProvider.setClock(frozenClock);
+        ((FakeServiceProvider) serviceProvider).setClock(frozenClock);
         final long timeDifferenceInMillis = 1000L;
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
 
         long deviceTime = frozenClock.millis() - timeDifferenceInMillis;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 1 seconds time difference
         TimeDifferenceCommandImpl timeDifferenceCommand = new TimeDifferenceCommandImpl(getMockedCommandRoot());
-        ExecutionContext executionContext = this.newTestExecutionContext();
+        ExecutionContext executionContext = newTestExecutionContext();
         timeDifferenceCommand.execute(deviceProtocol, executionContext);
         timeDifferenceCommand.execute(deviceProtocol, executionContext);
         timeDifferenceCommand.execute(deviceProtocol, executionContext);

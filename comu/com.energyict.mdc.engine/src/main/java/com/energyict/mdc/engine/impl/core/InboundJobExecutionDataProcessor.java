@@ -181,7 +181,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         }
 
         @Override
-        public DeviceService deviceDataService() {
+        public DeviceService deviceService() {
             return serviceProvider.deviceService();
         }
 

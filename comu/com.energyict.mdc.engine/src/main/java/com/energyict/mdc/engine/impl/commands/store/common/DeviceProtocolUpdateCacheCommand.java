@@ -37,7 +37,7 @@ public class DeviceProtocolUpdateCacheCommand extends SimpleComCommand {
     }
 
     private DeviceService getDeviceDataService() {
-        return getCommandRoot().getServiceProvider().deviceDataService();
+        return getCommandRoot().getServiceProvider().deviceService();
     }
 
     @Override

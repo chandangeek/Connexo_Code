@@ -10,7 +10,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 /**
- * Provides functionality to store {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} data into the system
+ * Provides functionality to store {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} data.
  *
  * Copyrights EnergyICT
  * Date: 29/08/12
@@ -37,7 +37,7 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
     }
 
     private void updateMeterDataStorer(final PreStoreLoadProfile.LocalLoadProfile localLoadProfile) {
-        if(localLoadProfile.getIntervalBlocks().size() > 0){
+        if (!localLoadProfile.getIntervalBlocks().isEmpty()) {
             DeviceIdentifier<Device> deviceIdentifier = this.comServerDAO.getDeviceIdentifierFor(this.collectedLoadProfile.getLoadProfileIdentifier());
             this.meterDataStoreCommand.addIntervalReadings(deviceIdentifier, localLoadProfile.getIntervalBlocks());
             this.meterDataStoreCommand.addLastReadingUpdater(this.collectedLoadProfile.getLoadProfileIdentifier(), localLoadProfile.getLastReading());

@@ -217,7 +217,8 @@ public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
      */
     @Override
     public CommandRoot organizeComCommands(CommandRoot commandRoot) {
-        CommandRoot resultRoot = new CommandRootImpl(offlineDevice, commandRoot.getExecutionContext(), new FakeServiceProvider());
+        CommandRoot.ServiceProvider serviceProvider = new FakeServiceProvider();
+        CommandRoot resultRoot = new CommandRootImpl(offlineDevice, commandRoot.getExecutionContext(), serviceProvider);
         resultRoot.getCommands().putAll(commandRoot.getCommands());
         resultRoot.getCommands().remove(ComCommandTypes.READ_REGISTERS_COMMAND);
         return resultRoot;

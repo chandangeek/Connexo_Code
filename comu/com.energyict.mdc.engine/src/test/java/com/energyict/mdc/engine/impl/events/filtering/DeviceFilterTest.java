@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.events.filtering;
 
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.events.ComTaskExecutionEvent;
 import com.energyict.mdc.engine.events.DeviceRelatedEvent;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 import java.util.Arrays;
 
@@ -23,8 +23,8 @@ public class DeviceFilterTest {
 
     @Test
     public void testMatchExpected () {
-        BaseDevice interestedDevice = mock(BaseDevice.class);
-        BaseDevice otherDevice = mock(BaseDevice.class);
+        Device interestedDevice = mock(Device.class);
+        Device otherDevice = mock(Device.class);
         DeviceFilter filter = new DeviceFilter(Arrays.asList(interestedDevice));
         DeviceRelatedEvent event = mock(DeviceRelatedEvent.class);
         when(event.isDeviceRelated()).thenReturn(true);
@@ -36,7 +36,7 @@ public class DeviceFilterTest {
 
     @Test
     public void testNoMatchExpected () {
-        BaseDevice interestedDevice = mock(BaseDevice.class);
+        Device interestedDevice = mock(Device.class);
         DeviceFilter filter = new DeviceFilter(Arrays.asList(interestedDevice));
         DeviceRelatedEvent event = mock(DeviceRelatedEvent.class);
         when(event.isDeviceRelated()).thenReturn(true);
@@ -48,7 +48,7 @@ public class DeviceFilterTest {
 
     @Test
     public void testNoMatchExpectedForComTaskEventsOfTheInterestedDevices () {
-        BaseDevice interestedDevice = mock(BaseDevice.class);
+        Device interestedDevice = mock(Device.class);
         DeviceFilter filter = new DeviceFilter(Arrays.asList(interestedDevice));
         ComTaskExecutionEvent event = mock(ComTaskExecutionEvent.class);
         when(event.isDeviceRelated()).thenReturn(true);
@@ -60,8 +60,8 @@ public class DeviceFilterTest {
 
     @Test
     public void testMatchExpectedForComTaskEventOfOtherDevices () {
-        BaseDevice interestedDevice = mock(BaseDevice.class);
-        BaseDevice otherDevice = mock(BaseDevice.class);
+        Device interestedDevice = mock(Device.class);
+        Device otherDevice = mock(Device.class);
         DeviceFilter filter = new DeviceFilter(Arrays.asList(interestedDevice));
         ComTaskExecutionEvent event = mock(ComTaskExecutionEvent.class);
         when(event.isDeviceRelated()).thenReturn(true);
@@ -73,7 +73,7 @@ public class DeviceFilterTest {
 
     @Test
     public void testNoMatchExpectedForNonDeviceEvents () {
-        BaseDevice interestedDevice = mock(BaseDevice.class);
+        Device interestedDevice = mock(Device.class);
         DeviceFilter filter = new DeviceFilter(Arrays.asList(interestedDevice));
         ComServerEvent event = mock(ComServerEvent.class);
         when(event.isDeviceRelated()).thenReturn(false);
@@ -84,7 +84,7 @@ public class DeviceFilterTest {
 
     @Test
     public void testConstrutor () {
-        BaseDevice interestedDevice = mock(BaseDevice.class);
+        Device interestedDevice = mock(Device.class);
 
         // Business method
         DeviceFilter filter = new DeviceFilter(Arrays.asList(interestedDevice));
@@ -95,8 +95,8 @@ public class DeviceFilterTest {
 
     @Test
     public void testUpdateDevice () {
-        BaseDevice interestedDevice = mock(BaseDevice.class);
-        BaseDevice otherDevice = mock(BaseDevice.class);
+        Device interestedDevice = mock(Device.class);
+        Device otherDevice = mock(Device.class);
         DeviceFilter filter = new DeviceFilter(Arrays.asList(interestedDevice));
 
         // Business method

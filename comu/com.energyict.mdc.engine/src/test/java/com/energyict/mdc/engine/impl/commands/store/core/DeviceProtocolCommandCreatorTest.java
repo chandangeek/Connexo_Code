@@ -21,6 +21,7 @@ import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComTaskExecutionConnectionSteps;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -61,7 +62,7 @@ public class DeviceProtocolCommandCreatorTest {
     private static final long COMPORT_ID = COMPORT_POOL_ID + 1;
     private static final long CONNECTION_TASK_ID = COMPORT_ID + 1;
 
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
+    private ServiceProvider serviceProvider = new FakeServiceProvider();
 
     @Mock
     private IssueService issueService;
@@ -85,15 +86,18 @@ public class DeviceProtocolCommandCreatorTest {
 
     @Before
     public void initBefore() {
-        serviceProvider.setClock(clock);
-        serviceProvider.setConnectionTaskService(this.connectionTaskService);
-        serviceProvider.setDeviceService(this.deviceService);
+        FakeServiceProvider fakeServiceProvider = (FakeServiceProvider) this.serviceProvider;
+        fakeServiceProvider.setClock(clock);
+        fakeServiceProvider.setConnectionTaskService(this.connectionTaskService);
+        fakeServiceProvider.setDeviceService(this.deviceService);
     }
 
     @After
     public void initAfter() {
-        serviceProvider.setClock(null);
-        serviceProvider.setDeviceService(null);
+        FakeServiceProvider fakeServiceProvider = (FakeServiceProvider) this.serviceProvider;
+        fakeServiceProvider.setClock(null);
+        fakeServiceProvider.setDeviceService(null);
+        fakeServiceProvider.setConnectionTaskService(null);
     }
 
     @Test

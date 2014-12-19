@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.events;
 
-import java.time.Clock;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -11,19 +11,24 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link com.energyict.mdc.engine.impl.events.EventPublisherImpl} component.
@@ -127,11 +132,11 @@ public class EventPublisherImplTest {
         when(filteringEventReceiver.delegatesTo(eventReceiver)).thenReturn(true);
         when(factory.newFor(eventReceiver)).thenReturn(filteringEventReceiver);
         EventPublisherImpl eventPublisher = new EventPublisherImpl(this.comServer, this.clock, factory);
-        BaseDevice device = mock(BaseDevice.class);
+        Device device = mock(Device.class);
 
         // Business methods
         eventPublisher.registerInterest(eventReceiver);
-        List<BaseDevice> interestedDevices = Arrays.asList(device);
+        List<Device> interestedDevices = Arrays.asList(device);
         eventPublisher.narrowInterestToDevices(eventReceiver, interestedDevices);
 
         // Asserts
@@ -147,7 +152,7 @@ public class EventPublisherImplTest {
         when(filteringEventReceiver.delegatesTo(eventReceiver)).thenReturn(true);
         when(factory.newFor(eventReceiver)).thenReturn(filteringEventReceiver);
         EventPublisherImpl eventPublisher = new EventPublisherImpl(this.comServer, this.clock, factory);
-        BaseDevice device = mock(BaseDevice.class);
+        Device device = mock(Device.class);
 
         // Business methods
         eventPublisher.registerInterest(eventReceiver);

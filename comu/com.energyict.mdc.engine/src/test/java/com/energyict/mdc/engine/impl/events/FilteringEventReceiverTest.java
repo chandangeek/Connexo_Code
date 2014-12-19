@@ -15,7 +15,6 @@ import com.energyict.mdc.engine.events.LoggingEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -140,7 +139,7 @@ public class FilteringEventReceiverTest {
 
     @Test
     public void testNarrowToDeviceWithEventsForTheSameDevice () {
-        BaseDevice device = mock(BaseDevice.class);
+        Device device = mock(Device.class);
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiver filteringEventReceiver = new FilteringEventReceiverImpl(eventReceiver);
         DeviceRelatedEvent event = mock(DeviceRelatedEvent.class);
@@ -158,8 +157,8 @@ public class FilteringEventReceiverTest {
 
     @Test
     public void testNarrowToDeviceWithEventsForAnotherDevice () {
-        BaseDevice device = mock(BaseDevice.class);
-        BaseDevice otherDevice = mock(BaseDevice.class);
+        Device device = mock(Device.class);
+        Device otherDevice = mock(Device.class);
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiver filteringEventReceiver = new FilteringEventReceiverImpl(eventReceiver);
         DeviceRelatedEvent event = mock(DeviceRelatedEvent.class);
@@ -177,8 +176,8 @@ public class FilteringEventReceiverTest {
 
     @Test
     public void testNarrowToOtherDevices () {
-        BaseDevice device1 = mock(BaseDevice.class);
-        BaseDevice device2 = mock(BaseDevice.class);
+        Device device1 = mock(Device.class);
+        Device device2 = mock(Device.class);
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiver filteringEventReceiver = new FilteringEventReceiverImpl(eventReceiver);
         DeviceRelatedEvent eventForDevice1 = mock(DeviceRelatedEvent.class);
@@ -203,8 +202,8 @@ public class FilteringEventReceiverTest {
 
     @Test
     public void testWidenToAllDevices () {
-        BaseDevice device = mock(BaseDevice.class);
-        BaseDevice otherDevice = mock(BaseDevice.class);
+        Device device = mock(Device.class);
+        Device otherDevice = mock(Device.class);
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiver filteringEventReceiver = new FilteringEventReceiverImpl(eventReceiver);
         DeviceRelatedEvent event = mock(DeviceRelatedEvent.class);
@@ -223,7 +222,7 @@ public class FilteringEventReceiverTest {
 
     @Test
     public void testWidenToAllDevicesWithoutDeviceFilter () {
-        BaseDevice device = mock(BaseDevice.class);
+        Device device = mock(Device.class);
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiver filteringEventReceiver = new FilteringEventReceiverImpl(eventReceiver);
         DeviceRelatedEvent event = mock(DeviceRelatedEvent.class);
@@ -241,7 +240,7 @@ public class FilteringEventReceiverTest {
 
     @Test
     public void testNarrowToDeviceAndConnectionCategory () {
-        BaseDevice device = mock(BaseDevice.class);
+        Device device = mock(Device.class);
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiver filteringEventReceiver = new FilteringEventReceiverImpl(eventReceiver);
         DeviceRelatedEvent event = mock(DeviceRelatedEvent.class);
@@ -260,8 +259,8 @@ public class FilteringEventReceiverTest {
 
     @Test
     public void testNarrowToDeviceAndConnectionCategoryButForAnotherDevice () {
-        BaseDevice device = mock(BaseDevice.class);
-        BaseDevice otherDevice = mock(BaseDevice.class);
+        Device device = mock(Device.class);
+        Device otherDevice = mock(Device.class);
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiver filteringEventReceiver = new FilteringEventReceiverImpl(eventReceiver);
         DeviceRelatedEvent event = mock(DeviceRelatedEvent.class);

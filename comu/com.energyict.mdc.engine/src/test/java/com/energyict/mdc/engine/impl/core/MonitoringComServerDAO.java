@@ -205,9 +205,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
     @Override
     public void executionCompleted (List<? extends ComTaskExecution> comTaskExecutions) {
-        for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            this.executionCompleted(comTaskExecution);
-        }
+        comTaskExecutions.forEach(this::executionCompleted);
     }
 
     @Override
@@ -218,9 +216,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
     @Override
     public void executionFailed (List<? extends ComTaskExecution> comTaskExecutions) {
-        for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            this.executionFailed(comTaskExecution);
-        }
+        comTaskExecutions.forEach(this::executionFailed);
     }
 
     @Override
@@ -260,7 +256,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
     @Override
     public void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegment) {
-        this.actual.storePathSegments(, topologyPathSegment, );
+        this.actual.storePathSegments(sourceDeviceIdentifier, topologyPathSegment);
     }
 
     @Override
@@ -423,9 +419,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
         @Override
         public void executionCompleted (List<? extends ComTaskExecution> comTaskExecutions) {
-            for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-                this.executionCompleted(comTaskExecution);
-            }
+            comTaskExecutions.forEach(this::executionCompleted);
         }
 
         @Override
@@ -435,9 +429,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
         @Override
         public void executionFailed (List<? extends ComTaskExecution> comTaskExecutions) {
-            for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-                this.executionFailed(comTaskExecution);
-            }
+            comTaskExecutions.forEach(this::executionFailed);
         }
 
         @Override

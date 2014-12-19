@@ -5,9 +5,15 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
+
 import org.junit.*;
+import org.junit.runner.*;
 
 import java.util.Date;
+
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -19,6 +25,7 @@ import static org.mockito.Mockito.when;
  * @author sva
  * @since 10/12/12 - 15:23
  */
+@RunWith(MockitoJUnitRunner.class)
 public class OfflineLogBookImplTest {
 
     private static final long LOGBOOK_ID = 1;
@@ -26,6 +33,8 @@ public class OfflineLogBookImplTest {
     private static final long LOGBOOK_TYPE_ID = 123;
     private static final String DEVICE_SERIAL = "SerialNumber";
     private static final Date LAST_LOGBOOK = new Date(1355150108L * 1000);  // Mon, 10 Dec 2012 14:35:08 GMT
+    @Mock
+    private IdentificationService identificationService;
 
     @Test
     public void goOfflineTest() {
@@ -46,7 +55,7 @@ public class OfflineLogBookImplTest {
         when(logBook.getLastLogBook()).thenReturn(LAST_LOGBOOK);
 
         //Business Methods
-        OfflineLogBook offlineLogBook = new OfflineLogBookImpl(logBook, identificationService);
+        OfflineLogBook offlineLogBook = new OfflineLogBookImpl(logBook, this.identificationService);
 
         // asserts
         assertNotNull(offlineLogBook);

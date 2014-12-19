@@ -21,8 +21,8 @@ public interface ServerCollectedData extends CollectedData {
      * once the communication session is complete.
      *
      * @return The DeviceCommand
-     * @param issueService
-     * @param meterDataStoreCommand
+     * @param issueService The IssueService
+     * @param meterDataStoreCommand The MeterDataStoreCommand
      */
     public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand);
 

@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.events.filtering;
 
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.events.DeviceRelatedEvent;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 import java.util.List;
 
@@ -16,18 +16,18 @@ import java.util.List;
  */
 public class DeviceFilter implements EventFilterCriterion {
 
-    private List<BaseDevice> devices;
+    private List<Device> devices;
 
-    public DeviceFilter (List<BaseDevice> devices) {
+    public DeviceFilter (List<Device> devices) {
         super();
         this.devices = devices;
     }
 
-    public List<BaseDevice> getDevices () {
+    public List<Device> getDevices () {
         return devices;
     }
 
-    public void setDevices (List<BaseDevice> devices) {
+    public void setDevices (List<Device> devices) {
         this.devices = devices;
     }
 

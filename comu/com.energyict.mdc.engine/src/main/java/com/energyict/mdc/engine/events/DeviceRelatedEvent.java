@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.events;
 
-import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.device.data.Device;
 
 /**
  * Marks a {@link ComServerEvent} as relating to a {@link com.energyict.mdc.protocol.api.device.BaseDevice device}.
@@ -15,6 +15,6 @@ public interface DeviceRelatedEvent extends ComServerEvent {
      *
      * @return The device
      */
-    public BaseDevice getDevice ();
+    public Device getDevice ();
 
 }

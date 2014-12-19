@@ -8,11 +8,17 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
+
 import org.junit.Test;
+import org.junit.runner.*;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
+
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -23,6 +29,7 @@ import static org.mockito.Mockito.*;
  * @author gna
  * @since 30/05/12 - 14:40
  */
+@RunWith(MockitoJUnitRunner.class)
 public class OfflineLoadProfileImplTest {
 
     private static final TimeDuration PROFILE_INTERVAL = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
@@ -31,6 +38,8 @@ public class OfflineLoadProfileImplTest {
     private static final int LOAD_PROFILE_ID = 48564;
     private static final long LOAD_PROFILE_TYPE_ID = 11565;
     private static final String MASTER_SERIAL_NUMBER = "Master_SerialNumber";
+    @Mock
+    private IdentificationService identificationService;
 
     private static LoadProfile getNewMockedLoadProfile(final long id, final ObisCode obisCode) {
         Device rtu = mock(Device.class);
@@ -65,7 +74,7 @@ public class OfflineLoadProfileImplTest {
     public void goOfflineTest() {
         final ObisCode loadProfileObisCode = ObisCode.fromString("1.0.99.1.0.255");
         LoadProfile loadProfile = getNewMockedLoadProfile(LOAD_PROFILE_ID, loadProfileObisCode);
-        OfflineLoadProfileImpl offlineLoadProfile = new OfflineLoadProfileImpl(loadProfile, mock(TopologyService.class), identificationService);
+        OfflineLoadProfileImpl offlineLoadProfile = new OfflineLoadProfileImpl(loadProfile, mock(TopologyService.class), this.identificationService);
 
         // Asserts
         assertThat(offlineLoadProfile).isNotNull();

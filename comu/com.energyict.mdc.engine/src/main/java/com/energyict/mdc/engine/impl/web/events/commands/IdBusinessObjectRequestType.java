@@ -1,7 +1,8 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
-import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.IdBusinessObject;
+import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,6 +36,9 @@ public abstract class IdBusinessObjectRequestType implements RequestType {
             }
         }
         catch (NotFoundException e) {
+            throw new BusinessObjectIdParseException(parameterString, this.getBusinessObjectTypeName(), e);
+        }
+        catch (CanNotFindForIdentifier e) {
             throw new BusinessObjectIdParseException(parameterString, this.getBusinessObjectTypeName(), e);
         }
     }

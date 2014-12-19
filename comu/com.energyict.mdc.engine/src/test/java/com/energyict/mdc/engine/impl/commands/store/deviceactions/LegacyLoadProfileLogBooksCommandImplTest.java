@@ -121,6 +121,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
     @Before
     public void setUp() throws Exception {
         when(offlineLogBook_A.getLogBookId()).thenReturn(LOGBOOK_ID_1);
+        when(offlineLogBook_A.getLogBookIdentifier()).thenReturn(new LogBookIdentifierById(LOGBOOK_ID_1, logBookService));
         when(offlineLogBook_A.getLastLogBook()).thenReturn(LAST_LOGBOOK_1);
         when(offlineLogBook_A.getMasterSerialNumber()).thenReturn(FIXED_DEVICE_SERIAL_NUMBER);
         when(offlineLogBook_A.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_1);
@@ -128,6 +129,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         when(offlineLogBook_A.getDeviceIdentifier()).thenReturn(serialNumberDeviceIdentifier);
 
         when(offlineLogBook_B.getLogBookId()).thenReturn(LOGBOOK_ID_2);
+        when(offlineLogBook_B.getLogBookIdentifier()).thenReturn(new LogBookIdentifierById(LOGBOOK_ID_2, logBookService));
         when(offlineLogBook_B.getLastLogBook()).thenReturn(LAST_LOGBOOK_2);
         when(offlineLogBook_B.getMasterSerialNumber()).thenReturn(FIXED_DEVICE_SERIAL_NUMBER);
         when(offlineLogBook_B.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_2);
@@ -135,6 +137,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         when(offlineLogBook_B.getDeviceIdentifier()).thenReturn(serialNumberDeviceIdentifier);
 
         when(offlineLogBook_C.getLogBookId()).thenReturn(LOGBOOK_ID_3);
+        when(offlineLogBook_C.getLogBookIdentifier()).thenReturn(new LogBookIdentifierById(LOGBOOK_ID_3, logBookService));
         when(offlineLogBook_C.getLastLogBook()).thenReturn(LAST_LOGBOOK_3);
         when(offlineLogBook_C.getMasterSerialNumber()).thenReturn(FIXED_DEVICE_SERIAL_NUMBER);
         when(offlineLogBook_C.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_3);

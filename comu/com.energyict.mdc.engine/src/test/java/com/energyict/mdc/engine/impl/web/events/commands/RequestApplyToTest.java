@@ -13,29 +13,27 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 
-import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.google.common.collect.ImmutableSet;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anySetOf;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link Request#applyTo(EventPublisher)} method
@@ -79,7 +77,7 @@ public class RequestApplyToTest {
 
     @Test
     public void testDeviceRequest() {
-        BaseDevice device = this.mockDevice();
+        Device device = this.mockDevice();
         DeviceRequest request = new DeviceRequest(identificationService, Collections.singleton(DEVICE1_ID));
         EventPublisher eventPublisher = mock(EventPublisher.class);
 
@@ -152,10 +150,15 @@ public class RequestApplyToTest {
         assertThat(comPortPoolArgumentCaptor.getValue()).containsOnly(comPortPool);
     }
 
-    private BaseDevice mockDevice() {
+    private Device mockDevice() {
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(DEVICE1_ID);
         when(this.deviceService.findDeviceById(DEVICE1_ID)).thenReturn(device);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+        when(deviceIdentifier.findDevice()).thenReturn(device);
+        when(deviceIdentifier.getDeviceIdentifierType()).thenReturn(DeviceIdentifierType.ActualDevice);
+        when(deviceIdentifier.getIdentifier()).thenReturn(String.valueOf(DEVICE1_ID));
+        when(this.identificationService.createDeviceIdentifierByDatabaseId(DEVICE1_ID)).thenReturn(deviceIdentifier);
         return device;
     }
 

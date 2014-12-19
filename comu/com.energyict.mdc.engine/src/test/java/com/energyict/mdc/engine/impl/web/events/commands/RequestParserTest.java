@@ -4,6 +4,7 @@ import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
@@ -12,6 +13,10 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
+
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +25,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -56,6 +62,8 @@ public class RequestParserTest {
     private DeviceService deviceService;
     @Mock
     private EngineModelService engineModelService;
+    @Mock
+    private IdentificationService identificationService;
 
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
@@ -65,6 +73,7 @@ public class RequestParserTest {
         this.serviceProvider.setCommunicationTaskService(this.communicationTaskService);
         this.serviceProvider.setDeviceService(this.deviceService);
         this.serviceProvider.setEngineModelService(this.engineModelService);
+        this.serviceProvider.setIdentificationService(this.identificationService);
     }
 
     @Test(expected = UnexpectedRequestFormatException.class)
@@ -278,6 +287,7 @@ public class RequestParserTest {
 
     @Test(expected = BusinessObjectIdParseException.class)
     public void testNonExistingDevice() throws RequestParseException {
+        doThrow(CanNotFindForIdentifier.class).when(this.identificationService).createDeviceIdentifierByDatabaseId(NON_EXISTING_DEVICE_ID);
         this.mockDevices();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -619,12 +629,19 @@ public class RequestParserTest {
     }
 
     private void mockDevices() {
-        Device device1 = mock(Device.class);
-        when(device1.getId()).thenReturn(DEVICE1_ID);
-        Device device2 = mock(Device.class);
-        when(device2.getId()).thenReturn(DEVICE2_ID);
-        when(this.deviceService.findDeviceById(DEVICE1_ID)).thenReturn(device1);
-        when(this.deviceService.findDeviceById(DEVICE2_ID)).thenReturn(device2);
+        this.mockDevice(DEVICE1_ID);
+        this.mockDevice(DEVICE2_ID);
+    }
+
+    private void mockDevice(long deviceId) {
+        Device device = mock(Device.class);
+        when(device.getId()).thenReturn(deviceId);
+        when(this.deviceService.findDeviceById(deviceId)).thenReturn(device);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+        when(deviceIdentifier.findDevice()).thenReturn(device);
+        when(deviceIdentifier.getDeviceIdentifierType()).thenReturn(DeviceIdentifierType.ActualDevice);
+        when(deviceIdentifier.getIdentifier()).thenReturn(String.valueOf(deviceId));
+        when(this.identificationService.createDeviceIdentifierByDatabaseId(deviceId)).thenReturn(deviceIdentifier);
     }
 
     private void mockConnectionTasks() {

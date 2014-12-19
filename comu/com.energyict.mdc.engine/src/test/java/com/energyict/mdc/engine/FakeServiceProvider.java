@@ -12,6 +12,7 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
@@ -45,7 +46,8 @@ public class FakeServiceProvider
         ExecutionContext.ServiceProvider,
         RequestParser.ServiceProvider,
         EmbeddedJettyServer.ServiceProvider,
-        RunningComServerImpl.ServiceProvider {
+        RunningComServerImpl.ServiceProvider,
+        CommandRoot.ServiceProvider {
 
     private EventService eventService;
     private TransactionService transactionService;

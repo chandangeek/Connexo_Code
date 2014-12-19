@@ -1,7 +1,8 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
-import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.IdBusinessObject;
+import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 
 /**
  * Models the exceptional situation that occurs when
@@ -16,6 +17,10 @@ public class BusinessObjectIdParseException extends RequestParseException {
 
     public BusinessObjectIdParseException (String id, String categoryName, NumberFormatException e) {
         super(id + " cannot represent the unique identifier of a " + categoryName + " because it is not numerical", e);
+    }
+
+    public BusinessObjectIdParseException (String id, String categoryName, CanNotFindForIdentifier e) {
+        super("The " + categoryName + " with id " + id + " could not be found", e);
     }
 
     public BusinessObjectIdParseException (String id, String categoryName, NotFoundException e) {

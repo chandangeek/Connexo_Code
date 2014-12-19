@@ -573,7 +573,7 @@ public abstract class JobExecution implements ScheduledJob {
         }
 
         @Override
-        public DeviceService deviceDataService() {
+        public DeviceService deviceService() {
             return JobExecution.this.serviceProvider.deviceService();
         }
 
