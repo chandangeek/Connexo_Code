@@ -44,7 +44,6 @@ public class DeviceProtocolPropertyResource {
     public Response getDeviceProperties() {
         TypedProperties deviceProperties = device.getDeviceProtocolProperties();
         List <PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(device.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs() ,deviceProperties);
-        Collections.sort(propertyInfos, (o1, o2) -> o1.key.compareToIgnoreCase(o2.key));
         ProtocolInfo protocolInfo = new ProtocolInfo();
         protocolInfo.id = device.getDeviceType().getDeviceProtocolPluggableClass().getId();
         protocolInfo.name = device.getDeviceType().getDeviceProtocolPluggableClass().getName();
@@ -73,7 +72,6 @@ public class DeviceProtocolPropertyResource {
                 device.setProtocolProperty(propertySpec.getName(), value);
             }
         }
-        device.save();
         return Response.ok().build();
     }
 }

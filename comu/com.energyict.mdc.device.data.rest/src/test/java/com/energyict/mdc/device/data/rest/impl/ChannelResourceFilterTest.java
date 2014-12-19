@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationResult;
 import com.energyict.mdc.common.Unit;
@@ -24,7 +25,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -89,7 +89,8 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
         when(channel.getName()).thenReturn(name);
         when(channel.getId()).thenReturn(id);
         when(channel.getDevice()).thenReturn(device);
-        when(channel.getReadingType()).thenReturn(DeviceResourceTest.READING_TYPE);
+        ReadingType readingType = mockReadingType("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18");
+        when(channel.getReadingType()).thenReturn(readingType);
         when(channel.getPhenomenon()).thenReturn(phenomenon);
         when(channel.getChannelSpec()).thenReturn(channelSpec);
         when(channel.getLastDateTime()).thenReturn(Optional.<Instant>empty());
