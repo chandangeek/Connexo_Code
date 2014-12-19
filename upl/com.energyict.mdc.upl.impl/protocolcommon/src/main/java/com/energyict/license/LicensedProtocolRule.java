@@ -254,6 +254,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     SOCOMEC_COUNTIS_E44(221, "com.energyict.protocolimpl.modbus.socomec.countis.e44.E44"),
     EMH_NXT4(222, "com.energyict.protocolimpl.iec1107.emh.nxt4.NXT4"),
     ELSTER_A1055(223, "com.energyict.protocolimplv2.abnt.elster.A1055"),
+    AM540(224, "com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540"),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),

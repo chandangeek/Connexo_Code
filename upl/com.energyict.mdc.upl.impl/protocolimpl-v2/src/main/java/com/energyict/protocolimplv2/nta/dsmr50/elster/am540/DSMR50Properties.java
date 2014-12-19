@@ -32,7 +32,7 @@ public class DSMR50Properties extends DlmsProperties {
         return getProperties().<Boolean>getTypedProperty(CumulativeCaptureTimeChannel, false);
     }
 
-    public HexString getPSK() {
+    public HexString getPSK() { //TODO use this for the push event notification mechanism
         return getProperties().<HexString>getTypedProperty(PSK_PROPERTY);
     }
 

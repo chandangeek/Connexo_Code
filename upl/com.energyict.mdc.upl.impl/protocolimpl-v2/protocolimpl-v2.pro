@@ -56,6 +56,7 @@
 -keepnames class com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer
 -keepnames class com.energyict.protocolimplv2.eict.rtuplusserver.idis.RtuPlusServer
 -keepnames class com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP
+-keepnames class com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540
 -keepnames class com.energyict.protocolimplv2.edp.CX20009
 -keepnames class com.energyict.protocolimplv2.edp.JanzB280
 -keepnames class com.energyict.protocolimplv2.elster.garnet.GarnetConcentrator

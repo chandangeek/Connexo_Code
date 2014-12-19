@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.nta.dsmr23;
+package com.energyict.protocolimplv2.nta.dsmr50;
 
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.TimeDuration;

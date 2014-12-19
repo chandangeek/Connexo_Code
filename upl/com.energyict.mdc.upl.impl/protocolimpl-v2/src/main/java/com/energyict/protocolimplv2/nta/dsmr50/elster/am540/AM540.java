@@ -36,7 +36,7 @@ import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.nta.dsmr23.Dsmr50ConfigurationSupport;
+import com.energyict.protocolimplv2.nta.dsmr50.Dsmr50ConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.logbooks.Dsmr50LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
