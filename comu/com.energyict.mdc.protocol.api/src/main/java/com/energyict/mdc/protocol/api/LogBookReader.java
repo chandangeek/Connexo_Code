@@ -42,7 +42,7 @@ public class LogBookReader {
      * @param deviceIdentifier The serial number of the meter of the logbook
      */
     public LogBookReader(ObisCode logBookObisCode, Date lastLogBook, LogBookIdentifier logBookIdentifier, DeviceIdentifier<?> deviceIdentifier) {
-        if(lastLogBook == null){
+        if (lastLogBook == null) {
             this.lastLogBook = new Date(new Date().getTime() - (DAYS_IN_MONTH * SECONDS_IN_DAY * MILLISECONDS_IN_SECOND));    //endTime - 1 month
         } else {
             this.lastLogBook = lastLogBook;
