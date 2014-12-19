@@ -180,8 +180,12 @@ public class DataExportTaskResource {
 
         try (TransactionContext context = transactionService.getContext()) {
             task.setName(info.name);
-            task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
             task.setScheduleExpression(getScheduleExpression(info));
+            if (Never.NEVER.equals(task.getScheduleExpression())) {
+                task.setNextExecution(null);
+            } else {
+                task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
+            }
             task.setExportPeriod(getRelativePeriod(info.exportperiod));
             task.setUpdatePeriod(getRelativePeriod(info.updatePeriod));
             task.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));
