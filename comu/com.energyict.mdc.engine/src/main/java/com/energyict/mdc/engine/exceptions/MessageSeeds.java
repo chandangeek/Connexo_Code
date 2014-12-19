@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.exceptions;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.engine.EngineService;
 
@@ -11,7 +12,7 @@ import java.util.logging.Level;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-11 (16:49)
  */
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     DEVICE_CACHE_SERIALIZATION(101, Keys.DEVICE_CACHE_NOT_SERIALIZABLE, "The device cache '{0}' could not be serialized", Level.SEVERE),
     DEVICE_CACHE_DESERIALIZATION(102, Keys.DEVICE_CACHE_NOT_DESERIALIZABLE, "The device cache '{0}' could not be deserialized", Level.SEVERE),

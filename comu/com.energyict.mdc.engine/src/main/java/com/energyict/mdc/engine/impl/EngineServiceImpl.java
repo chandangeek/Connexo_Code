@@ -4,6 +4,8 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -19,6 +21,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
@@ -57,8 +60,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Date: 08/05/14
  * Time: 13:17
  */
-@Component(name = "com.energyict.mdc.engine", service = {EngineService.class, InstallService.class}, property = "name=" + EngineService.COMPONENTNAME, immediate = true)
-public class EngineServiceImpl implements EngineService, InstallService {
+@Component(name = "com.energyict.mdc.engine", service = {EngineService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + EngineService.COMPONENTNAME, immediate = true)
+public class EngineServiceImpl implements EngineService, InstallService, TranslationKeyProvider {
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
@@ -235,6 +238,21 @@ public class EngineServiceImpl implements EngineService, InstallService {
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
 
+    @Override
+    public String getComponentName() {
+        return EngineService.COMPONENTNAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
     @Reference
     public void setOrmService(OrmService ormService) {
         DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "Meter Data Collection Engine");
@@ -328,7 +346,7 @@ public class EngineServiceImpl implements EngineService, InstallService {
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.thesaurus, this.eventService).install(true);
+        new Installer(this.dataModel, this.eventService).install(true);
     }
 
     @Override
