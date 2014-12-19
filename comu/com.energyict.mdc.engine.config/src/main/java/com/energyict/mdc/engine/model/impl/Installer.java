@@ -1,20 +1,11 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.engine.model.EngineModelService;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.SimpleTranslation;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
-import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.engine.model.security.Privileges;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.UserService;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,14 +20,12 @@ public class Installer {
     private final Logger logger = Logger.getLogger(Installer.class.getName());
 
     private final DataModel dataModel;
-    private final Thesaurus thesaurus;
     private final EventService eventService;
     private final UserService userService;
 
-    public Installer(DataModel dataModel, Thesaurus thesaurus, EventService eventService, UserService userService) {
+    public Installer(DataModel dataModel, EventService eventService, UserService userService) {
         super();
         this.dataModel = dataModel;
-        this.thesaurus = thesaurus;
         this.eventService = eventService;
         this.userService = userService;
     }
@@ -50,20 +39,10 @@ public class Installer {
         }
         this.createPrivileges();
         this.createEventTypes();
-        this.createTranslations();
     }
 
     private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", "communicationAdministration.communicationAdministrations", "communicationAdministration.communicationAdministrations.description", new String[] {Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION});
-    }
-
-    private void createTranslations() {
-        List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
-            SimpleNlsKey nlsKey = SimpleNlsKey.key(EngineModelService.COMPONENT_NAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
-            translations.add(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
-        }
-        this.thesaurus.addTranslations(translations);
+        this.userService.createResourceWithPrivileges("MDC", "communicationAdministration.communicationAdministrations", "communicationAdministration.communicationAdministrations.description", new String[]{Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION});
     }
 
     private void createEventTypes() {

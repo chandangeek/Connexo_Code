@@ -1,17 +1,5 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.proxy.LazyLoader;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
@@ -35,7 +23,21 @@ import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import java.util.Optional;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.proxy.LazyLoader;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.json.JSONException;
@@ -50,12 +52,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import static com.energyict.mdc.engine.model.impl.ComPortImpl.OUTBOUND_DISCRIMINATOR;
-import static com.energyict.mdc.engine.model.impl.ComServerImpl.*;
+import static com.energyict.mdc.engine.model.impl.ComServerImpl.OFFLINE_COMSERVER_DISCRIMINATOR;
+import static com.energyict.mdc.engine.model.impl.ComServerImpl.ONLINE_COMSERVER_DISCRIMINATOR;
+import static com.energyict.mdc.engine.model.impl.ComServerImpl.REMOTE_COMSERVER_DISCRIMINATOR;
 
-@Component(name = "com.energyict.mdc.engine.model", service = {EngineModelService.class, InstallService.class}, property = "name=" + EngineModelService.COMPONENT_NAME)
-public class EngineModelServiceImpl implements EngineModelService, InstallService, OrmClient {
+@Component(name = "com.energyict.mdc.engine.model", service = {EngineModelService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + EngineModelService.COMPONENT_NAME)
+public class EngineModelServiceImpl implements EngineModelService, InstallService, TranslationKeyProvider, OrmClient {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -82,12 +87,27 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.thesaurus, this.eventService, this.userService).install(true);
+        new Installer(this.dataModel, this.eventService, this.userService).install(true);
     }
 
     @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList("ORM", "USR", "EVT", "USR");
+    }
+
+    @Override
+    public String getComponentName() {
+        return EngineModelService.COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Reference
