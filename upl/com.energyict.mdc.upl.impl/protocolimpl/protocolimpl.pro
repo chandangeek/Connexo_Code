@@ -52,6 +52,20 @@
 
 -keepnames class com.energyict.protocolimpl.metcom.Metcom3
 
+-keepnames class com.energyict.protocolimpl.dlms.g3.registers.G3Mapping
+-keepnames class com.energyict.protocolimpl.dlms.g3.registers.*  {
+	public *;
+}
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGDLMSProfileIntervals
+-keepnames class com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper {
+	public *;
+	protected *;
+}
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGDLMSProfileIntervals
+-keepnames class com.energyict.protocolimpl.dlms.idis.AM540ObjectList {
+	public *;
+}
+
 -keepnames class com.energyict.protocolimpl.metcom.Metcom2
 
 -keepnames class com.energyict.protocolimpl.rtuplusbus.rtuplusbus

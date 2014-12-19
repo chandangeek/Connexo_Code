@@ -7,6 +7,7 @@ import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
 import com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Mapper for the G3 PLC registers, reusing the functionality of the G3 protocol
@@ -22,7 +23,7 @@ public class AM540PLCRegisterMapper extends G3RegisterMapper {
 
     @Override
     protected void initializeMappings() {
-        this.mappings.addAll(getPLCStatisticsMappings());
+        this.getMappings().addAll(getPLCStatisticsMappings());
     }
 
     /**
@@ -30,7 +31,8 @@ public class AM540PLCRegisterMapper extends G3RegisterMapper {
      */
     @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        for (G3Mapping mapping : mappings) {
+        List<G3Mapping> g3Mappings = getMappings();
+        for (G3Mapping mapping : g3Mappings) {
             if (mapping.getObisCode().equals(obisCode)) {
                 return mapping.readRegister(dlmsSession.getCosemObjectFactory());
             }
