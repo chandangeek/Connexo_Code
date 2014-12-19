@@ -3,8 +3,9 @@
 
     "requires": [
         "com.elster.jupiter.loaderjs",
-        "com.elster.jupiter.unifyingjs"
+        "com.elster.jupiter.unifyingjs",
+        "com.elster.jupiter.yellowfin.extjs"
     ],
 
-    "id": "28c452c9-436e-4d93-8f74-038373138820"
+    "id": "29c462c9-436e-4d93-8f74-038373138820"
 }
