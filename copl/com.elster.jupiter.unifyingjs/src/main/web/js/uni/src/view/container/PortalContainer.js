@@ -38,8 +38,10 @@ Ext.define('Uni.view.container.PortalContainer', {
         var me = this,
             title = model.get('title'),
             items = model.get('items'),
+            itemId = model.get('itemId'),
             widget;
 
+        itemId = (Ext.isString(itemId) && itemId.length) ? itemId : undefined;
         if (typeof items === 'undefined') {
             return widget;
         }
@@ -47,6 +49,7 @@ Ext.define('Uni.view.container.PortalContainer', {
         widget = Ext.create('Ext.panel.Panel', {
             title: title,
             ui: 'tile',
+            itemId:itemId,
             columnWidth: 1 / me.columnCount,
             height: 256,
             items: [
@@ -56,7 +59,13 @@ Ext.define('Uni.view.container.PortalContainer', {
                     floating: false,
                     items: items
                 }
-            ]
+            ],
+            refresh : function (items) {
+                var me = this;
+                var menu = me.down('menu');
+                menu.removeAll();
+                menu.add(items);
+            }
         });
 
         return widget;

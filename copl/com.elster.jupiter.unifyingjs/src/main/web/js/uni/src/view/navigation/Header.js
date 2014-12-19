@@ -49,9 +49,6 @@ Ext.define('Uni.view.navigation.Header', {
 //        {
 //            xtype: 'notificationsAnchor'
 //        },
-//        {
-//            xtype: 'navigationHelp'
-//        },
         {
             xtype: 'button',
             itemId: 'globalSearch',
@@ -61,6 +58,11 @@ Ext.define('Uni.view.navigation.Header', {
             scale: 'small',
             action: 'search',
             href: '#/search',
+            hidden: true
+        },
+        {
+            xtype: 'navigationHelp',
+            itemId: 'global-online-help',
             hidden: true
         },
         {
