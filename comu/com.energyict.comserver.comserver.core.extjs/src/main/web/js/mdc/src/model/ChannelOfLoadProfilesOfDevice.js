@@ -80,7 +80,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
             name: 'lastValueTimestamp_formatted',
             persist: false,
             mapping: function (data) {
-                return data.lastReading ? Uni.I18n.formatDate('deviceloadprofiles.dateFormat', new Date(data.lastValueTimestamp), 'MDC', 'M d, Y H:i') : '';
+                return data.lastReading && data.lastValueTimestamp ? Uni.I18n.formatDate('deviceloadprofiles.dateFormat', new Date(data.lastValueTimestamp), 'MDC', 'M d, Y H:i') : '';
             }
         }
     ],
