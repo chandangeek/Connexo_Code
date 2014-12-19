@@ -8,7 +8,6 @@ import java.util.Set;
 import org.junit.Test;
 
 import com.energyict.mdc.favorites.FavoritesService;
-import com.energyict.mdc.favorites.MessageSeeds;
 
 public class MessageSeedsTest {
 

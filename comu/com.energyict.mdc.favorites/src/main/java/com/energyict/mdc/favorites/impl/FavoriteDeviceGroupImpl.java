@@ -6,7 +6,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.favorites.FavoriteDeviceGroup;
-import com.energyict.mdc.favorites.MessageSeeds;
 
 public class FavoriteDeviceGroupImpl implements FavoriteDeviceGroup {
 
@@ -14,7 +13,7 @@ public class FavoriteDeviceGroupImpl implements FavoriteDeviceGroup {
     private Reference<User> user = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.CAN_NOT_BE_EMPTY + "}")
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
-    
+
     FavoriteDeviceGroupImpl() {
         super();
     }
@@ -24,7 +23,7 @@ public class FavoriteDeviceGroupImpl implements FavoriteDeviceGroup {
         setEndDeviceGroup(endDeviceGroup);
         setUser(user);
     }
-    
+
     @Override
     public User getUser() {
         return user.get();
@@ -33,7 +32,7 @@ public class FavoriteDeviceGroupImpl implements FavoriteDeviceGroup {
     public void setUser(User user) {
         this.user.set(user);
     }
-    
+
     @Override
     public EndDeviceGroup getEndDeviceGroup() {
         return endDeviceGroup.get();

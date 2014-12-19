@@ -33,7 +33,7 @@ import com.energyict.mdc.favorites.DeviceLabel;
 import com.energyict.mdc.favorites.FavoriteDeviceGroup;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.favorites.LabelCategory;
-import com.energyict.mdc.favorites.MessageSeeds;
+
 import com.google.inject.AbstractModule;
 
 @Component(name = "com.elster.jupiter.favorites", service = { InstallService.class, FavoritesService.class, TranslationKeyProvider.class }, property = "name=" + FavoritesService.COMPONENTNAME, immediate = true)
@@ -91,37 +91,37 @@ public class FavoritesServiceImpl implements FavoritesService, InstallService, T
             spec.addTo(dataModel);
         }
     }
-    
+
     @Reference
     public void setClockService(Clock clock) {
         this.clock = clock;
     }
-    
+
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(FavoritesService.COMPONENTNAME, Layer.DOMAIN);
     }
-    
+
     @Reference
     public void setDeviceService(DeviceService deviceService) {
         //Required for initialization data models in correct sequence
     }
-    
+
     @Reference
     public void setMeteringGroupService(MeteringGroupsService meteringGroupsService) {
         //Required for initialization data models in correct sequence
     }
-    
+
     @Override
     public List<LabelCategory> getLabelCategories() {
         return dataModel.mapper(LabelCategory.class).find();
     }
-    
+
     @Override
     public Optional<LabelCategory> findLabelCategory(String name) {
         return dataModel.mapper(LabelCategory.class).getUnique("name", name);
     }
-    
+
     @Override
     public LabelCategory createLabelCategory(String name) {
         LabelCategoryImpl labelCategory = dataModel.getInstance(LabelCategoryImpl.class);
@@ -129,7 +129,7 @@ public class FavoritesServiceImpl implements FavoritesService, InstallService, T
         Save.CREATE.save(dataModel, labelCategory);
         return labelCategory;
     }
-    
+
     @Override
     public List<DeviceLabel> getDeviceLabels(Device device, User user) {
         return dataModel.mapper(DeviceLabel.class).find("device", device, "user", user);
@@ -157,7 +157,7 @@ public class FavoritesServiceImpl implements FavoritesService, InstallService, T
         Save.CREATE.save(dataModel, deviceLabel);
         return deviceLabel;
     }
-    
+
     @Override
     public void removeDeviceLabel(DeviceLabel deviceLabel) {
         dataModel.remove(deviceLabel);
@@ -187,17 +187,17 @@ public class FavoritesServiceImpl implements FavoritesService, InstallService, T
     public void removeFavoriteDeviceGroup(FavoriteDeviceGroup favoriteDeviceGroup) {
         dataModel.remove(favoriteDeviceGroup);
     }
-    
+
     @Override
     public String getComponentName() {
         return FavoritesService.COMPONENTNAME;
     }
-    
+
     @Override
     public List<TranslationKey> getKeys() {
         return Arrays.asList(MessageSeeds.values());
     }
-    
+
     @Override
     public Layer getLayer() {
         return Layer.DOMAIN;

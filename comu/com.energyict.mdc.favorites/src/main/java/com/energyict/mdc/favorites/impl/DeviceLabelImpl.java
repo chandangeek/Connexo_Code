@@ -9,7 +9,6 @@ import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.favorites.DeviceLabel;
 import com.energyict.mdc.favorites.LabelCategory;
-import com.energyict.mdc.favorites.MessageSeeds;
 
 public class DeviceLabelImpl implements DeviceLabel {
 
@@ -19,14 +18,14 @@ public class DeviceLabelImpl implements DeviceLabel {
     private Reference<Device> device = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.CAN_NOT_BE_EMPTY + "}")
     private Reference<LabelCategory> labelCategory = ValueReference.absent();
-    
+
     private String comment;
     private Instant creationDate;
-    
+
     DeviceLabelImpl() {
         super();
     }
-    
+
     DeviceLabelImpl(Device device, User user, LabelCategory category, String comment, Instant now) {
         this();
         setDevice(device);
@@ -40,7 +39,7 @@ public class DeviceLabelImpl implements DeviceLabel {
     public Device getDevice() {
         return device.get();
     }
-    
+
     public void setDevice(Device device) {
         this.device.set(device);
     }
@@ -49,7 +48,7 @@ public class DeviceLabelImpl implements DeviceLabel {
     public User getUser() {
         return user.get();
     }
-    
+
     public void setUser(User user) {
         this.user.set(user);
     }
@@ -58,7 +57,7 @@ public class DeviceLabelImpl implements DeviceLabel {
     public LabelCategory getLabelCategory() {
         return labelCategory.get();
     }
-    
+
     public void setLabelCategory(LabelCategory labelCategory) {
         this.labelCategory.set(labelCategory);
     }
@@ -67,7 +66,7 @@ public class DeviceLabelImpl implements DeviceLabel {
     public String getComment() {
         return comment;
     }
-    
+
     public void setComment(String comment) {
         this.comment = comment;
     }
@@ -76,7 +75,7 @@ public class DeviceLabelImpl implements DeviceLabel {
     public Instant getCreationDate() {
         return creationDate;
     }
-    
+
     public void setCreationDate(Instant creationDate) {
         this.creationDate = creationDate;
     }

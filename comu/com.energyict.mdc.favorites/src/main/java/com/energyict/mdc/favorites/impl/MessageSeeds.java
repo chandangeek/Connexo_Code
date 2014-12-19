@@ -1,4 +1,6 @@
-package com.energyict.mdc.favorites;
+package com.energyict.mdc.favorites.impl;
+
+import com.energyict.mdc.favorites.FavoritesService;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,7 +16,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     FIELD_SIZE_BETWEEN_1_AND_80(2, Constants.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE),
     DUPLICATE_LABEL_CATEGORY(3, Constants.DUPLICATE_LABEL_CATEGORY, "Label category with such name already exists", Level.SEVERE),
     ;
-    
+
     private final int number;
     private final String key;
     private final String defaultFormat;
@@ -63,11 +65,11 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     }
 
     public enum Constants {
-        
+
         ;
         public static final String CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
         public static final String FIELD_SIZE_BETWEEN_1_AND_80 = "FieldSizeBetween1and80";
-        public static final String DUPLICATE_LABEL_CATEGORY = "DuplicateLabelCategory"; 
+        public static final String DUPLICATE_LABEL_CATEGORY = "DuplicateLabelCategory";
     }
 }
 
