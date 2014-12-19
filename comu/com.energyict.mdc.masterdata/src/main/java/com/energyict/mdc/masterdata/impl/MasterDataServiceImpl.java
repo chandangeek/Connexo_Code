@@ -6,6 +6,8 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -25,6 +27,7 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.exceptions.RegisterTypesRequiredException;
 import com.energyict.mdc.masterdata.exceptions.UnitHasNoMatchingPhenomenonException;
 import com.energyict.mdc.masterdata.impl.finders.LoadProfileTypeFinder;
@@ -48,8 +51,8 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-11 (16:41)
  */
-@Component(name = "com.energyict.mdc.masterdata", service = {MasterDataService.class, ReferencePropertySpecFinderProvider.class, InstallService.class}, property = "name=" + MasterDataService.COMPONENTNAME, immediate = true)
-public class MasterDataServiceImpl implements MasterDataService, ReferencePropertySpecFinderProvider, InstallService {
+@Component(name = "com.energyict.mdc.masterdata", service = {MasterDataService.class, ReferencePropertySpecFinderProvider.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + MasterDataService.COMPONENTNAME, immediate = true)
+public class MasterDataServiceImpl implements MasterDataService, ReferencePropertySpecFinderProvider, InstallService, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -261,6 +264,21 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
 
+    @Override
+    public String getComponentName() {
+        return COMPONENTNAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
@@ -310,7 +328,7 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     }
 
     private void install(boolean exeuteDdl, boolean createDefaults) {
-        new Installer(this.dataModel, this.thesaurus, eventService, this.meteringService, this.mdcReadingTypeUtilService, this).install(exeuteDdl, createDefaults);
+        new Installer(this.dataModel, eventService, this.meteringService, this.mdcReadingTypeUtilService, this).install(exeuteDdl, createDefaults);
     }
 
     @Override
