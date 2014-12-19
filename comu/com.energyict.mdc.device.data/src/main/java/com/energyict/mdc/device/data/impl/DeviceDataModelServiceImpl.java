@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -10,6 +9,7 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
@@ -26,23 +26,25 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import java.time.Clock;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.tasks.TaskService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Module;
@@ -58,6 +60,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -74,8 +77,8 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-30 (17:33)
  */
-@Component(name="com.energyict.mdc.device.data", service = {DeviceDataModelService.class, ReferencePropertySpecFinderProvider.class, InstallService.class}, property = {"name=" + DeviceDataServices.COMPONENT_NAME,"osgi.command.scope=mdc.service.testing", "osgi.command.function=testSearch",}, immediate = true)
-public class DeviceDataModelServiceImpl implements DeviceDataModelService, ReferencePropertySpecFinderProvider, InstallService {
+@Component(name="com.energyict.mdc.device.data", service = {DeviceDataModelService.class, ReferencePropertySpecFinderProvider.class, InstallService.class, TranslationKeyProvider.class}, property = {"name=" + DeviceDataServices.COMPONENT_NAME,"osgi.command.scope=mdc.service.testing", "osgi.command.function=testSearch",}, immediate = true)
+public class DeviceDataModelServiceImpl implements DeviceDataModelService, ReferencePropertySpecFinderProvider, InstallService, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -424,8 +427,23 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.install(true);
     }
 
+    @Override
+    public String getComponentName() {
+        return DeviceDataServices.COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
     private void install(boolean exeuteDdl) {
-        new Installer(this.dataModel, this.eventService, this.thesaurus, messagingService, this.userService).install(exeuteDdl);
+        new Installer(this.dataModel, this.eventService, messagingService, this.userService).install(exeuteDdl);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.exceptions;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.DeviceDataServices;
 
@@ -14,7 +15,7 @@ import static java.util.logging.Level.SEVERE;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-03-06 (14:41)
  */
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
     LEGACY(100, "legacy.exception", "Coding: BusinessException or SQLException from legacy code that has not been ported to the jupiter ORM framework", Level.SEVERE),
     NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED_KEY, "The name is required", Level.SEVERE),
     CODING_RELATION_IS_ALREADY_OBSOLETE(1001, "relation.isAlreadyObsolete", "Cannot remove a property because the relation (of type ''{0}'') that holds it is already obsolete", Level.SEVERE),
