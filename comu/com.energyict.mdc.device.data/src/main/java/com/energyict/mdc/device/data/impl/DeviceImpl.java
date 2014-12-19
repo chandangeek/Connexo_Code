@@ -928,7 +928,7 @@ public class DeviceImpl implements Device, CanLock {
             transaction.setTo(null);
             transaction.set(DEVICE_ATTRIBUTE_NAME, this);
             transaction.set(SECURITY_PROPERTY_SET_ATTRIBUTE_NAME, securityPropertySet);
-            typedProperties.propertyNames().stream().forEach(p -> transaction.set(p, typedProperties.getPropertyValue(p)));
+            typedProperties.propertyNames().stream().forEach(p -> transaction.set(p, typedProperties.getLocalValue(p)));
             transaction.set(STATUS_ATTRIBUTE_NAME, isSecurityPropertySetComplete(securityPropertySet,typedProperties));
             transaction.execute();
         } catch (BusinessException | SQLException e) {
@@ -937,7 +937,7 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private boolean isSecurityPropertySetComplete(SecurityPropertySet securityPropertySet, TypedProperties typedProperties){
-        if (securityPropertySet.getPropertySpecs().stream().anyMatch(p -> p.isRequired() && typedProperties.getPropertyValue(p.getName()) == null)) {
+        if (securityPropertySet.getPropertySpecs().stream().anyMatch(p -> p.isRequired() && typedProperties.getLocalValue(p.getName()) == null)) {
             return false;
         } else {
             return true;
