@@ -1,10 +1,11 @@
 package com.energyict.mdc.scheduling.model.impl;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.scheduling.SchedulingService;
 import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
     SHOULD_BE_AT_LEAST(1, Keys.VALUE_TOO_SMALL, "Minimal acceptable value is {min}, was {value}", Level.SEVERE),
     CAN_NOT_BE_EMPTY(2, Keys.CAN_NOT_BE_EMPTY, "This field can not be empty", Level.SEVERE),
     VALUE_NOT_IN_RANGE(3, Keys.VALUE_NOT_IN_RANGE, "{value} not in range {min} to {max}", Level.SEVERE),

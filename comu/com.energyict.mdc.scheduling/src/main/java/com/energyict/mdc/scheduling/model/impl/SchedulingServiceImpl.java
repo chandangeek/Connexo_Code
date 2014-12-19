@@ -1,45 +1,46 @@
 package com.energyict.mdc.scheduling.model.impl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.tasks.TaskService;
-import java.util.Optional;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.conditions.Condition;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = "com.energyict.mdc.scheduling", service = {SchedulingService.class, InstallService.class}, immediate = true, property = "name=" + SchedulingService.COMPONENT_NAME)
-public class SchedulingServiceImpl implements SchedulingService, InstallService {
+@Component(name = "com.energyict.mdc.scheduling", service = {SchedulingService.class, InstallService.class, TranslationKeyProvider.class}, immediate = true, property = "name=" + SchedulingService.COMPONENT_NAME)
+public class SchedulingServiceImpl implements SchedulingService, InstallService, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -98,12 +99,27 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.eventService, this.thesaurus, this.userService).install(true);
+        new Installer(this.dataModel, this.eventService, this.userService).install(true);
     }
 
     @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList("ORM", "USR", "EVT", "NLS", "CTS");
+    }
+
+    @Override
+    public String getComponentName() {
+        return SchedulingService.COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     private Module getModule() {
