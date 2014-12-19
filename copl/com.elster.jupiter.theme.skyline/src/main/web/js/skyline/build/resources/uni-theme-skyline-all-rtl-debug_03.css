@@ -9319,7 +9319,7 @@
 
 /* line 289, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-text-container-large {
-  color: #007dc3;
+  color: #1e7d9e;
   font-size: 24px;
   font-weight: bold;
   font-family: "Open Sans Condensed", helvetica, arial, verdana, sans-serif;
@@ -9452,14 +9452,14 @@
 }
 /* line 587, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-large .x-panel-header-glyph {
-  color: #007dc3;
+  color: #1e7d9e;
   font-size: 16px;
   line-height: 16px;
   opacity: 0.5;
 }
 /* line 604, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-ie8m .x-panel-header-large .x-panel-header-glyph {
-  color: #7fbee1;
+  color: #8ebece;
 }
 
 /* line 613, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
@@ -9710,7 +9710,7 @@
 
 /* line 289, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-text-container-medium {
-  color: #007dc3;
+  color: #1e7d9e;
   font-size: 24px;
   font-weight: light;
   font-family: "Open Sans Condensed", helvetica, arial, verdana, sans-serif;
@@ -9843,14 +9843,14 @@
 }
 /* line 587, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-medium .x-panel-header-glyph {
-  color: #007dc3;
+  color: #1e7d9e;
   font-size: 16px;
   line-height: 16px;
   opacity: 0.5;
 }
 /* line 604, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-ie8m .x-panel-header-medium .x-panel-header-glyph {
-  color: #7fbee1;
+  color: #8ebece;
 }
 
 /* line 613, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
@@ -10101,7 +10101,7 @@
 
 /* line 289, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-text-container-small {
-  color: #007dc3;
+  color: #1e7d9e;
   font-size: 21px;
   font-weight: normal;
   font-family: "Open Sans Condensed", helvetica, arial, verdana, sans-serif;
@@ -10234,14 +10234,14 @@
 }
 /* line 587, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-small .x-panel-header-glyph {
-  color: #007dc3;
+  color: #1e7d9e;
   font-size: 16px;
   line-height: 16px;
   opacity: 0.5;
 }
 /* line 604, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-ie8m .x-panel-header-small .x-panel-header-glyph {
-  color: #7fbee1;
+  color: #8ebece;
 }
 
 /* line 613, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
@@ -10624,14 +10624,14 @@
 }
 /* line 587, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-filter .x-panel-header-glyph {
-  color: #007dc3;
+  color: #1e7d9e;
   font-size: 16px;
   line-height: 16px;
   opacity: 0.5;
 }
 /* line 604, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-ie8m .x-panel-header-filter .x-panel-header-glyph {
-  color: #75b4d7;
+  color: #84b4c4;
 }
 
 /* line 613, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
@@ -11003,7 +11003,7 @@
 
 /* line 289, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-text-container-form-error-framed {
-  color: #007dc3;
+  color: #1e7d9e;
   font-size: 13px;
   font-weight: bold;
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
@@ -12468,14 +12468,14 @@
 }
 /* line 587, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-form-error-framed .x-panel-header-glyph {
-  color: #007dc3;
+  color: #1e7d9e;
   font-size: 16px;
   line-height: 16px;
   opacity: 0.5;
 }
 /* line 604, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-ie8m .x-panel-header-form-error-framed .x-panel-header-glyph {
-  color: #7fbee1;
+  color: #8ebece;
 }
 
 /* line 613, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
@@ -12726,7 +12726,7 @@
 
 /* line 289, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-text-container-form-error {
-  color: #007dc3;
+  color: #1e7d9e;
   font-size: 13px;
   font-weight: bold;
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
@@ -12859,14 +12859,14 @@
 }
 /* line 587, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-form-error .x-panel-header-glyph {
-  color: #007dc3;
+  color: #1e7d9e;
   font-size: 16px;
   line-height: 16px;
   opacity: 0.5;
 }
 /* line 604, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-ie8m .x-panel-header-form-error .x-panel-header-glyph {
-  color: #7fbee1;
+  color: #8ebece;
 }
 
 /* line 613, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
@@ -14611,14 +14611,14 @@
 }
 /* line 587, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-tile .x-panel-header-glyph {
-  color: #007dc3;
+  color: #1e7d9e;
   font-size: 16px;
   line-height: 16px;
   opacity: 0.5;
 }
 /* line 604, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-ie8m .x-panel-header-tile .x-panel-header-glyph {
-  color: #7fbee1;
+  color: #8ebece;
 }
 
 /* line 613, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
