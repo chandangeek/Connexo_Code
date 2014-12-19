@@ -99,7 +99,7 @@ Ext.define('Yfn.view.generatereport.Step2', {
                         {
                             xtype: 'label',
                             itemId: 'report-mandatory-filters-label',
-                            text: Uni.I18n.translate('generatereport.wizard.optionalFilters', 'YFN', 'In report filters'),
+                            text: Uni.I18n.translate('generatereport.wizard.optionalFilters', 'YFN', 'In report filters')
                         },
                         {
                             xtype: 'box',
