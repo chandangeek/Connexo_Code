@@ -1,5 +1,6 @@
 package com.energyict.mdc.dynamic.relation.exceptions;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import java.util.logging.Level;
@@ -10,7 +11,7 @@ import java.util.logging.Level;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-23 (11:00)
  */
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
     DDL_ERROR(100, "dynamic.relation.unexpected.sql", "Unexpected SQLError while modifying storage area for relation type \"{0}\"", Level.SEVERE),
     VALUEFACTORY_CREATION(500, "valueFactory.creation.failure", "Failure to create value factory of type \"{0}\"", Level.SEVERE),
     RELATION_TYPE_NAME_IS_REQUIRED(1001, "relationType.name.required", "The name of a relation type is required", Level.SEVERE),

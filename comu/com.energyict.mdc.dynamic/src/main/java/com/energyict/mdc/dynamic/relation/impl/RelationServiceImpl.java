@@ -3,6 +3,8 @@ package com.energyict.mdc.dynamic.relation.impl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -14,6 +16,8 @@ import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.dynamic.relation.RelationTypeShadow;
+import com.energyict.mdc.dynamic.relation.exceptions.MessageSeeds;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -31,8 +35,8 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-17 (10:28)
  */
-@Component(name = "com.energyict.mdc.dynamic.relation", service = {RelationService.class, InstallService.class}, property = "name=" + RelationService.COMPONENT_NAME, immediate = true)
-public class RelationServiceImpl implements RelationService, ServiceLocator, InstallService {
+@Component(name = "com.energyict.mdc.dynamic.relation", service = {RelationService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + RelationService.COMPONENT_NAME, immediate = true)
+public class RelationServiceImpl implements RelationService, ServiceLocator, InstallService, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile OrmClient ormClient;
@@ -100,7 +104,22 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.thesaurus).install(true, true);
+        new Installer(this.dataModel).install(true, true);
+    }
+
+    @Override
+    public String getComponentName() {
+        return RelationService.COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override
