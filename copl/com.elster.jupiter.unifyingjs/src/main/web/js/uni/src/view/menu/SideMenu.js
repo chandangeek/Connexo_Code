@@ -1,16 +1,44 @@
 /**
  * @class Uni.view.menu.SideMenu
  *
- * Common submenu that supports adding buttons and toggling.
+ * Common side menu that supports adding buttons and toggling.
  *
  * Styling will also be applied automatically to anything that is in the component.
  *
- * How and where content is shown after clicking a button in the submenu is free to choose.
+ * How and where content is shown after clicking a button in the side menu is free to choose.
  * Switching between panels can easily be done using a card layout.
  * Toggling is done automatically: when the url changes, the button with the current href is selected.
  *
  *
- * # Example usage
+ * # Example menu configuration
+ *
+ *     @example
+ *       me.menuItems = {
+ *             text: mRID,
+ *             itemId: 'deviceOverviewLink',
+ *             href: '#/devices/' + mRID
+ *       },
+ *       {
+ *             title: 'Data sources',
+ *             xtype: 'menu',
+ *             items: [
+ *               {
+ *                   text: Uni.I18n.translate('devicemenu.loadProfiles', 'MDC', 'Load profiles'),
+ *                   itemId: 'loadProfilesLink',
+ *                   href: '#/devices/' + mRID + '/loadprofiles',
+ *                   showCondition: me.device.get('hasLoadProfiles')
+ *               },
+ *               {
+ *                   text: Uni.I18n.translate('devicemenu.channels', 'MDC', 'Channels'),
+ *                   itemId: 'channelsLink',
+ *                   href: '#/devices/' + mRID + '/channels',
+ *                   showCondition: me.device.get('hasLoadProfiles')
+ *               }
+ *           ]
+ *       };
+ *
+ *
+ * # Example usage of the menu in a component
  *
  *     @example
  *       side: [
