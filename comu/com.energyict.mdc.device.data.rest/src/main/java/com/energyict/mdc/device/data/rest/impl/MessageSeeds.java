@@ -2,12 +2,13 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.energyict.mdc.protocol.api.ConnectionType;
 import java.text.MessageFormat;
 import java.util.logging.Level;
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     NO_SUCH_DEVICE(14, "noSuchDevice", "No device with mrId {0}"),
     DEVICE_DOES_NOT_MATCH_CONFIG(15, "deviceDoesNotMatchConfig", "Device does not match device configuration"),
@@ -192,7 +193,7 @@ public enum MessageSeeds implements MessageSeed {
     NOT_APPLICABLE(222, "NotApplicable", "Not applicable"),
     NO_RESTRICTIONS(223, "NoRestrictions", "No restrictions"),
     RUN_CONNECTIONTASK_IMPOSSIBLE(224,"runConTaskImpossible", "Running of this connection task is impossible"),
-    NO_SUCH_COMMUNICATION(225, "NoSuchComTaskExecution", "No such communication with id ''{0}'' on device ''{1}''"),    
+    NO_SUCH_COMMUNICATION(225, "NoSuchComTaskExecution", "No such communication with id ''{0}'' on device ''{1}''"),
     ;
 
 
