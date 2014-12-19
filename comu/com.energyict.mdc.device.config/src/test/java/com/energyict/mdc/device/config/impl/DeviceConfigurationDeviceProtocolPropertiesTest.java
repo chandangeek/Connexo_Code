@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
@@ -42,8 +43,14 @@ public class DeviceConfigurationDeviceProtocolPropertiesTest extends DeviceTypeP
 
     @Test
     @Transactional
-    public void testNewConfigurationHasEmptyProperties() {
-        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration("testNewConfigurationHasEmptyProperties");
+    public void testNewConfigurationInheritsPropertiesFromPluggableClass() {
+        TypedProperties pluggableClassProperties = TypedProperties.empty();
+        BigDecimal expectedNumericPropertyValue = BigDecimal.TEN;
+        pluggableClassProperties.setProperty(NUMERIC_PROPERTY_SPEC_NAME, expectedNumericPropertyValue);
+        String expectedStringPropertyValue = "testNewConfigurationInheritsPropertiesFromProtocol";
+        pluggableClassProperties.setProperty(STRING_PROPERTY_SPEC_NAME, expectedStringPropertyValue);
+        when(deviceProtocolPluggableClass.getProperties()).thenReturn(pluggableClassProperties);
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration("testNewConfigurationInheritsPropertiesFromProtocol");
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
 
         // Business method
@@ -53,11 +60,13 @@ public class DeviceConfigurationDeviceProtocolPropertiesTest extends DeviceTypeP
         assertThat(protocolProperties).isNotNull();
         assertThat(protocolProperties.getDeviceConfiguration()).isEqualTo(deviceConfiguration);
         assertThat(protocolProperties.getTypedProperties()).isNotNull();
-        assertThat(protocolProperties.getTypedProperties().hasValueFor(NUMERIC_PROPERTY_SPEC_NAME)).isFalse();
-        assertThat(protocolProperties.getTypedProperties().hasValueFor(STRING_PROPERTY_SPEC_NAME)).isFalse();
+        assertThat(protocolProperties.getTypedProperties().hasValueFor(NUMERIC_PROPERTY_SPEC_NAME)).isTrue();
+        assertThat(protocolProperties.getTypedProperties().getProperty(NUMERIC_PROPERTY_SPEC_NAME)).isEqualTo(expectedNumericPropertyValue);
+        assertThat(protocolProperties.getTypedProperties().hasLocalValueFor(NUMERIC_PROPERTY_SPEC_NAME)).isFalse();
+        assertThat(protocolProperties.getTypedProperties().hasValueFor(STRING_PROPERTY_SPEC_NAME)).isTrue();
+        assertThat(protocolProperties.getTypedProperties().getProperty(STRING_PROPERTY_SPEC_NAME)).isEqualTo(expectedStringPropertyValue);
+        assertThat(protocolProperties.getTypedProperties().hasLocalValueFor(STRING_PROPERTY_SPEC_NAME)).isFalse();
         assertThat(protocolProperties.getTypedProperties().hasLocalValueFor(DEFAULT_PROPERTY_SPEC_NAME)).isFalse();
-        assertThat(protocolProperties.getTypedProperties().hasValueFor(DEFAULT_PROPERTY_SPEC_NAME)).isTrue();
-        assertThat(protocolProperties.getTypedProperties().getProperty(DEFAULT_PROPERTY_SPEC_NAME)).isEqualTo(DEFAULT_VALUE);
     }
 
     @Test(expected = NoSuchPropertyException.class)
