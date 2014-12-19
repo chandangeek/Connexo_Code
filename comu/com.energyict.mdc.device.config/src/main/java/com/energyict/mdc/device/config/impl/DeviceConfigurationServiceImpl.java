@@ -1,23 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.Resource;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
@@ -37,6 +19,7 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -55,8 +38,26 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
-import java.util.*;
-
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import com.google.inject.AbstractModule;
@@ -71,6 +72,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -81,8 +91,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:38)
  */
-@Component(name = "com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, ServerDeviceConfigurationService.class, InstallService.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME, immediate = true)
-public class DeviceConfigurationServiceImpl implements ServerDeviceConfigurationService, InstallService {
+@Component(name = "com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, ServerDeviceConfigurationService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME, immediate = true)
+public class DeviceConfigurationServiceImpl implements ServerDeviceConfigurationService, InstallService, TranslationKeyProvider {
 
     private volatile ProtocolPluggableService protocolPluggableService;
 
@@ -443,8 +453,23 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
+    public String getComponentName() {
+        return DeviceConfigurationService.COMPONENTNAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
+    @Override
     public void install() {
-        new Installer(this.dataModel, this.eventService, this.thesaurus, userService).install(true);
+        new Installer(this.dataModel, this.eventService, userService).install(true);
         initPrivileges();
     }
 
