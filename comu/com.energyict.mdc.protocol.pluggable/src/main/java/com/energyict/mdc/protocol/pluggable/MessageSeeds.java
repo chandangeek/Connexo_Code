@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import java.util.logging.Level;
 
@@ -9,7 +10,7 @@ import java.util.logging.Level;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-23 (10:21)
  */
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
     INDEX_OUT_OF_BOUND_DATA_PARSE_EXCEPTION(100, "dataParseException.indexOutOfBounds", "Referenced a non-existing index: {0}", Level.SEVERE),
     CONFIG_NOT_ACCESSIBLE(101, "configNotAccessible", "The configuration for loadprofile with OBIS code {0} is not accessible", Level.SEVERE),
     PROTOCOL_CONNECT(102, "protocolConnect", "The logical connect to a device failed: {0}", Level.SEVERE),

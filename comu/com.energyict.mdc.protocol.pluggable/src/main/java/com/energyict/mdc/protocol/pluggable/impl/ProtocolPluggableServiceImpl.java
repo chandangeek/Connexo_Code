@@ -1,18 +1,5 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
-import com.elster.jupiter.datavault.DataVaultService;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.services.Finder;
@@ -55,8 +42,33 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupport
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationSupport;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
+
+import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,14 +80,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * Provides an interface for the {@link ProtocolPluggableService} interface.
@@ -83,8 +87,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-23 (13:47)
  */
-@Component(name = "com.energyict.mdc.protocol.pluggable", service = {ProtocolPluggableService.class, InstallService.class}, property = "name=" + ProtocolPluggableService.COMPONENTNAME)
-public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, InstallService {
+@Component(name = "com.energyict.mdc.protocol.pluggable", service = {ProtocolPluggableService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + ProtocolPluggableService.COMPONENTNAME)
+public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, InstallService, TranslationKeyProvider {
 
     private static final Logger LOGGER = Logger.getLogger(ProtocolPluggableServiceImpl.class.getName());
     private static final String MDC_APPLICATION_KEY = "MDC";
@@ -798,12 +802,27 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.eventService, this.thesaurus, this.userService).install(true, true);
+        new Installer(this.dataModel, this.eventService, this.userService).install(true, true);
     }
 
     @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList("ORM", "USR", "EVT", "NLS");
+    }
+
+    @Override
+    public String getComponentName() {
+        return ProtocolPluggableService.COMPONENTNAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
 }
