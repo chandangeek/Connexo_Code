@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
             text: 'Activate',
             action: 'toggleActivation',
             visible: function() {
-                return this.record.get('isOnHold')
+                return !!this.record.get('isOnHold')
             }
         },
         {
@@ -38,7 +38,7 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
             action: 'viewHistory',
             handler: function() {
                 var me = this.parentMenu;
-                me.router.getRoute('devices/device/communicationtasks/history').forward({comTaskId: me.record.getId()});
+                me.router.getRoute('devices/device/communicationtasks/history').forward({comTaskId: me.record.get('comTask').id});
             }
         }
     ],

@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.device.ConnectionActionMenu', {
             action: 'viewHistory',
             handler: function() {
                 var me = this.parentMenu;
-                me.router.getRoute('devices/device/connectionmethods/history').forward({connectionMethodId: me.record.get('comTask').id});
+                me.router.getRoute('devices/device/connectionmethods/history').forward({connectionMethodId: me.record.getId()});
             }
         }
     ],

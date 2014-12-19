@@ -1,4 +1,4 @@
-Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
+Ext.define('Mdc.controller.setup.DeviceChannels', {
     extend: 'Ext.app.Controller',
     requires: [
         'Mdc.store.TimeUnits',
@@ -6,7 +6,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
     ],
 
     views: [
-        'Mdc.view.setup.deviceloadprofilechannels.Setup'
+        'Mdc.view.setup.devicechannels.Setup'
     ],
 
     models: [
@@ -131,7 +131,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
                 break;
             case 'viewSuspects':
                 filterParams.onlySuspect = true;
-                route = 'devices/device/channels/channel/tableData';
+                route = 'devices/device/channels/channeltableData';
                 break;
         }
 

@@ -149,14 +149,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 generalattributes: {
                                                     title: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
                                                     route: 'generalattributes',
-                                                    privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
+                                                    privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                                                     controller: 'Mdc.controller.setup.GeneralAttributes',
                                                     action: 'showGeneralAttributesView',
                                                     items: {
                                                         edit: {
                                                             title: Uni.I18n.translate('deviceconfiguration.generalAttributes.edit', 'MDC', 'Edit general attributes'),
                                                             route: 'edit',
-                                                            privileges: ['privilege.administrate.deviceConfiguration'],
+                                                            privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.GeneralAttributes',
                                                             action: 'showEditGeneralAttributesView'
                                                         }
@@ -410,13 +410,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     title: 'Validation rule sets',
                                                     route: 'validationrulesets',
                                                     controller: 'Mdc.controller.setup.ValidationRuleSets',
-                                                    privileges:['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration'],
+                                                    privileges:['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
                                                     action: 'showValidationRuleSetsOverview',
                                                     items: {
                                                         add: {
                                                             title: 'Add validation rule sets',
                                                             route: 'add',
                                                             controller: 'Mdc.controller.setup.ValidationRuleSets',
+                                                            privileges:['privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
                                                             action: 'showAddValidationRuleSets'
                                                         }
                                                     }
@@ -893,7 +894,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             },
                             items: {
                                 edit: {
-                                    title: Uni.I18n.translate('general.editDeviceGroup', 'MDC', 'Edit device group'),
+                                    title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                                     route: 'edit',
                                     controller: 'Mdc.controller.setup.AddDeviceGroupAction',
                                     action: 'showEditDeviceGroup',
@@ -929,14 +930,15 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Commands',
                             route: 'commands',
                             controller: 'Mdc.controller.setup.DeviceCommands',
-                            privileges: ['privilege.administrate.device', 'privilege.view.device'],
+                            privileges: ['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication',
+                                'execute.device.message.level1','execute.device.message.level2','execute.device.message.level3','execute.device.message.level4'],
                             action: 'showOverview',
                             items: {
                                 add: {
                                     title: 'Add command',
                                     route: 'add',
                                     controller: 'Mdc.controller.setup.DeviceCommands',
-                                    privileges: ['privilege.administrate.device', 'privilege.view.device'],
+                                    privileges: ['execute.device.message.level1','execute.device.message.level2','execute.device.message.level3','execute.device.message.level4'],
                                     action: 'showAddOverview'
                                 }
                             }
@@ -1079,41 +1081,48 @@ Ext.define('Mdc.controller.history.Setup', {
                                         }, {single: true});
 
                                         return this;
+                                    }
+                                },
+                                registerdata: {
+                                        title: 'Register data',
+                                        route: '{registerId}/data',
+                                        controller: 'Mdc.controller.setup.DeviceRegisterTab',
+                                        privileges: ['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
+                                        action: 'initTabShowDeviceRegisterDataView',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadRegisterConfiguration', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
                                     },
-                                    items: {
-                                        data: {
-                                            title: 'Register data',
-                                            route: 'data',
-                                            controller: 'Mdc.controller.setup.DeviceRegisterTab',
-                                            privileges: ['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
-                                            action: 'initTabShowDeviceRegisterDataView',
-                                            filter: 'Mdc.model.RegisterDataFilter',
-                                            items: {
-                                                create: {
-                                                    title: Uni.I18n.translate('device.registerData.addReading', 'MDC', 'Add reading'),
-                                                    route: 'create',
-                                                    controller: 'Mdc.controller.setup.DeviceRegisterDataEdit',
-                                                    privileges: ['privilege.administrate.deviceData'],
-                                                    action: 'showDeviceRegisterConfigurationDataAddView'
-                                                },
-                                                edit: {
-                                                    title: Uni.I18n.translate('device.registerData.editReading', 'MDC', 'Edit reading'),
-                                                    route: '{timestamp}/edit',
-                                                    controller: 'Mdc.controller.setup.DeviceRegisterDataEdit',
-                                                    privileges: ['privilege.administrate.deviceData'],
-                                                    action: 'showDeviceRegisterConfigurationDataEditView'
-                                                }
+                                        filter: 'Mdc.model.RegisterDataFilter',
+                                        items: {
+                                            create: {
+                                                title: Uni.I18n.translate('device.registerData.addReading', 'MDC', 'Add reading'),
+                                                route: 'create',
+                                                controller: 'Mdc.controller.setup.DeviceRegisterDataEdit',
+                                                privileges: ['privilege.administrate.deviceData'],
+                                                action: 'showDeviceRegisterConfigurationDataAddView'
+                                            },
+                                            edit: {
+                                                title: Uni.I18n.translate('device.registerData.editReading', 'MDC', 'Edit reading'),
+                                                route: '{timestamp}/edit',
+                                                controller: 'Mdc.controller.setup.DeviceRegisterDataEdit',
+                                                privileges: ['privilege.administrate.deviceData'],
+                                                action: 'showDeviceRegisterConfigurationDataEditView'
                                             }
                                         }
                                     }
-                                }
+
                             }
                         },
                         datavalidation: {
                             title: 'Data validation',
                             route: 'datavalidation',
                             controller: 'Mdc.controller.setup.DeviceDataValidation',
-                            privileges: ['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration'],
+                            privileges: ['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDevice'],
                             action: 'showDeviceDataValidationMainView'
                         },
                         communicationschedules: {
@@ -1187,28 +1196,47 @@ Ext.define('Mdc.controller.history.Setup', {
                                             return true;
                                         }, {single: true});
                                         return this;
-                                    },
-                                    items: {
-                                        data: {
-                                            title: 'Load profile data',
-                                            route: 'graph',
-                                            controller: 'Mdc.controller.setup.DeviceLoadProfileTab',
-                                            privileges: ['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
-                                            action: 'initTabLoadProfileGraphView',
-                                            filter: 'Mdc.model.LoadProfilesOfDeviceDataFilter'
-                                        },
-                                        tableData: {
-                                            title: 'Load profile data',
-                                            route: 'table',
-                                            controller: 'Mdc.controller.setup.DeviceLoadProfileTab',
-                                            privileges: ['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
-                                            action: 'initTabLoadProfileDataView',
-                                            filter: 'Mdc.model.LoadProfilesOfDeviceDataFilter'
-                                        },
-                                        validation: {
-                                            title: 'Load profile validation',
-                                            route: 'validation'
-                                        }
+                                    }
+                                },
+                                loadprofiledata: {
+                                    title: 'Load profile data',
+                                    route: '{loadProfileId}/graph',
+                                    controller: 'Mdc.controller.setup.DeviceLoadProfileTab',
+                                    privileges: ['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
+                                    action: 'initTabLoadProfileGraphView',
+                                    filter: 'Mdc.model.LoadProfilesOfDeviceDataFilter',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadProfileOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
+                                },
+                                loadprofiletableData: {
+                                    title: 'Load profile data',
+                                    route: '{loadProfileId}/table',
+                                    controller: 'Mdc.controller.setup.DeviceLoadProfileTab',
+                                    privileges: ['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
+                                    action: 'initTabLoadProfileDataView',
+                                    filter: 'Mdc.model.LoadProfilesOfDeviceDataFilter',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadProfileOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
+                                },
+                                loadprofilevalidation: {
+                                    title: 'Load profile validation',
+                                    route: '{loadProfileId}/validation',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadProfileOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
                                     }
                                 }
                             }
@@ -1216,8 +1244,8 @@ Ext.define('Mdc.controller.history.Setup', {
                         channels: {
                             title: Uni.I18n.translate('routing.channels', 'MDC', 'Channels'),
                             route: 'channels',
-                            controller: 'Mdc.controller.setup.DeviceLoadProfileChannels',
-                            privileges: ['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
+                            controller: 'Mdc.controller.setup.DeviceChannels',
+                            privileges: ['privilege.administrate.device','privilege.view.device'],
                             action: 'showOverview',
                             filter: 'Mdc.model.filter.DeviceChannelsFilter',
                             items: {
@@ -1233,38 +1261,57 @@ Ext.define('Mdc.controller.history.Setup', {
                                             return true;
                                         }, {single: true});
                                         return this;
+                                    }
+                                },
+                                channeldata: {
+                                    title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
+                                    route: '{channelId}/graph',
+                                    controller: 'Mdc.controller.setup.DeviceChannelTab',
+                                    privileges: ['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
+                                    action: 'initTabChannelGraphView',
+                                    filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter',
+                                    callback: function (route) {
+                                        this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
+                                },
+                                channeltableData: {
+                                    title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
+                                    route: '{channelId}/table',
+                                    controller: 'Mdc.controller.setup.DeviceChannelTab',
+                                    privileges: ['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
+                                    action: 'initTabChannelDataView',
+                                    filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter',
+                                    callback: function (route) {
+                                        this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
                                     },
                                     items: {
-                                        data: {
-                                            title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
-                                            route: 'graph',
-                                            controller: 'Mdc.controller.setup.DeviceChannelTab',
-                                            privileges: ['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
-                                            action: 'initTabChannelGraphView',
+                                        editreadings: {
+                                            title: Uni.I18n.translate('routing.editReadings', 'MDC', 'Edit readings'),
+                                            route: 'editreadings',
+                                            controller: 'Mdc.controller.setup.DeviceChannelDataEditReadings',
+
+                                            action: 'showOverview',
                                             filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
-                                        },
-                                        tableData: {
-                                            title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
-                                            route: 'table',
-                                            controller: 'Mdc.controller.setup.DeviceChannelTab',
-                                            privileges: ['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
-                                            action: 'initTabChannelDataView',
-                                            filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter',
-                                            items: {
-                                                editreadings: {
-                                                    title: Uni.I18n.translate('routing.editReadings', 'MDC', 'Edit readings'),
-                                                    route: 'editreadings',
-                                                    controller: 'Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings',
-                                                    privileges: ['privilege.administrate.deviceData'],
-                                                    action: 'showOverview',
-                                                    filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
-                                                }
-                                            }
-                                        },
-                                        validation: {
-                                            title: Uni.I18n.translate('routing.channelValidation', 'MDC', 'Channel validation'),
-                                            route: 'validation'
                                         }
+                                    }
+                                },
+                                channelvalidation: {
+                                    title: Uni.I18n.translate('routing.channelValidation', 'MDC', 'Channel validation'),
+                                    route: '{channelId}/validation',
+                                    callback: function (route) {
+                                        this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
                                     }
                                 }
                             }
@@ -1282,31 +1329,42 @@ Ext.define('Mdc.controller.history.Setup', {
                                     controller: 'Mdc.controller.setup.DeviceLogbookOverview',
                                     privileges: ['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
                                     action: 'showOverview',
-                                    redirect: 'devices/device/logbooks/logbook/overview',
+                                    redirect: 'devices/device/logbooks/logbookoverview',
                                     callback: function (route) {
                                         this.getApplication().on('logbookOfDeviceLoad', function (record) {
                                             route.setTitle(record.get('name'));
                                             return true;
                                         }, {single: true});
                                         return this;
-
-                                    },
-                                    items: {
-                                        overview: {
-                                            title: Uni.I18n.translate('router.overview', 'MDC', 'Overview'),
-                                            route: 'overview',
-                                            controller: 'Mdc.controller.setup.DeviceLogBookTab',
-                                            privileges: ['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
-                                            action: 'showOverview'
-                                        },
-                                        data: {
-                                            title: Uni.I18n.translate('router.logbookData', 'MDC', 'Logbook data'),
-                                            route: 'data',
-                                            controller: 'Mdc.controller.setup.DeviceLogBookTab',
-                                            privileges: ['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
-                                            action: 'showData',
-                                            filter: 'Mdc.model.LogbookOfDeviceDataFilter'
-                                        }
+                                    }
+                                },
+                                logbookoverview: {
+                                    title: Uni.I18n.translate('router.overview', 'MDC', 'Overview'),
+                                    route: '{logbookId}/overview',
+                                    controller: 'Mdc.controller.setup.DeviceLogBookTab',
+                                    privileges: ['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
+                                    action: 'showOverview',
+                                    callback: function (route) {
+                                        this.getApplication().on('logbookOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
+                                },
+                                logbookdata: {
+                                    title: Uni.I18n.translate('router.logbookData', 'MDC', 'Logbook data'),
+                                    route: '{logbookId}/data',
+                                    controller: 'Mdc.controller.setup.DeviceLogBookTab',
+                                    privileges: ['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
+                                    action: 'showData',
+                                    filter: 'Mdc.model.LogbookOfDeviceDataFilter',
+                                    callback: function (route) {
+                                        this.getApplication().on('logbookOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
                                     }
                                 }
                             }
@@ -1323,12 +1381,17 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Security settings',
                             route: 'securitysettings',
                             controller: 'Mdc.controller.setup.DeviceSecuritySettings',
+                            privileges: ['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication',
+                                'view.device.security.properties.level1','view.device.security.properties.level2','view.device.security.properties.level3','view.device.security.properties.level4',
+                                'edit.device.security.properties.level1','edit.device.security.properties.level2','edit.device.security.properties.level3','edit.device.security.properties.level4'],
                             action: 'showDeviceSecuritySettings',
                             items: {
                                 edit: {
                                     title: 'Edit security setting',
                                     route: '{securitySettingId}/edit',
                                     controller: 'Mdc.controller.setup.DeviceSecuritySettings',
+                                    privileges: ['view.device.security.properties.level1','view.device.security.properties.level2','view.device.security.properties.level3','view.device.security.properties.level4',
+                                                'edit.device.security.properties.level1','edit.device.security.properties.level2','edit.device.security.properties.level3','edit.device.security.properties.level4'],
                                     action: 'showDeviceSecuritySettingEditView',
                                     callback: function (route) {
                                         this.getApplication().on('loadDeviceSecuritySetting', function (record) {

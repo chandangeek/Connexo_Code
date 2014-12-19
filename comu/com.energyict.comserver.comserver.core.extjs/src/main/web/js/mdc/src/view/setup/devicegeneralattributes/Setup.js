@@ -14,27 +14,37 @@ Ext.define('Mdc.view.setup.devicegeneralattributes.Setup', {
             ui: 'large',
             title: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
             layout: {
-                type: 'hbox',
+                type: 'vbox',
                 align: 'stretch'
             },
             items: [
                 {
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox',
+                        align: 'stretch'
+                    },
+                    items: [
+                        {
+                            xtype: 'container',
+                            flex: 1
+                        },
+                        {
+                            xtype: 'container',
+                            itemId: 'editBtnContainer'
+                        }
+                    ]
+                },
+                {
                     xtype: 'property-form',
                     isEdit: false,
-                    layout: 'column',
 
                     defaults: {
                         xtype: 'container',
                         layout: 'form',
                         resetButtonHidden: true,
-                        labelWidth: 250,
-                        columnWidth: 0.5
-                    },
-                    flex: 1
-                },
-                {
-                    xtype: 'container',
-                    itemId: 'editBtnContainer'
+                        labelWidth: 250
+                    }
                 }
             ]
         }
@@ -46,7 +56,6 @@ Ext.define('Mdc.view.setup.devicegeneralattributes.Setup', {
             me.side = [
                 {
                     xtype: 'panel',
-                    title: Uni.I18n.translate('deviceregisterconfiguration.devices', 'MDC', 'Devices'),
                     ui: 'medium',
                     items: [
                         {

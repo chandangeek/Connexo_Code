@@ -1,11 +1,11 @@
-Ext.define('Mdc.view.setup.deviceloadprofilechannels.PreviewForm', {
+Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.deviceLoadProfileChannelsPreviewForm',
     itemId: 'deviceLoadProfileChannelsPreviewForm',
     requires: [
         'Uni.form.field.ObisDisplay',
         'Uni.form.field.ReadingTypeDisplay',
-        'Mdc.view.setup.deviceloadprofilechannels.ValidationOverview'
+        'Mdc.view.setup.devicechannels.ValidationOverview'
     ],
     device: null,
     router: null,
@@ -41,6 +41,36 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.PreviewForm', {
                             }
                         },
                         {
+                            xtype: 'fieldcontainer',
+                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.lastReading', 'MDC', 'Last reading'),
+                            layout: 'hbox',
+                            items: [
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'lastReading_formatted',
+                                    margin: '3 0 0 0',
+                                    renderer: function (value) {
+                                        this.nextSibling('button').setVisible(value ? true : false);
+                                        return value;
+                                    }
+                                },
+                                {
+                                    xtype: 'button',
+                                    tooltip: Uni.I18n.translate('deviceloadprofiles.tooltip.lastreading', 'MDC', 'The moment when the data was read out for the last time.'),
+                                    iconCls: 'icon-info-small',
+                                    ui: 'blank',
+                                    itemId: 'lastReadingHelp',
+                                    shadow: false,
+                                    margin: '6 0 0 10',
+                                    width: 16
+                                }
+                            ]
+                        },
+                        {
+                            fieldLabel: Uni.I18n.translate('device.channels.timestampLastValue', 'MDC', 'Timestamp last value'),
+                            name: 'lastValueTimestamp_formatted'
+                        },
+                        {
                             xtype: 'obis-displayfield',
                             name: 'obisCode'
                         },
@@ -63,7 +93,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.PreviewForm', {
                                 var res = '',
                                     device;
                                 if (value instanceof Mdc.model.LoadProfileOfDevice) {
-                                    var url = me.router.getRoute('devices/device/loadprofiles/loadprofile/data').buildUrl({mRID: me.mRID, loadProfileId: value.get('id')});
+                                    var url = me.router.getRoute('devices/device/loadprofiles/loadprofiledata').buildUrl({mRID: me.mRID, loadProfileId: value.get('id')});
                                     res = '<a href="' + url + '">' + value.get('name') + '</a>';
                                 } else if (Ext.isNumber(value)) {
                                     var loadProfile = Mdc.model.LoadProfileOfDevice;

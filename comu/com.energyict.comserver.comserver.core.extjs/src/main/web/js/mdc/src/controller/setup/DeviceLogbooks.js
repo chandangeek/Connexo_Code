@@ -59,7 +59,6 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
 
         preview.setTitle(record.get('name'));
         preview.down('#deviceLogbooksPreviewForm').loadRecord(record);
-        preview.down('#deviceLogbooksActionMenu').record = record;
     },
 
     chooseAction: function (menu, item) {
@@ -74,7 +73,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
                 route = 'devices/device/logbooks/logbook/events';
                 break;
             case 'viewDetails':
-                route = 'devices/device/logbooks/logbook/overview';
+                route = 'devices/device/logbooks/logbookoverview';
                 break;
         }
 

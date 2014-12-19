@@ -102,6 +102,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
                 {
                     xtype: 'uni-actioncolumn',
                     menu: {
+                        plain: true,
                         xtype: 'device-communication-action-menu',
                         itemId: 'communicationsActionMenu',
                         router: me.router

@@ -9,6 +9,7 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationPrevie
         {
             xtype: 'button',
             text: Uni.I18n.translate('general.actions', 'CFG', 'Actions'),
+            hidden: Uni.Auth.hasNoPrivilege('privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'),
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'rule-device-configuration-action-menu'

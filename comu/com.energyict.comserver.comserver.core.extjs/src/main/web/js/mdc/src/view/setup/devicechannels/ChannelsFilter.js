@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.deviceloadprofilechannels.ChannelsFilter', {
+Ext.define('Mdc.view.setup.devicechannels.ChannelsFilter', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.device-channels-filter',
     itemId: 'device-channels-filter',

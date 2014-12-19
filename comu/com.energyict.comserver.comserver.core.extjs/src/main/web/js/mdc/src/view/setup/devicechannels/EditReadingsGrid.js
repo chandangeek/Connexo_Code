@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.deviceloadprofilechannels.EditReadingsGrid', {
+Ext.define('Mdc.view.setup.devicechannels.EditReadingsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.device-loadprofile-channel-edit-readings-grid',
     store: 'Mdc.store.ChannelOfLoadProfileOfDeviceData',
@@ -23,9 +23,8 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.EditReadingsGrid', {
 
     initComponent: function () {
         var me = this,
-            readingType = me.channel.get('cimReadingType'),
-            measurementType = me.channel.get('unitOfMeasure_formatted'),
-            accumulationBehavior;
+            calculatedReadingType = me.channel.get('calculatedReadingType'),
+            measurementType = me.channel.get('unitOfMeasure_formatted');
 
         me.columns = [
             {
@@ -84,6 +83,16 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.EditReadingsGrid', {
                 width: 30
             },
             {
+                header: Uni.I18n.translate('deviceloadprofiles.channels.bulkValue', 'MDC', 'Bulk value') + ' (' + measurementType + ')',
+                dataIndex: 'collectedValue',
+                flex: 1,
+                align: 'right',
+                hidden: Ext.isEmpty(calculatedReadingType),
+                renderer: function (value) {
+                    return !Ext.isEmpty(value) ? value : '';
+                }
+            },
+            {
                 xtype: 'interval-flags-column',
                 dataIndex: 'intervalFlags',
                 width: 150
@@ -100,12 +109,12 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.EditReadingsGrid', {
                     items: [
                         {
                             itemId: 'edit-value',
-                            text: Uni.I18n.translate('deviceloadprofilechannels.editReadings.editValue', 'MDC', 'Edit value'),
+                            text: Uni.I18n.translate('devicechannels.editReadings.editValue', 'MDC', 'Edit value'),
                             action: 'editValue'
                         },
                         {
                             itemId: 'remove-reading',
-                            text: Uni.I18n.translate('deviceloadprofilechannels.editReadings.removeReading', 'MDC', 'Remove reading'),
+                            text: Uni.I18n.translate('devicechannels.editReadings.removeReading', 'MDC', 'Remove reading'),
                             action: 'removeReading'
                         }
                     ]
@@ -119,8 +128,8 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.EditReadingsGrid', {
                 dock: 'top',
                 store: me.store,
                 isFullTotalCount: true,
-                displayMsg: Uni.I18n.translate('deviceloadprofilechannels.editReadingsGrid.pagingtoolbartop.displayMsg', 'MDC', '{2} readings'),
-                emptyMsg: Uni.I18n.translate('deviceloadprofilechannels.editReadingsGrid.pagingtoolbartop.emptyMsg', 'MDC', 'There are no readings to display')
+                displayMsg: Uni.I18n.translate('devicechannels.editReadingsGrid.pagingtoolbartop.displayMsg', 'MDC', '{2} readings'),
+                emptyMsg: Uni.I18n.translate('devicechannels.editReadingsGrid.pagingtoolbartop.emptyMsg', 'MDC', 'There are no readings to display')
             },
             {
                 xtype: 'toolbar',
@@ -134,7 +143,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.EditReadingsGrid', {
                     {
                         text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                         ui: 'link',
-                        href: me.router.getRoute('devices/device/channels/channel/tableData').buildUrl(me.router.arguments, me.router.queryParams)
+                        href: me.router.getRoute('devices/device/channels/channeltableData').buildUrl(me.router.arguments, me.router.queryParams)
                     }
                 ]
             }

@@ -49,12 +49,12 @@ Ext.define('Mdc.controller.setup.DeviceLogBookTab', {
                 filterParams = {};
             if (tab.itemId === 'logBook-data') {
                 routeParams.logbookId = this.logBookId;
-                route = 'devices/device/logbooks/logbook/data';
+                route = 'devices/device/logbooks/logbookdata';
                 route && (route = router.getRoute(route));
                 route && route.forward(routeParams, filterParams);
             } else if (tab.itemId === 'logBook-specifications') {
                 routeParams.logbookId = this.logBookId;
-                route = 'devices/device/logbooks/logbook/overview';
+                route = 'devices/device/logbooks/logbookoverview';
                 route && (route = router.getRoute(route));
                 route && route.forward(routeParams, filterParams);
             }

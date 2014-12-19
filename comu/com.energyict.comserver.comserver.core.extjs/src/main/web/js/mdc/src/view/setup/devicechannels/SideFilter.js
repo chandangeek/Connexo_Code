@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.deviceloadprofilechannels.SideFilter', {
+Ext.define('Mdc.view.setup.devicechannels.SideFilter', {
     extend: 'Ext.panel.Panel',
     requires: [
         'Uni.form.field.DateTime',

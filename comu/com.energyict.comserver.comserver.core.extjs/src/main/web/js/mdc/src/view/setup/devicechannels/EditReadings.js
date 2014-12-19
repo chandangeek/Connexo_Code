@@ -1,11 +1,11 @@
-Ext.define('Mdc.view.setup.deviceloadprofilechannels.EditReadings', {
+Ext.define('Mdc.view.setup.devicechannels.EditReadings', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.device-loadprofile-channel-edit-readings',
     itemId: 'device-loadprofile-channel-edit-readings',
     requires: [
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
-        'Mdc.view.setup.deviceloadprofilechannels.EditReadingsGrid'
+        'Mdc.view.setup.devicechannels.EditReadingsGrid'
     ],
 
     router: null,
@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.EditReadings', {
         var me = this;
         me.content = {
             ui: 'large',
-            title: Uni.I18n.translate('deviceloadprofilechannels.editReadings.editChannelReadings', 'MDC', 'Edit channel readings'),
+            title: Uni.I18n.translate('devicechannels.editReadings.editChannelReadings', 'MDC', 'Edit channel readings'),
             items: [
                 {
                     xtype: 'preview-container',
@@ -27,10 +27,10 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.EditReadings', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('deviceloadprofilechannels.editReadings.empty.title', 'MDC', 'No readings found'),
+                        title: Uni.I18n.translate('devicechannels.editReadings.empty.title', 'MDC', 'No readings found'),
                         reasons: [
-                            Uni.I18n.translate('deviceloadprofilechannels.editReading.empty.list.item1', 'MDC', 'No readings have been defined yet.'),
-                            Uni.I18n.translate('deviceloadprofilechannels.editReading.empty.list.item2', 'MDC', 'No readings comply to the filter.')
+                            Uni.I18n.translate('devicechannels.editReading.empty.list.item1', 'MDC', 'No readings have been defined yet.'),
+                            Uni.I18n.translate('devicechannels.editReading.empty.list.item2', 'MDC', 'No readings comply to the filter.')
                         ]
                     },
                     previewComponent: null

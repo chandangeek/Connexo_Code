@@ -26,6 +26,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         {ref: 'deviceGeneralInformationForm', selector: '#deviceGeneralInformationForm'},
         {ref: 'deviceCommunicationTopologyPanel', selector: '#devicecommicationtopologypanel'},
         {ref: 'deviceOpenIssuesPanel', selector: '#deviceopenissuespanel'},
+        {ref: 'deviceSetup', selector: '#deviceSetup'},
         {ref: 'deviceSetupPanel', selector: '#deviceSetupPanel'},
         {ref: 'deviceGeneralInformationDeviceTypeLink', selector: '#deviceGeneralInformationDeviceTypeLink'},
         {ref: 'deviceGeneralInformationDeviceConfigurationLink', selector: '#deviceGeneralInformationDeviceConfigurationLink'},
@@ -64,6 +65,9 @@ Ext.define('Mdc.controller.setup.Devices', {
             },
             'deviceSetup #device-communications-panel #deactivate-all': {
                 click: this.communicationDeactivateAll
+            },
+            'deviceSetup #deviceSetupPanel #refresh-btn': {
+                click: this.doRefresh
             }
         });
     },
@@ -121,6 +125,7 @@ Ext.define('Mdc.controller.setup.Devices', {
             method: 'PUT',
             url: '/api/ddr/devices/{mRID}/communications/activate'.replace('{mRID}', router.arguments.mRID),
             success: function() {
+                me.refreshCommunications();
                 me.getApplication().fireEvent('acknowledge',
                     Uni.I18n.translate('device.communication.activateAll', 'MDC', 'Communication tasks activated')
                 );
@@ -136,6 +141,7 @@ Ext.define('Mdc.controller.setup.Devices', {
             method: 'PUT',
             url: '/api/ddr/devices/{mRID}/communications/deactivate'.replace('{mRID}', router.arguments.mRID),
             success: function() {
+                me.refreshCommunications();
                 me.getApplication().fireEvent('acknowledge',
                     Uni.I18n.translate('device.communication.deactivateAll', 'MDC', 'Communication tasks deactivated')
                 );
@@ -181,19 +187,9 @@ Ext.define('Mdc.controller.setup.Devices', {
                     widget.renderFlag(deviceLabelsStore);
                 });
 
-                var deviceConnectionsStore = device.connections();
-                deviceConnectionsStore.getProxy().setUrl(mRID);
-                deviceConnectionsStore.load(function() {
-                    widget.down('#device-connections-panel').bindStore(deviceConnectionsStore);
-                });
-
-                var deviceCommunicationsStore = device.communications();
-                deviceCommunicationsStore.getProxy().setUrl(mRID);
-                deviceCommunicationsStore.load(function() {
-                    widget.down('#device-communications-panel').bindStore(deviceCommunicationsStore);
-                });
-
                 me.getApplication().fireEvent('changecontentevent', widget);
+                me.doRefresh();
+
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().set({href: '#/administration/devicetypes/' + device.get('deviceTypeId')});
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().setHTML(device.get('deviceTypeName'));
                 me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().set({href: '#/administration/devicetypes/' + device.get('deviceTypeId') + '/deviceconfigurations/' + device.get('deviceConfigurationId')});
@@ -203,7 +199,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                 me.getDeviceGeneralInformationForm().loadRecord(device);
 
                 if ((device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters'))
-                    && (Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration']))) {
+                    && (Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDevice']))) {
                     me.updateDataValidationStatusSection(mRID, widget);
                 } else {
                     widget.down('device-data-validation-panel').hide();
@@ -211,6 +207,43 @@ Ext.define('Mdc.controller.setup.Devices', {
                 viewport.setLoading(false);
 
             }
+        });
+    },
+
+    doRefresh: function () {
+        this.refreshConnections();
+        this.refreshCommunications();
+    },
+
+    refreshConnections: function() {
+        var widget = this.getDeviceSetup();
+        var device = widget.device;
+        var lastUpdateField = widget.down('#deviceSetupPanel #last-updated-field');
+        var connectionsPanel= widget.down('#device-connections-panel');
+        var deviceConnectionsStore = device.connections();
+
+        deviceConnectionsStore.getProxy().setUrl(device.get('mRID'));
+        lastUpdateField.update('Last updated at ' + Ext.util.Format.date(new Date(), 'H:i'));
+        connectionsPanel.setLoading(true);
+        deviceConnectionsStore.load(function() {
+            connectionsPanel.bindStore(deviceConnectionsStore);
+            connectionsPanel.setLoading(false);
+        });
+    },
+
+    refreshCommunications: function() {
+        var widget = this.getDeviceSetup();
+        var device = widget.device;
+        var lastUpdateField = widget.down('#deviceSetupPanel #last-updated-field');
+        var communicationsPanel= widget.down('#device-communications-panel');
+        var deviceCommunicationsStore = device.communications();
+
+        deviceCommunicationsStore.getProxy().setUrl(device.get('mRID'));
+        lastUpdateField.update('Last updated at ' + Ext.util.Format.date(new Date(), 'H:i'));
+        communicationsPanel.setLoading(true);
+        deviceCommunicationsStore.load(function() {
+            communicationsPanel.bindStore(deviceCommunicationsStore);
+            communicationsPanel.setLoading(false);
         });
     },
 

@@ -138,27 +138,45 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
     },
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            panel = me.content[0];
 
-        me.content[0].tbar = {
-            margin: '0 20 0 0',
-            items: [
-                {
-                    xtype: 'container',
-                    itemId: 'deviceSetupPanelTitle',
-                    cls: 'x-panel-header-text-container-large',
-                    html: me.router.getRoute().getTitle()
-                },
-                '->',
-                {
-                    xtype: 'container',
-                    itemId: 'deviceSetupFlags',
-                    layout: 'fit',
-                    width: 20,
-                    height: 20
-                }
-            ]
-        };
+        panel.title = me.router.getRoute().getTitle();
+        panel.tools = [
+            {
+                xtype: 'toolbar',
+                margin: '0 20 0 0',
+                items: [
+                    '->',
+                    {
+                        xtype: 'container',
+                        itemId: 'deviceSetupFlags',
+                        layout: 'fit',
+                        width: 20,
+                        height: 20
+                    },
+                    {
+                        xtype: 'component',
+                        itemId: 'last-updated-field',
+                        width: 150,
+                        style: {
+                            'font': 'normal 13px/17px Lato',
+                            'color': '#686868',
+                            'margin-right': '10px'
+                        }
+                    },
+                    {
+                        xtype: 'button',
+                        itemId: 'refresh-btn',
+                        style: {
+                            'background-color': '#71adc7'
+                        },
+                        text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'DSH', 'Refresh'),
+                        icon: '/apps/sky/resources/images/form/restore.png'
+                    }
+                ]
+            }
+        ];
 
         me.side = [
             {
@@ -248,8 +266,10 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                     router: me.router
                 },
                 bindStore: function(store) {
-                    var me = this;
-                    me.down('device-connections-list').reconfigure(store);
+                    var me = this,
+                        connList = me.down('device-connections-list');
+                    connList.bindStore(store);
+                    connList.reconfigure();
                     me.setTitle(Uni.I18n.translatePlural('device.connections.title', store.count(), 'DSH', 'Connections ({0})'));
                 }
             },
@@ -274,11 +294,17 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                             {
                                 xtype: 'button',
                                 itemId: 'activate-all',
+                                style: {
+                                    'background-color': '#71adc7'
+                                },
                                 text: Uni.I18n.translate('device.communications.activate', 'DSH', 'Activate all')
                             },
                             {
                                 xtype: 'button',
                                 itemId: 'deactivate-all',
+                                style: {
+                                    'background-color': '#71adc7'
+                                },
                                 text: Uni.I18n.translate('device.communications.deactivate', 'DSH', 'Deactivate all')
                             }
                         ]
@@ -286,8 +312,10 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 ],
 
                 bindStore: function(store) {
-                    var me = this;
-                    me.down('device-communications-list').reconfigure(store);
+                    var me = this,
+                        commList = me.down('device-communications-list');
+                    commList.bindStore(store);
+                    commList.reconfigure();
                     me.setTitle(Uni.I18n.translatePlural('device.communications.title', store.count(), 'DSH', 'Communication tasks ({0})'));
                 }
             }
