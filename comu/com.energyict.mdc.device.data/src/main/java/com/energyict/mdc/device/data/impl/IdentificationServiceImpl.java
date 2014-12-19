@@ -11,8 +11,8 @@ import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByConnecti
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByMRID;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByPropertyValue;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceMessageIdentifierForAlreadyKnownMessage;
 import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
@@ -30,20 +30,15 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentif
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 
 /**
- * Straightforward implementation of the IdentificationService
+ * Straightforward implementation of the {@link IdentificationService} interface.
  */
 @Component(name = "com.energyict.mdc.device.data.impl.IdentificationServiceImpl", service = IdentificationService.class, immediate = true)
 public class IdentificationServiceImpl implements IdentificationService {
@@ -52,34 +47,18 @@ public class IdentificationServiceImpl implements IdentificationService {
     private volatile LogBookService logBookService;
     private volatile LoadProfileService loadProfileService;
 
-    private Injector injector;
-
     // For OSGi purposes only
     public IdentificationServiceImpl() {
+        super();
     }
 
+    // For unit testing purposes
     @Inject
-    public IdentificationServiceImpl(DeviceService deviceService) {
-        this.deviceService = deviceService;
-        activate();
-    }
-
-    @Activate
-    public void activate() {
-        Module module = this.getModule();
-        this.injector = Guice.createInjector(module);
-    }
-
-    private Module getModule() {
-        return new AbstractModule() {
-            @Override
-            public void configure() {
-                bind(DeviceService.class).toInstance(deviceService);
-                bind(LogBookService.class).toInstance(logBookService);
-                bind(LoadProfileService.class).toInstance(loadProfileService);
-                bind(IdentificationService.class).toInstance(IdentificationServiceImpl.this);
-            }
-        };
+    public IdentificationServiceImpl(DeviceService deviceService, LogBookService logBookService, LoadProfileService loadProfileService) {
+        this();
+        this.setDeviceService(deviceService);
+        this.setLogBookService(logBookService);
+        this.setLoadProfileService(loadProfileService);
     }
 
     @Override
@@ -178,4 +157,5 @@ public class IdentificationServiceImpl implements IdentificationService {
     public void setLoadProfileService(LoadProfileService loadProfileService) {
         this.loadProfileService = loadProfileService;
     }
+
 }

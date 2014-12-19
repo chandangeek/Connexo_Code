@@ -17,7 +17,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @since 2012-10-16 (15:10)
  */
 @XmlRootElement
-public class DeviceIdentifierById implements DeviceIdentifier<Device> {
+public final class DeviceIdentifierById implements DeviceIdentifier<Device> {
 
     private long id;
     private DeviceService deviceService;

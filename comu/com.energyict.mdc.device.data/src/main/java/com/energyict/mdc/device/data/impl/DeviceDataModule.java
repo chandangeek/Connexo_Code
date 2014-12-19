@@ -45,7 +45,6 @@ public class DeviceDataModule extends AbstractModule {
         requireBinding(ProtocolPluggableService.class);
         requireBinding(SchedulingService.class);
         requireBinding(DeviceMessageSpecificationService.class);
-        requireBinding(IdentificationService.class);
 
         bind(SecurityPropertyService.class).to(SecurityPropertyServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceDataModelService.class).to(DeviceDataModelServiceImpl.class).in(Scopes.SINGLETON);
@@ -54,6 +53,7 @@ public class DeviceDataModule extends AbstractModule {
         bind(CommunicationTaskService.class).to(CommunicationTaskServiceImpl.class).in(Scopes.SINGLETON);
         bind(LoadProfileService.class).to(LoadProfileServiceImpl.class).in(Scopes.SINGLETON);
         bind(LogBookService.class).to(LogBookServiceImpl.class).in(Scopes.SINGLETON);
+        bind(IdentificationService.class).to(IdentificationServiceImpl.class).in(Scopes.SINGLETON);
     }
 
 }

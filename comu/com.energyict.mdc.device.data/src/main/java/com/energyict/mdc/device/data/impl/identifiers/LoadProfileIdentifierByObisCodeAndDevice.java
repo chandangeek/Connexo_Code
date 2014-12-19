@@ -50,7 +50,11 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
     public LoadProfile findLoadProfile() {
         if (loadProfile == null) {
             Device device = deviceIdentifier.findDevice();
-            this.loadProfile = device.getLoadProfiles().stream().filter(loadProfile -> loadProfile.getDeviceObisCode().equals(loadProfileObisCode)).findFirst().orElseThrow(() -> CanNotFindForIdentifier.loadProfile(this));
+            this.loadProfile = device.getLoadProfiles()
+                                    .stream()
+                                    .filter(loadProfile -> loadProfile.getDeviceObisCode().equals(loadProfileObisCode))
+                                    .findFirst()
+                                    .orElseThrow(() -> CanNotFindForIdentifier.loadProfile(this));
         }
         return loadProfile;
     }
@@ -87,7 +91,7 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
 
     @Override
     public String toString() {
-        return "deviceIdentifier = " + deviceIdentifier + " and ObisCode = " + loadProfileObisCode;
+        return "ObisCode " + loadProfileObisCode + " on device " + deviceIdentifier;
     }
 
 }
