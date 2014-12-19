@@ -1,11 +1,12 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.rest.impl.MdcApplication;
 import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     MILLISECONDS(1, TimeDuration.TimeUnit.MILLISECONDS.getDescription(), "millisecond(s)"),
     SECONDS(2, TimeDuration.TimeUnit.SECONDS.getDescription(), "second(s)"),
