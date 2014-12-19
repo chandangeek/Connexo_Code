@@ -5,6 +5,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
@@ -27,8 +28,8 @@ public class DisconnectControlMapper extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(DlmsSession session) throws IOException {
-        final Disconnector disconnector = session.getCosemObjectFactory().getDisconnector(getObisCode());
+    public RegisterValue readRegister(CosemObjectFactory cosemObjectFactory) throws IOException {
+        final Disconnector disconnector = cosemObjectFactory.getDisconnector(getObisCode());
         return parse(disconnector.getControlState());
     }
 

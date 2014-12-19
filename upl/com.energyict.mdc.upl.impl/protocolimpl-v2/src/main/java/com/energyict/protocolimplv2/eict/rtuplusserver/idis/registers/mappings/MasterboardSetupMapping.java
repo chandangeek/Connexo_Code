@@ -24,8 +24,8 @@ public class MasterboardSetupMapping extends RegisterMapping {
     private static final int MIN_ATTR = 1;
     private static final int MAX_ATTR = 7;
 
-    public MasterboardSetupMapping(Logger logger, CosemObjectFactory cosemObjectFactory) {
-        super(logger, cosemObjectFactory);
+    public MasterboardSetupMapping(CosemObjectFactory cosemObjectFactory) {
+        super(cosemObjectFactory);
     }
 
     @Override

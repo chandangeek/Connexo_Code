@@ -5,6 +5,7 @@ import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.RegisterMonitor;
 import com.energyict.obis.ObisCode;
@@ -28,8 +29,8 @@ public class OverHeatCurrentLimitMapper extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(DlmsSession dlmsSession) throws IOException {
-        RegisterMonitor registerMonitor = dlmsSession.getCosemObjectFactory().getRegisterMonitor(getObisCode());
+    public RegisterValue readRegister(CosemObjectFactory cosemObjectFactory) throws IOException {
+        RegisterMonitor registerMonitor = cosemObjectFactory.getRegisterMonitor(getObisCode());
         return parse(registerMonitor.readThresholds(), unit);
     }
 

@@ -101,7 +101,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     /**
      * Keep track of a list of channelMask per LoadProfileReader
      */
-    private Map<LoadProfileReader, Integer> channelMaskMap = new HashMap<LoadProfileReader, Integer>();
+    protected Map<LoadProfileReader, Integer> channelMaskMap = new HashMap<LoadProfileReader, Integer>();
 
     /**
      * Keeps track of the link between a {@link com.energyict.protocol.Register} and his {@link com.energyict.dlms.DLMSAttribute} for ComposedCosemObject reads ...
@@ -118,16 +118,13 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
      */
     private List<CollectedLoadProfileConfiguration> loadProfileConfigurationList;
 
-    private final boolean supportsBulkRequests;
-
     /**
      * Default constructor
      *
      * @param meterProtocol the {@link #meterProtocol}
      */
-    public LoadProfileBuilder(AbstractDlmsProtocol meterProtocol, boolean supportsBulkRequests) {
+    public LoadProfileBuilder(AbstractDlmsProtocol meterProtocol) {
         this.meterProtocol = meterProtocol;
-        this.supportsBulkRequests = supportsBulkRequests;
     }
 
     /**
@@ -140,7 +137,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         this.expectedLoadProfileReaders = filterOutAllInvalidLoadProfiles(loadProfileReaders);
         this.loadProfileConfigurationList = new ArrayList<>();
 
-        ComposedCosemObject ccoLpConfigs = constructLoadProfileConfigComposedCosemObject(loadProfileReaders, supportsBulkRequests);
+        ComposedCosemObject ccoLpConfigs = constructLoadProfileConfigComposedCosemObject(loadProfileReaders, meterProtocol.getDlmsSessionProperties().isBulkRequest());
 
         List<CapturedRegisterObject> capturedObjectRegisterList;
         try {
@@ -148,7 +145,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         } catch (IOException e) {
             throw IOExceptionHandler.handle(e, getMeterProtocol().getDlmsSession());
         }
-        ComposedCosemObject ccoCapturedObjectRegisterUnits = constructCapturedObjectRegisterUnitComposedCosemObject(capturedObjectRegisterList, supportsBulkRequests);
+        ComposedCosemObject ccoCapturedObjectRegisterUnits = constructCapturedObjectRegisterUnitComposedCosemObject(capturedObjectRegisterList, meterProtocol.getDlmsSessionProperties().isBulkRequest());
 
         for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
             DeviceLoadProfileConfiguration lpc = new DeviceLoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
@@ -328,7 +325,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
      * @return a constructed list of <CODE>ChannelInfos</CODE>
      * @throws java.io.IOException when an error occurred during dataFetching or -Parsing
      */
-    private List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
+    protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
         for (CapturedRegisterObject registerUnit : registers) {
             if (!registerUnit.getSerialNumber().equalsIgnoreCase("") && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
@@ -521,5 +518,9 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
 
     protected AbstractDlmsProtocol getMeterProtocol() {
         return meterProtocol;
+    }
+
+    protected Map<CapturedRegisterObject, DLMSAttribute> getRegisterUnitMap() {
+        return registerUnitMap;
     }
 }

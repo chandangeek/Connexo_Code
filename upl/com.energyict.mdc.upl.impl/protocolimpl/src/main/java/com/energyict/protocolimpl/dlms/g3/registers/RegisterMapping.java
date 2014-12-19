@@ -2,8 +2,8 @@ package com.energyict.protocolimpl.dlms.g3.registers;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
@@ -25,8 +25,8 @@ public class RegisterMapping extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(DlmsSession dlmsSession) throws IOException {
-        final Register register = dlmsSession.getCosemObjectFactory().getRegister(getObisCode());
+    public RegisterValue readRegister(CosemObjectFactory cosemObjectFactory) throws IOException {
+        final Register register = cosemObjectFactory.getRegister(getObisCode());
         return parse(register.getValueAttr(), register.getScalerUnit().getEisUnit());
     }
 

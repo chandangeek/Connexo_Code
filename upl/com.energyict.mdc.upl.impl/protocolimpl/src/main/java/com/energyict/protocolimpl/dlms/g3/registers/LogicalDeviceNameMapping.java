@@ -26,9 +26,8 @@ public class LogicalDeviceNameMapping extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(DlmsSession dlmsSession) throws IOException {
-        final CosemObjectFactory cof = dlmsSession.getCosemObjectFactory();
-        Data data = cof.getData(getObisCode());
+    public RegisterValue readRegister(CosemObjectFactory cosemObjectFactory) throws IOException {
+        Data data = cosemObjectFactory.getData(getObisCode());
         return parse(data.getValueAttr(OctetString.class));
     }
 

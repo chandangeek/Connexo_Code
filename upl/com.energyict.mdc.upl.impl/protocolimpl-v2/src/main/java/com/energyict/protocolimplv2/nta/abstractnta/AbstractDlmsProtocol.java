@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
+import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSCache;
@@ -48,12 +49,12 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     public static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
     public static final ObisCode monthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
 
-    private Dsmr23RegisterFactory registerFactory = null;
+    protected Dsmr23RegisterFactory registerFactory = null;
     private ComposedMeterInfo meterInfo;
     protected DlmsProperties dlmsProperties;
     private DlmsConfigurationSupport dlmsConfigurationSupport;
     private DlmsSession dlmsSession;
-    private LoadProfileBuilder loadProfileBuilder;
+    protected LoadProfileBuilder loadProfileBuilder;
     private DLMSCache dlmsCache;
     private MeterTopology meterTopology;
     private Dsmr23LogBookFactory logBookFactory;
@@ -181,14 +182,14 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     protected Dsmr23RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new Dsmr23RegisterFactory(this, getDlmsSessionProperties().isBulkRequest());
+            this.registerFactory = new Dsmr23RegisterFactory(this);
         }
         return registerFactory;
     }
 
     protected LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this, getDlmsSessionProperties().isBulkRequest());
+            this.loadProfileBuilder = new LoadProfileBuilder(this);
         }
         return loadProfileBuilder;
     }
@@ -281,7 +282,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         return meterInfo;
     }
 
-    protected DlmsSessionProperties getDlmsSessionProperties() {
+    public DlmsSessionProperties getDlmsSessionProperties() {
         if (dlmsProperties == null) {
             dlmsProperties = new DlmsProperties();
         }
@@ -367,7 +368,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
      * A collection of general DLMS properties.
      * These properties are not related to the security or the protocol dialects.
      */
-    private DlmsConfigurationSupport getDlmsConfigurationSupport() {
+    protected ConfigurationSupport getDlmsConfigurationSupport() {
         if (dlmsConfigurationSupport == null) {
             dlmsConfigurationSupport = new DlmsConfigurationSupport();
         }

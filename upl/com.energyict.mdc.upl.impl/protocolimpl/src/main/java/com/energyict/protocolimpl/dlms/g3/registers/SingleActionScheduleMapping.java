@@ -4,6 +4,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.obis.ObisCode;
@@ -34,8 +35,11 @@ public class SingleActionScheduleMapping extends G3Mapping {
         modes.put(5, "Mode 5: Number of \"execution time\" = n, all time values may be different and wildcards in the date are allowed.");
     }
 
-    public SingleActionScheduleMapping(ObisCode obisCode) {
+    private final TimeZone timeZone;
+
+    public SingleActionScheduleMapping(TimeZone timeZone, ObisCode obisCode) {
         super(obisCode);
+        this.timeZone = timeZone;
     }
 
     @Override
@@ -49,11 +53,10 @@ public class SingleActionScheduleMapping extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(DlmsSession dlmsSession) throws IOException {
+    public RegisterValue readRegister(CosemObjectFactory cosemObjectFactory) throws IOException {
         ObisCode objectObisCode = ProtocolTools.setObisCodeField(getObisCode(), 4, (byte) 0);
-        SingleActionSchedule singleActionSchedule = dlmsSession.getCosemObjectFactory().getSingleActionSchedule(objectObisCode);
+        SingleActionSchedule singleActionSchedule = cosemObjectFactory.getSingleActionSchedule(objectObisCode);
 
-        TimeZone timeZone = dlmsSession.getTimeZone();
         if (getObisCode().getE() == 1) {                //Type
             return parse(singleActionSchedule.getType(), null, null);
         } else if (getObisCode().getE() == 2) {         //Execution time

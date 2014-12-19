@@ -27,12 +27,8 @@ public class PLCOFDMType2MACSetupMapping extends RegisterMapping {
     private static final int MIN_ATTR = 1;
     private static final int MAX_ATTR = 22;
 
-    public PLCOFDMType2MACSetupMapping(final DlmsSession session) {
-        super(session);
-    }
-
-    public PLCOFDMType2MACSetupMapping(Logger logger, CosemObjectFactory cosemObjectFactory) {
-        super(logger, cosemObjectFactory);
+    public PLCOFDMType2MACSetupMapping(CosemObjectFactory cosemObjectFactory) {
+        super(cosemObjectFactory);
     }
 
     @Override

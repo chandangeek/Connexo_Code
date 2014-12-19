@@ -56,21 +56,11 @@ public class CX20009 extends AbstractDlmsProtocol {
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return getDlmsConfigurationSupport().getOptionalProperties();
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return getDlmsConfigurationSupport().getRequiredProperties();
-    }
-
     /**
      * A collection of general DLMS properties.
      * These properties are not related to the security or the protocol dialects.
      */
-    private EDPDlmsConfigurationSupport getDlmsConfigurationSupport() {
+    protected EDPDlmsConfigurationSupport getDlmsConfigurationSupport() {
         if (edpDlmsConfigurationSupport == null) {
             edpDlmsConfigurationSupport = new EDPDlmsConfigurationSupport();
         }
@@ -81,7 +71,7 @@ public class CX20009 extends AbstractDlmsProtocol {
      * Class that holds all DLMS device properties (general, dialect & security related)
      */
     @Override
-    protected EDPProperties getDlmsSessionProperties() {
+    public EDPProperties getDlmsSessionProperties() {
         if (dlmsProperties == null) {
             dlmsProperties = new EDPProperties();
         }

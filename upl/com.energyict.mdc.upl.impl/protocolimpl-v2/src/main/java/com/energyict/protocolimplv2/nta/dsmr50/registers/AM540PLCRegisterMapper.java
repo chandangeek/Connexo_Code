@@ -1,8 +1,7 @@
-package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.registers;
+package com.energyict.protocolimplv2.nta.dsmr50.registers;
 
-import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
 import com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper;
@@ -26,16 +25,16 @@ public class AM540PLCRegisterMapper extends G3RegisterMapper {
         this.mappings.addAll(getPLCStatisticsMappings());
     }
 
+    /**
+     * Read out and return the G3 PLC register, or null if it's not supported in this mapper
+     */
     @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         for (G3Mapping mapping : mappings) {
             if (mapping.getObisCode().equals(obisCode)) {
-                final RegisterValue registerValue = mapping.readRegister(dlmsSession.getCosemObjectFactory());
-                if (registerValue != null) {
-                    return registerValue;
-                }
+                return mapping.readRegister(dlmsSession.getCosemObjectFactory());
             }
         }
-        throw new NoSuchRegisterException(obisCode.toString());
+        return null;
     }
 }

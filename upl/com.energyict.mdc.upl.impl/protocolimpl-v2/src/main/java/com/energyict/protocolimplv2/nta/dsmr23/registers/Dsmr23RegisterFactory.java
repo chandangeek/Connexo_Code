@@ -2,12 +2,7 @@ package com.energyict.protocolimplv2.nta.dsmr23.registers;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -16,12 +11,7 @@ import com.energyict.dlms.cosem.AssociationLN;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.SecuritySetup;
-import com.energyict.dlms.cosem.attributes.ActivityCalendarAttributes;
-import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
-import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.dlms.cosem.attributes.*;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
@@ -39,11 +29,7 @@ import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -77,12 +63,10 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
 
     private Map<OfflineRegister, ComposedRegister> composedRegisterMap = new HashMap<>();
     protected Map<OfflineRegister, DLMSAttribute> registerMap = new HashMap<>();
-    private final AbstractDlmsProtocol protocol;
-    private final boolean supportsBulkRequests;
+    protected final AbstractDlmsProtocol protocol;
 
-    public Dsmr23RegisterFactory(final AbstractDlmsProtocol protocol, boolean supportsBulkRequests) {
+    public Dsmr23RegisterFactory(final AbstractDlmsProtocol protocol) {
         this.protocol = protocol;
-        this.supportsBulkRequests = supportsBulkRequests;
     }
 
     /**
@@ -96,7 +80,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     public List<CollectedRegister> readRegisters(List<OfflineRegister> allRegisters) {
         List<OfflineRegister> validRegisters = filterOutAllInvalidRegisters(allRegisters);
         List<CollectedRegister> collectedRegisters = new ArrayList<CollectedRegister>();
-        ComposedCosemObject registerComposedCosemObject = constructComposedObjectFromRegisterList(validRegisters, supportsBulkRequests);
+        ComposedCosemObject registerComposedCosemObject = constructComposedObjectFromRegisterList(validRegisters, protocol.getDlmsSessionProperties().isBulkRequest());
         for (OfflineRegister register : allRegisters) {
             if (!validRegisters.contains(register)) {
                 collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));
@@ -359,11 +343,11 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
         }
     }
 
-    private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
+    protected RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
         return new RegisterIdentifierById(offlineRtuRegister.getRegisterId(), offlineRtuRegister.getObisCode());
     }
 
-    private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
+    protected CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
         CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
             collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));

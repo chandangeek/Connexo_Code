@@ -18,15 +18,9 @@ import java.util.logging.Logger;
  */
 public abstract class RegisterMapping {
 
-    private final Logger logger;
     private final CosemObjectFactory cosemObjectFactory;
 
-    protected RegisterMapping(final DlmsSession session) {
-        this(session.getLogger(), session.getCosemObjectFactory());
-    }
-
-    public RegisterMapping(Logger logger, CosemObjectFactory cosemObjectFactory) {
-        this.logger = logger;
+    public RegisterMapping(CosemObjectFactory cosemObjectFactory) {
         this.cosemObjectFactory = cosemObjectFactory;
     }
 
@@ -68,10 +62,6 @@ public abstract class RegisterMapping {
         } else {
             throw new IOException("Register with obisCode [" + obisCode + "] is not supported by this register mapper [" + getClass().getName() + "]!");
         }
-    }
-
-    protected final Logger getLogger() {
-        return this.logger;
     }
 
     protected final CosemObjectFactory getCosemObjectFactory() {

@@ -3,7 +3,6 @@ package com.energyict.protocolimpl.dlms.g3.registers.mapping;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -14,7 +13,6 @@ import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -26,13 +24,10 @@ public class SixLowPanAdaptationLayerSetupMapping extends RegisterMapping {
     private static final int MIN_ATTR = 1;
     private static final int MAX_ATTR = 19;
 
-    public SixLowPanAdaptationLayerSetupMapping(final DlmsSession session) {
-        super(session);
+    public SixLowPanAdaptationLayerSetupMapping(CosemObjectFactory cosemObjectFactory) {
+        super(cosemObjectFactory);
     }
 
-    public SixLowPanAdaptationLayerSetupMapping(Logger logger, CosemObjectFactory cosemObjectFactory) {
-        super(logger, cosemObjectFactory);
-    }
 
     @Override
     public boolean canRead(final ObisCode obisCode) {

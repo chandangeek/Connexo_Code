@@ -35,11 +35,11 @@ public class IDISGatewayRegisters {
         this.session = session;
 
         this.registerMappings = new RegisterMapping[]{
-                new GprsModemSetupMapping(session.getLogger(), session.getCosemObjectFactory()),
-                new LoggerSettingsMapping(session.getLogger(), session.getCosemObjectFactory()),
-                new GatewaySetupMapping(session.getLogger(), session.getCosemObjectFactory()),
-                new NetworkManagementMapping(session.getLogger(), session.getCosemObjectFactory()),
-                new MasterboardSetupMapping(session.getLogger(), session.getCosemObjectFactory())
+                new GprsModemSetupMapping(session.getCosemObjectFactory()),
+                new LoggerSettingsMapping(session.getCosemObjectFactory()),
+                new GatewaySetupMapping(session.getCosemObjectFactory()),
+                new NetworkManagementMapping(session.getCosemObjectFactory()),
+                new MasterboardSetupMapping(session.getCosemObjectFactory())
         };
     }
 

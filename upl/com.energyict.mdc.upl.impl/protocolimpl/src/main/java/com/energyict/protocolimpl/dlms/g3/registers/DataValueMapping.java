@@ -4,6 +4,7 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.obis.ObisCode;
@@ -32,8 +33,8 @@ public class DataValueMapping extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(DlmsSession session) throws IOException {
-        final Data data = session.getCosemObjectFactory().getData(getObisCode());
+    public RegisterValue readRegister(CosemObjectFactory cosemObjectFactory) throws IOException {
+        final Data data = cosemObjectFactory.getData(getObisCode());
         return parse(data.getValueAttr(), unit);
     }
 

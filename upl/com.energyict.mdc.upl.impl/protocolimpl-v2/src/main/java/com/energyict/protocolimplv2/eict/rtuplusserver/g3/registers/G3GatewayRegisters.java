@@ -52,10 +52,10 @@ public class G3GatewayRegisters {
         };
 
         this.registerMappings = new RegisterMapping[]{
-                new PLCOFDMType2MACSetupMapping(dlmsSession.getLogger(), dlmsSession.getCosemObjectFactory()),
-                new PLCOFDMType2PHYAndMACCountersMapping(dlmsSession.getLogger(), dlmsSession.getCosemObjectFactory()),
-                new SixLowPanAdaptationLayerSetupMapping(dlmsSession.getLogger(), dlmsSession.getCosemObjectFactory()),
-                new GprsModemSetupMapping(dlmsSession.getLogger(), dlmsSession.getCosemObjectFactory())
+                new PLCOFDMType2MACSetupMapping(dlmsSession.getCosemObjectFactory()),
+                new PLCOFDMType2PHYAndMACCountersMapping(dlmsSession.getCosemObjectFactory()),
+                new SixLowPanAdaptationLayerSetupMapping(dlmsSession.getCosemObjectFactory()),
+                new GprsModemSetupMapping(dlmsSession.getCosemObjectFactory())
         };
     }
 
