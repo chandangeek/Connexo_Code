@@ -25,7 +25,7 @@ Ext.define('Dsh.controller.ConnectionOverview', {
             '#connection-overview #refresh-btn': {
                 click: this.loadData
             },
-            '#communication-overview #device-group': {
+            '#connection-overview #device-group': {
                 change: this.updateQuickLinks
             }
         });
