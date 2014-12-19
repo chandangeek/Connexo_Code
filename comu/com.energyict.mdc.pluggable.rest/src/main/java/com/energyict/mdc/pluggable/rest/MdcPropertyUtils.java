@@ -134,7 +134,7 @@ public class MdcPropertyUtils {
     }
 
     private Object getPropertyValue(TypedProperties properties, PropertySpec<?> propertySpec) {
-        return MdcPropertyReferenceInfoFactory.asInfoObject(properties.getPropertyValue(propertySpec.getName()));
+        return MdcPropertyReferenceInfoFactory.asInfoObject(properties.getLocalValue(propertySpec.getName()));
     }
 
 
