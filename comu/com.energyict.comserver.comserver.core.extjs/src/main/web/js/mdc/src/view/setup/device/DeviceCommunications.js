@@ -53,8 +53,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
         me.columns = {
             defaults: {
                 sortable: false,
-                menuDisabled: true,
-                flex: 1
+                menuDisabled: true
             },
             items: [
                 {
@@ -65,7 +64,8 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
                         var me = this;
                         metaData.tdAttr = 'data-qtip="' + Ext.htmlEncode(me.connectionTpl.apply(record.getData())) + '"';
                         return val ? val.name : ''
-                    }
+                    },
+                    flex: 4
                 },
                 {
                     itemId: 'currentState',
@@ -73,7 +73,8 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
                     dataIndex: 'currentState',
                     renderer: function (val) {
                         return val ? val.displayValue : ''
-                    }
+                    },
+                    flex: 3
                 },
                 {
                     itemId: 'latestResult',
@@ -83,21 +84,24 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
                     renderer: function (val) {
                         return val ? val.displayValue : ''
 
-                    }
+                    },
+                    flex: 2
                 },
                 {
                     itemId: 'nextCommunication',
                     text: Uni.I18n.translate('device.communications.nextCommunication', 'MDC', 'Next communication'),
                     dataIndex: 'plannedDate',
                     xtype: 'datecolumn',
-                    format: 'd/m/Y h:i:s'
+                    format: 'd/m/Y h:i:s',
+                    flex: 2
                 },
                 {
                     itemId: 'startTime',
                     text: Uni.I18n.translate('device.communications.startedOn', 'MDC', 'Started on'),
                     dataIndex: 'startTime',
                     xtype: 'datecolumn',
-                    format: 'd/m/Y h:i:s'
+                    format: 'd/m/Y h:i:s',
+                    flex: 2
                 },
                 {
                     xtype: 'uni-actioncolumn',
@@ -105,7 +109,8 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
                         plain: true,
                         xtype: 'device-communication-action-menu',
                         itemId: 'communicationsActionMenu',
-                        router: me.router
+                        router: me.router,
+                        flex: 4
                     }
                 }
             ]
