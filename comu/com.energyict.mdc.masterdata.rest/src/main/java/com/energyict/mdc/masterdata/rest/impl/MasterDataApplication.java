@@ -1,11 +1,17 @@
 package com.energyict.mdc.masterdata.rest.impl;
 
+import com.energyict.mdc.common.rest.ExceptionLogger;
+import com.energyict.mdc.common.rest.TransactionWrapper;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.masterdata.MasterDataService;
+
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
@@ -13,11 +19,6 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.common.rest.ExceptionLogger;
-import com.energyict.mdc.common.rest.Installer;
-import com.energyict.mdc.common.rest.TransactionWrapper;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.masterdata.MasterDataService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -29,12 +30,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 
-@Component(name = "com.energyict.mds.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/mds", "app=MDC", "name=" + MasterDataApplication.COMPONENT_NAME})
-public class MasterDataApplication extends Application implements InstallService {
-
-    private final Logger logger = Logger.getLogger(MasterDataApplication.class.getName());
+@Component(name = "com.energyict.mds.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/mds", "app=MDC", "name=" + MasterDataApplication.COMPONENT_NAME})
+public class MasterDataApplication extends Application implements TranslationKeyProvider {
 
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "MDR";
@@ -98,6 +96,21 @@ public class MasterDataApplication extends Application implements InstallService
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
     }
 
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.REST;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
@@ -106,17 +119,6 @@ public class MasterDataApplication extends Application implements InstallService
     @Reference(target="(com.elster.jupiter.license.rest.key=" + APP_KEY  + ")")
     public void setLicense(License license) {
         this.license = license;
-    }
-
-    @Override
-    public void install() {
-        Installer installer = new Installer();
-        installer.createTranslations(COMPONENT_NAME, thesaurus, Layer.REST, MessageSeeds.values());
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("NLS");
     }
 
     class HK2Binder extends AbstractBinder {

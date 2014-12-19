@@ -2,9 +2,10 @@ package com.energyict.mdc.masterdata.rest.impl;
 
 import java.util.logging.Level;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     NO_LOAD_PROFILE_TYPE_FOUND(1, "NoLoadProfileTypeFound", "No LoadProfile type with id {0}",Level.SEVERE),
     TIME_MINUTE(2, "TimeMinute", "%s minute",Level.SEVERE),
