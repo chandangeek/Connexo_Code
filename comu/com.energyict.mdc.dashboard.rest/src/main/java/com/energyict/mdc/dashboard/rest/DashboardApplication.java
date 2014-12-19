@@ -1,21 +1,7 @@
 package com.energyict.mdc.dashboard.rest;
 
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
-import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
-import com.energyict.mdc.common.rest.Installer;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusInfoFactory;
@@ -53,14 +39,27 @@ import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-import com.google.common.collect.ImmutableSet;
 
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
+import com.elster.jupiter.transaction.TransactionService;
+import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
-
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
@@ -74,8 +73,8 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-18 (10:32)
  */
-@Component(name = "com.energyict.mdc.dashboard.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/dsr", "app=MDC", "name=" + DashboardApplication.COMPONENT_NAME})
-public class DashboardApplication extends Application implements InstallService {
+@Component(name = "com.energyict.mdc.dashboard.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/dsr", "app=MDC", "name=" + DashboardApplication.COMPONENT_NAME})
+public class DashboardApplication extends Application implements TranslationKeyProvider {
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "DSR";
 
@@ -114,6 +113,21 @@ public class DashboardApplication extends Application implements InstallService 
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+    }
+
+    @Override
+    public String getComponentName() {
+        return DashboardApplication.COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.REST;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Reference
@@ -180,7 +194,7 @@ public class DashboardApplication extends Application implements InstallService 
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
     }
-    
+
     @Reference
     public void setFavoritesService(FavoritesService favoritesService) {
         this.favoritesService = favoritesService;
@@ -227,17 +241,6 @@ public class DashboardApplication extends Application implements InstallService 
         hashSet.addAll(super.getSingletons());
         hashSet.add(new HK2Binder());
         return Collections.unmodifiableSet(hashSet);
-    }
-
-    @Override
-    public void install() {
-        Installer installer = new Installer();
-        installer.createTranslations(COMPONENT_NAME, nlsService.getThesaurus(COMPONENT_NAME, Layer.REST), Layer.REST, MessageSeeds.values());
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("NLS");
     }
 
     class HK2Binder extends AbstractBinder {

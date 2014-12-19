@@ -1,11 +1,12 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.dashboard.rest.DashboardApplication;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     SUCCESS(1, "Success", "Success"),
     ALL_TASKS_SUCCESSFUL(2, "AllTasksSuccessful", "Success, all tasks successful"),
