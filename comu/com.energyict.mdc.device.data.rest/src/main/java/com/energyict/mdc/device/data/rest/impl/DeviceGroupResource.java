@@ -125,7 +125,7 @@ public class DeviceGroupResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL})
     public PagedInfoList getDeviceGroups(@BeanParam QueryParameters queryParameters, @QueryParam("type") String typeName, @Context UriInfo uriInfo) {
 
         com.elster.jupiter.rest.util.QueryParameters koreQueryParameters =
@@ -151,7 +151,7 @@ public class DeviceGroupResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL})
     @Path("/{id}")
     public Response editDeviceGroup(DeviceGroupInfo deviceGroupInfo, @PathParam("id") long id) {
         EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(id)
