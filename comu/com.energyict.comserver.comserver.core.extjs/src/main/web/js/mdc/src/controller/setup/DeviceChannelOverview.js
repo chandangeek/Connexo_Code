@@ -66,7 +66,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelOverview', {
                 success: function (record) {
                     if (!widget.isDestroyed) {
                         me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
-                        tabWidget.down('#channelTabPanel').setTitle(record.get('name'));
+                        var readingType = record.get('readingType');
+                        tabWidget.down('#channelTabPanel').setTitle(readingType.aliasName + (!Ext.isEmpty(readingType.names.unitOfMeasure) ? (' (' + readingType.names.unitOfMeasure + ')') : ''));
                         widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(record);
                         widget.down('deviceLoadProfileChannelsActionMenu').record = record;
 

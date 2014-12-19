@@ -28,17 +28,24 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                         {
                             xtype: 'reading-type-displayfield',
                             name: 'readingType',
-                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.readingType', 'MDC', 'Reading type'),
+                            itemId: 'readingType',
                             showTimeAttribute: false
                         },
                         {
-                            name: 'interval',
-                            fieldLabel: Uni.I18n.translate('devicechannels.interval', 'MDC', 'Interval'),
-                            renderer: function (value) {
-                                var res = '';
-                                value ? res = '{count} {timeUnit}'.replace('{count}', value.count).replace('{timeUnit}', value.timeUnit) : null;
-                                return res
-                            }
+                            xtype: 'reading-type-displayfield',
+                            name: 'calculatedReadingType',
+                            itemId: 'calculatedReadingType',
+                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.calculatedReadingType', 'MDC', 'Calculated reading type'),
+                            showTimeAttribute: false,
+                            hidden: true
+                        },
+                        {
+                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'),
+                            name: 'interval_formatted'
+                        },
+                        {
+                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.unitOfMeasure', 'MDC', 'Unit of measure'),
+                            name: 'unitOfMeasure_formatted'
                         },
                         {
                             xtype: 'fieldcontainer',
@@ -106,12 +113,12 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                 }
                                 return res
                             }
-                        },
-                        {
-                            xtype: 'deviceloadprofilechannelsoverview-validation',
-                            router: me.router
                         }
                     ]
+                },
+                {
+                    xtype: 'deviceloadprofilechannelsoverview-validation',
+                    router: me.router
                 }
             ]
         };
