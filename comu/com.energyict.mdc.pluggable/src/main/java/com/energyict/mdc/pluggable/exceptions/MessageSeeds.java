@@ -1,5 +1,6 @@
 package com.energyict.mdc.pluggable.exceptions;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.pluggable.PluggableService;
 import java.util.logging.Level;
@@ -10,7 +11,7 @@ import java.util.logging.Level;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-23 (15:29)
  */
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
     NAME_IS_REQUIRED(1001, "pluggableClass.name.required", "The name of a pluggable class is required", Level.SEVERE),
     JAVA_CLASS_NAME_IS_REQUIRED(1002, "pluggableClass.javaName.required", "The java class name of a pluggable class \"{0}\" is required", Level.SEVERE),
     ALREADY_EXISTS(1003, "pluggableClass.duplicateNameX", "A pluggable class with name \"{0}\" already exists", Level.SEVERE),

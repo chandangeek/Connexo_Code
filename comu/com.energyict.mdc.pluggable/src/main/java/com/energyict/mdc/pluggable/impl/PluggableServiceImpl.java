@@ -1,20 +1,22 @@
 package com.energyict.mdc.pluggable.impl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.util.conditions.Where;
-import java.time.Clock;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.pluggable.PluggableService;
-import java.util.Optional;
+import com.energyict.mdc.pluggable.exceptions.MessageSeeds;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.util.conditions.Where;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -22,8 +24,10 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides an implemenation for the {@link PluggableService} interface.
@@ -31,13 +35,17 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-20 (17:49)
  */
-@Component(name = "com.energyict.mdc.pluggable", service = {PluggableService.class, InstallService.class}, property = "name=" + PluggableService.COMPONENTNAME)
-public class PluggableServiceImpl implements PluggableService, InstallService {
+@Component(name = "com.energyict.mdc.pluggable", service = {PluggableService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + PluggableService.COMPONENTNAME)
+public class PluggableServiceImpl implements PluggableService, InstallService, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
+
+    public PluggableServiceImpl() {
+        super();
+    }
 
     @Inject
     public PluggableServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock) {
@@ -84,8 +92,19 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
         return DefaultFinder.of(PluggableClass.class, Where.where("pluggableType").isEqualTo(PersistentPluggableClassType.forActualType(type)), this.dataModel);
     }
 
-    public PluggableServiceImpl() {
-        super();
+    @Override
+    public String getComponentName() {
+        return COMPONENTNAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Reference
@@ -139,7 +158,7 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.eventService, this.thesaurus).install(true, true);
+        new Installer(this.dataModel, this.eventService).install(true, true);
     }
 
     @Override
