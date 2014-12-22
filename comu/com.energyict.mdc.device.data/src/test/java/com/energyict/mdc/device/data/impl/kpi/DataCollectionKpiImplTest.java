@@ -56,6 +56,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
@@ -220,6 +221,7 @@ public class DataCollectionKpiImplTest {
             kpiService = injector.getInstance(KpiService.class);
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             meteringService = injector.getInstance(MeteringService.class);
+            injector.getInstance(MasterDataService.class);
             deviceDataModelService = injector.getInstance(DeviceDataModelServiceImpl.class);
             deviceService = deviceDataModelService.deviceService();
 

@@ -8,21 +8,18 @@ import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
-import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
@@ -94,7 +91,6 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected static InboundComPortPool inboundTcpipComPortPool2;
     protected static OutboundComPortPool outboundModemComPortPool;
 
-    protected DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     protected Device device;
     protected Device otherDevice;
     protected PartialInboundConnectionTask partialInboundConnectionTask;
@@ -116,7 +112,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     @Before
     public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration() {
-        this.protocolDialectConfigurationProperties = this.deviceConfiguration.getCommunicationConfiguration().getProtocolDialectConfigurationPropertiesList().get(0);
+        this.protocolDialectConfigurationProperties = this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
     }
 
     public OnlineComServer getOnlineComServer() {
@@ -297,10 +293,6 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         return ipComPortPool;
     }
 
-    protected ServerDeviceService getDeviceDataService() {
-        return inMemoryPersistence.getDeviceService();
-    }
-
     @Before
     public void setupComServers() {
         this.onlineComServer = createComServer("First");
@@ -345,29 +337,27 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         this.comTaskEnablement2 = enableComTask(true, configDialect, comTaskWithLogBooks);
         this.comTaskEnablement3 = enableComTask(true, configDialect, comTaskWithRegisters);
 
-        deviceCommunicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
-
-        partialInboundConnectionTask = deviceCommunicationConfiguration.newPartialInboundConnectionTask("Inbound (1)", inboundNoParamsConnectionTypePluggableClass).
+        partialInboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("Inbound (1)", inboundNoParamsConnectionTypePluggableClass).
                 build();
 
-        partialInboundConnectionTask2 = deviceCommunicationConfiguration.newPartialInboundConnectionTask("Inbound (2)", inboundNoParamsConnectionTypePluggableClass).
+        partialInboundConnectionTask2 = deviceConfiguration.newPartialInboundConnectionTask("Inbound (2)", inboundNoParamsConnectionTypePluggableClass).
                 build();
 
-        partialScheduledConnectionTask = deviceCommunicationConfiguration.newPartialScheduledConnectionTask("Outbound (1)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
+        partialScheduledConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("Outbound (1)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                 comWindow(new ComWindow(0, 7200)).
                 build();
 
-        partialScheduledConnectionTask2 = deviceCommunicationConfiguration.newPartialScheduledConnectionTask("Outbound (2)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
+        partialScheduledConnectionTask2 = deviceConfiguration.newPartialScheduledConnectionTask("Outbound (2)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                 comWindow(new ComWindow(0, 7200)).
                 build();
 
-        partialConnectionInitiationTask = deviceCommunicationConfiguration.newPartialConnectionInitiationTask("Initiation (1)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5)).
+        partialConnectionInitiationTask = deviceConfiguration.newPartialConnectionInitiationTask("Initiation (1)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5)).
                 build();
 
-        partialConnectionInitiationTask2 = deviceCommunicationConfiguration.newPartialConnectionInitiationTask("Initiation (2)", outboundIpConnectionTypePluggableClass, TimeDuration.minutes(5)).
+        partialConnectionInitiationTask2 = deviceConfiguration.newPartialConnectionInitiationTask("Initiation (2)", outboundIpConnectionTypePluggableClass, TimeDuration.minutes(5)).
                 build();
 
-        deviceCommunicationConfiguration.save();
+        deviceConfiguration.save();
 
         PARTIAL_INBOUND_CONNECTION_TASK1_ID = partialInboundConnectionTask.getId();
         PARTIAL_INBOUND_CONNECTION_TASK2_ID = partialInboundConnectionTask2.getId();
@@ -461,18 +451,6 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         comTask.createRegistersTask().add();
         comTask.save();
         return inMemoryPersistence.getTaskService().findComTask(comTask.getId()).get(); // to make sure all elements in the composition are properly loaded
-    }
-
-    protected ComTaskExecution createComTaskExecutionAndSetNextExecutionTimeStamp(Date nextExecutionTimeStamp) {
-        return createComTaskExecutionAndSetNextExecutionTimeStamp(nextExecutionTimeStamp, comTaskEnablement1);
-    }
-
-    protected ScheduledComTaskExecution createComTaskExecutionAndSetNextExecutionTimeStamp(Date nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement) {
-        ScheduledComTaskExecution comTaskExecution = createComTaskExecution(comTaskEnablement);
-        ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
-        comTaskExecutionUpdater.forceNextExecutionTimeStampAndPriority(nextExecutionTimeStamp, 100);
-        comTaskExecutionUpdater.update();
-        return comTaskExecution;
     }
 
     protected ComTaskExecution createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(ConnectionTask<?, ?> connectionTask, Date nextExecutionTimeStamp) {

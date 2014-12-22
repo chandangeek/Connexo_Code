@@ -129,8 +129,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testCreateOfDifferentConfig() {
         DeviceConfiguration mockedDeviceConfiguration = mock(DeviceConfiguration.class);
-        when(mockedDeviceConfiguration.getDeviceConfiguration()).thenReturn(mockedDeviceConfiguration);
-        when(mockedDeviceConfiguration.getCommunicationConfiguration()).thenReturn(mockedDeviceConfiguration);
         PartialScheduledConnectionTask partialScheduledConnectionTask = mock(PartialScheduledConnectionTask.class);
         when(partialScheduledConnectionTask.getId()).thenReturn(PARTIAL_SCHEDULED_CONNECTION_TASK3_ID);
         when(partialScheduledConnectionTask.getName()).thenReturn("testCreateOfDifferentConfig");

@@ -68,9 +68,7 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     private DeviceConfiguration createDeviceConfigWithPartialOutboundConnectionTask() {
         DeviceType.DeviceConfigurationBuilder configurationWithConnectionType = deviceType.newConfiguration("ConfigurationWithPartialOutboundConnectionTask");
         DeviceConfiguration deviceConfiguration = configurationWithConnectionType.add();
-        DeviceCommunicationConfiguration communicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
-        communicationConfiguration.save();
-        addPartialOutboundConnectionTask(communicationConfiguration);
+        addPartialOutboundConnectionTask(deviceConfiguration);
         deviceConfiguration.activate();
         deviceType.save();
         return deviceConfiguration;
@@ -79,9 +77,7 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     private DeviceConfiguration createDeviceConfigWithPartialIpOutboundConnectionTask() {
         DeviceType.DeviceConfigurationBuilder configurationWithConnectionType = deviceType.newConfiguration("ConfigurationWithPartialIpOutboundConnectionTask");
         DeviceConfiguration deviceConfiguration = configurationWithConnectionType.add();
-        DeviceCommunicationConfiguration communicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
-        communicationConfiguration.save();
-        addPartialIpOutboundConnectionTask(communicationConfiguration);
+        addPartialIpOutboundConnectionTask(deviceConfiguration);
         deviceType.save();
         return deviceConfiguration;
     }
@@ -89,9 +85,7 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     private DeviceConfiguration createDeviceConfigWithPartialInboundConnectionTask() {
         DeviceType.DeviceConfigurationBuilder configurationWithConnectionType = deviceType.newConfiguration("ConfigurationWithPartialInboundConnectionTask");
         DeviceConfiguration deviceConfiguration = configurationWithConnectionType.add();
-        DeviceCommunicationConfiguration communicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
-        communicationConfiguration.save();
-        addPartialInboundConnectionTask(communicationConfiguration);
+        addPartialInboundConnectionTask(deviceConfiguration);
         deviceType.save();
         return deviceConfiguration;
     }
@@ -99,9 +93,7 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     private DeviceConfiguration createDeviceConfigWithPartialIpInboundConnectionTask() {
         DeviceType.DeviceConfigurationBuilder configurationWithConnectionType = deviceType.newConfiguration("ConfigurationWithPartialInboundConnectionTask");
         DeviceConfiguration deviceConfiguration = configurationWithConnectionType.add();
-        DeviceCommunicationConfiguration communicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
-        communicationConfiguration.save();
-        addPartialInboundConnectionTask(communicationConfiguration);
+        addPartialInboundConnectionTask(deviceConfiguration);
         deviceType.save();
         return deviceConfiguration;
     }
@@ -109,9 +101,7 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     private DeviceConfiguration createDeviceConfigWithPartialConnectionInitiationTask() {
         DeviceType.DeviceConfigurationBuilder configurationWithConnectionType = deviceType.newConfiguration("ConfigurationWithPartialConnectionInitiationTask");
         DeviceConfiguration deviceConfiguration = configurationWithConnectionType.add();
-        DeviceCommunicationConfiguration communicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
-        communicationConfiguration.save();
-        addPartialConnectionInitiationConnectionTask(communicationConfiguration);
+        addPartialConnectionInitiationConnectionTask(deviceConfiguration);
         deviceConfiguration.activate();
         deviceType.save();
         return deviceConfiguration;
@@ -120,24 +110,22 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     private DeviceConfiguration createDeviceConfigWithThreeTypesOfPartialsTask() {
         DeviceType.DeviceConfigurationBuilder configurationWithConnectionType = deviceType.newConfiguration("ConfigurationWithThreePartials");
         DeviceConfiguration deviceConfiguration = configurationWithConnectionType.add();
-        DeviceCommunicationConfiguration communicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
-        communicationConfiguration.save();
-        addPartialOutboundConnectionTask(communicationConfiguration);
-        addPartialInboundConnectionTask(communicationConfiguration);
-        addPartialConnectionInitiationConnectionTask(communicationConfiguration);
+        addPartialOutboundConnectionTask(deviceConfiguration);
+        addPartialInboundConnectionTask(deviceConfiguration);
+        addPartialConnectionInitiationConnectionTask(deviceConfiguration);
         deviceType.save();
         return deviceConfiguration;
     }
 
-    private void addPartialOutboundConnectionTask(DeviceCommunicationConfiguration communicationConfiguration) {
+    private void addPartialOutboundConnectionTask(DeviceConfiguration communicationConfiguration) {
         addPartialOutboundConnectionTaskFor(communicationConfiguration, this.connectionTypeOutboundPluggableClass);
     }
 
-    private void addPartialIpOutboundConnectionTask(DeviceCommunicationConfiguration communicationConfiguration) {
+    private void addPartialIpOutboundConnectionTask(DeviceConfiguration communicationConfiguration) {
         addPartialOutboundConnectionTaskFor(communicationConfiguration, this.ipConnectionTypePluggableClass);
     }
 
-    private void addPartialOutboundConnectionTaskFor(DeviceCommunicationConfiguration communicationConfiguration, ConnectionTypePluggableClass connectionTypePluggableClass) {
+    private void addPartialOutboundConnectionTaskFor(DeviceConfiguration communicationConfiguration, ConnectionTypePluggableClass connectionTypePluggableClass) {
         PartialScheduledConnectionTaskBuilder partialScheduledConnectionTaskBuilder = communicationConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, TimeDuration.seconds(60), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
@@ -146,27 +134,27 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         communicationConfiguration.save();
     }
 
-    private void addPartialInboundConnectionTask(DeviceCommunicationConfiguration communicationConfiguration) {
-        addPartialInboundConnectionTaskFor(communicationConfiguration, this.connectionTypeInboundPluggableClass);
+    private void addPartialInboundConnectionTask(DeviceConfiguration deviceConfiguration) {
+        addPartialInboundConnectionTaskFor(deviceConfiguration, this.connectionTypeInboundPluggableClass);
     }
 
-    private void addPartialIpInboundConnectionTask(DeviceCommunicationConfiguration communicationConfiguration) {
-        addPartialInboundConnectionTaskFor(communicationConfiguration, this.ipConnectionTypePluggableClass);
+    private void addPartialIpInboundConnectionTask(DeviceConfiguration deviceConfiguration) {
+        addPartialInboundConnectionTaskFor(deviceConfiguration, this.ipConnectionTypePluggableClass);
     }
 
-    private void addPartialInboundConnectionTaskFor(DeviceCommunicationConfiguration communicationConfiguration, ConnectionTypePluggableClass connectionTypePluggableClass) {
-        PartialInboundConnectionTaskBuilder partialInboundConnectionTaskBuilder = communicationConfiguration.newPartialInboundConnectionTask("MyInboundConnectionTask", connectionTypePluggableClass)
+    private void addPartialInboundConnectionTaskFor(DeviceConfiguration deviceConfiguration, ConnectionTypePluggableClass connectionTypePluggableClass) {
+        PartialInboundConnectionTaskBuilder partialInboundConnectionTaskBuilder = deviceConfiguration.newPartialInboundConnectionTask("MyInboundConnectionTask", connectionTypePluggableClass)
                 .comPortPool(inboundComPortPool)
                 .asDefault(false);
         partialInboundConnectionTask = partialInboundConnectionTaskBuilder.build();
-        communicationConfiguration.save();
+        deviceConfiguration.save();
     }
 
-    private void addPartialConnectionInitiationConnectionTask(DeviceCommunicationConfiguration communicationConfiguration) {
-        PartialConnectionInitiationTaskBuilder partialConnectionInitiationTaskBuilder = communicationConfiguration.newPartialConnectionInitiationTask("MyConnectionInitiationTask", connectionTypeOutboundPluggableClass, TimeDuration.seconds(60))
+    private void addPartialConnectionInitiationConnectionTask(DeviceConfiguration deviceConfiguration) {
+        PartialConnectionInitiationTaskBuilder partialConnectionInitiationTaskBuilder = deviceConfiguration.newPartialConnectionInitiationTask("MyConnectionInitiationTask", connectionTypeOutboundPluggableClass, TimeDuration.seconds(60))
                 .comPortPool(outboundComPortPool);
         partialConnectionInitiationTask = partialConnectionInitiationTaskBuilder.build();
-        communicationConfiguration.save();
+        deviceConfiguration.save();
     }
 
     @Before

@@ -3,9 +3,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
@@ -36,12 +34,9 @@ import static org.mockito.Mockito.when;
  */
 public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
 
-    private ConnectionTask.ConnectionTaskLifecycleStatus status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
-    private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
-
     @Before
     public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration() {
-        this.protocolDialectConfigurationProperties = this.deviceConfiguration.getCommunicationConfiguration().getProtocolDialectConfigurationPropertiesList().get(0);
+        this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
     }
 
     @Test
@@ -168,10 +163,6 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     // Todo (JP-1122): enable this test when done
     @Ignore
     public void testCreateOfDifferentConfig() {
-        DeviceConfiguration mockCommunicationConfig = mock(DeviceConfiguration.class);
-        when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
-        when(deviceConfiguration.getCommunicationConfiguration()).thenReturn(mockCommunicationConfig);
-        when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         PartialConnectionInitiationTask partialConnectionInitiationTask = mock(PartialConnectionInitiationTask.class);
         when(partialConnectionInitiationTask.getId()).thenReturn(PARTIAL_CONNECTION_INITIATION_TASK2_ID);
         when(partialConnectionInitiationTask.getName()).thenReturn("testCreateOfDifferentConfig");

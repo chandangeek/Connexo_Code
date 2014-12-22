@@ -21,9 +21,9 @@ public class PartialConnectionTaskNotPartOfDeviceConfigurationException extends 
         super(thesaurus,
                 MessageSeeds.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_NOT_IN_CONFIGURATION,
                 partialConnectionTask.getId(),
-                partialConnectionTask.getConfiguration().getDeviceConfiguration().getId());
+                partialConnectionTask.getConfiguration().getId());
         this.set("partialConnectionTaskId", partialConnectionTask.getId());
-        this.set("partialConnectionTaskConfigurationId", partialConnectionTask.getConfiguration().getDeviceConfiguration().getId());
+        this.set("partialConnectionTaskConfigurationId", partialConnectionTask.getConfiguration().getId());
         this.set("expectedConfigurationId", device.getDeviceConfiguration().getId());
     }
 

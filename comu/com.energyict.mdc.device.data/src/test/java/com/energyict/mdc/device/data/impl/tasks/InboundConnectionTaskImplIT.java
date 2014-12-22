@@ -5,7 +5,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.DuplicateConnectionTaskException;
@@ -37,8 +36,6 @@ import static org.mockito.Mockito.*;
  * Time: 10:49
  */
 public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
-
-    private ConnectionTask.ConnectionTaskLifecycleStatus status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
 
     @Test
     @Transactional
@@ -127,12 +124,8 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     // Todo (JP-1122): enable this test when done
     @Ignore
     public void testCreateOfDifferentConfig() {
-        DeviceConfiguration mockCommunicationConfig = mock(DeviceConfiguration.class);
-        when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
-        when(deviceConfiguration.getCommunicationConfiguration()).thenReturn(mockCommunicationConfig);
-        when(mockCommunicationConfig.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         PartialInboundConnectionTask partialInboundConnectionTask = mock(PartialInboundConnectionTask.class);
-        when(partialInboundConnectionTask.getId()).thenReturn((long) PARTIAL_INBOUND_CONNECTION_TASK3_ID);
+        when(partialInboundConnectionTask.getId()).thenReturn(PARTIAL_INBOUND_CONNECTION_TASK3_ID);
         when(partialInboundConnectionTask.getName()).thenReturn("testCreateOfDifferentConfig");
         when(partialInboundConnectionTask.getConfiguration()).thenReturn(deviceConfiguration);
         when(partialInboundConnectionTask.getPluggableClass()).thenReturn(inboundNoParamsConnectionTypePluggableClass);

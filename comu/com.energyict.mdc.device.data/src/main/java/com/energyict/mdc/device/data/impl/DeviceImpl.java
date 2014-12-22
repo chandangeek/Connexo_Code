@@ -690,7 +690,7 @@ public class DeviceImpl implements Device, CanLock {
 
     private ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties(String dialectName) {
         List<ProtocolDialectConfigurationProperties> allConfigurationProperties =
-                this.getDeviceConfiguration().getCommunicationConfiguration().getProtocolDialectConfigurationPropertiesList();
+                this.getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList();
         for (ProtocolDialectConfigurationProperties configurationProperties : allConfigurationProperties) {
             if (configurationProperties.getDeviceProtocolDialectName().equals(dialectName)) {
                 return configurationProperties;
@@ -745,11 +745,9 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private boolean isSecurityPropertySetComplete(SecurityPropertySet securityPropertySet, TypedProperties typedProperties){
-        if (securityPropertySet.getPropertySpecs().stream().anyMatch(p -> p.isRequired() && typedProperties.getLocalValue(p.getName()) == null)) {
-            return false;
-        } else {
-            return true;
-        }
+        return !securityPropertySet.getPropertySpecs()
+                    .stream()
+                    .anyMatch(p -> p.isRequired() && !typedProperties.hasLocalValueFor(p.getName()));
     }
 
     private void addDeviceProperty(String name, String propertyValue) {

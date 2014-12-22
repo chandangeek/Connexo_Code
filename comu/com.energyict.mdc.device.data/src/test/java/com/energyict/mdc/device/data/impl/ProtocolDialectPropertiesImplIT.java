@@ -123,10 +123,8 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
                 deviceType.save();
                 deviceConfiguration.activate();
 
-                DeviceCommunicationConfiguration deviceCommunicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
-                deviceCommunicationConfiguration.save();
-                protocolDialect1ConfigurationProperties = deviceCommunicationConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
-                protocolDialect2ConfigurationProperties = deviceCommunicationConfiguration.getProtocolDialectConfigurationPropertiesList().get(1);
+                protocolDialect1ConfigurationProperties = deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
+                protocolDialect2ConfigurationProperties = deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(1);
             }
         });
     }
@@ -158,13 +156,12 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         deviceConfiguration = inMemoryPersistence.getDeviceConfigurationService()
                                     .findDeviceConfiguration(deviceConfiguration.getId())
                                     .orElseThrow(() -> new RuntimeException("Failure to reload device configuration before running next test"));
-        DeviceCommunicationConfiguration communicationConfiguration = deviceConfiguration.getCommunicationConfiguration();
-        protocolDialect1ConfigurationProperties = this.getProtocolDialectConfigurationPropertiesFromConfiguration(communicationConfiguration, DIALECT_1_NAME);
-        protocolDialect2ConfigurationProperties = getProtocolDialectConfigurationPropertiesFromConfiguration(communicationConfiguration, DIALECT_2_NAME);
+        protocolDialect1ConfigurationProperties = this.getProtocolDialectConfigurationPropertiesFromConfiguration(deviceConfiguration, DIALECT_1_NAME);
+        protocolDialect2ConfigurationProperties = this.getProtocolDialectConfigurationPropertiesFromConfiguration(deviceConfiguration, DIALECT_2_NAME);
     }
 
-    private ProtocolDialectConfigurationProperties getProtocolDialectConfigurationPropertiesFromConfiguration(DeviceCommunicationConfiguration communicationConfiguration, String dialectName) {
-        for (ProtocolDialectConfigurationProperties configurationProperties : communicationConfiguration.getProtocolDialectConfigurationPropertiesList()) {
+    private ProtocolDialectConfigurationProperties getProtocolDialectConfigurationPropertiesFromConfiguration(DeviceConfiguration deviceConfiguration, String dialectName) {
+        for (ProtocolDialectConfigurationProperties configurationProperties : deviceConfiguration.getProtocolDialectConfigurationPropertiesList()) {
             if (configurationProperties.getDeviceProtocolDialectName().equals(dialectName)) {
                 return configurationProperties;
             }

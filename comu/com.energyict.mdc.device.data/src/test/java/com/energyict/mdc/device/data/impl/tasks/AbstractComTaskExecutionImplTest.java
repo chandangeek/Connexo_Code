@@ -56,11 +56,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration () {
         deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
         deviceConfiguration.save();
-        this.protocolDialectConfigurationProperties = this.deviceConfiguration.getCommunicationConfiguration().getProtocolDialectConfigurationPropertiesList().get(0);
-    }
-
-    protected ComTask createComTaskWithBasicCheck() {
-        return createComTaskWithBasicCheck(COM_TASK_NAME);
+        this.protocolDialectConfigurationProperties = this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
     }
 
     protected ComTask createComTaskWithBasicCheck(String comTaskName) {
@@ -142,7 +138,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
                             OutboundNoParamsConnectionTypeImpl.class.getSimpleName(),
                             OutboundNoParamsConnectionTypeImpl.class.getName());
         connectionTypePluggableClass.save();
-        return deviceConfiguration.getCommunicationConfiguration().
+        return deviceConfiguration.
                 newPartialScheduledConnectionTask(
                         "Outbound (1)",
                         connectionTypePluggableClass,

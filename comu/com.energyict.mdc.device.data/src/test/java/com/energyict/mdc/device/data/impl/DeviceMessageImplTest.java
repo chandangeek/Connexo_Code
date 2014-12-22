@@ -145,8 +145,14 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         Device device = createSimpleDeviceWithName("createWithoutUserTest", "createWithoutUserTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
 
-        inMemoryPersistence.getThreadPrincipalService().set(null);
-        device.newDeviceMessage(contactorClose).setReleaseDate(releaseInstant).add();
+        Principal principal = inMemoryPersistence.getThreadPrincipalService().getPrincipal();
+        try {
+            inMemoryPersistence.getThreadPrincipalService().set(null);
+            device.newDeviceMessage(contactorClose).setReleaseDate(releaseInstant).add();
+        }
+        finally {
+            inMemoryPersistence.getThreadPrincipalService().set(principal);
+        }
     }
 
     @Test
@@ -680,7 +686,6 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         primitiveUser.save();
         inMemoryPersistence.getThreadPrincipalService().set(primitiveUser);
     }
-
 
     public static class MessageTestDeviceProtocol implements DeviceProtocol {
 

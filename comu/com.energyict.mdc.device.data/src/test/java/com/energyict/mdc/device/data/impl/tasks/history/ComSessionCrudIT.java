@@ -67,6 +67,7 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
@@ -245,6 +246,7 @@ public class ComSessionCrudIT {
         try (TransactionContext ctx = transactionService.getContext()) {
             ormService = injector.getInstance(OrmService.class);
             injector.getInstance(MeteringGroupsService.class);
+            injector.getInstance(MasterDataService.class);
             deviceDataModelService = injector.getInstance(DeviceDataModelServiceImpl.class);
             deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
