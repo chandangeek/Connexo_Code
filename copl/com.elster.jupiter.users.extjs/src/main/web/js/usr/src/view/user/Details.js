@@ -82,11 +82,6 @@ Ext.define('Usr.view.user.Details', {
                                     xtype: 'displayfield',
                                     name: 'language',
                                     fieldLabel: Uni.I18n.translate('user.language', 'USR', 'Language')
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'currency',
-                                    fieldLabel: Uni.I18n.translate('user.currency', 'USR', 'Currency')
                                 }
                             ]
                         },
