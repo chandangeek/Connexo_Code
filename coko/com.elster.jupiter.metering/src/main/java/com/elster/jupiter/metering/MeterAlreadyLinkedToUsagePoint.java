@@ -5,8 +5,8 @@ import com.elster.jupiter.nls.Thesaurus;
 
 public class MeterAlreadyLinkedToUsagePoint extends LocalizedException {
 
-    protected MeterAlreadyLinkedToUsagePoint(Thesaurus thesaurus, Meter meter, UsagePoint prior) {
-        super(thesaurus, MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT, meter.getName(), prior.getName());
+    public MeterAlreadyLinkedToUsagePoint(Thesaurus thesaurus, MeterActivation meterActivation) {
+        super(thesaurus, MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT, meterActivation.getMeter().map(Meter::getName).orElse(""), meterActivation.getUsagePoint().get().getName());
     }
 
 }

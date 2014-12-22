@@ -6,9 +6,11 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeterAlreadyLinkedToUsagePoint;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -51,13 +53,15 @@ public class MeterActivationImpl implements MeterActivation {
     private final EventService eventService;
     private final Clock clock;
     private final Provider<ChannelBuilder> channelBuilder;
+    private final Thesaurus thesaurus;
 
     @Inject
-	MeterActivationImpl(DataModel dataModel, EventService eventService, Clock clock, Provider<ChannelBuilder> channelBuilder) {
+	MeterActivationImpl(DataModel dataModel, EventService eventService, Clock clock, Provider<ChannelBuilder> channelBuilder, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.clock = clock;
         this.channelBuilder = channelBuilder;
+        this.thesaurus = thesaurus;
     }
 	
 	MeterActivationImpl init(Meter meter , UsagePoint usagePoint , Instant start ) {
@@ -250,7 +254,7 @@ public class MeterActivationImpl implements MeterActivation {
 	@Override
 	public void setUsagePoint(UsagePoint usagePoint) {		
 		if (this.usagePoint.isPresent()) {
-			throw new RuntimeException("MeterActivation is already linked with usagepoint");
+			throw new MeterAlreadyLinkedToUsagePoint(thesaurus, this);
 		}
 		this.usagePoint.set(usagePoint);
 		this.save();

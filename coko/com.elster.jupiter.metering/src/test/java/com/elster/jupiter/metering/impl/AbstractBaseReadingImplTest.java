@@ -96,7 +96,7 @@ public abstract class AbstractBaseReadingImplTest {
 				return new ChannelBuilderImpl(dataModel, channelFactory);
 			}
         };
-        meterActivation = new MeterActivationImpl(dataModel, eventService, clock, channelBuilder).init(meter, null, Instant.EPOCH);
+        meterActivation = new MeterActivationImpl(dataModel, eventService, clock, channelBuilder, thesaurus).init(meter, null, Instant.EPOCH);
         ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_PRIMARY_METERED)
         		.measure(MeasurementKind.ENERGY)
         		.in(MetricMultiplier.KILO,ReadingTypeUnit.WATTHOUR)

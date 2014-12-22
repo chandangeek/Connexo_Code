@@ -1,20 +1,20 @@
 package com.elster.jupiter.metering.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.fest.reflect.core.Reflection.field;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.inject.Provider;
-
+import com.elster.jupiter.cbo.MarketRoleKind;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceLocation;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.parties.Party;
+import com.elster.jupiter.parties.PartyRepresentation;
+import com.elster.jupiter.parties.PartyRole;
+import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.users.User;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,21 +24,17 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import com.elster.jupiter.cbo.MarketRoleKind;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.ServiceLocation;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointAccountability;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.parties.Party;
-import com.elster.jupiter.parties.PartyRepresentation;
-import com.elster.jupiter.parties.PartyRole;
-import com.elster.jupiter.parties.PartyService;
-import com.elster.jupiter.users.User;
+import javax.inject.Provider;
 import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.reflect.core.Reflection.field;
+import static org.mockito.Mockito.*;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -83,6 +79,8 @@ public class UsagePointImplTest {
     private Provider<MeterActivationImpl> meterActivationProvider;
     @Mock
     private Provider<UsagePointAccountabilityImpl> accountabilityProvider;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() {
@@ -103,7 +101,7 @@ public class UsagePointImplTest {
         when(meterActivationProvider.get()).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new MeterActivationImpl(dataModel, eventService, clock, channelBuilderProvider);
+                return new MeterActivationImpl(dataModel, eventService, clock, channelBuilderProvider, thesaurus);
             }
         });
         when(accountabilityProvider.get()).thenAnswer(new Answer<Object>() {

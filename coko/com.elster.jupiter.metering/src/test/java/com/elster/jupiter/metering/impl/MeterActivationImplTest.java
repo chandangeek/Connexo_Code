@@ -9,10 +9,10 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeterAlreadyLinkedToUsagePoint;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import java.time.Clock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +22,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.inject.Provider;
-
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -30,7 +30,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.TimeZone;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Mockito.*;
 
@@ -103,7 +103,7 @@ public class MeterActivationImplTest {
         when(idsService.getRecordSpec(anyString(), anyInt())).thenReturn(Optional.of(recordSpec));
         when(clock.getZone()).thenReturn(timeZone.toZoneId());
 
-        meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder).init(meter, usagePoint, ACTIVATION_TIME);
+        meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
     }
 
     @After
@@ -147,6 +147,23 @@ public class MeterActivationImplTest {
         assertThat(channel.getReadingTypes()).isEqualTo(Arrays.asList(readingType1, readingType3));
     }
 
+    @Test
+    public void testSetUsagePoint() {
+        meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, ACTIVATION_TIME);
+
+        assertThat(meterActivation.getUsagePoint()).isAbsent();
+
+        meterActivation.setUsagePoint(usagePoint);
+
+        assertThat(meterActivation.getUsagePoint()).contains(usagePoint);
+    }
+
+    @Test(expected = MeterAlreadyLinkedToUsagePoint.class)
+    public void testSetUsagePointWhenAlreadySet() {
+        meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
+
+        meterActivation.setUsagePoint(usagePoint);
+    }
 
     private void simulateSavedMeterActivation() {
         field("id").ofType(Long.TYPE).in(meterActivation).set(ID);

@@ -4,6 +4,7 @@ import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeterAlreadyActive;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.google.common.collect.Range;
@@ -48,10 +49,12 @@ public class MeterImplTest {
     private Clock clock;
     @Mock
     private Provider<ChannelBuilder> channelBuilderFactory;
+    @Mock
+    private UsagePoint usagePoint;
 
     @Before
     public void setUp() {
-        doAnswer(invocation -> new MeterActivationImpl(dataModel, eventService, clock, channelBuilderFactory)).when(meterActivationFactory).get();
+        doAnswer(invocation -> new MeterActivationImpl(dataModel, eventService, clock, channelBuilderFactory, thesaurus)).when(meterActivationFactory).get();
 
        when(thesaurus.forLocale(any())).thenAnswer(invocation -> invocation.getArguments()[0]);
     }
@@ -65,6 +68,18 @@ public class MeterImplTest {
         assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(START.toInstant()));
         assertThat(meterActivation.getMeter()).contains(meter);
         assertThat(meterActivation.getUsagePoint()).isAbsent();
+
+    }
+
+    @Test
+    public void testActivateWithUsagePoint() {
+        MeterImpl meter = new MeterImpl(dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory);
+
+        MeterActivationImpl meterActivation = meter.activate(usagePoint, START.toInstant());
+
+        assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(START.toInstant()));
+        assertThat(meterActivation.getMeter()).contains(meter);
+        assertThat(meterActivation.getUsagePoint()).contains(usagePoint);
 
     }
 
