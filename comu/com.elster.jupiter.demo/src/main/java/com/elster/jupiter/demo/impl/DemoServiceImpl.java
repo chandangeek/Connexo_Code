@@ -8,7 +8,7 @@ import com.elster.jupiter.demo.impl.generators.IssueCommentGenerator;
 import com.elster.jupiter.demo.impl.generators.IssueGenerator;
 import com.elster.jupiter.demo.impl.generators.IssueReasonGenerator;
 import com.elster.jupiter.demo.impl.generators.IssueRuleGenerator;
-import com.elster.jupiter.demo.impl.generators.KpiGeneratorr;
+import com.elster.jupiter.demo.impl.generators.KpiGenerator;
 import com.elster.jupiter.demo.impl.generators.OutboundTCPComPortGenerator;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -835,8 +835,8 @@ public class DemoServiceImpl implements DemoService {
     }
 
     public void createKpi(){
-        injector.getInstance(KpiGeneratorr.class).withName(KPI_CONNECTION).create();
-        injector.getInstance(KpiGeneratorr.class).withName(KPI_COMMUNICATION).create();
+        injector.getInstance(KpiGenerator.class).withName(KPI_CONNECTION).create();
+        injector.getInstance(KpiGenerator.class).withName(KPI_COMMUNICATION).create();
     }
 
     @Reference
