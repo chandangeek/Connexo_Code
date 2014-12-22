@@ -6,6 +6,7 @@ import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -29,7 +30,7 @@ import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.TopologyTimeline;
+import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -38,9 +39,11 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.jayway.jsonpath.JsonModel;
+
 import org.assertj.core.data.MapEntry;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,6 +52,7 @@ import org.mockito.Matchers;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.Instant;
@@ -872,7 +876,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyTimeline.mostRecentlyAddedOn(slave7)).thenReturn(Optional.of(Instant.ofEpochMilli(70L)));
 
         when(deviceService.findByUniqueMrid("gateway")).thenReturn(gateway);
-        when(deviceService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
+        when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
     }
 
     @Test
@@ -889,7 +893,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyTimeline.mostRecentlyAddedOn(slave2)).thenReturn(Optional.of(Instant.ofEpochMilli(20L)));
 
         when(deviceService.findByUniqueMrid("gateway")).thenReturn(gateway);
-        when(deviceService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
+        when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
 
 
         Map<?, ?> response = target("/devices/gateway/topology/communication")
@@ -950,7 +954,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyTimeline.mostRecentlyAddedOn(slave2)).thenReturn(Optional.of(Instant.ofEpochMilli(20L)));
 
         when(deviceService.findByUniqueMrid("gateway")).thenReturn(gateway);
-        when(deviceService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
+        when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
 
 
         Map<?, ?> response = target("/devices/gateway/topology/communication")
@@ -1031,6 +1035,61 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         infos = DeviceTopologyInfo.from(topologyTimeline);
         assertThat(infos.size()).isEqualTo(1);
     }
+    
+    @Test
+    public void testUpdateMasterDevice() {
+        Device device = mockDeviceForTopologyTest("device");
+        Device gateway = mockDeviceForTopologyTest("gateway");
+        when(deviceService.findByUniqueMrid("device")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("gateway")).thenReturn(gateway);
+        when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
+        when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.empty());
+        Device oldGateway = mockDeviceForTopologyTest("oldGateway");
+        when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldGateway));
+        
+        DeviceInfo info = new DeviceInfo();
+        info.masterDeviceId = gateway.getId();
+        info.masterDevicemRID = gateway.getmRID();
+        
+        Response response = target("/devices/device").request().put(Entity.json(info));
+        
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(topologyService).setPhysicalGateway(device, gateway);
+    }
+    
+    @Test
+    public void testImpossibleToSetMasterDeviceBecauseItIsGateway() {
+        Device device = mockDeviceForTopologyTest("device");
+        DeviceConfiguration deviceConfig = device.getDeviceConfiguration();
+        when(deviceConfig.canBeDirectlyAddressable()).thenReturn(true);
+        when(deviceService.findByUniqueMrid("device")).thenReturn(device);
+        
+        DeviceInfo info = new DeviceInfo();
+        info.masterDeviceId = 1L;
+        info.masterDevicemRID = "1";
+        
+        Response response = target("/devices/device").request().put(Entity.json(info));
+        
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+    
+    @Test
+    public void testDeleteMasterDevice() {
+        Device device = mockDeviceForTopologyTest("device");
+        when(deviceService.findByUniqueMrid("device")).thenReturn(device);
+        when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
+        when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.empty());
+        Device oldMaster = mock(Device.class);
+        when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldMaster));
+        
+        DeviceInfo info = new DeviceInfo();
+        info.masterDevicemRID = null;
+        
+        Response response = target("/devices/device").request().put(Entity.json(info));
+        
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(topologyService).clearPhysicalGateway(device);
+    }
 
     private Device mockDeviceForTopologyTest(String name) {
         Device device = mock(Device.class);
@@ -1043,6 +1102,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device.getSerialNumber()).thenReturn("123456789");
+        DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(pluggableClass.getId()).thenReturn(10L);
         return device;
     }
 

@@ -25,6 +25,7 @@ import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.favorites.FavoritesService;
@@ -53,6 +54,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     ConnectionTaskService connectionTaskService;
     @Mock
     DeviceService deviceService;
+    @Mock
+    TopologyService topologyService;
     @Mock
     DeviceImportService deviceImportService;
     @Mock
@@ -90,7 +93,6 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     FavoritesService favoritesService;
 
-
     @Override
     protected MessageSeed[] getMessageSeeds() {
         return MessageSeeds.values();
@@ -108,6 +110,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setClockService(clock);
         application.setConnectionTaskService(connectionTaskService);
         application.setDeviceService(deviceService);
+        application.setTopologyService(topologyService);
         application.setDeviceImportService(deviceImportService);
         application.setEngineModelService(engineModelService);
         application.setIssueService(issueService);
@@ -146,4 +149,5 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(readingType.isCumulative()).thenReturn(true);
         return readingType;
     }
+
 }

@@ -1,10 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
@@ -15,11 +15,13 @@ import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.TopologyTimeline;
+import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -40,6 +43,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -56,8 +60,10 @@ public class DeviceResource {
 
     private final DeviceImportService deviceImportService;
     private final DeviceService deviceService;
+    private final TopologyService topologyService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final ResourceHelper resourceHelper;
+    private final ExceptionFactory exceptionFactory; 
     private final IssueService issueService;
     private final MeteringService meteringService;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
@@ -83,8 +89,10 @@ public class DeviceResource {
     @Inject
     public DeviceResource(
             ResourceHelper resourceHelper,
+            ExceptionFactory exceptionFactory,
             DeviceImportService deviceImportService,
             DeviceService deviceService,
+            TopologyService topologyService,
             DeviceConfigurationService deviceConfigurationService,
             IssueService issueService,
             MeteringService meteringService,
@@ -109,8 +117,10 @@ public class DeviceResource {
             Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider) {
 
         this.resourceHelper = resourceHelper;
+        this.exceptionFactory = exceptionFactory;
         this.deviceImportService = deviceImportService;
         this.deviceService = deviceService;
+        this.topologyService = topologyService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.issueService = issueService;
         this.meteringService = meteringService;
@@ -171,15 +181,47 @@ public class DeviceResource {
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
 
         this.deviceImportService.addDeviceToBatch(newDevice, info.batch);
-        return DeviceInfo.from(newDevice, getSlaveDevicesForDevice(newDevice), deviceImportService, deviceService, issueService, meteringService);
+        return DeviceInfo.from(newDevice, getSlaveDevicesForDevice(newDevice), deviceImportService, topologyService, issueService, meteringService);
+    }
+    
+    @PUT
+    @Path("/{mRID}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION)
+    public DeviceInfo updateDevice(@PathParam("mRID") String id, DeviceInfo info, @Context SecurityContext securityContext) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+        if (info.masterDevicemRID != null) {
+            updateGateway(device, info.masterDevicemRID);
+        } else {
+            removeGateway(device);
+        }
+        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService, meteringService);
+    }
+
+    private void updateGateway(Device device, String gatewayMRID) {
+        if (device.getDeviceConfiguration().canBeDirectlyAddressable()) {
+            throw exceptionFactory.newException(MessageSeeds.IMPOSSIBLE_TO_SET_MASTER_DEVICE, device.getmRID());
+        }
+        Optional<Device> currentGateway = topologyService.getPhysicalGateway(device);
+        if (!currentGateway.isPresent() || !currentGateway.get().getmRID().equals(gatewayMRID)) {
+            Device newGateway = resourceHelper.findDeviceByMrIdOrThrowException(gatewayMRID);
+            topologyService.setPhysicalGateway(device, newGateway);
+        }
+    }
+
+    private void removeGateway(Device device) {
+        if (topologyService.getPhysicalGateway(device).isPresent()) {
+            topologyService.clearPhysicalGateway(device);
+        }
     }
 
     private List<DeviceTopologyInfo> getSlaveDevicesForDevice(Device device) {
         List<DeviceTopologyInfo> slaves;
         if (GatewayType.LOCAL_AREA_NETWORK.equals(device.getConfigurationGatewayType())) {
-            slaves = DeviceTopologyInfo.from(deviceService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT));
+            slaves = DeviceTopologyInfo.from(topologyService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT));
         } else {
-            slaves = DeviceTopologyInfo.from(device.getPhysicalConnectedDevices());
+            slaves = DeviceTopologyInfo.from(topologyService.findPhysicalConnectedDevices(device));
         }
         return slaves;
     }
@@ -200,7 +242,7 @@ public class DeviceResource {
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public DeviceInfo findDeviceTypeBymRID(@PathParam("mRID") String id, @Context SecurityContext securityContext) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, deviceService, issueService, meteringService);
+        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService, meteringService);
     }
 
     /**
@@ -336,7 +378,7 @@ public class DeviceResource {
             com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_4})    public PagedInfoList getCommunicationReferences(@PathParam("mRID") String id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        TopologyTimeline timeline = deviceService.getPysicalTopologyTimeline(device);
+        TopologyTimeline timeline = topologyService.getPysicalTopologyTimeline(device);
         Predicate<Device> filterPredicate = getFilterForCommunicationTopology(filter);
         Stream<Device> stream = timeline.getAllDevices().stream().filter(filterPredicate)
                 .sorted(Comparator.comparing(Device::getmRID));
@@ -408,4 +450,5 @@ public class DeviceResource {
         }
         return null;
     }
+
 }

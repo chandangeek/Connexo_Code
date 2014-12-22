@@ -33,7 +33,7 @@ public class FakeTransactionService implements TransactionService {
 
     @Override
     public TransactionContext getContext() {
-        return null;
+        return new FakeTransactionContext();
     }
 
     private class FakeTransactionContext implements TransactionContext {

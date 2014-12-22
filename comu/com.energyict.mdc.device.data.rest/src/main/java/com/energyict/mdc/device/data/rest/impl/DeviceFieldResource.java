@@ -1,24 +1,41 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.energyict.mdc.common.rest.FieldResource;
-import com.energyict.mdc.device.data.rest.LogLevelAdapter;
-import com.energyict.mdc.device.data.security.Privileges;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
+import com.energyict.mdc.common.rest.FieldResource;
+import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.energyict.mdc.common.rest.PagedInfoList;
+import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.rest.LogLevelAdapter;
+import com.energyict.mdc.device.data.security.Privileges;
 
 @Path("/field")
 public class DeviceFieldResource extends FieldResource {
+    
+    private final DeviceService deviceService;
 
     @Inject
-    public DeviceFieldResource(NlsService nlsService) {
+    public DeviceFieldResource(NlsService nlsService, DeviceService deviceService) {
         super(nlsService.getThesaurus(DeviceApplication.COMPONENT_NAME, Layer.REST));
+        this.deviceService = deviceService;
     }
     
     @GET
@@ -52,5 +69,22 @@ public class DeviceFieldResource extends FieldResource {
     public Object getLogLevels() {
         return asJsonArrayObjectWithTranslation("logLevels", "logLevel", new LogLevelAdapter().getClientSideValues());
     }
-
+    
+    @GET
+    @Path("/gateways")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.OPERATE_DEVICE_COMMUNICATION})
+    public PagedInfoList getGateways(@QueryParam("search") String search, @QueryParam("excludeDeviceMRID") String excludeDeviceMRID, @BeanParam QueryParameters queryParameters) {
+        Condition condition = Condition.TRUE;
+        if (!Checks.is(search).emptyOrOnlyWhiteSpace()) {
+            condition = condition.and(Where.where("mRID").likeIgnoreCase('%' + search + '%'));
+        }
+        if (!Checks.is(excludeDeviceMRID).emptyOrOnlyWhiteSpace()) {
+            condition = condition.and(Where.where("mRID").isNotEqual(excludeDeviceMRID));
+        }
+        condition = condition.and(Where.where("deviceConfiguration.gatewayType").isNotEqual(GatewayType.NONE));
+        List<Device> devices = deviceService.findAllDevices(condition).from(queryParameters).sorted("mRID", true).find();
+        List<IdWithNameInfo> infos = devices.stream().map(d -> new IdWithNameInfo(d.getId(), d.getmRID())).collect(Collectors.toList());
+        return PagedInfoList.asJson("gateways", infos, queryParameters);
+    }
 }
