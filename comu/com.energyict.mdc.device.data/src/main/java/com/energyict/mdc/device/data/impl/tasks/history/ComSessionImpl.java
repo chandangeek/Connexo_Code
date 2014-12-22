@@ -52,7 +52,10 @@ public class ComSessionImpl implements ComSession {
         CONNECTION_TASK("connectionTask"),
         COMPORT("comPort"),
         COMPORT_POOL("comPortPool"),
-        STATISTICS("statistics"),
+        NUMBER_OF_BYTES_SENT("numberOfBytesSent"),
+        NUMBER_OF_BYTES_READ("numberOfBytesReceived"),
+        NUMBER_OF_PACKETS_SENT("numberOfPacketsSent"),
+        NUMBER_OF_PACKETS_READ("numberOfPacketsReceived"),
         START_DATE("startDate"),
         STOP_DATE("stopDate"),
         TOTAL_TIME("totalMillis"),
@@ -82,7 +85,6 @@ public class ComSessionImpl implements ComSession {
     private Reference<ConnectionTask> connectionTask = ValueReference.absent();
     private Reference<ComPort> comPort = ValueReference.absent();
     private Reference<ComPortPool> comPortPool = ValueReference.absent();
-    private Reference<ComStatistics> statistics = ValueReference.absent();
 
     private Instant startDate;
     private Instant stopDate;
@@ -90,6 +92,10 @@ public class ComSessionImpl implements ComSession {
     private long connectMillis;
     private long talkMillis;
     private long storeMillis;
+    private long numberOfBytesSent;
+    private long numberOfBytesReceived;
+    private long numberOfPacketsSent;
+    private long numberOfPacketsReceived;
 
     private boolean status;
     private ComSession.SuccessIndicator successIndicator;
@@ -111,10 +117,6 @@ public class ComSessionImpl implements ComSession {
         return id;
     }
 
-    void setStatistics(ComStatistics statistics) {
-        this.statistics.set(statistics);
-    }
-
     @Override
     public ConnectionTask getConnectionTask() {
         return connectionTask.get();
@@ -132,7 +134,23 @@ public class ComSessionImpl implements ComSession {
 
     @Override
     public ComStatistics getStatistics() {
-        return statistics.get();
+        return new ComStatisticsImpl(this.numberOfBytesSent, this.numberOfBytesReceived, this.numberOfPacketsSent, this.numberOfPacketsReceived);
+    }
+
+    void setNumberOfBytesSent(long numberOfBytesSent) {
+        this.numberOfBytesSent = numberOfBytesSent;
+    }
+
+    void setNumberOfBytesReceived(long numberOfBytesReceived) {
+        this.numberOfBytesReceived = numberOfBytesReceived;
+    }
+
+    void setNumberOfPacketsSent(long numberOfPacketsSent) {
+        this.numberOfPacketsSent = numberOfPacketsSent;
+    }
+
+    void setNumberOfPacketsReceived(long numberOfPacketsReceived) {
+        this.numberOfPacketsReceived = numberOfPacketsReceived;
     }
 
     @Override

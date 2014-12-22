@@ -43,7 +43,6 @@ public interface ComSessionBuilder extends BuildsStatistics<ComSessionBuilder> {
     EndedComSessionBuilder endSession(Instant stopTime, ComSession.SuccessIndicator successIndicator);
 
     public interface EndedComSessionBuilder {
-
         ComSession create();
     }
 

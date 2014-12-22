@@ -5,15 +5,12 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.device.data.tasks.history.ComStatistics;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.tasks.ComTask;
 
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
@@ -23,9 +20,7 @@ import java.lang.reflect.Proxy;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -41,8 +36,6 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         private final LongCounter receivedBytes = Counters.newStrictLongCounter();
         private final LongCounter sentPackets = Counters.newStrictLongCounter();
         private final LongCounter receivedPackets = Counters.newStrictLongCounter();
-
-        private final DataModel dataModel;
 
         private ComSessionImpl comSession;
 
@@ -98,31 +91,19 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
             comSession.setSuccessIndicator(successIndicator);
 
             final ComSessionImpl completeComSession = comSession;
-            final ComStatisticsImpl comStatistics = dataModel.getInstance(ComStatisticsImpl.class);
-            comStatistics.setNumberOfBytesReceived(receivedBytes.getValue());
-            comStatistics.setNrOfBytesSent(sentBytes.getValue());
-            comStatistics.setNrOfPacketsReceived(receivedPackets.getValue());
-            comStatistics.setNrOfPacketsSent(sentPackets.getValue());
-            final Map<ComTaskExecutionSession, ComStatistics> statisticsMap = new HashMap<>();
+            completeComSession.setNumberOfBytesReceived(receivedBytes.getValue());
+            completeComSession.setNumberOfBytesSent(sentBytes.getValue());
+            completeComSession.setNumberOfPacketsReceived(receivedPackets.getValue());
+            completeComSession.setNumberOfPacketsSent(sentPackets.getValue());
             for (ComTaskExecutionSessionBuilderImpl comTaskExecutionSessionBuilder : comTaskExecutions) {
-                ComTaskExecutionSession comTaskExecutionSession = comTaskExecutionSessionBuilder.addTo(completeComSession);
-                ComStatisticsImpl stats = dataModel.getInstance(ComStatisticsImpl.class);
-                stats.setNumberOfBytesReceived(comTaskExecutionSessionBuilder.getReceivedBytes());
-                stats.setNrOfBytesSent(comTaskExecutionSessionBuilder.getSentBytes());
-                stats.setNrOfPacketsReceived(comTaskExecutionSessionBuilder.getReceivedPackets());
-                stats.setNrOfPacketsSent(comTaskExecutionSessionBuilder.getSentPackets());
-                statisticsMap.put(comTaskExecutionSession, stats);
+                ComTaskExecutionSessionImpl comTaskExecutionSession = comTaskExecutionSessionBuilder.addTo(completeComSession);
+                comTaskExecutionSession.setNumberOfBytesReceived(comTaskExecutionSessionBuilder.getReceivedBytes());
+                comTaskExecutionSession.setNumberOfBytesSent(comTaskExecutionSessionBuilder.getSentBytes());
+                comTaskExecutionSession.setNumberOfPacketsReceived(comTaskExecutionSessionBuilder.getReceivedPackets());
+                comTaskExecutionSession.setNumberOfPacketsSent(comTaskExecutionSessionBuilder.getSentPackets());
             }
 
             return () -> {
-                DataMapper<ComStatistics> statisticsDataMapper = dataModel.mapper(ComStatistics.class);
-                for (Map.Entry<ComTaskExecutionSession, ComStatistics> entry : statisticsMap.entrySet()) {
-                    ComStatistics stats = entry.getValue();
-                    statisticsDataMapper.persist(stats);
-                    entry.getKey().setStatistics(stats);
-                }
-                statisticsDataMapper.persist(comStatistics);
-                completeComSession.setStatistics(comStatistics);
                 completeComSession.save();
                 return completeComSession;
             };
@@ -193,7 +174,6 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         }
 
         private UnderConstruction(DataModel dataModel, ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Instant startTime) {
-            this.dataModel = dataModel;
             comSession = ComSessionImpl.from(dataModel, connectionTask, comPortPool, comPort, startTime);
         }
     }

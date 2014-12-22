@@ -87,35 +87,6 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.kpi.KpiService;
-import com.elster.jupiter.kpi.impl.KpiModule;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
-import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.tasks.impl.TaskModule;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -435,10 +406,12 @@ public class ComSessionCrudIT {
 
         ComSession foundSession = found.get();
 
-        assertThat(foundSession.getStatistics().getNrOfBytesReceived()).isEqualTo(128);
-        assertThat(foundSession.getStatistics().getNrOfBytesSent()).isEqualTo(64);
-        assertThat(foundSession.getStatistics().getNrOfPacketsReceived()).isEqualTo(32);
-        assertThat(foundSession.getStatistics().getNrOfPacketsSent()).isEqualTo(16);
+        ComStatistics statistics = foundSession.getStatistics();
+        assertThat(statistics).isNotNull();
+        assertThat(statistics.getNumberOfBytesReceived()).isEqualTo(128);
+        assertThat(statistics.getNumberOfBytesSent()).isEqualTo(64);
+        assertThat(statistics.getNumberOfPacketsReceived()).isEqualTo(32);
+        assertThat(statistics.getNumberOfPacketsSent()).isEqualTo(16);
 
         assertThat(foundSession.getNumberOfSuccessFulTasks()).isEqualTo(3);
         assertThat(foundSession.getNumberOfFailedTasks()).isEqualTo(2);
@@ -570,10 +543,10 @@ public class ComSessionCrudIT {
         ComStatistics comStatistics = comTaskExecutionSession.getStatistics();
         assertThat(comStatistics).isNotNull();
 
-        assertThat(comStatistics.getNrOfBytesSent()).isEqualTo(128);
-        assertThat(comStatistics.getNrOfBytesReceived()).isEqualTo(64);
-        assertThat(comStatistics.getNrOfPacketsSent()).isEqualTo(32);
-        assertThat(comStatistics.getNrOfPacketsReceived()).isEqualTo(16);
+        assertThat(comStatistics.getNumberOfBytesSent()).isEqualTo(128);
+        assertThat(comStatistics.getNumberOfBytesReceived()).isEqualTo(64);
+        assertThat(comStatistics.getNumberOfPacketsSent()).isEqualTo(32);
+        assertThat(comStatistics.getNumberOfPacketsReceived()).isEqualTo(16);
     }
 
     @Test

@@ -1,97 +1,47 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
-import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.data.tasks.history.ComStatistics;
 
-import java.util.Date;
-
 /**
- * Copyrights EnergyICT
+ * Provides an implementation for the {@link ComStatistics} interface.
+ *
  * User: sva
  * Date: 23/04/12
  * Time: 16:02
  */
-public class ComStatisticsImpl implements ComStatistics, HasId {
+public class ComStatisticsImpl implements ComStatistics {
 
-    private long id;
-    private long nrOfBytesSent;
-    private long nrOfBytesReceived;
-    private long nrOfPacketsSent;
-    private long nrOfPacketsReceived;
-    private Date modDate;
+    private final long numberOfBytesSent;
+    private final long numberOfBytesReceived;
+    private final long numberOfPacketsSent;
+    private final long numberOfPacketsReceived;
 
-
-//    private void validate(ComStatisticsShadow shadow) throws BusinessException {
-//        validateNotNegative(shadow.getNrOfBytesSent(), "comstatistics.nrofbytessent");
-//        validateNotNegative(shadow.getNrOfBytesRead(), "comstatistics.nrofbytesread");
-//        validateNotNegative(shadow.getNrOfPacketsSent(), "comstatistics.nrofpacketssent");
-//        validateNotNegative(shadow.getNrOfPacketsRead(), "comstatistics.nrofbpacketssent");
-//    }
-
-//    private void validateNotNegative (long propertyValue, String propertyName) throws InvalidValueException {
-//        if (propertyValue < 0) {
-//            throw new InvalidValueException("XcannotBeNegative", "\"{0}\" should be a positive number", propertyName);
-//        }
-//    }
-
-    /**
-     * Gets the number of bytes sent during the ComSession
-     *
-     * @return The number of bytes sent
-     */
-    @Override
-    public long getNrOfBytesSent() {
-        return nrOfBytesSent;
-    }
-
-    /**
-     * Gets the number of bytes received during the ComSession
-     *
-     * @return The number of bytes received
-     */
-    @Override
-    public long getNrOfBytesReceived() {
-        return nrOfBytesReceived;
-    }
-
-    /**
-     * Gets the number of packets sent during the ComSession
-     *
-     * @return The number of packets sent
-     */
-    @Override
-    public long getNrOfPacketsSent() {
-        return nrOfPacketsSent;
-    }
-
-    /**
-     * Gets the number of packets received during the ComSession
-     *
-     * @return The number of packets received
-     */
-    @Override
-    public long getNrOfPacketsReceived() {
-        return nrOfPacketsReceived;
+    public ComStatisticsImpl(long numberOfBytesSent, long numberOfBytesReceived, long numberOfPacketsSent, long numberOfPacketsReceived) {
+        super();
+        this.numberOfBytesSent = numberOfBytesSent;
+        this.numberOfBytesReceived = numberOfBytesReceived;
+        this.numberOfPacketsSent = numberOfPacketsSent;
+        this.numberOfPacketsReceived = numberOfPacketsReceived;
     }
 
     @Override
-    public long getId() {
-        return id;
+    public long getNumberOfBytesSent() {
+        return numberOfBytesSent;
     }
 
-     void setNumberOfBytesReceived(long value) {
-        nrOfBytesReceived = value;
+    @Override
+    public long getNumberOfBytesReceived() {
+        return numberOfBytesReceived;
     }
 
-    void setNrOfBytesSent(long nrOfBytesSent) {
-        this.nrOfBytesSent = nrOfBytesSent;
+    @Override
+    public long getNumberOfPacketsSent() {
+        return numberOfPacketsSent;
     }
 
-    void setNrOfPacketsSent(long nrOfPacketsSent) {
-        this.nrOfPacketsSent = nrOfPacketsSent;
+    @Override
+    public long getNumberOfPacketsReceived() {
+        return numberOfPacketsReceived;
     }
 
-    void setNrOfPacketsReceived(long nrOfPacketsReceived) {
-        this.nrOfPacketsReceived = nrOfPacketsReceived;
-    }
 }

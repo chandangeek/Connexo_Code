@@ -138,6 +138,4 @@ public interface ComTaskExecutionSession extends HasId {
 
     }
 
-    void setStatistics(ComStatistics stats);
-
 }

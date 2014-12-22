@@ -1,11 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.kpi.KpiService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.ConnectionTaskFields;
@@ -20,7 +14,6 @@ import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionJournalEntryImpl;
-import com.energyict.mdc.device.data.impl.tasks.history.ComStatisticsImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComTaskExecutionJournalEntryImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComTaskExecutionSessionImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
@@ -28,7 +21,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
-import com.energyict.mdc.device.data.tasks.history.ComStatistics;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -37,7 +29,13 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-import java.util.List;
+
+import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.ColumnConversion.DATE2INSTANT;
@@ -48,8 +46,6 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2INSTANT;
-
-import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
@@ -278,20 +274,6 @@ public enum TableSpecs {
         }
     },
 
-    DDC_COMSTATISTICS {
-        @Override
-        public void addTo(DataModel dataModel) {
-            Table<ComStatistics> table = dataModel.addTable(name(), ComStatistics.class);
-            table.map(ComStatisticsImpl.class);
-            Column id = table.addAutoIdColumn();
-            table.column("BYTESSENT").number().conversion(NUMBER2LONG).notNull().map("nrOfBytesSent").add();
-            table.column("BYTESREAD").number().conversion(NUMBER2LONG).notNull().map("nrOfBytesReceived").add();
-            table.column("PACKETSSENT").number().conversion(NUMBER2LONG).notNull().map("nrOfPacketsSent").add();
-            table.column("PACKETSREAD").number().conversion(NUMBER2LONG).notNull().map("nrOfPacketsReceived").add();
-            table.column("MOD_DATE").type("DATE").map("modDate").add();
-            table.primaryKey("PK_DDC_COMSTATISTICS").on(id).add();
-        }
-    },
     DDC_COMSESSION {
         @Override
         public void addTo(DataModel dataModel) {
@@ -301,7 +283,6 @@ public enum TableSpecs {
             Column connectionTask = table.column("CONNECTIONTASK").number().notNull().add();
             Column comport = table.column("COMPORT").number().notNull().add();
             Column comportPool = table.column("COMPORTPOOL").number().notNull().add();
-            Column statistics = table.column("COMSTATISTICS").number().notNull().add();
             table.column("STARTDATE").number().conversion(NUMBER2INSTANT).notNull().map(ComSessionImpl.Fields.START_DATE.fieldName()).add();
             table.column("STOPDATE").number().conversion(NUMBER2INSTANT).notNull().map(ComSessionImpl.Fields.STOP_DATE.fieldName()).add();
             table.column("TOTALMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.TOTAL_TIME.fieldName()).add();
@@ -309,16 +290,15 @@ public enum TableSpecs {
             table.column("TALKMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.TALK_MILLIS.fieldName()).add();
             table.column("STOREMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.STORE_MILLIS.fieldName()).add();
             table.column("SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).notNull().map(ComSessionImpl.Fields.SUCCESS_INDICATOR.fieldName()).add();
+            table.column("BYTESSENT").number().conversion(NUMBER2LONG).notNull().map(ComSessionImpl.Fields.NUMBER_OF_BYTES_SENT.fieldName()).add();
+            table.column("BYTESREAD").number().conversion(NUMBER2LONG).notNull().map(ComSessionImpl.Fields.NUMBER_OF_BYTES_READ.fieldName()).add();
+            table.column("PACKETSSENT").number().conversion(NUMBER2LONG).notNull().map(ComSessionImpl.Fields.NUMBER_OF_PACKETS_SENT.fieldName()).add();
+            table.column("PACKETSREAD").number().conversion(NUMBER2LONG).notNull().map(ComSessionImpl.Fields.NUMBER_OF_PACKETS_READ.fieldName()).add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map(ComSessionImpl.Fields.MODIFICATION_DATE.fieldName()).add();
             table.column("TASKSUCCESSCOUNT").number().conversion(NUMBER2INT).notNull().map(ComSessionImpl.Fields.TASK_SUCCESS_COUNT.fieldName()).add();
             table.column("TASKFAILURECOUNT").number().conversion(NUMBER2INT).notNull().map(ComSessionImpl.Fields.TASK_FAILURE_COUNT.fieldName()).add();
             table.column("TASKNOTEXECUTEDCOUNT").number().conversion(NUMBER2INT).notNull().map(ComSessionImpl.Fields.TASK_NOT_EXECUTED_COUNT.fieldName()).add();
             table.column("STATUS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComSessionImpl.Fields.STATUS.fieldName()).add();
-            table.foreignKey("FK_DDC_COMSESSION_STATS").
-                    on(statistics).
-                    references(DDC_COMSTATISTICS.name()).
-                    map(ComSessionImpl.Fields.STATISTICS.fieldName()).
-                    add();
             table.foreignKey("FK_DDC_COMSESSION_COMPORTPOOL").
                     on(comportPool).
                     references(EngineModelService.COMPONENT_NAME, "MDC_COMPORTPOOL").
@@ -362,10 +342,13 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column device = table.column("DEVICE").number().notNull().add();
             Column session = table.column("COMSESSION").number().notNull().add();
-            Column statistics = table.column("COMSTATISTICS").number().notNull().add();
             table.column("STARTDATE").number().conversion(NUMBER2INSTANT).notNull().map(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName()).add();
             table.column("STOPDATE").number().notNull().conversion(NUMBER2INSTANT).map(ComTaskExecutionSessionImpl.Fields.STOP_DATE.fieldName()).add();
             Column successIndicator = table.column("SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).notNull().map(ComTaskExecutionSessionImpl.Fields.SUCCESS_INDICATOR.fieldName()).add();
+            table.column("BYTESSENT").number().conversion(NUMBER2LONG).notNull().map(ComTaskExecutionSessionImpl.Fields.NUMBER_OF_BYTES_SENT.fieldName()).add();
+            table.column("BYTESREAD").number().conversion(NUMBER2LONG).notNull().map(ComTaskExecutionSessionImpl.Fields.NUMBER_OF_BYTES_READ.fieldName()).add();
+            table.column("PACKETSSENT").number().conversion(NUMBER2LONG).notNull().map(ComTaskExecutionSessionImpl.Fields.NUMBER_OF_PACKETS_SENT.fieldName()).add();
+            table.column("PACKETSREAD").number().conversion(NUMBER2LONG).notNull().map(ComTaskExecutionSessionImpl.Fields.NUMBER_OF_PACKETS_READ.fieldName()).add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map(ComTaskExecutionSessionImpl.Fields.MODIFICATION_DATE.fieldName()).add();
             Column comTaskExecution = table.column("COMTASKEXEC").number().notNull().add();
             Column comTask = table.column("COMTASK").number().notNull().add();
@@ -389,11 +372,6 @@ public enum TableSpecs {
                     references(TaskService.COMPONENT_NAME, "CTS_COMTASK").
                     onDelete(CASCADE).
                     map(ComTaskExecutionSessionImpl.Fields.COM_TASK.fieldName()).
-                    add();
-            table.foreignKey("FK_DDC_COMTSKEXECSESSION_STATS").
-                    on(statistics).
-                    references(DDC_COMSTATISTICS.name()).
-                    map(ComTaskExecutionSessionImpl.Fields.STATISTICS.fieldName()).
                     add();
             table.foreignKey("FK_DDC_COMTSKEXECSESSION_DEVIC").
                     on(device).

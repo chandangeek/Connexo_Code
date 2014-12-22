@@ -45,7 +45,10 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
         SESSION("comSession"),
         COM_TASK("comTask"),
         COM_TASK_EXECUTION("comTaskExecution"),
-        STATISTICS("statistics"),
+        NUMBER_OF_BYTES_SENT("numberOfBytesSent"),
+        NUMBER_OF_BYTES_READ("numberOfBytesReceived"),
+        NUMBER_OF_PACKETS_SENT("numberOfPacketsSent"),
+        NUMBER_OF_PACKETS_READ("numberOfPacketsReceived"),
         START_DATE("startDate"),
         STOP_DATE("stopDate"),
         SUCCESS_INDICATOR("successIndicator"),
@@ -67,10 +70,13 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
 
     private Reference<Device> device = ValueReference.absent();
     private Reference<ComSession> comSession = ValueReference.absent();
-    private Reference<ComStatistics> statistics = ValueReference.absent();
     private Reference<ComTaskExecution> comTaskExecution = ValueReference.absent();
     private Reference<ComTask> comTask = ValueReference.absent();
 
+    private long numberOfBytesSent;
+    private long numberOfBytesReceived;
+    private long numberOfPacketsSent;
+    private long numberOfPacketsReceived;
     private Instant startDate;
     private Instant stopDate;
     private SuccessIndicator successIndicator;
@@ -114,7 +120,23 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
 
     @Override
     public ComStatistics getStatistics() {
-        return statistics.get();
+        return new ComStatisticsImpl(this.numberOfBytesSent, this.numberOfBytesReceived, this.numberOfPacketsSent, this.numberOfPacketsReceived);
+    }
+
+    void setNumberOfBytesSent(long numberOfBytesSent) {
+        this.numberOfBytesSent = numberOfBytesSent;
+    }
+
+    void setNumberOfBytesReceived(long numberOfBytesReceived) {
+        this.numberOfBytesReceived = numberOfBytesReceived;
+    }
+
+    void setNumberOfPacketsSent(long numberOfPacketsSent) {
+        this.numberOfPacketsSent = numberOfPacketsSent;
+    }
+
+    void setNumberOfPacketsReceived(long numberOfPacketsReceived) {
+        this.numberOfPacketsReceived = numberOfPacketsReceived;
     }
 
     @Override
@@ -188,11 +210,6 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
     @Override
     protected void validateDelete() {
         //TODO automatically generated method body, provide implementation.
-    }
-
-    @Override
-    public void setStatistics(ComStatistics stats) {
-        statistics.set(stats);
     }
 
     private ComTaskExecutionSessionImpl init(ComSession comSession, ComTaskExecution comTaskExecution, ComTask comTask, Device device, Range<Instant> interval, SuccessIndicator successIndicator) {

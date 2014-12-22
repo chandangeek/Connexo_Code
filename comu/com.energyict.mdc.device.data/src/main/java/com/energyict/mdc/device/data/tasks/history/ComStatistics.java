@@ -1,41 +1,41 @@
 package com.energyict.mdc.device.data.tasks.history;
 
-import com.energyict.mdc.common.HasId;
-
 /**
- * Copyrights EnergyICT
+ * Models the statistical information that is gathered while communicating
+ * with the {@link com.energyict.mdc.device.data.Device}.
+ *
  * User: sva
  * Date: 23/04/12
  * Time: 14:24
  */
-public interface ComStatistics extends HasId {
+public interface ComStatistics {
 
     /**
-     * Gets the number of bytes sent during the {@link ComSession}
+     * Gets the number of bytes sent while communicating with the {@link com.energyict.mdc.device.data.Device}.
      *
      * @return The number of bytes sent
      */
-    public long getNrOfBytesSent();
+    public long getNumberOfBytesSent();
 
     /**
-     * Gets the number of bytes received during the {@link ComSession}
+     * Gets the number of bytes received while communicating with the {@link com.energyict.mdc.device.data.Device}.
      *
      * @return The number of bytes received
      */
-    public long getNrOfBytesReceived();
+    public long getNumberOfBytesReceived();
 
     /**
-     * Gets the number of packets sent during the {@link ComSession}
+     * Gets the number of packets sent while communicating with the {@link com.energyict.mdc.device.data.Device}.
      *
      * @return The number of packets sent
      */
-    public long getNrOfPacketsSent();
+    public long getNumberOfPacketsSent();
 
     /**
-     * Gets the number of packets received during the {@link ComSession}
+     * Gets the number of packets received while communicating with the {@link com.energyict.mdc.device.data.Device}.
      *
      * @return The number of packets received
      */
-    public long getNrOfPacketsReceived();
+    public long getNumberOfPacketsReceived();
 
 }
