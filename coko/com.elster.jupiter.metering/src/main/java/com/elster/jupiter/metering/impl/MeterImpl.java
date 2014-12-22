@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeterAlreadyActive;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -66,20 +67,22 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
 
     @Override
     public MeterActivationImpl activate(Instant start) {
-    	if (meterActivations.stream().anyMatch(meterActivation -> meterActivation.isEffectiveAt(start))) {
-    		throw new RuntimeException("Meter already active at " + start); 
-    	}
+        checkOverlaps(start);
         MeterActivationImpl result = meterActivationFactory.get().init(this, start);
         getDataModel().persist(result);
         meterActivations.add(result);
         return result;
     }
 
+    private void checkOverlaps(Instant start) {
+        if (meterActivations.stream().anyMatch(meterActivation -> !meterActivation.getRange().intersection(Range.atLeast(start)).isEmpty())) {
+            throw new MeterAlreadyActive(thesaurus, this, start);
+        }
+    }
+
     @Override
     public MeterActivationImpl activate(UsagePoint usagePoint, Instant start) {
-        if (meterActivations.stream().anyMatch(meterActivation -> meterActivation.isEffectiveAt(start))) {
-            throw new RuntimeException("Meter already active at " + start);
-        }
+        checkOverlaps(start);
         MeterActivationImpl result = meterActivationFactory.get().init(this, usagePoint, start);
         getDataModel().persist(result);
         meterActivations.add(result);

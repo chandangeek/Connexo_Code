@@ -277,16 +277,18 @@ public class UsagePointImpl implements UsagePoint {
 	}
     
     public void adopt(MeterActivationImpl meterActivation) {
-    	if (!meterActivations.isEmpty()) {
-    		MeterActivationImpl last = meterActivations.get(meterActivations.size() - 1);
-    		if (last.getRange().lowerEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
-    			throw new IllegalArgumentException("Invalid start date");
-    		} else {
-    			if (!last.getRange().hasUpperBound()  || last.getRange().upperEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
-    				last.endAt(meterActivation.getRange().lowerEndpoint());
-    			}
-    		}
-    	}
+        meterActivations.stream()
+                .filter(activation -> activation.getId() != meterActivation.getId())
+                .reduce((m1, m2) -> m2)
+                .ifPresent(last -> {
+                    if (last.getRange().lowerEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
+                        throw new IllegalArgumentException("Invalid start date");
+                    } else {
+                        if (!last.getRange().hasUpperBound()  || last.getRange().upperEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
+                            last.endAt(meterActivation.getRange().lowerEndpoint());
+                        }
+                    }
+                });
     	Optional<Meter> meter = meterActivation.getMeter();
     	if (meter.isPresent()) {
     		((MeterImpl) meter.get()).adopt(meterActivation);
