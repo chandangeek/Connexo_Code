@@ -2,21 +2,24 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
-import org.mockito.Mock;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by bvn on 10/13/14.
@@ -95,17 +98,13 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
     }
 
     @Test
-    public void testVetoingHandlerpreventsDeletion() {
+    public void testVetoingHandlerPreventsDeletion() {
         when(meteringGroupService.findEndDeviceGroup(111)).thenReturn(Optional.of(endDeviceGroup));
-        doThrow(new RuntimeException("MyMessage")).when(endDeviceGroup).delete();
+        doThrow(new LocalizedException(thesaurus,MessageSeeds.NO_SUCH_MESSAGE) { // Bogus exception, real exception originates in DeviceData.impl
+        }).when(endDeviceGroup).delete();
 
-        try {
-            target("/devicegroups/111").request().delete();
-        } catch (WebApplicationException e) {
-            assertThat(e.getMessage()).isEqualTo("MyMessage");
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR);
-        }
-
+        Response response = target("/devicegroups/111").request().delete();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
 }
