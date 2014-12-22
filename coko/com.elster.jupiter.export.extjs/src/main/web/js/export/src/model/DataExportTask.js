@@ -51,7 +51,7 @@ Ext.define('Dxp.model.DataExportTask', {
             persist: false,
             mapping: function (data) {
                 if (data.lastExportOccurence && data.lastExportOccurence.statusDate && data.lastExportOccurence.statusDate != 0) {
-                    return data.lastExportOccurence.statusPrefix + ' ' + moment(data.lastExportOccurence.statusDate).format('ddd, DD MMM YYYY hh:mm:ss');
+                    return data.lastExportOccurence.statusPrefix + ' ' + moment(data.lastExportOccurence.statusDate).format('ddd, DD MMM YYYY HH:mm:ss');
                 } else if (data.lastExportOccurence) {
                     return data.lastExportOccurence.statusPrefix
                 } else {
