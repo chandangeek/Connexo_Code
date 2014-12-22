@@ -75,6 +75,17 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
         return result;
     }
 
+    @Override
+    public MeterActivationImpl activate(UsagePoint usagePoint, Instant start) {
+        if (meterActivations.stream().anyMatch(meterActivation -> meterActivation.isEffectiveAt(start))) {
+            throw new RuntimeException("Meter already active at " + start);
+        }
+        MeterActivationImpl result = meterActivationFactory.get().init(this, usagePoint, start);
+        getDataModel().persist(result);
+        meterActivations.add(result);
+        return result;
+    }
+
     void adopt(MeterActivationImpl meterActivation) {
         if (!meterActivations.isEmpty()) {
             MeterActivationImpl last = meterActivations.get(meterActivations.size() - 1);
