@@ -31,6 +31,7 @@ public enum TableSpecs {
             Table<ComSchedule> table = dataModel.addTable(name(), ComSchedule.class);
             table.map(ComScheduleImpl.class);
             Column idColumn = table.addAutoIdColumn();
+            table.addAuditColumns();
             table.column("NAME").varChar().map(ComScheduleImpl.Fields.NAME.fieldName()).add();
             table.column("MRID").varChar().map(ComScheduleImpl.Fields.MRID.fieldName()).add();
             table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map(ComScheduleImpl.Fields.STATUS.fieldName()).add();
@@ -38,8 +39,12 @@ public enum TableSpecs {
             table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2INSTANT).map(ComScheduleImpl.Fields.OBSOLETE_DATE.fieldName()).add();
             Column nextExecutionSpec = table.column("NEXTEXECUTIONSPEC").number().conversion(NUMBER2LONG).add(); // DO NOT MAP
 
-            table.foreignKey("FK_SCH_NEXTEXECUTIONSPEC").on(nextExecutionSpec).references(SCH_NEXTEXECUTIONSPEC.name()).map(ComScheduleImpl.Fields.NEXT_EXECUTION_SPEC.fieldName()).add();
             table.primaryKey("PK_SCH_COMSCHEDULE").on(idColumn).add();
+            table.foreignKey("FK_SCH_NEXTEXECUTIONSPEC")
+                    .on(nextExecutionSpec)
+                    .references(SCH_NEXTEXECUTIONSPEC.name())
+                    .map(ComScheduleImpl.Fields.NEXT_EXECUTION_SPEC.fieldName())
+                    .add();
         }
     },
     SCH_COMTASKINCOMSCHEDULE {
@@ -49,15 +54,20 @@ public enum TableSpecs {
                 table.map(ComTaskInComScheduleImpl.class);
                 Column comTaskId = table.column("COMTASK").number().conversion(NUMBER2LONG).notNull().add(); // DO NOT MAP
                 Column comScheduleId = table.column("COMSCHEDULE").number().conversion(NUMBER2LONG).notNull().add(); // DO NOT MAP
+                table.addAuditColumns();
 
+                table.primaryKey("PK_SCH_COMTASKINCOMSCHEDULE").on(comTaskId, comScheduleId).add();
                 table.foreignKey("FK_SCH_COMTASKINCS_COMSCHEDULE").
                         on(comScheduleId).references(SCH_COMSCHEDULE.name()).
                         map(ComTaskInComScheduleImpl.Fields.COM_SCHEDULE_REFERENCE.fieldName()).
                         reverseMap(ComScheduleImpl.Fields.COM_TASK_IN_COM_SCHEDULE.fieldName()).
                         composition().
                         add();
-                table.foreignKey("FK_SCH_COMTASKINCOMSCH_COMTASK").on(comTaskId).references(TaskService.COMPONENT_NAME, "CTS_COMTASK").map(ComTaskInComScheduleImpl.Fields.COM_TASK_REFERENCE.fieldName()).add();
-                table.primaryKey("PK_SCH_COMTASKINCOMSCHEDULE").on(comTaskId, comScheduleId).add();
+                table.foreignKey("FK_SCH_COMTASKINCOMSCH_COMTASK")
+                        .on(comTaskId)
+                        .references(TaskService.COMPONENT_NAME, "CTS_COMTASK")
+                        .map(ComTaskInComScheduleImpl.Fields.COM_TASK_REFERENCE.fieldName())
+                        .add();
             }
         };
 

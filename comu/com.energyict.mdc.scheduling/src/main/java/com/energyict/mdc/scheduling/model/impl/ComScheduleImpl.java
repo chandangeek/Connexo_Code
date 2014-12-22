@@ -90,6 +90,10 @@ public class ComScheduleImpl implements ComSchedule {
     @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     private Instant startDate;
     private Instant obsoleteDate;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Override
     public long getId() {

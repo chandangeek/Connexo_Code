@@ -5,6 +5,8 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
+import java.time.Instant;
+
 public class ComTaskInComScheduleImpl implements ComTaskInComSchedule {
 
     enum Fields {
@@ -22,11 +24,18 @@ public class ComTaskInComScheduleImpl implements ComTaskInComSchedule {
     }
     private Reference<ComSchedule> comScheduleReference = ValueReference.absent();
     private Reference<ComTask> comTaskReference = ValueReference.absent();
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
+    // For ORM framework only
     public ComTaskInComScheduleImpl() {
+        super();
     }
 
     public ComTaskInComScheduleImpl(ComSchedule comSchedule, ComTask comTask) {
+        this();
         this.comScheduleReference.set(comSchedule);
         this.comTaskReference.set(comTask);
     }
@@ -50,4 +59,5 @@ public class ComTaskInComScheduleImpl implements ComTaskInComSchedule {
     public void setComTask(ComTask comTask) {
         this.comTaskReference.set(comTask);
     }
+
 }
