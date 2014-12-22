@@ -62,13 +62,16 @@ import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
-import com.energyict.protocols.mdc.services.impl.PropertySpecServiceDependency;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
 import com.google.inject.AbstractModule;
@@ -78,6 +81,7 @@ import com.google.inject.Scopes;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
@@ -230,7 +234,10 @@ public class DemoTest {
 
     private void createRequiredProtocols() {
         fixMissedDynamicReference();
-        ProtocolPluggableService protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
+        ProtocolPluggableServiceImpl protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
+        protocolPluggableService.addInboundDeviceProtocolService(injector.getInstance(InboundDeviceProtocolService.class));
+        protocolPluggableService.addDeviceProtocolService(injector.getInstance(DeviceProtocolService.class));
+        protocolPluggableService.addConnectionTypeService(injector.getInstance(ConnectionTypeService.class));
         protocolPluggableService.newInboundDeviceProtocolPluggableClass("DlmsSerialNumberDiscover", DlmsSerialNumberDiscover.class.getName()).save();
         protocolPluggableService.newDeviceProtocolPluggableClass("WebRTUKP", WebRTUKP.class.getName()).save();
         protocolPluggableService.newConnectionTypePluggableClass("OutboundTcpIp", OutboundTcpIpConnectionType.class.getName());
@@ -238,7 +245,6 @@ public class DemoTest {
 
     private void fixMissedDynamicReference() {
         // Register device factory provider
-        injector.getInstance(PropertySpecServiceDependency.class);
         injector.getInstance(MeteringGroupsService.class);
         PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
         propertySpecService.addFactoryProvider((DeviceServiceImpl)injector.getInstance(DeviceService.class));
