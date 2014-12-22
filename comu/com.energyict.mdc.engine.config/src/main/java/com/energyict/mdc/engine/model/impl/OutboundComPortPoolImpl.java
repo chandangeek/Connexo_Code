@@ -9,7 +9,6 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
 
 import javax.inject.Inject;
@@ -17,6 +16,7 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.OutboundComPortPool} interface.
@@ -52,11 +52,7 @@ public class OutboundComPortPoolImpl extends ComPortPoolImpl implements Outbound
 
     @Override
     public List<OutboundComPort> getComPorts() {
-        List<OutboundComPort> outboundComPorts = new ArrayList<>();
-        for (ComPortPoolMember comPortPoolMember : comPortPoolMembers) {
-            outboundComPorts.add((OutboundComPort) comPortPoolMember.getComPort());
-        }
-        return ImmutableList.copyOf(outboundComPorts);
+        return comPortPoolMembers.stream().map(ComPortPoolMember::getComPort).collect(Collectors.toList());
     }
 
     @Override
