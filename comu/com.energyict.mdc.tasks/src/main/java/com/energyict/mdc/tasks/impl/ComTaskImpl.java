@@ -6,7 +6,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -45,7 +44,7 @@ import java.util.List;
  * @since 2/05/12 - 16:10
  */
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_NAME + "}")
-public class ComTaskImpl implements ComTask, HasId {
+public class ComTaskImpl implements ComTask {
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
@@ -81,7 +80,10 @@ public class ComTaskImpl implements ComTask, HasId {
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     private String name;
     private boolean storeData; // Indication whether to store the data which is read
-    private Instant modificationDate;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     /**
      * Holds a list of all {@link ProtocolTask ProtocolTasks} which must be performed during the execution of this kind of ComTask
@@ -167,7 +169,6 @@ public class ComTaskImpl implements ComTask, HasId {
 
     @Override
     public void save() {
-        this.modificationDate = Instant.now();
         Save.action(getId()).save(this.dataModel, this);
     }
 

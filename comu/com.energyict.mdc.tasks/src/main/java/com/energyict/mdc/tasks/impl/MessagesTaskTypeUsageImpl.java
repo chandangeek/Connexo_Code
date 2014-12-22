@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
+import java.time.Instant;
 
 /**
  * Provides an implementation for the {@link MessagesTaskTypeUsage} interface.
@@ -40,6 +41,10 @@ public class MessagesTaskTypeUsageImpl implements MessagesTaskTypeUsage {
     private Reference<ProtocolTask> protocolTask = ValueReference.absent();
     private int deviceMessageCategoryId;
     private DeviceMessageCategory deviceMessageCategory;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Inject
     public MessagesTaskTypeUsageImpl(DeviceMessageSpecificationService deviceMessageSpecificationService) {

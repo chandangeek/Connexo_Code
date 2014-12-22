@@ -5,6 +5,8 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 
+import java.time.Instant;
+
 /**
  * Link table from LoadProfilesTask to LoadProfileType
  *
@@ -30,6 +32,10 @@ public class LoadProfileTypeUsageInProtocolTaskImpl implements LoadProfileTypeUs
 
     private Reference<LoadProfilesTask> loadProfilesTaskReference = ValueReference.absent();
     private Reference<LoadProfileType> loadProfileTypeReference = ValueReference.absent();
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Override
     public LoadProfilesTask getLoadProfilesTask() {

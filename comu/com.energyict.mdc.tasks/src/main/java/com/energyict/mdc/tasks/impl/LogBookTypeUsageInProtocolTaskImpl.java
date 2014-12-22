@@ -5,6 +5,8 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.tasks.LogBooksTask;
 
+import java.time.Instant;
+
 /**
  * Copyrights EnergyICT
  * Date: 13/05/14
@@ -28,6 +30,10 @@ public class LogBookTypeUsageInProtocolTaskImpl implements LogBookTypeUsageInPro
 
     private Reference<LogBooksTask> logBooksTaskReference = ValueReference.absent();
     private Reference<LogBookType> logBookTypeReference = ValueReference.absent();
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Override
     public LogBooksTask getLogBooksTask() {
@@ -48,4 +54,5 @@ public class LogBookTypeUsageInProtocolTaskImpl implements LogBookTypeUsageInPro
     public void setLogBookType(LogBookType logBookType) {
         this.logBookTypeReference.set(logBookType);
     }
+
 }

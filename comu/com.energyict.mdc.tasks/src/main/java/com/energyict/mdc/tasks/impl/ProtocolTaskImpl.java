@@ -11,6 +11,8 @@ import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +64,10 @@ abstract class ProtocolTaskImpl implements ProtocolTask, OfflineDeviceContext {
     private long id;
     private final Reference<ComTask> comTask= ValueReference.absent();
     private DeviceOfflineFlags flags;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Inject
     ProtocolTaskImpl(DataModel dataModel) {

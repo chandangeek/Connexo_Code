@@ -1,7 +1,6 @@
 package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
@@ -23,10 +22,10 @@ public enum TableSpecs {
             Table<ComTask> table = dataModel.addTable(name(), ComTask.class);
             table.map(ComTaskImpl.class);
             Column idColumn = table.addAutoIdColumn();
+            table.addAuditColumns();
             table.column("NAME").varChar().map(ComTaskImpl.Fields.NAME.fieldName()).add();
             table.column("STOREDATA").number().conversion(NUMBER2BOOLEAN).map(ComTaskImpl.Fields.STORE_DATE.fieldName()).add();
             table.column("MAXNROFTRIES").number().conversion(NUMBER2INT).map(ComTaskImpl.Fields.MAX_NR_OF_TRIES.fieldName()).add();
-            table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2INSTANT).map(ComTaskImpl.Fields.MOD_DATE.fieldName()).insert("sysdate").update("sysdate").add();
             table.primaryKey("PK_CTS_COMTASK").on(idColumn).add();
         }
     },
@@ -36,6 +35,7 @@ public enum TableSpecs {
             Table<ProtocolTask> table = dataModel.addTable(name(), ProtocolTask.class);
             table.map(ProtocolTaskImpl.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
+            table.addAuditColumns();
             table.addDiscriminatorColumn("DISCRIMINATOR", "number");
             Column comTask = table.column("COMTASKID").number().conversion(NUMBER2LONG).add(); // DO NOT MAP
 
@@ -78,6 +78,7 @@ public enum TableSpecs {
             Table<MessagesTaskTypeUsage> table = dataModel.addTable(name(), MessagesTaskTypeUsage.class);
             table.map(MessagesTaskTypeUsageImpl.class);
             Column idColumn = table.addAutoIdColumn();
+            table.addAuditColumns();
             Column messageTaskId = table.column("MESSAGETASK").number().conversion(NUMBER2LONG).add(); // DO NOT MAP
             table.column("MESSAGECATEGORY").number().notNull().conversion(NUMBER2INT).map(MessagesTaskTypeUsageImpl.Fields.DEVICE_MESSAGE_CATEGORY.fieldName()).add();
             table.foreignKey("FK_CTS_DEVMSGTUSAGE_COMTASK").
@@ -98,6 +99,7 @@ public enum TableSpecs {
             table.map(RegisterGroupUsageImpl.class);
             Column registerTask = table.column("REGISTERSTASK").number().conversion(NUMBER2LONG).notNull().add(); // DO NOT MAP
             Column registerGroup = table.column("REGISTERGROUP").number().conversion(NUMBER2LONG).notNull().add(); // DO NOT MAP
+            table.addAuditColumns();
 
             table.foreignKey("FK_CTS_REGGRPUSAGE_PROTOCOLTSK").
                     on(registerTask).references(CTS_PROTOCOLTASK.name()).
@@ -118,6 +120,7 @@ public enum TableSpecs {
             table.map(LoadProfileTypeUsageInProtocolTaskImpl.class);
             Column loadProfileTask = table.column("LOADPROFILETASK").number().notNull().add(); // DO NOT MAP
             Column loadProfileType = table.column("LOADPROFILETYPE").number().notNull().add(); // DO NOT MAP
+            table.addAuditColumns();
 
             table.primaryKey("PK_CTS_LOADPRFLTYPEUSAGE").on(loadProfileTask,loadProfileType).add();
 
@@ -143,6 +146,7 @@ public enum TableSpecs {
             table.map(LogBookTypeUsageInProtocolTaskImpl.class);
             Column logbooksTask = table.column("LOGBOOKSTASK").number().notNull().add(); // DO NOT MAP
             Column logbookType = table.column("LOGBOOKTYPE").number().notNull().add(); // DO NOT MAP
+            table.addAuditColumns();
 
             table.primaryKey("PK_CTS_LOGBOOKTYPEUSAGE").on(logbooksTask,logbookType).add();
 
