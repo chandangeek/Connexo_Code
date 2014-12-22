@@ -153,13 +153,22 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
     },
 
     updateCriteria: function(record) {
-        var me = this;
+        var me = this,
+            func = function (menuItem) {
+                if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup'])) {
+                    menuItem.show();
+                } else if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroupDetail', 'privilege.administrate.deviceOfEnumeratedGroup'])) {
+                    menuItem.hide();
+                }
+            };
+
+        Ext.Array.each(Ext.ComponentQuery.query('#remove-device-group'), function (item) {
+            func(item);
+        });
+        Ext.Array.each(Ext.ComponentQuery.query('#edit-device-group'), function (item) {
+            func(item);
+        });
         if (record.get('dynamic')) {
-            if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup','privilege.administrate.deviceOfEnumeratedGroup','privilege.view.deviceGroupDetail'])) {
-                Ext.Array.each(Ext.ComponentQuery.query('#edit-device-group'), function (item) {
-                    item.show();
-                });
-            }
             me.getSearchCriteriaContainer().setVisible(true);
             var criteria = record.criteriaStore.data.items;
             me.getSearchCriteriaContainer().removeAll();
@@ -190,16 +199,9 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
                 )
             }
         } else {
-            if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceOfEnumeratedGroup'])) {
-                Ext.Array.each(Ext.ComponentQuery.query('#edit-device-group'), function (item) {
-                    item.show();
-                });
-            }
-            if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup','privilege.administrate.deviceOfEnumeratedGroup','privilege.view.deviceGroupDetail'])) {
-                Ext.Array.each(Ext.ComponentQuery.query('#remove-device-group'), function (item) {
-                    item.show();
-                });
-            }
+            Ext.Array.each(Ext.ComponentQuery.query('#edit-device-group'), function (item) {
+                if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceOfEnumeratedGroup'])) { item.show(); }
+            });
             me.getSearchCriteriaContainer().setVisible(false);
         }
     },

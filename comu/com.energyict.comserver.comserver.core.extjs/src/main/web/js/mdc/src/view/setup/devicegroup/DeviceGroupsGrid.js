@@ -51,7 +51,6 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupsGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceGroup'),
                 menu: {
                     xtype: 'device-group-action-menu'
                 }
