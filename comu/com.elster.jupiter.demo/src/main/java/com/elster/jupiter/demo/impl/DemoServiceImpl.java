@@ -1,11 +1,17 @@
 package com.elster.jupiter.demo.impl;
 
 import com.elster.jupiter.demo.DemoService;
+import com.elster.jupiter.demo.impl.generators.ComServerGenerator;
+import com.elster.jupiter.demo.impl.generators.DeviceGenerator;
 import com.elster.jupiter.demo.impl.generators.DeviceGroupGenerator;
 import com.elster.jupiter.demo.impl.generators.IssueGenerator;
+import com.elster.jupiter.demo.impl.generators.IssueReasonGenerator;
 import com.elster.jupiter.demo.impl.generators.IssueRuleGenerator;
+import com.elster.jupiter.demo.impl.generators.KpiGenerator;
+import com.elster.jupiter.demo.impl.generators.OutboundTCPComPortGenerator;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.MeteringService;
@@ -22,6 +28,7 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -45,11 +52,8 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -60,14 +64,12 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -83,7 +85,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -147,6 +148,15 @@ public class DemoServiceImpl implements DemoService {
 
     public static final String DEVICE_GROUP_SOUTH_REGION = "South region";
     public static final String DEVICE_GROUP_NORTH_REGION = "North region";
+    public static final String DEVICE_DABF_12 = "DABF410005812";
+    public static final String DEVICE_DABF_13 = "DABF410005813";
+    public static final String KPI_CONNECTION = "Connection KPI";
+    public static final String KPI_COMMUNICATION = "Communication KPI";
+    public static final String CREATION_RULE_CONNECTION_LOST = "Connection lost rule";
+    public static final String CREATION_RULE_COMMUNICATION_FAILED = "Communication failed rule";
+    public static final String DEVICE_STANDARD_PREFIX = "ZABF0100";
+    public static final String DEVICE_LP_DATA_PREFIX = "DABF";
+    public static final String DEVICE_CONFIGURATION_EXTENDED_CONFIG = "Extended Config";
 
     private final boolean rethrowExceptions;
     private volatile EngineModelService engineModelService;
@@ -167,6 +177,7 @@ public class DemoServiceImpl implements DemoService {
     private volatile IssueService issueService;
     private volatile IssueCreationService issueCreationService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile KpiService kpiService;
 
     private Store store;
     private Injector injector;
@@ -197,7 +208,8 @@ public class DemoServiceImpl implements DemoService {
             OrmService ormService,
             IssueService issueService,
             IssueCreationService issueCreationService,
-            MeteringGroupsService meteringGroupsService) {
+            MeteringGroupsService meteringGroupsService,
+            KpiService kpiService) {
         setEngineModelService(engineModelService);
         setUserService(userService);
         setValidationService(validationService);
@@ -216,6 +228,7 @@ public class DemoServiceImpl implements DemoService {
         setIssueService(issueService);
         setIssueCreationService(issueCreationService);
         setMeteringGroupsService(meteringGroupsService);
+        setKpiService(kpiService);
         rethrowExceptions = true;
 
         activate();
@@ -246,6 +259,7 @@ public class DemoServiceImpl implements DemoService {
                 bind(IssueService.class).toInstance(issueService);
                 bind(IssueCreationService.class).toInstance(issueCreationService);
                 bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
+                bind(KpiService.class).toInstance(kpiService);
             }
         });
     }
@@ -261,9 +275,11 @@ public class DemoServiceImpl implements DemoService {
                 }
                 store.getProperties().put("host", host);
 
-                OnlineComServer deitvs099ComServer = createComServer("Deitvs099");
-                OnlineComServer comServer = createComServer(comServerName);
-                OutboundComPort outboundTCPPort = createOutboundTcpComPort("Outbound TCP", comServer);
+                createComServer("Deitvs099");
+                createComServer(comServerName);
+
+                createOutboundTcpComPort("Outbound TCP");
+                OutboundComPort outboundTCPPort = store.getLast(OutboundComPort.class).orElseThrow(() -> new UnableToCreate("Unable to find a correct TCP com port"));
                 store.getOutboundComPortPools().put(VODAFONE_TCP_POOL_NAME, createOutboundTcpComPortPool(VODAFONE_TCP_POOL_NAME, outboundTCPPort));
                 store.getOutboundComPortPools().put(ORANGE_TCP_POOL_NAME, createOutboundTcpComPortPool(ORANGE_TCP_POOL_NAME, outboundTCPPort));
 
@@ -278,14 +294,21 @@ public class DemoServiceImpl implements DemoService {
                 createDemoUsersImpl();
                 createValidationRulesImpl();
 
+                createIssueReasons();
                 createCreationRule();
                 createIssues();
+                createKpi();
             }
         });
     }
 
     private void createCreationRule(){
-        injector.getInstance(IssueRuleGenerator.class).withName("Connection lost rule").create();
+        injector.getInstance(IssueRuleGenerator.class).withName(CREATION_RULE_CONNECTION_LOST).withType(IssueRuleGenerator.TYPE_CONNECTION_LOST).create();
+        injector.getInstance(IssueRuleGenerator.class).withName(CREATION_RULE_COMMUNICATION_FAILED).withType(IssueRuleGenerator.TYPE_COMMUNICATION_FAILED).create();
+    }
+
+    private void createIssueReasons(){
+        injector.getInstance(IssueReasonGenerator.class).create();
     }
 
     private void createDeviceGroups(){
@@ -293,29 +316,13 @@ public class DemoServiceImpl implements DemoService {
         injector.getInstance(DeviceGroupGenerator.class).withName(DEVICE_GROUP_SOUTH_REGION).withDeviceTypes(DEVICE_TYPES_NAMES[1], DEVICE_TYPES_NAMES[4], DEVICE_TYPES_NAMES[5]).create();
     }
 
-    private OnlineComServer createComServer(String name) {
-        System.out.println("==> Creating ComServer '" + name + "' ...");
-        OnlineComServer comServer = engineModelService.newOnlineComServerInstance();
-        comServer.setName(name.toUpperCase());
-        comServer.setActive(true);
-        comServer.setServerLogLevel(ComServer.LogLevel.INFO);
-        comServer.setCommunicationLogLevel(ComServer.LogLevel.INFO);
-        comServer.setChangesInterPollDelay(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES));
-        comServer.setSchedulingInterPollDelay(new TimeDuration(60, TimeDuration.TimeUnit.SECONDS));
-        comServer.setStoreTaskQueueSize(50);
-        comServer.setNumberOfStoreTaskThreads(1);
-        comServer.setStoreTaskThreadPriority(5);
-        comServer.save();
-        return comServer;
+    private void createComServer(String name) {
+        injector.getInstance(ComServerGenerator.class).withName(name).create();
     }
 
-    private OutboundComPort createOutboundTcpComPort(String name, ComServer comServer) {
-        System.out.println("==> Creating Outbound TCP Port '" + name + "'...");
-        OutboundComPort.OutboundComPortBuilder outboundComPortBuilder = comServer.newOutboundComPort(name, 5);
-        outboundComPortBuilder.comPortType(ComPortType.TCP).active(true);
-        OutboundComPort comPort = outboundComPortBuilder.add();
-        comPort.save();
-        return comPort;
+    private void createOutboundTcpComPort(String name) {
+        ComServer comServer = store.getLast(ComServer.class).orElseThrow(() -> new UnableToCreate("Unable to find ComServer"));
+        injector.getInstance(OutboundTCPComPortGenerator.class).withName(name).withComServer(comServer).create();
     }
 
     private OutboundComPortPool createOutboundTcpComPortPool(String name, OutboundComPort... comPorts) {
@@ -334,30 +341,7 @@ public class DemoServiceImpl implements DemoService {
         return outboundComPortPool;
     }
 
-    private InboundComPortPool createInboundServletComPortPool(String name) {
-        System.out.println("==> Creating Inbound Servlet Port Pool '" + name + "'...");
-        InboundDeviceProtocolPluggableClass protocolPluggableClass = protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(DlmsSerialNumberDiscover.class.getName()).get(0);
-        InboundComPortPool inboundComPortPool = engineModelService.newInboundComPortPool();
-        inboundComPortPool.setActive(true);
-        inboundComPortPool.setComPortType(ComPortType.SERVLET);
-        inboundComPortPool.setDiscoveryProtocolPluggableClass(protocolPluggableClass);
-        inboundComPortPool.setName(name);
-        inboundComPortPool.save();
-        return inboundComPortPool;
-
-    }
-
-    private ServletBasedInboundComPort createInboundServletPort(String name, int portNumber, ComServer comServer, InboundComPortPool comPortPool) {
-        System.out.println("==> Creating Inbound Servlet Port '" + name + "'...");
-        ServletBasedInboundComPort.ServletBasedInboundComPortBuilder comPortBuilder = comServer.newServletBasedInboundComPort(name, "context", 10, portNumber);
-        comPortBuilder.active(true).comPortPool(comPortPool).keyStoreSpecsFilePath("");
-        ServletBasedInboundComPort comPort = comPortBuilder.add();
-        comPort.save();
-        return comPort;
-
-    }
-
-    private void findRegisterTypes(Store store) {
+  private void findRegisterTypes(Store store) {
         System.out.println("==> Finding Register Types...");
         store.getRegisterTypes().put(BULK_A_FORWARD_ALL_PHASES_TOU_1_K_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.3.72.0"));
         store.getRegisterTypes().put(BULK_A_FORWARD_ALL_PHASES_TOU_1_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0"));
@@ -582,7 +566,7 @@ public class DemoServiceImpl implements DemoService {
 
     private void createExtendedDeviceConfiguration(Store store, DeviceType deviceType) {
         System.out.println("==> Creating Extended Device Configuration...");
-        DeviceType.DeviceConfigurationBuilder configBuilder = deviceType.newConfiguration("Extended Config");
+        DeviceType.DeviceConfigurationBuilder configBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_EXTENDED_CONFIG);
         configBuilder.description("A complex configuration that is closely matched to the DSMR 2.3 Devices");
         configBuilder.canActAsGateway(true);
         configBuilder.gatewayType(GatewayType.HOME_AREA_NETWORK);
@@ -704,43 +688,53 @@ public class DemoServiceImpl implements DemoService {
     private void createDevicesForDeviceConfiguration(Store store, DeviceConfiguration configuration){
         System.out.println("==> Creating Devices for Configuration...");
         for (int i = 1; i < 9; i++) {
-            createDevice(store, configuration, String.format("%04d", configuration.getId()) + String.format("%04d", i) );
+            // 8 devices for each configuration
+            String serialNumber = String.format("%04d", configuration.getId()) + String.format("%04d", i);
+            String mrid = DEVICE_STANDARD_PREFIX +  serialNumber;
+            createDevice(store, configuration, mrid, serialNumber);
+        }
+        if (DEVICE_TYPES_NAMES[2].equals(configuration.getDeviceType().getName())
+                && DEVICE_CONFIGURATION_EXTENDED_CONFIG.equals(configuration.getName())){
+            createDevice(store, configuration, DEVICE_DABF_12, "410005812");
+            createDevice(store, configuration, DEVICE_DABF_13, "410005813");
         }
     }
 
-    private void createDevice(Store store, DeviceConfiguration configuration, String serialNumber){
-        String mrid = "ZABF0100" +  serialNumber;
-        System.out.println("==> Creating Device '" + mrid + "'...");
-        Calendar calendar = Calendar.getInstance();
-        Device device = deviceService.newDevice(configuration, mrid, mrid);
-        device.setSerialNumber(serialNumber);
-        calendar.set(2014, 1, 1);
-        device.setYearOfCertification(calendar.toInstant());
-        device.newScheduledComTaskExecution(store.getComSchedules().get(COM_SCHEDULE_DAILY_READ_ALL)).add();
-        device.newScheduledComTaskExecution(store.getComSchedules().get(COM_SCHEDULE_MOUNTHLY_BILLING_DATA)).add();
-        device.save();
+    private void createDevice(Store store, DeviceConfiguration configuration, String mrid, String serialNumber){
+        injector.getInstance(DeviceGenerator.class).withMrid(mrid).withSerialNumber(serialNumber).withDeviceConfiguration(configuration).create();
+        List<Device> devices = store.get(Device.class);
+        Device device = devices.get(devices.size() - 1);
         addConnectionMethodToDevice(store, configuration, device);
     }
 
     private void addConnectionMethodToDevice(Store store, DeviceConfiguration configuration, Device device) {
         PartialScheduledConnectionTask connectionTask = configuration.getCommunicationConfiguration().getPartialOutboundConnectionTasks().get(0);
+        int portNumber = 4059;
+        // We want two failing devices for 'Actaris SL7000' device type
+        if (DEVICE_TYPES_NAMES[3].equals(configuration.getDeviceType().getName()) && device.getmRID().endsWith("8")){
+            portNumber = 5049;
+        }
         ScheduledConnectionTask deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
                 .setComPortPool(store.getOutboundComPortPools().get((device.getId() & 1) == 1L ? VODAFONE_TCP_POOL_NAME : ORANGE_TCP_POOL_NAME))
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .setNextExecutionSpecsFrom(null)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
                 .setProperty("host", store.getProperties().get("host"))
-                .setProperty("portNumber", new BigDecimal(4059))
+                .setProperty("portNumber", new BigDecimal(portNumber))
                 .setSimultaneousConnectionsAllowed(false)
                 .add();
         connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
     }
 
     private void createIssues(){
-        List<Device> devices = deviceService.findAllDevices();
+        List<Device> devices = deviceService.findAllDevices(Condition.TRUE).find();
         IssueGenerator issueGenerator = injector.getInstance(IssueGenerator.class);
         for (Device device : devices) {
-            issueGenerator.withDevice(device).create();
+            if (device.getmRID().startsWith(DEVICE_STANDARD_PREFIX)){
+                issueGenerator.withDevice(device).create();
+            } else if (device.getmRID().startsWith(DEVICE_LP_DATA_PREFIX)){
+
+            }
         }
     }
 
@@ -815,6 +809,11 @@ public class DemoServiceImpl implements DemoService {
             configuration.addValidationRuleSet(ruleSet);
             configuration.save();
         }
+    }
+
+    public void createKpi(){
+        injector.getInstance(KpiGenerator.class).withName(KPI_CONNECTION).create();
+        injector.getInstance(KpiGenerator.class).withName(KPI_COMMUNICATION).create();
     }
 
     @Reference
@@ -923,6 +922,12 @@ public class DemoServiceImpl implements DemoService {
     @SuppressWarnings("unused")
     public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setKpiService(KpiService kpiService) {
+        this.kpiService = kpiService;
     }
 
     private <T> T executeTransaction(Transaction<T> transaction) {

@@ -46,6 +46,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.DeviceServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
+import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.impl.EngineModule;
@@ -62,13 +63,21 @@ import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
-import com.energyict.protocols.mdc.services.impl.PropertySpecServiceDependency;
+import com.energyict.protocols.mdc.services.impl.DeviceProtocolServiceImpl;
+import com.energyict.protocols.mdc.services.impl.InboundDeviceProtocolServiceImpl;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
 import com.google.inject.AbstractModule;
@@ -185,6 +194,7 @@ public class DemoTest {
                 new SchedulingModule(),
                 new ProtocolApiModule(),
                 new IssueDataCollectionModule(),
+                new TopologyModule(),
 
                 new DemoModule()
         );
@@ -231,15 +241,24 @@ public class DemoTest {
     private void createRequiredProtocols() {
         fixMissedDynamicReference();
         ProtocolPluggableService protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
-        protocolPluggableService.newInboundDeviceProtocolPluggableClass("DlmsSerialNumberDiscover", DlmsSerialNumberDiscover.class.getName()).save();
+//        protocolPluggableService.newInboundDeviceProtocolPluggableClass("DlmsSerialNumberDiscover", DlmsSerialNumberDiscover.class.getName()).save();
         protocolPluggableService.newDeviceProtocolPluggableClass("WebRTUKP", WebRTUKP.class.getName()).save();
         protocolPluggableService.newConnectionTypePluggableClass("OutboundTcpIp", OutboundTcpIpConnectionType.class.getName());
     }
 
     private void fixMissedDynamicReference() {
         // Register device factory provider
-        injector.getInstance(PropertySpecServiceDependency.class);
+
         injector.getInstance(MeteringGroupsService.class);
+
+        ProtocolPluggableServiceImpl protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
+        protocolPluggableService.addInboundDeviceProtocolService(injector.getInstance(InboundDeviceProtocolService.class));
+        protocolPluggableService.addDeviceProtocolService(injector.getInstance(DeviceProtocolService.class));
+        protocolPluggableService.addConnectionTypeService(injector.getInstance(ConnectionTypeService.class));
+        protocolPluggableService.addDeviceProtocolMessageService(injector.getInstance(DeviceProtocolMessageService.class));
+        protocolPluggableService.addDeviceProtocolSecurityService(injector.getInstance(DeviceProtocolSecurityService.class));
+        protocolPluggableService.addLicensedProtocolService(injector.getInstance(LicensedProtocolService.class));
+
         PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
         propertySpecService.addFactoryProvider((DeviceServiceImpl)injector.getInstance(DeviceService.class));
         propertySpecService.addFactoryProvider((ConnectionTaskServiceImpl)injector.getInstance(ConnectionTaskService.class));

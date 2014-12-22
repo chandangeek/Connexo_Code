@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class Store {
     private Map<String, Object> properties;
@@ -74,6 +75,11 @@ public class Store {
     public <T> List<T> get(Class<T> clazz){
         List<T> list = (List<T>) objetcs.get(clazz);
         return list != null ? list : Collections.<T>emptyList();
+    }
+
+    public <T> Optional<T> getLast(Class<T> clazz){
+        List<T> all = get(clazz);
+        return all.isEmpty() ? Optional.<T>empty() : Optional.of(all.get(all.size() - 1));
     }
 
     public <T> void add(Class<T> clazz, T obj){

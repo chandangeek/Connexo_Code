@@ -12,38 +12,41 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import javax.inject.Inject;
 import java.util.Optional;
 
-public class IssueRuleGenerator {
+public class IssueRuleGenerator extends NamedGenerator<IssueRuleGenerator> {
     private static final String ISSUE_REASON_KEY = "reason.connection.failed";
     private static final String BASIC_DATA_COLLECTION_UUID = "e29b-41d4-a716";
+    public static final String TYPE_CONNECTION_LOST = "CONNECTION_LOST";
+    public static final String TYPE_COMMUNICATION_FAILED = "DEVICE_COMMUNICATION_FAILURE";
 
     private final IssueCreationService issueCreationService;
     private final IssueService issueService;
     private final Store store;
 
-    private String name;
+    private String type;
 
     @Inject
     public IssueRuleGenerator(Store store, IssueCreationService issueCreationService, IssueService issueService) {
+        super(IssueRuleGenerator.class);
         this.store = store;
         this.issueCreationService = issueCreationService;
         this.issueService = issueService;
     }
 
-    public IssueRuleGenerator withName(String name){
-        this.name = name;
+    public IssueRuleGenerator withType(String type){
+        this.type = type;
         return this;
     }
 
     public void create(){
-        System.out.println("==> Creating issue creation rule " + name + "...");
+        System.out.println("==> Creating issue creation rule " + getName() + "...");
         CreationRule rule = issueCreationService.createRule();
-        rule.setName(this.name);
+        rule.setName(getName());
         rule.setReason(getReasonForRule());
         rule.setTemplateUuid(BASIC_DATA_COLLECTION_UUID);
         rule.setDueInType(DueInType.MONTH);
         rule.setDueInValue(1);
         rule.setContent(getCreationRuleTemplate().getContent());
-        rule.addParameter("eventType", "CONNECTION_LOST");
+        rule.addParameter("eventType", type);
         rule.validate();
         rule.save();
         store.add(CreationRule.class, rule);

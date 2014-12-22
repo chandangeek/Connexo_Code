@@ -11,23 +11,18 @@ import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class DeviceGroupGenerator {
+public class DeviceGroupGenerator extends NamedGenerator<DeviceGroupGenerator> {
 
     private final MeteringGroupsService meteringGroupsService;
     private final Store store;
 
-    private String name;
     private String[] deviceTypes;
 
     @Inject
     public DeviceGroupGenerator(Store store, MeteringGroupsService meteringGroupsService) {
+        super(DeviceGroupGenerator.class);
         this.store = store;
         this.meteringGroupsService = meteringGroupsService;
-    }
-
-    public DeviceGroupGenerator withName(String name){
-        this.name = name;
-        return this;
     }
 
     public DeviceGroupGenerator withDeviceTypes(String... deviceTypes){
@@ -36,13 +31,13 @@ public class DeviceGroupGenerator {
     }
 
     public void create(){
-        System.out.println("==> Creating device group " + name + "...");
-        Optional<EndDeviceGroup> groupByName = meteringGroupsService.findEndDeviceGroupByName(name);
+        System.out.println("==> Creating device group " + getName() + "...");
+        Optional<EndDeviceGroup> groupByName = meteringGroupsService.findEndDeviceGroupByName(getName());
         if (groupByName.isPresent()) {
             store.add(EndDeviceGroup.class, groupByName.get());
         } else {
             EndDeviceGroup endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(getCondition());
-            endDeviceGroup.setName(name);
+            endDeviceGroup.setName(getName());
             // dynamic
             endDeviceGroup.setQueryProviderName("com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider");
             endDeviceGroup.save();

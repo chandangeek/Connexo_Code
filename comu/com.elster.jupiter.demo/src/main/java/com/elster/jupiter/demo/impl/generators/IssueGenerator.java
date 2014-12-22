@@ -19,12 +19,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
 public class IssueGenerator {
-    private static final String INSERT_INTO_ISSUE = "INSERT INTO ISU_ISSUE_OPEN (ID, REASON_ID, STATUS, DEVICE_ID, OVERDUE, RULE_ID, VERSIONCOUNT, CREATETIME, MODTIME, USERNAME)" +
-            " VALUES (?, ?, ?, ?, 0, ?, ?, ?, ?, ?)";
+    private static final String INSERT_INTO_ISSUE = "INSERT INTO ISU_ISSUE_OPEN (ID, DUE_DATE, REASON_ID, STATUS, DEVICE_ID, OVERDUE, RULE_ID, VERSIONCOUNT, CREATETIME, MODTIME, USERNAME)" +
+            " VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?)";
     private static final String INSERT_INTO_DC_ISSUE = "Insert into IDC_ISSUE_OPEN (ID,ISSUE,CON_TASK,VERSIONCOUNT,CREATETIME,MODTIME,USERNAME) " +
             "values (?, ?, ?, ?, ?, ? ,?)";
     private static final String ISSUE_REASON_KEY = "reason.connection.failed";
@@ -38,16 +39,29 @@ public class IssueGenerator {
     private final Store store;
 
     private Device device;
+    private Instant dueDate;
+    private String issueReason;
 
     @Inject
     public IssueGenerator(Store store, DataModel dataModel, MeteringService meteringService) {
         this.store = store;
         this.dataModel = dataModel;
         this.meteringService = meteringService;
+        issueReason = ISSUE_REASON_KEY;
     }
 
     public IssueGenerator withDevice(Device device) {
         this.device = device;
+        return this;
+    }
+
+    public IssueGenerator withDueDate(Instant dueDate) {
+        this.dueDate = dueDate;
+        return this;
+    }
+
+    public IssueGenerator withIssueReason(String issueReason){
+        this.issueReason = issueReason;
         return this;
     }
 
@@ -62,6 +76,9 @@ public class IssueGenerator {
             List<ConnectionTask<?, ?>> tasks = device.getConnectionTasks();
             if (tasks.isEmpty()){
                 throw new UnableToCreate("There is no connection tasks on device " + device.getmRID());
+            }
+            if (dueDate == null){
+                dueDate = currentTime.plus(14, ChronoUnit.DAYS);
             }
             long baseIssueId = getNext(connection, ISSUE_SEQUENCE);
             createBaseIssue(connection, creationRules, currentTime, baseIssueId);
@@ -87,14 +104,15 @@ public class IssueGenerator {
     private void createBaseIssue(Connection connection, List<CreationRule> creationRules, Instant currentTime, long baseIssueId) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(INSERT_INTO_ISSUE);
         statement.setLong(1, baseIssueId); /* issue id */
-        statement.setString(2, ISSUE_REASON_KEY); /* reason reference */
-        statement.setString(3, ISSUE_STATUS_KEY); /* status reference */
-        statement.setLong(4, getEndDevice().getId()); /* device reference - to the kore meter */
-        statement.setLong(5, creationRules.get(0).getId()); /* creation rule reference */
-        statement.setInt(6, ISSUE_VERSION); /* current version of issue */
-        statement.setLong(7, currentTime.toEpochMilli()); /* creation time */
-        statement.setLong(8, currentTime.toEpochMilli()); /* modification time */
-        statement.setString(9, ISSUE_AUTHOR); /* created by user */
+        statement.setLong(2, dueDate.toEpochMilli()); /* issue id */
+        statement.setString(3, ISSUE_REASON_KEY); /* reason reference */
+        statement.setString(4, ISSUE_STATUS_KEY); /* status reference */
+        statement.setLong(5, getEndDevice().getId()); /* device reference - to the kore meter */
+        statement.setLong(6, creationRules.get(0).getId()); /* creation rule reference */
+        statement.setInt(7, ISSUE_VERSION); /* current version of issue */
+        statement.setLong(8, currentTime.toEpochMilli()); /* creation time */
+        statement.setLong(9, currentTime.toEpochMilli()); /* modification time */
+        statement.setString(10, ISSUE_AUTHOR); /* created by user */
         statement.execute();
     }
 
