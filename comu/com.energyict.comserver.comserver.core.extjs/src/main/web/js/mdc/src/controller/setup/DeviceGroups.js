@@ -159,10 +159,6 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
                 Ext.Array.each(Ext.ComponentQuery.query('#edit-device-group'), function (item) {
                     item.show();
                 });
-            } else if (!Uni.Auth.hasNoPrivilege('privilege.administrate.deviceGroup')) {
-                Ext.Array.each(Ext.ComponentQuery.query('#edit-device-group'), function (item) {
-                    item.hide();
-                });
             }
             me.getSearchCriteriaContainer().setVisible(true);
             var criteria = record.criteriaStore.data.items;
@@ -194,13 +190,14 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
                 )
             }
         } else {
+            if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceOfEnumeratedGroup'])) {
+                Ext.Array.each(Ext.ComponentQuery.query('#edit-device-group'), function (item) {
+                    item.show();
+                });
+            }
             if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup','privilege.administrate.deviceOfEnumeratedGroup','privilege.view.deviceGroupDetail'])) {
                 Ext.Array.each(Ext.ComponentQuery.query('#remove-device-group'), function (item) {
                     item.show();
-                });
-            } else if (!Uni.Auth.hasNoPrivilege('privilege.administrate.deviceGroup')) {
-                Ext.Array.each(Ext.ComponentQuery.query('#remove-device-group'), function (item) {
-                    item.hide();
                 });
             }
             me.getSearchCriteriaContainer().setVisible(false);
