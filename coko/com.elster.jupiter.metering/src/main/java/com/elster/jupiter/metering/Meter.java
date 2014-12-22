@@ -1,12 +1,11 @@
 package com.elster.jupiter.metering;
 
-import com.elster.jupiter.metering.impl.MeterActivationImpl;
 import com.elster.jupiter.metering.readings.MeterReading;
-import java.util.Optional;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 public interface Meter extends EndDevice, ReadingContainer {
 
@@ -18,7 +17,7 @@ public interface Meter extends EndDevice, ReadingContainer {
 
     MeterActivation activate(Instant start);
 
-    MeterActivationImpl activate(UsagePoint usagePoint, Instant start);
+    MeterActivation activate(UsagePoint usagePoint, Instant start);
 
     Optional<? extends MeterActivation> getCurrentMeterActivation();
 
