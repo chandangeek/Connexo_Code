@@ -15,6 +15,7 @@ Ext.define('Uni.Loader', {
 
         'Uni.About',
         'Uni.I18n',
+        'Uni.DateTime',
         'Uni.Auth',
 
         'Uni.controller.Acknowledgements',
