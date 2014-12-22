@@ -159,7 +159,21 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 // Try the next DeviceProtocolService
             }
         }
+        if (this.deviceProtocolServices.isEmpty()) {
+            LOGGER.fine("No registered device protocol services");
+        }
+        else {
+            LOGGER.log(Level.FINE, this::allDeviceProtocolServiceClassNames);
+        }
         throw new NoServiceFoundThatCanLoadTheJavaClass(javaClassName);
+    }
+
+    private String allDeviceProtocolServiceClassNames() {
+        return this.deviceProtocolServices
+                .stream()
+                .map(Object::getClass)
+                .map(Class::getName)
+                .collect(Collectors.joining(", "));
     }
 
     @Override
@@ -698,7 +712,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     public ConnectionType createConnectionType(String javaClassName) {
         ConnectionType connectionType = null;
         Throwable throwable = null;
-        for (ConnectionTypeService connectionTypeService : getConnectionTypeServices()) {
+        for (ConnectionTypeService connectionTypeService : this.connectionTypeServices) {
             try {
                 connectionType = connectionTypeService.createConnectionType(javaClassName);
             }
@@ -711,13 +725,27 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             return connectionType;
         }
         else {
+            if (this.connectionTypeServices.isEmpty()) {
+                LOGGER.fine("No registered connection type services");
+            }
+            else {
+                LOGGER.log(Level.FINE, this::allConnectionTypeServiceClassNames);
+            }
             throw new UnableToCreateConnectionType(throwable, javaClassName);
         }
     }
 
+    private String allConnectionTypeServiceClassNames() {
+        return this.connectionTypeServices
+                .stream()
+                .map(Object::getClass)
+                .map(Class::getName)
+                .collect(Collectors.joining(", "));
+    }
+
     @Override
     public InboundDeviceProtocol createInboundDeviceProtocolFor(PluggableClass pluggableClass) {
-        InboundDeviceProtocol inboundDeviceProtocol = null;
+        InboundDeviceProtocol inboundDeviceProtocol;
         Exception throwable = null;
         for (InboundDeviceProtocolService inboundDeviceProtocolService : this.inboundDeviceProtocolServices) {
             try {
@@ -731,7 +759,21 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 // silently ignore, will try other service
             }
         }
+        if (this.inboundDeviceProtocolServices.isEmpty()) {
+            LOGGER.fine("No registered inbound device protocol services");
+        }
+        else {
+            LOGGER.log(Level.FINE, this::allInboundDeviceProtocolServiceClassNames);
+        }
         throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(MessageSeeds.GENERIC_JAVA_REFLECTION_ERROR, throwable, pluggableClass.getJavaClassName());
+    }
+
+    private String allInboundDeviceProtocolServiceClassNames() {
+        return this.inboundDeviceProtocolServices
+                .stream()
+                .map(Object::getClass)
+                .map(Class::getName)
+                .collect(Collectors.joining(", "));
     }
 
     @Override
@@ -778,21 +820,32 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     private void registerDeviceProtocolPluggableClasses() {
-        new DeviceProtocolPluggableClassRegistrar(this, this.transactionService).registerAll(this.getAllLicensedProtocols());
+        if (!this.deviceProtocolServices.isEmpty()) {
+            new DeviceProtocolPluggableClassRegistrar(this, this.transactionService).registerAll(this.getAllLicensedProtocols());
+        }
+        else {
+            LOGGER.fine("No device protocol services have registered yet, makes no sense to attempt to register all device protocol pluggable classes");
+        }
     }
 
     private void registerInboundDeviceProtocolPluggableClasses() {
-        new InboundDeviceProtocolPluggableClassRegistrar(this, this.transactionService).
-                registerAll(Collections.unmodifiableList(this.inboundDeviceProtocolServices));
+        if (!this.inboundDeviceProtocolServices.isEmpty()) {
+            new InboundDeviceProtocolPluggableClassRegistrar(this, this.transactionService).
+                    registerAll(Collections.unmodifiableList(this.inboundDeviceProtocolServices));
+        }
+        else {
+            LOGGER.fine("No inbound protocol services have registered yet, makes no sense to attempt to register all inboudn device protocol pluggable classes");
+        }
     }
 
     private void registerConnectionTypePluggableClasses() {
-        new ConnectionTypePluggableClassRegistrar(this, this.transactionService).
-                registerAll(Collections.unmodifiableList(this.connectionTypeServices));
-    }
-
-    @Deactivate
-    public void deactivate() {
+        if (!this.connectionTypeServices.isEmpty()) {
+            new ConnectionTypePluggableClassRegistrar(this, this.transactionService).
+                    registerAll(Collections.unmodifiableList(this.connectionTypeServices));
+        }
+        else {
+            LOGGER.fine("No connection type services have registered yet, makes no sense to attempt to register all connection type pluggable classes");
+        }
     }
 
     @Reference
