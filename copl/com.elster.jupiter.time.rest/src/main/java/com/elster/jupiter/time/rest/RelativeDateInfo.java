@@ -131,6 +131,11 @@ public class RelativeDateInfo {
                     minuteEnabled = false;
                     break;
             }
+        } else if (startNow != null && startNow) {
+            dayOfWeekEnabled = false;
+            hourEnabled = false;
+            minuteEnabled = false;
+            dayOfMonthEnabled = false;
         }
         if (startFixedDay!= null && startFixedMonth!= null && startFixedYear !=null) {
             operations.add(new RelativeOperation(RelativeField.DAY, RelativeOperator.EQUAL, startFixedDay));
