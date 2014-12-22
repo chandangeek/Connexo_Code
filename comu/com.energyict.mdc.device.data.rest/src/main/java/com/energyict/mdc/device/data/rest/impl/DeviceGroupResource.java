@@ -24,11 +24,14 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -50,18 +53,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Functions.asStream;
@@ -173,19 +164,12 @@ public class DeviceGroupResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
     @Path("/{id}")
-    public Response removeDeviceGroup(DeviceGroupInfo deviceGroupInfo, @PathParam("id") long id) {
-        try {
-            EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(id)
-                    .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    public Response removeDeviceGroup(@PathParam("id") long id) {
+        EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(id)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
 
-            endDeviceGroup.delete();
-            return Response.ok().build();
-        } catch (WebApplicationException e) {
-            throw e;
-        } catch (RuntimeException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new WebApplicationException(e.getLocalizedMessage());
-        }
+        endDeviceGroup.delete();
+        return Response.ok().build();
     }
 
     @POST
