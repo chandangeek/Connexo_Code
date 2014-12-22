@@ -53,6 +53,7 @@ import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.favorites.LabelCategory;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
@@ -192,6 +193,7 @@ public class FavoritesServiceImplTest {
         try (TransactionContext ctx = getTransactionService().getContext()) {
             userService = injector.getInstance(UserService.class);
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
+            injector.getInstance(MasterDataService.class);
             deviceService = injector.getInstance(DeviceService.class);
             favoritesService = injector.getInstance(FavoritesService.class);
 
