@@ -3,6 +3,7 @@ package com.elster.jupiter.nls;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import javax.validation.MessageInterpolator;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
 
@@ -41,4 +42,6 @@ public interface Thesaurus extends MessageInterpolator {
     Map<String, String> getTranslations();
 
     Thesaurus join(Thesaurus thesaurus);
+
+    DateTimeFormatter forLocale(DateTimeFormatter dateTimeFormatter);
 }

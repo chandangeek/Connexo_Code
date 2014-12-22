@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -109,5 +110,10 @@ public class CompositeThesaurus implements IThesaurus {
         }
         components.add(thesaurus);
         return this;
+    }
+
+    @Override
+    public DateTimeFormatter forLocale(DateTimeFormatter dateTimeFormatter) {
+        return components.stream().findFirst().map(th -> th.forLocale(dateTimeFormatter)).orElseThrow(IllegalStateException::new);
     }
 }

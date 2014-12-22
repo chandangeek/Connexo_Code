@@ -17,6 +17,7 @@ import com.google.inject.Provider;
 import javax.inject.Inject;
 
 import java.text.MessageFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -217,6 +218,14 @@ class ThesaurusImpl implements IThesaurus {
             return thesaurus.join(this);
         }
         return new CompositeThesaurus(threadPrincipalService, this, thesaurus);
+    }
+
+    @Override
+    public DateTimeFormatter forLocale(DateTimeFormatter dateTimeFormatter) {
+        if (Objects.equals(dateTimeFormatter.getLocale(), getLocale())) {
+            return dateTimeFormatter;
+        }
+        return dateTimeFormatter.withLocale(getLocale());
     }
 
     private String translate(NlsKeyImpl nlsKey) {
