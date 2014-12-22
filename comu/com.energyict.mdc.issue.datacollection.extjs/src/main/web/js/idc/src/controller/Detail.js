@@ -47,6 +47,6 @@ Ext.define('Idc.controller.Detail', {
     },
 
     showOverview: function (id) {
-        this.callParent([id, 'Idc.model.Issue', 'Idc.store.Issues', 'data-collection-issue-detail', 'workspace/datacollection/issues', 'datacollection']);
+        this.callParent([id, 'Idc.model.Issue', 'Idc.store.Issues', 'data-collection-issue-detail', 'workspace/datacollectionissues', 'datacollection']);
     }
 });
