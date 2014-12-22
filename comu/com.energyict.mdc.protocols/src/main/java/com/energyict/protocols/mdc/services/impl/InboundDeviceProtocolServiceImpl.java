@@ -23,6 +23,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,6 +41,19 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
     private volatile PropertySpecService propertySpecService;
     private volatile Clock clock;
     private Injector injector;
+
+    public InboundDeviceProtocolServiceImpl() {
+    }
+
+    @Inject
+    public InboundDeviceProtocolServiceImpl(MdcReadingTypeUtilService readingTypeUtilService, PropertySpecService propertySpecService, Clock clock, NlsService nlsService) {
+        setReadingTypeUtilService(readingTypeUtilService);
+        setPropertySpecService(propertySpecService);
+        setClock(clock);
+        setNlsService(nlsService);
+
+        activate();
+    }
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
