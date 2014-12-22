@@ -17,6 +17,7 @@ import com.google.common.collect.Range;
 
 import javax.inject.Provider;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -167,6 +168,9 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
     
     @Override
     public List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter) {
+		if (filter == null){
+			return Collections.emptyList();
+		}
         final String anyNumberPattern = "[0-9]{1,3}";
         StringBuilder regExp = new StringBuilder();
         regExp.append("^").append(anyNumberPattern).append("\\.");
@@ -174,7 +178,10 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
         regExp.append(filter.subDomain != null ? filter.subDomain.getValue() : anyNumberPattern).append("\\.");
         regExp.append(filter.eventOrAction != null ? filter.eventOrAction.getValue() : anyNumberPattern).append("$");
 
-        Condition condition = inRange(filter.range).and(where("logBookId").isEqualTo(filter.logBookId)).and(where("eventType.mRID").matches(regExp.toString(), "i"));
+        Condition condition = inRange(filter.range).and(where("eventType.mRID").matches(regExp.toString(), "i"));
+		if (filter.logBookId > 0){
+			condition = condition.and(where("logBookId").isEqualTo(filter.logBookId));
+		}
         return dataModel.query(EndDeviceEventRecord.class, EndDeviceEventType.class).select(condition, Order.descending("createdDateTime"));
     }
 
