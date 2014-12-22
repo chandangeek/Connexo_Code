@@ -1,13 +1,11 @@
-package com.elster.jupiter.metering.groups.impl;
+package com.elster.jupiter.metering.groups;
 
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-
-public class EndDeviceGroupEvent {
+public class EndDeviceGroupEventData {
 
     private long id;
     private EndDeviceGroup endDeviceGroup;
 
-    public EndDeviceGroupEvent(EndDeviceGroup endDeviceGroup) {
+    public EndDeviceGroupEventData(EndDeviceGroup endDeviceGroup) {
         this.endDeviceGroup = endDeviceGroup;
         this.id = endDeviceGroup.getId();
     }

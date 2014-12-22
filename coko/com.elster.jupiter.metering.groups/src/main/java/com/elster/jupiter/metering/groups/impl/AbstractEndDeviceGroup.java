@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.groups.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.EndDeviceGroupEventData;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.EventType;
 import com.elster.jupiter.metering.groups.MessageSeeds;
@@ -53,7 +54,7 @@ public abstract class AbstractEndDeviceGroup extends AbstractGroup implements En
     }
 
     private void validateNotUsed() {
-        this.eventService.postEvent(EventType.ENDDEVICEGROUP_VALIDATE_DELETED.topic(), new EndDeviceGroupEvent(this));
+        this.eventService.postEvent(EventType.ENDDEVICEGROUP_VALIDATE_DELETED.topic(), new EndDeviceGroupEventData(this));
     }
 
     // ORM inheritance map

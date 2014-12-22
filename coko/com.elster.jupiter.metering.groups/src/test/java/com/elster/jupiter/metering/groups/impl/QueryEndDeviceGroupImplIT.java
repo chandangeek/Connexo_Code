@@ -11,7 +11,6 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.metering.impl.MeteringServiceImpl;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -24,15 +23,14 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Operator;
-
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Optional;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
+import java.sql.SQLException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,9 +39,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
-
-import java.sql.SQLException;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -60,7 +55,6 @@ public class QueryEndDeviceGroupImplIT {
     private UserService userService;
     @Mock
     private EventAdmin eventAdmin;
-
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
@@ -99,8 +93,8 @@ public class QueryEndDeviceGroupImplIT {
             public Void perform() {
                 injector.getInstance(MeteringGroupsService.class);
 
-                MeteringGroupsService meteringGroupsService = (MeteringGroupsServiceImpl) injector.getInstance(MeteringGroupsService.class);
-                MeteringService meteringService = (MeteringServiceImpl) injector.getInstance(MeteringService.class);
+                MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
+                MeteringService meteringService = injector.getInstance(MeteringService.class);
 
                 SimpleEndDeviceQueryProvider endDeviceQueryProvider = new SimpleEndDeviceQueryProvider();
                 endDeviceQueryProvider.setMeteringService(meteringService);
