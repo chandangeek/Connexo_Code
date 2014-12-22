@@ -7931,7 +7931,7 @@ a.x-tab .x-tab-inner-right {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-medium .x-btn-arrow {
@@ -8393,7 +8393,7 @@ a.x-tab .x-tab-inner-right {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-large .x-btn-arrow {
@@ -9324,7 +9324,7 @@ a.x-tab .x-tab-inner-right {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-toolbar-medium .x-btn-arrow {
@@ -9793,7 +9793,7 @@ a.x-tab .x-tab-inner-right {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-toolbar-large .x-btn-arrow {
@@ -15082,7 +15082,7 @@ div.x-lbl-top-err-icon {
 /* line 6, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-form-item,
 .x-form-field {
-  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif;
+  font: normal 13px Lato;
 }
 
 /* line 21, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/Base.scss */
@@ -15162,7 +15162,7 @@ textarea.x-form-empty-field {
 
 /* line 11, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/Display.scss */
 .x-form-display-field {
-  font: normal 13px/17px "Lato", helvetica, arial, verdana, sans-serif;
+  font: normal 13px/17px Lato;
   color: #686868;
   margin-top: 6px;
 }
@@ -15649,7 +15649,7 @@ div.x-form-spinner-down {
 .x-datepicker-arrow {
   width: 12px;
   height: 12px;
-  top: 11px;
+  top: 7px;
   cursor: pointer;
   background-color: #70bb51;
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=70);
@@ -16105,7 +16105,7 @@ a.x-color-picker-item:hover {
 
 /* line 100, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/HtmlEditor.scss */
 .x-html-editor-wrap textarea {
-  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif;
+  font: normal 13px Lato;
   background-color: white;
   resize: none;
 }
@@ -20458,7 +20458,7 @@ a.x-color-picker-item:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-plain-toolbar-medium .x-btn-arrow {
@@ -20915,7 +20915,7 @@ a.x-color-picker-item:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-plain-toolbar-large .x-btn-arrow {

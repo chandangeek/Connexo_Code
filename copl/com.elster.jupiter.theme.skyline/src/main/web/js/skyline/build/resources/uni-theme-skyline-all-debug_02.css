@@ -519,7 +519,7 @@
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-medium .x-btn-arrow {
@@ -982,7 +982,7 @@
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-large .x-btn-arrow {
@@ -1914,7 +1914,7 @@
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-toolbar-medium .x-btn-arrow {
@@ -2383,7 +2383,7 @@
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-toolbar-large .x-btn-arrow {
@@ -3348,7 +3348,7 @@ a:hover, a.x-btn:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: #686868;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-medium .x-btn-arrow {
@@ -3835,7 +3835,7 @@ a:hover, a.x-btn:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: #686868;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-large .x-btn-arrow {
@@ -4818,7 +4818,7 @@ a:hover, a.x-btn:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: #686868;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-toolbar-medium .x-btn-arrow {
@@ -5314,7 +5314,7 @@ a:hover, a.x-btn:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: #686868;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-toolbar-large .x-btn-arrow {
@@ -5822,7 +5822,7 @@ a:hover, a.x-btn:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: #1e7d9e;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-menuitem-large .x-btn-arrow {
@@ -6842,7 +6842,7 @@ a:hover, a.x-btn:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-medium .x-btn-arrow {
@@ -7305,7 +7305,7 @@ a:hover, a.x-btn:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-large .x-btn-arrow {
@@ -8237,7 +8237,7 @@ a:hover, a.x-btn:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-toolbar-medium .x-btn-arrow {
@@ -8706,7 +8706,7 @@ a:hover, a.x-btn:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-toolbar-large .x-btn-arrow {
@@ -9636,7 +9636,7 @@ a:hover, a.x-btn:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: #686868;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-tag-medium .x-btn-arrow {
@@ -10097,7 +10097,7 @@ a:hover, a.x-btn:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: #686868;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-tag-large .x-btn-arrow {
@@ -11027,7 +11027,7 @@ a:hover, a.x-btn:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: #686868;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-tag-toolbar-medium .x-btn-arrow {
@@ -11496,7 +11496,7 @@ a:hover, a.x-btn:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: #686868;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-tag-toolbar-large .x-btn-arrow {
@@ -12469,7 +12469,7 @@ a:hover, a.x-btn:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: #686868;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-sort-medium .x-btn-arrow {
@@ -12931,7 +12931,7 @@ a:hover, a.x-btn:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: #686868;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-sort-large .x-btn-arrow {
@@ -13862,7 +13862,7 @@ a:hover, a.x-btn:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: #686868;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-sort-toolbar-medium .x-btn-arrow {
@@ -14331,7 +14331,7 @@ a:hover, a.x-btn:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: #686868;
-  padding: 0 4px;
+  padding: 0 0px;
 }
 /* line 270, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-sort-toolbar-large .x-btn-arrow {
