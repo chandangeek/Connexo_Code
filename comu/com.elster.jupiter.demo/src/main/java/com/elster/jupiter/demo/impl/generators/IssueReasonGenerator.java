@@ -35,7 +35,7 @@ public class IssueReasonGenerator {
         store.add(IssueReason.class, reason);
     }
 
-    private static enum MessageSeeds implements MessageSeed {
+    public static enum MessageSeeds implements MessageSeed {
         REASON_DAILY_BILLING_READ_FAILED(1, "reason.demo", "Daily billing read failed", Level.INFO),
         REASON_SUSPECT_VALUES(2, "reason.demo.loadprofile", "Suspect values", Level.INFO),
         ;

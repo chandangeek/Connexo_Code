@@ -4,11 +4,13 @@ import com.elster.jupiter.demo.DemoService;
 import com.elster.jupiter.demo.impl.generators.ComServerGenerator;
 import com.elster.jupiter.demo.impl.generators.DeviceGenerator;
 import com.elster.jupiter.demo.impl.generators.DeviceGroupGenerator;
+import com.elster.jupiter.demo.impl.generators.IssueCommentGenerator;
 import com.elster.jupiter.demo.impl.generators.IssueGenerator;
 import com.elster.jupiter.demo.impl.generators.IssueReasonGenerator;
 import com.elster.jupiter.demo.impl.generators.IssueRuleGenerator;
 import com.elster.jupiter.demo.impl.generators.KpiGenerator;
 import com.elster.jupiter.demo.impl.generators.OutboundTCPComPortGenerator;
+import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
@@ -273,7 +275,7 @@ public class DemoServiceImpl implements DemoService {
                 if (!license.isPresent() || !License.Status.ACTIVE.equals(license.get().getStatus())) {
                     throw new IllegalStateException("MDC License isn't installed correctly");
                 }
-                store.getProperties().put("host", host);
+                store.addProperty("host", host);
 
                 createComServer("Deitvs099");
                 createComServer(comServerName);
@@ -671,7 +673,7 @@ public class DemoServiceImpl implements DemoService {
         configuration.getCommunicationConfiguration()
                 .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(60, TimeDuration.TimeUnit.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .comPortPool(store.getOutboundComPortPools().get(OUTBOUND_TCP_POOL_NAME))
-                .addProperty("host", store.getProperties().get("host"))
+                .addProperty("host", store.getProperty("host"))
                 .addProperty("portNumber", new BigDecimal(4059))
                 .asDefault(true).build();
     }
@@ -719,7 +721,7 @@ public class DemoServiceImpl implements DemoService {
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .setNextExecutionSpecsFrom(null)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                .setProperty("host", store.getProperties().get("host"))
+                .setProperty("host", store.getProperty("host"))
                 .setProperty("portNumber", new BigDecimal(portNumber))
                 .setSimultaneousConnectionsAllowed(false)
                 .add();
@@ -732,8 +734,29 @@ public class DemoServiceImpl implements DemoService {
         for (Device device : devices) {
             if (device.getmRID().startsWith(DEVICE_STANDARD_PREFIX)){
                 issueGenerator.withDevice(device).create();
-            } else if (device.getmRID().startsWith(DEVICE_LP_DATA_PREFIX)){
+            } else if (device.getmRID().equals(DEVICE_DABF_12)) {
+                issueGenerator.withDevice(device)
+                        .withDueDate(Instant.now().plus(12, ChronoUnit.DAYS))
+                        .withIssueReason(IssueReasonGenerator.MessageSeeds.REASON_DAILY_BILLING_READ_FAILED.getKey())
+                        .create();
 
+                store.getLast(Issue.class).ifPresent(
+                        i -> injector.getInstance(IssueCommentGenerator.class)
+                                .withIssue(i)
+                                .withUser(USER_NAME_SYSTEM)
+                                .withComment("System check: Missing data occurred on this channel: <a href=index.html#/devices/" + DEVICE_DABF_12 + "/channels/" + device.getChannels().get(0).getId() + "/table?filter=%7B%22intervalStart%22%3A%222014-12-18T13%3A00%3A00%22%2C%22duration%22%3A%222weeks%22%2C%22onlySuspect%22%3Atrue%2C%22onlyNonSuspect%22%3Afalse%7D>Bulk A+ all phases (Wh)</a>")
+                                .create());
+            } else if (device.getmRID().equals(DEVICE_DABF_13)){
+                issueGenerator.withDevice(device)
+                        .withDueDate(Instant.now().plus(10, ChronoUnit.DAYS))
+                        .withIssueReason(IssueReasonGenerator.MessageSeeds.REASON_SUSPECT_VALUES.getKey())
+                        .create();
+                store.getLast(Issue.class).ifPresent(
+                        i -> injector.getInstance(IssueCommentGenerator.class)
+                                .withIssue(i)
+                                .withUser(USER_NAME_SYSTEM)
+                                .withComment("System check: Peak detected on this channel: <a href=index.html#/devices/" + DEVICE_DABF_13 + "/channels/"+ device.getChannels().get(0).getId() + "/graph?filter=%7B%22intervalStart%22%3A%222014-07-30T20%3A00%3A00%22%2C%22duration%22%3A%222weeks%22%2C%22onlySuspect%22%3Afalse%2C%22onlyNonSuspect%22%3Afalse%2C%22id%22%3Anull%7D>Bulk A+ all phases (Wh)</a>")
+                                .create());
             }
         }
     }

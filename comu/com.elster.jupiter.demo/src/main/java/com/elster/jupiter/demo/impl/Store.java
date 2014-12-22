@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Optional;
 
 public class Store {
-    private Map<String, Object> properties;
     private Map<String, RegisterType> registerTypes;
     private Map<String, RegisterGroup> registerGroups;
     private Map<String, LoadProfileType> loadProfileTypes;
@@ -25,7 +24,8 @@ public class Store {
     private Map<String, OutboundComPortPool> outboundComPortPools;
     private Map<String, ComSchedule> comSchedules;
 
-    private Map<Class, List<?>> objetcs;
+    private Map<String, Object> properties;
+    private Map<Class, List<?>> objects;
 
     public Store() {
         properties = new HashMap<>();
@@ -37,7 +37,7 @@ public class Store {
         outboundComPortPools = new HashMap<>();
         comSchedules = new HashMap<>();
 
-        objetcs = new HashMap<>();
+        objects = new HashMap<>();
     }
 
     public Map<String, RegisterType> getRegisterTypes() {
@@ -68,12 +68,16 @@ public class Store {
         return comSchedules;
     }
 
-    public Map<String, Object> getProperties() {
-        return properties;
+    public void addProperty(String name, Object value){
+        this.properties.put(name, value);
+    }
+
+    public Object getProperty(String name){
+        return this.properties.get(name);
     }
 
     public <T> List<T> get(Class<T> clazz){
-        List<T> list = (List<T>) objetcs.get(clazz);
+        List<T> list = (List<T>) objects.get(clazz);
         return list != null ? list : Collections.<T>emptyList();
     }
 
@@ -83,10 +87,10 @@ public class Store {
     }
 
     public <T> void add(Class<T> clazz, T obj){
-        List<T> list = (List<T>) objetcs.get(clazz);
+        List<T> list = (List<T>) objects.get(clazz);
         if (list == null){
             list = new ArrayList<>();
-            objetcs.put(clazz, list);
+            objects.put(clazz, list);
         }
         list.add(obj);
     }

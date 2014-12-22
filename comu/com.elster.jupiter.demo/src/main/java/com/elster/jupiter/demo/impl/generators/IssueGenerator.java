@@ -3,7 +3,9 @@ package com.elster.jupiter.demo.impl.generators;
 import com.elster.jupiter.demo.impl.Store;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
@@ -37,17 +39,19 @@ public class IssueGenerator {
     private final DataModel dataModel;
     private final MeteringService meteringService;
     private final Store store;
+    private final IssueService issueService;
 
     private Device device;
     private Instant dueDate;
     private String issueReason;
 
     @Inject
-    public IssueGenerator(Store store, DataModel dataModel, MeteringService meteringService) {
+    public IssueGenerator(Store store, DataModel dataModel, MeteringService meteringService, IssueService issueService) {
         this.store = store;
         this.dataModel = dataModel;
         this.meteringService = meteringService;
-        issueReason = ISSUE_REASON_KEY;
+        this.issueService = issueService;
+        this.issueReason = ISSUE_REASON_KEY;
     }
 
     public IssueGenerator withDevice(Device device) {
@@ -83,6 +87,7 @@ public class IssueGenerator {
             long baseIssueId = getNext(connection, ISSUE_SEQUENCE);
             createBaseIssue(connection, creationRules, currentTime, baseIssueId);
             createDataCollectionIssue(connection, tasks, currentTime, baseIssueId);
+            store.add(Issue.class, issueService.findOpenIssue(baseIssueId).get());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -105,7 +110,7 @@ public class IssueGenerator {
         PreparedStatement statement = connection.prepareStatement(INSERT_INTO_ISSUE);
         statement.setLong(1, baseIssueId); /* issue id */
         statement.setLong(2, dueDate.toEpochMilli()); /* issue id */
-        statement.setString(3, ISSUE_REASON_KEY); /* reason reference */
+        statement.setString(3, this.issueReason); /* reason reference */
         statement.setString(4, ISSUE_STATUS_KEY); /* status reference */
         statement.setLong(5, getEndDevice().getId()); /* device reference - to the kore meter */
         statement.setLong(6, creationRules.get(0).getId()); /* creation rule reference */
