@@ -55,6 +55,7 @@ import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionModule;
 import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionServiceImpl;
 import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
@@ -158,6 +159,7 @@ public abstract class BaseTest {
             // initialize Issue tables
             injector.getInstance(com.elster.jupiter.issue.impl.service.InstallServiceImpl.class);
             injector.getInstance(MeteringGroupsService.class);
+            injector.getInstance(MasterDataService.class);
             injector.getInstance(IssueDataCollectionService.class);
             ctx.commit();
         }
