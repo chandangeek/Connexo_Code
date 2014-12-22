@@ -38,6 +38,7 @@ import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -76,6 +77,10 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     private ObisCode overruledObisCode;
     private BigDecimal overflow;
     private TimeDuration interval;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Inject
     public ChannelSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, DeviceConfigurationService deviceConfigurationService) {

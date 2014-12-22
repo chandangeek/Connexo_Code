@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.validation.constraints.Size;
+import java.time.Instant;
 
 /**
  * Models a single key-value pair that holds onto the
@@ -24,6 +25,10 @@ class DeviceProtocolConfigurationProperty {
     private String name;
     @Size(min = 1, max = 4000, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String value;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     static DeviceProtocolConfigurationProperty forNameAndValue(String name, String value, DeviceConfiguration deviceConfiguration) {
         DeviceProtocolConfigurationProperty property = new DeviceProtocolConfigurationProperty();

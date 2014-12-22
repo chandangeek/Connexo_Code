@@ -23,6 +23,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.ImmutableMap;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -46,10 +47,6 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
 
     public static final Map<String, Class<? extends PartialConnectionTask>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends PartialConnectionTask>>of("0", PartialConnectionInitiationTaskImpl.class, "1", PartialInboundConnectionTaskImpl.class, "2", PartialScheduledConnectionTaskImpl.class);
 
-    private final EngineModelService engineModelService;
-    private final ProtocolPluggableService protocolPluggableService;
-
-
     enum Fields {
         CONNECTION_TYPE_PLUGGABLE_CLASS("pluggableClass");
         private final String javaFieldName;
@@ -63,6 +60,8 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
         }
     }
 
+    private final ProtocolPluggableService protocolPluggableService;
+
     @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     private String name;
@@ -74,12 +73,14 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
     private boolean isDefault;
     @Valid
     private List<PartialConnectionTaskPropertyImpl> properties = new ArrayList<>();
-    private Date modDate;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Inject
-    PartialConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
+    PartialConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ProtocolPluggableService protocolPluggableService) {
         super(PartialConnectionTask.class, dataModel, eventService, thesaurus);
-        this.engineModelService = engineModelService;
         this.protocolPluggableService = protocolPluggableService;
     }
 

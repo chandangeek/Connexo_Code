@@ -13,6 +13,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -29,8 +30,11 @@ public class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessag
     static class DeviceMessageUserActionRecord {
 
         private DeviceMessageUserAction userAction;
-
         private Reference<DeviceMessageEnablement> deviceMessageEnablement = ValueReference.absent();
+        private String userName;
+        private long version;
+        private Instant createTime;
+        private Instant modTime;
 
         DeviceMessageUserActionRecord() {
         }
@@ -48,6 +52,10 @@ public class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessag
     private List<DeviceMessageUserActionRecord> deviceMessageUserActionRecords = new ArrayList<>();
     private Reference<DeviceCommunicationConfiguration> deviceCommunicationConfiguration = ValueReference.absent();
     private DeviceMessageId deviceMessageId;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     static DeviceMessageEnablement from(DataModel dataModel, DeviceCommunicationConfigurationImpl deviceCommunicationConfiguration, DeviceMessageId deviceMessageId) {
         return dataModel.getInstance(DeviceMessageEnablementImpl.class).init(deviceCommunicationConfiguration, deviceMessageId);

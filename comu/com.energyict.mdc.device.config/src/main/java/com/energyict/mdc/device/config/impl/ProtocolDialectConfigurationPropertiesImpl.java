@@ -1,18 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.ValueFactory;
-
-import java.time.Clock;
-import java.time.Instant;
-
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
@@ -25,18 +12,25 @@ import com.energyict.mdc.device.config.exceptions.NoSuchPropertyOnDialectExcepti
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
+import org.hibernate.validator.constraints.NotEmpty;
+
 import javax.inject.Inject;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.NotEmpty;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author sva
@@ -47,7 +41,6 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
 
     private Reference<DeviceCommunicationConfiguration> deviceCommunicationConfiguration = ValueReference.absent();
 
-    private final Clock clock;
     private final DataModel dataModel;
 
     private DeviceProtocolDialect protocolDialect;
@@ -59,16 +52,18 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     private String protocolDialectName;
     private List<ProtocolDialectConfigurationProperty> propertyList = new ArrayList<>();
 
-    private Instant modDate;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     // transient
     private transient TypedProperties typedProperties;
 
     @Inject
-    ProtocolDialectConfigurationPropertiesImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock) {
+    ProtocolDialectConfigurationPropertiesImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(ProtocolDialectConfigurationProperties.class, dataModel, eventService, thesaurus);
         this.dataModel = dataModel;
-        this.clock = clock;
     }
 
     static class PropertyValueValidator implements ConstraintValidator<ProtocolDialectConfigurationHasCorrectPropertyValues, ProtocolDialectConfigurationPropertiesImpl> {
@@ -211,12 +206,6 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
         this.protocolDialect = protocolDialect;
         this.protocolDialectName = protocolDialect.getDeviceProtocolDialectName();
         return this;
-    }
-
-    @Override
-    public void save() {
-        modDate = clock.instant();
-        super.save();
     }
 
     @Override

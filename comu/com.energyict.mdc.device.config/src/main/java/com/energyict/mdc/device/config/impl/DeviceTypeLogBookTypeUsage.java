@@ -5,6 +5,8 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.masterdata.LogBookType;
 
+import java.time.Instant;
+
 /**
  * Models the fact that a {@link DeviceType} uses a {@link LogBookType}.
  *
@@ -14,6 +16,10 @@ import com.energyict.mdc.masterdata.LogBookType;
 class DeviceTypeLogBookTypeUsage {
     private Reference<DeviceType> deviceType = ValueReference.absent();
     private Reference<LogBookType> logBookType = ValueReference.absent();
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     // For orm service only
     DeviceTypeLogBookTypeUsage() {

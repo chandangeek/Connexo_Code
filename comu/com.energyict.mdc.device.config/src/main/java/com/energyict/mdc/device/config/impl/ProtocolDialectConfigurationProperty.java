@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 
 import javax.inject.Inject;
+import java.time.Instant;
 
 /**
  * Copyrights EnergyICT
@@ -14,9 +15,12 @@ import javax.inject.Inject;
 public class ProtocolDialectConfigurationProperty {
 
     private Reference<ProtocolDialectConfigurationProperties> properties = ValueReference.absent();
-
     private String name;
     private String value;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Inject
     public ProtocolDialectConfigurationProperty() {
@@ -41,4 +45,5 @@ public class ProtocolDialectConfigurationProperty {
         this.value = value;
         return this;
     }
+
 }

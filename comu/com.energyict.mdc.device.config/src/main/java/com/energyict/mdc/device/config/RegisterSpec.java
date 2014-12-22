@@ -8,7 +8,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 
 import com.elster.jupiter.validation.ValidationRule;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -77,7 +77,7 @@ public interface RegisterSpec extends HasId {
      *
      * @return the last modification date
      */
-    public Date getModificationDate();
+    public Instant getModificationDate();
 
     void validateDelete();
 

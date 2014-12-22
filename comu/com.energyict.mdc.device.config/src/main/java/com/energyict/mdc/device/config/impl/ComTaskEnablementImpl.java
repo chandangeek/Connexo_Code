@@ -7,7 +7,6 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.domain.util.Save;
@@ -18,6 +17,8 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+
+import java.time.Instant;
 import java.util.Optional;
 import org.hibernate.validator.constraints.Range;
 
@@ -60,8 +61,6 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         }
     }
 
-    private final SchedulingService schedulingService;
-
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.COM_TASK_ENABLEMENT_COM_TASK_REQUIRED + "}")
     private Reference<ComTask> comTask = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.COM_TASK_ENABLEMENT_CONFIGURATION_REQUIRED + "}")
@@ -77,11 +76,14 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     private Reference<PartialConnectionTask> partialConnectionTask = ValueReference.absent();
     private boolean suspended;
     private Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Inject
-    protected ComTaskEnablementImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, SchedulingService schedulingService) {
+    protected ComTaskEnablementImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(ComTaskEnablement.class, dataModel, eventService, thesaurus);
-        this.schedulingService = schedulingService;
     }
 
     ComTaskEnablementImpl initialize(DeviceCommunicationConfiguration deviceCommunicationConfiguration, ComTask comTask, SecurityPropertySet securityPropertySet) {

@@ -25,6 +25,7 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +42,10 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Inject
     public LoadProfileSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, DeviceConfigurationService deviceConfigurationService) {

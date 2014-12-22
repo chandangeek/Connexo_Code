@@ -18,6 +18,7 @@ import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.LogBookType;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.time.Instant;
 
 /**
  * Copyrights EnergyICT
@@ -31,6 +32,10 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     private final Reference<LogBookType> logBookType = ValueReference.absent();
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Inject
     public LogBookSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {

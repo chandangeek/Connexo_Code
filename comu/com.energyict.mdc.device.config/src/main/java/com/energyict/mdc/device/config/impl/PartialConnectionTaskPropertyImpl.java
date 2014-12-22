@@ -10,6 +10,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 
 import javax.inject.Inject;
+import java.time.Instant;
 
 /**
  * Provides an implementation for the {@link PartialConnectionTaskProperty} interface.
@@ -24,10 +25,13 @@ class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskProperty
     private final DataModel dataModel;
 
     private Reference<PartialConnectionTask> partialConnectionTask = ValueReference.absent();
-
     private String name;
     private String value;
     private transient Object objectValue;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Inject
     PartialConnectionTaskPropertyImpl(DataModel dataModel) {

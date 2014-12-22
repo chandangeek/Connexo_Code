@@ -55,7 +55,7 @@ public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectio
     private TimeDuration rescheduleRetryDelay;
 
     PartialOutboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {
-        super(dataModel, eventService, thesaurus, engineModelService, protocolPluggableService);
+        super(dataModel, eventService, thesaurus, protocolPluggableService);
         this.schedulingService = schedulingService;
     }
 

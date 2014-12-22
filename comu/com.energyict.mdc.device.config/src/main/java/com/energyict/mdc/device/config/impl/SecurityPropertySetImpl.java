@@ -12,7 +12,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
@@ -30,6 +29,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+
+import java.time.Instant;
 import java.util.Optional;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -72,8 +73,11 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private Set<DeviceSecurityUserAction> userActions = EnumSet.noneOf(DeviceSecurityUserAction.class);
     private List<UserActionRecord> userActionRecords = new ArrayList<>();
     private final ThreadPrincipalService threadPrincipalService;
-    private final UserService userService;
     private final DeviceConfigurationService deviceConfigurationService;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Override
     public String getName() {
@@ -138,6 +142,10 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     static class UserActionRecord {
         private DeviceSecurityUserAction userAction;
         private Reference<SecurityPropertySet> set = ValueReference.absent();
+        private String userName;
+        private long version;
+        private Instant createTime;
+        private Instant modTime;
 
         UserActionRecord() {
         }
@@ -157,10 +165,9 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     @Inject
-    public SecurityPropertySetImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, UserService userService, DeviceConfigurationService deviceConfigurationService) {
+    public SecurityPropertySetImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, DeviceConfigurationService deviceConfigurationService) {
         super(SecurityPropertySet.class, dataModel, eventService, thesaurus);
         this.threadPrincipalService = threadPrincipalService;
-        this.userService = userService;
         this.deviceConfigurationService = deviceConfigurationService;
     }
 

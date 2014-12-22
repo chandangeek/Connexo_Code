@@ -24,7 +24,7 @@ public class PartialInboundConnectionTaskImpl extends PartialConnectionTaskImpl 
 
     @Inject
     PartialInboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
-        super(dataModel, eventService, thesaurus, engineModelService, protocolPluggableService);
+        super(dataModel, eventService, thesaurus, protocolPluggableService);
     }
 
     static PartialInboundConnectionTaskImpl from(DataModel dataModel, DeviceCommunicationConfiguration configuration) {

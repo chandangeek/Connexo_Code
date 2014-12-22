@@ -24,8 +24,8 @@ import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +44,10 @@ public abstract class RegisterSpecImpl<T extends RegisterSpec> extends Persisten
     @Size(max = 80, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
-    private Date modificationDate;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Inject
     public RegisterSpecImpl(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
@@ -92,8 +95,8 @@ public abstract class RegisterSpecImpl<T extends RegisterSpec> extends Persisten
     }
 
     @Override
-    public Date getModificationDate() {
-        return modificationDate;
+    public Instant getModificationDate() {
+        return this.modTime;
     }
 
     protected void validateBeforeAddToConfiguration() {
@@ -167,10 +170,6 @@ public abstract class RegisterSpecImpl<T extends RegisterSpec> extends Persisten
     public void setOverruledObisCode(ObisCode overruledObisCode) {
         this.overruledObisCode = overruledObisCode;
         this.overruledObisCodeString = overruledObisCode==null?null:overruledObisCode.toString();
-    }
-
-    public void setModificationDate(Date modificationDate) {
-        this.modificationDate = modificationDate;
     }
 
     public List<ValidationRule> getValidationRules() {
