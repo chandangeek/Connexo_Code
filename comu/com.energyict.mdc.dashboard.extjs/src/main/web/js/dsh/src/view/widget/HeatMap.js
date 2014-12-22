@@ -5,7 +5,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
     items: {
         xtype: 'panel',
         ui: 'tile',
-        minHeight: '400',
+        minHeight: '1100',
         itemId: 'heatmapchart'
     },
 
@@ -161,7 +161,9 @@ Ext.define('Dsh.view.widget.HeatMap', {
             var cmp = me.down('#heatmapchart');
             if (store.count() && cmp) {
                 me.show();
-                cmp.setHeight(store.count() * 100);
+                if (store.count() > 50) {
+                    cmp.setHeight(store.count() * 100);
+                }
                 me.renderChart(cmp.getEl().down('.x-panel-body').dom, me.findBorders(store));
                 me.loadChart(store, me.getCombo() ? me.getCombo().getDisplayValue() : 'Device type');
                 cmp.doLayout();
