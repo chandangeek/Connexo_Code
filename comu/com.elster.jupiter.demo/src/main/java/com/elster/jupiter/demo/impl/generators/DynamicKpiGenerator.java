@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
-public class KpiGenerator {
+public class DynamicKpiGenerator {
 
     private final KpiService kpiService;
     private final Store store;
@@ -18,12 +18,12 @@ public class KpiGenerator {
     private String name;
 
     @Inject
-    public KpiGenerator(KpiService kpiService, Store store) {
+    public DynamicKpiGenerator(KpiService kpiService, Store store) {
         this.kpiService = kpiService;
         this.store = store;
     }
 
-    public KpiGenerator withName(String name){
+    public DynamicKpiGenerator withName(String name){
         this.name = name;
         return this;
     }

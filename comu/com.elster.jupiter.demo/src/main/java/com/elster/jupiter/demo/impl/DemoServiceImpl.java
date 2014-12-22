@@ -4,11 +4,11 @@ import com.elster.jupiter.demo.DemoService;
 import com.elster.jupiter.demo.impl.generators.ComServerGenerator;
 import com.elster.jupiter.demo.impl.generators.DeviceGenerator;
 import com.elster.jupiter.demo.impl.generators.DeviceGroupGenerator;
+import com.elster.jupiter.demo.impl.generators.DynamicKpiGenerator;
 import com.elster.jupiter.demo.impl.generators.IssueCommentGenerator;
 import com.elster.jupiter.demo.impl.generators.IssueGenerator;
 import com.elster.jupiter.demo.impl.generators.IssueReasonGenerator;
 import com.elster.jupiter.demo.impl.generators.IssueRuleGenerator;
-import com.elster.jupiter.demo.impl.generators.KpiGenerator;
 import com.elster.jupiter.demo.impl.generators.OutboundTCPComPortGenerator;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -72,7 +72,6 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -539,7 +538,7 @@ public class DemoServiceImpl implements DemoService {
 
     public void createDeviceType(Store store, int deviceTypeCount) {
         System.out.println("==> Creating device types...");
-        List<DeviceProtocolPluggableClass> webRTUProtocols = protocolPluggableService.findDeviceProtocolPluggableClassesByClassName(WebRTUKP.class.getName());
+        List<DeviceProtocolPluggableClass> webRTUProtocols = protocolPluggableService.findDeviceProtocolPluggableClassesByClassName("com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP");
         if (webRTUProtocols.isEmpty()){
             throw new IllegalStateException("Unable to retrieve the WebRTU KP protocol. Please check that license was correctly installed and that indexing process was finished for protocols.");
         }
@@ -835,8 +834,8 @@ public class DemoServiceImpl implements DemoService {
     }
 
     public void createKpi(){
-        injector.getInstance(KpiGenerator.class).withName(KPI_CONNECTION).create();
-        injector.getInstance(KpiGenerator.class).withName(KPI_COMMUNICATION).create();
+        injector.getInstance(DynamicKpiGenerator.class).withName(KPI_CONNECTION).create();
+        injector.getInstance(DynamicKpiGenerator.class).withName(KPI_COMMUNICATION).create();
     }
 
     @Reference
