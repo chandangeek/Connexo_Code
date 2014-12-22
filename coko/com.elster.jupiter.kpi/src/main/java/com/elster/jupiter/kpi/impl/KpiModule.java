@@ -2,6 +2,7 @@ package com.elster.jupiter.kpi.impl;
 
 import com.elster.jupiter.kpi.KpiService;
 import com.google.inject.AbstractModule;
+import com.google.inject.Scopes;
 
 /**
  * Copyrights EnergyICT
@@ -12,7 +13,6 @@ public class KpiModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(KpiService.class).to(KpiServiceImpl.class);
-
+        bind(KpiService.class).to(KpiServiceImpl.class).in(Scopes.SINGLETON);
     }
 }
