@@ -5,7 +5,6 @@ import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
@@ -82,7 +81,6 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
 
     protected static OutboundComPortPool outboundTcpipComPortPool;
     protected static ConnectionTypePluggableClass outboundNoParamsConnectionTypePluggableClass;
-    protected DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     protected Device device;
     protected ComTaskEnablement comTaskEnablement1;
     protected ComTaskEnablement comTaskEnablement2;
@@ -134,7 +132,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
 
     @Before
     public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration() {
-        this.protocolDialectConfigurationProperties = this.deviceConfiguration.getCommunicationConfiguration().getProtocolDialectConfigurationPropertiesList().get(0);
+        this.protocolDialectConfigurationProperties = this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
     }
 
     @Before
@@ -150,13 +148,10 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         this.comTaskEnablement2 = enableComTask(true, configDialect, comTaskWithLogBooks);
         this.comTaskEnablement3 = enableComTask(true, configDialect, comTaskWithRegisters);
 
-        deviceCommunicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
-
-        partialScheduledConnectionTask = deviceCommunicationConfiguration.newPartialScheduledConnectionTask("Outbound (1)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
+        partialScheduledConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("Outbound (1)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                 comWindow(new ComWindow(0, 7200)).
                 build();
-        deviceCommunicationConfiguration.save();
-
+        deviceConfiguration.save();
     }
 
     @Before

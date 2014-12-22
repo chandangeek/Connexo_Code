@@ -55,7 +55,7 @@ public abstract class AbstractComTaskExecutionInTopologyTest extends Persistence
     public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration () {
         deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
         deviceConfiguration.save();
-        this.protocolDialectConfigurationProperties = this.deviceConfiguration.getCommunicationConfiguration().getProtocolDialectConfigurationPropertiesList().get(0);
+        this.protocolDialectConfigurationProperties = this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
     }
 
     @Before
@@ -135,7 +135,7 @@ public abstract class AbstractComTaskExecutionInTopologyTest extends Persistence
                                 OutboundNoParamsConnectionTypeImpl.class.getSimpleName(),
                                 OutboundNoParamsConnectionTypeImpl.class.getName());
         connectionTypePluggableClass.save();
-        return deviceConfiguration.getCommunicationConfiguration().
+        return deviceConfiguration.
                 newPartialScheduledConnectionTask(
                         "Outbound (1)",
                         connectionTypePluggableClass,
