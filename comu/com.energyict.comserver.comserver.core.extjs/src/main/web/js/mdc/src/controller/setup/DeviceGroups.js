@@ -155,12 +155,13 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
     updateCriteria: function(record) {
         var me = this;
         if (record.get('dynamic')) {
-            if (!Uni.Auth.hasNoPrivilege('privilege.administrate.deviceGroup')) {
+            if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup','privilege.administrate.deviceOfEnumeratedGroup','privilege.view.deviceGroupDetail'])) {
+                Ext.Array.each(Ext.ComponentQuery.query('#edit-device-group'), function (item) {
+                    item.show();
+                });
+            } else if (!Uni.Auth.hasNoPrivilege('privilege.administrate.deviceGroup')) {
                 Ext.Array.each(Ext.ComponentQuery.query('#edit-device-group'), function (item) {
                     item.hide();
-                });
-                Ext.Array.each(Ext.ComponentQuery.query('#remove-device-group'), function (item) {
-                    item.show();
                 });
             }
             me.getSearchCriteriaContainer().setVisible(true);
@@ -193,10 +194,11 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
                 )
             }
         } else {
-            if (!Uni.Auth.hasNoPrivilege('privilege.administrate.deviceGroup')) {
-                Ext.Array.each(Ext.ComponentQuery.query('#edit-device-group'), function (item) {
+            if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup','privilege.administrate.deviceOfEnumeratedGroup','privilege.view.deviceGroupDetail'])) {
+                Ext.Array.each(Ext.ComponentQuery.query('#remove-device-group'), function (item) {
                     item.show();
                 });
+            } else if (!Uni.Auth.hasNoPrivilege('privilege.administrate.deviceGroup')) {
                 Ext.Array.each(Ext.ComponentQuery.query('#remove-device-group'), function (item) {
                     item.hide();
                 });
