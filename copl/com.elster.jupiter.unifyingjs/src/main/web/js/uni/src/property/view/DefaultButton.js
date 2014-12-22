@@ -3,7 +3,8 @@ Ext.define('Uni.property.view.DefaultButton', {
     xtype: 'uni-default-button',
 
     border: 0,
-    icon: '../sky/build/resources/images/form/restore.png',
+//    icon: '../sky/build/resources/images/form/restore.png',
+    html: '<img style="margin-left: -2px" src="../sky/build/resources/images/form/restore.png">',
     height: 28,
     width: 28,
     scale: 'small',
