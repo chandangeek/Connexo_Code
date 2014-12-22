@@ -63,6 +63,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 text: 'Communication tasks',
                 pressed: false,
                 itemId: 'communicationTasksLink',
+                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId+ '/comtaskenablements',
                 hrefTarget: '_self'
             },
             {
