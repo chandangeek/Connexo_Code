@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.pluggable.PluggableClass;
 import javax.inject.Inject;
+import java.time.Instant;
 
 /**
  * Models a key/value pair to hold the properties of a {@link PluggableClass}.
@@ -19,6 +20,10 @@ public class PluggableClassProperty {
     private final Reference<PluggableClass> pluggableClass = ValueReference.absent();
     public String name;
     public String value;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Inject
     PluggableClassProperty(DataModel dataModel) {

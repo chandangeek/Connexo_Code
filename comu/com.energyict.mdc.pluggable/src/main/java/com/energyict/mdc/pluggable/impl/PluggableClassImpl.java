@@ -43,7 +43,10 @@ public class PluggableClassImpl implements PluggableClass {
     @NotNull
     private PersistentPluggableClassType pluggableType;
     private List<PluggableClassProperty> properties = new ArrayList<>();
-    private Instant modificationDate;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     private DataModel dataModel;
     private EventService eventService;
@@ -101,7 +104,6 @@ public class PluggableClassImpl implements PluggableClass {
 
     @Override
     public void save () {
-        this.modificationDate = this.clock.instant();
         this.removeNullPropertyValues();
         if (this.id > 0) {
             this.post();
@@ -187,7 +189,7 @@ public class PluggableClassImpl implements PluggableClass {
 
     @Override
     public Instant getModificationDate() {
-        return modificationDate;
+        return this.modTime;
     }
 
     @Override
