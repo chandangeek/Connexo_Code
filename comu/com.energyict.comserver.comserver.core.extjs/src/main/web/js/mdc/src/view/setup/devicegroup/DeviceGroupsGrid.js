@@ -20,7 +20,20 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupsGrid', {
                 header: Uni.I18n.translate('devicegroup.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 renderer: function (value, b, record) {
-                    return '<a href="#/devices/devicegroups/' + record.get('id') + '">' + value + '</a>';
+                    //if (!Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup','privilege.view.deviceGroupDetail'])) {
+                    if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup'])) {
+                        return '<a href="#/devices/devicegroups/' + record.get('id') + '">' + value + '</a>';
+                    } else if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroupDetail'])) {
+                        return '<a href="#/devices/devicegroups/' + record.get('id') + '">' + value + '</a>';
+                    } else if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceOfEnumeratedGroup'])) {
+                        if (record.get('dynamic')) {
+                            return value;
+                        } else {
+                            return '<a href="#/devices/devicegroups/' + record.get('id') + '">' + value + '</a>';
+                        }
+                    } else {
+                            return value;
+                    }
                 },
                 flex: 0.4
             },
