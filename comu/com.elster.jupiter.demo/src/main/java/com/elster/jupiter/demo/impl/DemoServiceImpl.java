@@ -729,8 +729,8 @@ public class DemoServiceImpl implements DemoService {
 
     private void createIssues(){
         List<Device> devices = deviceService.findAllDevices(Condition.TRUE).find();
-        IssueGenerator issueGenerator = injector.getInstance(IssueGenerator.class);
         for (Device device : devices) {
+            IssueGenerator issueGenerator = injector.getInstance(IssueGenerator.class);
             if (device.getmRID().startsWith(DEVICE_STANDARD_PREFIX)){
                 issueGenerator.withDevice(device).create();
             } else if (device.getmRID().equals(DEVICE_DABF_12)) {
