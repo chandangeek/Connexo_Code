@@ -15,6 +15,7 @@ Ext.define('SystemApp.controller.Main', {
         'Usr.controller.Main',
         'Sam.controller.Main',
         'Tme.controller.Main',
-        'Dxp.controller.Main'
+        'Dxp.controller.Main',
+		'Apr.controller.Main'
     ]
 });
