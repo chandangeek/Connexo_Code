@@ -6,6 +6,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 
+import java.time.Instant;
+
 /**
  * Provides code reuse opportunities for entities in this bundle
  * that are persistable and have a unique ID
@@ -17,6 +19,10 @@ import com.elster.jupiter.orm.DataModel;
 public abstract class PersistentIdObject<T> {
 
     private long id;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     protected final Class<T> domainClass;
     protected final DataModel dataModel;
@@ -107,7 +113,8 @@ public abstract class PersistentIdObject<T> {
         return id;
     }
 
-    public void setId(long id){
-        this.id = id;
+    public Instant getModTime() {
+        return modTime;
     }
+
 }

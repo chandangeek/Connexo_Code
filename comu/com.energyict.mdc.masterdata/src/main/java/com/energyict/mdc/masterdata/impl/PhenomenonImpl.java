@@ -1,33 +1,61 @@
 package com.energyict.mdc.masterdata.impl;
 
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.Phenomenon;
+import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
+
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
-import java.util.Optional;
-
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import java.time.Instant;
-import java.util.Date;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
 
 public class PhenomenonImpl extends PersistentNamedObject<Phenomenon> implements Phenomenon {
 
+    enum Fields {
+        NAME("name"),
+        UNIT("unitString"),
+        MEASUREMENT_CODE("measurementCode"),
+        MODIFICATION_DATE("modificationDate");
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
+
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
+
+    private String unitString;
+    private Unit unit;
+    @Size(max= StringColumnLengthConstraints.PHENOMENON_MEASUREMENT_CODE, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String measurementCode;
+
+    @Inject
+    protected PhenomenonImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+        super(Phenomenon.class, dataModel, eventService, thesaurus);
+    }
+
+    Phenomenon initialize(String name, Unit unit) {
+        setName(name);
+        setUnit(unit);
+        return this;
+    }
 
     public String getName() {
         return name;
@@ -58,42 +86,6 @@ public class PhenomenonImpl extends PersistentNamedObject<Phenomenon> implements
         else {
             return null;
         }
-    }
-
-    enum Fields {
-        NAME("name"),
-        UNIT("unitString"),
-        MEASUREMENT_CODE("measurementCode"),
-        MODIFICATION_DATE("modificationDate");
-        private final String javaFieldName;
-
-        Fields(String javaFieldName) {
-            this.javaFieldName = javaFieldName;
-        }
-
-        String fieldName() {
-            return javaFieldName;
-        }
-    }
-
-    private final MasterDataService masterDataService;
-
-    private String unitString;
-    private Unit unit;
-    @Size(max= StringColumnLengthConstraints.PHENOMENON_MEASUREMENT_CODE, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String measurementCode;
-    private Instant modificationDate;
-
-    @Inject
-    protected PhenomenonImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, MasterDataService masterDataService) {
-        super(Phenomenon.class, dataModel, eventService, thesaurus);
-        this.masterDataService = masterDataService;
-    }
-
-    Phenomenon initialize(String name, Unit unit) {
-        setName(name);
-        setUnit(unit);
-        return this;
     }
 
     public String getMeasurementCode() {

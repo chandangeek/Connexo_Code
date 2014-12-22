@@ -1,45 +1,38 @@
 package com.energyict.mdc.masterdata.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import java.time.Clock;
-import java.time.Instant;
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
 
 public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> implements RegisterGroup {
 
-    private Instant modificationDate;
     private List<RegisterTypeInGroup> registerTypeInGroups = new ArrayList<>();
 
-    private final Clock clock;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @Size(max= 256, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
 
     @Inject
-    public RegisterGroupImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock) {
+    public RegisterGroupImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(RegisterGroup.class, dataModel, eventService, thesaurus);
-        this.clock = clock;
     }
 
     RegisterGroupImpl initialize (String name) {
@@ -49,12 +42,6 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
 
     static RegisterGroupImpl from (DataModel dataModel, String name) {
         return dataModel.getInstance(RegisterGroupImpl.class).initialize(name);
-    }
-
-    @Override
-    public void save () {
-        this.modificationDate = this.clock.instant();
-        super.save();
     }
 
     @Override
@@ -131,12 +118,7 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
 
     @Override
     public void removeRegisterTypes() {
-        Iterator<RegisterTypeInGroup> it = getRegisterTypesInGroup().iterator();
-        while (it.hasNext()) {
-            RegisterTypeInGroup each = it.next();
-            each.delete();
-        }
-
+        getRegisterTypesInGroup().forEach(com.energyict.mdc.masterdata.impl.RegisterTypeInGroup::delete);
         registerTypeInGroups = null;
     }
 
@@ -153,14 +135,14 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
         return modified;
     }
 
-    private boolean unlinkToRegisterTypes(HashMap<Long, RegisterType> current, HashMap<Long, RegisterType> target){
-        HashMap<Long, RegisterType> toRemove = new HashMap<>(current);
-        for(Map.Entry entry : target.entrySet()){
-            if(toRemove.containsKey(entry.getKey())){
+    private boolean unlinkToRegisterTypes(HashMap<Long, RegisterType> current, Map<Long, RegisterType> target){
+        Map<Long, RegisterType> toRemove = new HashMap<>(current);
+        for (Map.Entry<Long, RegisterType> entry : target.entrySet()) {
+            if (toRemove.containsKey(entry.getKey())) {
                 toRemove.remove(entry.getKey());
             }
         }
-        boolean modified = (toRemove.size()>0);
+        boolean modified = !toRemove.isEmpty();
         for (Map.Entry entry : toRemove.entrySet()) {
             modified = true;
             removeRegisterType((RegisterType) entry.getValue());
@@ -169,14 +151,14 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
         return modified;
     }
 
-    private boolean linkToRegisterTypes(HashMap<Long, RegisterType> current, HashMap<Long, RegisterType> target){
-        HashMap<Long, RegisterType> toAdd = new HashMap<>(target);
-        for(Map.Entry entry : current.entrySet()){
-            if(toAdd.containsKey(entry.getKey())){
+    private boolean linkToRegisterTypes(Map<Long, RegisterType> current, HashMap<Long, RegisterType> target){
+        Map<Long, RegisterType> toAdd = new HashMap<>(target);
+        for (Map.Entry<Long, RegisterType> entry : current.entrySet()) {
+            if (toAdd.containsKey(entry.getKey())) {
                 toAdd.remove(entry.getKey());
             }
         }
-        boolean modified = (toAdd.size()>0);
+        boolean modified = !toAdd.isEmpty();
         for (Map.Entry entry : toAdd.entrySet()) {
             addRegisterType((RegisterType) entry.getValue());
         }

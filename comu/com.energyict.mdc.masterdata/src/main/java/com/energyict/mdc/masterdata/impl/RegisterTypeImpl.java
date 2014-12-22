@@ -1,15 +1,15 @@
 package com.energyict.mdc.masterdata.impl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import java.time.Clock;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -20,8 +20,8 @@ import java.util.Map;
 public class RegisterTypeImpl extends MeasurementTypeImpl implements RegisterType {
 
     @Inject
-    public RegisterTypeImpl(DataModel dataModel, EventService eventService, MasterDataService masterDataService, Thesaurus thesaurus, Clock clock) {
-        super(dataModel, eventService, thesaurus, clock, masterDataService);
+    public RegisterTypeImpl(DataModel dataModel, EventService eventService, MasterDataService masterDataService, Thesaurus thesaurus) {
+        super(dataModel, eventService, thesaurus, masterDataService);
     }
 
     RegisterTypeImpl initialize(String name, ObisCode obisCode, Phenomenon phenomenon, ReadingType readingType, int timeOfUse) {
@@ -46,4 +46,5 @@ public class RegisterTypeImpl extends MeasurementTypeImpl implements RegisterTyp
         }
         return new ArrayList<>(groups.values());
     }
+
 }

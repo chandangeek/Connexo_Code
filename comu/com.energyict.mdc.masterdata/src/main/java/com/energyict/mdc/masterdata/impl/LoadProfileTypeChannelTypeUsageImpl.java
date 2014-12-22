@@ -7,6 +7,8 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LoadProfileTypeChannelTypeUsage;
 import com.energyict.mdc.masterdata.MeasurementType;
 
+import java.time.Instant;
+
 /**
  * Models the fact that a {@link LoadProfileType} uses a ChannelType.
  *
@@ -16,6 +18,10 @@ import com.energyict.mdc.masterdata.MeasurementType;
 class LoadProfileTypeChannelTypeUsageImpl implements LoadProfileTypeChannelTypeUsage {
     private Reference<LoadProfileType> loadProfileType = ValueReference.absent();
     private Reference<ChannelType> channelType = ValueReference.absent();
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     // For ORM layer only
     LoadProfileTypeChannelTypeUsageImpl() {

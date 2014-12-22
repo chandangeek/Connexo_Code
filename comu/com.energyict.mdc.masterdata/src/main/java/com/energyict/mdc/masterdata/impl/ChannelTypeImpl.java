@@ -1,12 +1,5 @@
 package com.energyict.mdc.masterdata.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import java.time.Clock;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LoadProfileTypeChannelTypeUsage;
@@ -14,6 +7,13 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.time.TimeDuration;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -38,8 +38,8 @@ public class ChannelTypeImpl extends MeasurementTypeImpl implements ChannelType 
     private long templateRegisterId;
 
     @Inject
-    protected ChannelTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, MasterDataService masterDataService) {
-        super(dataModel, eventService, thesaurus, clock, masterDataService);
+    protected ChannelTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, MasterDataService masterDataService) {
+        super(dataModel, eventService, thesaurus, masterDataService);
     }
 
     public ChannelType initialize(RegisterType templateRegisterType, TimeDuration interval, ReadingType readingType) {
@@ -92,4 +92,5 @@ public class ChannelTypeImpl extends MeasurementTypeImpl implements ChannelType 
             throw CannotDeleteBecauseStillInUseException.channelTypeIsStillInUseByLoadprofileTypes(this.getThesaurus(), this.getTemplateRegister(), new ArrayList<>(loadProfileTypes));
         }
     }
+
 }

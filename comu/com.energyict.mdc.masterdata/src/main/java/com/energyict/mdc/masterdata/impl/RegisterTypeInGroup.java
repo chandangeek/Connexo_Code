@@ -18,7 +18,10 @@ class RegisterTypeInGroup {
     private Reference<RegisterType> registerType = ValueReference.absent();
     @IsPresent
     private Reference<RegisterGroup> registerGroup = ValueReference.absent();
+    private String userName;
+    private long version;
     private Instant createTime;
+    private Instant modTime;
 
     @Inject
     RegisterTypeInGroup(DataModel dataModel) {

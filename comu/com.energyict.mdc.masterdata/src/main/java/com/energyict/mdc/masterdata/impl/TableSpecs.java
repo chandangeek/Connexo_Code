@@ -31,10 +31,10 @@ public enum TableSpecs {
             table.map(PhenomenonImpl.class);
             table.cache();
             Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
             table.column("NAME").varChar().notNull().map(PhenomenonImpl.Fields.NAME.fieldName()).add();
             Column unit = table.column("UNIT").varChar(StringColumnLengthConstraints.PHENOMENON_UNIT).notNull().map(PhenomenonImpl.Fields.UNIT.fieldName()).add();
             table.column("MEASUREMENTCODE").varChar().map(PhenomenonImpl.Fields.MEASUREMENT_CODE.fieldName()).add();
-            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2INSTANT).map(PhenomenonImpl.Fields.MODIFICATION_DATE.fieldName()).insert("sysdate").update("sysdate").add();
             table.primaryKey("PK_MDS_PHENOMENON").on(id).add();
             table.unique("UK_MDS_PHENOMENON").on(unit).add(); // Done so phenomenon can be identified solely by unit, cfr gna
         }
@@ -46,12 +46,12 @@ public enum TableSpecs {
             Table<LoadProfileType> table = dataModel.addTable(this.name(), LoadProfileType.class);
             table.map(LoadProfileTypeImpl.class);
             Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
             table.column("DESCRIPTION").varChar().map("description").add();
             table.column("OBISCODE").varChar(StringColumnLengthConstraints.DEFAULT_OBISCODE_LENGTH).notNull().map(LoadProfileTypeImpl.Fields.OBIS_CODE.fieldName()).add();
             table.column("INTERVALCOUNT").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("interval.count").add();
             table.column("INTERVALUNIT").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("interval.timeUnitCode").add();
-            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2INSTANT).map("modificationDate").add();
             table.unique("UK_MDS_LOADPROFILETYPE").on(name).add();
             table.primaryKey("PK_MDS_LOADPROFILETYPE").on(id).add();
         }
@@ -64,8 +64,8 @@ public enum TableSpecs {
             table.map(RegisterGroupImpl.class);
             table.cache();
             Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
-            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2INSTANT).map("modificationDate").add();
             table.unique("UK_MDS_REGISTERGROUP").on(name).add();
             table.primaryKey("PK_MDS_REGISTERGROUP").on(id).add();
         }
@@ -78,12 +78,12 @@ public enum TableSpecs {
             table.map(MeasurementTypeImpl.IMPLEMENTERS);
             table.cache();
             Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             table.column("OBISCODE").varChar(StringColumnLengthConstraints.DEFAULT_OBISCODE_LENGTH).notNull().map(MeasurementTypeImpl.Fields.OBIS_CODE.fieldName()).add();
             Column phenomenon = table.column("PHENOMENONID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column readingType = table.column("READINGTYPE").varChar(Table.NAME_LENGTH).add();
-            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2INSTANT).map("modificationDate").add();
             table.column("CUMULATIVE").number().conversion(NUMBER2BOOLEAN).notNull().map("cumulative").add();
             table.column("DESCRIPTION").varChar().map("description").add();
             table.column("TIMEOFUSE").number().map("timeOfUse").conversion(ColumnConversion.NUMBER2INT).add();
@@ -105,7 +105,7 @@ public enum TableSpecs {
             table.map(RegisterTypeInGroup.class);
             Column registerType = table.column("REGISTERTYPEID").number().notNull().add();
             Column registerGroup = table.column("REGISTERGROUPID").number().notNull().add();
-            table.addCreateTimeColumn("CREATETIME", "createTime");
+            table.addAuditColumns();
             table.primaryKey("USR_PK_REGTYPEINGROUP").on(registerType , registerGroup).add();
             table.foreignKey("FK_REGTYPEINGROUP2TYPE").
                     on(registerType).
@@ -129,6 +129,7 @@ public enum TableSpecs {
             table.map(LoadProfileTypeChannelTypeUsageImpl.class);
             Column loadProfileType = table.column("LOADPROFILETYPEID").number().notNull().add();
             Column channelType = table.column("CHTYPEID").number().notNull().add();
+            table.addAuditColumns();
             table.primaryKey("PK_CHTYPEINLOADPROFILETYPE").on(loadProfileType, channelType).add();
             table.foreignKey("FK_CHTPLPT_LOADPROFILETYPEID").on(loadProfileType).references(MDS_LOADPROFILETYPE.name()).map("loadProfileType").reverseMap("channelTypeUsages").composition().add();
             table.foreignKey("FK_CHTPLPT_CHANTYPEID").on(channelType).references(MDS_MEASUREMENTTYPE.name()).map("channelType").add();
@@ -141,6 +142,7 @@ public enum TableSpecs {
             Table<LogBookType> table = dataModel.addTable(this.name(), LogBookType.class);
             table.map(LogBookTypeImpl.class);
             Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
             table.column("DESCRIPTION").varChar().map("description").add();
             table.column("OBISCODE").varChar(StringColumnLengthConstraints.DEFAULT_OBISCODE_LENGTH).notNull().map(LogBookTypeImpl.Fields.OBIS_CODE.fieldName()).add();

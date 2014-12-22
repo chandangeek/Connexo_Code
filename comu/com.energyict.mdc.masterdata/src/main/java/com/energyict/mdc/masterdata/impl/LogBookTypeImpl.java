@@ -22,6 +22,19 @@ import javax.validation.constraints.Size;
 
 public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implements LogBookType {
 
+    enum Fields {
+        OBIS_CODE("obisCode");
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
+
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -37,20 +50,6 @@ public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implemen
         }
         this.name = name;
     }
-
-    enum Fields {
-        OBIS_CODE("obisCode");
-        private final String javaFieldName;
-
-        Fields(String javaFieldName) {
-            this.javaFieldName = javaFieldName;
-        }
-
-        String fieldName() {
-            return javaFieldName;
-        }
-    }
-
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED + "}")
     private String obisCode;
@@ -134,5 +133,3 @@ public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implemen
     }
 
 }
-
-

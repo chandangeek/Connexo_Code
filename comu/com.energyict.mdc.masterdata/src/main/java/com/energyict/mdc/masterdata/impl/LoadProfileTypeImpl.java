@@ -1,14 +1,6 @@
 package com.energyict.mdc.masterdata.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LoadProfileTypeChannelTypeUsage;
@@ -20,20 +12,23 @@ import com.energyict.mdc.masterdata.exceptions.RegisterTypeAlreadyInLoadProfileT
 import com.energyict.mdc.masterdata.exceptions.UnsupportedIntervalException;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
-import java.util.Optional;
-
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.time.TimeDuration;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import java.time.Clock;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -41,6 +36,19 @@ import java.util.List;
  * Time: 16:05:54
  */
 public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> implements LoadProfileType, PersistenceAware {
+
+    enum Fields {
+        OBIS_CODE("obisCode");
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
@@ -58,19 +66,6 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         this.name = name;
     }
 
-    enum Fields {
-           OBIS_CODE("obisCode");
-           private final String javaFieldName;
-
-           Fields(String javaFieldName) {
-               this.javaFieldName = javaFieldName;
-           }
-
-           String fieldName() {
-               return javaFieldName;
-           }
-       }
-
     private final MasterDataService masterDataService;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED + "}")
     private String obisCode;
@@ -80,19 +75,16 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     private long oldIntervalSeconds;
     @Size(max= Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
-    private Instant modificationDate;
     private List<LoadProfileTypeChannelTypeUsageImpl> channelTypeUsages = new ArrayList<>();
 
-    private Clock clock;
     private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
 
     private boolean intervalChanged = false;
 
     @Inject
-    public LoadProfileTypeImpl(DataModel dataModel, EventService eventService, MasterDataService masterDataService, Thesaurus thesaurus, Clock clock, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
+    public LoadProfileTypeImpl(DataModel dataModel, EventService eventService, MasterDataService masterDataService, Thesaurus thesaurus, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
         super(LoadProfileType.class, dataModel, eventService, thesaurus);
         this.masterDataService = masterDataService;
-        this.clock = clock;
         this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
     }
 
@@ -114,8 +106,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
 
     @Override
     public void save () {
-        this.modificationDate = this.clock.instant();
-        if(intervalChanged){
+        if (intervalChanged) {
             updateChannelTypeUsagesAccordingToNewInterval();
             this.intervalChanged = false;
         }
@@ -197,7 +188,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         if ((interval.getCount() <= 0)) {
             throw UnsupportedIntervalException.strictlyPositive(this.getThesaurus(), interval);
         }
-        this.intervalChanged = this.interval != null && !this.interval.equals(interval) && this.channelTypeUsages.size() != 0;
+        this.intervalChanged = this.interval != null && !this.interval.equals(interval) && !this.channelTypeUsages.isEmpty();
         this.interval = interval;
     }
 

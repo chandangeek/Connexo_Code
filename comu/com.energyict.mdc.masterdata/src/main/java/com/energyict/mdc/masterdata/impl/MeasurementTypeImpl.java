@@ -1,5 +1,12 @@
 package com.energyict.mdc.masterdata.impl;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.Phenomenon;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
+
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
@@ -10,28 +17,16 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-
-import java.time.Clock;
-import java.time.Instant;
-
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
-import java.util.Optional;
 import com.google.common.collect.ImmutableMap;
-
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -51,8 +46,26 @@ public abstract class MeasurementTypeImpl extends PersistentNamedObject<Measurem
                     REGISTER_DISCRIMINATOR, RegisterTypeImpl.class,
                     CHANNEL_DISCRIMINATOR, ChannelTypeImpl.class);
 
+    enum Fields {
+        READING_TYPE("readingType"),
+        OBIS_CODE("obisCode"),
+        PHENOMENON("phenomenon"),
+        UNIT("phenomenon." + PhenomenonImpl.Fields.UNIT.fieldName()),
+        TIME_OF_USE("timeOfUse"),
+        INTERVAl("interval"),
+        TEMPLATE_REGISTER_ID("templateRegisterId");
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
+
     protected final MasterDataService masterDataService;
-    protected final Clock clock;
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
@@ -70,13 +83,11 @@ public abstract class MeasurementTypeImpl extends PersistentNamedObject<Measurem
     private boolean cumulative;
     @Size(max= Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
-    private Instant modificationDate;
     @Min(value=0, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_TYPE_TIMEOFUSE_TOO_SMALL + "}")
     private int timeOfUse;
 
-    protected MeasurementTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, MasterDataService masterDataService) {
+    protected MeasurementTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, MasterDataService masterDataService) {
         super(MeasurementType.class, dataModel, eventService, thesaurus);
-        this.clock = clock;
         this.masterDataService = masterDataService;
     }
 
@@ -92,7 +103,6 @@ public abstract class MeasurementTypeImpl extends PersistentNamedObject<Measurem
 
     @Override
     public void save () {
-        this.modificationDate = this.clock.instant();
         super.save();
         this.synchronizeOldValues();
     }
@@ -176,6 +186,7 @@ public abstract class MeasurementTypeImpl extends PersistentNamedObject<Measurem
         }
     }
 
+    @SuppressWarnings("unused") // Event listeners extract this information from json payload
     public long getOldPhenomenon() {
         return oldPhenomenon;
     }
@@ -228,7 +239,7 @@ public abstract class MeasurementTypeImpl extends PersistentNamedObject<Measurem
     }
 
     public Instant getModificationDate() {
-        return this.modificationDate;
+        return this.getModTime();
     }
 
     @Override
@@ -241,22 +252,4 @@ public abstract class MeasurementTypeImpl extends PersistentNamedObject<Measurem
         this.timeOfUse = timeOfUse;
     }
 
-    enum Fields {
-        READING_TYPE("readingType"),
-        OBIS_CODE("obisCode"),
-        PHENOMENON("phenomenon"),
-        UNIT("phenomenon." + PhenomenonImpl.Fields.UNIT.fieldName()),
-        TIME_OF_USE("timeOfUse"),
-        INTERVAl("interval"),
-        TEMPLATE_REGISTER_ID("templateRegisterId");
-        private final String javaFieldName;
-
-        Fields(String javaFieldName) {
-            this.javaFieldName = javaFieldName;
-        }
-
-        String fieldName() {
-            return javaFieldName;
-        }
-    }
 }
