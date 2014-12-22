@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.core.online;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -570,7 +570,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         if (first == null) {
             return null;
         } else {
-            for (ComTaskEnablement comTaskEnablement : enabledComTasks(device.getDeviceConfiguration().getCommunicationConfiguration())) {
+            for (ComTaskEnablement comTaskEnablement : enabledComTasks(device.getDeviceConfiguration())) {
                 if (comTaskEnablement.getComTask().equals(first.getComTasks().get(0))) {
                     securityPropertySet = comTaskEnablement.getSecurityPropertySet();
                 }
@@ -579,8 +579,8 @@ public class ComServerDAOImpl implements ComServerDAO {
         }
     }
 
-    private List<ComTaskEnablement> enabledComTasks(DeviceCommunicationConfiguration communicationConfiguration) {
-        return communicationConfiguration.getComTaskEnablements();
+    private List<ComTaskEnablement> enabledComTasks(DeviceConfiguration deviceConfiguration) {
+        return deviceConfiguration.getComTaskEnablements();
     }
 
     /**

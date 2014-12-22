@@ -36,6 +36,7 @@ import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.RemoteComServer;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.engine.model.impl.EngineModelServiceImpl;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.AbstractModule;
@@ -305,8 +306,8 @@ public class WebSocketQueryApiServiceTest {
 
     private void updateComPortModificationDate(ComPort comPort, Date modificationDate) throws SQLException {
         SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder.append("update mdc_comport set mod_date = ?");
-        sqlBuilder.bindDate(modificationDate);
+        sqlBuilder.append("update mdc_comport set modtime = ?");
+        sqlBuilder.bindLong(modificationDate.getTime());
         sqlBuilder.append(" where id = ?");
         sqlBuilder.bindLong(comPort.getId());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {

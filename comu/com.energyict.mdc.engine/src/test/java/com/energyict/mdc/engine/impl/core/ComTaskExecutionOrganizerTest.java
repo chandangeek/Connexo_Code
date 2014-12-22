@@ -121,11 +121,9 @@ public class ComTaskExecutionOrganizerTest {
         final Device device = this.mockDevice();
         final DeviceType deviceType = mock(DeviceType.class);
         final DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        final DeviceCommunicationConfiguration deviceCommunicationConfiguration = mock(DeviceCommunicationConfiguration.class);
         when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceType.isLogicalSlave()).thenReturn(slave);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        when(deviceConfiguration.getCommunicationConfiguration()).thenReturn(deviceCommunicationConfiguration);
         return device;
     }
 

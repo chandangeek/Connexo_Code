@@ -4,7 +4,6 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -121,8 +120,6 @@ public class ScheduledJobImplTest {
     private DeviceType deviceType;
     @Mock
     private DeviceConfiguration deviceConfiguration;
-    @Mock
-    private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     @Mock
     private ComTaskEnablement comTaskEnablement;
     @Mock(extraInterfaces = OfflineDeviceContext.class)
@@ -545,7 +542,6 @@ public class ScheduledJobImplTest {
         when(device.getId()).thenReturn(DEVICE_ID);
         when(device.getDeviceType()).thenReturn(this.deviceType);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        when(deviceConfiguration.getCommunicationConfiguration()).thenReturn(deviceCommunicationConfiguration);
         when(device.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
         when(device.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         return device;

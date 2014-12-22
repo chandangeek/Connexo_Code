@@ -123,8 +123,6 @@ public class InboundCommunicationHandlerTest {
     @Mock
     private DeviceConfiguration deviceConfiguration;
     @Mock
-    private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
-    @Mock
     private ComTaskEnablement comTaskEnablement;
     @Mock
     private ProtocolPluggableService protocolPluggableService;
@@ -596,7 +594,6 @@ public class InboundCommunicationHandlerTest {
         when(device.getId()).thenReturn(DEVICE_ID);
         when(device.getDeviceType()).thenReturn(this.deviceType);
         when(device.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);
-        when(this.deviceConfiguration.getCommunicationConfiguration()).thenReturn(this.deviceCommunicationConfiguration);
         return device;
     }
 

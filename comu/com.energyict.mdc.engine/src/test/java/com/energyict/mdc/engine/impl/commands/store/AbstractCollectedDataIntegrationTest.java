@@ -161,6 +161,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
             @Override
             protected void doPerform() {
                 injector.getInstance(MeteringService.class);
+                injector.getInstance(MasterDataService.class);
                 injector.getInstance(MeteringGroupsService.class);
                 injector.getInstance(EngineService.class);
                 EventService eventService = injector.getInstance(EventService.class);
