@@ -1,15 +1,14 @@
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.common.HasId;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;
 
-import java.util.Optional;
+import com.elster.jupiter.time.TimeDuration;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -18,9 +17,8 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-02-15 (10:27)
  */
-public interface DeviceCommunicationConfiguration extends HasId {
 
-    public DeviceConfiguration getDeviceConfiguration();
+public interface DeviceCommunicationConfiguration {
 
     void remove(PartialConnectionTask partialConnectionTask);
 
@@ -39,10 +37,6 @@ public interface DeviceCommunicationConfiguration extends HasId {
     List<PartialScheduledConnectionTask> getPartialOutboundConnectionTasks();
 
     List<PartialConnectionInitiationTask> getPartialConnectionInitiationTasks();
-
-    void save();
-
-    void delete();
 
     ProtocolDialectConfigurationProperties findOrCreateProtocolDialectConfigurationProperties(DeviceProtocolDialect protocolDialect);
 
@@ -138,4 +132,5 @@ public interface DeviceCommunicationConfiguration extends HasId {
      * @return the userActions for when all protocol messages are supported
      */
     Set<DeviceMessageUserAction> getAllProtocolMessagesUserActions();
+
 }

@@ -10,7 +10,7 @@ import com.energyict.mdc.common.ComWindow;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
@@ -46,14 +46,14 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
 
     @Inject
     PartialScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {
-        super(dataModel, eventService, thesaurus, engineModelService, protocolPluggableService, schedulingService);
+        super(dataModel, eventService, thesaurus, protocolPluggableService, schedulingService);
     }
 
-    static PartialScheduledConnectionTaskImpl from(DataModel dataModel, DeviceCommunicationConfiguration configuration) {
+    static PartialScheduledConnectionTaskImpl from(DataModel dataModel, DeviceConfiguration configuration) {
         return dataModel.getInstance(PartialScheduledConnectionTaskImpl.class).init(configuration);
     }
 
-    private PartialScheduledConnectionTaskImpl init(DeviceCommunicationConfiguration configuration) {
+    private PartialScheduledConnectionTaskImpl init(DeviceConfiguration configuration) {
         setConfiguration(configuration);
         return this;
     }

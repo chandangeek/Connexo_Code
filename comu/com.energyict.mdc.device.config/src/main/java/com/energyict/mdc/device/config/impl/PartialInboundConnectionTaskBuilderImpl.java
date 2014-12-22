@@ -12,7 +12,7 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
  */
 public class PartialInboundConnectionTaskBuilderImpl extends AbstractPartialConnectionTaskBuilder<PartialInboundConnectionTaskBuilder, InboundComPortPool, PartialInboundConnectionTaskImpl> implements PartialInboundConnectionTaskBuilder {
 
-    PartialInboundConnectionTaskBuilderImpl(DataModel dataModel, DeviceCommunicationConfigurationImpl configuration) {
+    PartialInboundConnectionTaskBuilderImpl(DataModel dataModel, DeviceConfigurationImpl configuration) {
         super(dataModel.getInstance(EventService.class), PartialInboundConnectionTaskBuilder.class, dataModel, configuration);
     }
 
@@ -32,4 +32,5 @@ public class PartialInboundConnectionTaskBuilderImpl extends AbstractPartialConn
     PartialInboundConnectionTaskImpl newInstance() {
         return PartialInboundConnectionTaskImpl.from(dataModel, configuration);
     }
+
 }

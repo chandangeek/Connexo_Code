@@ -21,8 +21,6 @@ public interface ComTaskEnablement extends HasId {
     public static final int LOWEST_PRIORITY = TaskPriorityConstants.LOWEST_PRIORITY;
     public static final int DEFAULT_PRIORITY = TaskPriorityConstants.DEFAULT_PRIORITY;
 
-    public DeviceCommunicationConfiguration getDeviceCommunicationConfiguration ();
-
     public DeviceConfiguration getDeviceConfiguration ();
 
     public ComTask getComTask ();

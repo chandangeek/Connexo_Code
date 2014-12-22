@@ -12,14 +12,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
  */
 public interface ProtocolDialectConfigurationProperties extends HasName, HasId, HasDynamicProperties {
 
-    /**
-     * Gets the {@link com.energyict.mdc.device.config.DeviceCommunicationConfiguration} that owns this {@link ProtocolDialectConfigurationProperties}
-     *
-     * @return The DeviceCommunicationConfiguration
-     * @deprecated Use #getDeviceConfiguration instead
-     */
-    public DeviceConfiguration getDeviceCommunicationConfiguration();
-
     public DeviceConfiguration getDeviceConfiguration();
 
     /**
@@ -44,10 +36,6 @@ public interface ProtocolDialectConfigurationProperties extends HasName, HasId, 
      */
     public TypedProperties getTypedProperties();
 
-    /**
-     * @param name
-     * @param value
-     */
     void setProperty(String name, Object value);
 
     void removeProperty(String name);
@@ -57,4 +45,5 @@ public interface ProtocolDialectConfigurationProperties extends HasName, HasId, 
     void delete();
 
     Object getProperty(String name);
+
 }

@@ -33,7 +33,7 @@ public class ProtocolDialectConfigurationPropertiesMustBeFromSameConfigurationVa
     }
 
     private boolean notSameConfiguration(ProtocolDialectConfigurationProperties dialectConfigurationProperties, ComTaskEnablementImpl comTaskEnablement) {
-        long dialectConfigurationId = dialectConfigurationProperties.getDeviceCommunicationConfiguration().getCommunicationConfiguration().getId();
+        long dialectConfigurationId = dialectConfigurationProperties.getDeviceConfiguration().getId();
         long configurationId = comTaskEnablement.getDeviceConfiguration().getId();
         return !is(configurationId).equalTo(dialectConfigurationId);
     }

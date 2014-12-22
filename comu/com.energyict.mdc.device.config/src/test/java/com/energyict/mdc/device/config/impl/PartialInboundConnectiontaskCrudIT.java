@@ -544,23 +544,17 @@ public class PartialInboundConnectiontaskCrudIT {
     @Test
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC + '}')
     public void testCreateWithUnspecifiedProperty() {
-        DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
 
             DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
-
-            communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
-            communicationConfiguration.save();
-
-            communicationConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass)
+            deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass)
                     .comPortPool(inboundComPortPool)
                     .asDefault(true)
                     .addProperty("unspecced", true)
                     .build();
-            communicationConfiguration.save();
+            deviceConfiguration.save();
 
             context.commit();
         }

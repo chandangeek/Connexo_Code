@@ -1,19 +1,17 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.impl.MdcCommonModule;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -21,7 +19,6 @@ import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -47,7 +44,6 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
@@ -58,6 +54,7 @@ import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -81,7 +78,6 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -94,6 +90,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -129,7 +126,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
     @Mock
     private DeviceType myDeviceType;
     private DeviceConfiguration deviceConfiguration;
-    private DeviceCommunicationConfiguration configuration;
     @Mock
     private EventAdmin eventAdmin;
     @Mock
@@ -239,9 +235,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            configuration = deviceConfigurationService.newDeviceCommunicationConfiguration(deviceConfiguration);
-            configuration.save();
-
             context.commit();
         }
     }
@@ -257,7 +250,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         long id;
 
         try (TransactionContext context = transactionService.getContext()) {
-            ProtocolDialectConfigurationProperties properties = configuration.findOrCreateProtocolDialectConfigurationProperties(sharedData.getProtocolDialect());
+            ProtocolDialectConfigurationProperties properties = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(sharedData.getProtocolDialect());
 
             properties.setProperty(MY_PROPERTY, 15);
 
@@ -268,9 +261,8 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
             context.commit();
         }
 
-        DeviceCommunicationConfiguration communicationConfiguration = deviceConfigurationService.findDeviceCommunicationConfiguration(configuration.getId());
-        assertThat(communicationConfiguration).isNotNull();
-        List<ProtocolDialectConfigurationProperties> list = communicationConfiguration.getProtocolDialectConfigurationPropertiesList();
+        DeviceConfiguration reloadedConfiguration = deviceConfigurationService.findDeviceConfiguration(this.deviceConfiguration.getId()).get();
+        List<ProtocolDialectConfigurationProperties> list = reloadedConfiguration.getProtocolDialectConfigurationPropertiesList();
         assertThat(list).isNotEmpty();
 
         ProtocolDialectConfigurationProperties found = list.get(0);

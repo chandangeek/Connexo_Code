@@ -1,13 +1,15 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+
 import javax.inject.Inject;
 
 /**
@@ -19,15 +21,15 @@ import javax.inject.Inject;
 public class PartialConnectionInitiationTaskImpl extends PartialOutboundConnectionTaskImpl implements PartialConnectionInitiationTask {
 
     @Inject
-    PartialConnectionInitiationTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {
-        super(dataModel, eventService, thesaurus, engineModelService, protocolPluggableService, schedulingService);
+    PartialConnectionInitiationTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {
+        super(dataModel, eventService, thesaurus, protocolPluggableService, schedulingService);
     }
 
-    static PartialConnectionInitiationTaskImpl from(DataModel dataModel, DeviceCommunicationConfiguration configuration) {
+    static PartialConnectionInitiationTaskImpl from(DataModel dataModel, DeviceConfiguration configuration) {
         return dataModel.getInstance(PartialConnectionInitiationTaskImpl.class).init(configuration);
     }
 
-    private PartialConnectionInitiationTaskImpl init(DeviceCommunicationConfiguration configuration) {
+    private PartialConnectionInitiationTaskImpl init(DeviceConfiguration configuration) {
         setConfiguration(configuration);
         return this;
     }

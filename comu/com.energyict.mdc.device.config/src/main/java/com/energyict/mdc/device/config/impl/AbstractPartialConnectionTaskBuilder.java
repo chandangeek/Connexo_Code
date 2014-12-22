@@ -18,7 +18,7 @@ public abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortP
 
     final S myself;
     final DataModel dataModel;
-    final DeviceCommunicationConfigurationImpl configuration;
+    final DeviceConfigurationImpl configuration;
     String name;
     T comPortPool;
     ConnectionTypePluggableClass connectionTypePluggableClass;
@@ -27,7 +27,7 @@ public abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortP
     private final EventService eventService;
 
     @SuppressWarnings("unchecked")
-    AbstractPartialConnectionTaskBuilder(EventService eventService, Class<?> selfType, DataModel dataModel, DeviceCommunicationConfigurationImpl configuration) {
+    AbstractPartialConnectionTaskBuilder(EventService eventService, Class<?> selfType, DataModel dataModel, DeviceConfigurationImpl configuration) {
         this.eventService = eventService;
         this.dataModel = dataModel;
         this.configuration = configuration;
@@ -74,11 +74,12 @@ public abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortP
         return instance;
     }
 
-    DeviceCommunicationConfigurationImpl getConfiguration() {
+    DeviceConfigurationImpl getConfiguration() {
         return configuration;
     }
 
     abstract void populate(U instance);
 
     abstract U newInstance();
+
 }

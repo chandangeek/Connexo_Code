@@ -6,7 +6,6 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceCommunicationFunction;
 import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -15,6 +14,7 @@ import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -34,6 +34,7 @@ import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
+import com.energyict.mdc.device.config.exceptions.CannotDisableComTaskThatWasNotEnabledException;
 import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsActiveException;
 import com.energyict.mdc.device.config.exceptions.DeviceTypeIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeException;
@@ -48,6 +49,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.domain.util.Save;
@@ -58,7 +60,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.google.common.collect.ImmutableList;
@@ -68,17 +73,21 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * User: gde
@@ -95,6 +104,9 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         CAN_ACT_AS_GATEWAY("canActAsGateway"), // 'virtual' BeanProperty not backed by actual member
         IS_DIRECTLY_ADDRESSABLE("isDirectlyAddressable"), // 'virtual' BeanProperty not backed by actual member
         GATEWAY_TYPE("gatewayType"),
+        COM_TASK_ENABLEMENTS("comTaskEnablements"),
+        SECURITY_PROPERTY_SETS("securityPropertySets"),
+        DEVICE_MESSAGE_ENABLEMENTS("deviceMessageEnablements");
         ;
         private final String javaFieldName;
 
@@ -124,7 +136,15 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private List<LoadProfileSpec> loadProfileSpecs = new ArrayList<>();
     @Valid
     private List<LogBookSpec> logBookSpecs = new ArrayList<>();
-    private DeviceCommunicationConfiguration communicationConfiguration;
+    private List<SecurityPropertySet> securityPropertySets = new ArrayList<>();
+    private List<ComTaskEnablement> comTaskEnablements = new ArrayList<>();
+    private List<DeviceMessageEnablement> deviceMessageEnablements = new ArrayList<>();
+    private boolean supportsAllProtocolMessages;
+    private long supportsAllProtocolMessagesUserActionsBitVector = 0L;
+    @Valid
+    private List<PartialConnectionTask> partialConnectionTasks = new ArrayList<>();
+    @Valid
+    private List<ProtocolDialectConfigurationProperties> configurationPropertiesList = new ArrayList<>();
     private Set<DeviceCommunicationFunction> deviceCommunicationFunctions;
     private int communicationFunctionMask;
     private String userName;
@@ -141,6 +161,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private final Provider<LogBookSpecImpl> logBookSpecProvider;
     private final Provider<ChannelSpecImpl> channelSpecProvider;
     private final DeviceConfigurationService deviceConfigurationService;
+    private final SchedulingService schedulingService;
+    private final ThreadPrincipalService threadPrincipalService;
 
     private List<DeviceConfValidationRuleSetUsage> deviceConfValidationRuleSetUsages = new ArrayList<>();
     private final Provider<DeviceConfValidationRuleSetUsageImpl> deviceConfValidationRuleSetUsageFactory;
@@ -154,7 +176,9 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                         Provider<LogBookSpecImpl> logBookSpecProvider,
                         Provider<ChannelSpecImpl> channelSpecProvider,
                         Provider<DeviceConfValidationRuleSetUsageImpl> deviceConfValidationRuleSetUsageFactory,
-                        DeviceConfigurationService deviceConfigurationService) {
+                        DeviceConfigurationService deviceConfigurationService,
+                        SchedulingService schedulingService,
+                        ThreadPrincipalService threadPrincipalService) {
         super(DeviceConfiguration.class, dataModel, eventService, thesaurus);
         this.loadProfileSpecProvider = loadProfileSpecProvider;
         this.numericalRegisterSpecProvider = numericalRegisterSpecProvider;
@@ -163,24 +187,17 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.channelSpecProvider = channelSpecProvider;
         this.deviceConfValidationRuleSetUsageFactory = deviceConfValidationRuleSetUsageFactory;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.schedulingService = schedulingService;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     DeviceConfigurationImpl initialize(DeviceType deviceType, String name){
         this.deviceType.set(deviceType);
         setName(name);
-        return this;
-    }
-
-    @Override
-    public DeviceCommunicationConfiguration getCommunicationConfiguration() {
-        if (this.communicationConfiguration == null) {
-            communicationConfiguration = deviceConfigurationService.findDeviceCommunicationConfigurationFor(this);
-            if (communicationConfiguration == null) {
-                communicationConfiguration = deviceConfigurationService.newDeviceCommunicationConfiguration(this);
-                communicationConfiguration.save();
-            }
+        for (DeviceProtocolDialect deviceProtocolDialect : this.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getDeviceProtocolDialects()) {
+            findOrCreateProtocolDialectConfigurationProperties(deviceProtocolDialect);
         }
-        return this.communicationConfiguration;
+        return this;
     }
 
     @Override
@@ -330,12 +347,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.registerSpecs.clear();
         this.channelSpecs.clear();
         this.logBookSpecs.clear();
-        if (this.communicationConfiguration == null) {
-            communicationConfiguration = deviceConfigurationService.findDeviceCommunicationConfigurationFor(this);
-        }
-        if (communicationConfiguration != null) {
-            communicationConfiguration.delete();
-        }
+        this.configurationPropertiesList.clear();
         List<DeviceConfValidationRuleSetUsage> usageCopy = ImmutableList.copyOf(deviceConfValidationRuleSetUsages);
         for(DeviceConfValidationRuleSetUsage usage : usageCopy) {
             if (usage.getDeviceConfiguration().getId() == this.getId()) {
@@ -381,10 +393,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     /**
      * Looks for the next available Obiscode with different B-field.
-     *
-     * @param obisCodeValue
-     * @param obisCodeKeys
-     * @return
      */
     private String findNextAvailableObisCode(String obisCodeValue, Collection<String> obisCodeKeys) {
         String availableObisCode = obisCodeValue;
@@ -746,9 +754,12 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     public void save() {
         this.protocolConfigurationPropertyChanges.apply();
+        boolean creating = getId() == 0;
         super.save();
-        if (this.communicationConfiguration != null) {
-            getCommunicationConfiguration().save();
+        if (creating) {
+            for (PartialConnectionTask partialConnectionTask : partialConnectionTasks) {
+                eventService.postEvent(((PersistentIdObject) partialConnectionTask).createEventType().topic(), partialConnectionTask);
+            }
         }
     }
 
@@ -807,133 +818,277 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public DeviceConfiguration getDeviceConfiguration() {
-        return this;
+    public void remove(PartialConnectionTask partialConnectionTask) {
+        this.remove((PartialConnectionTaskImpl) partialConnectionTask);
     }
 
-    @Override
-    public void remove(PartialConnectionTask partialConnectionTask) {
-        getCommunicationConfiguration().remove(partialConnectionTask);
+    private void remove(PartialConnectionTaskImpl partialConnectionTask) {
+        partialConnectionTask.validateDelete();
+        if (partialConnectionTasks.remove(partialConnectionTask) && getId() > 0) {
+            eventService.postEvent(partialConnectionTask.deleteEventType().topic(), partialConnectionTask);
+        }
     }
 
     @Override
     public boolean isSupportsAllProtocolMessages() {
-        return getCommunicationConfiguration().isSupportsAllProtocolMessages();
+        return supportsAllProtocolMessages;
     }
 
     @Override
     public Set<DeviceMessageUserAction> getAllProtocolMessagesUserActions() {
-        return getCommunicationConfiguration().getAllProtocolMessagesUserActions();
+        return fromDatabaseValue(this.supportsAllProtocolMessagesUserActionsBitVector);
+    }
+
+    /**
+     * Returns an appropriate database value for the specified set of enum values.
+     *
+     * @param enumValues The set of enum values
+     * @return The database value that is ready to be set on a PreparedStatement
+     */
+    private long toDatabaseValue(EnumSet<DeviceMessageUserAction> enumValues) {
+        long dbValue = 0;
+        long bitValue = 1;
+        for (DeviceMessageUserAction enumValue : DeviceMessageUserAction.values()) {
+            if (enumValues.contains(enumValue)) {
+                dbValue = dbValue + bitValue;
+            }
+            bitValue = bitValue * 2;
+        }
+        return dbValue;
+    }
+
+    /**
+     * Returns the set of enum values represented by the bit vector
+     * that was read from a ResultSet. It is assumed that the bit vector
+     * was produced by this same class.
+     *
+     * @param dbValue The bit vector that was stored as a database value earlier
+     * @return The set of enum values
+     */
+    private EnumSet<DeviceMessageUserAction> fromDatabaseValue(long dbValue) {
+        long bitPattern = 1;
+        EnumSet<DeviceMessageUserAction> enumValues = EnumSet.noneOf(DeviceMessageUserAction.class);
+        for (DeviceMessageUserAction enumValue : DeviceMessageUserAction.values()) {
+            if ((dbValue & bitPattern) != 0) {
+                // The bit for this enum value is set
+                enumValues.add(enumValue);
+            }
+            bitPattern = bitPattern * 2;
+        }
+        return enumValues;
     }
 
     @Override
     public void setSupportsAllProtocolMessagesWithUserActions(boolean supportAllProtocolMessages, DeviceMessageUserAction... deviceMessageUserActions) {
-        getCommunicationConfiguration().setSupportsAllProtocolMessagesWithUserActions(supportAllProtocolMessages, deviceMessageUserActions);
+        this.supportsAllProtocolMessages = supportAllProtocolMessages;
+        if (this.supportsAllProtocolMessages) {
+            this.deviceMessageEnablements.clear();
+            if (deviceMessageUserActions.length > 0) {
+                this.supportsAllProtocolMessagesUserActionsBitVector = toDatabaseValue(EnumSet.copyOf(Arrays.asList(deviceMessageUserActions)));
+            }
+        }
+        else {
+            this.supportsAllProtocolMessagesUserActionsBitVector = 0;
+        }
     }
 
     @Override
     public void addSecurityPropertySet(SecurityPropertySet securityPropertySet) {
-        getCommunicationConfiguration().addSecurityPropertySet(securityPropertySet);
+        Save.CREATE.validate(dataModel, securityPropertySet);
+        securityPropertySets.add(securityPropertySet);
     }
 
     @Override
     public List<PartialConnectionTask> getPartialConnectionTasks() {
-        return getCommunicationConfiguration().getPartialConnectionTasks();
+        return this.findAllPartialConnectionTasks();
+    }
+
+    private List<PartialConnectionTask> findAllPartialConnectionTasks() {
+        return Collections.unmodifiableList(this.partialConnectionTasks);
     }
 
     @Override
     public List<PartialInboundConnectionTask> getPartialInboundConnectionTasks() {
-        return getCommunicationConfiguration().getPartialInboundConnectionTasks();
+        return this.findAllPartialConnectionTasks()
+                .stream()
+                .filter(each -> each instanceof PartialInboundConnectionTask)
+                .map(PartialInboundConnectionTask.class::cast)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<PartialScheduledConnectionTask> getPartialOutboundConnectionTasks() {
-        return getCommunicationConfiguration().getPartialOutboundConnectionTasks();
+        return this.findAllPartialConnectionTasks()
+                .stream()
+                .filter(each -> each instanceof PartialScheduledConnectionTask)
+                .map(PartialScheduledConnectionTask.class::cast)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<PartialConnectionInitiationTask> getPartialConnectionInitiationTasks() {
-        return getCommunicationConfiguration().getPartialConnectionInitiationTasks();
+        return this.findAllPartialConnectionTasks()
+                .stream()
+                .filter(each -> each instanceof PartialConnectionInitiationTask)
+                .map(PartialConnectionInitiationTask.class::cast)
+                .collect(Collectors.toList());
     }
 
     @Override
     public ProtocolDialectConfigurationProperties findOrCreateProtocolDialectConfigurationProperties(DeviceProtocolDialect protocolDialect) {
-        return getCommunicationConfiguration().findOrCreateProtocolDialectConfigurationProperties(protocolDialect);
+        for (ProtocolDialectConfigurationProperties candidate : configurationPropertiesList) {
+            if (candidate.getDeviceProtocolDialect().getDeviceProtocolDialectName().equals(protocolDialect.getDeviceProtocolDialectName())) {
+                return candidate;
+            }
+        }
+        ProtocolDialectConfigurationProperties properties = ProtocolDialectConfigurationPropertiesImpl.from(dataModel, this, protocolDialect);
+        configurationPropertiesList.add(properties);
+        return properties;
     }
 
     @Override
     public List<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationPropertiesList() {
-        return getCommunicationConfiguration().getProtocolDialectConfigurationPropertiesList();
+        return Collections.unmodifiableList(configurationPropertiesList);
     }
 
     @Override
     public List<SecurityPropertySet> getSecurityPropertySets() {
-        return getCommunicationConfiguration().getSecurityPropertySets();
+        return Collections.unmodifiableList(securityPropertySets);
     }
 
     @Override
     public SecurityPropertySetBuilder createSecurityPropertySet(String name) {
-        return getCommunicationConfiguration().createSecurityPropertySet(name);
+        return new InternalSecurityPropertySetBuilder(name);
     }
 
     @Override
     public void removeSecurityPropertySet(SecurityPropertySet propertySet) {
-        getCommunicationConfiguration().removeSecurityPropertySet(propertySet);
-    }
-
-    @Override
-    public DeviceMessageEnablementBuilder createDeviceMessageEnablement(DeviceMessageId deviceMessageId) {
-        return getCommunicationConfiguration().createDeviceMessageEnablement(deviceMessageId);
-    }
-
-    @Override
-    public boolean removeDeviceMessageEnablement(DeviceMessageId deviceMessageId) {
-        return this.getCommunicationConfiguration().removeDeviceMessageEnablement(deviceMessageId);
+        if (propertySet != null) {
+            ((SecurityPropertySetImpl) propertySet).validateDelete();
+            securityPropertySets.remove(propertySet);
+        }
     }
 
     @Override
     public PartialScheduledConnectionTaskBuilder newPartialScheduledConnectionTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay, ConnectionStrategy connectionStrategy) {
-        return getCommunicationConfiguration().newPartialScheduledConnectionTask(name, connectionType, rescheduleRetryDelay, connectionStrategy);
+        return new PartialScheduledConnectionTaskBuilderImpl(dataModel, this, schedulingService, eventService).name(name)
+                .pluggableClass(connectionType)
+                .rescheduleDelay(rescheduleRetryDelay)
+                .connectionStrategy(connectionStrategy);
     }
 
     @Override
     public PartialInboundConnectionTaskBuilder newPartialInboundConnectionTask(String name, ConnectionTypePluggableClass connectionType) {
-        return getCommunicationConfiguration().newPartialInboundConnectionTask(name, connectionType);
+        return new PartialInboundConnectionTaskBuilderImpl(dataModel, this)
+                .name(name)
+                .pluggableClass(connectionType);
     }
 
     @Override
     public PartialConnectionInitiationTaskBuilder newPartialConnectionInitiationTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay) {
-        return getCommunicationConfiguration().newPartialConnectionInitiationTask(name, connectionType, rescheduleRetryDelay);
+        return new PartialConnectionInitiationTaskBuilderImpl(dataModel, this, schedulingService, eventService)
+                .name(name)
+                .pluggableClass(connectionType)
+                .rescheduleDelay(rescheduleRetryDelay);
+    }
+
+    public void addPartialConnectionTask(PartialConnectionTask partialConnectionTask) {
+        Save.CREATE.validate(dataModel, partialConnectionTask);
+        partialConnectionTasks.add(partialConnectionTask);
     }
 
     @Override
     public ComTaskEnablementBuilder enableComTask(ComTask comTask, SecurityPropertySet securityPropertySet) {
-        return this.getCommunicationConfiguration().enableComTask(comTask, securityPropertySet);
+        ComTaskEnablementImpl underConstruction = dataModel.getInstance(ComTaskEnablementImpl.class).initialize(this, comTask, securityPropertySet);
+        return new ComTaskEnablementBuilderImpl(underConstruction);
     }
 
     @Override
     public void disableComTask(ComTask comTask) {
-        this.getCommunicationConfiguration().disableComTask(comTask);
+        Iterator<ComTaskEnablement> comTaskEnablementIterator = this.comTaskEnablements.iterator();
+        while (comTaskEnablementIterator.hasNext()) {
+            ComTaskEnablement comTaskEnablement = comTaskEnablementIterator.next();
+            if (comTaskEnablement.getComTask().getId() == comTask.getId()) {
+                ComTaskEnablementImpl each = (ComTaskEnablementImpl) comTaskEnablement;
+                each.validateDelete();
+                comTaskEnablementIterator.remove();
+                return;
+            }
+        }
+        throw new CannotDisableComTaskThatWasNotEnabledException(this.getThesaurus(), this, comTask);
     }
 
     @Override
     public List<ComTaskEnablement> getComTaskEnablements() {
-        return this.getCommunicationConfiguration().getComTaskEnablements();
+        return Collections.unmodifiableList(this.comTaskEnablements);
     }
 
     @Override
     public Optional<ComTaskEnablement> getComTaskEnablementFor(ComTask comTask) {
-        return this.getCommunicationConfiguration().getComTaskEnablementFor(comTask);
+        return this.comTaskEnablements
+                .stream()
+                .filter(each -> comTask.getId() == each.getComTask().getId())
+                .findFirst();
+    }
+
+    private void addComTaskEnablement(ComTaskEnablementImpl comTaskEnablement) {
+        comTaskEnablement.adding();
+        Save.CREATE.validate(this.dataModel, comTaskEnablement);
+        this.comTaskEnablements.add(comTaskEnablement);
+        comTaskEnablement.added();
     }
 
     @Override
     public List<DeviceMessageEnablement> getDeviceMessageEnablements() {
-        return this.getCommunicationConfiguration().getDeviceMessageEnablements();
+        return Collections.unmodifiableList(deviceMessageEnablements);
+    }
+
+    @Override
+    public DeviceMessageEnablementBuilder createDeviceMessageEnablement(DeviceMessageId deviceMessageId) {
+        return new InternalDeviceMessageEnablementBuilder(deviceMessageId);
+    }
+
+    @Override
+    public boolean removeDeviceMessageEnablement(DeviceMessageId deviceMessageId) {
+        return this.deviceMessageEnablements.removeIf(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessageId));
+    }
+
+    private void addDeviceMessageEnablement(DeviceMessageEnablement singleDeviceMessageEnablement) {
+        Save.CREATE.validate(dataModel, singleDeviceMessageEnablement);
+        this.deviceMessageEnablements.add(singleDeviceMessageEnablement);
+        this.setSupportsAllProtocolMessagesWithUserActions(false);
+        this.save();
     }
 
     @Override
     public boolean isAuthorized(DeviceMessageId deviceMessageId) {
-        return this.getCommunicationConfiguration().isAuthorized(deviceMessageId);
+        Optional<User> currentUser = getCurrentUser();
+        if (currentUser.isPresent()) {
+            User user = currentUser.get();
+            if (isSupportsAllProtocolMessages()) {
+                if (this.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages().contains(deviceMessageId)){
+                    return getAllProtocolMessagesUserActions().stream().anyMatch(deviceMessageUserAction -> isUserAuthorizedForAction(deviceMessageUserAction, user));
+                }
+            }
+            java.util.Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = getDeviceMessageEnablements().stream().filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessageId)).findAny();
+            if (deviceMessageEnablementOptional.isPresent()) {
+                return deviceMessageEnablementOptional.get().getUserActions().stream().anyMatch(deviceMessageUserAction -> isUserAuthorizedForAction(deviceMessageUserAction, user));
+            }
+        }
+        return false;
+    }
+
+    private boolean isUserAuthorizedForAction(DeviceMessageUserAction action, User user) {
+        Optional<Privilege> privilege = ((DeviceConfigurationServiceImpl) deviceConfigurationService).findPrivilege(action.getPrivilege());
+        return privilege.isPresent() && user.hasPrivilege(privilege.get().getName());
+    }
+
+    private Optional<User> getCurrentUser() {
+        Principal principal = threadPrincipalService.getPrincipal();
+        if (!(principal instanceof User)) {
+            return Optional.empty();
+        }
+        return Optional.of((User) principal);
     }
 
     public List<DeviceConfValidationRuleSetUsage> getDeviceConfValidationRuleSetUsages() {
@@ -1053,6 +1208,138 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             this.obsoleteProperties.clear();
         }
 
+    }
+
+    private class InternalSecurityPropertySetBuilder implements SecurityPropertySetBuilder {
+
+        private final SecurityPropertySetImpl underConstruction;
+
+        private InternalSecurityPropertySetBuilder(String name) {
+            this.underConstruction = SecurityPropertySetImpl.from(dataModel, DeviceConfigurationImpl.this, name);
+        }
+
+        @Override
+        public SecurityPropertySetBuilder authenticationLevel(int level) {
+            underConstruction.setAuthenticationLevel(level);
+            return this;
+        }
+
+        @Override
+        public SecurityPropertySetBuilder encryptionLevel(int level) {
+            underConstruction.setEncryptionLevelId(level);
+            return this;
+        }
+
+        @Override
+        public SecurityPropertySetBuilder addUserAction(DeviceSecurityUserAction userAction) {
+            underConstruction.addUserAction(userAction);
+            return this;
+        }
+
+        @Override
+        public SecurityPropertySet build() {
+            DeviceConfigurationImpl.this.addSecurityPropertySet(underConstruction);
+            return underConstruction;
+        }
+    }
+
+    private class InternalDeviceMessageEnablementBuilder implements DeviceMessageEnablementBuilder {
+
+        private final DeviceMessageEnablement underConstruction;
+
+        private InternalDeviceMessageEnablementBuilder(DeviceMessageId deviceMessageId) {
+            this.underConstruction = DeviceMessageEnablementImpl.from(dataModel, DeviceConfigurationImpl.this, deviceMessageId);
+        }
+
+        @Override
+        public DeviceMessageEnablementBuilder addUserAction(DeviceMessageUserAction deviceMessageUserAction) {
+            this.underConstruction.addDeviceMessageUserAction(deviceMessageUserAction);
+            return this;
+        }
+
+        @Override
+        public DeviceMessageEnablementBuilder addUserActions(DeviceMessageUserAction... deviceMessageUserActions) {
+            Arrays.asList(deviceMessageUserActions).stream().forEach(this.underConstruction::addDeviceMessageUserAction);
+            return this;
+        }
+
+        @Override
+        public DeviceMessageEnablement build() {
+            DeviceConfigurationImpl.this.addDeviceMessageEnablement(underConstruction);
+            return underConstruction;
+        }
+    }
+
+    private enum ComTaskEnablementBuildingMode {
+        UNDERCONSTRUCTION {
+            @Override
+            protected void verify() {
+                // All calls are fine as long as we are under construction
+            }
+        },
+        COMPLETE {
+            @Override
+            protected void verify() {
+                throw new IllegalStateException("The communication task enablement building process is already complete");
+            }
+        };
+
+        protected abstract void verify();
+    }
+
+    private class ComTaskEnablementBuilderImpl implements ComTaskEnablementBuilder {
+
+        private ComTaskEnablementBuildingMode mode;
+        private ComTaskEnablementImpl underConstruction;
+
+        private ComTaskEnablementBuilderImpl(ComTaskEnablementImpl underConstruction) {
+            super();
+            this.mode = ComTaskEnablementBuildingMode.UNDERCONSTRUCTION;
+            this.underConstruction = underConstruction;
+        }
+
+        @Override
+        public ComTaskEnablementBuilder setIgnoreNextExecutionSpecsForInbound(boolean flag) {
+            this.mode.verify();
+            this.underConstruction.setIgnoreNextExecutionSpecsForInbound(flag);
+            return this;
+        }
+
+        @Override
+        public ComTaskEnablementBuilder setPartialConnectionTask(PartialConnectionTask partialConnectionTask) {
+            this.mode.verify();
+            this.underConstruction.setPartialConnectionTask(partialConnectionTask);
+            return this;
+        }
+
+        @Override
+        public ComTaskEnablementBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties) {
+            this.mode.verify();
+            this.underConstruction.setProtocolDialectConfigurationProperties(properties);
+            return this;
+        }
+
+        @Override
+        public ComTaskEnablementBuilder useDefaultConnectionTask(boolean flagValue) {
+            this.mode.verify();
+            this.underConstruction.useDefaultConnectionTask(flagValue);
+            return this;
+        }
+
+        @Override
+        public ComTaskEnablementBuilder setPriority(int priority) {
+            this.mode.verify();
+            this.underConstruction.setPriority(priority);
+            return this;
+        }
+
+        @Override
+        public ComTaskEnablement add() {
+            this.mode.verify();
+            addComTaskEnablement(this.underConstruction);
+            this.mode = ComTaskEnablementBuildingMode.COMPLETE;
+            return this.underConstruction;
+        }
     }
 
 }

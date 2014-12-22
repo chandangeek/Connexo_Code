@@ -159,12 +159,6 @@ public interface DeviceConfigurationService {
 
     public Finder<DeviceConfiguration> findDeviceConfigurationsUsingDeviceType(DeviceType deviceType);
 
-    public DeviceCommunicationConfiguration findDeviceCommunicationConfiguration(long id);
-
-    public DeviceCommunicationConfiguration findDeviceCommunicationConfigurationFor(DeviceConfiguration deviceConfiguration);
-
-    public DeviceCommunicationConfiguration newDeviceCommunicationConfiguration(DeviceConfiguration deviceConfiguration);
-
     public Optional<PartialConnectionTask> getPartialConnectionTask(long id);
 
     public List<PartialConnectionTask> findByConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass);
@@ -193,7 +187,8 @@ public interface DeviceConfigurationService {
      * Return a list of ComTasks that are legal for assignment to the ComSchedule. A ComTask can be assigned to the comSchedule IF all devices
      * already linked to the schedule are enabled for the ComTask.
      * This list will include ComTasks already linked to the ComSchedule!
-     * @param comSchedule
+     *
+     * @param comSchedule The ComSchedule
      * @return List of ComTasks, including ComTasks already linked to the schedule.
      */
     public List<ComTask> findAvailableComTasks(ComSchedule comSchedule);

@@ -2,7 +2,6 @@ package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -39,7 +38,7 @@ import java.util.List;
 //@ProtocolDialectConfigurationHasAllRequiredProperties(groups = {Save.Create.class, Save.Update.class})
 class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<ProtocolDialectConfigurationProperties> implements ProtocolDialectConfigurationProperties {
 
-    private Reference<DeviceCommunicationConfiguration> deviceCommunicationConfiguration = ValueReference.absent();
+    private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
 
     private final DataModel dataModel;
 
@@ -100,13 +99,8 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     }
 
     @Override
-    public DeviceConfiguration getDeviceCommunicationConfiguration() {
-        return this.deviceCommunicationConfiguration.get().getDeviceConfiguration();
-    }
-
-    @Override
     public DeviceConfiguration getDeviceConfiguration() {
-        return this.getDeviceCommunicationConfiguration().getDeviceConfiguration();
+        return this.deviceConfiguration.get();
     }
 
     @Override
@@ -196,13 +190,13 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
         dataModel.mapper(ProtocolDialectConfigurationProperties.class).remove(this);
     }
 
-    static ProtocolDialectConfigurationProperties from(DataModel dataModel, DeviceCommunicationConfiguration configuration, DeviceProtocolDialect protocolDialect) {
+    static ProtocolDialectConfigurationProperties from(DataModel dataModel, DeviceConfiguration configuration, DeviceProtocolDialect protocolDialect) {
         return dataModel.getInstance(ProtocolDialectConfigurationPropertiesImpl.class).init(configuration, protocolDialect);
     }
 
-    ProtocolDialectConfigurationPropertiesImpl init(DeviceCommunicationConfiguration configuration, DeviceProtocolDialect protocolDialect) {
+    ProtocolDialectConfigurationPropertiesImpl init(DeviceConfiguration configuration, DeviceProtocolDialect protocolDialect) {
         this.setName(protocolDialect.getDeviceProtocolDialectName());
-        this.deviceCommunicationConfiguration.set(configuration);
+        this.deviceConfiguration.set(configuration);
         this.protocolDialect = protocolDialect;
         this.protocolDialectName = protocolDialect.getDeviceProtocolDialectName();
         return this;

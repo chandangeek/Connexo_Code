@@ -14,7 +14,6 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
@@ -64,7 +63,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     private String name;
-    private Reference<DeviceCommunicationConfiguration> deviceCommunicationConfiguration = ValueReference.absent();
+    private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     private DeviceProtocol deviceProtocol;
     private int authenticationLevelId;
     private AuthenticationDeviceAccessLevel authenticationLevel;
@@ -124,7 +123,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     private SecurityPropertySet findOtherByName(String name) {
-        Optional<SecurityPropertySet> other = this.getDataMapper().getUnique("name", name, "deviceCommunicationConfiguration", this.deviceCommunicationConfiguration.get());
+        Optional<SecurityPropertySet> other = this.getDataMapper().getUnique("name", name, "deviceConfiguration", this.deviceConfiguration.get());
         if (other.isPresent()) {
             SecurityPropertySet otherSet = other.get();
             if (otherSet.getId() == this.getId()) {
@@ -171,12 +170,12 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
-    static SecurityPropertySetImpl from(DataModel dataModel, DeviceCommunicationConfigurationImpl deviceCommunicationConfiguration, String name) {
-        return dataModel.getInstance(SecurityPropertySetImpl.class).init(deviceCommunicationConfiguration, name);
+    static SecurityPropertySetImpl from(DataModel dataModel, DeviceConfigurationImpl deviceConfiguration, String name) {
+        return dataModel.getInstance(SecurityPropertySetImpl.class).init(deviceConfiguration, name);
     }
 
-    private SecurityPropertySetImpl init(DeviceCommunicationConfiguration deviceCommunicationConfiguration, String name) {
-        this.deviceCommunicationConfiguration.set(deviceCommunicationConfiguration);
+    private SecurityPropertySetImpl init(DeviceConfiguration deviceConfiguration, String name) {
+        this.deviceConfiguration.set(deviceConfiguration);
         this.setName(name);
         return this;
     }
@@ -293,7 +292,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
     @Override
     public DeviceConfiguration getDeviceConfiguration() {
-        return this.deviceCommunicationConfiguration.get().getDeviceConfiguration();
+        return this.deviceConfiguration.get();
     }
 
     @Override

@@ -7,7 +7,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
@@ -142,6 +141,8 @@ public enum TableSpecs {
             Column deviceTypeId = table.column("DEVICETYPEID").number().notNull().add();
             table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();
             table.column("COMMUNICATIONFUNCTIONMASK").number().conversion(ColumnConversion.NUMBER2INT).map("communicationFunctionMask").add();
+            table.column("SUPPORTALLCATEGORIES").number().conversion(NUMBER2BOOLEAN).notNull().map("supportsAllProtocolMessages").add();
+            table.column("USERACTIONS").number().conversion(NUMBER2LONG).notNull().map("supportsAllProtocolMessagesUserActionsBitVector").add();
             table.column("GATEWAY_TYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(DeviceConfigurationImpl.Fields.GATEWAY_TYPE.fieldName()).notNull().add();
             table.primaryKey("PK_DTC_DEVICECONFIG").on(id).add();
             table.foreignKey("FK_DTC_DEVCONFIG_DEVTYPE").
@@ -293,24 +294,6 @@ public enum TableSpecs {
         }
     },
 
-    DTC_DEVICECOMMCONFIG {
-        @Override
-        public void addTo(DataModel dataModel) {
-            Table<DeviceCommunicationConfiguration> table = dataModel.addTable(name(), DeviceCommunicationConfiguration.class);
-            table.map(DeviceCommunicationConfigurationImpl.class);
-            Column id = table.addAutoIdColumn();
-            Column deviceconfiguration = table.column("DEVICECONFIGURATION").number().add();
-            table.column("SUPPORTALLCATEGORIES").number().conversion(NUMBER2BOOLEAN).notNull().map("supportsAllProtocolMessages").add();
-            table.column("USERACTIONS").number().conversion(NUMBER2LONG).notNull().map("supportsAllProtocolMessagesUserActionsBitVector").add();
-            table.foreignKey("FK_MDCDEVICECOMMCONFIG_DCONFIG").
-                    on(deviceconfiguration).
-                    references(DTC_DEVICECONFIG.name()).
-                    map("deviceConfiguration").
-                    add();
-            table.primaryKey("PK_MDCDEVICECOMMCONFIG").on(id).add();
-        }
-    },
-
     DTC_DIALECTCONFIGPROPERTIES {
         @Override
         public void addTo(DataModel dataModel) {
@@ -318,13 +301,13 @@ public enum TableSpecs {
             table.map(ProtocolDialectConfigurationPropertiesImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            Column deviceConfiguration = table.column("DEVICECONFIGURATION").number().notNull().add(); // TODO remove map when enabling foreign key constraint
+            Column deviceConfiguration = table.column("DEVICECONFIGURATION").number().notNull().add();
             table.column("DEVICEPROTOCOLDIALECT").varChar().notNull().map("protocolDialectName").add();
             table.column("NAME").varChar().notNull().map("name").add();
             table.foreignKey("FK_DTC_DIALECTCONFPROPS_CONFIG").
                     on(deviceConfiguration).
-                    references(DTC_DEVICECOMMCONFIG.name()).
-                    map("deviceCommunicationConfiguration").
+                    references(DTC_DEVICECONFIG.name()).
+                    map("deviceConfiguration").
                     reverseMap("configurationPropertiesList").
                     onDelete(CASCADE).
                     composition().
@@ -384,7 +367,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.column("NAME").varChar().notNull().map("name").add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "number");
-            Column deviceComConfig = table.column("DEVICECOMCONFIG").number().add();
+            Column deviceConfiguration = table.column("DEVICECONFIG").number().add();
             Column connectionType = table.column("CONNECTIONTYPE").number().conversion(NUMBER2LONG).map("pluggableClassId").add();
             Column initiator = table.column("INITIATOR").number().add();
             table.column("COMWINDOWSTART").number().conversion(NUMBER2INT).map("comWindowStart").add();
@@ -408,8 +391,8 @@ public enum TableSpecs {
                     map("comPortPool").
                     add();
             table.foreignKey("FK_DTC_PARTIALCT_DEVCONFIG").
-                    on(deviceComConfig).
-                    references(DTC_DEVICECOMMCONFIG.name()).
+                    on(deviceConfiguration).
+                    references(DTC_DEVICECONFIG.name()).
                     map("configuration").
                     reverseMap("partialConnectionTasks").
                     onDelete(CASCADE).
@@ -454,14 +437,14 @@ public enum TableSpecs {
             Table<DeviceMessageEnablement> table = dataModel.addTable(name(), DeviceMessageEnablement.class);
             table.map(DeviceMessageEnablementImpl.class);
             Column id = table.addAutoIdColumn();
-            Column deviceComConfig = table.column("DEVICECOMCONFIG").conversion(NUMBER2LONG).number().notNull().add();
+            Column deviceConfig = table.column("DEVICECONFIG").conversion(NUMBER2LONG).number().notNull().add();
             table.column("DEVICEMESSAGEID").number().conversion(NUMBER2ENUM).map("deviceMessageId").add();
             table.addAuditColumns();
-            table.foreignKey("FK_DTC_DME_DEVCOMCONFIG").
-                    on(deviceComConfig).
-                    references(DTC_DEVICECOMMCONFIG.name()).
-                    map("deviceCommunicationConfiguration").
-                    reverseMap(DeviceCommunicationConfigurationImpl.Fields.DEVICE_MESSAGE_ENABLEMENTS.fieldName()).
+            table.foreignKey("FK_DTC_DME_DEVCONFIG").
+                    on(deviceConfig).
+                    references(DTC_DEVICECONFIG.name()).
+                    map("deviceConfiguration").
+                    reverseMap(DeviceConfigurationImpl.Fields.DEVICE_MESSAGE_ENABLEMENTS.fieldName()).
                     onDelete(CASCADE).
                     composition().
                     add();
@@ -494,15 +477,15 @@ public enum TableSpecs {
             table.map(SecurityPropertySetImpl.class);
             Column id = table.addAutoIdColumn();
             table.column("NAME").varChar().notNull().map("name").add();
-            Column devicecomconfig = table.column("DEVICECOMCONFIG").conversion(NUMBER2LONG).number().notNull().add();
+            Column deviceConfiguration = table.column("DEVICECONFIG").conversion(NUMBER2LONG).number().notNull().add();
             table.column("AUTHENTICATIONLEVEL").number().conversion(NUMBER2INT).notNull().map("authenticationLevelId").add();
             table.column("ENCRYPTIONLEVEL").number().conversion(NUMBER2INT).notNull().map("encryptionLevelId").add();
             table.addAuditColumns();
-            table.foreignKey("FK_DTC_SECPROPSET_DEVCOMCONFIG").
-                    on(devicecomconfig).
-                    references(DTC_DEVICECOMMCONFIG.name()).
-                    map("deviceCommunicationConfiguration").
-                    reverseMap(DeviceCommunicationConfigurationImpl.Fields.SECURITY_PROPERTY_SETS.fieldName()).
+            table.foreignKey("FK_DTC_SECPROPSET_DEVCONFIG").
+                    on(deviceConfiguration).
+                    references(DTC_DEVICECONFIG.name()).
+                    map("deviceConfiguration").
+                    reverseMap(DeviceConfigurationImpl.Fields.SECURITY_PROPERTY_SETS.fieldName()).
                     onDelete(CASCADE).
                     composition().
                     add();
@@ -562,9 +545,12 @@ public enum TableSpecs {
             table.
                 foreignKey("FK_DTC_COMTASKENBLMNT_DCOMCONF").
                 on(deviceCommunicationConfigation).
-                references(DTC_DEVICECOMMCONFIG.name()).
-                map(ComTaskEnablementImpl.Fields.CONFIGURATION.fieldName()).
-                reverseMap(DeviceCommunicationConfigurationImpl.Fields.COM_TASK_ENABLEMENTS.fieldName()).onDelete(CASCADE).composition().add();
+                references(DTC_DEVICECONFIG.name()).
+                map(ComTaskEnablementImpl.Fields.CONFIGURATION.fieldName())
+                    .reverseMap(DeviceConfigurationImpl.Fields.COM_TASK_ENABLEMENTS.fieldName())
+                    .composition()
+                    .onDelete(CASCADE)
+                .add();
             table.
                 foreignKey("FK_DTC_COMTASKENABLMNT_PDCP").
                 on(dialectConfigurationProperties).

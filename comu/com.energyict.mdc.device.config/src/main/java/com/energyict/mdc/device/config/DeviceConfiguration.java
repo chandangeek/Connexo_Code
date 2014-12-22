@@ -103,13 +103,6 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
 
     boolean hasLogBookSpecForConfig(int logBookTypeId, int updateId);
 
-    /**
-     * Gets the details of this DeviceConfiguration that relate to communication.
-     *
-     * @return The DeviceCommunicationConfiguration
-     */
-    public DeviceCommunicationConfiguration getCommunicationConfiguration();
-
     void save();
 
     Set<DeviceCommunicationFunction> getCommunicationFunctions();

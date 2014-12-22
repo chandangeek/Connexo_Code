@@ -72,8 +72,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     @Mock
-    private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
-    @Mock
     private ServerDeviceConfiguration deviceConfig;
     @Mock
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
@@ -104,10 +102,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
         when(this.deviceProtocolPluggableClass2.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID_2);
         when(this.deviceProtocolPluggableClass2.getDeviceProtocol()).thenReturn(this.deviceProtocol2);
-
-        when(deviceCommunicationConfiguration.getDeviceConfiguration()).thenReturn(deviceConfig);
-
-        when(deviceConfig.getCommunicationConfiguration()).thenReturn(deviceCommunicationConfiguration);
     }
 
     @Test

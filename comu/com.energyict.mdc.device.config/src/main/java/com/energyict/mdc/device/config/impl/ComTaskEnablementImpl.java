@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -41,7 +40,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
 
     enum Fields {
         COM_TASK("comTask"),
-        CONFIGURATION("deviceCommunicationConfiguration"),
+        CONFIGURATION("deviceConfiguration"),
         SECURITY_PROPERTY_SET("securityPropertySet"),
         NEXT_EXECUTION_SPECS("nextExecutionSpecs"),
         IGNORE_NEXT_EXECUTION_SPECS_FOR_INBOUND("ignoreNextExecutionSpecsForInbound"),
@@ -64,7 +63,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.COM_TASK_ENABLEMENT_COM_TASK_REQUIRED + "}")
     private Reference<ComTask> comTask = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.COM_TASK_ENABLEMENT_CONFIGURATION_REQUIRED + "}")
-    private Reference<DeviceCommunicationConfiguration> deviceCommunicationConfiguration = ValueReference.absent();
+    private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.COM_TASK_ENABLEMENT_SECURITY_PROPERTY_SET_REQUIRED + "}")
     private Reference<SecurityPropertySet> securityPropertySet = ValueReference.absent();
     private SaveStrategy saveStrategy = new NoopAtCreationTime();
@@ -86,8 +85,8 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         super(ComTaskEnablement.class, dataModel, eventService, thesaurus);
     }
 
-    ComTaskEnablementImpl initialize(DeviceCommunicationConfiguration deviceCommunicationConfiguration, ComTask comTask, SecurityPropertySet securityPropertySet) {
-        this.deviceCommunicationConfiguration.set(deviceCommunicationConfiguration);
+    ComTaskEnablementImpl initialize(DeviceConfiguration deviceConfiguration, ComTask comTask, SecurityPropertySet securityPropertySet) {
+        this.deviceConfiguration.set(deviceConfiguration);
         this.comTask.set(comTask);
         this.securityPropertySet.set(securityPropertySet);
         return this;
@@ -187,13 +186,8 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     }
 
     @Override
-    public DeviceCommunicationConfiguration getDeviceCommunicationConfiguration () {
-        return this.deviceCommunicationConfiguration.get();
-    }
-
-    @Override
     public DeviceConfiguration getDeviceConfiguration() {
-        return this.getDeviceCommunicationConfiguration().getDeviceConfiguration();
+        return this.deviceConfiguration.get();
     }
 
     @Override

@@ -276,7 +276,7 @@ public class PartialConnectionInitiationTaskCrudIT {
 
         assertThat(partialConnectionInitiationTask.getComPortPool().getId()).isEqualTo(outboundComPortPool.getId());
         assertThat(partialConnectionInitiationTask.isDefault()).isFalse();
-        assertThat(partialConnectionInitiationTask.getConfiguration().getCommunicationConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
+        assertThat(partialConnectionInitiationTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
         assertThat(partialConnectionInitiationTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
         assertThat(partialConnectionInitiationTask.getName()).isEqualTo("MyInitiation");
 
@@ -358,11 +358,9 @@ public class PartialConnectionInitiationTaskCrudIT {
         }
 
         try (TransactionContext context = transactionService.getContext()) {
-            DeviceCommunicationConfiguration configuration = deviceConfiguration.getCommunicationConfiguration();
-            PartialConnectionInitiationTask partialOutboundConnectionTask = configuration.getPartialConnectionInitiationTasks().get(0);
-            configuration.remove(partialOutboundConnectionTask);
-            configuration.save();
-
+            PartialConnectionInitiationTask partialOutboundConnectionTask = deviceConfiguration.getPartialConnectionInitiationTasks().get(0);
+            deviceConfiguration.remove(partialOutboundConnectionTask);
+            deviceConfiguration.save();
             context.commit();
         }
 

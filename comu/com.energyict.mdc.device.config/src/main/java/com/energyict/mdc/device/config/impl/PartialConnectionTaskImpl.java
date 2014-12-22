@@ -1,5 +1,16 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.common.InvalidValueException;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -7,35 +18,22 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.common.InvalidValueException;
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.ImmutableMap;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.device.config.PartialConnectionTask} interface.
@@ -65,7 +63,7 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
     @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     private String name;
-    private Reference<DeviceCommunicationConfiguration> configuration = ValueReference.absent();
+    private Reference<DeviceConfiguration> configuration = ValueReference.absent();
     @NotNull()
     private long pluggableClassId;
     private ConnectionTypePluggableClass pluggableClass;
@@ -84,7 +82,7 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
         this.protocolPluggableService = protocolPluggableService;
     }
 
-    void setConfiguration(DeviceCommunicationConfiguration configuration) {
+    void setConfiguration(DeviceConfiguration configuration) {
         this.configuration.set(configuration);
     }
 
@@ -109,7 +107,7 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
 
     @Override
     public DeviceConfiguration getConfiguration () {
-        return this.configuration.get().getDeviceConfiguration();
+        return this.configuration.get();
     }
 
     @Override
@@ -262,10 +260,7 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
         public boolean isValid(PartialConnectionTaskPropertyImpl value, ConstraintValidatorContext context) {
             ConnectionTypePluggableClass connectionTypePluggableClass = value.getPartialConnectionTask().getPluggableClass();
             PropertySpec propertySpec = connectionTypePluggableClass.getPropertySpec(value.getName());
-            if (propertySpec != null) {
-                return value.getValue() == null || propertySpec.getValueFactory().getValueType().isInstance(value.getValue());
-            }
-            return true; // missing spec is covered by different validation
+            return propertySpec == null || value.getValue() == null || propertySpec.getValueFactory().getValueType().isInstance(value.getValue());
         }
     }
 

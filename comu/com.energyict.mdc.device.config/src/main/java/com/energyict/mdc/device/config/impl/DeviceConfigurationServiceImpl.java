@@ -6,7 +6,6 @@ import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ChannelSpecLinkType;
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -116,11 +115,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, MasterDataService masterDataService, SchedulingService schedulingService, ValidationService validationService) {
-        this(ormService, eventService, nlsService, meteringService, mdcReadingTypeUtilService, protocolPluggableService, userService, engineModelService, masterDataService, false, schedulingService, validationService);
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, SchedulingService schedulingService, ValidationService validationService) {
+        this(ormService, eventService, nlsService, meteringService, mdcReadingTypeUtilService, protocolPluggableService, userService, engineModelService, schedulingService, validationService);
     }
 
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, ProtocolPluggableService protocolPluggableService, UserService userService, EngineModelService engineModelService, MasterDataService masterDataService, boolean createMasterData, SchedulingService schedulingService, ValidationService validationService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, ProtocolPluggableService protocolPluggableService, UserService userService, EngineModelService engineModelService, SchedulingService schedulingService, ValidationService validationService) {
         this();
         this.setOrmService(ormService);
         this.setUserService(userService);
@@ -312,22 +311,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public DeviceCommunicationConfiguration findDeviceCommunicationConfiguration(long id) {
-        return dataModel.mapper(DeviceCommunicationConfiguration.class).getOptional(id).orElse(null);
-    }
-
-    @Override
-    public DeviceCommunicationConfiguration findDeviceCommunicationConfigurationFor(DeviceConfiguration deviceConfiguration) {
-        List<DeviceCommunicationConfiguration> configurations = DefaultFinder.of(DeviceCommunicationConfiguration.class, where("deviceConfiguration").isEqualTo(deviceConfiguration), dataModel).find();
-        return configurations.isEmpty() ? null : configurations.get(0);
-    }
-
-    @Override
-    public DeviceCommunicationConfiguration newDeviceCommunicationConfiguration(DeviceConfiguration deviceConfiguration) {
-        return DeviceCommunicationConfigurationImpl.from(dataModel, deviceConfiguration);
-    }
-
-    @Override
     public Optional<PartialConnectionTask> getPartialConnectionTask(long id) {
         return dataModel.mapper(PartialConnectionTask.class).getOptional(id);
     }
@@ -363,7 +346,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 mapper(ComTaskEnablement.class).
                 getUnique(
                         ComTaskEnablementImpl.Fields.COM_TASK.fieldName(), comTask,
-                        ComTaskEnablementImpl.Fields.CONFIGURATION.fieldName(), deviceConfiguration.getCommunicationConfiguration());
+                        ComTaskEnablementImpl.Fields.CONFIGURATION.fieldName(), deviceConfiguration);
     }
 
     @Reference
@@ -625,13 +608,15 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public List<SecurityPropertySet> findUniqueSecurityPropertySets() {
         List<SecurityPropertySet> securityPropertySets = dataModel.mapper(SecurityPropertySet.class).find();
-        List<SecurityPropertySet> uniqueSecurityPropertySets = securityPropertySets.stream().filter(s -> s.getId() ==
+        return securityPropertySets
+                .stream()
+                .filter(s -> s.getId() ==
                         securityPropertySets.stream()
                                 .filter(s2 -> s2.getName().equals(s.getName()))
                                 .sorted((s3, s4) -> s4.getAuthenticationDeviceAccessLevel().getId() - s3.getAuthenticationDeviceAccessLevel().getId())
                                 .sorted((s3, s4) -> s4.getEncryptionDeviceAccessLevel().getId() - s3.getEncryptionDeviceAccessLevel().getId())
-                                .findFirst().get().getId()
-        ).collect(Collectors.toList());
-        return uniqueSecurityPropertySets;
+                                .findFirst().get().getId())
+                .collect(Collectors.toList());
     }
+
 }

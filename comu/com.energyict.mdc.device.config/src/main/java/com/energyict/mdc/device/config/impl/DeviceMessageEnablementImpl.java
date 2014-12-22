@@ -6,7 +6,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
@@ -50,15 +50,15 @@ public class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessag
     private Set<DeviceMessageUserAction> deviceMessageUserActions = new HashSet<>();
 
     private List<DeviceMessageUserActionRecord> deviceMessageUserActionRecords = new ArrayList<>();
-    private Reference<DeviceCommunicationConfiguration> deviceCommunicationConfiguration = ValueReference.absent();
+    private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     private DeviceMessageId deviceMessageId;
     private String userName;
     private long version;
     private Instant createTime;
     private Instant modTime;
 
-    static DeviceMessageEnablement from(DataModel dataModel, DeviceCommunicationConfigurationImpl deviceCommunicationConfiguration, DeviceMessageId deviceMessageId) {
-        return dataModel.getInstance(DeviceMessageEnablementImpl.class).init(deviceCommunicationConfiguration, deviceMessageId);
+    static DeviceMessageEnablement from(DataModel dataModel, DeviceConfigurationImpl deviceConfiguration, DeviceMessageId deviceMessageId) {
+        return dataModel.getInstance(DeviceMessageEnablementImpl.class).init(deviceConfiguration, deviceMessageId);
     }
 
     @Inject
@@ -71,8 +71,8 @@ public class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessag
         return deviceMessageUserActions;
     }
 
-    private DeviceMessageEnablement init(DeviceCommunicationConfiguration deviceCommunicationConfiguration, DeviceMessageId deviceMessageId) {
-        setDeviceCommunicationConfiguration(deviceCommunicationConfiguration);
+    private DeviceMessageEnablement init(DeviceConfiguration deviceConfiguration, DeviceMessageId deviceMessageId) {
+        setDeviceConfiguration(deviceConfiguration);
         this.deviceMessageId = deviceMessageId;
         return this;
     }
@@ -130,7 +130,7 @@ public class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessag
         deviceMessageUserActions.addAll(deviceMessageUserActionRecords.stream().map(userActionRecord -> userActionRecord.userAction).collect(Collectors.toList()));
     }
 
-    protected void setDeviceCommunicationConfiguration(DeviceCommunicationConfiguration deviceCommunicationConfiguration) {
-        this.deviceCommunicationConfiguration.set(deviceCommunicationConfiguration);
+    protected void setDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
+        this.deviceConfiguration.set(deviceConfiguration);
     }
 }
