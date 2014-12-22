@@ -106,7 +106,11 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
     },
 
     showPreview: function (selectionModel, record) {
-        var preview = this.getPreview();
+        var preview = this.getPreview(),
+            readingType = record.get('readingType');
+
+        preview.setTitle(readingType.aliasName + (!Ext.isEmpty(readingType.names.unitOfMeasure) ? (' (' + readingType.names.unitOfMeasure + ')') : ''));
+
         if (!record.data.validationInfo.validationActive) {
             preview.down('#validateNowChannel').hide();
             Ext.ComponentQuery.query('#channelActionMenu #validateNowChannel')[0].hide();
@@ -114,9 +118,19 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             preview.down('#validateNowChannel').show();
             Ext.ComponentQuery.query('#channelActionMenu #validateNowChannel')[0].show();
         }
-        preview.setTitle(record.get('name'));
         preview.down('#deviceLoadProfileChannelsPreviewForm').loadRecord(record);
         preview.down('#deviceLoadProfileChannelsActionMenu').record = record;
+
+        var calculatedReadingType = preview.down('#calculatedReadingType'),
+            readingTypeLabel = preview.down('#readingType').labelEl;
+
+        if (record.data.calculatedReadingType) {
+            readingTypeLabel.update(Uni.I18n.translate('deviceloadprofiles.channels.readingTypeForBulk', 'MDC', 'Collected reading type'));
+            calculatedReadingType.show();
+        } else {
+            readingTypeLabel.update(Uni.I18n.translate('deviceloadprofiles.channels.readingType', 'MDC', 'Reading type'));
+            calculatedReadingType.hide();
+        }
     },
 
     chooseAction: function (menu, item) {

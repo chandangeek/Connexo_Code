@@ -84,7 +84,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceLogBookTab',
         'Mdc.controller.setup.DeviceLoadProfileTab',
         'Mdc.controller.setup.DeviceChannelTab',
-        'Mdc.controller.setup.DevicesEditGroupController'
+        'Mdc.controller.setup.DevicesEditGroupController',
+        'Mdc.controller.setup.DeviceLogbookData'
     ],
 
     refs: [

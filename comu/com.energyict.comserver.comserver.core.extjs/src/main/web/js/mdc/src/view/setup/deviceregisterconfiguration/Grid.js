@@ -21,7 +21,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                 header: Uni.I18n.translate('deviceregisterconfiguration.register', 'MDC', 'Register'),
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
-                    return '<a href="#/devices/' + me.mRID + '/registers/' + record.get('id') + '">' + value + '</a>';
+                    return '<a href="#/devices/' + me.mRID + '/registers/' + record.get('id') + '/data">' + value + '</a>';
                 },
                 flex: 3
             },
