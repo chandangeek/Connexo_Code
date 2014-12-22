@@ -1,30 +1,26 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
-
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
-import javax.inject.Inject;
+
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+
+import java.time.Instant;
 import java.util.Objects;
 
 /**
- * Link table between ComPort and ComPortPool
+ * Link table between ComPort and ComPortPool.
  */
 public class ComPortPoolMemberImpl implements ComPortPoolMember {
 
-    private final DataModel dataModel;
     private final Reference<OutboundComPortPool> comPortPool = ValueReference.absent();
     private final Reference<OutboundComPort> comPort = ValueReference.absent();
-
-    @Inject
-    ComPortPoolMemberImpl(DataModel dataModel) {
-        this.dataModel = dataModel;
-    }
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Override
     public OutboundComPortPool getComPortPool() {

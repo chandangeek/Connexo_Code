@@ -19,6 +19,7 @@ public enum TableSpecs {
             Table<ComPortPool> table = dataModel.addTable(name(), ComPortPool.class);
             table.map(ComPortPoolImpl.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
+            table.addAuditColumns();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             table.column("NAME").varChar().map(ComPortPoolImpl.Fields.NAME.fieldName()).add();
             table.column("ACTIVE").type("varchar2(1)").notNull().map(ComPortPoolImpl.Fields.ACTIVE.fieldName()).conversion(ColumnConversion.NUMBER2BOOLEAN).add();
@@ -37,6 +38,7 @@ public enum TableSpecs {
             Table<ComServer> table = dataModel.addTable(name(), ComServer.class);
             table.map(ComServerImpl.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
+            table.addAuditColumns();
             table.column("NAME").varChar().notNull().map(ComServerImpl.FieldNames.NAME.getName()).add();
             table.primaryKey("PK_MDC_COMSERVER").on(idColumn).add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
@@ -52,7 +54,6 @@ public enum TableSpecs {
 
             table.column("DEFAULTQUERYAPIPOSTURI").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("usesDefaultQueryAPIPostUri").add();
             table.column("QUERYAPIPOSTURI").type("varchar2(512)").map("queryAPIPostUri").add();
-            table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2INSTANT).map("modificationDate").insert("sysdate").update("sysdate").add();
             table.column("OBSOLETE_DATE").type("DATE").conversion(ColumnConversion.DATE2INSTANT).map("obsoleteDate").add();
             Column onlineComServer = table.column("ONLINESERVERID").number().conversion(ColumnConversion.NUMBER2INT).add(); // DO NOT MAP
             table.column("QUEUESIZE").number().conversion(ColumnConversion.NUMBER2INT).map("storeTaskQueueSize").add();
@@ -62,7 +63,11 @@ public enum TableSpecs {
             table.column("DEFAULTEVENTREGISTRATIONURI").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("usesDefaultEventRegistrationUri").add();
             table.column("STATUSURI").varChar().map("statusUri").add();
             table.column("DEFAULTSTATUSURI").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("usesDefaultStatusUri").add();
-            table.foreignKey("FK_MDC_REMOTE_ONLINE").on(onlineComServer).references(MDC_COMSERVER.name()).map("onlineComServer").add();
+            table.foreignKey("FK_MDC_REMOTE_ONLINE")
+                    .on(onlineComServer)
+                    .references(MDC_COMSERVER.name())
+                    .map("onlineComServer")
+                    .add();
         }
     },
     MDC_COMPORT {
@@ -72,9 +77,9 @@ public enum TableSpecs {
             table.map(ComPortImpl.IMPLEMENTERS);
             // ComPortImpl
             Column idColumn = table.addAutoIdColumn();
+            table.addAuditColumns();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             table.column("NAME").varChar().map(ComPortImpl.FieldNames.NAME.getName()).add();
-            table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2INSTANT).map("modificationDate").insert("sysdate").update("sysdate").add();
             Column comServerColumn = table.column("COMSERVERID").number().conversion(ColumnConversion.NUMBER2LONG).add(); // DO NOT MAP
             table.column("ACTIVE").type("varchar2(1)").notNull().map("active").conversion(ColumnConversion.NUMBER2BOOLEAN).add();
             table.column("DESCRIPTION").varChar().map("description").add();
@@ -117,9 +122,16 @@ public enum TableSpecs {
             Column inboundComPortPoolId = table.column("COMPORTPOOL").number().conversion(ColumnConversion.NUMBER2LONG).add(); // DO NOT MAP
 
             table.primaryKey("PK_MDC_COMPORT").on(idColumn).add();
-            table.foreignKey("FK_MDC_COMPORT_COMPORTPOOL").on(inboundComPortPoolId).references(MDC_COMPORTPOOL.name()).map("comPortPool").add();
-            table.foreignKey("FK_MDC_COMPORT_COMSERVER").on(comServerColumn).references(MDC_COMSERVER.name()).
-                    map("comServer").reverseMap("comPorts").composition().add();
+            table.foreignKey("FK_MDC_COMPORT_COMPORTPOOL")
+                    .on(inboundComPortPoolId)
+                    .references(MDC_COMPORTPOOL.name())
+                    .map("comPortPool")
+                    .add();
+            table.foreignKey("FK_MDC_COMPORT_COMSERVER")
+                    .on(comServerColumn)
+                    .references(MDC_COMSERVER.name())
+                    .map("comServer").reverseMap("comPorts").composition()
+                    .add();
         }
     },
     MDC_COMPORTPOOLMEMBER {
@@ -130,11 +142,18 @@ public enum TableSpecs {
 
             Column comPortPoolIdColumn = table.column("POOL").number().notNull().conversion(NUMBER2LONG).add(); // DO NOT MAP
             Column comPortIdColumn = table.column("COMPORT").number().notNull().conversion(NUMBER2LONG).add(); // DO NOT MAP
+            table.addAuditColumns();
             table.primaryKey("PK_MDC_COMPORTINPOOL").on(comPortPoolIdColumn, comPortIdColumn).add();
-
-            table.foreignKey("FKCOMPORTINPOOLCOMPORT").on(comPortIdColumn).references(MDC_COMPORT.name()).map("comPort").add();
-            table.foreignKey("FKCOMPORTINPOOLCOMPORTPOOL").on(comPortPoolIdColumn).references(MDC_COMPORTPOOL.name()).
-                    map("comPortPool").reverseMap("comPortPoolMembers").composition().add();
+            table.foreignKey("FKCOMPORTINPOOLCOMPORT")
+                    .on(comPortIdColumn)
+                    .references(MDC_COMPORT.name())
+                    .map("comPort")
+                    .add();
+            table.foreignKey("FKCOMPORTINPOOLCOMPORTPOOL")
+                    .on(comPortPoolIdColumn)
+                    .references(MDC_COMPORTPOOL.name())
+                    .map("comPortPool").reverseMap("comPortPoolMembers").composition()
+                    .add();
         }
     };
 

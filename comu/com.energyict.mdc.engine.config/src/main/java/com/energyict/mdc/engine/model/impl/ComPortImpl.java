@@ -77,7 +77,10 @@ public abstract class ComPortImpl implements ComPort {
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.MDC_FIELD_TOO_LONG+"}")
     private String name;
-    private Instant modificationDate;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
     private final Reference<ComServer> comServer = ValueReference.absent();
     private boolean active;
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.MDC_FIELD_TOO_LONG+"}")
@@ -124,7 +127,7 @@ public abstract class ComPortImpl implements ComPort {
 
     @Override
     public Instant getModificationDate() {
-        return modificationDate;
+        return this.modTime;
     }
 
     @Override
@@ -259,6 +262,6 @@ public abstract class ComPortImpl implements ComPort {
             return comPort;
         }
 
-
     }
+
 }

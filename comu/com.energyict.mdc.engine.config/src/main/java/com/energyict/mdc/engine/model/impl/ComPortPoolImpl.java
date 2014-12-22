@@ -71,6 +71,10 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     private Instant obsoleteDate;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     private ComPortType comPortType;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Inject
     protected ComPortPoolImpl(DataModel dataModel, Thesaurus thesaurus, EventService eventService) {

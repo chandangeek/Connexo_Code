@@ -97,7 +97,10 @@ public abstract class ComServerImpl implements ComServer {
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     @MinTimeDuration(value = 60 ,groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}")
     private TimeDuration schedulingInterPollDelay;
-    private Instant modificationDate;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
     private final List<ComPort>  comPorts = new ArrayList<>();
     @Null(groups = { Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_COMSERVER_NO_UPDATE_ALLOWED+"}")
     private Instant obsoleteDate;
@@ -302,7 +305,7 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     public Instant getModificationDate() {
-        return modificationDate;
+        return this.modTime;
     }
 
     @Override
@@ -463,7 +466,7 @@ public abstract class ComServerImpl implements ComServer {
         throw new BusinessException("ComServerXDoesNotSupportRemoteQueries", "The comserver {0} does not support remote queries", this.getName());
     }
 
-    final public void save() {
+    public final void save() {
         Save.action(this.getId()).save(dataModel, this);
     }
 
