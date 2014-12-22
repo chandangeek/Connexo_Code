@@ -11,6 +11,7 @@ import java.time.DayOfWeek;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.function.Supplier;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
@@ -119,6 +120,46 @@ public class PeriodicalScheduleExpressionTest extends EqualsContractTest {
         for (Pair<ZonedDateTime, ZonedDateTime> pair : nextOccurrencePairs) {
             assertThat(expression.nextOccurrence(pair.getFirst())).contains(pair.getLast());
         }
+    }
+
+    @Test
+    public void testOffsetDuringDST() {
+        PeriodicalScheduleExpression scheduleExpression = PeriodicalScheduleExpression.every(1).days().at(14, 0, 0).build();
+        ZoneId zone = ZoneId.of("Europe/Brussels");
+        TimeZone.setDefault(TimeZone.getTimeZone(zone));
+        ZonedDateTime date = ZonedDateTime.of(2013, 3, 29, 2, 30, 0, 0, zone);
+
+        ZonedDateTime expected1 = ZonedDateTime.of(2013, 3, 29, 14, 0, 0, 0, zone);
+        ZonedDateTime expected2 = ZonedDateTime.of(2013, 3, 30, 14, 0, 0, 0, zone);
+        ZonedDateTime expected3 = ZonedDateTime.of(2013, 3, 31, 14, 0, 0, 0, zone);
+        ZonedDateTime expected4 = ZonedDateTime.of(2013, 4, 1, 14, 0, 0, 0, zone);
+        ZonedDateTime expected5 = ZonedDateTime.of(2013, 4, 2, 14, 0, 0, 0, zone);
+
+        assertThat(scheduleExpression.nextOccurrence(date)).contains(expected1);
+        assertThat(scheduleExpression.nextOccurrence(expected1)).contains(expected2);
+        assertThat(scheduleExpression.nextOccurrence(expected2)).contains(expected3);
+        assertThat(scheduleExpression.nextOccurrence(expected3)).contains(expected4);
+        assertThat(scheduleExpression.nextOccurrence(expected4)).contains(expected5);
+    }
+
+    @Test
+    public void testOffsetDuringDSTTricky() {
+        PeriodicalScheduleExpression scheduleExpression = PeriodicalScheduleExpression.every(1).days().at(2, 30, 0).build();
+        ZoneId zone = ZoneId.of("Europe/Brussels");
+        TimeZone.setDefault(TimeZone.getTimeZone(zone));
+        ZonedDateTime date = ZonedDateTime.of(2013, 3, 29, 1, 30, 0, 0, zone);
+
+        ZonedDateTime expected1 = ZonedDateTime.of(2013, 3, 29, 2, 30, 0, 0, zone);
+        ZonedDateTime expected2 = ZonedDateTime.of(2013, 3, 30, 2, 30, 0, 0, zone);
+        ZonedDateTime expected3 = ZonedDateTime.of(2013, 3, 31, 2, 30, 0, 0, zone);
+        ZonedDateTime expected4 = ZonedDateTime.of(2013, 4, 1, 3, 30, 0, 0, zone);
+        ZonedDateTime expected5 = ZonedDateTime.of(2013, 4, 2, 2, 30, 0, 0, zone);
+
+        assertThat(scheduleExpression.nextOccurrence(date)).contains(expected1);
+        assertThat(scheduleExpression.nextOccurrence(expected1)).contains(expected2);
+        assertThat(scheduleExpression.nextOccurrence(expected2)).contains(expected3);
+        assertThat(scheduleExpression.nextOccurrence(expected3)).contains(expected4);
+        assertThat(scheduleExpression.nextOccurrence(expected4)).contains(expected5);
     }
 
     @Override

@@ -3,12 +3,14 @@ package com.elster.jupiter.time;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import org.junit.Test;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 
 /**
  * Test cases for the temporal expression class which is used in the scheduling of jobs.
@@ -623,6 +625,44 @@ public final class TemporalExpressionTest extends EqualsContractTest {
         nextCalendar.setTime(nextOccurrence);
         assertThat(nextCalendar.get(Calendar.MONTH)).describedAs("Calculated nextOccurrence month is not correct !").isEqualTo(Calendar.FEBRUARY);
         assertThat(nextCalendar.get(Calendar.DAY_OF_MONTH)).describedAs("Calculated nextOccurrence day is not correct !").isEqualTo(28);
+    }
+
+    @Test
+    public void testOffsetDuringDST() {
+        TemporalExpression temporalExpression = new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.DAYS), new TimeDuration(14, TimeDuration.TimeUnit.HOURS));
+        ZoneId zone = ZoneId.of("Europe/Brussels");
+        TimeZone.setDefault(TimeZone.getTimeZone(zone));
+        ZonedDateTime date = ZonedDateTime.of(2013, 3, 29, 2, 30, 0, 0, zone);
+
+        ZonedDateTime expected1 = ZonedDateTime.of(2013, 3, 29, 14, 0, 0, 0, zone);
+        ZonedDateTime expected2 = ZonedDateTime.of(2013, 3, 30, 14, 0, 0, 0, zone);
+        ZonedDateTime expected3 = ZonedDateTime.of(2013, 3, 31, 14, 0, 0, 0, zone);
+        ZonedDateTime expected4 = ZonedDateTime.of(2013, 4, 1, 14, 0, 0, 0, zone);
+
+        assertThat(temporalExpression.nextOccurrence(date)).contains(expected1);
+        assertThat(temporalExpression.nextOccurrence(expected1)).contains(expected2);
+        assertThat(temporalExpression.nextOccurrence(expected2)).contains(expected3);
+        assertThat(temporalExpression.nextOccurrence(expected3)).contains(expected4);
+    }
+
+    @Test
+    public void testOffsetDuringDSTTricky() {
+        TemporalExpression temporalExpression = new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.DAYS), new TimeDuration(2, TimeDuration.TimeUnit.HOURS));
+        ZoneId zone = ZoneId.of("Europe/Brussels");
+        TimeZone.setDefault(TimeZone.getTimeZone(zone));
+        ZonedDateTime date = ZonedDateTime.of(2013, 3, 29, 1, 0, 0, 0, zone);
+
+        ZonedDateTime expected1 = ZonedDateTime.of(2013, 3, 29, 2, 0, 0, 0, zone);
+        ZonedDateTime expected2 = ZonedDateTime.of(2013, 3, 30, 2, 0, 0, 0, zone);
+        ZonedDateTime expected3 = ZonedDateTime.of(2013, 3, 31, 2, 0, 0, 0, zone);
+        ZonedDateTime expected4 = ZonedDateTime.of(2013, 4, 1, 3, 0, 0, 0, zone);
+        ZonedDateTime expected5 = ZonedDateTime.of(2013, 4, 2, 2, 0, 0, 0, zone);
+
+        assertThat(temporalExpression.nextOccurrence(date)).contains(expected1);
+        assertThat(temporalExpression.nextOccurrence(expected1)).contains(expected2);
+        assertThat(temporalExpression.nextOccurrence(expected2)).contains(expected3);
+        assertThat(temporalExpression.nextOccurrence(expected3)).contains(expected4);
+        assertThat(temporalExpression.nextOccurrence(expected4)).contains(expected5);
     }
 
     /**

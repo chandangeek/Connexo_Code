@@ -1,5 +1,6 @@
 package com.elster.jupiter.time;
 
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -13,16 +14,8 @@ import java.time.temporal.TemporalField;
 import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.Calendar;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import static com.elster.jupiter.time.TimeDuration.TimeUnit.DAYS;
-import static com.elster.jupiter.time.TimeDuration.TimeUnit.HOURS;
-import static com.elster.jupiter.time.TimeDuration.TimeUnit.MILLISECONDS;
-import static com.elster.jupiter.time.TimeDuration.TimeUnit.MINUTES;
-import static com.elster.jupiter.time.TimeDuration.TimeUnit.MONTHS;
-import static com.elster.jupiter.time.TimeDuration.TimeUnit.SECONDS;
-import static com.elster.jupiter.time.TimeDuration.TimeUnit.WEEKS;
-import static com.elster.jupiter.time.TimeDuration.TimeUnit.YEARS;
+import static com.elster.jupiter.time.TimeDuration.TimeUnit.*;
 
 /**
  * represents a relative period in time
@@ -92,6 +85,10 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
 
     public TemporalUnit getTemporalUnit() {
         return getTimeUnit().getTemporalUnit();
+    }
+
+    public TemporalField getTemporalField() {
+        return getTimeUnit().getTemporalField();
     }
 
     public TemporalAmount asTemporalAmount() {
@@ -177,6 +174,10 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
 
         public TemporalUnit getTemporalUnit() {
             return temporalUnit;
+        }
+
+        public TemporalField getTemporalField() {
+            return temporalField;
         }
 
         public ZonedDateTime truncate(ZonedDateTime time) {

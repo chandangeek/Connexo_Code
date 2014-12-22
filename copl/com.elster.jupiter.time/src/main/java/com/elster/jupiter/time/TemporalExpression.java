@@ -194,7 +194,7 @@ public final class TemporalExpression implements ScheduleExpression {
             }
             result = result.with(ChronoField.DAY_OF_MONTH, ChronoField.DAY_OF_MONTH.rangeRefinedBy(result).getMaximum());
         } else {
-            result = result.plus(offset.getCount(), offset.getTemporalUnit());
+            result = result.with(offset.getTemporalField(), offset.getCount());
         }
         if (!result.isAfter(time)) {
             result = result.plus(every.getCount(), every.getTemporalUnit());

@@ -64,7 +64,7 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
 
         @Override
         public ZonedDateTime addOffset(ZonedDateTime time) {
-            return time.plusSeconds(secondOfMinute);
+            return time.withSecond(secondOfMinute);
         }
 
         @Override
@@ -118,7 +118,7 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
 
         @Override
         public ZonedDateTime addOffset(ZonedDateTime time) {
-            return super.addOffset(time.plusMinutes(minuteOfHour));
+            return super.addOffset(time.withMinute(minuteOfHour));
         }
 
         @Override
@@ -167,7 +167,7 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
 
         @Override
         public ZonedDateTime addOffset(ZonedDateTime time) {
-            return super.addOffset(time.plusHours(hourOfDay));
+            return super.addOffset(time.withHour(hourOfDay));
         }
 
         @Override
