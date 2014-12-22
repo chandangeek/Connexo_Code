@@ -103,7 +103,6 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
         Response response = target("devices/ZABF010000080004/protocols/17").request().put(Entity.json(protocolInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(device).setProtocolProperty("callHomeId", "0x99");
-        verify(device).save();
     }
 
 }

@@ -2,12 +2,13 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.energyict.mdc.protocol.api.ConnectionType;
 import java.text.MessageFormat;
 import java.util.logging.Level;
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     NO_SUCH_DEVICE(14, "noSuchDevice", "No device with mrId {0}"),
     DEVICE_DOES_NOT_MATCH_CONFIG(15, "deviceDoesNotMatchConfig", "Device does not match device configuration"),

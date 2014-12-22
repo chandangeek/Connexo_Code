@@ -3,12 +3,15 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.ReadingQuality;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.impl.DataValidationStatusImpl;
 import com.elster.jupiter.validation.impl.IValidationRule;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.data.Channel;
@@ -79,35 +82,32 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile));
         when(loadProfile.getId()).thenReturn(1L);
         when(loadProfile.getChannels()).thenReturn(Arrays.asList(channel));
-        
+
         Interval interval = new Interval(new Date(intervalStart), new Date(intervalEnd));
         when(channel.getChannelData(interval)).thenReturn(asList(loadProfileReading, addedloadProfileReading, editedProfileReading, removedProfileReading));
-        ReadingType rt = mock(ReadingType.class);
-        when(rt.isCumulative()).thenReturn(false);
-        when(channel.getReadingType()).thenReturn(rt);
         when(loadProfileReading.getInterval()).thenReturn(interval);
         when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProfileStatus.Flag.BATTERY_LOW));
         when(thesaurus.getString(BATTERY_LOW, BATTERY_LOW)).thenReturn(BATTERY_LOW);
         when(loadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel, readingRecord));
         when(readingRecord.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
         when(readingRecord.getReportedDateTime()).thenReturn(LAST_READING);
-        
+
         when(addedloadProfileReading.getInterval()).thenReturn(interval);
         when(addedloadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel, addedReadingRecord));
         when(addedReadingRecord.getValue()).thenReturn(BigDecimal.valueOf(201, 0));
         when(addedReadingRecord.wasAdded()).thenReturn(true);
         when(addedReadingRecord.getReportedDateTime()).thenReturn(LAST_READING);
-        
+
         when(editedProfileReading.getInterval()).thenReturn(interval);
         when(editedProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel, editedReadingRecord));
         when(editedReadingRecord.getValue()).thenReturn(BigDecimal.valueOf(202, 0));
         when(editedReadingRecord.wasAdded()).thenReturn(false);
         when(editedReadingRecord.edited()).thenReturn(true);
         when(editedReadingRecord.getReportedDateTime()).thenReturn(LAST_READING);
-        
+
         when(removedProfileReading.getInterval()).thenReturn(interval);
         when(removedProfileReading.getReadingTime()).thenReturn(LAST_READING);
-        
+
         when(clock.instant()).thenReturn(NOW);
         when(channel.getDevice()).thenReturn(device);
         when(channel.getId()).thenReturn(CHANNEL_ID1);
@@ -128,6 +128,17 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(rule1.getDisplayName()).thenReturn("Primes only");
         when(channelSpec.getNbrOfFractionDigits()).thenReturn(3);
         when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
+        when(channel.getLastDateTime()).thenReturn(Optional.of(NOW));
+        ReadingType readingType = mockReadingType("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18");
+        when(channel.getReadingType()).thenReturn(readingType);
+        when(channel.getInterval()).thenReturn(TimeDuration.minutes(15));
+        Phenomenon phenomenon = mock(Phenomenon.class);
+        when(phenomenon.getUnit()).thenReturn(Unit.get("kWh"));
+        when(channel.getPhenomenon()).thenReturn(phenomenon);
+        when(channel.getLastReading()).thenReturn(Optional.<Instant>empty());
+        when(channel.getLoadProfile()).thenReturn(loadProfile);
+        when(channel.getLastDateTime()).thenReturn(Optional.of(NOW));
+        when(deviceValidation.getLastChecked(channel)).thenReturn(Optional.of(NOW));
     }
 
     @Test
@@ -156,15 +167,15 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.data[0].suspectReason[0].displayName")).isEqualTo("Primes only");
         assertThat(jsonModel.<String>get("$.data[0].modificationFlag")).isNull();
         assertThat(jsonModel.<Long>get("$.data[0].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
-        
+
         assertThat(jsonModel.<String>get("$.data[1].value")).isEqualTo("201.000");
         assertThat(jsonModel.<String>get("$.data[1].modificationFlag")).isEqualTo("ADDED");
         assertThat(jsonModel.<Long>get("$.data[1].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
-        
+
         assertThat(jsonModel.<String>get("$.data[2].value")).isEqualTo("202.000");
         assertThat(jsonModel.<String>get("$.data[2].modificationFlag")).isEqualTo("EDITED");
         assertThat(jsonModel.<Long>get("$.data[2].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
-        
+
         assertThat(jsonModel.<String>get("$.data[3].value")).isNull();
         assertThat(jsonModel.<String>get("$.data[3].modificationFlag")).isEqualTo("REMOVED");
         assertThat(jsonModel.<Long>get("$.data[3].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
@@ -264,4 +275,12 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         verify(deviceValidation).validateChannel(channel);
     }
 
+    @Test
+    public void testChannelInfo(){
+        String json = target("devices/1/channels/" + CHANNEL_ID1).request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        // TODO add items
+        assertThat(jsonModel.<Number>get("$.id").longValue()).isEqualTo(CHANNEL_ID1);
+        assertThat(jsonModel.<Number>get("$.lastValueTimestamp")).isEqualTo(NOW.toEpochMilli());
+    }
 }

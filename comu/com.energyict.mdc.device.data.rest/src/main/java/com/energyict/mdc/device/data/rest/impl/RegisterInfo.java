@@ -69,7 +69,7 @@ public abstract class RegisterInfo<R extends Register, RE extends Reading> {
         this.overruledObisCode = registerSpec.getDeviceObisCode();
         this.obisCodeDescription = registerSpec.getObisCode().getDescription();
         this.unitOfMeasure = registerSpec.getUnit();
-        this.isCumulative = true;
+        this.isCumulative = registerSpec.getReadingType().isCumulative();
 
         Optional<RE> lastReading = register.getLastReading();
         if (lastReading.isPresent()) {
