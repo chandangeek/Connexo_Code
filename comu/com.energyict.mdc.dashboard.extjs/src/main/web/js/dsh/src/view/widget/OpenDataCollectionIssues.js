@@ -58,13 +58,13 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
                 xtype: 'button',
                 text: Ext.String.format(Uni.I18n.translate('overview.widget.openDataCollectionIssues.assignedToMe', 'DSH', 'Assigned to me ({0})'), assigned.get('total')),
                 ui: 'link',
-                href: me.router.getRoute('workspace/datacollection/issues').buildUrl(null, {filter: assignedFilter})
+                href: me.router.getRoute('workspace/datacollectionissues').buildUrl(null, {filter: assignedFilter})
             },
             {
                 xtype: 'button',
                 text: Ext.String.format(Uni.I18n.translate('overview.widget.openDataCollectionIssues.unassigned', 'DSH', 'Unassigned ({0})'), unassigned.get('total')),
                 ui: 'link',
-                href: me.router.getRoute('workspace/datacollection/issues').buildUrl(null, {filter: unassignedFilter})
+                href: me.router.getRoute('workspace/datacollectionissues').buildUrl(null, {filter: unassignedFilter})
             }
         ]);
         Ext.resumeLayouts();
@@ -115,7 +115,7 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
                         dataIndex: 'title',
                         flex: 1,
                         renderer: function (value, meta, record) {
-                            var href = me.router.getRoute('workspace/datacollection/issues/view').buildUrl({issueId: record.get('id')});
+                            var href = me.router.getRoute('workspace/datacollectionissues').buildUrl({issueId: record.get('id')});
                             return '<a href="' + href + '">' + value + '</a>'
                         }
                     }
