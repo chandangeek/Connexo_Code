@@ -46,6 +46,8 @@ import org.joda.time.DateMidnight;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -175,7 +177,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
     @Test
     @Transactional
     public void testCreateDefaultWithASAPCopiesTheEarliestNextExecutionTimestamp() {
-        Instant earliestNextExecutionTimestamp = Instant.from(LocalDate.of(2013, 2, 14));
+        Instant earliestNextExecutionTimestamp = LocalDateTime.of(2013, 2, 14, 0, 0).toInstant(ZoneOffset.UTC);
         ScheduledComTaskExecution comTaskExecution = createComTaskExecution();
         ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.forceNextExecutionTimeStampAndPriority(earliestNextExecutionTimestamp, comTaskEnablementPriority);
