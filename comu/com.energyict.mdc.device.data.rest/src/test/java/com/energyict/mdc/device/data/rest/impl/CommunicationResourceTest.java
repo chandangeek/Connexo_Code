@@ -67,10 +67,10 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(jsonModel.<String>get("$.communications[0].currentState.displayValue")).isEqualTo("Busy");
         assertThat(jsonModel.<String>get("$.communications[0].latestResult.id")).isEqualTo("IoError");
         assertThat(jsonModel.<String>get("$.communications[0].latestResult.displayValue")).isEqualTo("I/O error");
-        assertThat(jsonModel.<Long>get("$.communications[0].startTime")).isEqualTo(startTime);
-        assertThat(jsonModel.<Long>get("$.communications[0].successfulFinishTime")).isEqualTo(endTime);
-        assertThat(jsonModel.<Long>get("$.communications[0].nextCommunication")).isEqualTo(nextCommunicationTime);
-        assertThat(jsonModel.<Long>get("$.communications[0].plannedDate")).isEqualTo(plannedDate);
+        assertThat(jsonModel.<Long>get("$.communications[0].startTime")).isEqualTo(startTime.toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.communications[0].successfulFinishTime")).isEqualTo(endTime.toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.communications[0].nextCommunication")).isEqualTo(nextCommunicationTime.toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.communications[0].plannedDate")).isEqualTo(plannedDate.toEpochMilli());
         assertThat(jsonModel.<String>get("$.communications[0].connectionMethod")).isEqualTo("connection task (Default)");
         assertThat(jsonModel.<String>get("$.communications[0].connectionStrategy.id")).isEqualTo("asSoonAsPossible");
         assertThat(jsonModel.<String>get("$.communications[0].connectionStrategy.displayValue")).isEqualTo("As soon as possible");
