@@ -33,15 +33,15 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
         '</tr>',
         '<tr>',
         '<td>' + Uni.I18n.translate('device.communications.plannedDate', 'MDC', 'Planned date') + '</td>',
-        '<td>{[values.plannedDate]}</td>',
+        '<td>{[Uni.DateTime.formatDateTimeLong(values.plannedDate)]}</td>',
         '</tr>',
         '<tr>',
         '<td>' + Uni.I18n.translate('device.communications.startedOn', 'MDC', 'Started on') + '</td>',
-        '<td>{[values.startTime]}</td>',
+        '<td>{[Uni.DateTime.formatDateTimeLong(values.startTime)]}</td>',
         '</tr>',
         '<tr>',
         '<td>' + Uni.I18n.translate('device.communications.finishedOn', 'MDC', 'Finished on') + '</td>',
-        '<td>{[values.successfulFinishTime]}</td>',
+        '<td>{[Uni.DateTime.formatDateTimeLong(values.successfulFinishTime)]}</td>',
         '</tr>',
         '</tpl>',
         '</table>'
@@ -90,16 +90,18 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
                     itemId: 'nextCommunication',
                     text: Uni.I18n.translate('device.communications.nextCommunication', 'MDC', 'Next communication'),
                     dataIndex: 'plannedDate',
-                    xtype: 'datecolumn',
-                    format: 'd/m/Y h:i:s',
+                    renderer: function (value) {
+                        return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                    },
                     flex: 2
                 },
                 {
                     itemId: 'startTime',
                     text: Uni.I18n.translate('device.communications.startedOn', 'MDC', 'Started on'),
                     dataIndex: 'startTime',
-                    xtype: 'datecolumn',
-                    format: 'd/m/Y h:i:s',
+                    renderer: function (value) {
+                        return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                    },
                     flex: 2
                 },
                 {
