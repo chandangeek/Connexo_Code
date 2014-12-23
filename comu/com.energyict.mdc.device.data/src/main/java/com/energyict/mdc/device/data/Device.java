@@ -124,13 +124,25 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     LoadProfile.LoadProfileUpdater getLoadProfileUpdaterFor(LoadProfile loadProfile);
 
-    TypedProperties getDeviceProtocolProperties();
-
     List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter);
+
+    TypedProperties getDeviceProtocolProperties();
 
     void setProtocolProperty(String name, Object value);
 
     void removeProtocolProperty(String name);
+
+    /**
+     * Indicates if there are properties for the device and the specified {@link SecurityPropertySet}.
+     *
+     * @param securityPropertySet The SecurityPropertySet
+     * @return A flag that indicates if this Device has properties for the SecurityPropertySet
+     */
+    boolean hasSecurityProperties(SecurityPropertySet securityPropertySet);
+
+    List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet);
+
+    List<SecurityProperty> getAllSecurityProperties(SecurityPropertySet securityPropertySet);
 
     void setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties properties);
 
@@ -250,10 +262,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     public ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);
 
-    List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet);
-
-    List<SecurityProperty> getAllSecurityProperties(SecurityPropertySet securityPropertySet);
-
     List<ProtocolDialectConfigurationProperties> getProtocolDialects();
 
     /**
@@ -264,14 +272,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @param comSchedule The ComSchedule
      */
     public void removeComSchedule (ComSchedule comSchedule);
-
-    /**
-     * Indicates if there are properties for the device and the passed securityPropertySet.
-     *
-     * @param securityPropertySet The SecurityPropertySet
-     * @return A flag that indicates if this Device has properties for the SecurityPropertySet
-     */
-    boolean hasSecurityProperties(SecurityPropertySet securityPropertySet);
 
     DeviceValidation forValidation();
     GatewayType getConfigurationGatewayType();
