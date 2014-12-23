@@ -1,11 +1,11 @@
-package com.elster.jupiter.demo.impl.generators;
+package com.elster.jupiter.demo.impl.factories;
 
+import com.elster.jupiter.demo.impl.Constants;
+import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.Store;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
@@ -15,6 +15,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 
 import javax.inject.Inject;
 import java.sql.Connection;
@@ -26,22 +28,20 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
-public class IssueGenerator {
+public class IssueFactory implements Factory<IssueDataCollection> {
     private static final String INSERT_INTO_ISSUE = "INSERT INTO ISU_ISSUE_OPEN (ID, DUE_DATE, REASON_ID, STATUS, DEVICE_ID, OVERDUE, RULE_ID, VERSIONCOUNT, CREATETIME, MODTIME, USERNAME, ASSIGNEE_TYPE, ASSIGNEE_USER_ID)" +
             " VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?)";
     private static final String INSERT_INTO_DC_ISSUE = "Insert into IDC_ISSUE_OPEN (ID,ISSUE,CON_TASK,VERSIONCOUNT,CREATETIME,MODTIME,USERNAME) " +
             "values (?, ?, ?, ?, ?, ? ,?)";
-    private static final String ISSUE_REASON_KEY = "reason.connection.failed";
-    private static final String ISSUE_STATUS_KEY = IssueStatus.OPEN;
+    private static final String ISSUE_SEQUENCE = "ISU_ISSUE_OPENID";
     private static final int ISSUE_VERSION = 1;
     public static final String ISSUE_AUTHOR = "Jupiter installer";
-    public static final String ISSUE_SEQUENCE = "ISU_ISSUE_OPENID";
 
     private final DataModel dataModel;
     private final MeteringService meteringService;
     private final Store store;
-    private final IssueService issueService;
     private final UserService userService;
+    private final IssueDataCollectionService issueDataCollectionService;
 
     private Device device;
     private Instant dueDate;
@@ -49,37 +49,37 @@ public class IssueGenerator {
     private String assignee;
 
     @Inject
-    public IssueGenerator(Store store, DataModel dataModel, MeteringService meteringService, IssueService issueService, UserService userService) {
+    public IssueFactory(Store store, DataModel dataModel, MeteringService meteringService, UserService userService, IssueDataCollectionService issueDataCollectionService) {
         this.store = store;
         this.dataModel = dataModel;
         this.meteringService = meteringService;
-        this.issueService = issueService;
         this.userService = userService;
-        this.issueReason = ISSUE_REASON_KEY;
+        this.issueDataCollectionService = issueDataCollectionService;
+        this.issueReason = Constants.IssueReason.CONNECTION_FAILED.getKey();
     }
 
-    public IssueGenerator withDevice(Device device) {
+    public IssueFactory withDevice(Device device) {
         this.device = device;
         return this;
     }
 
-    public IssueGenerator withDueDate(Instant dueDate) {
+    public IssueFactory withDueDate(Instant dueDate) {
         this.dueDate = dueDate;
         return this;
     }
 
-    public IssueGenerator withIssueReason(String issueReason){
+    public IssueFactory withIssueReason(String issueReason){
         this.issueReason = issueReason;
         return this;
     }
 
-    public IssueGenerator withAssignee(String userAssignee){
+    public IssueFactory withAssignee(String userAssignee){
         this.assignee = userAssignee;
         return this;
     }
 
-    public void create() {
-        System.out.println("==> Creating issue for device " + device.getmRID());
+    public IssueDataCollection get() {
+        Log.write(this);
         try (Connection connection = this.dataModel.getConnection(false)) {
             List<CreationRule> creationRules = store.get(CreationRule.class);
             if (creationRules.isEmpty()){
@@ -96,9 +96,11 @@ public class IssueGenerator {
             long baseIssueId = getNext(connection, ISSUE_SEQUENCE);
             createBaseIssue(connection, creationRules, currentTime, baseIssueId);
             createDataCollectionIssue(connection, tasks, currentTime, baseIssueId);
-            store.add(Issue.class, issueService.findOpenIssue(baseIssueId).get());
+            IssueDataCollection issue = issueDataCollectionService.findOpenIssue(baseIssueId).get();
+            store.add(IssueDataCollection.class, issue);
+            return issue;
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new UnableToCreate("Unable to execute native sql command for issue creation: " + e.getMessage());
         }
     }
 
@@ -120,7 +122,7 @@ public class IssueGenerator {
         statement.setLong(1, baseIssueId); /* issue id */
         statement.setLong(2, dueDate.toEpochMilli()); /* issue id */
         statement.setString(3, this.issueReason); /* reason reference */
-        statement.setString(4, ISSUE_STATUS_KEY); /* status reference */
+        statement.setString(4, IssueStatus.OPEN); /* status reference */
         statement.setLong(5, getEndDevice().getId()); /* device reference - to the kore meter */
         statement.setLong(6, creationRules.get(0).getId()); /* creation rule reference */
         statement.setInt(7, ISSUE_VERSION); /* current version of issue */

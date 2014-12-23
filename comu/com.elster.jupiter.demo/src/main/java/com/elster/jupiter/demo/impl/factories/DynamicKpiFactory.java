@@ -1,5 +1,6 @@
-package com.elster.jupiter.demo.impl.generators;
+package com.elster.jupiter.demo.impl.factories;
 
+import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.Store;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiBuilder;
@@ -10,26 +11,25 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
-public class DynamicKpiGenerator {
-
+public class DynamicKpiFactory implements Factory<Kpi>{
     private final KpiService kpiService;
     private final Store store;
 
     private String name;
 
     @Inject
-    public DynamicKpiGenerator(KpiService kpiService, Store store) {
+    public DynamicKpiFactory(KpiService kpiService, Store store) {
         this.kpiService = kpiService;
         this.store = store;
     }
 
-    public DynamicKpiGenerator withName(String name){
+    public DynamicKpiFactory withName(String name){
         this.name = name;
         return this;
     }
 
-    public void create(){
-        System.out.println("==> Creating KPI '" + name + "'...");
+    public Kpi get(){
+        Log.write(this);
         KpiBuilder builder = kpiService.newKpi();
         builder.named(name);
         builder.member().withTargetSetAt(new BigDecimal(80));
@@ -37,5 +37,6 @@ public class DynamicKpiGenerator {
         final Kpi kpi = builder.build();
         kpi.save();
         store.add(Kpi.class, kpi);
+        return kpi;
     }
 }

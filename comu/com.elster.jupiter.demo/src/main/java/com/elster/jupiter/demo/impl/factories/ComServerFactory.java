@@ -1,5 +1,6 @@
-package com.elster.jupiter.demo.impl.generators;
+package com.elster.jupiter.demo.impl.factories;
 
+import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.Store;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.model.ComServer;
@@ -8,20 +9,20 @@ import com.energyict.mdc.engine.model.OnlineComServer;
 
 import javax.inject.Inject;
 
-public class ComServerGenerator extends NamedGenerator<ComServerGenerator> {
-
+public class ComServerFactory extends NamedFactory<ComServerFactory, ComServer> {
     private final EngineModelService engineModelService;
     private final Store store;
 
     @Inject
-    public ComServerGenerator(EngineModelService engineModelService, Store store) {
-        super(ComServerGenerator.class);
+    public ComServerFactory(EngineModelService engineModelService, Store store) {
+        super(ComServerFactory.class);
         this.engineModelService = engineModelService;
         this.store = store;
     }
 
-    public void create(){
-        System.out.println("==> Creating ComServer '" + getName() + "' ...");
+    @Override
+    public ComServer get(){
+        Log.write(this);
         OnlineComServer comServer = engineModelService.newOnlineComServerInstance();
         comServer.setName(getName().toUpperCase());
         comServer.setActive(true);
@@ -34,5 +35,6 @@ public class ComServerGenerator extends NamedGenerator<ComServerGenerator> {
         comServer.setStoreTaskThreadPriority(5);
         comServer.save();
         store.add(ComServer.class, comServer);
+        return comServer;
     }
 }

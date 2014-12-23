@@ -1,11 +1,10 @@
-package com.elster.jupiter.demo.impl.generators;
+package com.elster.jupiter.demo.impl.factories;
 
-public abstract class NamedGenerator<T> {
-
+public abstract class NamedFactory<T, S> implements Factory<S> {
     private String name;
     private Class<T> clazz;
 
-    public NamedGenerator(Class<T> clazz) {
+    public NamedFactory(Class<T> clazz) {
         this.clazz = clazz;
     }
 
