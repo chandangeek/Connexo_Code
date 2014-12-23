@@ -111,11 +111,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.google.inject.extensions</groupId>
-            <artifactId>guice-assistedinject</artifactId>
-            <version>3.0-rc2</version>
-        </dependency>
-        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools</artifactId>
             <scope>test</scope>
