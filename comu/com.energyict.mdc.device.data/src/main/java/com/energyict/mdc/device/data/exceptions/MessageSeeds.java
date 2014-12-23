@@ -82,7 +82,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DEVICE_GROUP_IS_REQUIRED(2049, Keys.DEVICE_GROUP_IS_REQUIRED, "You must specify the devices that are part of the data collection device group", Level.SEVERE),
     EMPTY_DATA_COLLECTION_KPI(2050, Keys.EMPTY_DATA_COLLECTION_KPI, "You must specify either connection setup or communication task execution", Level.SEVERE),
     UNKNOWN_DEVICE_MESSAGE_ID_FOR_DEVICE(2051, Keys.UNKNOWN_DEVICE_MESSAGE_ID_FOR_DEVICE, "The deviceMessageId {1} is not known for a device like {0}", Level.SEVERE),
-    CREATE_DATE_IS_REQUIRED(2052, Keys.CREATE_DATE_IS_REQUIRED, "The create date is required for a command", Level.SEVERE),
     DEVICE_MESSAGE_ID_NOT_SUPPORTED(2054, Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED, "The command is not supported for the device", Level.SEVERE),
     DEVICE_MESSAGE_IS_REQUIRED(2055, Keys.DEVICE_MESSAGE_IS_REQUIRED, "The command is required for a device message attribute", Level.SEVERE),
     DEVICE_MESSAGE_ATTRIBUTE_NOT_IN_SPEC(2056, Keys.DEVICE_MESSAGE_ATTRIBUTE_NOT_IN_SPEC, "The command attribute is not defined in the specification", Level.SEVERE),
@@ -182,7 +181,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY = "deviceProtocolDialectProperty.value.invalid";
         public static final String DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY = "deviceProtocolDialectProperty.required";
         public static final String DEVICE_IS_REQUIRED = "deviceIsRequired";
-        public static final String USER_IS_REQUIRED = "userIsRequired";
         public static final String COMTASK_IS_REQUIRED = "comTaskIsRequired";
         public static final String COMSCHEDULE_IS_REQUIRED = "comScheduleIsRequired";
         public static final String NEXTEXECUTIONSPEC_IS_REQUIRED = "nextExecutionSpecIsRequired";
@@ -211,7 +209,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String DEVICE_GROUP_IS_REQUIRED = "endDeviceGroupIsRequired";
         public static final String EMPTY_DATA_COLLECTION_KPI = "dataCollectionKpi.cannotBeEmpty";
         public static final String UNKNOWN_DEVICE_MESSAGE_ID_FOR_DEVICE = "unknown.deviceMessageId.device";
-        public static final String CREATE_DATE_IS_REQUIRED = "createDateIsRequired.deviceMessage";
         public static final String DEVICE_MESSAGE_ID_NOT_SUPPORTED = "deviceMessageId.deviceMessage.device.notSupported";
         public static final String DEVICE_MESSAGE_IS_REQUIRED = "deviceMessage.required.deviceMessageAttribute";
         public static final String DEVICE_MESSAGE_ATTRIBUTE_NOT_IN_SPEC = "deviceMessageAttribute.not.defined";

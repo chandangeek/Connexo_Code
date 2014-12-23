@@ -60,7 +60,10 @@ public class ProtocolDialectPropertiesImpl
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED_KEY + "}")
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private Map<String,String> relationAttributeNamePropertyMap;
-    private Instant modificationDate;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     private ProtocolPluggableService protocolPluggableService;
 
@@ -189,7 +192,7 @@ public class ProtocolDialectPropertiesImpl
     }
 
     @Override
-    public DeviceProtocolDialectProperty newProperty(String propertyName, Object propertyValue, Date activeDate) {
+    public DeviceProtocolDialectProperty newProperty(String propertyName, Object propertyValue, Instant activeDate) {
         return new DeviceProtocolDialectPropertyImpl(propertyName, propertyValue, this.always(), this.getPluggableClass(), false);
     }
 

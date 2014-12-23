@@ -15,6 +15,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 
 import javax.inject.Inject;
+import java.time.Instant;
 
 /**
  * Copyrights EnergyICT
@@ -29,6 +30,10 @@ public class DeviceMessageAttributeImpl<T> extends PersistentIdObject<DeviceMess
     private String name;
     private T value;
     private String stringValue = ""; // the string representation of the value
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Inject
     protected DeviceMessageAttributeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {

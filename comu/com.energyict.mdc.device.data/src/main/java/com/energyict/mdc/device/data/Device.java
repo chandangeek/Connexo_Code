@@ -115,7 +115,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      *
      * @return the last modification timestamp.
      */
-    Instant getModDate();
+    Instant getModificationDate();
 
     @Override
     List<LogBook> getLogBooks();

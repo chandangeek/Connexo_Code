@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import org.joda.time.DateTimeConstants;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Date;
 
 /**
@@ -29,7 +30,7 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public boolean appliesTo(ServerComTaskExecution task, Date now) {
+        public boolean appliesTo(ServerComTaskExecution task, Instant now) {
             return task.isOnHold();
         }
 
@@ -50,7 +51,7 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public boolean appliesTo(ServerComTaskExecution task, Date now) {
+        public boolean appliesTo(ServerComTaskExecution task, Instant now) {
             return task.isExecuting() && !task.isOnHold();
         }
 
@@ -75,8 +76,8 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public boolean appliesTo(ServerComTaskExecution task, Date now) {
-            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
+        public boolean appliesTo(ServerComTaskExecution task, Instant now) {
+            Instant nextExecutionTimestamp = task.getNextExecutionTimestamp();
             return !task.isExecuting()
                     && nextExecutionTimestamp != null
                     && now.compareTo(nextExecutionTimestamp) >= 0;
@@ -102,13 +103,13 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public boolean appliesTo(ServerComTaskExecution task, Date now) {
-            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
+        public boolean appliesTo(ServerComTaskExecution task, Instant now) {
+            Instant nextExecutionTimestamp = task.getNextExecutionTimestamp();
             return task.getLastSuccessfulCompletionTimestamp() == null
                     && task.getExecutingComPort() == null
                     && task.getCurrentTryCount() == 0
                     && nextExecutionTimestamp != null
-                    && nextExecutionTimestamp.after(now);
+                    && nextExecutionTimestamp.isAfter(now);
         }
 
         @Override
@@ -133,7 +134,7 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public boolean appliesTo(ServerComTaskExecution task, Date now) {
+        public boolean appliesTo(ServerComTaskExecution task, Instant now) {
             int retryCount = task.getCurrentTryCount() - 1;
             return task.getNextExecutionTimestamp() != null
                     && !task.isExecuting()
@@ -160,11 +161,11 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public boolean appliesTo(ServerComTaskExecution task, Date now) {
-            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
+        public boolean appliesTo(ServerComTaskExecution task, Instant now) {
+            Instant nextExecutionTimestamp = task.getNextExecutionTimestamp();
             int retryCount = task.getCurrentTryCount() - 1;
             return nextExecutionTimestamp != null
-                    && nextExecutionTimestamp.after(now)
+                    && nextExecutionTimestamp.isAfter(now)
                     && task.getLastSuccessfulCompletionTimestamp() != null
                     && task.lastExecutionFailed()
                     && retryCount == 0;
@@ -192,12 +193,12 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public boolean appliesTo(ServerComTaskExecution task, Date now) {
-            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
+        public boolean appliesTo(ServerComTaskExecution task, Instant now) {
+            Instant nextExecutionTimestamp = task.getNextExecutionTimestamp();
             return !task.isExecuting()
                     && task.getLastSuccessfulCompletionTimestamp() != null
                     && nextExecutionTimestamp != null
-                    && nextExecutionTimestamp.after(now)
+                    && nextExecutionTimestamp.isAfter(now)
                     && !task.lastExecutionFailed();
         }
 
@@ -235,7 +236,7 @@ public enum ServerComTaskStatus {
      * @param now  The current time
      * @return <code>true</code> iff this ServerTaskStatus applies to the ComTaskExecution
      */
-    public abstract boolean appliesTo(ServerComTaskExecution task, Date now);
+    public abstract boolean appliesTo(ServerComTaskExecution task, Instant now);
 
     public final void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock) {
         sqlBuilder.appendWhereOrAnd();
@@ -253,7 +254,7 @@ public enum ServerComTaskStatus {
      * @param now  The current time
      * @return The applicable TaskStatus
      */
-    public static TaskStatus getApplicableStatusFor(ServerComTaskExecution task, Date now) {
+    public static TaskStatus getApplicableStatusFor(ServerComTaskExecution task, Instant now) {
         /* Implementation note:
          * Changing the order of the enum values
          * will/can have an effect on the outcome. */

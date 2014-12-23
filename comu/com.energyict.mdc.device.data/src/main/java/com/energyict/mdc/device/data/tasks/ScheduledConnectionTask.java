@@ -7,7 +7,7 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.elster.jupiter.time.TemporalExpression;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -82,7 +82,7 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      *
      * @return The earliest possible next execution timestamp
      */
-    public Date getNextExecutionTimestamp();
+    public Instant getNextExecutionTimestamp();
 
     /**
      * Gets the earliest possible timestamp of
@@ -91,7 +91,7 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      *
      * @return The earliest possible next execution timestamp
      */
-    public Date getPlannedNextExecutionTimestamp ();
+    public Instant getPlannedNextExecutionTimestamp ();
 
     /**
      * Calculates and updates the next execution of this ConnectionTask
@@ -101,7 +101,7 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      *         or <code>null</code> if no recurring properties have been set.
      * @see #getNextExecutionTimestamp()
      */
-    public Date updateNextExecutionTimestamp();
+    public Instant updateNextExecutionTimestamp();
 
     void setDynamicMaxNumberOfTries(int maxNumberOfTries);
 
@@ -111,7 +111,7 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      *
      * @return The timestamp on which this ScheduledConnectionTask is scheduled.
      */
-    public Date scheduleNow();
+    public Instant scheduleNow();
 
     /**
      * Updates the next execution of this ConnectionTask
@@ -123,7 +123,7 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      * @param when The earliest possible Date on which this ConnectionTask should execute
      * @return The actual Date on which this ScheduledConnectionTask is scheduled.
      */
-    public Date schedule(Date when);
+    public Instant schedule(Instant when);
 
     /**
      * Returns the {@link ConnectionInitiationTask} that will execute first
@@ -162,8 +162,8 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      *
      * @param when The earliest possible Date on which this ConnectionTask should execute
      * @return The actual Date on which this OutboundConnectionTask is scheduled.
-     * @see #schedule(Date)
+     * @see #schedule(Instant)
      */
-    public Date trigger (Date when);
+    public Instant trigger (Instant when);
 
 }

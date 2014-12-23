@@ -26,6 +26,7 @@ import org.joda.time.DateTimeConstants;
 
 import javax.inject.Inject;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
 import java.util.Collections;
@@ -66,6 +67,10 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     private final MessageService messageService;
 
     private long id;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
     private Reference<Kpi> connectionKpi = ValueReference.absent();
     private Reference<Kpi> communicationKpi = ValueReference.absent();
     private CompositeKpiSaveStrategy kpiSaveStrategy = new KpiSaveStrategyAtCreationTime();

@@ -16,6 +16,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.time.Instant;
 
 /**
  * Represents a <i>typed</i> property of a Device
@@ -33,6 +34,10 @@ public class DeviceProtocolPropertyImpl implements DeviceProtocolProperty, Seria
     private String propertyValue;
     private String propertySpec;
     private Reference<Device> device = ValueReference.absent();
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Inject
     public DeviceProtocolPropertyImpl(DataModel dataModel, Thesaurus thesaurus) {

@@ -1,13 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.InvalidDeviceMessageStatusMove;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
@@ -21,12 +13,19 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import org.hibernate.validator.constraints.NotEmpty;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -68,16 +67,16 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private Clock clock;
 
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.USER_IS_REQUIRED + "}")
-    private String user;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_IS_REQUIRED + "}")
     private Reference<Device> device = ValueReference.absent();
     private DeviceMessageId deviceMessageId;
     private DeviceMessageStatus deviceMessageStatus;
     @IsRevokeAllowed(groups = {Save.Create.class, Save.Update.class})
     private RevokeChecker revokeChecker;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CREATE_DATE_IS_REQUIRED + "}")
-    private Instant creationDate;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_RELEASE_DATE_IS_REQUIRED + "}")
     private Instant releaseDate;
     @ValidReleaseDateUpdate(groups = {Save.Create.class, Save.Update.class})
@@ -100,9 +99,6 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     public DeviceMessageImpl initialize(Device device, DeviceMessageId deviceMessageId) {
         this.deviceMessageId = deviceMessageId;
         this.device.set(device);
-        Principal principal = this.threadPrincipalService.getPrincipal();
-        this.user = principal != null ? principal.getName():null;
-        this.creationDate = Instant.now();
         this.deviceMessageStatus = DeviceMessageStatus.WAITING;
         this.messageSpec = this.deviceMessageSpecificationService.findMessageSpecById(this.deviceMessageId.dbValue());
         return this;
@@ -177,7 +173,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
 
     @Override
     public Instant getCreationDate() {
-        return this.creationDate;
+        return this.createTime;
     }
 
     @Override
@@ -192,13 +188,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
 
     @Override
     public String getUser() {
-        return user;
-    }
-
-    @Override
-    protected void postNew() {
-        this.creationDate = this.clock.instant();
-        super.postNew();
+        return userName;
     }
 
     public void setProtocolInfo(String protocolInfo) {
@@ -207,10 +197,6 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
 
     public void setTrackingId(String trackingId) {
         this.trackingId = trackingId;
-    }
-
-    public void setSentDate(Instant sentDate) {
-        this.sentDate = sentDate;
     }
 
     public void setReleaseDate(Instant releaseDate) {

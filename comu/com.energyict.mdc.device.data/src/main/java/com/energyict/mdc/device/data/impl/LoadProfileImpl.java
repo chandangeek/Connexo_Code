@@ -43,6 +43,10 @@ public class LoadProfileImpl implements LoadProfile {
     private Reference<DeviceImpl> device = ValueReference.absent();
     private Reference<LoadProfileSpec> loadProfileSpec = ValueReference.absent();
     private Instant lastReading;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Inject
     public LoadProfileImpl(DataModel dataModel, DeviceConfigurationService deviceConfigurationService) {

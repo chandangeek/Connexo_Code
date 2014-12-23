@@ -54,8 +54,7 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
         SUCCESS_INDICATOR("successIndicator"),
         HIGHEST_PRIORITY_COMPLETION_CODE("highestPriorityCompletionCode"),
         HIGHEST_PRIORITY_ERROR_DESCRIPTION("highestPriorityErrorDescription"),
-        STATUS("status"),
-        MODIFICATION_DATE("modDate");
+        STATUS("status");
 
         private final String javaFieldName;
 
@@ -84,7 +83,10 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
 
     private CompletionCode highestPriorityCompletionCode;
     private String highestPriorityErrorDescription;
-    private Instant modDate;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Inject
     ComTaskExecutionSessionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {

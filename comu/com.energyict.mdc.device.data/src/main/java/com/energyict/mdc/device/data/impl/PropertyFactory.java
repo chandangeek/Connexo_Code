@@ -4,7 +4,7 @@ import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -22,7 +22,7 @@ public interface PropertyFactory<T extends HasDynamicProperties, PT extends Plug
      * @param date The Date
      * @return The properties that are active on the specified Date.
      */
-    public List<PT> loadProperties (Date date);
+    public List<PT> loadProperties (Instant date);
 
     /**
      * Loads the properties that are active in the specified TimePeriod.
@@ -41,6 +41,6 @@ public interface PropertyFactory<T extends HasDynamicProperties, PT extends Plug
      * @param activeDate The Date on which the value becomes active
      * @return The newly created PT
      */
-    public PT newProperty(String name, Object value, Date activeDate);
+    public PT newProperty(String name, Object value, Instant activeDate);
 
 }

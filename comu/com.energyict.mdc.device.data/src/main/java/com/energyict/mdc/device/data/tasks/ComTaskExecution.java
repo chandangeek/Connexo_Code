@@ -12,9 +12,9 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 
+import java.time.Instant;
 import java.util.Optional;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -163,7 +163,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      *
      * @return The earliest possible next execution timestamp
      */
-    public Date getNextExecutionTimestamp();
+    public Instant getNextExecutionTimestamp();
 
     /**
      * Gets the maximum number of consecutive failures a ComTaskExecution can have before marking it as failed.
@@ -200,7 +200,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      *
      * @return The timestamp on which this ComTaskExecution started or <code>null</code>
      */
-    public Date getExecutionStartedTimestamp();
+    public Instant getExecutionStartedTimestamp();
 
     /**
      * Makes this ComTaskExecution obsolete, i.e. it will no longer execute
@@ -223,7 +223,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      * @return The date when this ComTaskExecution is made obsolete
      * or <code>null</code> when this ComTaskExecution is not obsolete at all.
      */
-    public Date getObsoleteDate();
+    public Instant getObsoleteDate();
 
     /**
      * Gets the {@link ConnectionTask} which will be used to perform this ComTaskExecution
@@ -242,7 +242,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      * @return The timestamp on which the last execution of this ComTaskExecution started
      * or <code>null</code> if this ComTaskExecution has not started executing yet
      */
-    public Date getLastExecutionStartTimestamp();
+    public Instant getLastExecutionStartTimestamp();
 
     /**
      * Gets the timestamp of the last time this ComTaskExecution completed successfully.
@@ -251,7 +251,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      * or <code>null</code> if this ComTaskExecution
      * has never completed successfully
      */
-    public Date getLastSuccessfulCompletionTimestamp();
+    public Instant getLastSuccessfulCompletionTimestamp();
 
     /**
      * Gets the specifications for the calculation of the next
@@ -278,7 +278,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      *
      * @return The earliest possible next execution timestamp
      */
-    public Date getPlannedNextExecutionTimestamp();
+    public Instant getPlannedNextExecutionTimestamp();
 
     /**
      * Gets this ComTaskExecution's planned execution priority.
@@ -304,7 +304,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      * its execution again.
      *
      * @see #scheduleNow()
-     * @see #schedule(java.util.Date)
+     * @see #schedule(Instant)
      * @see #updateNextExecutionTimestamp()
      */
     public void putOnHold();
@@ -332,7 +332,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      * Updates the next execution of this ComTaskExecution
      * so that it will get picked as soon as possible after the specified Date.
      */
-    public void schedule(Date when);
+    public void schedule(Instant when);
 
     public ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> getUpdater();
 

@@ -10,6 +10,7 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import org.joda.time.DateTimeConstants;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Date;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -30,7 +31,7 @@ public enum ServerConnectionTaskStatus {
         }
 
         @Override
-        public boolean appliesTo(ScheduledConnectionTask task, Date now) {
+        public boolean appliesTo(ScheduledConnectionTask task, Instant now) {
             return !task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
                 || task.getNextExecutionTimestamp() == null;
         }
@@ -72,7 +73,7 @@ public enum ServerConnectionTaskStatus {
         }
 
         @Override
-        public boolean appliesTo(ScheduledConnectionTask task, Date now) {
+        public boolean appliesTo(ScheduledConnectionTask task, Instant now) {
             if (task.isExecuting()) {
                 return true;
             }
@@ -113,10 +114,10 @@ public enum ServerConnectionTaskStatus {
         }
 
         @Override
-        public boolean appliesTo(ScheduledConnectionTask task, Date now) {
-            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
+        public boolean appliesTo(ScheduledConnectionTask task, Instant now) {
+            Instant nextExecutionTimestamp = task.getNextExecutionTimestamp();
             return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                && (nextExecutionTimestamp != null && nextExecutionTimestamp.getTime() <= now.getTime());
+                && (nextExecutionTimestamp != null && !now.isAfter(nextExecutionTimestamp));
         }
 
         @Override
@@ -150,10 +151,10 @@ public enum ServerConnectionTaskStatus {
         }
 
         @Override
-        public boolean appliesTo(ScheduledConnectionTask task, Date now) {
-            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
+        public boolean appliesTo(ScheduledConnectionTask task, Instant now) {
+            Instant nextExecutionTimestamp = task.getNextExecutionTimestamp();
             return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                && (nextExecutionTimestamp != null && nextExecutionTimestamp.getTime() > now.getTime())
+                && (nextExecutionTimestamp != null && nextExecutionTimestamp.isAfter(now))
                 && (task.getLastSuccessfulCommunicationEnd() == null && task.getCurrentRetryCount() == 0);
         }
 
@@ -195,10 +196,10 @@ public enum ServerConnectionTaskStatus {
         }
 
         @Override
-        public boolean appliesTo(ScheduledConnectionTask task, Date now) {
-            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
+        public boolean appliesTo(ScheduledConnectionTask task, Instant now) {
+            Instant nextExecutionTimestamp = task.getNextExecutionTimestamp();
             return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                && (nextExecutionTimestamp != null && nextExecutionTimestamp.getTime() > now.getTime())
+                && (nextExecutionTimestamp != null && nextExecutionTimestamp.isAfter(now))
                 && (this.strictlyBetween(task.getCurrentRetryCount(), 0, task.getMaxNumberOfTries()));
         }
 
@@ -237,10 +238,10 @@ public enum ServerConnectionTaskStatus {
         }
 
         @Override
-        public boolean appliesTo(ScheduledConnectionTask task, Date now) {
-            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
+        public boolean appliesTo(ScheduledConnectionTask task, Instant now) {
+            Instant nextExecutionTimestamp = task.getNextExecutionTimestamp();
             return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                && (nextExecutionTimestamp != null && nextExecutionTimestamp.getTime() > now.getTime())
+                && (nextExecutionTimestamp != null && nextExecutionTimestamp.isAfter(now))
                 && task.lastExecutionFailed()
                 && task.getCurrentRetryCount() == 0
                 && task.getLastSuccessfulCommunicationEnd() != null;
@@ -287,12 +288,12 @@ public enum ServerConnectionTaskStatus {
         }
 
         @Override
-        public boolean appliesTo(ScheduledConnectionTask task, Date now) {
-            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
+        public boolean appliesTo(ScheduledConnectionTask task, Instant now) {
+            Instant nextExecutionTimestamp = task.getNextExecutionTimestamp();
             return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
                 && task.getCurrentRetryCount() == 0
                 && !task.lastExecutionFailed()
-                && (nextExecutionTimestamp != null && nextExecutionTimestamp.getTime() > now.getTime())
+                && (nextExecutionTimestamp != null && nextExecutionTimestamp.isAfter(now))
                 && task.getLastSuccessfulCommunicationEnd() != null;
         }
 
@@ -339,9 +340,10 @@ public enum ServerConnectionTaskStatus {
      * applies to the {@link ScheduledConnectionTask}.
      *
      * @param task The ConnectionTaskExecutionAspects
+     * @param now The current time
      * @return <code>true</code> iff this ServerConnectionTaskStatus applies to the ServerOutboundConnectionTask
      */
-    public abstract boolean appliesTo(ScheduledConnectionTask task, Date now);
+    public abstract boolean appliesTo(ScheduledConnectionTask task, Instant now);
 
     public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
         sqlBuilder.appendWhereOrAnd();
@@ -379,7 +381,7 @@ public enum ServerConnectionTaskStatus {
      * @param task The ServerOutboundConnectionTask
      * @return The applicable TaskStatus
      */
-    public static TaskStatus getApplicableStatusFor(ScheduledConnectionTask task, Date now) {
+    public static TaskStatus getApplicableStatusFor(ScheduledConnectionTask task, Instant now) {
         /* Implementation note:
          * Changing the order of the enum values
          * will/can have an effect on the outcome. */

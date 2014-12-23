@@ -84,8 +84,8 @@ import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelatio
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 @ComPortPoolIsCompatibleWithConnectionType(groups = {Save.Create.class, Save.Update.class})
 public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPPT extends ComPortPool>
-        extends PersistentIdObject<ConnectionTask>
-        implements
+    extends PersistentIdObject<ConnectionTask>
+    implements
         ConnectionTask<CPPT, PCTT>,
         ConnectionTaskPropertyProvider,
         CanLock,
@@ -122,7 +122,10 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private Reference<ComSession> lastSession = ValueReference.absent();
     private boolean lastSessionStatus; // Redundant copy from lastSession to improve query performance
     private ComSession.SuccessIndicator lastSessionSuccessIndicator;   // Redundant copy from lastSession to improve query performance
-    private Instant modificationDate;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     private final Clock clock;
     private final ServerConnectionTaskService connectionTaskService;
@@ -258,7 +261,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @Override
     public void save() {
         this.validateNotObsolete();
-        this.modificationDate = clock.instant();
         super.save();
         this.saveAllProperties();
     }
@@ -302,8 +304,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.clearPropertyCache();
     }
 
-    protected Date now() {
-        return Date.from(clock.instant());
+    protected Instant now() {
+        return clock.instant();
     }
 
     protected void validateNotObsolete() {
@@ -329,7 +331,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private void reloadComServerAndObsoleteDate() {
         ConnectionTask updatedVersionOfMyself = this.connectionTaskService.findConnectionTask(this.getId()).get();
         this.comServer.set(updatedVersionOfMyself.getExecutingComServer());
-        this.obsoleteDate = updatedVersionOfMyself.getObsoleteDate() == null ? null : updatedVersionOfMyself.getObsoleteDate().toInstant();
+        this.obsoleteDate = updatedVersionOfMyself.getObsoleteDate() == null ? null : updatedVersionOfMyself.getObsoleteDate();
     }
 
     protected void makeDependentsObsolete() {
@@ -472,17 +474,22 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return this.getAllProperties(Date.from(clock.instant()));
     }
 
-    public List<ConnectionTaskProperty> getAllProperties(Date date) {
+    public List<ConnectionTaskProperty> getAllProperties(Instant date) {
         return this.getAllLocalProperties(date);
     }
 
-    private List<ConnectionTaskProperty> getAllLocalProperties(Date date) {
+    @Override
+    public List<ConnectionTaskProperty> getAllProperties(Date date) {
+        return this.getAllProperties(date.toInstant());
+    }
+
+    private List<ConnectionTaskProperty> getAllLocalProperties(Instant date) {
         return this.cache.get(date);
     }
 
     @Override
-    public List<ConnectionTaskProperty> loadProperties(Date date) {
-        Relation defaultRelation = this.getDefaultRelation(date);
+    public List<ConnectionTaskProperty> loadProperties(Instant date) {
+        Relation defaultRelation = this.getDefaultRelation(Date.from(date));
         /* defaultRelation is null when the pluggable class has no properties.
          * In that case, no relation type was created. */
         if (defaultRelation != null) {
@@ -547,23 +554,23 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
-    public ConnectionTaskProperty newProperty(String name, Object value, Date activeDate) {
+    public ConnectionTaskProperty newProperty(String name, Object value, Instant activeDate) {
         ConnectionTaskPropertyImpl property = new ConnectionTaskPropertyImpl(this, name);
         property.setValue(value);
-        property.setActivePeriod(new Interval(activeDate, null));
+        property.setActivePeriod(new Interval(Date.from(activeDate), null));
         return property;
     }
 
     @Override
     public void setProperty(String propertyName, Object value) {
-        Date now = Date.from(clock.instant());
+        Instant now = clock.instant();
         this.getAllProperties(now); // Make sure the cache is loaded to avoid that writing to the cache is reverted when the client will call getTypedProperties right after this call
         this.cache.put(now, propertyName, value);
     }
 
     @Override
     public void removeProperty(String propertyName) {
-        Date now = Date.from(clock.instant());
+        Instant now = clock.instant();
         this.getAllProperties(now); // Make sure the cache is loaded to avoid that writing to the cache is reverted when the client will call getTypedProperties right after this call
         this.cache.remove(now, propertyName);
     }
@@ -711,8 +718,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     @XmlAttribute
-    public Date getObsoleteDate() {
-        return obsoleteDate == null ? null : Date.from(obsoleteDate);
+    public Instant getObsoleteDate() {
+        return this.obsoleteDate;
     }
 
     @Override
@@ -767,7 +774,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return this.getProperties(this.now());
     }
 
-    public List<ConnectionTaskProperty> getProperties(Date date) {
+    @Override
+    public List<ConnectionTaskProperty> getProperties(Instant date) {
         List<ConnectionTaskProperty> allProperties = new ArrayList<>();
         TypedProperties partialProperties = this.getPartialConnectionTask().getTypedProperties();
         for (String propertyName : partialProperties.propertyNames()) {
@@ -878,16 +886,9 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return this.getPluggableClass().getConnectionType();
     }
 
-    @Override
-    public Date getModificationDate() {
-        return modificationDate == null ? null : Date.from(modificationDate);
-    }
-
-
     protected TimeZone getClocksTimeZone() {
         return TimeZone.getTimeZone(this.clock.getZone());
     }
-
 
     /**
      * This will use the validation framework to detect if there are any Validation errors.

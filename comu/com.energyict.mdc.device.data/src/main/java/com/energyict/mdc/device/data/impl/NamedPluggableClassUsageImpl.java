@@ -20,8 +20,8 @@ import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
 import com.energyict.mdc.pluggable.PluggableClassWithRelationSupport;
 
-import java.io.Serializable;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -142,7 +142,7 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
 
     protected TypedProperties getTypedProperties() {
         TypedProperties typedProperties = TypedProperties.inheritingFrom(this.getPluggableProperties());
-        for (PT property : this.getAllLocalProperties(Date.from(clock.instant()))) {
+        for (PT property : this.getAllLocalProperties(clock.instant())) {
             if (property.getValue() != null) {
                 typedProperties.setProperty(property.getName(), property.getValue());
             }
@@ -161,20 +161,24 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
     }
 
     public List<PT> getAllProperties() {
-        return this.getAllProperties(Date.from(clock.instant()));
+        return this.getAllProperties(clock.instant());
     }
 
-    public List<PT> getAllProperties(Date date) {
+    public List<PT> getAllProperties(Instant date) {
         return this.getAllLocalProperties(date);
     }
 
-    private List<PT> getAllLocalProperties(Date date) {
+    protected List<PT> getAllProperties(Date date) {
+        return this.getAllProperties(date.toInstant());
+    }
+
+    private List<PT> getAllLocalProperties(Instant date) {
         return this.cache.get(date);
     }
 
     @Override
-    public List<PT> loadProperties(Date date) {
-        Relation defaultRelation = this.getDefaultRelation(date);
+    public List<PT> loadProperties(Instant date) {
+        Relation defaultRelation = this.getDefaultRelation(Date.from(date));
         /* defaultRelation is null when the pluggable class has no properties.
          * In that case, no relation type was created. */
         if (defaultRelation != null) {
@@ -219,13 +223,13 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
     }
 
     protected void setProperty(String propertyName, Object value) {
-        Date now = Date.from(clock.instant());
+        Instant now = clock.instant();
         this.getAllProperties(now); // Make sure the cache is loaded to avoid that writing to the cache is reverted when the client will call getTypedProperties right after this call
         this.cache.put(now, propertyName, value);
     }
 
     protected void removeProperty(String propertyName) {
-        Date now = Date.from(clock.instant());
+        Instant now = clock.instant();
         this.getAllProperties(now); // Make sure the cache is loaded to avoid that writing to the cache is reverted when the client will call getTypedProperties right after this call
         this.cache.remove(now, propertyName);
     }

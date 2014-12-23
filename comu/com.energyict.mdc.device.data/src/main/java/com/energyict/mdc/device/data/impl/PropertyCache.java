@@ -5,8 +5,8 @@ import com.elster.jupiter.util.time.IntermittentInterval;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
 
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +23,7 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
      * The TimePeriod during which all properties in this cache are active.
      */
     private IntermittentInterval activePeriod;
-    private Date activeDate;
+    private Instant activeDate;
     private Map<String, PT> properties = new HashMap<>();
     private boolean dirty = false;
     private PropertyFactory<T, PT> factory;
@@ -35,7 +35,7 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
 
     /**
      * Tests if any changes were made to the cache,
-     * i.e. if any calls to {@link #put(Date, String, Object)} were executed.
+     * i.e. if any calls to {@link #put(Instant, String, Object)} were executed.
      *
      * @return A flag that indicates if the contents of the cached was modified
      */
@@ -59,9 +59,9 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
      * @param date The Date
      * @return A flag that indicates if this cache contains properties that are active on the specified Date
      */
-    public boolean isCached (Date date) {
-        return (this.activePeriod != null && this.activePeriod.toSpanningInterval().contains(date.toInstant(), Interval.EndpointBehavior.OPEN_CLOSED))
-            || (this.activeDate != null && !this.activeDate.after(date));
+    public boolean isCached (Instant date) {
+        return (this.activePeriod != null && this.activePeriod.toSpanningInterval().contains(date, Interval.EndpointBehavior.OPEN_CLOSED))
+            || (this.activeDate != null && !this.activeDate.isAfter(date));
     }
 
     /**
@@ -81,7 +81,7 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
      *
      * @return The properties that are active on the specified Date
      */
-    public List<PT> get (Date date) {
+    public List<PT> get (Instant date) {
         if (this.isCached(date)) {
             return this.filterByDate(date);
         }
@@ -91,13 +91,13 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
         }
     }
 
-    private void clearAndLoad(Date date) {
+    private void clearAndLoad(Instant date) {
         this.clear();
         this.addAll(this.factory.loadProperties(date), date);
         this.dirty = false;
     }
 
-    public void put (Date date,  String propertyName, Object value) {
+    public void put (Instant date,  String propertyName, Object value) {
         if (!this.isCached(date)) {
             this.clearAndLoad(date);
         }
@@ -105,7 +105,7 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
         this.dirty = true;
     }
 
-    public void remove (Date date,  String propertyName) {
+    public void remove (Instant date,  String propertyName) {
         if (!this.isCached(date)) {
             this.clearAndLoad(date);
         }
@@ -113,10 +113,10 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
         this.dirty = true;
     }
 
-    private List<PT> filterByDate (Date date) {
+    private List<PT> filterByDate (Instant date) {
         List<PT> result = new ArrayList<>(this.properties.size());    // At most all cached properties are active on the specified Date
         for (PT property : this.properties.values()) {
-            if (property.getActivePeriod().contains(date.toInstant(), Interval.EndpointBehavior.CLOSED_CLOSED)) {
+            if (property.getActivePeriod().contains(date, Interval.EndpointBehavior.CLOSED_CLOSED)) {
                 result.add(property);
             }
         }
@@ -150,7 +150,7 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
         return result;
     }
 
-    private void addAll (List<PT> properties, Date cacheHitDate) {
+    private void addAll (List<PT> properties, Instant cacheHitDate) {
         if (properties.isEmpty()) {
             this.activeDate = cacheHitDate;
         }

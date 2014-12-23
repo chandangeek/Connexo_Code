@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.tasks;
 
+import java.time.Instant;
 import java.util.Date;
 
 /**
@@ -35,7 +36,7 @@ public interface ComTaskExecutionUpdater<U extends ComTaskExecutionUpdater<U, C>
      * @param executionPriority the changed execution priority
      * @return the current updater
      */
-    U forceNextExecutionTimeStampAndPriority(Date nextExecutionTimestamp, int executionPriority);
+    U forceNextExecutionTimeStampAndPriority(Instant nextExecutionTimestamp, int executionPriority);
 
     /**
      * Updates the actual ComTaskExecution with the objects set in this builder

@@ -184,8 +184,11 @@ public class DeviceImpl implements Device, CanLock {
     private String serialNumber;
     private String timeZoneId;
     private TimeZone timeZone;
-    private Instant modificationDate;
     private Instant yearOfCertification;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Valid
     private List<DeviceProtocolProperty> deviceProperties = new ArrayList<>();
@@ -287,7 +290,6 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public void save() {
-        this.modificationDate = this.clock.instant();
         if (this.id > 0) {
             Save.UPDATE.save(dataModel, this);
             this.saveNewAndDirtyDialectProperties();
@@ -483,8 +485,8 @@ public class DeviceImpl implements Device, CanLock {
         return this.yearOfCertification;
     }
 
-    public Instant getModDate() {
-        return this.modificationDate;
+    public Instant getModificationDate() {
+        return this.modTime;
     }
 
     @Override

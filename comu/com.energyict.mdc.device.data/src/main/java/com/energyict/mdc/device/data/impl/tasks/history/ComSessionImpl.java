@@ -66,8 +66,7 @@ public class ComSessionImpl implements ComSession {
         TASK_SUCCESS_COUNT("taskSuccessCount"),
         TASK_FAILURE_COUNT("taskFailureCount"),
         TASK_NOT_EXECUTED_COUNT("taskNotExecutedCount"),
-        STATUS("status"),
-        MODIFICATION_DATE("modDate");
+        STATUS("status");
 
         private final String javaFieldName;
 
@@ -102,7 +101,10 @@ public class ComSessionImpl implements ComSession {
     private int taskSuccessCount;
     private int taskFailureCount;
     private int taskNotExecutedCount;
-    private Instant modDate;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     private List<ComSessionJournalEntry> journalEntries = new ArrayList<>();
     private List<ComTaskExecutionSession> comTaskExecutionSessions = new ArrayList<>();

@@ -49,7 +49,10 @@ public class LogBookImpl implements LogBook {
     private Reference<LogBookSpec> logBookSpec = ValueReference.absent();
     private Instant lastEventOccurrence;
     private Instant latestEventAddition;
-
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Inject
     public LogBookImpl(DataModel dataModel) {
@@ -111,7 +114,7 @@ public class LogBookImpl implements LogBook {
         filter.range = interval.toClosedRange();
         return getEndDeviceEventsByFilter(filter);
     }
-    
+
     @Override
     public List<EndDeviceEventRecord> getEndDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter) {
         if (filter == null){

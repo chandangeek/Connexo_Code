@@ -268,11 +268,11 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
-    public Date updateNextExecutionTimestamp() {
+    public Instant updateNextExecutionTimestamp() {
         return this.updateNextExecutionTimestamp(PostingMode.NOW);
     }
 
-    private Date updateNextExecutionTimestamp(PostingMode postingMode) {
+    private Instant updateNextExecutionTimestamp(PostingMode postingMode) {
         if (isActive() && this.getNextExecutionSpecs() != null) {
             return this.doUpdateNextExecutionTimestamp(postingMode);
         } else {
@@ -280,11 +280,11 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
     }
 
-    private Date doUpdateNextExecutionTimestamp(PostingMode postingMode) {
+    private Instant doUpdateNextExecutionTimestamp(PostingMode postingMode) {
         Calendar calendar = Calendar.getInstance(getClocksTimeZone());
-        calendar.setTime(this.now());
-        this.plannedNextExecutionTimestamp = this.applyComWindowIfAny(this.getNextExecutionSpecs().getNextTimestamp(calendar)).toInstant();
-        return this.schedule(Date.from(this.plannedNextExecutionTimestamp), postingMode);
+        calendar.setTime(Date.from(this.now()));
+        this.plannedNextExecutionTimestamp = this.applyComWindowIfAny(this.getNextExecutionSpecs().getNextTimestamp(calendar).toInstant());
+        return this.schedule(this.plannedNextExecutionTimestamp, postingMode);
     }
 
     @Override
@@ -307,9 +307,9 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
     }
 
-    private void updateNextExecutionTimeStampAndPriority(Date nextExecutionTimestamp, int priority) {
+    private void updateNextExecutionTimeStampAndPriority(Instant nextExecutionTimestamp, int priority) {
         Condition condition = where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(this)
-                .and(where(ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName()).isLessThan(nextExecutionTimestamp.toInstant()));
+                .and(where(ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName()).isLessThan(nextExecutionTimestamp));
         List<ComTaskExecution> comTaskExecutions = this.getDataModel().mapper(ComTaskExecution.class).select(condition);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
@@ -335,16 +335,15 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
     }
 
-    private Date calculateNextPlannedExecutionTimestamp() {
-        Date now = this.now();
-        return this.applyComWindowIfAny(this.calculateNextExecutionTimestamp(now));
+    private Instant calculateNextPlannedExecutionTimestamp() {
+        return this.applyComWindowIfAny(this.calculateNextExecutionTimestamp(this.now()));
     }
 
-    public Date applyComWindowIfAny(Date calculatedNextExecutionTimestamp) {
+    public Instant applyComWindowIfAny(Instant calculatedNextExecutionTimestamp) {
         Calendar calendar = Calendar.getInstance(getClocksTimeZone());
-        calendar.setTime(calculatedNextExecutionTimestamp);
+        calendar.setTime(Date.from(calculatedNextExecutionTimestamp));
         this.applyComWindowIfAny(calendar);
-        return calendar.getTime();
+        return calendar.getTime().toInstant();
     }
 
     private void applyComWindowIfAny(Calendar calendar) {
@@ -395,15 +394,15 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         this.schedule(this.calculateNextRetryExecutionTimestamp());
     }
 
-    private Date calculateNextRetryExecutionTimestamp() {
-        Date failureDate = this.now();
+    private Instant calculateNextRetryExecutionTimestamp() {
+        Instant failureDate = this.now();
         Calendar calendar = Calendar.getInstance(getClocksTimeZone());
-        calendar.setTime(failureDate);
+        calendar.setTime(Date.from(failureDate));
         TimeDuration baseRetryDelay = this.getRescheduleRetryDelay();
         TimeDuration failureRetryDelay = new TimeDuration(baseRetryDelay.getCount() * getCurrentRetryCount(), baseRetryDelay.getTimeUnitCode());
         failureRetryDelay.addTo(calendar);
         this.applyComWindowIfAny(calendar);
-        return calendar.getTime();
+        return calendar.getTime().toInstant();
     }
 
     @Override
@@ -415,30 +414,30 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
     }
 
-    private Date calculateNextExecutionTimestamp(Date now) {
+    private Instant calculateNextExecutionTimestamp(Instant now) {
         return this.calculateNextExecutionTimestampFromBaseline(now, this.getNextExecutionSpecs());
     }
 
-    private Date calculateNextExecutionTimestampFromBaseline(Date baseLine, NextExecutionSpecs nextExecutionSpecs) {
+    private Instant calculateNextExecutionTimestampFromBaseline(Instant baseLine, NextExecutionSpecs nextExecutionSpecs) {
         Calendar calendar = Calendar.getInstance(getClocksTimeZone());
-        calendar.setTime(baseLine);
+        calendar.setTime(Date.from(baseLine));
         if (nextExecutionSpecs != null) {
-            return nextExecutionSpecs.getNextTimestamp(calendar);
+            return nextExecutionSpecs.getNextTimestamp(calendar).toInstant();
         } else {
             return getPlannedNextExecutionTimestamp();
         }
     }
 
     @Override
-    public Date scheduleNow() {
+    public Instant scheduleNow() {
         return this.schedule(this.now());
     }
 
-    public Date schedule(Date when) {
+    public Instant schedule(Instant when) {
         return this.schedule(when, PostingMode.NOW);
     }
 
-    private Date schedule(Date when, PostingMode postingMode) {
+    private Instant schedule(Instant when, PostingMode postingMode) {
         if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(this.getConnectionStrategy())) {
             return this.doAsSoonAsPossibleSchedule(when, postingMode);
         } else {
@@ -447,7 +446,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
-    public Date trigger(final Date when) {
+    public Instant trigger(final Instant when) {
         if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(this.getConnectionStrategy())) {
             this.triggerComTasks(when);
         }
@@ -459,7 +458,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
     }
 
-    private void triggerComTasks(Date when) {
+    private void triggerComTasks(Instant when) {
         for (ComTaskExecution scheduledComTask : this.getScheduledComTasks()) {
             if (this.needsTriggering(scheduledComTask)) {
                 scheduledComTask.schedule(when);
@@ -473,17 +472,17 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
-    public Date getNextExecutionTimestamp() {
-        return nextExecutionTimestamp == null ? null : Date.from(nextExecutionTimestamp);
+    public Instant getNextExecutionTimestamp() {
+        return this.nextExecutionTimestamp;
     }
 
-    protected void setNextExecutionTimestamp(Date nextExecutionTimestamp) {
-        this.nextExecutionTimestamp = nextExecutionTimestamp == null ? null : nextExecutionTimestamp.toInstant();
+    protected void setNextExecutionTimestamp(Instant nextExecutionTimestamp) {
+        this.nextExecutionTimestamp = nextExecutionTimestamp;
     }
 
     @Override
-    public Date getPlannedNextExecutionTimestamp() {
-        return plannedNextExecutionTimestamp ==null ? null : Date.from(plannedNextExecutionTimestamp);
+    public Instant getPlannedNextExecutionTimestamp() {
+        return this.plannedNextExecutionTimestamp;
     }
 
     @Override
@@ -511,21 +510,21 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         return ServerConnectionTaskStatus.getApplicableStatusFor(this, this.now());
     }
 
-    private Date doAsSoonAsPossibleSchedule(Date when, PostingMode postingMode) {
+    private Instant doAsSoonAsPossibleSchedule(Instant when, PostingMode postingMode) {
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimeStampAndPriority = this.getEarliestNextExecutionTimeStampAndPriority();
         return this.doAsSoonAsPossibleSchedule(when, earliestNextExecutionTimeStampAndPriority, postingMode);
     }
 
-    private Date doAsSoonAsPossibleSchedule(Date when, EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimeStampAndPriority, PostingMode postingMode) {
+    private Instant doAsSoonAsPossibleSchedule(Instant when, EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimeStampAndPriority, PostingMode postingMode) {
         if (earliestNextExecutionTimeStampAndPriority == null) {
             // No ComTaskExecutions
             this.applyNextExecutionTimestampAndPriority(when, TaskPriorityConstants.DEFAULT_PRIORITY, postingMode);
             return when;
         } else {
-            Date earliestNextExecutionTimeStamp = earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp;
+            Instant earliestNextExecutionTimeStamp = earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp;
             Integer highestPriority = earliestNextExecutionTimeStampAndPriority.priority;
             if (earliestNextExecutionTimeStamp == null
-                    || (when != null && when.before(earliestNextExecutionTimeStamp))) {
+                    || (when != null && when.isBefore(earliestNextExecutionTimeStamp))) {
                 this.applyNextExecutionTimestampAndPriority(when, highestPriority, postingMode);
                 return when;
             } else if (!earliestNextExecutionTimeStamp.equals(this.getNextExecutionTimestamp())) {
@@ -538,7 +537,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
     }
 
-    private Date doMinimizeConnectionsSchedule(Date when, PostingMode postingMode) {
+    private Instant doMinimizeConnectionsSchedule(Instant when, PostingMode postingMode) {
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimeStampAndPriority = this.getEarliestNextExecutionTimeStampAndPriority();
         Integer highestPriority;
         if (earliestNextExecutionTimeStampAndPriority == null) {
@@ -551,11 +550,11 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         return when;
     }
 
-    private void synchronizeScheduledComTaskExecution(Date when, int priority) {
+    private void synchronizeScheduledComTaskExecution(Instant when, int priority) {
         updateNextExecutionTimeStampAndPriority(when, priority);
     }
 
-    private void applyNextExecutionTimestampAndPriority(Date when, int priority, PostingMode postingMode) {
+    private void applyNextExecutionTimestampAndPriority(Instant when, int priority, PostingMode postingMode) {
         this.setNextExecutionTimestamp(when);
         this.priority = priority;
         postingMode.executeOn(this);

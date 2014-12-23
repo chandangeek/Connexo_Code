@@ -14,7 +14,6 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,7 +47,7 @@ import java.util.Optional;
  * @since 2012-04-11 (09:59)
  */
 public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialConnectionTask>
-        extends
+    extends
         ConnectionTaskPropertyProvider,
         PluggableClassUsage<ConnectionType, ConnectionTypePluggableClass, ConnectionTaskProperty>,
         ConnectionTaskExecutionAspects,
@@ -174,7 +173,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      * @param date The Date on which the ConnectionTaskProperty should be active
      * @return The List of ConnectionTaskProperties
      */
-    public List<ConnectionTaskProperty> getProperties(Date date);
+    public List<ConnectionTaskProperty> getProperties(Instant date);
 
     /**
      * Sets the value of the property with the specified name.
@@ -225,14 +224,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      * @return The date when this ConnectionTask was made obsolete
      * or <code>null</code> when this ConnectionTask is not obsolete at all.
      */
-    public Date getObsoleteDate();
-
-    /**
-     * Gets the date on which this ConnectionTask was created or last modified.
-     *
-     * @return The date when this ConnectionTask was created or last modified
-     */
-    public Date getModificationDate();
+    public Instant getObsoleteDate();
 
     /**
      * Tests if this ConnectionTask is the default that should be used

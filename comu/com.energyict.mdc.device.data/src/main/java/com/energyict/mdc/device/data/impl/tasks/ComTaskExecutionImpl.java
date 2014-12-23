@@ -89,7 +89,10 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     private Instant lastSuccessfulCompletionTimestamp;
     private Instant plannedNextExecutionTimestamp;
     private Instant obsoleteDate;
-    private Instant modificationDate;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     /**
      * ExecutionPriority can be overruled by the Minimize ConnectionTask
@@ -164,7 +167,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         return this.comPort.isPresent()
             || (   this.connectionTask.isPresent()
                 && (this.connectionTask.get().getExecutingComServer() != null)
-                && this.getNextExecutionTimestamp().before(Date.from(clock.instant())));
+                && this.getNextExecutionTimestamp().isBefore(clock.instant()));
     }
 
     @Override
@@ -187,12 +190,8 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     }
 
     @Override
-    public Date getNextExecutionTimestamp() {
-        return asDate(nextExecutionTimestamp);
-    }
-
-    private Date asDate(Instant instant) {
-        return instant == null ? null : Date.from(instant);
+    public Instant getNextExecutionTimestamp() {
+        return this.nextExecutionTimestamp;
     }
 
     @Override
@@ -222,8 +221,8 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     }
 
     @Override
-    public Date getExecutionStartedTimestamp() {
-        return asDate(executionStart);
+    public Instant getExecutionStartedTimestamp() {
+        return this.executionStart;
     }
 
     @Override
@@ -242,7 +241,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         Optional<ComTaskExecution> updatedVersionOfMyself = this.communicationTaskService.findComTaskExecution(this.getId());
         updatedVersionOfMyself.ifPresent(cte -> {
             this.comPort.set(cte.getExecutingComPort());
-            this.obsoleteDate = this.asInstant(cte.getObsoleteDate());
+            this.obsoleteDate = cte.getObsoleteDate();
             this.setConnectionTask(cte.getConnectionTask());
         });
     }
@@ -270,8 +269,8 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     }
 
     @Override
-    public Date getObsoleteDate() {
-        return this.asDate(this.obsoleteDate);
+    public Instant getObsoleteDate() {
+        return this.obsoleteDate;
     }
 
     @Override
@@ -299,8 +298,8 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     }
 
     @Override
-    public Date getLastExecutionStartTimestamp() {
-        return this.asDate(this.lastExecutionTimestamp);
+    public Instant getLastExecutionStartTimestamp() {
+        return this.lastExecutionTimestamp;
     }
 
     @Override
@@ -334,8 +333,8 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     }
 
     @Override
-    public Date getLastSuccessfulCompletionTimestamp() {
-        return this.asDate(this.lastSuccessfulCompletionTimestamp);
+    public Instant getLastSuccessfulCompletionTimestamp() {
+        return this.lastSuccessfulCompletionTimestamp;
     }
 
     @Override
@@ -348,8 +347,8 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     }
 
     @Override
-    public Date getPlannedNextExecutionTimestamp() {
-        return asDate(plannedNextExecutionTimestamp);
+    public Instant getPlannedNextExecutionTimestamp() {
+        return this.plannedNextExecutionTimestamp;
     }
 
     @Override
@@ -368,19 +367,19 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     }
 
     void recalculateNextAndPlannedExecutionTimestamp() {
-        Date plannedNextExecutionTimestamp = this.calculateNextExecutionTimestamp(Date.from(clock.instant()));
+        Instant plannedNextExecutionTimestamp = this.calculateNextExecutionTimestamp(clock.instant());
         this.schedule(plannedNextExecutionTimestamp, plannedNextExecutionTimestamp);
     }
 
-    protected Date calculateNextExecutionTimestamp(Date now) {
+    protected Instant calculateNextExecutionTimestamp(Instant now) {
         return this.calculateNextExecutionTimestampFromBaseline(now);
     }
 
-    private Date calculateNextExecutionTimestampFromBaseline(Date baseLine) {
+    private Instant calculateNextExecutionTimestampFromBaseline(Instant baseLine) {
         NextExecutionSpecs nextExecutionSpecs = this.getNextExecutionSpecs().get();
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(this.clock.getZone()));
-        calendar.setTime(baseLine);
-        return nextExecutionSpecs.getNextTimestamp(calendar);
+        calendar.setTime(Date.from(baseLine));
+        return nextExecutionSpecs.getNextTimestamp(calendar).toInstant();
     }
 
     /**
@@ -389,7 +388,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
      * @param nextExecutionTimestamp        the time you think this object should schedule
      * @param plannedNextExecutionTimestamp the time this object is planned to schedule
      */
-    private void schedule(Date nextExecutionTimestamp, Date plannedNextExecutionTimestamp) {
+    private void schedule(Instant nextExecutionTimestamp, Instant plannedNextExecutionTimestamp) {
         resetCurrentRetryCount();
         doReschedule(nextExecutionTimestamp, plannedNextExecutionTimestamp);
     }
@@ -407,14 +406,14 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
      * @param nextExecutionTimestamp        the time you think this object should schedule
      * @param plannedNextExecutionTimestamp the time this object is planned to schedule
      */
-    private void doReschedule(Date nextExecutionTimestamp, Date plannedNextExecutionTimestamp) {
+    private void doReschedule(Instant nextExecutionTimestamp, Instant plannedNextExecutionTimestamp) {
         this.setExecutingComPort(null);
         this.setExecutionStartedTimestamp(null);
         if (nextExecutionTimestamp != null) {// nextExecutionTimestamp is null when putting on hold
             nextExecutionTimestamp = defineNextExecutionTimeStamp(nextExecutionTimestamp);
         }
         this.setPlannedNextExecutionTimestamp(plannedNextExecutionTimestamp);
-        this.nextExecutionTimestamp = asInstant(nextExecutionTimestamp);
+        this.nextExecutionTimestamp = nextExecutionTimestamp;
 
         /* ConnectionTask can be null when the default is used but
          * no default has been set or created yet. */
@@ -428,15 +427,15 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         this.comPort.set(comPort);
     }
 
-    private void setExecutionStartedTimestamp(Date executionStartedTimestamp) {
-        this.executionStart = asInstant(executionStartedTimestamp);
+    private void setExecutionStartedTimestamp(Instant executionStartedTimestamp) {
+        this.executionStart = executionStartedTimestamp;
     }
 
-    private void setPlannedNextExecutionTimestamp(Date plannedNextExecutionTimestamp) {
-        this.plannedNextExecutionTimestamp = asInstant(plannedNextExecutionTimestamp);
+    private void setPlannedNextExecutionTimestamp(Instant plannedNextExecutionTimestamp) {
+        this.plannedNextExecutionTimestamp = plannedNextExecutionTimestamp;
     }
 
-    void setNextExecutionTimestamp(Date nextExecutionTimestamp) {
+    void setNextExecutionTimestamp(Instant nextExecutionTimestamp) {
         this.doReschedule(nextExecutionTimestamp);
     }
 
@@ -452,24 +451,24 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
      * @param nextExecutionTimestamp the nextExecutionTimestamp to adjust if necessary
      * @return the adjusted nextExecutionTimestamp
      */
-    private Date defineNextExecutionTimeStamp(Date nextExecutionTimestamp) {
+    private Instant defineNextExecutionTimeStamp(Instant nextExecutionTimestamp) {
         if (!this.isScheduledConnectionTask(getConnectionTask()) || ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(getScheduledConnectionTask().getConnectionStrategy())) {
             return this.applyComWindowIfOutboundAndAny(nextExecutionTimestamp);
         } else { // in case of outbound MINIMIZE
-            Date nextActualConnectionTime = getScheduledConnectionTask().getNextExecutionTimestamp();
+            Instant nextActualConnectionTime = getScheduledConnectionTask().getNextExecutionTimestamp();
             // nextActualConnectionTime can be off regular schedule due to retries. If a retry time would fit our needs, we'll hitch along.
-            if (nextActualConnectionTime != null && !nextExecutionTimestamp.after(nextActualConnectionTime)) {
+            if (nextActualConnectionTime != null && !nextExecutionTimestamp.isAfter(nextActualConnectionTime)) {
                 return nextActualConnectionTime;
             } else {
                 Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(this.clock.getZone()));
-                calendar.setTime(nextExecutionTimestamp);
+                calendar.setTime(Date.from(nextExecutionTimestamp));
                 calendar.add(Calendar.MILLISECOND, -1); // hack getNextTimeStamp to be inclusive
-                return getScheduledConnectionTask().getNextExecutionSpecs().getNextTimestamp(calendar);
+                return getScheduledConnectionTask().getNextExecutionSpecs().getNextTimestamp(calendar).toInstant();
             }
         }
     }
 
-    private Date applyComWindowIfOutboundAndAny(Date preliminaryNextExecutionTimestamp) {
+    private Instant applyComWindowIfOutboundAndAny(Instant preliminaryNextExecutionTimestamp) {
         if (isScheduledConnectionTask(getConnectionTask())) {
             return getScheduledConnectionTask().applyComWindowIfAny(preliminaryNextExecutionTimestamp);
         } else {
@@ -493,7 +492,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     @Override
     public void scheduleNow() {
-        this.schedule(Date.from(clock.instant()));
+        this.schedule(clock.instant());
     }
 
     @Override
@@ -502,7 +501,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         this.setExecutingComPort(null);
         this.setExecutionStartedTimestamp(null);
         Instant currentDate = clock.instant();
-        this.setPlannedNextExecutionTimestamp(Date.from(currentDate));
+        this.setPlannedNextExecutionTimestamp(currentDate);
         this.nextExecutionTimestamp = currentDate;
 
         ConnectionTask<?, ?> connectionTask = this.getConnectionTask();
@@ -513,7 +512,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     }
 
     @Override
-    public void schedule(Date when) {
+    public void schedule(Instant when) {
         this.schedule(when, this.getPlannedNextExecutionTimestamp());
         post();
     }
@@ -527,7 +526,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     @Override
     public void executionCompleted() {
         this.markSuccessfullyCompleted();
-        this.doReschedule(calculateNextExecutionTimestamp(Date.from(clock.instant())));
+        this.doReschedule(calculateNextExecutionTimestamp(clock.instant()));
         post();
     }
 
@@ -539,7 +538,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         this.resetCurrentRetryCount();
     }
 
-    private void doReschedule(Date nextExecutionTimestamp) {
+    private void doReschedule(Instant nextExecutionTimestamp) {
         this.doReschedule(nextExecutionTimestamp, nextExecutionTimestamp);
     }
 
@@ -559,23 +558,23 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         this.doReschedule(calculateNextExecutionTimestampAfterFailure());
     }
 
-    private Date calculateNextExecutionTimestampAfterFailure() {
-        Date failureDate = Date.from(clock.instant());
+    private Instant calculateNextExecutionTimestampAfterFailure() {
+        Instant failureDate = clock.instant();
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(clock.getZone()));
-        calendar.setTime(failureDate);
+        calendar.setTime(Date.from(failureDate));
         TimeDuration baseRetryDelay = this.getRescheduleRetryDelay();
         TimeDuration failureRetryDelay = new TimeDuration(baseRetryDelay.getCount() * getCurrentRetryCount(), baseRetryDelay.getTimeUnitCode());
         failureRetryDelay.addTo(calendar);
-        final Date calculatedNextExecutionTimeStamp = this.calculateNextExecutionTimestamp(failureDate);
+        Instant calculatedNextExecutionTimeStamp = this.calculateNextExecutionTimestamp(failureDate);
         if (calculatedNextExecutionTimeStamp != null) {
-            return this.minimum(calendar.getTime(), calculatedNextExecutionTimeStamp);
+            return this.minimum(calendar.getTime().toInstant(), calculatedNextExecutionTimeStamp);
         } else {
-            return calendar.getTime();
+            return calendar.getTime().toInstant();
         }
     }
 
-    private Date minimum(Date date1, Date date2) {
-        return date1.before(date2) ? date1 : date2;
+    private Instant minimum(Instant date1, Instant date2) {
+        return date1.isBefore(date2) ? date1 : date2;
     }
 
     /**
@@ -617,7 +616,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         if (isAdHoc()) {
             this.doReschedule(null, null);
         } else {
-            this.doReschedule(calculateNextExecutionTimestamp(Date.from(clock.instant())));
+            this.doReschedule(calculateNextExecutionTimestamp(clock.instant()));
         }
     }
 
@@ -633,7 +632,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     }
 
     protected void doExecutionStarted(ComPort comPort) {
-        Date now = Date.from(clock.instant());
+        Instant now = clock.instant();
         this.setExecutionStartedTimestamp(now);
         this.lastExecutionTimestamp = clock.instant();
         this.lastExecutionFailed = false;
@@ -684,12 +683,11 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
      * We don't do our own persistence, our device will take care of that.
      */
     public void prepareForSaving() {
-        this.modificationDate = clock.instant();
         validateNotObsolete();
     }
 
-    protected Date now() {
-        return Date.from(clock.instant());
+    protected Instant now() {
+        return clock.instant();
     }
 
     protected void validateNotObsolete() {
@@ -789,7 +787,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         }
 
         @Override
-        public U forceNextExecutionTimeStampAndPriority(Date nextExecutionTimestamp, int priority) {
+        public U forceNextExecutionTimeStampAndPriority(Instant nextExecutionTimestamp, int priority) {
             this.comTaskExecution.setNextExecutionTimestamp(nextExecutionTimestamp);
             this.comTaskExecution.setExecutingPriority(priority);
             return self;

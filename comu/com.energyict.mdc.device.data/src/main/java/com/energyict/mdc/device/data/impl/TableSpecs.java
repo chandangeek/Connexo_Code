@@ -66,22 +66,20 @@ public enum TableSpecs {
             Table<Device> table = dataModel.addTable(name(), Device.class);
             table.map(DeviceImpl.class);
             Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
             table.column("NAME").varChar().notNull().map(DeviceFields.NAME.fieldName()).add();
             table.column("SERIALNUMBER").varChar().map(DeviceFields.SERIALNUMBER.fieldName()).add();
             table.column("TIMEZONE").varChar(32).map(DeviceFields.TIMEZONE.fieldName()).add();
             Column externid = table.column("MRID").varChar().map(DeviceFields.MRID.fieldName()).add();
-            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2INSTANT).map("modificationDate").add();
             table.column("CERTIF_DATE").type("DATE").conversion(ColumnConversion.DATE2INSTANT).map("yearOfCertification").add();
             Column deviceType = table.column("DEVICETYPE").number().notNull().add();
             Column configuration = table.column("DEVICECONFIGID").number().notNull().add();
-            table.
-                    foreignKey("FK_DDC_DEVICE_DEVICECONFIG").
+            table.foreignKey("FK_DDC_DEVICE_DEVICECONFIG").
                     on(configuration).
                     references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICECONFIG").
                     map(DeviceFields.DEVICECONFIGURATION.fieldName()).
                     add();
-            table.
-                    foreignKey("FK_DDC_DEVICE_DEVICETYPE").
+            table.foreignKey("FK_DDC_DEVICE_DEVICETYPE").
                     on(deviceType).
                     references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE").
                     map(DeviceFields.DEVICETYPE.fieldName()).
@@ -99,8 +97,13 @@ public enum TableSpecs {
             Column deviceId = table.column("DEVICEID").number().notNull().conversion(NUMBER2LONG).add();
             Column propertySpec = table.column("PROPERTYSPEC").map("propertySpec").varChar(256).notNull().add();
             table.column("INFOVALUE").varChar().map("propertyValue").add();
+            table.addAuditColumns();
             table.primaryKey("PK_DDC_DEVICEPROTOCOLPROPERTY").on(deviceId, propertySpec).add();
-            table.foreignKey("FK_DDC_DEVICEPROTPROP_DEVICE").on(deviceId).references(DDC_DEVICE.name()).map("device").reverseMap("deviceProperties").composition().add();
+            table.foreignKey("FK_DDC_DEVICEPROTPROP_DEVICE")
+                    .on(deviceId)
+                    .references(DDC_DEVICE.name())
+                    .map("device").reverseMap("deviceProperties").composition()
+                    .add();
         }
     },
 
@@ -110,12 +113,21 @@ public enum TableSpecs {
             Table<LoadProfile> table = dataModel.addTable(name(), LoadProfile.class);
             table.map(LoadProfileImpl.class);
             Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
             Column deviceId = table.column("DEVICEID").number().notNull().add();
             table.column("LASTREADING").number().map("lastReading").conversion(ColumnConversion.NUMBER2INSTANT).add();
             Column loadprofilespecid = table.column("LOADPROFILESPECID").number().add();
             table.primaryKey("PK_DDC_LOADPROFILE").on(id).add();
-            table.foreignKey("FK_DDC_LOADPROFILE_LPSPEC").on(loadprofilespecid).references(DeviceConfigurationService.COMPONENTNAME, "DTC_LOADPROFILESPEC").map("loadProfileSpec").add();
-            table.foreignKey("FK_DDC_LOADPROFILE_DEVICE").on(deviceId).references(DDC_DEVICE.name()).map("device").reverseMap("loadProfiles").composition().add();
+            table.foreignKey("FK_DDC_LOADPROFILE_LPSPEC")
+                    .on(loadprofilespecid)
+                    .references(DeviceConfigurationService.COMPONENTNAME, "DTC_LOADPROFILESPEC")
+                    .map("loadProfileSpec")
+                    .add();
+            table.foreignKey("FK_DDC_LOADPROFILE_DEVICE")
+                    .on(deviceId)
+                    .references(DDC_DEVICE.name())
+                    .map("device").reverseMap("loadProfiles").composition()
+                    .add();
 
         }
     },
@@ -126,13 +138,21 @@ public enum TableSpecs {
             Table<LogBook> table = dataModel.addTable(name(), LogBook.class);
             table.map(LogBookImpl.class);
             Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
             Column logBookSpecId = table.column("LOGBOOKSPECID").number().notNull().add();
             Column deviceid = table.column("DEVICEID").number().notNull().add();
             table.column("LASTLOGBOOK").number().map(LogBookImpl.FieldNames.LATEST_EVENT_OCCURRENCE_IN_METER.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("LASTLOGBOOKCREATETIME").number().map(LogBookImpl.FieldNames.LATEST_EVENT_CREATED_IN_DB.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.primaryKey("PK_DDC_LOGBOOK").on(id).add();
-            table.foreignKey("FK_DDC_LOGBOOK_LOGBOOKSPEC").on(logBookSpecId).references(DeviceConfigurationService.COMPONENTNAME, "DTC_LOGBOOKSPEC").map("logBookSpec").add();
-            table.foreignKey("FK_DDC_LOGBOOK_DEVICE").on(deviceid).references(DDC_DEVICE.name()).map("device").reverseMap("logBooks").composition().add();
+            table.foreignKey("FK_DDC_LOGBOOK_LOGBOOKSPEC")
+                    .on(logBookSpecId)
+                    .references(DeviceConfigurationService.COMPONENTNAME, "DTC_LOGBOOKSPEC")
+                    .map("logBookSpec")
+                    .add();
+            table.foreignKey("FK_DDC_LOGBOOK_DEVICE")
+                    .on(deviceid).references(DDC_DEVICE.name())
+                    .map("device").reverseMap("logBooks").composition()
+                    .add();
         }
     },
 
@@ -142,11 +162,11 @@ public enum TableSpecs {
             Table<ConnectionTask> table = dataModel.addTable(name(), ConnectionTask.class);
             table.map(ConnectionTaskImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             // Common columns
             Column device = table.column("DEVICE").number().notNull().add();
             Column connectionTypePluggableClass = table.column("CONNECTIONTYPEPLUGGABLECLASS").number().conversion(NUMBER2LONG).map("pluggableClassId").notNull().add();
-            table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map(ConnectionTaskFields.MODIFICATION_DATE.fieldName()).add();
             table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2INSTANT).map(ConnectionTaskFields.OBSOLETE_DATE.fieldName()).add();
             table.column("ISDEFAULT").number().conversion(NUMBER2BOOLEAN).map(ConnectionTaskFields.IS_DEFAULT.fieldName()).add();
             table.column("STATUS").number().conversion(NUMBER2ENUM).map(ConnectionTaskFields.STATUS.fieldName()).add();
@@ -214,15 +234,28 @@ public enum TableSpecs {
             Table<ProtocolDialectProperties> table = dataModel.addTable(name(), ProtocolDialectProperties.class);
             table.map(ProtocolDialectPropertiesImpl.class);
             Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
             table.column("NAME").varChar().map("name").add();
             Column deviceProtocolId = table.column("DEVICEPROTOCOLID").number().conversion(NUMBER2LONG).notNull().map("pluggableClassId").add();
             Column device = table.column("DEVICEID").number().conversion(NUMBER2LONG).notNull().add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map("modificationDate").add();
             Column configurationProperties = table.column("CONFIGURATIONPROPERTIESID").number().add();
-            table.foreignKey("FK_DDC_PROTDIALECTPROPS_PC").on(deviceProtocolId).references(PluggableService.COMPONENTNAME, "CPC_PLUGGABLECLASS").map("deviceProtocolPluggableClass").add();
-            table.foreignKey("FK_DDC_PROTDIALECTPROPS_DEV").on(device).references(DDC_DEVICE.name()).map("device").reverseMap("dialectPropertiesList").add();
-            table.foreignKey("FK_DDC_PROTDIALECTPROPS_PDCP").on(configurationProperties).references(DeviceConfigurationService.COMPONENTNAME, "DTC_DIALECTCONFIGPROPERTIES").map("configurationProperties").add();
             table.primaryKey("PK_DDC_PROTOCOLDIALECTPROPS").on(id).add();
+            table.foreignKey("FK_DDC_PROTDIALECTPROPS_PC")
+                    .on(deviceProtocolId)
+                    .references(PluggableService.COMPONENTNAME, "CPC_PLUGGABLECLASS")
+                    .map("deviceProtocolPluggableClass")
+                    .add();
+            table.foreignKey("FK_DDC_PROTDIALECTPROPS_DEV")
+                    .on(device)
+                    .references(DDC_DEVICE.name())
+                    .map("device").reverseMap("dialectPropertiesList")
+                    .add();
+            table.foreignKey("FK_DDC_PROTDIALECTPROPS_PDCP")
+                    .on(configurationProperties)
+                    .references(DeviceConfigurationService.COMPONENTNAME, "DTC_DIALECTCONFIGPROPERTIES")
+                    .map("configurationProperties")
+                    .add();
         }
     },
 
@@ -232,6 +265,7 @@ public enum TableSpecs {
             Table<ComTaskExecution> table = dataModel.addTable(name(), ComTaskExecution.class);
             table.map(ComTaskExecutionImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
             table.addDiscriminatorColumn("DISCRIMINATOR", "number");
             Column device = table.column("DEVICE").number().notNull().add();
             Column comTask = table.column("COMTASK").number().add();
@@ -240,7 +274,6 @@ public enum TableSpecs {
             table.column("LASTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2INSTANT).map(ComTaskExecutionFields.LASTEXECUTIONTIMESTAMP.fieldName()).add();
             Column nextExecutionTimestamp = table.column("NEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2INSTANT).map(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).add();
             Column comPort = table.column("COMPORT").number().add();
-            table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map(ComTaskExecutionFields.MODIFICATIONDATE.fieldName()).add();
             Column obsoleteDate = table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2INSTANT).map(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).add();
             Column priority = table.column("PRIORITY").number().conversion(NUMBER2INT).map(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()).add();
             table.column("USEDEFAULTCONNECTIONTASK").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).add();
@@ -253,8 +286,17 @@ public enum TableSpecs {
             Column connectionTask = table.column("CONNECTIONTASK").number().conversion(NUMBER2LONGNULLZERO).map("connectionTaskId").add();
             Column protocolDialectConfigurationProperties = table.column("PROTOCOLDIALECTCONFIGPROPS").number().add();
             table.column("IGNORENEXTEXECSPECS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).add();
-            table.foreignKey("FK_DDC_COMTASKEXEC_COMPORT").on(comPort).references(EngineModelService.COMPONENT_NAME, "MDC_COMPORT").map(ComTaskExecutionFields.COMPORT.fieldName()).add();
-            table.foreignKey("FK_DDC_COMTASKEXEC_COMTASK").on(comTask).references(TaskService.COMPONENT_NAME, "CTS_COMTASK").map(ComTaskExecutionFields.COMTASK.fieldName()).add();
+            table.primaryKey("PK_DDC_COMTASKEXEC").on(id).add();
+            table.foreignKey("FK_DDC_COMTASKEXEC_COMPORT")
+                    .on(comPort)
+                    .references(EngineModelService.COMPONENT_NAME, "MDC_COMPORT")
+                    .map(ComTaskExecutionFields.COMPORT.fieldName())
+                    .add();
+            table.foreignKey("FK_DDC_COMTASKEXEC_COMTASK")
+                    .on(comTask)
+                    .references(TaskService.COMPONENT_NAME, "CTS_COMTASK")
+                    .map(ComTaskExecutionFields.COMTASK.fieldName())
+                    .add();
             table.foreignKey("FK_DDC_COMTASKEXEC_COMSCHEDULE").
                     on(comSchedule).
                     references(SchedulingService.COMPONENT_NAME, "SCH_COMSCHEDULE").
@@ -266,10 +308,20 @@ public enum TableSpecs {
                     references(SchedulingService.COMPONENT_NAME, "SCH_NEXTEXECUTIONSPEC").
                     map(ComTaskExecutionFields.NEXTEXECUTIONSPEC.fieldName()).
                     add();
-            table.foreignKey("FK_DDC_COMTASKEXEC_CONNECTTASK").on(connectionTask).references(DDC_CONNECTIONTASK.name()).map(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).add();
-            table.foreignKey("FK_DDC_COMTASKEXEC_DIALECT").on(protocolDialectConfigurationProperties).references(DeviceConfigurationService.COMPONENTNAME, "DTC_DIALECTCONFIGPROPERTIES").map(ComTaskExecutionFields.PROTOCOLDIALECTCONFIGURATIONPROPERTIES.fieldName()).add();
-            table.foreignKey("FK_DDC_COMTASKEXEC_DEVICE").on(device).references(DDC_DEVICE.name()).map(ComTaskExecutionFields.DEVICE.fieldName()).add();
-            table.primaryKey("PK_DDC_COMTASKEXEC").on(id).add();
+            table.foreignKey("FK_DDC_COMTASKEXEC_CONNECTTASK")
+                    .on(connectionTask)
+                    .references(DDC_CONNECTIONTASK.name())
+                    .map(ComTaskExecutionFields.CONNECTIONTASK.fieldName())
+                    .add();
+            table.foreignKey("FK_DDC_COMTASKEXEC_DIALECT")
+                    .on(protocolDialectConfigurationProperties)
+                    .references(DeviceConfigurationService.COMPONENTNAME, "DTC_DIALECTCONFIGPROPERTIES")
+                    .map(ComTaskExecutionFields.PROTOCOLDIALECTCONFIGURATIONPROPERTIES.fieldName())
+                    .add();
+            table.foreignKey("FK_DDC_COMTASKEXEC_DEVICE")
+                    .on(device).references(DDC_DEVICE.name())
+                    .map(ComTaskExecutionFields.DEVICE.fieldName())
+                    .add();
             table.index("IX_DDCCOMTASKEXEC_NXTEXEC").on(nextExecutionTimestamp, priority, connectionTask, obsoleteDate, comPort).add();
         }
     },
@@ -280,6 +332,7 @@ public enum TableSpecs {
             Table<ComSession> table = dataModel.addTable(name(), ComSession.class);
             table.map(ComSessionImpl.class);
             Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
             Column connectionTask = table.column("CONNECTIONTASK").number().notNull().add();
             Column comport = table.column("COMPORT").number().notNull().add();
             Column comportPool = table.column("COMPORTPOOL").number().notNull().add();
@@ -294,7 +347,6 @@ public enum TableSpecs {
             table.column("BYTESREAD").number().conversion(NUMBER2LONG).notNull().map(ComSessionImpl.Fields.NUMBER_OF_BYTES_READ.fieldName()).add();
             table.column("PACKETSSENT").number().conversion(NUMBER2LONG).notNull().map(ComSessionImpl.Fields.NUMBER_OF_PACKETS_SENT.fieldName()).add();
             table.column("PACKETSREAD").number().conversion(NUMBER2LONG).notNull().map(ComSessionImpl.Fields.NUMBER_OF_PACKETS_READ.fieldName()).add();
-            table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map(ComSessionImpl.Fields.MODIFICATION_DATE.fieldName()).add();
             table.column("TASKSUCCESSCOUNT").number().conversion(NUMBER2INT).notNull().map(ComSessionImpl.Fields.TASK_SUCCESS_COUNT.fieldName()).add();
             table.column("TASKFAILURECOUNT").number().conversion(NUMBER2INT).notNull().map(ComSessionImpl.Fields.TASK_FAILURE_COUNT.fieldName()).add();
             table.column("TASKNOTEXECUTEDCOUNT").number().conversion(NUMBER2INT).notNull().map(ComSessionImpl.Fields.TASK_NOT_EXECUTED_COUNT.fieldName()).add();
@@ -340,6 +392,7 @@ public enum TableSpecs {
             Table<ComTaskExecutionSession> table = dataModel.addTable(name(), ComTaskExecutionSession.class);
             table.map(ComTaskExecutionSessionImpl.class);
             Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
             Column device = table.column("DEVICE").number().notNull().add();
             Column session = table.column("COMSESSION").number().notNull().add();
             table.column("STARTDATE").number().conversion(NUMBER2INSTANT).notNull().map(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName()).add();
@@ -349,11 +402,11 @@ public enum TableSpecs {
             table.column("BYTESREAD").number().conversion(NUMBER2LONG).notNull().map(ComTaskExecutionSessionImpl.Fields.NUMBER_OF_BYTES_READ.fieldName()).add();
             table.column("PACKETSSENT").number().conversion(NUMBER2LONG).notNull().map(ComTaskExecutionSessionImpl.Fields.NUMBER_OF_PACKETS_SENT.fieldName()).add();
             table.column("PACKETSREAD").number().conversion(NUMBER2LONG).notNull().map(ComTaskExecutionSessionImpl.Fields.NUMBER_OF_PACKETS_READ.fieldName()).add();
-            table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map(ComTaskExecutionSessionImpl.Fields.MODIFICATION_DATE.fieldName()).add();
             Column comTaskExecution = table.column("COMTASKEXEC").number().notNull().add();
             Column comTask = table.column("COMTASK").number().notNull().add();
             table.column("HIGHESTPRIOCOMPLETIONCODE").number().conversion(NUMBER2ENUM).map(ComTaskExecutionSessionImpl.Fields.HIGHEST_PRIORITY_COMPLETION_CODE.fieldName()).add();
             table.column("HIGHESTPRIOERRORDESCRIPTION").type("CLOB").conversion(CLOB2STRING).map(ComTaskExecutionSessionImpl.Fields.HIGHEST_PRIORITY_ERROR_DESCRIPTION.fieldName()).add();
+            table.primaryKey("PK_DDC_COMTASKEXECSESSION").on(id).add();
             table.foreignKey("FK_DDC_COMTSKEXECSESSION_SESS").
                     on(session).
                     references(DDC_COMSESSION.name()).
@@ -379,7 +432,6 @@ public enum TableSpecs {
                     onDelete(CASCADE).
                     map(ComTaskExecutionSessionImpl.Fields.DEVICE.fieldName()).
                     add();
-            table.primaryKey("PK_DDC_COMTASKEXECSESSION").on(id).add();
             table.index("DDC_CTES_CS_SUCCESS").on(session, successIndicator).compress(1).add();
         }
     },
@@ -453,6 +505,7 @@ public enum TableSpecs {
             Table<DataCollectionKpi> table = dataModel.addTable(name(), DataCollectionKpi.class);
             table.map(DataCollectionKpiImpl.class);
             Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
             Column endDeviceGroup = table.column("ENDDEVICEGROUP").number().notNull().add();
             Column connectionKpi = table.column("CONNECTIONKPI").number().add();
             Column comTaskExecKpi = table.column("COMMUNICATIONKPI").number().add();
@@ -487,32 +540,36 @@ public enum TableSpecs {
         }
     },
 
-    DDC_DEVICEMESSAGE{
+    DDC_DEVICEMESSAGE {
         @Override
         void addTo(DataModel dataModel) {
             Table<DeviceMessage> table = dataModel.addTable(name(), DeviceMessage.class);
             table.map(DeviceMessageImpl.class);
             Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
             Column device = table.column("DEVICEID").number().conversion(NUMBER2LONG).notNull().add();
             table.column("DEVICEMESSAGEID").number().conversion(NUMBER2ENUM).map(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).notNull().add();
             table.column("STATUS").number().conversion(NUMBER2ENUM).map(DeviceMessageImpl.Fields.DEVICEMESSAGESTATUS.fieldName()).notNull().add();
             table.column("USR").varChar(SHORT_DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.USER.fieldName()).notNull().add();
             table.column("TRACKINGID").varChar(Table.DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.TRACKINGID.fieldName()).add();
             table.column("PROTOCOLINFO").varChar(Table.DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.PROTOCOLINFO.fieldName()).add();
-            table.column("CREATEDATE").number().map(DeviceMessageImpl.Fields.CREATIONDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("RELEASEDATE").number().map(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("SENTDATE").number().map(DeviceMessageImpl.Fields.SENTDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.primaryKey("PK_DDC_DEVICEMESSAGE").on(id).add();
-            table.foreignKey("FK_DDC_DEVMESSAGE_DEV").on(device).references(DDC_DEVICE.name()).map("device").reverseMap("deviceMessages").add();
+            table.foreignKey("FK_DDC_DEVMESSAGE_DEV")
+                    .on(device).references(DDC_DEVICE.name())
+                    .map("device").reverseMap("deviceMessages")
+                    .add();
         }
     },
 
-    DDC_DEVICEMESSAGEATTR{
+    DDC_DEVICEMESSAGEATTR {
         @Override
         void addTo(DataModel dataModel) {
             Table<DeviceMessageAttribute> table = dataModel.addTable(name(), DeviceMessageAttribute.class);
             table.map(DeviceMessageAttributeImpl.class);
             Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
             Column deviceMessage = table.column("DEVICEMESSAGE").number().conversion(NUMBER2LONG).notNull().add();
             Column name = table.column("NAME").varChar(NAME_LENGTH).map("name").notNull().add();
             table.column("VALUE").varChar(DESCRIPTION_LENGTH).map("stringValue").notNull().add();
