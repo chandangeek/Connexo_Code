@@ -20,27 +20,26 @@ public class DeviceComTaskInfoFactory {
     private final Thesaurus thesaurus;
     private final TaskStatusAdapter taskStatusAdapter = new TaskStatusAdapter();
 
-
     @Inject
     public DeviceComTaskInfoFactory(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
 
-    public List<DeviceComTaskInfo> from(List<ComTaskExecution> comTaskExecutions, List<ComTaskEnablement> comTaskEnablements, Device device, DeviceConfiguration deviceConfiguration) {
-        List<DeviceComTaskInfo> results = comTaskEnablements.stream()
-                .map(comTaskEnablement -> this.fromAllComTaskExecutions(comTaskEnablement, comTaskExecutions, device, deviceConfiguration))
-                .collect(Collectors.toList());
-        return results;
+    public List<DeviceComTaskInfo> from(List<ComTaskExecution> comTaskExecutions, List<ComTaskEnablement> comTaskEnablements, Device device) {
+        return comTaskEnablements
+                    .stream()
+                    .map(comTaskEnablement -> this.fromAllComTaskExecutions(comTaskEnablement, comTaskExecutions, device))
+                    .collect(Collectors.toList());
     }
 
-    private DeviceComTaskInfo fromAllComTaskExecutions(ComTaskEnablement comTaskEnablement, List<ComTaskExecution> comTaskExecutions, Device device, DeviceConfiguration deviceConfiguration) {
+    private DeviceComTaskInfo fromAllComTaskExecutions(ComTaskEnablement comTaskEnablement, List<ComTaskExecution> comTaskExecutions, Device device) {
         List<ComTaskExecution> compatibleComTaskExecutions = comTaskExecutions.stream()
                 .filter(comTaskExecution -> CollectionUtil.contains(comTaskExecution.getComTasks(), comTaskEnablement.getComTask()))
                 .collect(Collectors.toList());
         if (!compatibleComTaskExecutions.isEmpty()) {
             return this.fromCompatibleComTaskExecutions(comTaskEnablement, compatibleComTaskExecutions);
         } else {
-            return this.from(comTaskEnablement,device,deviceConfiguration);
+            return this.from(comTaskEnablement,device);
         }
     }
 
@@ -141,7 +140,7 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.plannedDate = comTaskExecution.getPlannedNextExecutionTimestamp();
     }
 
-    private DeviceComTaskInfo from(ComTaskEnablement comTaskEnablement, Device device, DeviceConfiguration deviceConfiguration) {
+    private DeviceComTaskInfo from(ComTaskEnablement comTaskEnablement, Device device) {
         DeviceComTaskInfo deviceComTasksInfo = new DeviceComTaskInfo();
         deviceComTasksInfo.scheduleType = thesaurus.getString("onRequest","On request");
         deviceComTasksInfo.scheduleTypeKey = ScheduleTypeKey.ON_REQUEST.name();
@@ -152,7 +151,7 @@ public class DeviceComTaskInfoFactory {
                 PartialConnectionTask partialConnectionTask = comTaskEnablement.getPartialConnectionTask().get();
 
                 Optional<ConnectionTask<?, ?>> deviceConnectionTaskOptional = device.getConnectionTasks().stream().filter(connectionTask -> connectionTask.isDefault()).findFirst();
-                if(deviceConnectionTaskOptional.isPresent()){
+                if (deviceConnectionTaskOptional.isPresent()) {
                     deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT.getKey(),MessageSeeds.DEFAULT.getKey()) +
                             " (" + deviceConnectionTaskOptional.get().getName() + ")";
                     deviceComTasksInfo.connectionDefinedOnDevice = true;
@@ -185,7 +184,7 @@ public class DeviceComTaskInfoFactory {
 
             }
         } else {
-            if(comTaskEnablement.getPartialConnectionTask().isPresent()){
+            if (comTaskEnablement.getPartialConnectionTask().isPresent()) {
                 PartialConnectionTask partialConnectionTask = comTaskEnablement.getPartialConnectionTask().get();
                 Optional<ConnectionTask<?, ?>> deviceConnectionTaskOptional = device.getConnectionTasks().stream().filter(connectionTask -> connectionTask.getName().equals(partialConnectionTask.getName())).findFirst();
                 if(deviceConnectionTaskOptional.isPresent()){

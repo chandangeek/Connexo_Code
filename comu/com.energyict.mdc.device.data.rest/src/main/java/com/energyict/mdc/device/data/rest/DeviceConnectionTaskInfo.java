@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest;
 
+import java.time.Instant;
 import java.util.Date;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -28,9 +29,9 @@ public class DeviceConnectionTaskInfo {
     public ConnectionMethodInfo connectionMethod;
     public String window;
     public ConnectionStrategyInfo connectionStrategy;
-    public Date nextExecution;
+    public Instant nextExecution;
     public long comSessionId;
-    
+
     public static class LatestStatusInfo {
         @XmlJavaTypeAdapter(ConnectionTaskSuccessIndicatorAdapter.class)
         public ConnectionTask.SuccessIndicator id;
@@ -48,7 +49,7 @@ public class DeviceConnectionTaskInfo {
         public long numberOfFailedTasks;
         public long numberOfIncompleteTasks;
     }
-    
+
     public static class ConnectionMethodInfo extends IdWithNameInfo {
         public boolean isDefault;
         @XmlJavaTypeAdapter(ConnectionTaskLifecycleStatusAdapter.class)

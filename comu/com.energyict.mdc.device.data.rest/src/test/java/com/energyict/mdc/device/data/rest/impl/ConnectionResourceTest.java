@@ -48,14 +48,14 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
     Instant comSessionStart = Instant.now();
     Instant comSessionEnd = comSessionStart.plus(Duration.ofMinutes(1));
     Instant nextExecution = Instant.now();
-    
+
     @Test
     public void testGetAllConnections() {
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
         ConnectionTask<?, ?> connectionTask = mockConnectionTask();
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
-        
+
         String response = target("/devices/ZABF0000000/connections").request().get(String.class);
 
         JsonModel jsonModel = JsonModel.model(response);
@@ -94,71 +94,71 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<Long>get("$.connections[0].nextExecution")).isEqualTo(nextExecution.toEpochMilli());
         assertThat(jsonModel.<Integer>get("$.connections[0].comSessionId")).isEqualTo(1);
     }
-    
+
     @Test
     public void testActivateConnection() {
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
         ConnectionTask<?, ?> connectionTask = mockConnectionTask();
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
-        
+
         DeviceConnectionTaskInfo info = new DeviceConnectionTaskInfo();
         info.connectionMethod = new ConnectionMethodInfo();
         info.connectionMethod.status = ConnectionTaskLifecycleStatus.ACTIVE;
         Entity<?> payload = Entity.entity(info, MediaType.APPLICATION_JSON);
         Response response = target("/devices/ZABF0000000/connections/13").request().put(payload);
-        
+
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(connectionTask).activate();
     }
-    
+
     @Test
-    public void testDeactivateConnection() {   
+    public void testDeactivateConnection() {
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
         ConnectionTask<?, ?> connectionTask = mockConnectionTask();
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
-        
+
         DeviceConnectionTaskInfo info = new DeviceConnectionTaskInfo();
         info.connectionMethod = new ConnectionMethodInfo();
         info.connectionMethod.status = ConnectionTaskLifecycleStatus.INACTIVE;
         Entity<?> payload = Entity.entity(info, MediaType.APPLICATION_JSON);
         Response response = target("/devices/ZABF0000000/connections/13").request().put(payload);
-        
+
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(connectionTask).deactivate();
     }
-    
+
     @Test
     public void testActivateDeactivateWrongStatus() {
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
         ConnectionTask<?, ?> connectionTask = mockConnectionTask();
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
-        
+
         DeviceConnectionTaskInfo info = new DeviceConnectionTaskInfo();
         info.connectionMethod = new ConnectionMethodInfo();
         info.connectionMethod.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
         Entity<?> payload = Entity.json(info);
         Response response = target("/devices/ZABF0000000/connections/13").request().put(payload);
-        
+
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(connectionTask, VerificationModeFactory.times(0)).activate();
         verify(connectionTask, VerificationModeFactory.times(0)).deactivate();
     }
-    
+
     @Test
     public void testRunConnection() {
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
         ScheduledConnectionTask connectionTask = mockConnectionTask();
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
-        
+
         Response response = target("/devices/ZABF0000000/connections/13/run").request().put(Entity.json(""));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(connectionTask).scheduleNow();
     }
-    
+
     @Test
     public void testRunConnectionWrongConnectionType() {
         Device device = mock(Device.class);
@@ -166,11 +166,11 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(connectionTask.getId()).thenReturn(12L);
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
-        
+
         Response response = target("/devices/ZABF0000000/connections/12/run").request().put(Entity.json(""));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
-    
+
     private ScheduledConnectionTask mockConnectionTask() {
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         ComSession comSession = mockComSession(comSessionStart, comSessionEnd);
@@ -189,7 +189,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         ComWindow window = mockWindow(PartialTime.fromMinutes(1), PartialTime.fromMinutes(2));
         when(connectionTask.getCommunicationWindow()).thenReturn(window);
-        when(connectionTask.getNextExecutionTimestamp()).thenReturn(Date.from(nextExecution));
+        when(connectionTask.getNextExecutionTimestamp()).thenReturn(nextExecution);
         OutboundComPortPool comPortPool = mockComPortPool();
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         return connectionTask;
@@ -214,28 +214,28 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         when(comServer.getName()).thenReturn("com server");
         return comSession;
     }
-    
+
     private PartialScheduledConnectionTask mockPartialScheduledConnectionTask() {
         PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
         when(partialConnectionTask.getName()).thenReturn("partial connection task name");
         when(partialConnectionTask.getId()).thenReturn(991L);
         return partialConnectionTask;
     }
-    
+
     private ComWindow mockWindow(PartialTime start, PartialTime end) {
         ComWindow window = mock(ComWindow.class);
         when(window.getStart()).thenReturn(start);
         when(window.getEnd()).thenReturn(end);
         return window;
     }
-    
+
     private OutboundComPortPool mockComPortPool() {
         OutboundComPortPool portPool = mock(OutboundComPortPool.class);
         when(portPool.getId()).thenReturn(1L);
         when(portPool.getName()).thenReturn("com port pool");
         return portPool;
     }
-    
+
     private ConnectionTypePluggableClass mockPluggableClass() {
         ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
         when(pluggableClass.getName()).thenReturn("Pluggable class");

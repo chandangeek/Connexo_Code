@@ -4,7 +4,7 @@ import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.Date;
+import java.time.Instant;
 
 public class DeviceComTaskInfo {
 
@@ -15,9 +15,9 @@ public class DeviceComTaskInfo {
     @JsonProperty("connectionStrategy")
     public String connectionStrategy;
     @JsonProperty("nextCommunication")
-    public Date nextCommunication;
+    public Instant nextCommunication;
     @JsonProperty("lastCommunicationStart")
-    public Date lastCommunicationStart;
+    public Instant lastCommunicationStart;
     @JsonProperty("urgency")
     public int urgency;
     @JsonProperty("securitySettings")
@@ -31,7 +31,7 @@ public class DeviceComTaskInfo {
     @JsonProperty("scheduleName")
     public String scheduleName;
     @JsonProperty("plannedDate")
-    public Date plannedDate;
+    public Instant plannedDate;
     @JsonProperty("status")
     public String status;
     @JsonProperty("scheduleTypeKey")

@@ -7,15 +7,17 @@ import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.tasks.ComTask;
 
+import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class DeviceSchedulesInfo {
     public long id;
     public long masterScheduleId;
     public String name;
     public TemporalExpressionInfo schedule;
-    public Date plannedDate;
-    public Date nextCommunication;
+    public Instant plannedDate;
+    public Instant nextCommunication;
     public List<ComTaskInfo> comTaskInfos;
     public ScheduleType type;
 
@@ -24,14 +26,14 @@ public class DeviceSchedulesInfo {
 
     public static List<DeviceSchedulesInfo> from(List<ComTaskExecution> comTaskExecutions, List<ComTaskEnablement> comTaskEnablements) {
         List<DeviceSchedulesInfo> deviceSchedulesInfos = new ArrayList<>();
-        Set<Long> usedComtaskIds = new HashSet<>();
+        Set<Long> usedComtaskIds =
+                comTaskExecutions
+                        .stream()
+                        .flatMap(each -> each.getComTasks().stream())
+                        .map(ComTask::getId)
+                        .collect(Collectors.toSet());
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            for (ComTask comTask : comTaskExecution.getComTasks()) {
-                    usedComtaskIds.add(comTask.getId());
-            }
-        }
-        for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            if(comTaskExecution.isScheduledManually() && !comTaskExecution.isAdHoc()){
+            if (comTaskExecution.isScheduledManually() && !comTaskExecution.isAdHoc()) {
                 deviceSchedulesInfos.add(DeviceSchedulesInfo.fromManual(comTaskExecution));
             }  else if(comTaskExecution.usesSharedSchedule()){
                 deviceSchedulesInfos.add(DeviceSchedulesInfo.fromScheduled(comTaskExecution));
