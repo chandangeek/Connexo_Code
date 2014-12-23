@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import javax.inject.Inject;
 
 /**
  * Specific ConnectionType used for the EIWeb Protocol
@@ -29,22 +30,19 @@ public class EIWebConnectionType implements ServerConnectionType {
     public static final String MAC_ADDRESS_PROPERTY_NAME = "macAddress";
 
     private TypedProperties properties = TypedProperties.empty();
-    private PropertySpecService propertySpecService;
+    private final PropertySpecService propertySpecService;
 
-    public PropertySpecService getPropertySpecService() {
-        return propertySpecService;
-    }
-
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
+    @Inject
+    public EIWebConnectionType(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 
-    private PropertySpec ipAddressPropertySpec() {
-        return this.getPropertySpecService().basicPropertySpec(IP_ADDRESS_PROPERTY_NAME, false, new StringFactory());
+    private PropertySpec<String> ipAddressPropertySpec() {
+        return this.propertySpecService.basicPropertySpec(IP_ADDRESS_PROPERTY_NAME, false, StringFactory.class);
     }
 
-    private PropertySpec macAddressPropertySpec() {
-        return this.getPropertySpecService().basicPropertySpec(MAC_ADDRESS_PROPERTY_NAME, false, new StringFactory());
+    private PropertySpec<String> macAddressPropertySpec() {
+        return this.propertySpecService.basicPropertySpec(MAC_ADDRESS_PROPERTY_NAME, false, StringFactory.class);
     }
 
     protected TypedProperties getAllProperties() {
