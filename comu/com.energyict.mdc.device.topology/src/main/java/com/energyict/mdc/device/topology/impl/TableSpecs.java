@@ -32,6 +32,7 @@ public enum TableSpecs {
             table.map(PhysicalGatewayReferenceImpl.class);
             Column originId = table.column("ORIGINID").notNull().number().conversion(NUMBER2LONG).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
+            table.addAuditColumns();
             Column physicalGatewayId = table.column("GATEWAYID").notNull().number().conversion(NUMBER2LONG).add();
             table.primaryKey("PK_DTL_PHYSICALGATEWAYREF").on(originId, intervalColumns.get(0)).add();
             table.foreignKey("FK_DTL_PHYSGATEWAYREF_ORIGIN").
@@ -57,6 +58,7 @@ public enum TableSpecs {
             Column source = table.column("SRCDEVICE").notNull().number().conversion(NUMBER2LONG).add();
             Column target = table.column("TARGETDEVICE").notNull().number().conversion(NUMBER2LONG).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
+            table.addAuditColumns();
             table.addDiscriminatorColumn("DISCRIMINATOR", "number");
             Column nextHop = table.column("NEXTHOPDEVICE").number().conversion(NUMBER2LONG).add();
             table.column("TIMETOLIVE_SECS").number().conversion(NUMBER2LONG).map(CommunicationPathSegmentImpl.Field.TIME_TO_LIVE.fieldName()).add();

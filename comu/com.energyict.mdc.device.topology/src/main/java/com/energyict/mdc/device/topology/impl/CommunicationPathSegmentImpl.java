@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableMap;
 
+import java.time.Instant;
 import java.util.Map;
 
 /**
@@ -56,6 +57,10 @@ public abstract class CommunicationPathSegmentImpl implements CommunicationPathS
     @IsPresent
     private Reference<Device> target = ValueReference.absent();
     private Interval interval;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     protected void init(Device source, Device target, Interval interval) {
         this.source.set(source);
