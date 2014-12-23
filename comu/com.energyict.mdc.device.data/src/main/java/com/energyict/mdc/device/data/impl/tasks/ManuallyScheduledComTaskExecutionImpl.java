@@ -31,9 +31,9 @@ import com.energyict.mdc.tasks.TopologyTask;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -250,11 +250,11 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
     }
 
     @Override
-    protected Date calculateNextExecutionTimestamp(Date now) {
+    protected Instant calculateNextExecutionTimestamp(Instant now) {
         if (this.isAdHoc()) {
             if (   this.getLastExecutionStartTimestamp() != null
                 && this.getNextExecutionTimestamp() != null
-                && this.getLastExecutionStartTimestamp().after(this.getNextExecutionTimestamp())) {
+                && this.getLastExecutionStartTimestamp().isAfter(this.getNextExecutionTimestamp())) {
                 return null;
             }
             else {

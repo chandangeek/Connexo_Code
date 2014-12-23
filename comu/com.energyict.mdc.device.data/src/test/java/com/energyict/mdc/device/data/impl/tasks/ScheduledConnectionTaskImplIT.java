@@ -53,6 +53,8 @@ import org.junit.Test;
 import com.elster.jupiter.time.TemporalExpression;
 
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -507,7 +509,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testGetPropertiesOnMultipleDates() {
         // Create task with properties on may first 2011
-        Date mayFirst2011 = freezeClock(2011, Calendar.MAY, 1);
+        Instant mayFirst2011 = freezeClock(2011, Calendar.MAY, 1);
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTaskImpl connectionTask = (createASimpleScheduledConnectionTask());
@@ -534,7 +536,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testGetPropertiesOnMultipleDatesAfterReload() {
         // Create task with properties on may first 2011
 
-        Date mayFirst2011 = freezeClock(2011, Calendar.MAY, 1);
+        Instant mayFirst2011 = freezeClock(2011, Calendar.MAY, 1);
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTaskImpl connectionTask = (createASimpleScheduledConnectionTask());
@@ -878,7 +880,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testScheduleNow() {
-        Date mayLast2012 = freezeClock(2012, Calendar.MAY, 31);
+        Instant mayLast2012 = freezeClock(2012, Calendar.MAY, 31);
 
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testScheduleNow");
         connectionTask.save();
@@ -893,7 +895,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testScheduleOnDate() {
-        Date mayLast2012 = freezeClock(2012, Calendar.MAY, 31);
+        Instant mayLast2012 = freezeClock(2012, Calendar.MAY, 31);
 
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testScheduleOnDate");
         connectionTask.save();
@@ -908,7 +910,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testUpdateNextExecutionTimestampForUTCDevice() {
-        Date expectedNextExecutionTimestamp = freezeClock(2012, Calendar.MAY, 31, 1, 0, 0, 0);     // Frequency of rescheduling is 1 hour
+        Instant expectedNextExecutionTimestamp = freezeClock(2012, Calendar.MAY, 31, 1, 0, 0, 0);     // Frequency of rescheduling is 1 hour
         freezeClock(2011, Calendar.MAY, 31);    // Anything, as long as it is not 2012, May 31st - the data that is set below just after the save
 
         ScheduledConnectionTaskImpl connectionTask = this.createMinimizeWithNoPropertiesWithoutViolations("testUpdateNextExecutionTimestampForUTCDevice", new TemporalExpression(EVERY_HOUR));
@@ -928,14 +930,9 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         // US/Pacific timezone has offset to UTC of -8 and when DST is applied, it has offset to UTC of -7
         TimeZone usPacific = TimeZone.getTimeZone("US/Pacific");
 
-        Date mayLast2012 = freezeClock(2012, Calendar.MAY, 31, usPacific);    // This is in UTC
+        Instant mayLast2012 = freezeClock(2012, Calendar.MAY, 31, usPacific);    // This is in UTC
 
-        Calendar calendar = Calendar.getInstance(usPacific);
-        calendar.setTime(mayLast2012);
-        calendar.add(Calendar.HOUR, 1);     // Frequency of rescheduling is 1 hour
-
-        Date expectedNextExecutionTimestamp = calendar.getTime();
-//        when(this.device.getDeviceTimeZone()).thenReturn(usPacific);
+        Instant expectedNextExecutionTimestamp = mayLast2012.plus(java.time.Duration.ofHours(1));
 
         ScheduledConnectionTaskImpl connectionTask =
                 this.createMinimizeWithNoPropertiesWithoutViolations(
@@ -957,14 +954,14 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         TimeZone brussels = TimeZone.getTimeZone("Europe/Brussels");
 
         // This is in UTC and corresponds to 02:00am in Brussels, exactly when DST applies
-        Date oneMinuteBeforeDST = freezeClock(2011, Calendar.MARCH, 27, 1, 0, 0, 0);
+        Instant oneMinuteBeforeDST = freezeClock(2011, Calendar.MARCH, 27, 1, 0, 0, 0);
 
         Calendar calendar = Calendar.getInstance(brussels);
         calendar.set(2011, Calendar.MARCH, 27, 2, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         calendar.add(Calendar.HOUR, 1);     // Frequency of rescheduling is 1 hour
 
-        Date expectedNextExecutionTimestamp = calendar.getTime();
+        Instant expectedNextExecutionTimestamp = calendar.getTime().toInstant();
 //        when(this.device.getDeviceTimeZone()).thenReturn(brussels);
 
         ScheduledConnectionTaskImpl connectionTask =
@@ -987,7 +984,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         TimeZone brussels = TimeZone.getTimeZone("Europe/Brussels");
 
         // This is in UTC and corresponds to 03:00am in Brussels, exactly when DST is switched off
-        Date oneMinuteBeforeDST = freezeClock(2011, Calendar.OCTOBER, 30, 1, 0, 0, 0);
+        Instant oneMinuteBeforeDST = freezeClock(2011, Calendar.OCTOBER, 30, 1, 0, 0, 0);
 
         Calendar calendar = Calendar.getInstance(brussels);
         calendar.set(2011, Calendar.OCTOBER, 30, 0, 0, 0);
@@ -995,7 +992,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         calendar.add(Calendar.HOUR, 3);     // The calendar is now at 3 am
         calendar.add(Calendar.HOUR, 1);     // Frequency of rescheduling is 1 hour
 
-        Date expectedNextExecutionTimestamp = calendar.getTime();
+        Instant expectedNextExecutionTimestamp = calendar.getTime().toInstant();
         //TODO check to update these tests!
 //        when(this.device.getDeviceTimeZone()).thenReturn(brussels);
 
@@ -1159,7 +1156,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testMakeObsoleteWithActiveComTasks() {
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testMakeObsoleteWithActiveComTasks");
         connectionTask.save();
-        ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, Date.from(clock.instant()));
+        ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, clock.instant());
         assertThat(comTaskExecution.getConnectionTask()).isNotNull();
         // Business method
         connectionTask.makeObsolete();
@@ -1221,12 +1218,12 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testApplyComWindowWhenTaskDoesNotHaveAComWindow() throws SQLException, BusinessException {
-        Date nextExecutionTimestamp = Date.from(clock.instant());
+        Instant nextExecutionTimestamp = clock.instant();
         ScheduledConnectionTaskImpl connectionTask = this.createWithCommunicationWindowWithoutViolations("testApplyComWindowWithoutNextExecutionSpecs", null);
         connectionTask.save();
 
         // Business method
-        Date modifiedNextExecutionTimestamp = connectionTask.applyComWindowIfAny(nextExecutionTimestamp);
+        Instant modifiedNextExecutionTimestamp = connectionTask.applyComWindowIfAny(nextExecutionTimestamp);
 
         // Asserts
         assertThat(modifiedNextExecutionTimestamp).isEqualTo(nextExecutionTimestamp);
@@ -1239,10 +1236,10 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         ScheduledConnectionTaskImpl connectionTask = this.createWithCommunicationWindowWithoutViolations("testApplyComWindowWithNextExecutionTimeStampThatImmediatelyFallsWithinComWindow", FROM_ONE_AM_TO_TWO_AM);
         connectionTask.save();
-        Date nextExecutionTimestamp = freezeClock(2013, Calendar.JANUARY, 9, 1, 30, 0, 0);   // UTC
+        Instant nextExecutionTimestamp = freezeClock(2013, Calendar.JANUARY, 9, 1, 30, 0, 0);   // UTC
 
         // Business method
-        Date modifiedNextExecutionTimestamp = connectionTask.applyComWindowIfAny(nextExecutionTimestamp);
+        Instant modifiedNextExecutionTimestamp = connectionTask.applyComWindowIfAny(nextExecutionTimestamp);
 
         // Asserts; 01:30 is already in the ComWindow so we are NOT expecting any modifications
         assertThat(modifiedNextExecutionTimestamp).isEqualTo(nextExecutionTimestamp);
@@ -1255,11 +1252,11 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         ScheduledConnectionTaskImpl connectionTask = this.createWithCommunicationWindowWithoutViolations("testApplyComWindowWithNextExecutionTimeStampBeforeComWindow", FROM_ONE_AM_TO_TWO_AM);
         connectionTask.save();
-        Date nextExecutionTimestamp = freezeClock(2013, Calendar.JANUARY, 9, 0, 30, 0, 0);
-        Date expectedModifiedNextExecutionTimestamp = freezeClock(2013, Calendar.JANUARY, 9, 1, 0, 0, 0);
+        Instant nextExecutionTimestamp = freezeClock(2013, Calendar.JANUARY, 9, 0, 30, 0, 0);
+        Instant expectedModifiedNextExecutionTimestamp = freezeClock(2013, Calendar.JANUARY, 9, 1, 0, 0, 0);
 
         // Business method
-        Date modifiedNextExecutionTimestamp = connectionTask.applyComWindowIfAny(nextExecutionTimestamp);
+        Instant modifiedNextExecutionTimestamp = connectionTask.applyComWindowIfAny(nextExecutionTimestamp);
 
         // Asserts; 01:30 is already in the ComWindow so we are NOT expecting any modifications
         assertThat(modifiedNextExecutionTimestamp).isEqualTo(expectedModifiedNextExecutionTimestamp);
@@ -1272,11 +1269,11 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         ScheduledConnectionTaskImpl connectionTask = this.createWithCommunicationWindowWithoutViolations("testApplyComWindowWithNextExecutionTimeStampAfterComWindow", FROM_ONE_AM_TO_TWO_AM);
         connectionTask.save();
-        Date nextExecutionTimestamp = freezeClock(2013, Calendar.JANUARY, 9, 2, 30, 0, 0);
-        Date expectedModifiedNextExecutionTimestamp = freezeClock(2013, Calendar.JANUARY, 10, 1, 0, 0, 0);
+        Instant nextExecutionTimestamp = freezeClock(2013, Calendar.JANUARY, 9, 2, 30, 0, 0);
+        Instant expectedModifiedNextExecutionTimestamp = freezeClock(2013, Calendar.JANUARY, 10, 1, 0, 0, 0);
 
         // Business method
-        Date modifiedNextExecutionTimestamp = connectionTask.applyComWindowIfAny(nextExecutionTimestamp);
+        Instant modifiedNextExecutionTimestamp = connectionTask.applyComWindowIfAny(nextExecutionTimestamp);
 
         // Asserts: 01:30 is already in the ComWindow so we are NOT expecting any modifications
         assertThat(modifiedNextExecutionTimestamp).isEqualTo(expectedModifiedNextExecutionTimestamp);
@@ -1530,8 +1527,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testTriggerWithMinimizeStrategy() {
         ScheduledConnectionTaskImpl connectionTask = this.createMinimizeWithNoPropertiesWithoutViolations("testTriggerWithMinimizeStrategy", new TemporalExpression(EVERY_HOUR));
         connectionTask.save();
-        Date comTaskDate = freezeClock(2013, Calendar.JUNE, 2);
-        Date triggerDate = freezeClock(2013, Calendar.JUNE, 3);
+        Instant comTaskDate = freezeClock(2013, Calendar.JUNE, 2);
+        Instant triggerDate = freezeClock(2013, Calendar.JUNE, 3);
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimestampAndPriority = new EarliestNextExecutionTimeStampAndPriority(triggerDate, TaskPriorityConstants.DEFAULT_PRIORITY);
 
         ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, comTaskDate);

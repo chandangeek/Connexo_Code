@@ -211,16 +211,15 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         return outboundComPort;
     }
 
-    protected Date createFixedTimeStamp(int years, int months, int days, int hours, int minutes, int seconds, int millis) {
+    protected Instant createFixedTimeStamp(int years, int months, int days, int hours, int minutes, int seconds, int millis) {
         return createFixedTimeStamp(years, months, days, hours, minutes, seconds, millis, null);
     }
 
-
-    protected Date createFixedTimeStamp(int years, int months, int days, int hours, int minutes, int seconds, int millis, TimeZone timeZone) {
+    protected Instant createFixedTimeStamp(int years, int months, int days, int hours, int minutes, int seconds, int millis, TimeZone timeZone) {
         Calendar calendar = Calendar.getInstance(timeZone == null ? utcTimeZone : timeZone);
         calendar.set(years, months, days, hours, minutes, seconds);
         calendar.set(Calendar.MILLISECOND, millis);
-        return calendar.getTime();
+        return calendar.getTime().toInstant();
     }
 
     protected class ComTaskExecutionDialect implements DeviceProtocolDialect {

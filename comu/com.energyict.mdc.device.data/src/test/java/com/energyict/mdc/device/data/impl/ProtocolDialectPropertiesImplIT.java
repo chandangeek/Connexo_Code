@@ -363,7 +363,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         TypedProperties typedProperties = protocolDialectProperties.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
         assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_NAME_D1)).isEqualTo(OPTIONAL_PROPERTY_VALUE);
-        assertThat(typedProperties.getInheritedProperties().getProperty(OPTIONAL_PROPERTY_NAME_D1)).isEqualTo(INHERITED_OPTIONAL_PROPERTY_VALUE);
+        assertThat(typedProperties.getInheritedValue(OPTIONAL_PROPERTY_NAME_D1)).isEqualTo(INHERITED_OPTIONAL_PROPERTY_VALUE);
 
         List<DeviceProtocolDialectProperty> properties = protocolDialectProperties.getProperties();
         assertThat(properties.size()).isEqualTo(2);

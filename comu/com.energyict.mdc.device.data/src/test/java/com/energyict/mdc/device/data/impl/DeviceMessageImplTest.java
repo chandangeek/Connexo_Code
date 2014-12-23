@@ -138,60 +138,6 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.USER_IS_REQUIRED + "}")
-    public void createWithoutUserTest() {
-        Instant releaseInstant = initializeClockWithCurrentBeforeReleaseInstant();
-
-        Device device = createSimpleDeviceWithName("createWithoutUserTest", "createWithoutUserTest");
-        DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
-
-        Principal principal = inMemoryPersistence.getThreadPrincipalService().getPrincipal();
-        try {
-            inMemoryPersistence.getThreadPrincipalService().set(null);
-            device.newDeviceMessage(contactorClose).setReleaseDate(releaseInstant).add();
-        }
-        finally {
-            inMemoryPersistence.getThreadPrincipalService().set(principal);
-        }
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.USER_IS_REQUIRED + "}")
-    public void createWithEmptyUserTest() {
-        Instant releaseInstant = initializeClockWithCurrentBeforeReleaseInstant();
-
-        Device device = createSimpleDeviceWithName("createWithEmptyUserTest", "createWithEmptyUserTest");
-        DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
-
-        ThreadPrincipalService mockedThreadPrincipalService = mock(ThreadPrincipalService.class);
-        Principal mockedPrincipal = mock(Principal.class);
-        when(mockedPrincipal.getName()).thenReturn("");
-        when(mockedThreadPrincipalService.getPrincipal()).thenReturn(mockedPrincipal);
-        DeviceMessageImpl deviceMessage = new DeviceMessageImpl(inMemoryPersistence.getDataModel(), inMemoryPersistence.getEventService(), inMemoryPersistence.getThesaurus(), mockedThreadPrincipalService, inMemoryPersistence.getDeviceMessageSpecificationService(), inMemoryPersistence.getClock());
-
-        deviceMessage.initialize(device, contactorClose);
-        deviceMessage.setReleaseDate(releaseInstant);
-
-        deviceMessage.save();
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CREATE_DATE_IS_REQUIRED + "}")
-    public void createWithoutCreateDateTest() {
-        Device device = createSimpleDeviceWithName("createWithoutCreateDateTest", "createWithoutCreateDateTest");
-
-        Instant myCurrentInstant = Instant.ofEpochSecond(123456789L);
-        Instant myReleaseInstant = myCurrentInstant.plusSeconds(100L);
-        when(clock.instant()).thenReturn(null);
-
-        DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
-        device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
-    }
-
-    @Test
-    @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_RELEASE_DATE_IS_REQUIRED + "}")
     public void createWithoutReleaseDateTest() {
         Device device = createSimpleDeviceWithName("createWithoutReleaseDateTest", "createWithoutReleaseDateTest");

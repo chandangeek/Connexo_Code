@@ -23,6 +23,7 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import org.junit.Test;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -574,7 +575,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
     public void checkCorrectTimeStampsWithAsapConnectionTaskTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(1));
         freezeClock(2014, 4, 4, 10, 12, 32, 123);
-        Date fixedTimeStamp = createFixedTimeStamp(2014, 4, 4, 11, 0, 0, 0);
+        Instant fixedTimeStamp = createFixedTimeStamp(2014, 4, 4, 11, 0, 0, 0);
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "TimeChecks", "TimeChecks");
         device.save();
@@ -600,8 +601,8 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
     public void checkCorrectTimeStampWithMinimizeConnectionTaskTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(1));
         freezeClock(2014, 4, 4, 10, 12, 32, 123);
-        Date nextFromComSchedule = createFixedTimeStamp(2014, 4, 4, 11, 0, 0, 0);
-        Date nextFromConnectionTask = createFixedTimeStamp(2014, 4, 5, 0, 0, 0, 0);
+        Instant nextFromComSchedule = createFixedTimeStamp(2014, 4, 4, 11, 0, 0, 0);
+        Instant nextFromConnectionTask = createFixedTimeStamp(2014, 4, 5, 0, 0, 0, 0);
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "TimeChecks", "TimeChecks");
         device.save();
@@ -647,7 +648,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
     @Transactional
     public void manuallyScheduledNextExecutionSpecWithOffsetTest() {
         freezeClock(2014, 4, 4, 10, 12, 32, 123);
-        Date fixedTimeStamp = createFixedTimeStamp(2014, 4, 5, 3, 0, 0, 0, TimeZone.getTimeZone("UTC"));
+        Instant fixedTimeStamp = createFixedTimeStamp(2014, 4, 5, 3, 0, 0, 0, TimeZone.getTimeZone("UTC"));
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "TimeChecks", "TimeChecks");
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder =

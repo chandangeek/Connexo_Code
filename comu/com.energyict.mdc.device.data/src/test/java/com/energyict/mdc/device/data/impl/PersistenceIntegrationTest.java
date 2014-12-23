@@ -1,9 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
-import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
@@ -13,28 +9,28 @@ import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.impl.device.messages.DisplayDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
+import com.elster.jupiter.transaction.TransactionService;
 
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.TimeZone;
+
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -143,25 +139,26 @@ public abstract class PersistenceIntegrationTest {
         when(clock.instant()).thenAnswer(invocationOnMock -> Instant.now());
     }
 
-    protected Date freezeClock (int year, int month, int day) {
+    protected Instant freezeClock (int year, int month, int day) {
         return freezeClock(year, month, day, 0, 0, 0, 0);
     }
 
-    protected Date freezeClock (int year, int month, int day, TimeZone timeZone) {
+    protected Instant freezeClock (int year, int month, int day, TimeZone timeZone) {
         return freezeClock(year, month, day, 0, 0, 0, 0, timeZone);
     }
 
-    protected Date freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond) {
+    protected Instant freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond) {
         return freezeClock(year, month, day, hour, minute, second, millisecond, utcTimeZone);
     }
 
-    protected Date freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond, TimeZone timeZone) {
+    protected Instant freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond, TimeZone timeZone) {
         Calendar calendar = Calendar.getInstance(timeZone);
         calendar.set(year, month, day, hour, minute, second);
         calendar.set(Calendar.MILLISECOND, millisecond);
         when(clock.getZone()).thenReturn(timeZone.toZoneId());
-        when(clock.instant()).thenReturn(calendar.getTime().toInstant());
-        return calendar.getTime();
+        Instant frozenClockValue = calendar.getTime().toInstant();
+        when(clock.instant()).thenReturn(frozenClockValue);
+        return frozenClockValue;
     }
 
     protected Device getReloadedDevice(Device device) {

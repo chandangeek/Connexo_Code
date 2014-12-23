@@ -238,7 +238,6 @@ public enum TableSpecs {
             table.column("NAME").varChar().map("name").add();
             Column deviceProtocolId = table.column("DEVICEPROTOCOLID").number().conversion(NUMBER2LONG).notNull().map("pluggableClassId").add();
             Column device = table.column("DEVICEID").number().conversion(NUMBER2LONG).notNull().add();
-            table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map("modificationDate").add();
             Column configurationProperties = table.column("CONFIGURATIONPROPERTIESID").number().add();
             table.primaryKey("PK_DDC_PROTOCOLDIALECTPROPS").on(id).add();
             table.foreignKey("FK_DDC_PROTDIALECTPROPS_PC")
@@ -550,7 +549,6 @@ public enum TableSpecs {
             Column device = table.column("DEVICEID").number().conversion(NUMBER2LONG).notNull().add();
             table.column("DEVICEMESSAGEID").number().conversion(NUMBER2ENUM).map(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).notNull().add();
             table.column("STATUS").number().conversion(NUMBER2ENUM).map(DeviceMessageImpl.Fields.DEVICEMESSAGESTATUS.fieldName()).notNull().add();
-            table.column("USR").varChar(SHORT_DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.USER.fieldName()).notNull().add();
             table.column("TRACKINGID").varChar(Table.DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.TRACKINGID.fieldName()).add();
             table.column("PROTOCOLINFO").varChar(Table.DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.PROTOCOLINFO.fieldName()).add();
             table.column("RELEASEDATE").number().map(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();

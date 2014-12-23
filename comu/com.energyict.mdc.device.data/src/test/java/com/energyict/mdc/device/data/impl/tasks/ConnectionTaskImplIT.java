@@ -44,7 +44,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -453,11 +452,11 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         return inMemoryPersistence.getTaskService().findComTask(comTask.getId()).get(); // to make sure all elements in the composition are properly loaded
     }
 
-    protected ComTaskExecution createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(ConnectionTask<?, ?> connectionTask, Date nextExecutionTimeStamp) {
+    protected ComTaskExecution createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(ConnectionTask<?, ?> connectionTask, Instant nextExecutionTimeStamp) {
         return createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask, nextExecutionTimeStamp, comTaskEnablement1);
     }
 
-    protected ComTaskExecution createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(ConnectionTask<?, ?> connectionTask, Date nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement) {
+    protected ComTaskExecution createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(ConnectionTask<?, ?> connectionTask, Instant nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement) {
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, this.protocolDialectConfigurationProperties);
         comTaskExecutionBuilder.connectionTask(connectionTask);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
