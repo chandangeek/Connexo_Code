@@ -1,5 +1,6 @@
 package com.elster.jupiter.export.rest.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.export.DataExportOccurrence;
@@ -75,6 +76,8 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
     private DataExportStrategy strategy;
     @Mock
     private QueryExecutor<DataExportOccurrence> queryExecutor;
+    @Mock
+    private AppService appService;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -92,6 +95,7 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
         application.setMeteringService(meteringService);
         application.setMeteringGroupsService(meteringGroupsService);
         application.setTimeService(timeService);
+        application.setAppService(appService);
 
         return application;
     }
