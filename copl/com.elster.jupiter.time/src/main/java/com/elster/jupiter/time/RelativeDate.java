@@ -13,12 +13,15 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class RelativeDate {
+public final class RelativeDate {
     private static String SEPARATOR = ";";
     private String relativeDate;
     private List<RelativeOperation> operations = new ArrayList<>();
+
+    public static RelativeDate NOW = new RelativeDate();
 
     public RelativeDate() {
         this.relativeDate = "";
@@ -31,7 +34,7 @@ public class RelativeDate {
 
     public RelativeDate(List<RelativeOperation> operations) {
         StringBuilder builder = new StringBuilder();
-        for(RelativeOperation operation : operations) {
+        for (RelativeOperation operation : operations) {
             builder.append(operation.toString()).append(SEPARATOR);
         }
         relativeDate = builder.toString();
@@ -42,11 +45,28 @@ public class RelativeDate {
         this(Arrays.asList(operations));
     }
 
+    public RelativeDate of(RelativeOperation... operations) {
+        if (operations.length == 0) {
+            return NOW;
+        }
+        return new RelativeDate(operations);
+    }
+
     public ZonedDateTime getRelativeDate(ZonedDateTime referenceDate) {
         UpdatableHolder<ZonedDateTime> result = new UpdatableHolder<>(referenceDate);
 
         operationsToApply().forEach(op -> result.update(op::performOperation));
         return result.get();
+    }
+
+    public RelativeDate with(RelativeOperation... operations) {
+        List<RelativeOperation> toAdd = new ArrayList<>(Arrays.asList(operations));
+        List<RelativeOperation> toBuild = this.operations.stream()
+                .map(op -> toAdd.stream().filter(add -> add.getField().equals(op.getField())).findFirst().orElse(op))
+                .collect(Collectors.toCollection(ArrayList::new));
+        toAdd.removeIf(add -> toBuild.stream().map(RelativeOperation::getField).anyMatch(field -> field.equals(add.getField())));
+        toBuild.addAll(toAdd);
+        return new RelativeDate(toBuild);
     }
 
     private Stream<RelativeOperation> operationsToApply() {
@@ -65,16 +85,32 @@ public class RelativeDate {
     }
 
     public List<RelativeOperation> getOperations() {
-        if(this.operations.isEmpty() && !this.relativeDate.isEmpty()) {
+        if (this.operations.isEmpty() && !this.relativeDate.isEmpty()) {
             setOperations();
         }
         Collections.sort(this.operations);
         return this.operations;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        RelativeDate that = (RelativeDate) o;
+
+        return operations.equals(that.operations);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return operations.hashCode();
+    }
+
     private void setOperations() {
         String[] operationStrings = relativeDate.split(SEPARATOR);
-        for(String operationString : operationStrings) {
+        for (String operationString : operationStrings) {
             operations.add(getOperation(operationString));
         }
     }

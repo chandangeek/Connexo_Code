@@ -1,5 +1,6 @@
 package com.elster.jupiter.time.impl;
 
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeField;
 import com.elster.jupiter.time.RelativeOperation;
@@ -8,23 +9,26 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.DateTimeException;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import static com.elster.jupiter.time.RelativeField.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created by borunova on 01.10.2014.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class RelativeDateTest {
+public class RelativeDateTest extends EqualsContractTest {
     ZonedDateTime referenceTime = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.of("Europe/Paris"));
+
+    private RelativeDate instanceA;
 
     @Test
     public void testSerialisation() {
@@ -50,8 +54,8 @@ public class RelativeDateTest {
     public void testRelativeDate() {
         // 3 months ago on 17 day of month 9:05
         List<RelativeOperation> operations = new ArrayList<>();
-        operations.add(new RelativeOperation(RelativeField.MONTH, RelativeOperator.MINUS, 3));
-        operations.add(new RelativeOperation(RelativeField.DAY, RelativeOperator.EQUAL, 17));
+        operations.add(new RelativeOperation(MONTH, RelativeOperator.MINUS, 3));
+        operations.add(new RelativeOperation(DAY, RelativeOperator.EQUAL, 17));
         operations.add(new RelativeOperation(RelativeField.HOUR, RelativeOperator.EQUAL, 9));
         operations.add(new RelativeOperation(RelativeField.MINUTES, RelativeOperator.EQUAL, 5));
         RelativeDate relativeDate = new RelativeDate(operations);
@@ -63,8 +67,8 @@ public class RelativeDateTest {
         Instant instant = Instant.now();
         ZonedDateTime res = ZonedDateTime.ofInstant(instant, referenceTime.getZone());
         operations = new ArrayList<>();
-        operations.add(new RelativeOperation(RelativeField.MONTH, RelativeOperator.MINUS, 5));
-        operations.add(RelativeField.DAY.equalTo(res.getDayOfMonth()));
+        operations.add(new RelativeOperation(MONTH, RelativeOperator.MINUS, 5));
+        operations.add(DAY.equalTo(res.getDayOfMonth()));
         relativeDate = new RelativeDate(operations);
         date = relativeDate.getRelativeDate(referenceTime);
         assertThat(date).isEqualTo(referenceTime.minusMonths(5).withDayOfMonth(res.getDayOfMonth()));
@@ -76,10 +80,66 @@ public class RelativeDateTest {
         Instant instant = Instant.now();
         ZonedDateTime res = ZonedDateTime.ofInstant(instant, referenceTime.getZone());
         List<RelativeOperation> operations = new ArrayList<>();
-        operations.add(new RelativeOperation(RelativeField.MONTH, RelativeOperator.MINUS, 11));
-        operations.add(new RelativeOperation(RelativeField.DAY, RelativeOperator.EQUAL, 31));
+        operations.add(new RelativeOperation(MONTH, RelativeOperator.MINUS, 11));
+        operations.add(new RelativeOperation(DAY, RelativeOperator.EQUAL, 31));
         RelativeDate relativeDate = new RelativeDate(operations);
         ZonedDateTime date = relativeDate.getRelativeDate(referenceTime);
         assertThat(date).isEqualTo(referenceTime.minusMonths(11).withDayOfMonth(28));
+    }
+
+    @Test
+    public void testWithNoOverlappingOperations() {
+        RelativeDate relativeDate = new RelativeDate(WEEK.minus(7));
+
+        assertThat(relativeDate.with(DAY_OF_WEEK.equalTo(4))).isEqualTo(new RelativeDate(WEEK.minus(7), DAY_OF_WEEK.equalTo(4)));
+    }
+
+    @Test
+    public void testWithOverlappingOperations() {
+        RelativeDate relativeDate = new RelativeDate(WEEK.minus(7), DAY_OF_WEEK.equalTo(4));
+
+        assertThat(relativeDate.with(DAY_OF_WEEK.equalTo(3), MINUTES.equalTo(14))).isEqualTo(new RelativeDate(WEEK.minus(7), DAY_OF_WEEK.equalTo(3), MINUTES.equalTo(14)));
+    }
+
+    @Test
+    public void testWithOverlappingOperationsNotLast() {
+        RelativeDate relativeDate = new RelativeDate(WEEK.minus(7), DAY_OF_WEEK.equalTo(4));
+
+        assertThat(relativeDate.with(WEEK.equalTo(3), MINUTES.equalTo(14))).isEqualTo(new RelativeDate(WEEK.equalTo(3), DAY_OF_WEEK.equalTo(4), MINUTES.equalTo(14)));
+    }
+
+    @Override
+    protected Object getInstanceA() {
+        if (instanceA == null) {
+            instanceA = new RelativeDate(MONTH.minus(1), DAY.equalTo(13), HOUR.equalTo(12));
+        }
+        return instanceA;
+    }
+
+    @Override
+    protected Object getInstanceEqualToA() {
+        return new RelativeDate(MONTH.minus(1), DAY.equalTo(13), HOUR.equalTo(12));
+    }
+
+    @Override
+    protected Iterable<?> getInstancesNotEqualToA() {
+        return Arrays.asList(
+                new RelativeDate(MONTH.minus(1), DAY.equalTo(13), HOUR.equalTo(12), SECONDS.equalTo(5)),
+                new RelativeDate(MONTH.minus(1), HOUR.equalTo(12)),
+                new RelativeDate(MONTH.minus(2), DAY.equalTo(13), HOUR.equalTo(12)),
+                new RelativeDate(MONTH.minus(1), DAY.equalTo(12), HOUR.equalTo(12)),
+                new RelativeDate(MONTH.minus(1), DAY.equalTo(13), HOUR.equalTo(18)),
+                new RelativeDate(MONTH.minus(1), HOUR.equalTo(12), DAY.equalTo(13))
+        );
+    }
+
+    @Override
+    protected boolean canBeSubclassed() {
+        return false;
+    }
+
+    @Override
+    protected Object getInstanceOfSubclassEqualToA() {
+        return null;
     }
 }

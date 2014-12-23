@@ -1,18 +1,22 @@
 package com.elster.jupiter.time;
 
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RelativeOperationTest {
+public class RelativeOperationTest extends EqualsContractTest {
     ZonedDateTime referenceTime = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault());
+
+    private RelativeOperation instanceA = new RelativeOperation(RelativeField.DAY, RelativeOperator.PLUS, 2);
 
     @Test
     public void testPerformOperation() {
@@ -45,5 +49,36 @@ public class RelativeOperationTest {
     @Test(expected = IllegalArgumentException.class)
     public void testOperationValidationValueRangeDaysInWeek() {
         new RelativeOperation (RelativeField.DAY_OF_WEEK, RelativeOperator.EQUAL, 8);
+    }
+
+    @Override
+    protected Object getInstanceA() {
+        return instanceA;
+    }
+
+    @Override
+    protected Object getInstanceEqualToA() {
+        return new RelativeOperation(RelativeField.DAY, RelativeOperator.PLUS, 2);
+    }
+
+    @Override
+    protected Iterable<?> getInstancesNotEqualToA() {
+        return Arrays.asList(
+                new RelativeOperation(RelativeField.DAY, RelativeOperator.MINUS, 2),
+                new RelativeOperation(RelativeField.DAY_OF_WEEK, RelativeOperator.PLUS, 2),
+                new RelativeOperation(RelativeField.DAY, RelativeOperator.PLUS, 3)
+        );
+    }
+
+    @Override
+    protected boolean canBeSubclassed() {
+        //TODO automatically generated method body, provide implementation.
+        return false;
+    }
+
+    @Override
+    protected Object getInstanceOfSubclassEqualToA() {
+        //TODO automatically generated method body, provide implementation.
+        return null;
     }
 }

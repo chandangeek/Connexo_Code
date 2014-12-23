@@ -3,11 +3,12 @@ package com.elster.jupiter.time;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by borunova on 01.10.2014.
  */
-public class RelativeOperation implements Comparable<RelativeOperation>{
+public final class RelativeOperation implements Comparable<RelativeOperation>{
     public static String SEPARATOR = ":";
 
     private RelativeField field;
@@ -75,6 +76,22 @@ public class RelativeOperation implements Comparable<RelativeOperation>{
 
     public void setField(RelativeField field) {
         this.field = field;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        RelativeOperation that = (RelativeOperation) o;
+
+        return shift == that.shift && field == that.field && operator == that.operator;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(shift, field, operator);
     }
 
     private void validateOperationOrThrowException(RelativeField field, RelativeOperator operator, long shift) {

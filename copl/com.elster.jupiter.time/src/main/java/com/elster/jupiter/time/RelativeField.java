@@ -2,6 +2,7 @@ package com.elster.jupiter.time;
 
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.IsoFields;
 import java.util.Arrays;
 
 /**
@@ -52,6 +53,9 @@ public enum RelativeField {
     }
 
     public boolean isValid(long value, RelativeOperator operator) {
+        if (WEEK.equals(this)) {
+            return operator.equals(RelativeOperator.EQUAL) ? IsoFields.WEEK_OF_WEEK_BASED_YEAR.range().isValidValue(value) : value >= 0;
+        }
         return operator.equals(RelativeOperator.EQUAL) ? chronoField.range().isValidValue(value) : value >= 0;
     }
 
