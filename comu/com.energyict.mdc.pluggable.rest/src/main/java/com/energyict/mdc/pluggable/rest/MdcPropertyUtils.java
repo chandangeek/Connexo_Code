@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 import javax.ws.rs.core.UriInfo;
 
 import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.PrivilegePresence.WITHOUT_PRIVILEGES;
@@ -79,9 +80,9 @@ public class MdcPropertyUtils {
     private PropertyValueInfo<Object> getThePropertyValueInfo(TypedProperties properties, PropertySpec<?> propertySpec, ValueVisibility valueVisibility, PrivilegePresence privilegePresence) {
         Object propertyValue = getPropertyValue(properties, propertySpec);
         Boolean propertyHasValue = true;
-        Object inheritedProperty = getInheritedProperty(properties, propertySpec);
+        Object inheritedProperty = properties.getInheritedValue(propertySpec.getName());
         Object defaultValue = getDefaultValue(propertySpec);
-        if ((propertyValue == null || propertyValue.equals("")) && (inheritedProperty == null || inheritedProperty.equals("")) && (defaultValue == null || defaultValue.equals(""))) {
+        if (isNull(propertyValue) && (isNull(inheritedProperty)) && (isNull(defaultValue))) {
             propertyHasValue = false;
         }
         if (HIDE_VALUES.equals(valueVisibility)) {
@@ -93,6 +94,10 @@ public class MdcPropertyUtils {
             propertyHasValue = null;
         }
         return new PropertyValueInfo<>(propertyValue, inheritedProperty, defaultValue, propertyHasValue);
+    }
+
+    private boolean isNull(Object propertyValue) {
+        return propertyValue == null || "".equals(propertyValue);
     }
 
     private SimplePropertyType getSimplePropertyType(PropertySpec<?> propertySpec) {
@@ -194,7 +199,7 @@ public class MdcPropertyUtils {
     public Object findPropertyValue(PropertySpec<?> propertySpec, PropertyInfo[] propertyInfos) {
         for (PropertyInfo propertyInfo : propertyInfos) {
             if (propertyInfo.key.equals(propertySpec.getName())) {
-                if (propertyInfo.getPropertyValueInfo() != null && propertyInfo.getPropertyValueInfo().getValue() != null && !propertyInfo.getPropertyValueInfo().getValue().equals("")) {
+                if (propertyInfo.getPropertyValueInfo() != null && propertyInfo.getPropertyValueInfo().getValue() != null && !"".equals(propertyInfo.getPropertyValueInfo().getValue())) {
                     return convertPropertyInfoValueToPropertyValue(propertySpec, propertyInfo.getPropertyValueInfo().getValue());
                 } else {
                     return null;
@@ -206,20 +211,20 @@ public class MdcPropertyUtils {
 
     private Object convertPropertyInfoValueToPropertyValue(PropertySpec<?> propertySpec, Object value) {
         //SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
-        if (propertySpec.getValueFactory().getValueType() == Password.class) {
+        if (Objects.equals(propertySpec.getValueFactory().getValueType(), Password.class)) {
             return new Password(value.toString());
-        } else if (propertySpec.getValueFactory().getValueType() == Date.class) {
+        } else if (Objects.equals(propertySpec.getValueFactory().getValueType(), Date.class)) {
             return new Date((long) value);
-        } else if (propertySpec.getValueFactory().getValueType() == TimeDuration.class) {
+        } else if (Objects.equals(propertySpec.getValueFactory().getValueType(), TimeDuration.class)) {
             Integer count = (Integer) ((LinkedHashMap<String, Object>) value).get("count");
             String timeUnit = (String) ((LinkedHashMap<String, Object>) value).get("timeUnit");
             if (!TimeDuration.isValidTimeUnitDescription(timeUnit)) {
                 throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, propertySpec.getName());
             }
             return new TimeDuration("" + count + " " + timeUnit);
-        } else if (propertySpec.getValueFactory().getValueType() == String.class) {
+        } else if (Objects.equals(propertySpec.getValueFactory().getValueType(), String.class)) {
             return value;
-        } else if (propertySpec.getValueFactory().getValueType() == Boolean.class) {
+        } else if (Objects.equals(propertySpec.getValueFactory().getValueType(), Boolean.class)) {
             if (Boolean.class.isAssignableFrom(value.getClass())) {
                 return value;
             } else {
@@ -229,15 +234,6 @@ public class MdcPropertyUtils {
         return propertySpec.getValueFactory().fromStringValue(value.toString());
     }
 
-
-    private Object getInheritedProperty(TypedProperties properties, PropertySpec<?> propertySpec) {
-        TypedProperties inheritedProperties = properties.getInheritedProperties();
-        if (inheritedProperties == null) {
-            return null;
-        }
-        return getPropertyValue(inheritedProperties, propertySpec);
-    }
-
     public enum ValueVisibility {
         SHOW_VALUES, HIDE_VALUES
     }
@@ -245,4 +241,5 @@ public class MdcPropertyUtils {
     public enum PrivilegePresence {
         WITH_PRIVILEGES, WITHOUT_PRIVILEGES
     }
+
 }
