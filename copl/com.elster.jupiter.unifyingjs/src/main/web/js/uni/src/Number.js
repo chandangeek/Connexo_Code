@@ -47,7 +47,9 @@ Ext.define('Uni.Number', {
     formatNumber: function (number, decimalPrecision, decimalSeparator, thousandsSeparator) {
         var me = this;
 
-        decimalPrecision = decimalPrecision || Uni.util.Preferences.lookup(me.decimalPrecisionKey, me.decimalPrecisionDefault);
+        if (!decimalPrecision && decimalPrecision !== 0) {
+            decimalPrecision = Uni.util.Preferences.lookup(me.decimalPrecisionKey, me.decimalPrecisionDefault);
+        }
         decimalSeparator = decimalSeparator || Uni.util.Preferences.lookup(me.decimalSeparatorKey, me.decimalSeparatorDefault);
         thousandsSeparator = thousandsSeparator || Uni.util.Preferences.lookup(me.thousandsSeparatorKey, me.thousandsSeparatorDefault);
 
