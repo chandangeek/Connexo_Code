@@ -65,12 +65,16 @@ Ext.define('Isu.view.creationrules.Item', {
                     {
                         fieldLabel: Uni.I18n.translate('general.title.created', 'ISU', 'Created'),
                         name: 'creationDate',
-                        renderer: Ext.util.Format.dateRenderer('M d, Y H:i')
+                        renderer: function (value) {
+                            return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                        }
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.title.lastModified', 'ISU', 'Last modified'),
                         name: 'modificationDate',
-                        renderer: Ext.util.Format.dateRenderer('M d, Y H:i')
+                        renderer: function (value) {
+                            return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                        }
                     }
                 ]
             }
