@@ -6,7 +6,7 @@ import com.energyict.mdc.device.data.rest.CompletionCodeInfo;
 import com.energyict.mdc.device.data.rest.TaskStatusInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -25,10 +25,9 @@ public class ComTaskExecutionSessionInfo {
     public int urgency;
     public TaskStatusInfo currentState;
     public CompletionCodeInfo latestResult;
-    public Date startTime;
-    public Date successfulFinishTime;
-    public Date nextCommunication;
+    public Instant startTime;
+    public Instant successfulFinishTime;
+    public Instant nextCommunication;
     public boolean alwaysExecuteOnInbound;
-
 
 }

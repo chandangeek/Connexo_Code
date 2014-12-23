@@ -30,10 +30,10 @@ import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.jayway.jsonpath.JsonModel;
-import org.joda.time.DateTime;
 
 import javax.ws.rs.core.Response;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -239,8 +239,8 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
     public void testConnectionTaskJsonBinding() throws Exception {
         Instant startDate = Instant.ofEpochMilli(1412771995988L);
         Instant endDate = startDate.plus(1, ChronoUnit.HOURS);
-        DateTime now = DateTime.now();
-        Date plannedNext = now.plusHours(2).toDate();
+        LocalDateTime now = LocalDateTime.now();
+        Instant plannedNext = Instant.from(now.plusHours(2));
 
         DeviceType deviceType = mockDeviceType();
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceType);
@@ -320,7 +320,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionStrategy.id")).isEqualTo("asSoonAsPossible");
         assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionStrategy.displayValue")).isEqualTo("As soon as possible");
         assertThat(jsonModel.<String>get("$.connectionTasks[0].window")).isEqualTo("09:00 - 17:00");
-        assertThat(jsonModel.<Long>get("$.connectionTasks[0].nextExecution")).isEqualTo(plannedNext.getTime());
+        assertThat(jsonModel.<Long>get("$.connectionTasks[0].nextExecution")).isEqualTo(plannedNext);
     }
 
     private OutboundComPortPool mockComPortPool() {
@@ -376,9 +376,9 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.NeverCompleted);
         when(comTaskExecution1.getComSchedule()).thenReturn(comSchedule);
         when(comTaskExecution1.getExecutionPriority()).thenReturn(100);
-        when(comTaskExecution1.getLastExecutionStartTimestamp()).thenReturn(new Date());
-        when(comTaskExecution1.getLastSuccessfulCompletionTimestamp()).thenReturn(new Date());
-        when(comTaskExecution1.getNextExecutionTimestamp()).thenReturn(new Date());
+        when(comTaskExecution1.getLastExecutionStartTimestamp()).thenReturn(Instant.now());
+        when(comTaskExecution1.getLastSuccessfulCompletionTimestamp()).thenReturn(Instant.now());
+        when(comTaskExecution1.getNextExecutionTimestamp()).thenReturn(Instant.now());
         return comTaskExecution1;
     }
 
@@ -408,10 +408,10 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
 
         Instant startDate = Instant.ofEpochMilli(1412771995988L);
         Instant endDate = startDate.plus(1, ChronoUnit.HOURS);
-        Date lastExecStart = Date.from(startDate.plus(2, ChronoUnit.HOURS));
-        Date lastSuccess = Date.from(startDate.plus(3, ChronoUnit.HOURS));
-        DateTime now = DateTime.now();
-        Date plannedNext = now.plusHours(2).toDate();
+        Instant lastExecStart = startDate.plus(2, ChronoUnit.HOURS);
+        Instant lastSuccess = startDate.plus(3, ChronoUnit.HOURS);
+        LocalDateTime now = LocalDateTime.now();
+        Instant plannedNext = Instant.from(now.plusHours(2));
 
         ComSession comSession = mockComSession(startDate, endDate);
         DeviceType deviceType = mockDeviceType();
@@ -454,7 +454,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.communications[0].currentState.displayValue")).isEqualTo("Never completed");
         assertThat(jsonModel.<String>get("$.communications[0].latestResult.id")).isEqualTo("OK");
         assertThat(jsonModel.<String>get("$.communications[0].latestResult.displayValue")).isEqualTo("Ok");
-        assertThat(jsonModel.<Long>get("$.communications[0].startTime")).isEqualTo(lastExecStart.getTime());
+        assertThat(jsonModel.<Long>get("$.communications[0].startTime")).isEqualTo(lastExecStart);
         assertThat(jsonModel.<List>get("$.communications[0].comTasks")).hasSize(2);
         assertThat(jsonModel.<String>get("$.communications[0].comScheduleName")).isEqualTo("Weekly billing");
         assertThat(jsonModel.<Integer>get("$.communications[0].comScheduleFrequency.every.count")).isEqualTo(1);
@@ -462,13 +462,13 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<Integer>get("$.communications[0].comScheduleFrequency.offset.count")).isEqualTo(43200);
         assertThat(jsonModel.<String>get("$.communications[0].comScheduleFrequency.offset.timeUnit")).isEqualTo("seconds");
         assertThat(jsonModel.<Integer>get("$.communications[0].urgency")).isEqualTo(100);
-        assertThat(jsonModel.<Long>get("$.communications[0].successfulFinishTime")).isEqualTo(lastSuccess.getTime());
-        assertThat(jsonModel.<Long>get("$.communications[0].nextCommunication")).isEqualTo(plannedNext.getTime());
+        assertThat(jsonModel.<Long>get("$.communications[0].successfulFinishTime")).isEqualTo(lastSuccess);
+        assertThat(jsonModel.<Long>get("$.communications[0].nextCommunication")).isEqualTo(plannedNext);
         assertThat(jsonModel.<Boolean>get("$.communications[0].alwaysExecuteOnInbound")).isEqualTo(false);
         assertThat(jsonModel.<Object>get("$.communications[0].connectionTask")).isNull();
     }
 
-    private ScheduledComTaskExecution mockScheduledComTaskExecution(Date lastExecStart, Date lastSuccess, Date plannedNext, ConnectionTask connectionTask, ComSchedule comSchedule, List<ComTask> comTasks) {
+    private ScheduledComTaskExecution mockScheduledComTaskExecution(Instant lastExecStart, Instant lastSuccess, Instant plannedNext, ConnectionTask connectionTask, ComSchedule comSchedule, List<ComTask> comTasks) {
         ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
         when(comTaskExecution1.getComTasks()).thenReturn(comTasks);
         when(comTaskExecution1.getConnectionTask()).thenReturn(connectionTask);
