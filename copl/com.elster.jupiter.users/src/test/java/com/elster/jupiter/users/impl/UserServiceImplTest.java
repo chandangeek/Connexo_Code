@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import java.sql.SQLException;
 
 import com.elster.jupiter.users.UserDirectory;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -16,6 +17,7 @@ import org.osgi.service.event.EventAdmin;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -60,7 +62,8 @@ public class UserServiceImplTest {
         			new UtilModule(), 
         			new ThreadSecurityModule(), 
         			new PubSubModule(), 
-        			new TransactionModule(printSql));
+        			new TransactionModule(printSql),
+        			new NlsModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
         	injector.getInstance(UserService.class);
         	ctx.commit();

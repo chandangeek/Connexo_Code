@@ -16,6 +16,7 @@ import org.osgi.service.event.EventAdmin;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -65,7 +66,8 @@ public class PrivilegeIT {
                 new ThreadSecurityModule(),
                 new PubSubModule(),
                 new TransactionModule(),
-                new UserModule());
+                new UserModule(),
+                new NlsModule());
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
             @Override
             public Void perform() {

@@ -1,6 +1,7 @@
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.users.*;
@@ -107,7 +108,21 @@ public enum TableSpecs {
 			table.foreignKey("FK_USERINGROUP2GROUP").references(USR_GROUP.name()).onDelete(CASCADE).map("group").on(groupIdColumn).add();
 			table.foreignKey("FK_USERINGROUP2USER").references(USR_USER.name()).onDelete(CASCADE).map("user").reverseMap("memberships").on(userIdColumn).add();
 		}
-	};
+	},
+	USR_PREFERENCES {
+	    @Override
+	    void addTo(DataModel dataModel) {
+	        Table<UserPreference> table = dataModel.addTable(name(), UserPreference.class);
+	        table.map(UserPreferenceImpl.class);
+	        Column locale = table.column("LOCALE").varChar().notNull().map("locale").add();
+	        Column key = table.column("FORMATKEY").number().notNull().conversion(ColumnConversion.NUMBER2ENUM).map("key").add();
+	        Column formatBE = table.column("FORMAT_BE").notNull().varChar().map("formatBE").add();
+	        Column formatFE = table.column("FORMAT_FE").notNull().varChar().map("formatFE").add();
+	        table.column("ISDEFAULT").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("isDefault").add();
+	        table.primaryKey("USR_PK_PREFERENCES").on(locale, key, formatBE, formatFE).add();
+	    }
+	}
+	;
 
 	abstract void addTo(DataModel dataModel);
 	

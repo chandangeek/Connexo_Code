@@ -1,7 +1,27 @@
 package com.elster.jupiter.users.impl;
 
+import static com.elster.jupiter.util.Checks.is;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
+
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -10,6 +30,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.FormatKey;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.NoDefaultDomainException;
 import com.elster.jupiter.users.NoDomainFoundException;
@@ -17,30 +38,19 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
+import com.elster.jupiter.users.UserPreference;
+import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.google.inject.AbstractModule;
 
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
-
-import static com.elster.jupiter.util.Checks.is;
-
 @Component(
         name = "com.elster.jupiter.users",
-        service = {UserService.class, InstallService.class},
+        service = {UserService.class, UserPreferencesService.class, InstallService.class},
         immediate = true,
         property = "name=" + UserService.COMPONENTNAME)
-public class UserServiceImpl implements UserService, InstallService {
+public class UserServiceImpl implements UserService, UserPreferencesService, InstallService {
 
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
@@ -52,10 +62,11 @@ public class UserServiceImpl implements UserService, InstallService {
     }
 
     @Inject
-    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService) {
+    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService) {
         setTransactionService(transactionService);
         setQueryService(queryService);
         setOrmService(ormService);
+        setNlsService(nlsService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -69,6 +80,9 @@ public class UserServiceImpl implements UserService, InstallService {
             protected void configure() {
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(UserService.class).toInstance(UserServiceImpl.this);
+                bind(UserPreferencesService.class).toInstance(UserServiceImpl.this);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(Thesaurus.class).toInstance(thesaurus);
             }
         });
     }
@@ -349,6 +363,45 @@ public class UserServiceImpl implements UserService, InstallService {
     public Optional<UserDirectory> findUserDirectory(String domain) {
         return dataModel.mapper(UserDirectory.class).getOptional(domain);
     }
+    
+    @Override
+    public UserPreference createUserPreference(Locale locale, FormatKey key, String formatBE, String formatFE, boolean isDefault) {
+        UserPreferenceImpl userPreference = new UserPreferenceImpl();
+        userPreference.setLanguageTag(locale != null ? locale.toLanguageTag() : null);
+        userPreference.setKey(key);
+        userPreference.setFormatBE(formatBE);
+        userPreference.setFormatFE(formatFE);
+        userPreference.setDefault(isDefault);
+        Save.CREATE.save(dataModel, userPreference);
+        return userPreference;
+    }
+
+    @Override
+    public List<Locale> getSupportedLocales() {
+        Map<Locale, List<UserPreference>> locales = dataModel.mapper(UserPreference.class).find().stream().collect(Collectors.groupingBy(up -> up.getLocale()));
+        List<Locale> supportedLocales = new ArrayList<>(locales.size());
+        supportedLocales.addAll(locales.keySet());
+        return supportedLocales;
+    }
+
+    @Override
+    public List<UserPreference> getPreferences(User user) {
+        return dataModel.mapper(UserPreference.class).find(
+                new String[] { "locale", "isDefault" },
+                new Object[] { user.getLocale().orElse(Locale.getDefault()).toLanguageTag(), true });
+    }
+    
+    @Override
+    public Optional<UserPreference> getPreferenceByKey(User user, FormatKey key) {
+        return this.getPreferenceByKey(user.getLocale().orElse(Locale.getDefault()), key);
+    }
+    
+    @Override
+    public Optional<UserPreference> getPreferenceByKey(Locale locale, FormatKey key) {
+        return dataModel.mapper(UserPreference.class).getUnique(
+                new String[] { "locale", "key", "isDefault" },
+                new Object[] { locale.toLanguageTag(), key, true });
+    }
 
     @Reference
     public void setOrmService(OrmService ormService) {
@@ -376,6 +429,4 @@ public class UserServiceImpl implements UserService, InstallService {
     private DataMapper<User> userFactory() {
         return dataModel.mapper(User.class);
     }
-
-
 }

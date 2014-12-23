@@ -6,8 +6,12 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed{
     NO_DEFAULT_REALM(1001, "domain.no.default", "No default domain found.", Level.SEVERE),
-    NO_REALM_FOUND(1002, "domain.not.found", "No domain found with the name {0}.", Level.SEVERE);
-
+    NO_REALM_FOUND(1002, "domain.not.found", "No domain found with the name {0}.", Level.SEVERE),
+    FIELD_CAN_NOT_BE_EMPTY(1003, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty", Level.SEVERE),
+    FIELD_SIZE_BETWEEN_1_AND_80(1004, Keys.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE),
+    ONLY_ONE_DEFAULT_KEY_PER_LOCALE_ALLOWED(1005, Keys.ONLY_ONE_DEFAULT_KEY_PER_LOCALE_ALLOWED, "Only one default key per locale is allowed", Level.SEVERE)
+    ;
+    
     private final int number;
     private final String key;
     private final String defaultFormat;
@@ -43,5 +47,13 @@ public enum MessageSeeds implements MessageSeed{
     @Override
     public Level getLevel() {
         return level;
+    }
+    
+    public enum Keys {
+        ;
+        
+        public static final String FIELD_CAN_NOT_BE_EMPTY = "FieldCanNotBeEmpty";
+        public static final String FIELD_SIZE_BETWEEN_1_AND_80 = "FieldSizeBetween1and80";
+        public static final String ONLY_ONE_DEFAULT_KEY_PER_LOCALE_ALLOWED = "OnlyOneDefaultKeyPerLocaleAllowed";
     }
 }

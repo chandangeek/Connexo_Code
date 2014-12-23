@@ -1,12 +1,15 @@
 package com.elster.jupiter.users.impl;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.security.Privileges;
-
 import java.lang.reflect.Field;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.FormatKey;
+import com.elster.jupiter.users.UserPreferencesService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.security.Privileges;
 
 public class InstallerImpl {
     private final Logger logger = Logger.getLogger(InstallerImpl.class.getName());
@@ -18,7 +21,7 @@ public class InstallerImpl {
         this.dataModel = dataModel;
     }
 
-    public void install(UserService userService, String defaultDomain) {
+    public void install(UserServiceImpl userService, String defaultDomain) {
         try{
 		    dataModel.install(true, true);
         }
@@ -29,6 +32,7 @@ public class InstallerImpl {
         this.defaultDomain = defaultDomain;
         createPrivileges(userService);
         createMasterData();
+        createUserPreferences(userService);
 	}
 	
 	private void createMasterData() {
@@ -62,6 +66,7 @@ public class InstallerImpl {
         UserImpl user = directory.newUser("admin", "System administrator", true);
 
 		user.setPassword("admin");
+		user.setLocale(Locale.ENGLISH);
 		user.save();
         for(GroupImpl role : roles){
 		    user.join(role);
@@ -82,4 +87,41 @@ public class InstallerImpl {
             }
         }
     }
+	
+    private void createUserPreferences(UserPreferencesService userPrefsService) {
+        //en (UK)
+        tryCatchBlock(() -> {
+            userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.SHORT_DATE, "dd MMM ''yy", "d M \'y", true);
+            userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.LONG_DATE, "EEE dd MMM ''yy", "D d M \'y", true);
+            userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.SHORT_TIME, "HH:mm", "H:i", true);
+            userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.LONG_TIME, "HH:mm:ss", "H:i:s", true);
+            userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.SHORT_DATETIME, "HH:mm dd MMM ''yy", "H:i d M \'y", true);
+            userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.LONG_DATETIME, "HH:mm:ss EEE dd MMM ''yy", "H:i:s D d M \'y", true);
+            userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.DECIMAL_PRECISION, "2", "2", true);
+            userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.DECIMAL_SEPARATOR, ".", ".", true);
+            userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.THOUSANDS_SEPARATOR, ",", ",", true);
+            userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.CURRENCY, "\u00A3 {0}", "\u00A3 {0}", true);
+        });
+        //en (US)
+        tryCatchBlock(() -> {
+            userPrefsService.createUserPreference(Locale.US, FormatKey.SHORT_DATE, "MMM-dd-''yy", "M-d-\'y", true);
+            userPrefsService.createUserPreference(Locale.US, FormatKey.LONG_DATE, "EEE, MMM-dd-''yy", "D, M-d-\'y", true);
+            userPrefsService.createUserPreference(Locale.US, FormatKey.SHORT_TIME, "hh:mm a", "h:i a", true);
+            userPrefsService.createUserPreference(Locale.US, FormatKey.LONG_TIME, "hh:mm:ss a", "h:i:s a", true);
+            userPrefsService.createUserPreference(Locale.US, FormatKey.SHORT_DATETIME, "hh:mm a MMM-dd-''yy", "h:i a M-d-\'y", true);
+            userPrefsService.createUserPreference(Locale.US, FormatKey.LONG_DATETIME, "hh:mm:ss a EEE, MMM-dd-''yy", "h:i:s a D, M-d-\'y", true);
+            userPrefsService.createUserPreference(Locale.US, FormatKey.DECIMAL_PRECISION, "2", "2", true);
+            userPrefsService.createUserPreference(Locale.US, FormatKey.DECIMAL_SEPARATOR, ".", ".", true);
+            userPrefsService.createUserPreference(Locale.US, FormatKey.THOUSANDS_SEPARATOR, ",", ",", true);
+            userPrefsService.createUserPreference(Locale.US, FormatKey.CURRENCY, "{0} $", "{0} $", true);
+        });
+    }
+	
+	private void tryCatchBlock(Runnable block) {
+	    try {
+	        block.run();
+	    } catch (Exception e) {
+            this.logger.log(Level.SEVERE, e.getMessage(), e);
+	    }
+	}
 }
