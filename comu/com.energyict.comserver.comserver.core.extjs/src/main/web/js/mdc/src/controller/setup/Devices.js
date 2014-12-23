@@ -219,15 +219,14 @@ Ext.define('Mdc.controller.setup.Devices', {
         var widget = this.getDeviceSetup();
         var device = widget.device;
         var lastUpdateField = widget.down('#deviceSetupPanel #last-updated-field');
-        var connectionsPanel= widget.down('#device-connections-panel');
         var deviceConnectionsStore = device.connections();
 
         deviceConnectionsStore.getProxy().setUrl(device.get('mRID'));
         lastUpdateField.update('Last updated at ' + Ext.util.Format.date(new Date(), 'H:i'));
-        connectionsPanel.setLoading(true);
-        deviceConnectionsStore.load(function() {
-            connectionsPanel.bindStore(deviceConnectionsStore);
-            connectionsPanel.setLoading(false);
+        deviceConnectionsStore.load(function (records) {
+            if (!widget.isDestroyed) {
+                widget.down('#connectionslist').setTitle(Ext.String.format(Uni.I18n.translate('device.connections.title', 'MDC', 'Connections ({0})'), records.length));
+            }
         });
     },
 
@@ -235,15 +234,14 @@ Ext.define('Mdc.controller.setup.Devices', {
         var widget = this.getDeviceSetup();
         var device = widget.device;
         var lastUpdateField = widget.down('#deviceSetupPanel #last-updated-field');
-        var communicationsPanel= widget.down('#device-communications-panel');
         var deviceCommunicationsStore = device.communications();
 
         deviceCommunicationsStore.getProxy().setUrl(device.get('mRID'));
         lastUpdateField.update('Last updated at ' + Ext.util.Format.date(new Date(), 'H:i'));
-        communicationsPanel.setLoading(true);
-        deviceCommunicationsStore.load(function() {
-            communicationsPanel.bindStore(deviceCommunicationsStore);
-            communicationsPanel.setLoading(false);
+        deviceCommunicationsStore.load(function (records) {
+            if (!widget.isDestroyed) {
+                widget.down('#communicationslist').setTitle(Ext.String.format(Uni.I18n.translate('device.communicationTasks.title', 'MDC', 'Communication tasks ({0})'), records.length));
+            }
         });
     },
 
