@@ -49,7 +49,6 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2INSTANT
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
-import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 
 /**
  * Models the database tables that hold the data of the
@@ -69,7 +68,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.column("NAME").varChar().notNull().map(DeviceFields.NAME.fieldName()).add();
             table.column("SERIALNUMBER").varChar().map(DeviceFields.SERIALNUMBER.fieldName()).add();
-            table.column("TIMEZONE").varChar(32).map(DeviceFields.TIMEZONE.fieldName()).add();
+            table.column("TIMEZONE").varChar().map(DeviceFields.TIMEZONE.fieldName()).add();
             Column externid = table.column("MRID").varChar().map(DeviceFields.MRID.fieldName()).add();
             table.column("CERTIF_DATE").type("DATE").conversion(ColumnConversion.DATE2INSTANT).map("yearOfCertification").add();
             Column deviceType = table.column("DEVICETYPE").number().notNull().add();
@@ -162,7 +161,10 @@ public enum TableSpecs {
             Table<ConnectionTask> table = dataModel.addTable(name(), ConnectionTask.class);
             table.map(ConnectionTaskImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
+//            table.addAuditColumns();
+            table.addCreateTimeColumn("CREATETIME", "createTime");
+            table.addModTimeColumn("MODTIME", "modTime");
+            table.addUserNameColumn("USERNAME", "userName");
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             // Common columns
             Column device = table.column("DEVICE").number().notNull().add();
@@ -264,7 +266,10 @@ public enum TableSpecs {
             Table<ComTaskExecution> table = dataModel.addTable(name(), ComTaskExecution.class);
             table.map(ComTaskExecutionImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
+//            table.addAuditColumns();
+            table.addCreateTimeColumn("CREATETIME", "createTime");
+            table.addModTimeColumn("MODTIME", "modTime");
+            table.addUserNameColumn("USERNAME", "userName");
             table.addDiscriminatorColumn("DISCRIMINATOR", "number");
             Column device = table.column("DEVICE").number().notNull().add();
             Column comTask = table.column("COMTASK").number().add();
