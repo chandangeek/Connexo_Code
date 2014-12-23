@@ -433,6 +433,16 @@ public class TypedPropertiesTest {
     }
 
     @Test
+    public void testGetInheritedValueWithoutInheritance () {
+        TypedProperties typedProperties = TypedProperties.empty();
+        typedProperties.setProperty(NUMERIC_PROP1_NAME, NUMERIC_PROP1_VALUE);
+
+        // Asserts
+        assertThat(typedProperties.getInheritedValue(NUMERIC_PROP1_NAME)).isNull();
+        assertThat(typedProperties.getInheritedValue(NUMERIC_PROP2_NAME)).isNull();
+    }
+
+    @Test
     public void testHasInheritedValueForWithOnlyInheritedValues () {
         TypedProperties parentProperties = TypedProperties.empty();
         parentProperties.setProperty(NUMERIC_PROP1_NAME, NUMERIC_PROP1_VALUE);
@@ -441,6 +451,17 @@ public class TypedPropertiesTest {
         // Asserts
         assertThat(locallyEmpty.hasInheritedValueFor(NUMERIC_PROP1_NAME)).isTrue();
         assertThat(locallyEmpty.hasInheritedValueFor(NUMERIC_PROP2_NAME)).isFalse();
+    }
+
+    @Test
+    public void testGetInheritedValueWithOnlyInheritedValues () {
+        TypedProperties parentProperties = TypedProperties.empty();
+        parentProperties.setProperty(NUMERIC_PROP1_NAME, NUMERIC_PROP1_VALUE);
+        TypedProperties locallyEmpty = TypedProperties.inheritingFrom(parentProperties);
+
+        // Asserts
+        assertThat(locallyEmpty.getInheritedValue(NUMERIC_PROP1_NAME)).isEqualTo(NUMERIC_PROP1_VALUE);
+        assertThat(locallyEmpty.getInheritedValue(NUMERIC_PROP2_NAME)).isNull();
     }
 
     @Test
@@ -453,6 +474,46 @@ public class TypedPropertiesTest {
         // Asserts
         assertThat(typedProperties.hasInheritedValueFor(NUMERIC_PROP1_NAME)).isTrue();
         assertThat(typedProperties.hasInheritedValueFor(NUMERIC_PROP2_NAME)).isFalse();
+    }
+
+    @Test
+    public void testGetInheritedValueWithLocalValuesAndInheritedValues () {
+        TypedProperties parentProperties = TypedProperties.empty();
+        parentProperties.setProperty(NUMERIC_PROP1_NAME, NUMERIC_PROP1_VALUE);
+        TypedProperties typedProperties = TypedProperties.inheritingFrom(parentProperties);
+        typedProperties.setProperty(NUMERIC_PROP2_NAME, NUMERIC_PROP2_VALUE);
+
+        // Asserts
+        assertThat(typedProperties.getInheritedValue(NUMERIC_PROP1_NAME)).isEqualTo(NUMERIC_PROP1_VALUE);
+        assertThat(typedProperties.getInheritedValue(NUMERIC_PROP2_NAME)).isNull();
+    }
+
+    @Test
+    public void testHasInheritedValueForTwoLevelsOfInheritance () {
+        TypedProperties topLevelProperties = TypedProperties.empty();
+        topLevelProperties.setProperty(NUMERIC_PROP1_NAME, NUMERIC_PROP1_VALUE);
+        TypedProperties midLevelProperties = TypedProperties.inheritingFrom(topLevelProperties);
+        // No local properties at the mid level
+        TypedProperties typedProperties = TypedProperties.inheritingFrom(midLevelProperties);
+        typedProperties.setProperty(NUMERIC_PROP2_NAME, NUMERIC_PROP2_VALUE);
+
+        // Asserts
+        assertThat(typedProperties.hasInheritedValueFor(NUMERIC_PROP1_NAME)).isTrue();
+        assertThat(typedProperties.hasInheritedValueFor(NUMERIC_PROP2_NAME)).isFalse();
+    }
+
+    @Test
+    public void testGetInheritedValueForTwoLevelsOfInheritance () {
+        TypedProperties topLevelProperties = TypedProperties.empty();
+        topLevelProperties.setProperty(NUMERIC_PROP1_NAME, NUMERIC_PROP1_VALUE);
+        TypedProperties midLevelProperties = TypedProperties.inheritingFrom(topLevelProperties);
+        // No local properties at the mid level
+        TypedProperties typedProperties = TypedProperties.inheritingFrom(midLevelProperties);
+        typedProperties.setProperty(NUMERIC_PROP2_NAME, NUMERIC_PROP2_VALUE);
+
+        // Asserts
+        assertThat(typedProperties.getInheritedValue(NUMERIC_PROP1_NAME)).isEqualTo(NUMERIC_PROP1_VALUE);
+        assertThat(typedProperties.getInheritedValue(NUMERIC_PROP2_NAME)).isNull();
     }
 
     @Test
