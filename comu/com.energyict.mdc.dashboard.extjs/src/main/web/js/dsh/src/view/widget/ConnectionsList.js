@@ -85,8 +85,9 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 itemId: 'startDateTime',
                 text: Uni.I18n.translate('connection.widget.details.startedOn', 'DSH', 'Started on'),
                 dataIndex: 'startDateTime',
-                xtype: 'datecolumn',
-                format: 'd/m/Y h:i:s',
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                },
                 flex: 1
             },
             {

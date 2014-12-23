@@ -151,15 +151,15 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.startedOn', 'DSH', 'Started on'),
                     name: 'startDateTime',
-                    renderer: function (val) {
-                        return val ? Ext.Date.format(val, 'd/m/Y h:i:s') : '';
+                    renderer: function (value) {
+                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.finishedOn', 'DSH', 'Finished on'),
                     name: 'endDateTime',
-                    renderer: function (val) {
-                        return val ? Ext.Date.format(val, 'd/m/Y h:i:s') : '';
+                    renderer: function (value) {
+                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
                     }
                 },
                 {
@@ -179,8 +179,8 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.nextConnection', 'DSH', 'Next connection'),
                     name: 'nextExecution',
-                    renderer: function (val) {
-                        return val ? Ext.Date.format(val, 'd/m/Y h:i:s') : '';
+                    renderer: function (value) {
+                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
                     }
                 }
             ]

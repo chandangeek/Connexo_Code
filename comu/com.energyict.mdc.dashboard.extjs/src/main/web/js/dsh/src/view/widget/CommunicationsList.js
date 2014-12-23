@@ -53,24 +53,27 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 itemId: 'nextCommunication',
                 text: Uni.I18n.translate('communication.widget.details.nextCommunication', 'DSH', 'Next communication'),
                 dataIndex: 'nextCommunication',
-                xtype: 'datecolumn',
-                format: 'd/m/Y h:i:s',
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                },
                 flex: 2
             },
             {
                 itemId: 'startTime',
                 text: Uni.I18n.translate('communication.widget.details.startedOn', 'DSH', 'Started on'),
                 dataIndex: 'startTime',
-                xtype: 'datecolumn',
-                format: 'd/m/Y h:i:s',
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                },
                 flex: 2
             },
             {
                 itemId: 'successfulFinishTime',
                 text: Uni.I18n.translate('communication.widget.details.finishedOn', 'DSH', 'Finished successfully on'),
                 dataIndex: 'successfulFinishTime',
-                xtype: 'datecolumn',
-                format: 'd/m/Y h:i:s',
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                },
                 flex: 2
             },
             {
