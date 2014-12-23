@@ -153,7 +153,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     private void createOrmClientIfAllDependenciesHaveBeenResolved() {
         if (this.transactionService != null && this.dataModel != null) {
-            this.setOrmClient(new OrmClientImpl(this.dataModel, this.transactionService));
+            this.setOrmClient(new OrmClientImpl(this.dataModel, this.transactionService, clock));
         }
     }
 
