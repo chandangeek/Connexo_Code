@@ -26,7 +26,7 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
         '</tr>',
         '<tr>',
         '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.flaggedDevices.device.creationDate', 'DSH', 'Flagged date') + '</td>',
-        '<td>{[Ext.util.Format.date(values.deviceLabelInfo.creationDate, "D M j, Y G:i")]}</td>',
+        '<td>{[Uni.DateTime.formatDateTimeLong(values.deviceLabelInfo.creationDate)]}</td>',
         '</tr>',
         '<tr>',
         '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.flaggedDevices.device.comment', 'DSH', 'Comment') + '</td>',
