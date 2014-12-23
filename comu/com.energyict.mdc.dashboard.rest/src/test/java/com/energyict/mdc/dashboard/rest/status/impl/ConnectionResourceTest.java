@@ -34,6 +34,7 @@ import com.jayway.jsonpath.JsonModel;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -240,7 +241,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         Instant startDate = Instant.ofEpochMilli(1412771995988L);
         Instant endDate = startDate.plus(1, ChronoUnit.HOURS);
         LocalDateTime now = LocalDateTime.now();
-        Instant plannedNext = Instant.from(now.plusHours(2));
+        Instant plannedNext = now.plusHours(2).toInstant(ZoneOffset.UTC);
 
         DeviceType deviceType = mockDeviceType();
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceType);
@@ -320,7 +321,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionStrategy.id")).isEqualTo("asSoonAsPossible");
         assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionStrategy.displayValue")).isEqualTo("As soon as possible");
         assertThat(jsonModel.<String>get("$.connectionTasks[0].window")).isEqualTo("09:00 - 17:00");
-        assertThat(jsonModel.<Long>get("$.connectionTasks[0].nextExecution")).isEqualTo(plannedNext);
+        assertThat(jsonModel.<Long>get("$.connectionTasks[0].nextExecution")).isEqualTo(plannedNext.toEpochMilli());
     }
 
     private OutboundComPortPool mockComPortPool() {
@@ -411,7 +412,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         Instant lastExecStart = startDate.plus(2, ChronoUnit.HOURS);
         Instant lastSuccess = startDate.plus(3, ChronoUnit.HOURS);
         LocalDateTime now = LocalDateTime.now();
-        Instant plannedNext = Instant.from(now.plusHours(2));
+        Instant plannedNext = now.plusHours(2).toInstant(ZoneOffset.UTC);
 
         ComSession comSession = mockComSession(startDate, endDate);
         DeviceType deviceType = mockDeviceType();
@@ -454,7 +455,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.communications[0].currentState.displayValue")).isEqualTo("Never completed");
         assertThat(jsonModel.<String>get("$.communications[0].latestResult.id")).isEqualTo("OK");
         assertThat(jsonModel.<String>get("$.communications[0].latestResult.displayValue")).isEqualTo("Ok");
-        assertThat(jsonModel.<Long>get("$.communications[0].startTime")).isEqualTo(lastExecStart);
+        assertThat(jsonModel.<Long>get("$.communications[0].startTime")).isEqualTo(lastExecStart.toEpochMilli());
         assertThat(jsonModel.<List>get("$.communications[0].comTasks")).hasSize(2);
         assertThat(jsonModel.<String>get("$.communications[0].comScheduleName")).isEqualTo("Weekly billing");
         assertThat(jsonModel.<Integer>get("$.communications[0].comScheduleFrequency.every.count")).isEqualTo(1);
@@ -462,8 +463,8 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<Integer>get("$.communications[0].comScheduleFrequency.offset.count")).isEqualTo(43200);
         assertThat(jsonModel.<String>get("$.communications[0].comScheduleFrequency.offset.timeUnit")).isEqualTo("seconds");
         assertThat(jsonModel.<Integer>get("$.communications[0].urgency")).isEqualTo(100);
-        assertThat(jsonModel.<Long>get("$.communications[0].successfulFinishTime")).isEqualTo(lastSuccess);
-        assertThat(jsonModel.<Long>get("$.communications[0].nextCommunication")).isEqualTo(plannedNext);
+        assertThat(jsonModel.<Long>get("$.communications[0].successfulFinishTime")).isEqualTo(lastSuccess.toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.communications[0].nextCommunication")).isEqualTo(plannedNext.toEpochMilli());
         assertThat(jsonModel.<Boolean>get("$.communications[0].alwaysExecuteOnInbound")).isEqualTo(false);
         assertThat(jsonModel.<Object>get("$.communications[0].connectionTask")).isNull();
     }
