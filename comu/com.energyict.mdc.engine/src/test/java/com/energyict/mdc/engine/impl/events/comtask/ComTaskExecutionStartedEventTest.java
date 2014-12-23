@@ -14,8 +14,9 @@ import java.time.Clock;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Calendar;
-import java.util.Date;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -64,8 +65,8 @@ public class ComTaskExecutionStartedEventTest {
 
     @Test
     public void testOccurrenceTimestamp () {
-        Date now = new DateTime(2012, Calendar.NOVEMBER, 6, 15, 50, 44, 0).toDate();  // Random pick
-        when(this.clock.instant()).thenReturn(now.toInstant());
+        Instant now = Instant.from(LocalDateTime.of(2012, Calendar.NOVEMBER, 6, 15, 50, 44, 0));  // Random pick
+        when(this.clock.instant()).thenReturn(now);
 
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ComPort comPort = mock(ComPort.class);
@@ -73,7 +74,7 @@ public class ComTaskExecutionStartedEventTest {
         ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent(this.serviceProvider, comTaskExecution, now, comPort, connectionTask);
 
         // Business method
-        Date timestamp = event.getOccurrenceTimestamp();
+        Instant timestamp = event.getOccurrenceTimestamp();
 
         // Asserts
         assertThat(timestamp).isEqualTo(now);
@@ -81,8 +82,8 @@ public class ComTaskExecutionStartedEventTest {
 
     @Test
     public void testExecutionStartedTimestamp () {
-        Date now = new DateTime(2012, Calendar.NOVEMBER, 6, 15, 50, 43, 0).toDate();  // Random pick
-        when(this.clock.instant()).thenReturn(now.toInstant());
+        Instant now = Instant.from(LocalDateTime.of(2012, Calendar.NOVEMBER, 6, 15, 50, 43, 0));  // Random pick
+        when(this.clock.instant()).thenReturn(now);
 
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ComPort comPort = mock(ComPort.class);
@@ -90,7 +91,7 @@ public class ComTaskExecutionStartedEventTest {
         ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent(this.serviceProvider, comTaskExecution, now, comPort, connectionTask);
 
         // Business method
-        Date timestamp = event.getExecutionStartedTimestamp();
+        Instant timestamp = event.getExecutionStartedTimestamp();
 
         // Asserts
         assertThat(timestamp).isEqualTo(now);
@@ -98,8 +99,8 @@ public class ComTaskExecutionStartedEventTest {
 
     @Test
     public void testExecutionStartedTimestampCopiedFromComTaskExecution () {
-        Date now = new DateTime(2012, Calendar.NOVEMBER, 6, 15, 50, 43, 0).toDate();  // Random pick
-        when(this.clock.instant()).thenReturn(now.toInstant());
+        Instant now = Instant.from(LocalDateTime.of(2012, Calendar.NOVEMBER, 6, 15, 50, 43, 0));  // Random pick
+        when(this.clock.instant()).thenReturn(now);
 
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getExecutionStartedTimestamp()).thenReturn(now);
@@ -108,7 +109,7 @@ public class ComTaskExecutionStartedEventTest {
         ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent(this.serviceProvider, comTaskExecution, comPort, connectionTask);
 
         // Business method
-        Date timestamp = event.getExecutionStartedTimestamp();
+        Instant timestamp = event.getExecutionStartedTimestamp();
 
         // Asserts
         assertThat(timestamp).isEqualTo(now);

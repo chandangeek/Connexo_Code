@@ -9,8 +9,9 @@ import java.time.Clock;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Calendar;
-import java.util.Date;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -57,14 +58,14 @@ public class UndiscoveredCloseConnectionEventTest {
 
     @Test
     public void testOccurrenceTimestamp () {
-        Date now = new DateTime(2012, Calendar.NOVEMBER, 6, 13, 45, 17, 0).toDate();  // Random pick
-        when(this.clock.instant()).thenReturn(now.toInstant());
+        Instant now = Instant.from(LocalDateTime.of(2012, Calendar.NOVEMBER, 6, 13, 45, 17, 0));  // Random pick
+        when(this.clock.instant()).thenReturn(now);
 
         InboundComPort comPort = mock(InboundComPort.class);
         UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(this.serviceProvider, comPort);
 
         // Business method
-        Date timestamp = event.getOccurrenceTimestamp();
+        Instant timestamp = event.getOccurrenceTimestamp();
 
         // Asserts
         assertThat(timestamp).isEqualTo(now);

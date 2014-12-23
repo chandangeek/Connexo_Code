@@ -10,7 +10,7 @@ import java.time.Clock;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
-import java.util.Date;
+import java.time.Instant;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -57,8 +57,8 @@ public class WriteEventTest {
 
     @Test
     public void testConstructor () {
-        Date occurrenceTimestamp = new Date();
-        when(this.clock.instant()).thenReturn(occurrenceTimestamp.toInstant());
+        Instant occurrenceTimestamp = Instant.now();
+        when(this.clock.instant()).thenReturn(occurrenceTimestamp);
         byte[] bytes = "testConstructor".getBytes();
         ComPort comPort = mock(ComPort.class);
 

@@ -8,8 +8,9 @@ import java.time.Clock;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Calendar;
-import java.util.Date;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -52,12 +53,12 @@ public class UnrelatedLoggingEventTest {
 
     @Test
     public void testOccurrenceTimestampForDefaultConstructor () {
-        Date now = new DateTime(2012, Calendar.NOVEMBER, 7, 17, 22, 01, 0).toDate();  // Random pick
-        when(this.clock.instant()).thenReturn(now.toInstant());
+        Instant now = Instant.from(LocalDateTime.of(2012, Calendar.NOVEMBER, 7, 17, 22, 01, 0));  // Random pick
+        when(this.clock.instant()).thenReturn(now);
         UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(this.serviceProvider, LogLevel.DEBUG, "testOccurrenceTimestampForDefaultConstructor");
 
         // Business method
-        Date timestamp = event.getOccurrenceTimestamp();
+        Instant timestamp = event.getOccurrenceTimestamp();
 
         // Asserts
         assertThat(timestamp).isEqualTo(now);
@@ -65,13 +66,13 @@ public class UnrelatedLoggingEventTest {
 
     @Test
     public void testOccurrenceTimestamp () {
-        Date now = new DateTime(2012, Calendar.NOVEMBER, 6, 17, 22, 01, 0).toDate();  // Random pick
-        when(this.clock.instant()).thenReturn(now.toInstant());
+        Instant now = Instant.from(LocalDateTime.of(2012, Calendar.NOVEMBER, 6, 17, 22, 01, 0));  // Random pick
+        when(this.clock.instant()).thenReturn(now);
 
         UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(this.serviceProvider, LogLevel.INFO, "testOccurrenceTimestamp");
 
         // Business method
-        Date timestamp = event.getOccurrenceTimestamp();
+        Instant timestamp = event.getOccurrenceTimestamp();
 
         // Asserts
         assertThat(timestamp).isEqualTo(now);
