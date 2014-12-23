@@ -62,8 +62,7 @@ public class ComTaskImpl implements ComTask {
         NAME("name"),
         PROTOCOL_TASKS("protocolTasks"),
         STORE_DATE("storeData"),
-        MAX_NR_OF_TRIES("maxNrOfTries"),
-        MOD_DATE("modificationDate");
+        MAX_NR_OF_TRIES("maxNrOfTries");
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
