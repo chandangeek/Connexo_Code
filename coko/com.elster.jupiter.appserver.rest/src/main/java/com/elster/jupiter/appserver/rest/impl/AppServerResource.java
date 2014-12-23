@@ -115,7 +115,7 @@ public class AppServerResource {
     @DELETE
     @Path("/{appserverName}/")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response removeDataExportTask(@PathParam("appserverName") String appServerName) {
+    public Response removeAppServer(@PathParam("appserverName") String appServerName) {
         AppServer appServer = fetchAppServer(appServerName);
         try(TransactionContext context = transactionService.getContext()) {
             appServer.delete();
