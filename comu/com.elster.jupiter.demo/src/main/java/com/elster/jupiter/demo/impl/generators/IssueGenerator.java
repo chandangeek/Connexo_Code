@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 
@@ -26,8 +27,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class IssueGenerator {
-    private static final String INSERT_INTO_ISSUE = "INSERT INTO ISU_ISSUE_OPEN (ID, DUE_DATE, REASON_ID, STATUS, DEVICE_ID, OVERDUE, RULE_ID, VERSIONCOUNT, CREATETIME, MODTIME, USERNAME)" +
-            " VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?)";
+    private static final String INSERT_INTO_ISSUE = "INSERT INTO ISU_ISSUE_OPEN (ID, DUE_DATE, REASON_ID, STATUS, DEVICE_ID, OVERDUE, RULE_ID, VERSIONCOUNT, CREATETIME, MODTIME, USERNAME, ASSIGNEE_TYPE, ASSIGNEE_USER_ID)" +
+            " VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?)";
     private static final String INSERT_INTO_DC_ISSUE = "Insert into IDC_ISSUE_OPEN (ID,ISSUE,CON_TASK,VERSIONCOUNT,CREATETIME,MODTIME,USERNAME) " +
             "values (?, ?, ?, ?, ?, ? ,?)";
     private static final String ISSUE_REASON_KEY = "reason.connection.failed";
@@ -40,17 +41,20 @@ public class IssueGenerator {
     private final MeteringService meteringService;
     private final Store store;
     private final IssueService issueService;
+    private final UserService userService;
 
     private Device device;
     private Instant dueDate;
     private String issueReason;
+    private String assignee;
 
     @Inject
-    public IssueGenerator(Store store, DataModel dataModel, MeteringService meteringService, IssueService issueService) {
+    public IssueGenerator(Store store, DataModel dataModel, MeteringService meteringService, IssueService issueService, UserService userService) {
         this.store = store;
         this.dataModel = dataModel;
         this.meteringService = meteringService;
         this.issueService = issueService;
+        this.userService = userService;
         this.issueReason = ISSUE_REASON_KEY;
     }
 
@@ -66,6 +70,11 @@ public class IssueGenerator {
 
     public IssueGenerator withIssueReason(String issueReason){
         this.issueReason = issueReason;
+        return this;
+    }
+
+    public IssueGenerator withAssignee(String userAssignee){
+        this.assignee = userAssignee;
         return this;
     }
 
@@ -118,6 +127,13 @@ public class IssueGenerator {
         statement.setLong(8, currentTime.toEpochMilli()); /* creation time */
         statement.setLong(9, currentTime.toEpochMilli()); /* modification time */
         statement.setString(10, ISSUE_AUTHOR); /* created by user */
+        if (this.assignee != null){
+            statement.setInt(11, 0); // 0 = user assignee
+            statement.setLong(12, userService.findUser(this.assignee).orElseThrow(() -> new UnableToCreate("Unable to find user for assignee" + this.assignee)).getId());
+        } else {
+            statement.setObject(11, null);
+            statement.setObject(12, null);
+        }
         statement.execute();
     }
 
@@ -133,11 +149,11 @@ public class IssueGenerator {
     private EndDevice getEndDevice() {
         Optional<AmrSystem> amrSystemRef = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
         if (amrSystemRef.isPresent()) {
-            Optional<Meter> meterRef = amrSystemRef.get().findMeter(device.getmRID());
+            Optional<Meter> meterRef = amrSystemRef.get().findMeter(String.valueOf(device.getId()));
             if (meterRef.isPresent()) {
                 return meterRef.get();
             } else {
-                Meter meter = amrSystemRef.get().newMeter(device.getmRID());
+                Meter meter = amrSystemRef.get().newMeter(String.valueOf(device.getId()), device.getmRID());
                 meter.save();
                 return meter;
             }

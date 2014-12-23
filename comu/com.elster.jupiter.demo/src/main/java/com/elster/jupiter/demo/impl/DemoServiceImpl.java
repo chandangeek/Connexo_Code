@@ -732,11 +732,12 @@ public class DemoServiceImpl implements DemoService {
         for (Device device : devices) {
             IssueGenerator issueGenerator = injector.getInstance(IssueGenerator.class);
             if (device.getmRID().startsWith(DEVICE_STANDARD_PREFIX)){
-                issueGenerator.withDevice(device).create();
+                issueGenerator.withDevice(device).withAssignee(device.getId() % 7 == 0 ? USER_NAME_SAM : null).create();
             } else if (device.getmRID().equals(DEVICE_DABF_12)) {
                 issueGenerator.withDevice(device)
                         .withDueDate(Instant.now().plus(12, ChronoUnit.DAYS))
                         .withIssueReason(IssueReasonGenerator.MessageSeeds.REASON_DAILY_BILLING_READ_FAILED.getKey())
+                        .withAssignee(USER_NAME_SAM)
                         .create();
 
                 store.getLast(Issue.class).ifPresent(
@@ -749,6 +750,7 @@ public class DemoServiceImpl implements DemoService {
                 issueGenerator.withDevice(device)
                         .withDueDate(Instant.now().plus(10, ChronoUnit.DAYS))
                         .withIssueReason(IssueReasonGenerator.MessageSeeds.REASON_SUSPECT_VALUES.getKey())
+                        .withAssignee(USER_NAME_SAM)
                         .create();
                 store.getLast(Issue.class).ifPresent(
                         i -> injector.getInstance(IssueCommentGenerator.class)

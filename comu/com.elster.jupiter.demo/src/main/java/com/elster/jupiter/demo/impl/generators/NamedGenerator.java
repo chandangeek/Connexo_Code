@@ -1,6 +1,6 @@
 package com.elster.jupiter.demo.impl.generators;
 
-public class NamedGenerator<T> {
+public abstract class NamedGenerator<T> {
 
     private String name;
     private Class<T> clazz;
