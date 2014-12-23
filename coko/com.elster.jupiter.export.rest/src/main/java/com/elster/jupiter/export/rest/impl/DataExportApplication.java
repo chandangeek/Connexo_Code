@@ -1,5 +1,6 @@
 package com.elster.jupiter.export.rest.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -36,6 +37,7 @@ public class DataExportApplication extends Application implements InstallService
     private volatile RestQueryService restQueryService;
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile AppService appService;
 
     private NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -44,6 +46,7 @@ public class DataExportApplication extends Application implements InstallService
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
                 DataExportTaskResource.class,
+                ExportDirectoryResource.class,
                 MeterGroupsResource.class,
                 ProcessorsResource.class,
                 LocalizedExceptionMapper.class,
@@ -89,6 +92,11 @@ public class DataExportApplication extends Application implements InstallService
         this.timeService = timeService;
     }
 
+    @Reference
+    public void setAppService(AppService appService) {
+        this.appService = appService;
+    }
+
     @Activate
     public void activate() {
 
@@ -125,6 +133,7 @@ public class DataExportApplication extends Application implements InstallService
                 bind(timeService).to(TimeService.class);
                 bind(meteringService).to(MeteringService.class);
                 bind(transactionService).to(TransactionService.class);
+                bind(appService).to(AppService.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);
