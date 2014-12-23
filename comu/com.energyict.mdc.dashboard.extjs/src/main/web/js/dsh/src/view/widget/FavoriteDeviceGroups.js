@@ -33,7 +33,15 @@ Ext.define('Dsh.view.widget.FavoriteDeviceGroups', {
                                     '<tr>',
                                         '<td style="height: 20px">',
                                             Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup','privilege.view.deviceGroupDetail'])
-                                                ? '<a href="#/devices/devicegroups/{id}">{name}</a>' : '{name}',
+                                                ? '<a href="#/devices/devicegroups/{id}">{name}</a>' :
+                                                (
+                                                    Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceOfEnumeratedGroup']) ?
+                                                        (
+                                                            '<tpl if="dynamic==true"{dynamic}>{name}<tpl else><a href="#/devices/devicegroups/{id}">{name}</a></tpl>'
+                                                        )
+                                                         :
+                                                        '{name}'
+                                                ),
                                         '</td>',
                                     '</tr>',
                                 '</tpl>',
@@ -43,7 +51,7 @@ Ext.define('Dsh.view.widget.FavoriteDeviceGroups', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('overview.widget.favoriteDeviceGroups.selectBtn', 'DSH', 'Select'),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceGroup'),
+                        //hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceGroup'),
                         style: 'margin-top: 15px',
                         href: '#/dashboard/selectfavoritedevicegroups'
                     }
@@ -52,3 +60,5 @@ Ext.define('Dsh.view.widget.FavoriteDeviceGroups', {
         });
     }
 });
+
+
