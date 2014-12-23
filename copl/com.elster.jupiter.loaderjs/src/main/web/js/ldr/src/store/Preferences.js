@@ -13,7 +13,7 @@ Ext.define('Ldr.store.Preferences', {
 
     proxy: {
         type: 'rest',
-        url: '/api/currentuser/preferences',
+        url: '/api/usr/currentuser/preferences',
 
         pageParam: undefined,
         limitParam: undefined,
