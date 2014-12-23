@@ -1025,7 +1025,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         PropertySpec<String> propertySpec1 = mock(PropertySpec.class);
         when(propertySpec1.getName()).thenReturn("macAddress");
         when(propertySpec1.getValueFactory()).thenReturn(new StringFactory());
-        TypedProperties typedProperties = new TypedProperties();
+        TypedProperties typedProperties = TypedProperties.empty();
         typedProperties.setProperty("macAddress", "aa:bb:cc:dd:ee:ff");
         when(partialConnectionTask.getTypedProperties()).thenReturn(typedProperties);
         when(connectionType.getPropertySpecs()).thenReturn(Arrays.<PropertySpec>asList(propertySpec1));
