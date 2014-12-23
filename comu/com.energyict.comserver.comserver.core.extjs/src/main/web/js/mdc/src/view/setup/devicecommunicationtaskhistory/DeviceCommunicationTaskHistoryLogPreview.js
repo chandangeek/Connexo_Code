@@ -29,9 +29,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                     name: 'timestamp',
                     fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.timeStamp', 'MDC', 'Timestamp'),
                     renderer: function (value) {
-                        if (value) {
-                            return new Date(value).toLocaleString();
-                        }
+                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
                     }
                 },
                 {

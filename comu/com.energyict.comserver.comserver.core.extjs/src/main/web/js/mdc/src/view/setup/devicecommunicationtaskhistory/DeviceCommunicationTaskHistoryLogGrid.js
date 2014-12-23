@@ -21,10 +21,8 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                 text: Uni.I18n.translate('devicecommunicationtaskhistory.timeStamp', 'MDC', 'Timestamp'),
                 dataIndex: 'timestamp',
                 flex: 1,
-                renderer: function (value, metadata) {
-                    if (value) {
-                        return new Date(value).toLocaleString();
-                    }
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
                 }
             },
             {

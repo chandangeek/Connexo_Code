@@ -65,12 +65,8 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     name: 'startTime',
                                     fieldLabel: Uni.I18n.translate('devicecommunicationhistory.startedOn', 'MDC', 'Started on'),
                                     itemId: 'startedOn',
-                                    renderer: function (value, metadata) {
-                                        if (value !== '') {
-                                            return new Date(value).toLocaleString();
-                                        } else {
-                                            return '';
-                                        }
+                                    renderer: function (value) {
+                                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
                                     }
                                 },
                                 {
@@ -78,12 +74,8 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     name: 'finishTime',
                                     fieldLabel: Uni.I18n.translate('devicecommunicationhistory.finishedOn', 'MDC', 'Finished on'),
                                     itemId: 'finishedOn',
-                                    renderer: function (value, metadata) {
-                                        if (value !== '') {
-                                            return new Date(value).toLocaleString();
-                                        } else {
-                                            return '';
-                                        }
+                                    renderer: function (value) {
+                                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
                                     }
                                 },
                                 {
@@ -274,24 +266,16 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     xtype: 'displayfield',
                                     name: 'startedOn',
                                     fieldLabel: Uni.I18n.translate('devicecommunicationhistory.startedOn', 'MDC', 'Started on'),
-                                    renderer: function (value, metadata) {
-                                        if (value !== '') {
-                                            return new Date(value).toLocaleString();
-                                        } else {
-                                            return '';
-                                        }
+                                    renderer: function (value) {
+                                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
                                     }
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'finishedOn',
                                     fieldLabel: Uni.I18n.translate('devicecommunicationhistory.finishedOn', 'MDC', 'Finished on'),
-                                    renderer: function (value, metadata) {
-                                        if (value !== '') {
-                                            return new Date(value).toLocaleString();
-                                        } else {
-                                            return '';
-                                        }
+                                    renderer: function (value) {
+                                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
                                     }
                                 },
                                 {
