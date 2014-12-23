@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class RelativeDate {
+    public static final String NOW_STRING = "now";
     private static String SEPARATOR = ";";
     private String relativeDate;
     private List<RelativeOperation> operations = new ArrayList<>();
@@ -24,7 +25,7 @@ public final class RelativeDate {
     public static RelativeDate NOW = new RelativeDate();
 
     public RelativeDate() {
-        this.relativeDate = "";
+        this.relativeDate = NOW_STRING;
     }
 
     public RelativeDate(String pattern) {
@@ -38,7 +39,10 @@ public final class RelativeDate {
             builder.append(operation.toString()).append(SEPARATOR);
         }
         relativeDate = builder.toString();
-        this.operations = operations;
+        if (relativeDate.isEmpty()) {
+            relativeDate = NOW_STRING;
+        }
+        this.operations.addAll(operations);
     }
 
     public RelativeDate(RelativeOperation... operations) {
@@ -109,6 +113,9 @@ public final class RelativeDate {
     }
 
     private void setOperations() {
+        if (NOW_STRING.equals(relativeDate)) {
+            return;
+        }
         String[] operationStrings = relativeDate.split(SEPARATOR);
         for (String operationString : operationStrings) {
             operations.add(getOperation(operationString));
