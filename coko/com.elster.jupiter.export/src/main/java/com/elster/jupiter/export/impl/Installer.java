@@ -13,13 +13,13 @@ import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.time.*;
+import com.elster.jupiter.time.RelativePeriodCategory;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 
-import java.time.DayOfWeek;
-import java.time.temporal.WeekFields;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -99,92 +99,18 @@ class Installer {
                 {Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.VIEW_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK});
     }
 
-    private void createRelativePeriods() {
+    private List<RelativePeriodCategory> getCategories() {
         List<RelativePeriodCategory> categories = new ArrayList<>();
         categories.add(timeService.findRelativePeriodCategoryByName(RELATIVE_PERIOD_CATEGORY).orElseThrow(IllegalArgumentException::new));
-
-        List<RelativeOperation> nowList = new ArrayList<>();
-        setEndOfDayTime(nowList);
-
-        // Last 7 days
-        List<RelativeOperation> lastSevenDaysFromList = new ArrayList<>();
-        lastSevenDaysFromList.add(new RelativeOperation(RelativeField.DAY, RelativeOperator.MINUS, 7));
-        setMidnightTime(lastSevenDaysFromList);
-
-        List<RelativeOperation> lastSevenDaysToList = new ArrayList<>();
-        lastSevenDaysToList.add(new RelativeOperation(RelativeField.DAY, RelativeOperator.MINUS, 1));
-        setEndOfDayTime(lastSevenDaysToList);
-        timeService.createRelativePeriod("Last 7 days", new RelativeDate(lastSevenDaysFromList), new RelativeDate(lastSevenDaysToList), categories);
-
-        // Previous month
-        List<RelativeOperation> previousMonthFromList = new ArrayList<>();
-        previousMonthFromList.add(new RelativeOperation(RelativeField.MONTH, RelativeOperator.MINUS, 1));
-        previousMonthFromList.add(new RelativeOperation(RelativeField.DAY, RelativeOperator.EQUAL, 1));
-        setMidnightTime(previousMonthFromList);
-
-        List<RelativeOperation> previousMonthToList = new ArrayList<>();
-        previousMonthToList.add(new RelativeOperation(RelativeField.MONTH, RelativeOperator.MINUS, 1));
-        previousMonthToList.add(new RelativeOperation(RelativeField.DAY, RelativeOperator.EQUAL, RelativeField.LAST_DAY_OF_MONTH));
-        setEndOfDayTime(previousMonthToList);
-        timeService.createRelativePeriod("Previous month", new RelativeDate(previousMonthFromList), new RelativeDate(previousMonthToList), categories);
-
-        // This month
-        List<RelativeOperation> thisMonthFromList = new ArrayList<>();
-        thisMonthFromList.add(new RelativeOperation(RelativeField.DAY, RelativeOperator.EQUAL, 1));
-        setMidnightTime(thisMonthFromList);
-        timeService.createRelativePeriod("This month", new RelativeDate(thisMonthFromList), new RelativeDate(nowList), categories);
-
-        // Previous week
-        DayOfWeek firstDayOfWeek = WeekFields.of(Locale.getDefault()).getFirstDayOfWeek();
-        List<RelativeOperation> previousWeekFromList = new ArrayList<>();
-        previousWeekFromList.add(new RelativeOperation(RelativeField.WEEK, RelativeOperator.MINUS, 1));
-        previousWeekFromList.add(new RelativeOperation(RelativeField.DAY_OF_WEEK, RelativeOperator.EQUAL, firstDayOfWeek.getValue()));
-        setMidnightTime(previousWeekFromList);
-
-        List<RelativeOperation> previousWeekToList = new ArrayList<>();
-        previousWeekToList.add(new RelativeOperation(RelativeField.WEEK, RelativeOperator.MINUS, 1));
-        previousWeekToList.add(new RelativeOperation(RelativeField.DAY_OF_WEEK, RelativeOperator.EQUAL,
-                firstDayOfWeek.getValue()+6 < 8 ? firstDayOfWeek.getValue()+6 : (firstDayOfWeek.getValue()+6)%7));
-        setEndOfDayTime(previousWeekToList);
-        timeService.createRelativePeriod("Previous week", new RelativeDate(previousWeekFromList), new RelativeDate(previousWeekToList), categories);
-
-        // This week
-        List<RelativeOperation> thisWeekFromList = new ArrayList<>();
-        thisWeekFromList.add(new RelativeOperation(RelativeField.DAY_OF_WEEK, RelativeOperator.EQUAL, firstDayOfWeek.getValue()));
-        setMidnightTime(thisWeekFromList);
-        timeService.createRelativePeriod("This week", new RelativeDate(thisWeekFromList), new RelativeDate(nowList), categories);
-
-        // Yesterday
-        List<RelativeOperation> yesterdayFromList = new ArrayList<>();
-        yesterdayFromList.add(new RelativeOperation(RelativeField.DAY, RelativeOperator.MINUS, 1));
-        setMidnightTime(yesterdayFromList);
-
-        List<RelativeOperation> yesterdayToList = new ArrayList<>();
-        yesterdayToList.add(new RelativeOperation(RelativeField.DAY, RelativeOperator.MINUS, 1));
-        setEndOfDayTime(yesterdayToList);
-        timeService.createRelativePeriod("Yesterday", new RelativeDate(yesterdayFromList), new RelativeDate(yesterdayToList), categories);
-
-        // Today
-        List<RelativeOperation> todayFromList = new ArrayList<>();
-        setMidnightTime(todayFromList);
-        timeService.createRelativePeriod("Today", new RelativeDate(todayFromList), new RelativeDate(nowList), categories);
+        return categories;
     }
 
-    private void setMidnightTime(List<RelativeOperation> operationList) {
-        RelativeOperation midnightHours = new RelativeOperation(RelativeField.HOUR, RelativeOperator.EQUAL, 0);
-        RelativeOperation midnightMinutes = new RelativeOperation(RelativeField.MINUTES, RelativeOperator.EQUAL, 0);
-        operationList.add(midnightHours);
-        operationList.add(midnightMinutes);
+    private void createRelativePeriods() {
+        List<RelativePeriodCategory> categories = getCategories();
+
+        Arrays.stream(DefaultRelativePeriodDefinition.values())
+                .forEach(definition -> definition.create(timeService, categories));
+
     }
 
-    private void setEndOfDayTime(List<RelativeOperation> operationList) {
-        RelativeOperation endOfDayHours = new RelativeOperation(RelativeField.HOUR, RelativeOperator.EQUAL, 23);
-        RelativeOperation endOfDayMinutes = new RelativeOperation(RelativeField.MINUTES, RelativeOperator.EQUAL, 59);
-        RelativeOperation endOfDaySeconds = new RelativeOperation(RelativeField.SECONDS, RelativeOperator.EQUAL, 59);
-        RelativeOperation endOfDayMillis = new RelativeOperation(RelativeField.MILLIS, RelativeOperator.EQUAL, 59);
-        operationList.add(endOfDayHours);
-        operationList.add(endOfDayMinutes);
-        operationList.add(endOfDaySeconds);
-        operationList.add(endOfDayMillis);
-    }
 }
