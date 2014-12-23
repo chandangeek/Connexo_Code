@@ -52,7 +52,7 @@ Ext.define('Mdc.model.Register', {
             persist: false,
             mapping: function (data) {
                 return (data.detailedValidationInfo && data.detailedValidationInfo.lastChecked) ?
-                    Uni.I18n.formatDate('deviceloadprofiles.dateFormat', new Date(data.detailedValidationInfo.lastChecked), 'MDC', 'M d, Y H:i') : '';
+                    Uni.DateTime.formatDateTimeLong(new Date(data.detailedValidationInfo.lastChecked)) : '';
             }
         }
     ],

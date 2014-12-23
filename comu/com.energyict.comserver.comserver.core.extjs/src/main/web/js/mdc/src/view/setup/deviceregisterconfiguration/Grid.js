@@ -27,12 +27,10 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
             },
             {
                 header: Uni.I18n.translate('deviceregisterconfiguration.timestampLastValue', 'MDC', 'Timestamp last value'),
-                xtype: 'datecolumn',
-                format: 'M j, Y \\a\\t G:i',
                 dataIndex: 'timeStamp',
-                defaultRenderer: function(value){
+                renderer: function(value){
                     if(!Ext.isEmpty(value)) {
-                        return Ext.util.Format.date(new Date(value), this.format);
+                        return Uni.DateTime.formatDateTimeShort(new Date(value));
                     }
                     return Uni.I18n.translate('deviceregisterconfiguration.latestMeasurement.notspecified', 'MDC', '-');
                 },
@@ -40,12 +38,10 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
             },
             {
                 header: Uni.I18n.translate('deviceregisterconfiguration.lastReading', 'MDC', 'Last reading'),
-                xtype: 'datecolumn',
-                format: 'M j, Y \\a\\t G:i',
                 dataIndex: 'reportedDateTime',
-                defaultRenderer: function(value){
+                renderer: function(value){
                     if(!Ext.isEmpty(value)) {
-                        return Ext.util.Format.date(new Date(value), this.format);
+                        return Uni.DateTime.formatDateTimeShort(new Date(value));
                     }
                     return Uni.I18n.translate('deviceregisterconfiguration.latestReading.notspecified', 'MDC', '-');
                 },
