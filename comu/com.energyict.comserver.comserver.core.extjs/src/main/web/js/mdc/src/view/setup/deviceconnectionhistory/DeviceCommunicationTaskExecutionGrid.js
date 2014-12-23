@@ -40,10 +40,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                 text: Uni.I18n.translate('deviceconnectionhistory.startedOn', 'MDC', 'Started on'),
                 dataIndex: 'startTime',
                 flex: 1,
-                renderer: function (value,metadata) {
-                    if (value !== null) {
-                        return Uni.DateTime.formatDateTimeLong(new Date(value));
-                    }
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
                 }
             },
             {

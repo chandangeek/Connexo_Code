@@ -30,9 +30,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogPreview', 
                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.timeStamp', 'MDC', 'Timestamp'),
                     itemId: 'timestamp',
                     renderer: function (value) {
-                        if (value) {
-                            return Uni.DateTime.formatDateTimeLong(new Date(value));
-                        }
+                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
                     }
                 },
                 {

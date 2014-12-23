@@ -11,7 +11,6 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
         'Uni.grid.column.Default',
         'Mdc.view.setup.device.ConnectionActionMenu'
     ],
-    itemId: 'connectionslist',
     store: null,
     connectionTpl: new Ext.XTemplate(
         '<table>',

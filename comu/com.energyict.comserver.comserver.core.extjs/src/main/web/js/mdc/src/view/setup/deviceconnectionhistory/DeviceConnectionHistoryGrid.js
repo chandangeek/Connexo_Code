@@ -19,10 +19,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                 text: Uni.I18n.translate('deviceconnectionhistory.startedOn', 'MDC', 'Started on'),
                 dataIndex: 'startedOn',
                 flex: 2,
-                renderer: function (value, metadata) {
-                    if (value !== null) {
-                        return Uni.DateTime.formatDateTimeLong(new Date(value));
-                    }
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
                 }
             },
             {

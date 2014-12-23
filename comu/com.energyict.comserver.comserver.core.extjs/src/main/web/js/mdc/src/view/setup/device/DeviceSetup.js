@@ -11,7 +11,9 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         'Mdc.view.setup.device.DeviceOpenIssuesPanel',
         'Mdc.view.setup.device.DeviceDataValidationPanel',
         'Mdc.view.setup.device.DeviceConnections',
-        'Mdc.view.setup.device.DeviceCommunications'
+        'Mdc.view.setup.device.DeviceCommunications',
+        'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
     content: [
@@ -262,15 +264,24 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 },
                 layout: 'fit',
                 items: {
-                    xtype: 'device-connections-list',
-                    router: me.router
-                },
-                bindStore: function(store) {
-                    var me = this,
-                        connList = me.down('device-connections-list');
-                    connList.bindStore(store);
-                    connList.reconfigure();
-                    me.setTitle(Uni.I18n.translatePlural('device.connections.title', store.count(), 'DSH', 'Connections ({0})'));
+                    xtype: 'preview-container',
+                    grid: {
+                        xtype: 'device-connections-list',
+                        itemId: 'connectionslist',
+                        store: me.device.connections(),
+                        router: me.router,
+                        viewConfig: {
+                            disableSelection: true
+                        }
+                    },
+                    emptyComponent: {
+                        xtype: 'no-items-found-panel',
+                        itemId: 'device-connections-no-items-found-panel',
+                        title: Uni.I18n.translate('device.connections.empty.title', 'MDC', 'No connections found'),
+                        reasons: [
+                            Uni.I18n.translate('device.connections.empty.list.item1', 'MDC', 'No connections for device have been created yet.')
+                        ]
+                    }
                 }
             },
             {
@@ -283,40 +294,49 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 },
                 layout: 'fit',
                 items: {
-                    xtype: 'device-communications-list',
-                    router: me.router
-                },
-                tools: [
-                    {
-                        xtype: 'toolbar',
-                        items: [
-                            '->',
+                    xtype: 'preview-container',
+                    grid: {
+                        xtype: 'device-communications-list',
+                        itemId: 'communicationslist',
+                        title: '&nbsp;',
+                        store: me.device.communications(),
+                        router: me.router,
+                        viewConfig: {
+                            disableSelection: true
+                        },
+                        tools: [
                             {
-                                xtype: 'button',
-                                itemId: 'activate-all',
-                                style: {
-                                    'background-color': '#71adc7'
-                                },
-                                text: Uni.I18n.translate('device.communications.activate', 'DSH', 'Activate all')
-                            },
-                            {
-                                xtype: 'button',
-                                itemId: 'deactivate-all',
-                                style: {
-                                    'background-color': '#71adc7'
-                                },
-                                text: Uni.I18n.translate('device.communications.deactivate', 'DSH', 'Deactivate all')
+                                xtype: 'toolbar',
+                                items: [
+                                    '->',
+                                    {
+                                        xtype: 'button',
+                                        itemId: 'activate-all',
+                                        style: {
+                                            'background-color': '#71adc7'
+                                        },
+                                        text: Uni.I18n.translate('device.communications.activate', 'DSH', 'Activate all')
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        itemId: 'deactivate-all',
+                                        style: {
+                                            'background-color': '#71adc7'
+                                        },
+                                        text: Uni.I18n.translate('device.communications.deactivate', 'DSH', 'Deactivate all')
+                                    }
+                                ]
                             }
                         ]
+                    },
+                    emptyComponent: {
+                        xtype: 'no-items-found-panel',
+                        itemId: 'device-communications-no-items-found-panel',
+                        title: Uni.I18n.translate('device.communicationTasks.empty.title', 'MDC', 'No communication tasks found'),
+                        reasons: [
+                            Uni.I18n.translate('device.communicationTasks.empty.list.item1', 'MDC', 'No communication tasks for device have been created yet.')
+                        ]
                     }
-                ],
-
-                bindStore: function(store) {
-                    var me = this,
-                        commList = me.down('device-communications-list');
-                    commList.bindStore(store);
-                    commList.reconfigure();
-                    me.setTitle(Uni.I18n.translatePlural('device.communications.title', store.count(), 'DSH', 'Communication tasks ({0})'));
                 }
             }
         );

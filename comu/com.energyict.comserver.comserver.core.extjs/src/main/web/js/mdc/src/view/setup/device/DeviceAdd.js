@@ -135,7 +135,8 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             maxWidth: 400,
                             editable: false,
                             value: new Date(),
-                            fieldLabel: Uni.I18n.translate('deviceAdd.arrivalDate', 'MDC', 'Arrival date')
+                            fieldLabel: Uni.I18n.translate('deviceAdd.arrivalDate', 'MDC', 'Arrival date'),
+                            format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                         },
                         {
                             xtype: 'combobox',

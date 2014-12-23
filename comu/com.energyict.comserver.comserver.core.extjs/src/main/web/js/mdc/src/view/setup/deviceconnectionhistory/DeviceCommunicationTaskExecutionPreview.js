@@ -159,12 +159,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                     name: 'startTime',
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.startedOn', 'MDC', 'Started on'),
                                     itemId: 'startedOn',
-                                    renderer: function (value,metadata) {
-                                        if (value !== '') {
-                                            return Uni.DateTime.formatDateTimeLong(new Date(value));
-                                        } else {
-                                            return '';
-                                        }
+                                    renderer: function (value) {
+                                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
                                     }
                                 },
                                 {
@@ -172,12 +168,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                     name: 'finishTime',
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.finishedOn', 'MDC', 'Finished on'),
                                     itemId: 'finishedOn',
-                                    renderer: function (value,metadata) {
-                                        if (value !== '') {
-                                            return Uni.DateTime.formatDateTimeLong(new Date(value));
-                                        } else {
-                                            return '';
-                                        }
+                                    renderer: function (value) {
+                                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
                                     }
                                 },
                                 {
