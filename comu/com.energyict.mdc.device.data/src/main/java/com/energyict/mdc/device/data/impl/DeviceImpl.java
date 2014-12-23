@@ -618,27 +618,6 @@ public class DeviceImpl implements Device, CanLock {
         }
     }
 
-    public TypedProperties getDeviceProtocolProperties() {
-        TypedProperties properties = TypedProperties.inheritingFrom(this.getDeviceConfiguration().getDeviceProtocolProperties().getTypedProperties());
-        TypedProperties localProperties = getLocalProperties(this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs());
-        properties.setAllProperties(localProperties);
-        return properties;
-    }
-
-
-    private Optional<PropertySpec> getPropertySpecForProperty(String name) {
-        return this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs().stream().filter(spec->spec.getName().equals(name)).findFirst();
-    }
-
-    private boolean propertyExistsOnDeviceProtocol(String name) {
-        for (PropertySpec propertySpec : this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs()) {
-            if (propertySpec.getName().equals(name)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
     public List<ProtocolDialectProperties> getProtocolDialectPropertiesList() {
         List<ProtocolDialectProperties> all = new ArrayList<>(this.dialectPropertiesList.size() + this.newDialectProperties.size());
@@ -781,15 +760,25 @@ public class DeviceImpl implements Device, CanLock {
         }
     }
 
-    private TypedProperties getLocalProperties(List<PropertySpec> propertySpecs) {
-        TypedProperties properties = TypedProperties.empty();
+    @Override
+    public TypedProperties getDeviceProtocolProperties() {
+        TypedProperties properties = TypedProperties.inheritingFrom(this.getDeviceConfiguration().getDeviceProtocolProperties().getTypedProperties());
+        this.addLocalProperties(properties, this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs());
+        return properties;
+    }
+
+
+    private Optional<PropertySpec> getPropertySpecForProperty(String name) {
+        return this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs().stream().filter(spec->spec.getName().equals(name)).findFirst();
+    }
+
+    private void addLocalProperties(TypedProperties properties,  List<PropertySpec> propertySpecs) {
         for (PropertySpec propertySpec : propertySpecs) {
             DeviceProtocolProperty deviceProtocolProperty = findDevicePropertyFor(propertySpec);
             if (deviceProtocolProperty != null) {
                 properties.setProperty(deviceProtocolProperty.getName(), propertySpec.getValueFactory().fromStringValue(deviceProtocolProperty.getPropertyValue()));
             }
         }
-        return properties;
     }
 
     private DeviceProtocolProperty findDevicePropertyFor(PropertySpec propertySpec) {
