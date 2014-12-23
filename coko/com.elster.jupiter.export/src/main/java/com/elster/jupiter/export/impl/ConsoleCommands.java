@@ -78,14 +78,14 @@ public class ConsoleCommands {
                 .forEach(System.out::println);
     }
 
-    public void setDefaultExportDir(String path) {
-        AppServer appServer = appService.getAppServer().orElseThrow(() -> new RuntimeException("Cannot set default export dir for anonymous."));
+    public void setDefaultExportDir(String appServerName, String path) {
+        AppServer appServer = appService.findAppServer(appServerName).orElseThrow(() -> new RuntimeException("Cannot set default export dir for anonymous."));
 
         transactionService.execute(VoidTransaction.of(() -> dataExportService.setExportDirectory(appServer, Paths.get(path).toAbsolutePath())));
     }
 
-    public void getDefaultExportDir() {
-        AppServer appServer = appService.getAppServer().orElseThrow(() -> new RuntimeException("Cannot set default export dir for anonymous."));
+    public void getDefaultExportDir(String appServerName) {
+        AppServer appServer = appService.findAppServer(appServerName).orElseThrow(() -> new RuntimeException("Cannot set default export dir for anonymous."));
 
         Optional<Path> exportDirectory = dataExportService.getExportDirectory(appServer);
         System.out.println(exportDirectory.orElse(Paths.get("").toAbsolutePath().normalize()));

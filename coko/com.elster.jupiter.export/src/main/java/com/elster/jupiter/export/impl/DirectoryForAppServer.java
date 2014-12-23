@@ -54,4 +54,8 @@ class DirectoryForAppServer {
         }
         dataModel.mapper(DirectoryForAppServer.class).persist(this);
     }
+
+    AppServer getAppServer() {
+        return appServer.get();
+    }
 }

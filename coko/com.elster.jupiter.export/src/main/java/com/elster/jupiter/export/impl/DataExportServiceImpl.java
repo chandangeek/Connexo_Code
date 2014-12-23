@@ -41,6 +41,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -270,6 +271,13 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Override
     public Optional<Path> getExportDirectory(AppServer appServer) {
         return dataModel.mapper(DirectoryForAppServer.class).getOptional(appServer.getName()).flatMap(DirectoryForAppServer::getPath);
+    }
+
+    @Override
+    public Map<AppServer, Path> getAllExportDirecties() {
+        return dataModel.mapper(DirectoryForAppServer.class).find().stream()
+                .filter(dfa -> dfa.getPath().isPresent())
+                .collect(Collectors.toMap(DirectoryForAppServer::getAppServer, dfa -> dfa.getPath().get()));
     }
 
     @Override
