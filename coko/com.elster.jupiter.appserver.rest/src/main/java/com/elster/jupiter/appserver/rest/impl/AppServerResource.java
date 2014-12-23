@@ -84,7 +84,7 @@ public class AppServerResource {
             if (info.executionSpecs != null) {
                 info.executionSpecs.stream()
                         .forEach(spec -> {
-                            SubscriberSpec subscriberSpec = messageService.getSubscriberSpec(spec.subscriberSpec.destination, spec.subscriberSpec.subsriber).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+                            SubscriberSpec subscriberSpec = messageService.getSubscriberSpec(spec.subscriberSpec.destination, spec.subscriberSpec.subscriber).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
                             underConstruction.createSubscriberExecutionSpec(subscriberSpec, spec.numberOfThreads);
                         });
             }
@@ -144,7 +144,7 @@ public class AppServerResource {
     private void doAdditions(List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairs, AppServer.BatchUpdate updater) {
         List<Pair<SubscriberSpec, SubscriberExecutionSpecInfo>> toAdd = pairs.stream()
                 .filter(pair -> pair.getFirst() == null)
-                .map(pair -> pair.withFirst((f, l) -> messageService.getSubscriberSpec(l.subscriberSpec.destination, l.subscriberSpec.subsriber).orElse(null)))
+                .map(pair -> pair.withFirst((f, l) -> messageService.getSubscriberSpec(l.subscriberSpec.destination, l.subscriberSpec.subscriber).orElse(null)))
                 .collect(Collectors.toList());
 
         if (toAdd.stream().anyMatch(pair -> pair.getFirst() == null)) {
@@ -188,7 +188,7 @@ public class AppServerResource {
                 )
                 .collect(Collectors.toList());
         SubscriberSpecInfos subscriberSpecInfos = new SubscriberSpecInfos(subscribers);
-        subscriberSpecInfos.subscriberSpecs.sort(Comparator.comparing(SubscriberSpecInfo::getDestination).thenComparing(SubscriberSpecInfo::getSubsriber));
+        subscriberSpecInfos.subscriberSpecs.sort(Comparator.comparing(SubscriberSpecInfo::getDestination).thenComparing(SubscriberSpecInfo::getSubscriber));
         return subscriberSpecInfos;
     }
 

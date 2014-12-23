@@ -6,14 +6,14 @@ import com.elster.jupiter.messaging.SubscriberSpec;
 public class SubscriberSpecInfo {
 
     public String destination;
-    public String subsriber;
+    public String subscriber;
 
     public SubscriberSpecInfo() {
     }
 
-    public SubscriberSpecInfo(String destination, String subsriber) {
+    public SubscriberSpecInfo(String destination, String subscriber) {
         this.destination = destination;
-        this.subsriber = subsriber;
+        this.subscriber = subscriber;
     }
 
     public static SubscriberSpecInfo of(SubscriberExecutionSpec executionSpec) {
@@ -28,11 +28,11 @@ public class SubscriberSpecInfo {
         return destination;
     }
 
-    public String getSubsriber() {
-        return subsriber;
+    public String getSubscriber() {
+        return subscriber;
     }
 
     public boolean matches(SubscriberSpec subscriberSpec) {
-        return subscriberSpec.getName().equals(subsriber) && subscriberSpec.getDestination().getName().equals(destination);
+        return subscriberSpec.getName().equals(subscriber) && subscriberSpec.getDestination().getName().equals(destination);
     }
 }
