@@ -112,7 +112,9 @@ Ext.define('Idc.view.Preview', {
                         itemId: 'data-collection-issue-preview-due-date',
                         fieldLabel: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
                         name: 'dueDate',
-                        renderer: Ext.util.Format.dateRenderer('M d, Y')
+                        renderer: function (value) {
+                            return value ? Uni.DateTime.formatDateLong(value) : '';
+                        }
                     },
                     {
                         xtype: 'filter-display',
@@ -127,7 +129,9 @@ Ext.define('Idc.view.Preview', {
                         itemId: 'data-collection-issue-preview-creation-date',
                         fieldLabel: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date'),
                         name: 'creationDate',
-                        renderer: Ext.util.Format.dateRenderer('M d, Y H:i')
+                        renderer: function (value) {
+                            return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                        }
                     }
                 ]
             }
