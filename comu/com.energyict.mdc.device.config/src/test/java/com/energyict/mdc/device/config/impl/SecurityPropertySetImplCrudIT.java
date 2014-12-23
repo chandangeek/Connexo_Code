@@ -1,33 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.common.ApplicationContext;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -52,24 +24,50 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-import java.util.Optional;
+
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Optional;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
+
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
 
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1;
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2;
@@ -82,7 +80,6 @@ import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVIC
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -95,44 +92,50 @@ import static org.mockito.Mockito.when;
 public class SecurityPropertySetImplCrudIT {
 
     @Rule
+    public final TestRule transactional = new TransactionalRule(transactionService);
+    @Rule
     public TestRule itWillHitTheFan = new ExpectedConstraintViolationRule();
 
-    private InMemoryBootstrapModule bootstrapModule;
-    private Injector injector;
+    private static InMemoryBootstrapModule bootstrapModule;
+    private static EventAdmin eventAdmin;
+    private static BundleContext bundleContext;
+    private static TransactionService transactionService;
+    private static ProtocolPluggableService protocolPluggableService;
+    private static DeviceConfigurationServiceImpl deviceConfigurationService;
 
     @Mock
-    private EventAdmin eventAdmin;
-    @Mock
-    private User principal;
-    @Mock
-    private ApplicationContext applicationContext;
-    @Mock
-    private BundleContext bundleContext;
-    @Mock
-    MyDeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    private MyDeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
     private DeviceProtocol deviceProtocol;
-    @Mock
-    private ProtocolPluggableService protocolPluggableService;
     @Mock
     private AuthenticationDeviceAccessLevel authLevel, authLevel2;
     @Mock
     private EncryptionDeviceAccessLevel encLevel;
 
+    private static class MockModule extends AbstractModule {
 
-    private TransactionService transactionService;
-    private DeviceConfigurationServiceImpl deviceConfigurationService;
-    private MeteringService meteringService;
+        @Override
+        protected void configure() {
+            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(BundleContext.class).toInstance(bundleContext);
+            bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
+        }
 
-    public void initializeDatabase(boolean showSqlLogging) {
-        bootstrapModule = new InMemoryBootstrapModule();
-        injector = Guice.createInjector(
+    }
+
+    @BeforeClass
+    public static void initializeDatabase() {
+        initializeStaticMocks();
+        User principal = mock(User.class);
+        when(principal.getName()).thenReturn(SecurityPropertySetImplCrudIT.class.getSimpleName());
+        when(principal.hasPrivilege(any(Privilege.class))).thenReturn(true);
+        Injector injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
                 new ThreadSecurityModule(principal),
                 new EventsModule(),
                 new PubSubModule(),
-                new TransactionModule(showSqlLogging),
+                new TransactionModule(false),
                 new UtilModule(),
                 new NlsModule(),
                 new DomainUtilModule(),
@@ -162,7 +165,7 @@ public class SecurityPropertySetImplCrudIT {
                 new SchedulingModule());
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
-            meteringService = injector.getInstance(MeteringService.class);
+            injector.getInstance(MeteringService.class);
             injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
@@ -170,18 +173,22 @@ public class SecurityPropertySetImplCrudIT {
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
         }
-        Environment environment = injector.getInstance(Environment.class);
-        environment.put(InMemoryPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
-        environment.setApplicationContext(applicationContext);
+    }
+
+    private static void initializeStaticMocks() {
+        eventAdmin = mock(EventAdmin.class);
+        bundleContext = mock(BundleContext.class);
+        bootstrapModule = new InMemoryBootstrapModule();
+        protocolPluggableService = mock(ProtocolPluggableService.class);
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        bootstrapModule.deactivate();
     }
 
     @Before
-    public void setUp() {
-        when(principal.getName()).thenReturn("test");
-        Translator translator = mock(Translator.class);
-        when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
-        when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
-        when(applicationContext.getTranslator()).thenReturn(translator);
+    public void initializeMocks() {
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(protocolPluggableService.findDeviceProtocolPluggableClass(anyLong())).thenReturn(Optional.of(deviceProtocolPluggableClass));
         when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authLevel, authLevel2));
@@ -189,45 +196,24 @@ public class SecurityPropertySetImplCrudIT {
         when(authLevel.getId()).thenReturn(1);
         when(authLevel2.getId()).thenReturn(2);
         when(encLevel.getId()).thenReturn(2);
-        when(principal.hasPrivilege(any(Privilege.class))).thenReturn(true);
-        initializeDatabase(false);
-    }
-
-    private class MockModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
-        }
-
-    }
-
-    @After
-    public void tearDown() {
-        bootstrapModule.deactivate();
     }
 
     @Test
+    @Transactional
     public void testCreation() {
         SecurityPropertySet propertySet;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            propertySet = deviceConfiguration.createSecurityPropertySet("Name")
-                    .authenticationLevel(1)
-                    .encryptionLevel(2)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES2)
-                    .build();
-
-            context.commit();
-        }
+        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .build();
 
         Optional<SecurityPropertySet> found = deviceConfigurationService.findSecurityPropertySet(propertySet.getId());
 
@@ -243,66 +229,53 @@ public class SecurityPropertySetImplCrudIT {
     }
 
     @Test
+    @Transactional
     public void testDeletion() {
         SecurityPropertySet propertySet;
         DeviceConfiguration deviceConfiguration;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            propertySet = deviceConfiguration.createSecurityPropertySet("Name")
-                    .authenticationLevel(1)
-                    .encryptionLevel(2)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES2)
-                    .build();
+        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .build();
 
-            context.commit();
-        }
-
-        try (TransactionContext context = transactionService.getContext()) {
-            deviceConfiguration.removeSecurityPropertySet(propertySet);
-            context.commit();
-        }
+        deviceConfiguration.removeSecurityPropertySet(propertySet);
 
         Optional<SecurityPropertySet> found = deviceConfigurationService.findSecurityPropertySet(propertySet.getId());
 
         assertThat(found.isPresent()).isFalse();
-
     }
 
     @Test
+    @Transactional
     public void testUpdate() {
         SecurityPropertySet propertySet;
         DeviceConfiguration deviceConfiguration;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            propertySet = deviceConfiguration.createSecurityPropertySet("Name")
-                    .authenticationLevel(1)
-                    .encryptionLevel(2)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES2)
-                    .build();
+        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .build();
 
-            context.commit();
-        }
-
-        try (TransactionContext context = transactionService.getContext()) {
-            SecurityPropertySet toUpdate = deviceConfiguration.getSecurityPropertySets().get(0);
-            toUpdate.addUserAction(VIEWDEVICESECURITYPROPERTIES4);
-            toUpdate.setAuthenticationLevel(2);
-            toUpdate.removeUserAction(EDITDEVICESECURITYPROPERTIES1);
-            toUpdate.update();
-            context.commit();
-        }
+        SecurityPropertySet toUpdate = deviceConfiguration.getSecurityPropertySets().get(0);
+        toUpdate.addUserAction(VIEWDEVICESECURITYPROPERTIES4);
+        toUpdate.setAuthenticationLevel(2);
+        toUpdate.removeUserAction(EDITDEVICESECURITYPROPERTIES1);
+        toUpdate.update();
 
         Optional<SecurityPropertySet> found = deviceConfigurationService.findSecurityPropertySet(propertySet.getId());
 
@@ -318,135 +291,112 @@ public class SecurityPropertySetImplCrudIT {
 
     }
 
-    @Test()
+    @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     public void testCreateWithoutName () {
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            deviceConfiguration.createSecurityPropertySet(null)
-                    .authenticationLevel(1)
-                    .encryptionLevel(2)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES2)
-                    .build();
-
-            context.commit();
-        }
-    }
-
-    @Test()
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}", property = "name")
-    public void testCreateWithEmptyName () {
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
-
-            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
-
-            deviceConfiguration.createSecurityPropertySet("       ")
-                    .authenticationLevel(1)
-                    .encryptionLevel(2)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES2)
-                    .build();
-
-            context.commit();
-        }
-    }
-
-    @Test()
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "name")
-    public void testCreateWithLongName () {
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
-
-            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
-
-            deviceConfiguration.createSecurityPropertySet("приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--")
-                    .authenticationLevel(1)
-                    .encryptionLevel(2)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES2)
-                    .build();
-
-            context.commit();
-        }
+        deviceConfiguration.createSecurityPropertySet(null)
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .build();
     }
 
     @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}", property = "name")
+    public void testCreateWithEmptyName () {
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
+
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
+
+        deviceConfiguration.createSecurityPropertySet("       ")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .build();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "name")
+    public void testCreateWithLongName () {
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
+
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
+
+        deviceConfiguration.createSecurityPropertySet("приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .build();
+    }
+
+    @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.NAME_UNIQUE + '}')
     public void testCreateWithDuplicateNameInSameConfiguration () {
         DeviceConfiguration deviceConfiguration;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            deviceConfiguration.createSecurityPropertySet("Name")
-                    .authenticationLevel(1)
-                    .encryptionLevel(2)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES2)
-                    .build();
-
-            context.commit();
-        }
-        try (TransactionContext context = transactionService.getContext()) {
-            deviceConfiguration.createSecurityPropertySet("Name")
-                    .authenticationLevel(1)
-                    .encryptionLevel(2)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES2)
-                    .build();
-
-            context.commit();
-        }
+        deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .build();
+        deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .build();
     }
 
     @Test
+    @Transactional
     public void testCreateWithDuplicateNameInOtherConfiguration () {
         DeviceType deviceType;
         SecurityPropertySet propertySet;
         String expectedName = "Name";
-        try (TransactionContext context = transactionService.getContext()) {
-            deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            DeviceConfiguration deviceConfiguration1 = deviceType.newConfiguration("Normal-1").add();
-            deviceConfiguration1.save();
-            deviceConfiguration1.createSecurityPropertySet(expectedName)
-                    .authenticationLevel(1)
-                    .encryptionLevel(2)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES2)
-                    .build();
+        DeviceConfiguration deviceConfiguration1 = deviceType.newConfiguration("Normal-1").add();
+        deviceConfiguration1.save();
+        deviceConfiguration1.createSecurityPropertySet(expectedName)
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .build();
+        DeviceConfiguration deviceConfiguration2 = deviceType.newConfiguration("Normal-2").add();
+        deviceConfiguration2.save();
 
-            context.commit();
-        }
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceConfiguration deviceConfiguration2 = deviceType.newConfiguration("Normal-2").add();
-            deviceConfiguration2.save();
-
-            // Busines method
-            propertySet = deviceConfiguration2.createSecurityPropertySet(expectedName)
-                    .authenticationLevel(1)
-                    .encryptionLevel(2)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES2)
-                    .build();
-
-            context.commit();
-        }
+        // Busines method
+        propertySet = deviceConfiguration2.createSecurityPropertySet(expectedName)
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .build();
 
         // Asserts
         assertThat(propertySet).isNotNull();
@@ -457,219 +407,191 @@ public class SecurityPropertySetImplCrudIT {
     }
 
     @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testAuthenticationLevelIsRequiredWhenProtocolProvidesAtLeastOneAuthenticationLevel () {
         DeviceConfiguration deviceConfiguration;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            deviceConfiguration.createSecurityPropertySet("Name")
-                    .encryptionLevel(2)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES2)
-                    .build();
-
-            context.commit();
-        }
+        deviceConfiguration.createSecurityPropertySet("Name")
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .build();
     }
 
     @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testAuthenticationLevelShouldNotBeSpecifiedWhenProtocolDoesNotProvideAuthenticationLevels () {
         DeviceConfiguration deviceConfiguration;
         when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.<AuthenticationDeviceAccessLevel>emptyList());
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            deviceConfiguration.createSecurityPropertySet("Name")
-                    .authenticationLevel(1)
-                    .encryptionLevel(2)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES2)
-                    .build();
-
-            context.commit();
-        }
+        deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .build();
     }
 
     @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testEncryptionLevelIsRequiredWhenProtocolProvidesAtLeastOneEncryptionLevel () {
         DeviceConfiguration deviceConfiguration;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            deviceConfiguration.createSecurityPropertySet("Name")
-                    .authenticationLevel(1)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES2)
-                    .build();
-
-            context.commit();
-        }
+        deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .build();
     }
 
     @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testEncryptionLevelShouldNotBeSpecifiedWhenProtocolDoesNotProvideEncryptionLevels () {
         DeviceConfiguration deviceConfiguration;
         when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.<EncryptionDeviceAccessLevel>emptyList());
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            deviceConfiguration.createSecurityPropertySet("Name")
-                    .authenticationLevel(1)
-                    .encryptionLevel(2)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES2)
-                    .build();
-
-            context.commit();
-        }
+        deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .build();
     }
 
 
     @Test
+    @Transactional
     public void testEditIsNotAllowedWithoutUserActions () {
         DeviceConfiguration deviceConfiguration;
         SecurityPropertySet propertySet;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            propertySet = deviceConfiguration.createSecurityPropertySet("Name")
-                    .authenticationLevel(1)
-                    .encryptionLevel(2)
-                    .build();
-
-            context.commit();
-        }
+        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .build();
 
         // Business method && asserts
         assertThat(propertySet.currentUserIsAllowedToEditDeviceProperties()).isFalse();
     }
 
     @Test
+    @Transactional
     public void testEditIsNotAllowedWithOnlyViewUserActions () {
         DeviceConfiguration deviceConfiguration;
         SecurityPropertySet propertySet;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            propertySet = deviceConfiguration.createSecurityPropertySet("Name")
-                    .authenticationLevel(1)
-                    .encryptionLevel(2)
-                    .addUserAction(VIEWDEVICESECURITYPROPERTIES1)
-                    .addUserAction(VIEWDEVICESECURITYPROPERTIES2)
-                    .addUserAction(VIEWDEVICESECURITYPROPERTIES3)
-                    .addUserAction(VIEWDEVICESECURITYPROPERTIES4)
-                    .build();
-
-            context.commit();
-        }
+        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(VIEWDEVICESECURITYPROPERTIES1)
+                .addUserAction(VIEWDEVICESECURITYPROPERTIES2)
+                .addUserAction(VIEWDEVICESECURITYPROPERTIES3)
+                .addUserAction(VIEWDEVICESECURITYPROPERTIES4)
+                .build();
 
         // Business method && asserts
         assertThat(propertySet.currentUserIsAllowedToEditDeviceProperties()).isFalse();
     }
 
     @Test
+    @Transactional
     public void testEditIsAllowedWithAtLeastOneEditUserAction () {
         DeviceConfiguration deviceConfiguration;
         SecurityPropertySet propertySet;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            propertySet = deviceConfiguration.createSecurityPropertySet("Name")
-                    .authenticationLevel(1)
-                    .encryptionLevel(2)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                    .build();
-
-            context.commit();
-        }
+        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .build();
 
         // Business method && asserts
         assertThat(propertySet.currentUserIsAllowedToEditDeviceProperties()).isTrue();
     }
 
     @Test
+    @Transactional
     public void testViewIsNotAllowedWithOnlyEditUserActions () {
         DeviceConfiguration deviceConfiguration;
         SecurityPropertySet propertySet;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            propertySet = deviceConfiguration.createSecurityPropertySet("Name")
-                    .authenticationLevel(1)
-                    .encryptionLevel(2)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES2)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES3)
-                    .addUserAction(EDITDEVICESECURITYPROPERTIES4)
-                    .build();
-
-            context.commit();
-        }
+        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES3)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES4)
+                .build();
 
         assertThat(propertySet.currentUserIsAllowedToViewDeviceProperties()).isFalse();
     }
 
     @Test
+    @Transactional
     public void testViewIsAllowedWithAtLeastOneViewUserAction () {
         DeviceConfiguration deviceConfiguration;
         SecurityPropertySet propertySet;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            propertySet = deviceConfiguration.createSecurityPropertySet("Name")
-                    .authenticationLevel(1)
-                    .encryptionLevel(2)
-                    .addUserAction(VIEWDEVICESECURITYPROPERTIES1)
-                    .build();
-
-            context.commit();
-        }
+        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(VIEWDEVICESECURITYPROPERTIES1)
+                .build();
 
         assertThat(propertySet.currentUserIsAllowedToViewDeviceProperties()).isTrue();
     }
 
     public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
     }
-
 
 }
