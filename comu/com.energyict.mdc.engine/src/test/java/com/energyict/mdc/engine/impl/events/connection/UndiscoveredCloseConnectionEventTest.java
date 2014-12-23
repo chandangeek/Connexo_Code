@@ -11,6 +11,7 @@ import org.joda.time.DateTime;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 
 import org.junit.*;
@@ -58,7 +59,7 @@ public class UndiscoveredCloseConnectionEventTest {
 
     @Test
     public void testOccurrenceTimestamp () {
-        Instant now = Instant.from(LocalDateTime.of(2012, Calendar.NOVEMBER, 6, 13, 45, 17, 0));  // Random pick
+        Instant now = LocalDateTime.of(2012, Calendar.NOVEMBER, 6, 13, 45, 17, 0).toInstant(ZoneOffset.UTC);  // Random pick
         when(this.clock.instant()).thenReturn(now);
 
         InboundComPort comPort = mock(InboundComPort.class);

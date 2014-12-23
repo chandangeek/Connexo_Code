@@ -8,6 +8,7 @@ import org.json.JSONWriter;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -58,7 +59,7 @@ public abstract class AbstractComServerEventImpl implements ComServerEvent {
 
     protected String formatOccurrenceTimeStamp (Instant occurrenceTimestamp) {
         if (occurrenceTimestamp != null) {
-            return OCCURRENCE_TIMESTAMP_FORMAT.format(occurrenceTimestamp);
+            return OCCURRENCE_TIMESTAMP_FORMAT.format(occurrenceTimestamp.atOffset(ZoneOffset.UTC));
         }
         else {
             return "null";

@@ -12,6 +12,7 @@ import org.joda.time.DateTime;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 
 import org.junit.*;
@@ -59,7 +60,7 @@ public class ReadEventTest {
 
     @Test
     public void testConstructor () {
-        Instant occurrenceTimestamp = Instant.from(LocalDateTime.of(2012, Calendar.NOVEMBER, 7, 17, 22, 01, 0));  // Random pick
+        Instant occurrenceTimestamp = LocalDateTime.of(2012, Calendar.NOVEMBER, 7, 17, 22, 01, 0).toInstant(ZoneOffset.UTC);  // Random pick
         when(this.clock.instant()).thenReturn(occurrenceTimestamp);
         byte[] bytes = "testConstructor".getBytes();
         ComPort comPort = mock(ComPort.class);
@@ -167,7 +168,7 @@ public class ReadEventTest {
 
     @Test
     public void testToStringDoesNotFail () throws IOException {
-        Instant occurrenceTimestamp = Instant.from(LocalDateTime.of(2012, Calendar.NOVEMBER, 7, 17, 22, 01, 0));  // Random pick
+        Instant occurrenceTimestamp = LocalDateTime.of(2012, Calendar.NOVEMBER, 7, 17, 22, 01, 0).toInstant(ZoneOffset.UTC);  // Random pick
         when(this.clock.instant()).thenReturn(occurrenceTimestamp);
         byte[] bytes = "testToStringDoesNotFail".getBytes();
         ComPort comPort = mock(ComPort.class);

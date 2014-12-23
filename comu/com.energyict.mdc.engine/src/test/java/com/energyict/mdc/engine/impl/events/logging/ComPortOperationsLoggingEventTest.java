@@ -14,6 +14,7 @@ import org.joda.time.DateTime;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 
 import org.junit.*;
@@ -60,7 +61,7 @@ public class ComPortOperationsLoggingEventTest {
 
     @Test
     public void testOccurrenceTimestampForDefaultConstructor () {
-        Instant now = Instant.from(LocalDateTime.of(2012, Calendar.NOVEMBER, 15, 14, 10, 01, 0));  // Random pick
+        Instant now = LocalDateTime.of(2012, Calendar.NOVEMBER, 15, 14, 10, 01, 0).toInstant(ZoneOffset.UTC);  // Random pick
         when(this.clock.instant()).thenReturn(now);
 
         ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(this.serviceProvider, mock(ComPort.class), LogLevel.DEBUG, "testOccurrenceTimestampForDefaultConstructor");
@@ -74,7 +75,7 @@ public class ComPortOperationsLoggingEventTest {
 
     @Test
     public void testOccurrenceTimestamp () {
-        Instant now = Instant.from(LocalDateTime.of(2012, Calendar.NOVEMBER, 15, 14, 10, 01, 0));  // Random pick
+        Instant now = LocalDateTime.of(2012, Calendar.NOVEMBER, 15, 14, 10, 01, 0).toInstant(ZoneOffset.UTC);  // Random pick
         when(this.clock.instant()).thenReturn(now);
 
         ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(this.serviceProvider, null, LogLevel.INFO, "testOccurrenceTimestamp");

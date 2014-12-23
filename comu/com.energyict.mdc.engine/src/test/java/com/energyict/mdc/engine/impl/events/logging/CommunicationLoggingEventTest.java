@@ -16,6 +16,7 @@ import org.joda.time.DateTime;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 
 import org.junit.*;
@@ -64,7 +65,7 @@ public class CommunicationLoggingEventTest {
 
     @Test
     public void testOccurrenceTimestamp () {
-        Instant now = Instant.from(LocalDateTime.of(2012, Calendar.NOVEMBER, 6, 17, 22, 01, 0));  // Random pick
+        Instant now = LocalDateTime.of(2012, Calendar.NOVEMBER, 6, 17, 22, 01, 0).toInstant(ZoneOffset.UTC);  // Random pick
         when(this.clock.instant()).thenReturn(now);
 
         CommunicationLoggingEvent event = new CommunicationLoggingEvent(this.serviceProvider, null, null, LogLevel.INFO, "testOccurrenceTimestamp");
