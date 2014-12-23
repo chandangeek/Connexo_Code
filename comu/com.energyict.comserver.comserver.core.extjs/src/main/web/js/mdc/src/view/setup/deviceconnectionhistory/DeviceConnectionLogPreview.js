@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogPreview', 
                     itemId: 'timestamp',
                     renderer: function (value) {
                         if (value) {
-                            return new Date(value).toLocaleString();
+                            return Uni.DateTime.formatDateTimeLong(new Date(value));
                         }
                     }
                 },

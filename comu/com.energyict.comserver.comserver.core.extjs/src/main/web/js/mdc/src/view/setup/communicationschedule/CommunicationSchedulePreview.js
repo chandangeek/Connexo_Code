@@ -101,8 +101,8 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', 
                                     name: 'plannedDate',
                                     fieldLabel: Uni.I18n.translate('communicationschedule.plannedDate', 'MDC', 'Planned date'),
                                     renderer: function(value){
-                                        if(value!==null){
-                                            return new Date(value).toLocaleString();
+                                        if(value){
+                                            return Uni.DateTime.formatDateTimeLong(new Date(value));
                                         } else {
                                             return '';
                                         }

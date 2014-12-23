@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.OnRequestCommunicationSch
                     dataIndex: 'nextCommunication',
                     renderer: function (value,metadata) {
                         if (value !== null) {
-                            return new Date(value).toLocaleString();
+                            return Uni.DateTime.formatDateTimeLong(new Date(value));
                         } else {
                             metadata.tdAttr = 'data-qtip="' + Uni.I18n.translate('deviceCommunicationSchedules.noNextCommunication', 'MDC', 'No next communication') + '"';
                             return '-';

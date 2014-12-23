@@ -73,7 +73,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                                 itemId: 'startTime',
                                                 renderer: function (value) {
                                                     if (value !== '') {
-                                                        return new Date(value).toLocaleString();
+                                                        return Uni.DateTime.formatDateTimeLong(new Date(value));
                                                     } else {
                                                         return '';
                                                     }

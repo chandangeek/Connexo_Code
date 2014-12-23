@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                     itemId: 'startedOn',
                                     renderer: function (value) {
                                         if (value !== '') {
-                                            return new Date(value).toLocaleString();
+                                            return Uni.DateTime.formatDateTimeLong(new Date(value));
                                         } else {
                                             return '';
                                         }
@@ -73,7 +73,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                     itemId: 'finishedOn',
                                     renderer: function (value) {
                                         if (value !== '') {
-                                            return new Date(value).toLocaleString();
+                                            return Uni.DateTime.formatDateTimeLong(new Date(value));
                                         } else {
                                             return '';
                                         }

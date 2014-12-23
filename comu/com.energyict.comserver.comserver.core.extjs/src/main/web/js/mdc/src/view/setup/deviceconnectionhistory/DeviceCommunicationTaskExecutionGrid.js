@@ -42,7 +42,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                 flex: 1,
                 renderer: function (value,metadata) {
                     if (value !== null) {
-                        return new Date(value).toLocaleString();
+                        return Uni.DateTime.formatDateTimeLong(new Date(value));
                     }
                 }
             },

@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogGrid', {
                 flex: 1,
                 renderer: function (value, metadata) {
                     if (value) {
-                        return new Date(value).toLocaleString();
+                        return Uni.DateTime.formatDateTimeLong(new Date(value));
                     }
                 }
             },

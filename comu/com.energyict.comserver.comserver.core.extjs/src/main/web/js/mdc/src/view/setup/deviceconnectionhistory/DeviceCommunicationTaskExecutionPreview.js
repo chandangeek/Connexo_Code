@@ -161,7 +161,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                     itemId: 'startedOn',
                                     renderer: function (value,metadata) {
                                         if (value !== '') {
-                                            return new Date(value).toLocaleString();
+                                            return Uni.DateTime.formatDateTimeLong(new Date(value));
                                         } else {
                                             return '';
                                         }
@@ -174,7 +174,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                     itemId: 'finishedOn',
                                     renderer: function (value,metadata) {
                                         if (value !== '') {
-                                            return new Date(value).toLocaleString();
+                                            return Uni.DateTime.formatDateTimeLong(new Date(value));
                                         } else {
                                             return '';
                                         }

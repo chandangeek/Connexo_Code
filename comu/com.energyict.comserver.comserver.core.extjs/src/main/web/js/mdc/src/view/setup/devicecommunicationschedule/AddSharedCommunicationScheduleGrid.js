@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
             flex: 0.9,
             renderer: function (value) {
                 if (value !== null) {
-                    return new Date(value).toLocaleString();
+                    return Uni.DateTime.formatDateTimeLong(new Date(value));
                 } else {
                     return '';
                 }

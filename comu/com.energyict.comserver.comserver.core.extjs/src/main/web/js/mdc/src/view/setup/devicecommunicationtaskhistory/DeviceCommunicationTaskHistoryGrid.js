@@ -21,7 +21,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                 flex: 2,
                 renderer: function (value, metadata) {
                     if (value !== null) {
-                        return new Date(value).toLocaleString();
+                        return Uni.DateTime.formatDateTimeLong(new Date(value));
                     }
                 }
             },

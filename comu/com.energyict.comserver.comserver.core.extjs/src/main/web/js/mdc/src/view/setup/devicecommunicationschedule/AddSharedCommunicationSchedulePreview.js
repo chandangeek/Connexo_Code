@@ -80,7 +80,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                                     fieldLabel: Uni.I18n.translate('deviceCommunicationSchedule.plannedDate', 'MDC', 'Planned date'),
                                     renderer: function (value) {
                                         if (value !== null) {
-                                            return new Date(value).toLocaleString();
+                                            return Uni.DateTime.formatDateTimeLong(new Date(value));
                                         } else {
                                             return '';
                                         }

@@ -72,7 +72,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
                                                 itemId: 'startedOn',
                                                 renderer: function (value) {
                                                     if (value !== null) {
-                                                        return new Date(value).toLocaleString();
+                                                        return Uni.DateTime.formatDateTimeLong(new Date(value));
                                                     }
                                                 }
                                             },

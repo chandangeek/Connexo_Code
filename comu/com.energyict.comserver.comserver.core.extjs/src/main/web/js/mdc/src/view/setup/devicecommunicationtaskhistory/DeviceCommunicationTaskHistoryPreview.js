@@ -67,7 +67,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     itemId: 'startedOn',
                                     renderer: function (value, metadata) {
                                         if (value !== '') {
-                                            return new Date(value).toLocaleString();
+                                            return Uni.DateTime.formatDateTimeLong(new Date(value));
                                         } else {
                                             return '';
                                         }
@@ -80,7 +80,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     itemId: 'finishedOn',
                                     renderer: function (value, metadata) {
                                         if (value !== '') {
-                                            return new Date(value).toLocaleString();
+                                            return Uni.DateTime.formatDateTimeLong(new Date(value));
                                         } else {
                                             return '';
                                         }
@@ -276,7 +276,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     fieldLabel: Uni.I18n.translate('devicecommunicationhistory.startedOn', 'MDC', 'Started on'),
                                     renderer: function (value, metadata) {
                                         if (value !== '') {
-                                            return new Date(value).toLocaleString();
+                                            return Uni.DateTime.formatDateTimeLong(new Date(value));
                                         } else {
                                             return '';
                                         }
@@ -288,7 +288,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     fieldLabel: Uni.I18n.translate('devicecommunicationhistory.finishedOn', 'MDC', 'Finished on'),
                                     renderer: function (value, metadata) {
                                         if (value !== '') {
-                                            return new Date(value).toLocaleString();
+                                            return Uni.DateTime.formatDateTimeLong(new Date(value));
                                         } else {
                                             return '';
                                         }
