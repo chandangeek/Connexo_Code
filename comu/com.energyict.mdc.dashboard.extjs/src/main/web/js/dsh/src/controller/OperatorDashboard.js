@@ -150,7 +150,7 @@ Ext.define('Dsh.controller.OperatorDashboard', {
                                     me.getCommunicationSummary().setRecord(communications.getSummary());
                                 },
                                 callback: function () {
-                                    lastUpdateField.update('Last updated at ' + Ext.util.Format.date(new Date(), 'H:i'));
+                                    lastUpdateField.update('Last updated at ' + Uni.DateTime.formatTimeShort(new Date()));
                                     dashboard.setLoading(false);
                                 }
                             });

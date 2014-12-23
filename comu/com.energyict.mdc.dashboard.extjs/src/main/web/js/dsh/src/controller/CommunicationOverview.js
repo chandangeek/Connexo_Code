@@ -55,7 +55,7 @@ Ext.define('Dsh.controller.CommunicationOverview', {
                     if (record.raw.kpi) {
                         me.getKpi().setRecord(record.getKpi());
                     }
-                    me.getHeader().down('#last-updated-field').setValue('Last updated at ' + Ext.util.Format.date(new Date(), 'H:i'));
+                    me.getHeader().down('#last-updated-field').setValue('Last updated at ' + Uni.DateTime.formatTimeShort(new Date()));
 
 
                 },
