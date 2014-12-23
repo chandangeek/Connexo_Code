@@ -62,12 +62,7 @@ public class EncryptedStringFactory extends AbstractValueFactory<String> {
 
     @Override
     public String fromStringValue(String stringValue) {
-        if (stringValue == null) {
-            return "";
-        }
-        else {
-            return this.valueFromDb(stringValue);
-        }
+        return stringValue == null? "" : stringValue;
     }
 
     @Override

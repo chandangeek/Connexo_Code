@@ -68,12 +68,12 @@ public class PasswordFactory extends AbstractValueFactory<Password> {
     }
 
     @Override
-    public Password fromStringValue (String stringValue) {
-        return this.valueFromDb(stringValue);
+    public Password fromStringValue(String stringValue) {
+        return new Password(stringValue);
     }
 
     @Override
-    public String toStringValue (Password object) {
+    public String toStringValue(Password object) {
         if (object == null || !(object instanceof Password)) {
             return null;
         }
