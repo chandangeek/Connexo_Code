@@ -255,7 +255,19 @@ public class ProtocolDialectPropertiesImpl
     public List<DeviceProtocolDialectProperty> getAllProperties(Date date) {
         List<DeviceProtocolDialectProperty> allProperties = new ArrayList<>();
         List<DeviceProtocolDialectProperty> localProperties = super.getAllProperties(date);
+        this.addConfigurationProperties(allProperties, localProperties);
+        return this.checkForRelationAttributeNameConversions(allProperties);
+    }
 
+    @Override
+    public List<DeviceProtocolDialectProperty> getAllProperties(Instant date) {
+        List<DeviceProtocolDialectProperty> allProperties = new ArrayList<>();
+        List<DeviceProtocolDialectProperty> localProperties = super.getAllProperties(date);
+        this.addConfigurationProperties(allProperties, localProperties);
+        return this.checkForRelationAttributeNameConversions(allProperties);
+    }
+
+    private void addConfigurationProperties(List<DeviceProtocolDialectProperty> allProperties, List<DeviceProtocolDialectProperty> localProperties) {
         final ProtocolDialectConfigurationProperties configurationProperties = this.getProtocolDialectConfigurationProperties();
         if (configurationProperties != null) {
             TypedProperties inheritedProperties = configurationProperties.getTypedProperties();
@@ -271,7 +283,6 @@ public class ProtocolDialectPropertiesImpl
             }
         }
         allProperties.addAll(localProperties);
-        return checkForRelationAttributeNameConversions(allProperties);
     }
 
     /**

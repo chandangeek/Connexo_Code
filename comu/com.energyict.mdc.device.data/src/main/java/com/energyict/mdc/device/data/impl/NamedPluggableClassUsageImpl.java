@@ -142,11 +142,10 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
 
     protected TypedProperties getTypedProperties() {
         TypedProperties typedProperties = TypedProperties.inheritingFrom(this.getPluggableProperties());
-        for (PT property : this.getAllLocalProperties(clock.instant())) {
-            if (property.getValue() != null) {
-                typedProperties.setProperty(property.getName(), property.getValue());
-            }
-        }
+        this.getAllLocalProperties(clock.instant())
+                .stream()
+                .filter(property -> property.getValue() != null)
+                .forEach(property -> typedProperties.setProperty(property.getName(), property.getValue()));
         return typedProperties;
     }
 
@@ -170,6 +169,10 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
 
     protected List<PT> getAllProperties(Date date) {
         return this.getAllProperties(date.toInstant());
+    }
+
+    private List<PT> getAllLocalProperties() {
+        return this.getAllLocalProperties(this.clock.instant());
     }
 
     private List<PT> getAllLocalProperties(Instant date) {
@@ -295,7 +298,7 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
             }
             else {
                 this.saveAllProperties(
-                        this.getAllProperties(),
+                        this.getAllLocalProperties(),
                         new SimpleRelationTransactionExecutor<T>(
                                 this,
                                 Date.from(clock.instant()),

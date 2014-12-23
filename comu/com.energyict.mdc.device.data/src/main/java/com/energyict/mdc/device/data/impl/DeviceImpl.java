@@ -290,18 +290,23 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public void save() {
-        if (this.id > 0) {
+        boolean alreadyPersistent = this.id > 0;
+        if (alreadyPersistent) {
             Save.UPDATE.save(dataModel, this);
             this.saveNewAndDirtyDialectProperties();
-            this.notifyUpdated();
         } else {
             Save.CREATE.save(dataModel, this);
             this.createKoreMeter();
             this.saveNewDialectProperties();
-            this.notifyCreated();
         }
         this.saveAllConnectionTasks();
         this.saveAllComTaskExecutions();
+        if (alreadyPersistent) {
+            this.notifyUpdated();
+        }
+        else {
+            this.notifyCreated();
+        }
     }
 
     private void saveNewAndDirtyDialectProperties() {
