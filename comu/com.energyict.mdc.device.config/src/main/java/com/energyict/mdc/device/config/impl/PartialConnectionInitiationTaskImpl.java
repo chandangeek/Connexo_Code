@@ -22,7 +22,7 @@ public class PartialConnectionInitiationTaskImpl extends PartialOutboundConnecti
 
     @Inject
     PartialConnectionInitiationTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {
-        super(dataModel, eventService, thesaurus, engineConfigurationService, protocolPluggableService, schedulingService);
+        super(dataModel, eventService, thesaurus, protocolPluggableService, schedulingService);
     }
 
     static PartialConnectionInitiationTaskImpl from(DataModel dataModel, DeviceConfiguration configuration) {

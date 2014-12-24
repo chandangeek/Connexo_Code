@@ -130,7 +130,7 @@ public class PartialOutboundConnectionTaskCrudIT {
     private static BundleContext bundleContext;
     private static LicenseService licenseService;
     private static TransactionService transactionService;
-    private static EngineModelService engineModelService;
+    private static EngineConfigurationService engineConfigurationService;
     private static ProtocolPluggableService protocolPluggableService;
     private static DeviceConfigurationServiceImpl deviceConfigurationService;
     private static ConnectionTypePluggableClass connectionTypePluggableClass, connectionTypePluggableClass2;

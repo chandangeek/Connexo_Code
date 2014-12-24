@@ -96,7 +96,7 @@ public class PartialConnectionInitiationTaskCrudIT {
     private static BundleContext bundleContext;
     private static LicenseService licenseService;
     private static TransactionService transactionService;
-    private static EngineModelService engineModelService;
+    private static EngineConfigurationService engineConfigurationService;
     private static ProtocolPluggableServiceImpl protocolPluggableService;
     private static DeviceConfigurationServiceImpl deviceConfigurationService;
     private static LicensedProtocolService licensedProtocolService;

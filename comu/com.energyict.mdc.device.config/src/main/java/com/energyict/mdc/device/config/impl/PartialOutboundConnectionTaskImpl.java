@@ -56,8 +56,8 @@ public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectio
     @MinTimeDuration(value = 60, groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Keys.UNDER_MINIMUM_RESCHEDULE_DELAY + '}')
     private TimeDuration rescheduleRetryDelay;
 
-    PartialOutboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {
-        super(dataModel, eventService, thesaurus, engineConfigurationService, protocolPluggableService);
+    PartialOutboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {
+        super(dataModel, eventService, thesaurus, protocolPluggableService);
         this.schedulingService = schedulingService;
     }
 

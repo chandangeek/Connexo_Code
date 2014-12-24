@@ -24,8 +24,8 @@ import javax.inject.Inject;
 public class PartialInboundConnectionTaskImpl extends PartialConnectionTaskImpl implements PartialInboundConnectionTask {
 
     @Inject
-    PartialInboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService) {
-        super(dataModel, eventService, thesaurus, engineConfigurationService, protocolPluggableService);
+    PartialInboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ProtocolPluggableService protocolPluggableService) {
+        super(dataModel, eventService, thesaurus, protocolPluggableService);
     }
 
     static PartialInboundConnectionTaskImpl from(DataModel dataModel, DeviceConfiguration configuration) {
