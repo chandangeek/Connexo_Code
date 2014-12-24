@@ -1,14 +1,12 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.common.rest.TimeDurationInfo;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
-import java.util.Optional;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -48,27 +46,27 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
         this.type = comPortPool.getComPortType();
     }
 
-    protected S writeTo(S source, ProtocolPluggableService protocolPluggableService) {
-        Optional<String> name = Optional.ofNullable(this.name);
-        if(name.isPresent()) {
-            source.setName(name.get());
+    protected S writeTo(S target) {
+        if (this.notNull(this.name)) {
+            target.setName(this.name);
         }
-        Optional<String> description = Optional.ofNullable(this.description);
-        if(description.isPresent()) {
-            source.setDescription(description.get());
+        if (this.notNull(this.description)) {
+            target.setDescription(this.description);
         }
-        Optional<ComPortType> type = Optional.ofNullable(this.type);
-        if(type.isPresent()) {
-            source.setComPortType(type.get());
+        if (this.active != null) {
+            target.setActive(this.active);
         }
-        Optional<Boolean> active = Optional.ofNullable(this.active);
-        if(active.isPresent()) {
-            source.setActive(active.get());
-        }
-
-        return source;
+        return target;
     }
 
-    protected abstract S createNew(EngineModelService engineModelService);
+    protected boolean notNull(String aString) {
+        return aString != null && !aString.isEmpty();
+    }
+
+    protected S writeTo(S target, ProtocolPluggableService protocolPluggableService) {
+        return this.writeTo(target);
+    };
+
+    protected abstract S createNew(EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService);
 
 }

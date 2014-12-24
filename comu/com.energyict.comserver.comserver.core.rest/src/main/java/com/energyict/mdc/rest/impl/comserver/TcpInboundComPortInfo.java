@@ -1,8 +1,8 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import java.util.Optional;
 
@@ -17,8 +17,8 @@ public class TcpInboundComPortInfo extends InboundComPortInfo<TCPBasedInboundCom
         this.portNumber = comPort.getPortNumber();
     }
 
-    protected void writeTo(TCPBasedInboundComPort source,EngineModelService engineModelService) {
-        super.writeTo(source, engineModelService);
+    protected void writeTo(TCPBasedInboundComPort source,EngineConfigurationService engineConfigurationService) {
+        super.writeTo(source, engineConfigurationService);
         Optional<Integer> portNumber = Optional.ofNullable(this.portNumber);
         if(portNumber.isPresent()) {
             source.setPortNumber(portNumber.get());
@@ -26,12 +26,12 @@ public class TcpInboundComPortInfo extends InboundComPortInfo<TCPBasedInboundCom
     }
 
     @Override
-    protected TCPBasedInboundComPort.TCPBasedInboundComPortBuilder build(TCPBasedInboundComPort.TCPBasedInboundComPortBuilder builder, EngineModelService engineModelService) {
-        return super.build(builder, engineModelService);
+    protected TCPBasedInboundComPort.TCPBasedInboundComPortBuilder build(TCPBasedInboundComPort.TCPBasedInboundComPortBuilder builder, EngineConfigurationService engineConfigurationService) {
+        return super.build(builder, engineConfigurationService);
     }
 
     @Override
-    protected TCPBasedInboundComPort createNew(ComServer comServer, EngineModelService engineModelService) {
-        return build(comServer.newTCPBasedInboundComPort(this.name, this.numberOfSimultaneousConnections, this.portNumber), engineModelService).add();
+    protected TCPBasedInboundComPort createNew(ComServer comServer, EngineConfigurationService engineConfigurationService) {
+        return build(comServer.newTCPBasedInboundComPort(this.name, this.numberOfSimultaneousConnections, this.portNumber), engineConfigurationService).add();
     }
 }

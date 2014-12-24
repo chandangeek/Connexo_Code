@@ -1,9 +1,9 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.common.rest.TimeDurationInfo;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.io.BaudrateValue;
 import com.energyict.mdc.io.FlowControl;
@@ -13,7 +13,6 @@ import com.energyict.mdc.io.Parities;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import java.time.Instant;
 import java.util.Optional;
 import java.math.BigDecimal;
 import java.util.List;
@@ -89,7 +88,7 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
         this.numberOfSimultaneousConnections = comPort.getNumberOfSimultaneousConnections();
     }
 
-    protected void writeTo(T source,EngineModelService engineModelService) {
+    protected void writeTo(T source,EngineConfigurationService engineConfigurationService) {
         Optional<String> name = Optional.ofNullable(this.name);
         if(name.isPresent()) {
             source.setName(name.get());
@@ -112,10 +111,10 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
         }
     }
 
-    protected B build(B builder, EngineModelService engineModelService) {
+    protected B build(B builder, EngineConfigurationService engineConfigurationService) {
         return builder.description(this.description).active(this.active);
     }
 
-    protected abstract ComPort createNew(ComServer comServer, EngineModelService engineModelService);
+    protected abstract ComPort createNew(ComServer comServer, EngineConfigurationService engineConfigurationService);
 
 }

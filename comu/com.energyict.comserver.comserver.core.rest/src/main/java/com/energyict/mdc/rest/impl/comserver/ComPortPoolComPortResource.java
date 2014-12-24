@@ -3,14 +3,14 @@ package com.energyict.mdc.rest.impl.comserver;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.engine.model.security.Privileges;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.engine.config.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -26,15 +26,14 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 public class ComPortPoolComPortResource {
 
-    private final EngineModelService engineModelService;
+    private final EngineConfigurationService engineConfigurationService;
 
     @Inject
-    public ComPortPoolComPortResource(EngineModelService engineModelService) {
-        this.engineModelService = engineModelService;
+    public ComPortPoolComPortResource(EngineConfigurationService engineConfigurationService) {
+        this.engineConfigurationService = engineConfigurationService;
     }
 
     @GET
@@ -54,7 +53,7 @@ public class ComPortPoolComPortResource {
         List<ComPortInfo> comPortInfos = new ArrayList<>(comPorts.size());
 
         for (ComPort comPort : comPorts) {
-            comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineModelService));
+            comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineConfigurationService));
         }
         return PagedInfoList.asJson("data", comPortInfos, queryParameters);
     }
@@ -66,7 +65,7 @@ public class ComPortPoolComPortResource {
     public ComPortInfo getComPort(@PathParam("comPortPoolId") long comPortPoolId, @PathParam("id") long id) {
         ComPortPool comPortPool = findComPortPoolOrThrowException(comPortPoolId);
         ComPort comPort = findComPortOrThrowException(comPortPool, id);
-        return ComPortInfoFactory.asInfo(comPort, engineModelService);
+        return ComPortInfoFactory.asInfo(comPort, engineConfigurationService);
     }
 
     @DELETE
@@ -96,18 +95,18 @@ public class ComPortPoolComPortResource {
     }
 
     private ComPortPool findComPortPoolOrThrowException(long id) {
-        Optional<ComPortPool> comPortPool = Optional.ofNullable(engineModelService.findComPortPool(id));
-        if (!comPortPool.isPresent()) {
-            throw new WebApplicationException("No ComPortPool with id " + id,
-                    Response.status(Response.Status.NOT_FOUND).entity("No ComPortPool with id " + id).build());
-        }
-
-        return comPortPool.get();
+        return engineConfigurationService
+                .findComPortPool(id)
+                .orElseThrow(() -> new WebApplicationException(
+                        "No ComPortPool with id " + id,
+                        Response.status(Response.Status.NOT_FOUND)
+                                .entity("No ComPortPool with id " + id)
+                                .build()));
     }
 
     private ComPort findComPortOrThrowException(ComPortPool comPortPool, long id) {
-        for(ComPort comPort : comPortPool.getComPorts()) {
-            if(comPort.getId() == id) {
+        for (ComPort comPort : comPortPool.getComPorts()) {
+            if (comPort.getId() == id) {
                 return comPort;
             }
         }

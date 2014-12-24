@@ -3,10 +3,10 @@ package com.energyict.mdc.rest.impl.comserver;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.security.Privileges;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -29,11 +29,11 @@ import java.util.Optional;
 
 public class ComServerComPortResource {
 
-    private final EngineModelService engineModelService;
+    private final EngineConfigurationService engineConfigurationService;
 
     @Inject
-    public ComServerComPortResource(EngineModelService engineModelService) {
-        this.engineModelService = engineModelService;
+    public ComServerComPortResource(EngineConfigurationService engineConfigurationService) {
+        this.engineConfigurationService = engineConfigurationService;
     }
 
     @GET
@@ -51,7 +51,7 @@ public class ComServerComPortResource {
         List<ComPortInfo> comPortInfos = new ArrayList<>(comPorts.size());
 
         for (ComPort comPort : comPorts) {
-            comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineModelService));
+            comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineConfigurationService));
         }
 
         return PagedInfoList.asJson("data", comPortInfos, queryParameters);
@@ -64,7 +64,7 @@ public class ComServerComPortResource {
     public ComPortInfo getComPort(@PathParam("comServerId") long comServerId, @PathParam("id") long id) {
         ComServer comServer = findComServerOrThrowException(comServerId);
         ComPort comPort = findComPortOrThrowException(comServer, id);
-        return ComPortInfoFactory.asInfo(comPort, engineModelService);
+        return ComPortInfoFactory.asInfo(comPort, engineConfigurationService);
     }
 
     @POST
@@ -73,8 +73,8 @@ public class ComServerComPortResource {
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public ComPortInfo createOutboundComPort(@PathParam("comServerId") long comServerId, ComPortInfo comPortInfo) {
         ComServer comServer = findComServerOrThrowException(comServerId);
-        ComPort newComPort = comPortInfo.createNew(comServer, engineModelService);
-        return ComPortInfoFactory.asInfo(newComPort, engineModelService);
+        ComPort newComPort = comPortInfo.createNew(comServer, engineConfigurationService);
+        return ComPortInfoFactory.asInfo(newComPort, engineConfigurationService);
     }
 
     @PUT
@@ -85,9 +85,9 @@ public class ComServerComPortResource {
     public ComPortInfo updateOutboundComPort(@PathParam("comServerId") long comServerId, @PathParam("id") long id, ComPortInfo comPortInfo) {
         ComServer comServer = findComServerOrThrowException(comServerId);
         ComPort comPort = findComPortOrThrowException(comServer, id);
-        comPortInfo.writeTo(comPort, engineModelService);
+        comPortInfo.writeTo(comPort, engineConfigurationService);
         comPort.save();
-        return ComPortInfoFactory.asInfo(comPort, engineModelService);
+        return ComPortInfoFactory.asInfo(comPort, engineConfigurationService);
     }
 
     @DELETE
@@ -102,7 +102,7 @@ public class ComServerComPortResource {
     }
 
     private ComServer findComServerOrThrowException(long id) {
-        Optional<ComServer> comServer = engineModelService.findComServer(id);
+        Optional<ComServer> comServer = engineConfigurationService.findComServer(id);
         if (!comServer.isPresent()) {
             throw new WebApplicationException("No ComServer with id " + id,
                     Response.status(Response.Status.NOT_FOUND).entity("No ComServer with id " + id).build());

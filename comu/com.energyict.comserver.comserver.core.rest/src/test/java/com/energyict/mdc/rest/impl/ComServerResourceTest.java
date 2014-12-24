@@ -4,13 +4,13 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.engine.model.OfflineComServer;
-import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.engine.model.RemoteComServer;
-import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.config.OfflineComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.RemoteComServer;
+import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortInfo;
@@ -51,6 +51,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -68,14 +69,14 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
     @Test
     public void testGetNonExistingComServer() throws Exception {
-        when(engineModelService.findComServer(anyInt())).thenReturn(Optional.empty());
+        when(engineConfigurationService.findComServer(anyInt())).thenReturn(Optional.empty());
         final Response response = target("/comservers/8").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void testGetComPortsForNonExistingComServer() throws Exception {
-        when(engineModelService.findComServer(anyInt())).thenReturn(Optional.empty());
+        when(engineConfigurationService.findComServer(anyInt())).thenReturn(Optional.empty());
         final Response response = target("/comservers/8/comports").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
@@ -90,7 +91,7 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         when(finder.sorted(anyString(), anyBoolean())).thenReturn(finder);
         when(finder.from(any(QueryParameters.class))).thenReturn(finder);
         when(finder.find()).thenReturn(comServers);
-        when(engineModelService.findAllComServers()).thenReturn(finder);
+        when(engineConfigurationService.findAllComServers()).thenReturn(finder);
         when(mock.getName()).thenReturn("Test");
         when(mock.getQueryApiPostUri()).thenReturn("/test");
         when(mock.getId()).thenReturn(1L);
@@ -146,7 +147,7 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
         OnlineComServer serverSideComServer = mock(OnlineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
-        when(engineModelService.findComServer(comServer_id)).thenReturn(Optional.<ComServer>of(serverSideComServer));
+        when(engineConfigurationService.findComServer(comServer_id)).thenReturn(Optional.<ComServer>of(serverSideComServer));
 
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
@@ -208,7 +209,7 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
         OnlineComServer serverSideComServer = mock(OnlineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
-        when(engineModelService.newOnlineComServerInstance()).thenReturn(serverSideComServer);
+        when(engineConfigurationService.newOnlineComServerInstance()).thenReturn(serverSideComServer);
 
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
@@ -233,7 +234,7 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
         OfflineComServer serverSideComServer = mock(OfflineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
-        when(engineModelService.newOfflineComServerInstance()).thenReturn(serverSideComServer);
+        when(engineConfigurationService.newOfflineComServerInstance()).thenReturn(serverSideComServer);
 
         OfflineComServerInfo offlineComServerInfo = new OfflineComServerInfo();
         offlineComServerInfo.name="new name";
@@ -258,10 +259,10 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
         RemoteComServer serverSideComServer = mock(RemoteComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
-        when(engineModelService.newRemoteComServerInstance()).thenReturn(serverSideComServer);
+        when(engineConfigurationService.newRemoteComServerInstance()).thenReturn(serverSideComServer);
 
         OnlineComServer onlineComServer = mock(OnlineComServer.class);
-        when(engineModelService.findComServer(onlineComServerId)).thenReturn(Optional.<ComServer>of(onlineComServer));
+        when(engineConfigurationService.findComServer(onlineComServerId)).thenReturn(Optional.<ComServer>of(onlineComServer));
 
         RemoteComServerInfo remoteComServerInfo = new RemoteComServerInfo();
         remoteComServerInfo.name="new name";
@@ -289,11 +290,10 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         ComServer serverSideComServer = mock(OnlineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
         when(serverSideComServer.newModemBasedInboundComport(anyString(), anyInt(), anyInt(), (TimeDuration)anyObject(), (TimeDuration)anyObject(), (SerialPortConfiguration)anyObject())).thenReturn(modemBasedComPortBuilder);
-        when(engineModelService.findComServer(comServer_id)).thenReturn(Optional.of(serverSideComServer));
+        when(engineConfigurationService.findComServer(comServer_id)).thenReturn(Optional.of(serverSideComServer));
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         when(comPortPool.getId()).thenReturn(comPortPool_id);
-        when(engineModelService.findInboundComPortPool(comPortPool_id)).thenReturn(comPortPool);
-
+        doReturn(Optional.of(comPortPool)).when(engineConfigurationService).findInboundComPortPool(comPortPool_id);
 
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
@@ -325,7 +325,7 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
     @Test
     public void testCannotUpdateNonExistingComServer() throws Exception {
-        when(engineModelService.findComServer(anyInt())).thenReturn(Optional.empty());
+        when(engineConfigurationService.findComServer(anyInt())).thenReturn(Optional.empty());
 
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
@@ -342,7 +342,7 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         int comServer_id = 5;
 
         ComServer serverSideComServer = mock(OnlineComServer.class);
-        when(engineModelService.findComServer(comServer_id)).thenReturn(Optional.of(serverSideComServer));
+        when(engineConfigurationService.findComServer(comServer_id)).thenReturn(Optional.of(serverSideComServer));
 
         final Response response = target("/comservers/5").request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
@@ -352,7 +352,7 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
     @Test
     public void testDeleteNonExistingComServerThrows404() throws Exception {
-        when(engineModelService.findComServer(anyInt())).thenReturn(Optional.empty());
+        when(engineConfigurationService.findComServer(anyInt())).thenReturn(Optional.empty());
         final Response response = target("/comservers/5").request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
@@ -368,27 +368,27 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
         InboundComPortPool inboundComPortPool = mock(InboundComPortPool.class);
         when(inboundComPortPool.getId()).thenReturn(inboundComPortPool_id);
-        when(engineModelService.findInboundComPortPool(inboundComPortPool_id)).thenReturn(inboundComPortPool);
+        doReturn(Optional.of(inboundComPortPool)).when(engineConfigurationService).findInboundComPortPool(inboundComPortPool_id);
 
         TCPBasedInboundComPort tcpBasedInboundComPort = mock(TCPBasedInboundComPort.class);
         when(tcpBasedInboundComPort.getId()).thenReturn(tcpBasedInboundComPort_id);
         when(tcpBasedInboundComPort.getComPortType()).thenReturn(ComPortType.TCP);
-        when(engineModelService.findComPort(tcpBasedInboundComPort_id)).thenReturn(tcpBasedInboundComPort);
+        doReturn(Optional.of(tcpBasedInboundComPort)).when(engineConfigurationService).findComPort(tcpBasedInboundComPort_id);
 
         OutboundComPort outboundComPortA = mock(OutboundComPort.class);
         when(outboundComPortA.getId()).thenReturn(outboundComPortA_id);
         when(outboundComPortA.getComPortType()).thenReturn(ComPortType.TCP);
-        when(engineModelService.findComPort(outboundComPortA_id)).thenReturn(outboundComPortA);
+        doReturn(Optional.of(outboundComPortA)).when(engineConfigurationService).findComPort(outboundComPortA_id);
 
         OutboundComPort outboundComPortB = mock(OutboundComPort.class);
         when(outboundComPortB.getId()).thenReturn(outboundComPortB_id);
         when(outboundComPortB.getComPortType()).thenReturn(ComPortType.TCP);
-        when(engineModelService.findComPort(outboundComPortB_id)).thenReturn(outboundComPortB);
+        doReturn(Optional.of(outboundComPortB)).when(engineConfigurationService).findComPort(outboundComPortB_id);
 
-        when(engineModelService.findComPort(outboundComPortC_id)).thenReturn(null);
+        when(engineConfigurationService.findComPort(outboundComPortC_id)).thenReturn(null);
 
         OnlineComServer serverSideComServer = mock(OnlineComServer.class);
-        when(engineModelService.findComServer(comServer_id)).thenReturn(Optional.<ComServer>of(serverSideComServer));
+        when(engineConfigurationService.findComServer(comServer_id)).thenReturn(Optional.<ComServer>of(serverSideComServer));
         when(serverSideComServer.getId()).thenReturn(comServer_id);
         when(serverSideComServer.newOutboundComPort(anyString(), anyInt())).thenReturn(new MockOutboundComPortBuilder());
         when(serverSideComServer.getComPorts()).thenReturn(Arrays.asList(outboundComPortB, tcpBasedInboundComPort, outboundComPortA));
@@ -430,27 +430,27 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
         InboundComPortPool inboundComPortPool = mock(InboundComPortPool.class);
         when(inboundComPortPool.getId()).thenReturn(inboundComPortPool_id);
-        when(engineModelService.findInboundComPortPool(inboundComPortPool_id)).thenReturn(inboundComPortPool);
+        doReturn(Optional.of(inboundComPortPool)).when(engineConfigurationService).findInboundComPortPool(inboundComPortPool_id);
 
         TCPBasedInboundComPort tcpBasedInboundComPort = mock(TCPBasedInboundComPort.class);
         when(tcpBasedInboundComPort.getId()).thenReturn(tcpBasedInboundComPort_id);
         when(tcpBasedInboundComPort.getComPortType()).thenReturn(ComPortType.TCP);
-        when(engineModelService.findComPort(tcpBasedInboundComPort_id)).thenReturn(tcpBasedInboundComPort);
+        doReturn(Optional.of(tcpBasedInboundComPort)).when(engineConfigurationService).findComPort(tcpBasedInboundComPort_id);
 
         OutboundComPort outboundComPortA = mock(OutboundComPort.class);
         when(outboundComPortA.getId()).thenReturn(outboundComPortA_id);
         when(outboundComPortA.getComPortType()).thenReturn(ComPortType.TCP);
-        when(engineModelService.findComPort(outboundComPortA_id)).thenReturn(outboundComPortA);
+        doReturn(Optional.of(outboundComPortA)).when(engineConfigurationService).findComPort(outboundComPortA_id);
 
         OutboundComPort outboundComPortB = mock(OutboundComPort.class);
         when(outboundComPortB.getId()).thenReturn(outboundComPortB_id);
         when(outboundComPortB.getComPortType()).thenReturn(ComPortType.TCP);
-        when(engineModelService.findComPort(outboundComPortB_id)).thenReturn(outboundComPortB);
+        doReturn(Optional.of(outboundComPortB)).when(engineConfigurationService).findComPort(outboundComPortB_id);
 
-        when(engineModelService.findComPort(outboundComPortC_id)).thenReturn(null);
+        when(engineConfigurationService.findComPort(outboundComPortC_id)).thenReturn(null);
 
         OnlineComServer serverSideComServer = mock(OnlineComServer.class);
-        when(engineModelService.findComServer(comServer_id)).thenReturn(Optional.<ComServer>of(serverSideComServer));
+        when(engineConfigurationService.findComServer(comServer_id)).thenReturn(Optional.<ComServer>of(serverSideComServer));
         when(serverSideComServer.getId()).thenReturn(comServer_id);
         when(serverSideComServer.newOutboundComPort(anyString(), anyInt())).thenReturn(new MockOutboundComPortBuilder());
         when(serverSideComServer.getComPorts()).thenReturn(Arrays.asList(outboundComPortB, tcpBasedInboundComPort, outboundComPortA));
@@ -487,7 +487,7 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
         OnlineComServer serverSideComServer = mock(OnlineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
-        when(engineModelService.newOnlineComServerInstance()).thenReturn(serverSideComServer);
+        when(engineConfigurationService.newOnlineComServerInstance()).thenReturn(serverSideComServer);
         Set<ConstraintViolation<?>> constrainViolations = new HashSet<>();
 
         ConstraintViolation constraintViolation1 = mock(ConstraintViolation.class);
@@ -520,7 +520,7 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
     @Test
     public void testGetComServersPaged() throws Exception {
         Finder<ComServer> finder = mock(Finder.class);
-        when(engineModelService.findAllComServers()).thenReturn(finder);
+        when(engineConfigurationService.findAllComServers()).thenReturn(finder);
         when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
         when(finder.sorted(anyString(), anyBoolean())).thenReturn(finder);
         when(finder.from(any(QueryParameters.class))).thenReturn(finder);

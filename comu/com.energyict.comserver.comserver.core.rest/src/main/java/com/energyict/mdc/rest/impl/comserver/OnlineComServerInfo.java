@@ -1,8 +1,8 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.OnlineComServer;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.Optional;
@@ -21,8 +21,8 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer> {
     /**
      * Create Info based on comserver properties and comports
      */
-    public OnlineComServerInfo(final OnlineComServer onlineComServer, List<ComPort> comPorts, EngineModelService engineModelService) {
-        super(onlineComServer, comPorts, engineModelService);
+    public OnlineComServerInfo(final OnlineComServer onlineComServer, List<ComPort> comPorts, EngineConfigurationService engineConfigurationService) {
+        super(onlineComServer, comPorts, engineConfigurationService);
         readFrom(onlineComServer);
     }
 
@@ -44,8 +44,8 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer> {
         this.storeTaskThreadPriority = onlineComServer.getStoreTaskThreadPriority();
     }
 
-    public OnlineComServer writeTo(OnlineComServer comServerSource,EngineModelService engineModelService) {
-        super.writeTo(comServerSource,engineModelService);
+    public OnlineComServer writeTo(OnlineComServer comServerSource,EngineConfigurationService engineConfigurationService) {
+        super.writeTo(comServerSource, engineConfigurationService);
         Optional<String> queryAPIPostUri = Optional.ofNullable(this.queryAPIPostUri);
         if(queryAPIPostUri.isPresent()) {
             comServerSource.setQueryAPIPostUri(queryAPIPostUri.get());
@@ -79,7 +79,7 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer> {
     }
 
     @Override
-    protected OnlineComServer createNew(EngineModelService engineModelService) {
-        return engineModelService.newOnlineComServerInstance();
+    protected OnlineComServer createNew(EngineConfigurationService engineConfigurationService) {
+        return engineConfigurationService.newOnlineComServerInstance();
     }
 }

@@ -1,21 +1,21 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
-import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
-import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
-import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
+import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
+import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 
 public class ComPortInfoFactory {
-    public static ComPortInfo asInfo(ComPort comPort, EngineModelService engineModelService) {
+    public static ComPortInfo asInfo(ComPort comPort, EngineConfigurationService engineConfigurationService) {
         if (InboundComPort.class.isAssignableFrom(comPort.getClass())) {
             return asInboundInfo(comPort);
         } else {
-            return asOutboundInfo(comPort, engineModelService);
+            return asOutboundInfo(comPort, engineConfigurationService);
         }
     }
 
@@ -35,15 +35,15 @@ public class ComPortInfoFactory {
         throw new IllegalArgumentException("Unsupported InboundComPort type "+comPort.getClass().getSimpleName());
     }
 
-    public static OutboundComPortInfo asOutboundInfo(ComPort comPort, EngineModelService engineModelService) {
+    public static OutboundComPortInfo asOutboundInfo(ComPort comPort, EngineConfigurationService engineConfigurationService) {
         if (ComPortType.TCP.equals(comPort.getComPortType())) {
-            return new TcpOutboundComPortInfo((OutboundComPort) comPort, engineModelService);
+            return new TcpOutboundComPortInfo((OutboundComPort) comPort, engineConfigurationService);
         }
         if (ComPortType.UDP.equals(comPort.getComPortType())) {
-            return new UdpOutboundComPortInfo((OutboundComPort) comPort, engineModelService);
+            return new UdpOutboundComPortInfo((OutboundComPort) comPort, engineConfigurationService);
         }
         if (ComPortType.SERIAL.equals(comPort.getComPortType())) {
-            return new ModemOutboundComPortInfo((OutboundComPort) comPort, engineModelService);
+            return new ModemOutboundComPortInfo((OutboundComPort) comPort, engineConfigurationService);
         }
         throw new IllegalArgumentException("Unsupported OutboundComPort type "+comPort.getComPortType());
     }

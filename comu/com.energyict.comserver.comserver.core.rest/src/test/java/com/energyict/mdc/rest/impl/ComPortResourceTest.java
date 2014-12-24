@@ -2,16 +2,16 @@ package com.energyict.mdc.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
-import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
-import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
-import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
+import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
 import com.energyict.mdc.io.BaudrateValue;
 import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.io.NrOfDataBits;
@@ -65,7 +65,7 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
 
         List<ComPort> comPorts = new ArrayList<>();
         comPorts.add(tcpBasedInboundComPort);
-        when(engineModelService.findAllComPortsWithDeleted()).thenReturn(comPorts);
+        when(engineConfigurationService.findAllComPortsWithDeleted()).thenReturn(comPorts);
         final Map<String, Object> response = target(COMPORTS_RESOURCE_URL).request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).describedAs("Should contain field 'data'").containsKey("data").containsKey("total").hasSize(2);
         List<Map<String, Object>> comports = (List<Map<String, Object>>) response.get("data");
@@ -101,7 +101,7 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
         when(tcpBasedInboundComPort.getNumberOfSimultaneousConnections()).thenReturn(7);
         when(tcpBasedInboundComPort.getPortNumber()).thenReturn(8);
 
-        when(engineModelService.findComPort(comPort_id)).thenReturn(tcpBasedInboundComPort);
+        doReturn(Optional.of(tcpBasedInboundComPort)).when(engineConfigurationService).findComPort(comPort_id);
         final Map<String, Object> response = target(COMPORTS_RESOURCE_URL + "/" + comPort_id).request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).contains(
                 MapEntry.entry("id", comPort_id),
@@ -145,7 +145,7 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
         when(servletBasedInboundComPort.getKeyStoreSpecsFilePath()).thenReturn("/path/to/key/store");
         when(servletBasedInboundComPort.getKeyStoreSpecsPassword()).thenReturn("keypwd");
 
-        when(engineModelService.findComPort(comPort_id)).thenReturn(servletBasedInboundComPort);
+        doReturn(Optional.of(servletBasedInboundComPort)).when(engineConfigurationService).findComPort(comPort_id);
         final Map<String, Object> response = target(COMPORTS_RESOURCE_URL + "/" + comPort_id).request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).contains(
                 MapEntry.entry("id", comPort_id),
@@ -189,7 +189,7 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
         when(udpBasedInboundComPort.getPortNumber()).thenReturn(8);
         when(udpBasedInboundComPort.getBufferSize()).thenReturn(9);
 
-        when(engineModelService.findComPort(comPort_id)).thenReturn(udpBasedInboundComPort);
+        doReturn(Optional.of(udpBasedInboundComPort)).when(engineConfigurationService).findComPort(comPort_id);
         final Map<String, Object> response = target(COMPORTS_RESOURCE_URL + "/" + comPort_id).request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).contains(
                 MapEntry.entry("id", comPort_id),
@@ -211,7 +211,7 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
         int comPort_id = 666;
         ModemBasedInboundComPort modemBasedInboundComPort = mock(ModemBasedInboundComPort.class);
         when(modemBasedInboundComPort.getComPortType()).thenReturn(ComPortType.SERIAL);
-        when(engineModelService.findComPort(comPort_id)).thenReturn(modemBasedInboundComPort);
+        doReturn(Optional.of(modemBasedInboundComPort)).when(engineConfigurationService).findComPort(comPort_id);
         target(COMPORTS_RESOURCE_URL + "/" + comPort_id).request().get(Map.class);
     }
 
@@ -252,7 +252,7 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
         when(modemBasedInboundComPort.getAtCommandTimeout()).thenReturn(atCommandTimeout);
         when(modemBasedInboundComPort.getSerialPortConfiguration()).thenReturn(new SerialPortConfiguration("modem inbound", BaudrateValue.BAUDRATE_1200, NrOfDataBits.FIVE, NrOfStopBits.TWO, Parities.EVEN, FlowControl.XONXOFF));
 
-        when(engineModelService.findComPort(comPort_id)).thenReturn(modemBasedInboundComPort);
+        doReturn(Optional.of(modemBasedInboundComPort)).when(engineConfigurationService).findComPort(comPort_id);
         final Map<String, Object> response = target(COMPORTS_RESOURCE_URL + "/" + comPort_id).request().get(Map.class); // Using MAP instead of *Info to resemble JS
         HashMap<String, String> map = new HashMap<String, String>();
         HashMap<String, String> map2 = new HashMap<String, String>();
@@ -346,11 +346,11 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
 
         OnlineComServer serverSideComServer = mock(OnlineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServerId);
-        when(engineModelService.findComServer(comServerId)).thenReturn(Optional.<ComServer>of(serverSideComServer));
+        when(engineConfigurationService.findComServer(comServerId)).thenReturn(Optional.<ComServer>of(serverSideComServer));
 
         Long poolId = 1543621L;
         OutboundComPortPool myTestOutboundPool = mock(OutboundComPortPool.class);
-        when(engineModelService.findOutboundComPortPool(poolId)).thenReturn(myTestOutboundPool);
+        doReturn(Optional.of(myTestOutboundPool)).when(engineConfigurationService).findOutboundComPortPool(poolId);
 
         when(serverSideComServer.newOutboundComPort(anyString(), anyInt())).thenReturn(new MockOutboundComPortBuilder());
 
@@ -376,14 +376,14 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
 
         OnlineComServer serverSideComServer = mock(OnlineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServerId);
-        when(engineModelService.findComServer(comServerId)).thenReturn(Optional.<ComServer>of(serverSideComServer));
+        when(engineConfigurationService.findComServer(comServerId)).thenReturn(Optional.<ComServer>of(serverSideComServer));
 
         Long poolId1 = 1543621L;
         Long poolId2 = 14654111L;
         OutboundComPortPool myTestOutboundPool1 = mock(OutboundComPortPool.class);
         OutboundComPortPool myTestOutboundPool2 = mock(OutboundComPortPool.class);
-        when(engineModelService.findOutboundComPortPool(poolId1)).thenReturn(myTestOutboundPool1);
-        when(engineModelService.findOutboundComPortPool(poolId2)).thenReturn(myTestOutboundPool2);
+        doReturn(Optional.of(myTestOutboundPool1)).when(engineConfigurationService).findOutboundComPortPool(poolId1);
+        doReturn(Optional.of(myTestOutboundPool2)).when(engineConfigurationService).findOutboundComPortPool(poolId2);
 
         when(serverSideComServer.newOutboundComPort(anyString(), anyInt())).thenReturn(new MockOutboundComPortBuilder());
 
@@ -411,7 +411,7 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
 
         OnlineComServer serverSideComServer = mock(OnlineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServerId);
-        when(engineModelService.findComServer(comServerId)).thenReturn(Optional.<ComServer>of(serverSideComServer));
+        when(engineConfigurationService.findComServer(comServerId)).thenReturn(Optional.<ComServer>of(serverSideComServer));
         OutboundComPort outboundComPort = mock(OutboundComPort.class);
         when(outboundComPort.getId()).thenReturn(comPortId);
         when(outboundComPort.getComPortType()).thenReturn(ComPortType.TCP);
@@ -426,10 +426,10 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
         when(myTestOutboundPool2.getId()).thenReturn(poolId2);
         OutboundComPortPool myTestOutboundPool3 = mock(OutboundComPortPool.class);
         when(myTestOutboundPool3.getId()).thenReturn(poolId3);
-        when(engineModelService.findOutboundComPortPool(poolId1)).thenReturn(myTestOutboundPool1);
-        when(engineModelService.findOutboundComPortPool(poolId2)).thenReturn(myTestOutboundPool2);
-        when(engineModelService.findOutboundComPortPool(poolId3)).thenReturn(myTestOutboundPool3);
-        when(engineModelService.findContainingComPortPoolsForComPort(outboundComPort)).thenReturn(Arrays.asList(myTestOutboundPool1, myTestOutboundPool2));
+        doReturn(Optional.of(myTestOutboundPool1)).when(engineConfigurationService).findOutboundComPortPool(poolId1);
+        doReturn(Optional.of(myTestOutboundPool2)).when(engineConfigurationService).findOutboundComPortPool(poolId2);
+        doReturn(Optional.of(myTestOutboundPool3)).when(engineConfigurationService).findOutboundComPortPool(poolId3);
+        when(engineConfigurationService.findContainingComPortPoolsForComPort(outboundComPort)).thenReturn(Arrays.asList(myTestOutboundPool1, myTestOutboundPool2));
 
         when(serverSideComServer.newOutboundComPort(anyString(), anyInt())).thenReturn(new MockOutboundComPortBuilder());
 
@@ -458,8 +458,8 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
         when(comServerA.getId()).thenReturn(61L);
         ComServer comServerB = mock(ComServer.class);
         when(comServerB.getId()).thenReturn(16L);
-        when(engineModelService.findComServer(61)).thenReturn(Optional.of(comServerA));
-        when(engineModelService.findComServer(16)).thenReturn(Optional.of(comServerB));
+        when(engineConfigurationService.findComServer(61)).thenReturn(Optional.of(comServerA));
+        when(engineConfigurationService.findComServer(16)).thenReturn(Optional.of(comServerB));
         TCPBasedInboundComPort tcpBasedInboundComPort = mock(TCPBasedInboundComPort.class);
         when(tcpBasedInboundComPort.getId()).thenReturn(10L);
         when(tcpBasedInboundComPort.getComServer()).thenReturn(comServerA);
@@ -481,11 +481,11 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
         comPorts.add(udpBasedInboundComPort);
         comPorts.add(modemBasedInboundComPort);
         comPorts.add(outboundComPort);
-        when(engineModelService.findAllComPortsWithDeleted()).thenReturn(comPorts);
-        when(engineModelService.findAllInboundComPorts()).thenReturn(Arrays.asList(tcpBasedInboundComPort, udpBasedInboundComPort, modemBasedInboundComPort));
-        when(engineModelService.findAllOutboundComPorts()).thenReturn(Arrays.asList(outboundComPort));
-        when(engineModelService.findComPortsByComServer(comServerA)).thenReturn(Arrays.asList(tcpBasedInboundComPort, outboundComPort));
-        when(engineModelService.findComPortsByComServer(comServerB)).thenReturn(Arrays.<ComPort>asList(modemBasedInboundComPort, udpBasedInboundComPort));
+        when(engineConfigurationService.findAllComPortsWithDeleted()).thenReturn(comPorts);
+        when(engineConfigurationService.findAllInboundComPorts()).thenReturn(Arrays.asList(tcpBasedInboundComPort, udpBasedInboundComPort, modemBasedInboundComPort));
+        when(engineConfigurationService.findAllOutboundComPorts()).thenReturn(Arrays.asList(outboundComPort));
+        when(engineConfigurationService.findComPortsByComServer(comServerA)).thenReturn(Arrays.asList(tcpBasedInboundComPort, outboundComPort));
+        when(engineConfigurationService.findComPortsByComServer(comServerB)).thenReturn(Arrays.<ComPort>asList(modemBasedInboundComPort, udpBasedInboundComPort));
         when(comServerA.getComPorts()).thenReturn(comPorts);
         when(comServerB.getComPorts()).thenReturn(comPorts);
     }

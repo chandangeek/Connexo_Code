@@ -1,14 +1,10 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import java.util.Optional;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 
 public class UdpInboundComPortInfo extends InboundComPortInfo<UDPBasedInboundComPort, UDPBasedInboundComPort.UDPBasedInboundComPortBuilder> {
 
@@ -23,8 +19,8 @@ public class UdpInboundComPortInfo extends InboundComPortInfo<UDPBasedInboundCom
     }
 
     @Override
-    protected void writeTo(UDPBasedInboundComPort source,EngineModelService engineModelService) {
-        super.writeTo(source,engineModelService);
+    protected void writeTo(UDPBasedInboundComPort source,EngineConfigurationService engineConfigurationService) {
+        super.writeTo(source, engineConfigurationService);
         Optional<Integer> portNumber = Optional.ofNullable(this.portNumber);
         if(portNumber.isPresent()) {
             source.setPortNumber(portNumber.get());
@@ -36,14 +32,14 @@ public class UdpInboundComPortInfo extends InboundComPortInfo<UDPBasedInboundCom
     }
 
     @Override
-    protected UDPBasedInboundComPort.UDPBasedInboundComPortBuilder build(UDPBasedInboundComPort.UDPBasedInboundComPortBuilder builder, EngineModelService engineModelService) {
+    protected UDPBasedInboundComPort.UDPBasedInboundComPortBuilder build(UDPBasedInboundComPort.UDPBasedInboundComPortBuilder builder, EngineConfigurationService engineConfigurationService) {
         return super.build(builder.
                 bufferSize(bufferSize)
-                , engineModelService);
+                , engineConfigurationService);
     }
 
     @Override
-    protected UDPBasedInboundComPort createNew(ComServer comServer, EngineModelService engineModelService) {
-        return build(comServer.newUDPBasedInboundComPort(this.name, this.numberOfSimultaneousConnections, this.portNumber), engineModelService).add();
+    protected UDPBasedInboundComPort createNew(ComServer comServer, EngineConfigurationService engineConfigurationService) {
+        return build(comServer.newUDPBasedInboundComPort(this.name, this.numberOfSimultaneousConnections, this.portNumber), engineConfigurationService).add();
     }
 }

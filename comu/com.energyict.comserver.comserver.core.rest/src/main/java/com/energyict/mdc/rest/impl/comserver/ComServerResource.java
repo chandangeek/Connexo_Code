@@ -2,10 +2,10 @@ package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.security.Privileges;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.security.Privileges;
 import java.util.Optional;
 
 import java.util.ArrayList;
@@ -34,13 +34,13 @@ import javax.ws.rs.core.Response;
 @Path("/comservers")
 public class ComServerResource {
 
-    private final EngineModelService engineModelService;
+    private final EngineConfigurationService engineConfigurationService;
     private final Provider<ComServerComPortResource> comServerComPortResourceProvider;
 
     @Inject
-    public ComServerResource(EngineModelService engineModelService,
+    public ComServerResource(EngineConfigurationService engineConfigurationService,
                              Provider<ComServerComPortResource> comServerComPortResourceProvider) {
-        this.engineModelService = engineModelService;
+        this.engineConfigurationService = engineConfigurationService;
         this.comServerComPortResourceProvider = comServerComPortResourceProvider;
     }
 
@@ -52,14 +52,14 @@ public class ComServerResource {
         List<ComServer> allComServers = this.getSortedComServers(queryParameters);
 
         for (ComServer comServer : allComServers) {
-            comServers.add(ComServerInfoFactory.asInfo(comServer, comServer.getComPorts(), engineModelService));
+            comServers.add(ComServerInfoFactory.asInfo(comServer, comServer.getComPorts(), engineConfigurationService));
         }
 
         return PagedInfoList.asJson("data", comServers, queryParameters);
     }
 
     private List<ComServer> getSortedComServers(QueryParameters queryParameters) {
-        List<ComServer> comServers = engineModelService.findAllComServers().from(queryParameters).find();
+        List<ComServer> comServers = engineConfigurationService.findAllComServers().from(queryParameters).find();
         Collections.sort(
                 comServers,
                 new Comparator<ComServer>() {
@@ -77,7 +77,7 @@ public class ComServerResource {
     @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
     public ComServerInfo<?> getComServer(@PathParam("id") long id) {
         Optional<ComServer> comServer = findComServerOrThrowException(id);
-        return ComServerInfoFactory.asInfo(comServer.get(), comServer.get().getComPorts(), engineModelService);
+        return ComServerInfoFactory.asInfo(comServer.get(), comServer.get().getComPorts(), engineConfigurationService);
     }
 
     @DELETE
@@ -86,7 +86,7 @@ public class ComServerResource {
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public Response deleteComServer(@PathParam("id") long id) {
         try {
-            Optional<ComServer> comServer = engineModelService.findComServer(id);
+            Optional<ComServer> comServer = engineConfigurationService.findComServer(id);
             if (!comServer.isPresent()) {
                 return Response.status(Response.Status.NOT_FOUND).entity("No ComServer with id "+id).build();
             }
@@ -102,8 +102,8 @@ public class ComServerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public Response createComServer(ComServerInfo<ComServer> comServerInfo) {
-        ComServer comServer = comServerInfo.createNew(engineModelService);
-        comServerInfo.writeTo(comServer,engineModelService);
+        ComServer comServer = comServerInfo.createNew(engineConfigurationService);
+        comServerInfo.writeTo(comServer, engineConfigurationService);
         comServer.save();
 
         Optional<List<InboundComPortInfo>> inboundComPorts = Optional.ofNullable(comServerInfo.inboundComPorts);
@@ -117,7 +117,7 @@ public class ComServerResource {
         }
 
         for (ComPortInfo<?,?> comPortInfo : allComPorts) {
-            comPortInfo.createNew(comServer, engineModelService);
+            comPortInfo.createNew(comServer, engineConfigurationService);
         }
         return Response.status(Response.Status.CREATED).entity(ComServerInfoFactory.asInfo(comServer)).build();
     }
@@ -141,11 +141,11 @@ public class ComServerResource {
             allComPortInfos.addAll(outboundComPorts.get());
         }
 
-        comServerInfo.writeTo(comServer.get(),engineModelService);
+        comServerInfo.writeTo(comServer.get(), engineConfigurationService);
         updateComPorts(comServer.get(), allComPortInfos);
 
         comServer.get().save();
-        return ComServerInfoFactory.asInfo(comServer.get(), comServer.get().getComPorts(), engineModelService);
+        return ComServerInfoFactory.asInfo(comServer.get(), comServer.get().getComPorts(), engineConfigurationService);
     }
 
     @PUT
@@ -159,11 +159,11 @@ public class ComServerResource {
             comServer.get().setActive(comServerStatusInfo.active);
             comServer.get().save();
         }
-        return ComServerInfoFactory.asInfo(comServer.get(), comServer.get().getComPorts(), engineModelService);
+        return ComServerInfoFactory.asInfo(comServer.get(), comServer.get().getComPorts(), engineConfigurationService);
     }
 
     private Optional<ComServer> findComServerOrThrowException(long id) {
-        Optional<ComServer> comServer = engineModelService.findComServer(id);
+        Optional<ComServer> comServer = engineConfigurationService.findComServer(id);
         if (!comServer.isPresent()) {
             throw new WebApplicationException("No ComServer with id " + id,
                     Response.status(Response.Status.NOT_FOUND).entity("No ComServer with id " + id).build());
@@ -180,7 +180,7 @@ public class ComServerResource {
         Map<Long, ComPortInfo> newComPortIdMap = asIdz(newComPorts);
         for (ComPort comPort : comServer.getComPorts()) {
             if (newComPortIdMap.containsKey(comPort.getId())) {
-                newComPortIdMap.get(comPort.getId()).writeTo(comPort, engineModelService);
+                newComPortIdMap.get(comPort.getId()).writeTo(comPort, engineConfigurationService);
                 newComPortIdMap.remove(comPort.getId());
                 comPort.save();
             } else {
@@ -189,7 +189,7 @@ public class ComServerResource {
         }
 
         for (ComPortInfo comPortInfo : newComPortIdMap.values()) {
-            comPortInfo.createNew(comServer, engineModelService);
+            comPortInfo.createNew(comServer, engineConfigurationService);
         }
     }
 

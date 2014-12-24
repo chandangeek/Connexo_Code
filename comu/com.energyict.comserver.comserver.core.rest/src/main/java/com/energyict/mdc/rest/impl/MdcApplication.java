@@ -2,7 +2,7 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.rest.impl.comserver.ComPortPoolComPortResource;
 import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
@@ -39,7 +39,7 @@ public class MdcApplication extends Application implements TranslationKeyProvide
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "CCR";
 
-    private volatile EngineModelService engineModelService;
+    private volatile EngineConfigurationService engineConfigurationService;
     private volatile TransactionService transactionService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
@@ -71,8 +71,8 @@ public class MdcApplication extends Application implements TranslationKeyProvide
     }
 
     @Reference
-    public void setEngineModelService(EngineModelService engineModelService) {
-        this.engineModelService = engineModelService;
+    public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
+        this.engineConfigurationService = engineConfigurationService;
     }
 
     @Reference
@@ -120,7 +120,7 @@ public class MdcApplication extends Application implements TranslationKeyProvide
 
         @Override
         protected void configure() {
-            bind(engineModelService).to(EngineModelService.class);
+            bind(engineConfigurationService).to(EngineConfigurationService.class);
             bind(transactionService).to(TransactionService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(protocolPluggableService).to(ProtocolPluggableService.class);

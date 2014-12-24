@@ -2,13 +2,14 @@ package com.energyict.mdc.rest.impl;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.rest.impl.comserver.ComPortPoolInfo;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortPoolInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -40,12 +42,14 @@ import static org.mockito.Mockito.*;
 public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest {
     @Test
     public void testGetNonExistingComPortPool() throws Exception {
+        when(this.engineConfigurationService.findComPortPool(anyLong())).thenReturn(Optional.empty());
         final Response response = target("/comportpools/8").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void testGetComPortsForNonExistingComServer() throws Exception {
+        when(this.engineConfigurationService.findComPortPool(anyLong())).thenReturn(Optional.empty());
         final Response response = target("/comportpools/8/comports").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
@@ -57,7 +61,7 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
         when(deviceProtocolPluggableClass.getId()).thenReturn(6L);
         List<ComPortPool> comPortPools = new ArrayList<>();
         comPortPools.add(mock);
-        when(engineModelService.findAllComPortPools()).thenReturn(comPortPools);
+        when(engineConfigurationService.findAllComPortPools()).thenReturn(comPortPools);
         when(mock.getName()).thenReturn("Test");
         when(mock.isActive()).thenReturn(false);
         when(mock.getDiscoveryProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
@@ -84,7 +88,7 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
         OutboundComPortPool mock = mock(OutboundComPortPool.class);
         List<ComPortPool> comPortPools = new ArrayList<>();
         comPortPools.add(mock);
-        when(engineModelService.findAllComPortPools()).thenReturn(comPortPools);
+        when(engineConfigurationService.findAllComPortPools()).thenReturn(comPortPools);
         when(mock.getName()).thenReturn("Test");
         when(mock.isActive()).thenReturn(false);
         when(mock.getId()).thenReturn(1L);
@@ -166,8 +170,8 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
         when(mockTcpPort3.getComPortType()).thenReturn(ComPortType.TCP);
 
         when(mockOutboundComPortPool.getComPorts()).thenReturn(Arrays.<OutboundComPort>asList(mockTcpPort1, mockTcpPort3));
-        when(engineModelService.findComPortPool(comPortPool_id)).thenReturn(mockOutboundComPortPool);
-        when(engineModelService.findComPort(comPort2_id_to_be_added)).thenReturn(mockTcpPort2);
+        doReturn(Optional.of(mockOutboundComPortPool)).when(engineConfigurationService).findComPortPool(comPortPool_id);
+        doReturn(Optional.of(mockTcpPort2)).when(engineConfigurationService).findComPort(comPort2_id_to_be_added);
 
         Entity<OutboundComPortPoolInfo> json = Entity.json(outboundComPortPoolInfo);
 
@@ -191,7 +195,7 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
         outboundComPortPoolInfo.taskExecutionTimeout=new TimeDurationInfo(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES));
 
         OutboundComPortPool outboundComPortPool = mock(OutboundComPortPool.class);
-        when(engineModelService.newOutboundComPortPool()).thenReturn(outboundComPortPool);
+        when(engineConfigurationService.newOutboundComPortPool(anyString(), any(ComPortType.class), any(TimeDuration.class))).thenReturn(outboundComPortPool);
 
         Entity<OutboundComPortPoolInfo> json = Entity.json(outboundComPortPoolInfo);
 
@@ -203,7 +207,7 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
     public void testCreateComPortPoolWithoutType() throws Exception {
         ComPortPoolInfo outboundComPortPoolInfo = new ComPortPoolInfo() { // Unknown type
             @Override
-            protected ComPortPool createNew(EngineModelService engineModelService) {
+            protected ComPortPool createNew(EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService) {
                 return null;
             }
         };
@@ -223,7 +227,7 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
         int comPortPool_id = 5;
 
         InboundComPortPool mock = mock(InboundComPortPool.class);
-        when(engineModelService.findComPortPool(comPortPool_id)).thenReturn(mock);
+        doReturn(Optional.of(mock)).when(engineConfigurationService).findComPortPool(comPortPool_id);
 
         final Response response = target("/comportpools/5").request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
@@ -233,6 +237,7 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
 
     @Test
     public void testDeleteNonExistingComPortPoolThrows404() throws Exception {
+        when(this.engineConfigurationService.findComPortPool(anyLong())).thenReturn(Optional.empty());
         final Response response = target("/comportpools/5").request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }

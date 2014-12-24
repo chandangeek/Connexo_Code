@@ -1,9 +1,9 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.common.rest.TimeDurationInfo;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.io.BaudrateValue;
 import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.io.NrOfDataBits;
@@ -50,8 +50,8 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
     }
 
     @Override
-    protected void writeTo(ModemBasedInboundComPort source,EngineModelService engineModelService) {
-        super.writeTo(source,engineModelService);
+    protected void writeTo(ModemBasedInboundComPort source,EngineConfigurationService engineConfigurationService) {
+        super.writeTo(source, engineConfigurationService);
         Optional<Integer> ringCount = Optional.ofNullable(this.ringCount);
         if(ringCount.isPresent()) {
             source.setRingCount(ringCount.get());
@@ -122,8 +122,8 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
     }
 
     @Override
-    protected ModemBasedInboundComPort.ModemBasedInboundComPortBuilder build(ModemBasedInboundComPort.ModemBasedInboundComPortBuilder builder, EngineModelService engineModelService) {
-        super.build(builder, engineModelService);
+    protected ModemBasedInboundComPort.ModemBasedInboundComPortBuilder build(ModemBasedInboundComPort.ModemBasedInboundComPortBuilder builder, EngineConfigurationService engineConfigurationService) {
+        super.build(builder, engineConfigurationService);
         Optional<TimeDurationInfo> delayAfterConnect = Optional.ofNullable(this.delayAfterConnect);
         if (delayAfterConnect.isPresent()) {
             builder.delayAfterConnect(delayAfterConnect.get().asTimeDuration());
@@ -136,11 +136,11 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
         builder.atModemInitStrings(fromMaps(MAP_KEY, this.modemInitStrings));
         builder.addressSelector(this.addressSelector);
         builder.postDialCommands(this.postDialCommands);
-        return super.build(builder, engineModelService);
+        return super.build(builder, engineConfigurationService);
     }
 
     @Override
-    protected ModemBasedInboundComPort createNew(ComServer comServer, EngineModelService engineModelService) {
+    protected ModemBasedInboundComPort createNew(ComServer comServer, EngineConfigurationService engineConfigurationService) {
         return build(comServer.newModemBasedInboundComport(
                 this.name,
                 this.ringCount,
@@ -153,7 +153,7 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
                     this.nrOfDataBits,
                     this.nrOfStopBits,
                     this.parity,
-                    this.flowControl)), engineModelService).add();
+                    this.flowControl)), engineConfigurationService).add();
     }
 
     private List<Map<String, String>> asMap(String key, List<String> strings) {

@@ -1,8 +1,8 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import java.util.Optional;
 
@@ -23,8 +23,8 @@ public class ServletInboundComPortInfo extends InboundComPortInfo<ServletBasedIn
         this.contextPath = comPort.getContextPath();
     }
 
-    protected void writeTo(ServletBasedInboundComPort source,EngineModelService engineModelService) {
-        super.writeTo(source,engineModelService);
+    protected void writeTo(ServletBasedInboundComPort source,EngineConfigurationService engineConfigurationService) {
+        super.writeTo(source, engineConfigurationService);
         Optional<Boolean> useHttps = Optional.ofNullable(this.useHttps);
         if(useHttps.isPresent()) {
             source.setHttps(useHttps.get());
@@ -56,7 +56,7 @@ public class ServletInboundComPortInfo extends InboundComPortInfo<ServletBasedIn
     }
 
     @Override
-    protected ServletBasedInboundComPort.ServletBasedInboundComPortBuilder build(ServletBasedInboundComPort.ServletBasedInboundComPortBuilder builder, EngineModelService engineModelService) {
+    protected ServletBasedInboundComPort.ServletBasedInboundComPortBuilder build(ServletBasedInboundComPort.ServletBasedInboundComPortBuilder builder, EngineConfigurationService engineConfigurationService) {
         return super.build(
                 builder.
                 https(useHttps).
@@ -64,11 +64,11 @@ public class ServletInboundComPortInfo extends InboundComPortInfo<ServletBasedIn
                 keyStoreSpecsPassword(keyStorePassword).
                 trustStoreSpecsFilePath(trustStoreFilePath).
                 trustStoreSpecsPassword(trustStorePassword)
-                , engineModelService);
+                , engineConfigurationService);
     }
 
     @Override
-    protected ServletBasedInboundComPort createNew(ComServer comServer, EngineModelService engineModelService) {
-        return build(comServer.newServletBasedInboundComPort(this.name, this.contextPath, this.numberOfSimultaneousConnections, this.portNumber), engineModelService).add();
+    protected ServletBasedInboundComPort createNew(ComServer comServer, EngineConfigurationService engineConfigurationService) {
+        return build(comServer.newServletBasedInboundComPort(this.name, this.contextPath, this.numberOfSimultaneousConnections, this.portNumber), engineConfigurationService).add();
     }
 }

@@ -1,6 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 
 public class MockOutboundComPortBuilder implements OutboundComPort.OutboundComPortBuilder {

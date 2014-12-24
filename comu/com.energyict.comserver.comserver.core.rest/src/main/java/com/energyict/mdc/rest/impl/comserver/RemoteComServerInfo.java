@@ -1,6 +1,6 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.engine.model.*;
+import com.energyict.mdc.engine.config.*;
 import java.util.Optional;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -15,8 +15,8 @@ public class RemoteComServerInfo extends ComServerInfo<RemoteComServer> {
     /**
      * Create Info based on comserver properties and comports
      */
-    public RemoteComServerInfo(final RemoteComServer remoteComServer, List<ComPort> comPorts, EngineModelService engineModelService) {
-        super(remoteComServer, comPorts, engineModelService);
+    public RemoteComServerInfo(final RemoteComServer remoteComServer, List<ComPort> comPorts, EngineConfigurationService engineConfigurationService) {
+        super(remoteComServer, comPorts, engineConfigurationService);
         readFrom(remoteComServer);
     }
 
@@ -34,8 +34,8 @@ public class RemoteComServerInfo extends ComServerInfo<RemoteComServer> {
         this.onlineComServerId = remoteComServer.getOnlineComServer()!=null?remoteComServer.getOnlineComServer().getId():null;
     }
 
-    public RemoteComServer writeTo(RemoteComServer comServerSource,EngineModelService engineModelService) {
-        super.writeTo(comServerSource,engineModelService);
+    public RemoteComServer writeTo(RemoteComServer comServerSource,EngineConfigurationService engineConfigurationService) {
+        super.writeTo(comServerSource, engineConfigurationService);
         Optional<String> eventRegistrationUri = Optional.ofNullable(this.eventRegistrationUri);
         if(eventRegistrationUri.isPresent()) {
             comServerSource.setEventRegistrationUri(eventRegistrationUri.get());
@@ -46,7 +46,7 @@ public class RemoteComServerInfo extends ComServerInfo<RemoteComServer> {
         }
         Optional<Long> onlineComServerId = Optional.ofNullable(this.onlineComServerId);
         if(onlineComServerId.isPresent()) {
-            Optional<? extends ComServer> onlineComServer = engineModelService.findComServer(onlineComServerId.get());
+            Optional<? extends ComServer> onlineComServer = engineConfigurationService.findComServer(onlineComServerId.get());
             if(onlineComServer.isPresent() && OnlineComServer.class.isAssignableFrom(onlineComServer.get().getClass())) {
                 comServerSource.setOnlineComServer((OnlineComServer)onlineComServer.get());
             }
@@ -56,7 +56,7 @@ public class RemoteComServerInfo extends ComServerInfo<RemoteComServer> {
     }
 
     @Override
-    protected RemoteComServer createNew(EngineModelService engineModelService) {
-        return engineModelService.newRemoteComServerInstance();
+    protected RemoteComServer createNew(EngineConfigurationService engineConfigurationService) {
+        return engineConfigurationService.newRemoteComServerInstance();
     }
 }

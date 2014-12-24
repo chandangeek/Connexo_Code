@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import java.util.stream.Collectors;
@@ -21,14 +21,23 @@ public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPool> 
     protected InboundComPortPool writeTo(InboundComPortPool source, ProtocolPluggableService protocolPluggableService) {
         super.writeTo(source, protocolPluggableService);
         if (discoveryProtocolPluggableClassId != null) {
-            protocolPluggableService.findInboundDeviceProtocolPluggableClass(this.discoveryProtocolPluggableClassId).ifPresent(source::setDiscoveryProtocolPluggableClass);
+            protocolPluggableService
+                    .findInboundDeviceProtocolPluggableClass(this.discoveryProtocolPluggableClassId)
+                    .ifPresent(source::setDiscoveryProtocolPluggableClass);
         }
         return source;
     }
 
     @Override
-    protected InboundComPortPool createNew(EngineModelService engineModelService) {
-        return engineModelService.newInboundComPortPool();
+    protected InboundComPortPool createNew(EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService) {
+        InboundComPortPool inboundComPortPool = engineConfigurationService.newInboundComPortPool(
+                this.name,
+                this.type,
+                protocolPluggableService
+                        .findInboundDeviceProtocolPluggableClass(this.discoveryProtocolPluggableClassId)
+                        .orElse(null));
+        this.writeTo(inboundComPortPool);
+        return inboundComPortPool;
     }
 
 }

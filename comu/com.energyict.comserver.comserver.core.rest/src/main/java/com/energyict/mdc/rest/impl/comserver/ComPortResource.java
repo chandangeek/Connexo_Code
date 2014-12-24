@@ -3,10 +3,10 @@ package com.energyict.mdc.rest.impl.comserver;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.security.Privileges;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -25,11 +25,11 @@ import java.util.Optional;
 @Path("/comports")
 public class ComPortResource {
 
-    private final EngineModelService engineModelService;
+    private final EngineConfigurationService engineConfigurationService;
 
     @Inject
-    public ComPortResource(EngineModelService engineModelService) {
-        this.engineModelService = engineModelService;
+    public ComPortResource(EngineConfigurationService engineConfigurationService) {
+        this.engineConfigurationService = engineConfigurationService;
     }
 
     @GET
@@ -41,22 +41,22 @@ public class ComPortResource {
             Long comserverIdProperty = comPortFilter.hasProperty("comserver_id") ? comPortFilter.getLong("comserver_id") : null;
             String directionProperty = comPortFilter.hasProperty("direction") ? comPortFilter.getString("direction") : null;
             if (comserverIdProperty != null) {
-                Optional<ComServer> comServer = engineModelService.findComServer(comserverIdProperty);
+                Optional<ComServer> comServer = engineConfigurationService.findComServer(comserverIdProperty);
                 List<ComPort> comPorts = comServer.get().getComPorts();
                 for (ComPort comPort : comPorts) {
-                    comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineModelService));
+                    comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineConfigurationService));
                 }
             } else if (directionProperty != null) {
                 List<? extends ComPort> comPorts = ("inbound".equals(directionProperty)) ?
-                        engineModelService.findAllInboundComPorts() :
-                        engineModelService.findAllOutboundComPorts();
+                        engineConfigurationService.findAllInboundComPorts() :
+                        engineConfigurationService.findAllOutboundComPorts();
                 for (ComPort comPort : comPorts) {
-                    comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineModelService));
+                    comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineConfigurationService));
                 }
             }
         } else {
-            for (ComPort comPort : engineModelService.findAllComPortsWithDeleted()) {
-                comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineModelService));
+            for (ComPort comPort : engineConfigurationService.findAllComPortsWithDeleted()) {
+                comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineConfigurationService));
             }
         }
         return PagedInfoList.asJson("data", comPortInfos, queryParameters);
@@ -67,12 +67,12 @@ public class ComPortResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
     public ComPortInfo getComPort(@PathParam("id") long id) {
-        Optional<ComPort> comPort = Optional.ofNullable(engineModelService.findComPort(id));
+        Optional<? extends ComPort> comPort = engineConfigurationService.findComPort(id);
         if (!comPort.isPresent()) {
             throw new WebApplicationException("No ComPort with id " + id,
                     Response.status(Response.Status.NOT_FOUND).entity("No ComPort with id " + id).build());
         }
-        return ComPortInfoFactory.asInfo(comPort.get(), engineModelService);
+        return ComPortInfoFactory.asInfo(comPort.get(), engineConfigurationService);
     }
 
 }

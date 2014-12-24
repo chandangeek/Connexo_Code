@@ -3,7 +3,7 @@ package com.energyict.mdc.rest.impl;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.rest.impl.comserver.MessageSeeds;
 import javax.ws.rs.core.Application;
@@ -14,7 +14,7 @@ import org.mockito.Mock;
  */
 public class ComserverCoreApplicationJerseyTest extends FelixRestApplicationJerseyTest {
     @Mock
-    EngineModelService engineModelService;
+    EngineConfigurationService engineConfigurationService;
     @Mock
     ProtocolPluggableService protocolPluggableService;
     @Mock
@@ -30,7 +30,7 @@ public class ComserverCoreApplicationJerseyTest extends FelixRestApplicationJers
         MdcApplication application = new MdcApplication();
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
-        application.setEngineModelService(engineModelService);
+        application.setEngineConfigurationService(engineConfigurationService);
         application.setDeviceConfigurationService(deviceConfigurationService);
         application.setProtocolPluggableService(protocolPluggableService);
         return application;

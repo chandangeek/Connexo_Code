@@ -1,9 +1,9 @@
 package com.energyict.mdc.rest.impl;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.io.SerialPortConfiguration;
 

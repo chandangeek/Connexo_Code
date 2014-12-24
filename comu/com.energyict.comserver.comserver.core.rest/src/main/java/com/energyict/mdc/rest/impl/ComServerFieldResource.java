@@ -3,7 +3,7 @@ package com.energyict.mdc.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.FieldResource;
-import com.energyict.mdc.engine.model.security.Privileges;
+import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.rest.impl.comserver.BaudrateAdapter;
 import com.energyict.mdc.rest.impl.comserver.ComPortTypeAdapter;
 import com.energyict.mdc.rest.impl.comserver.FlowControlAdapter;

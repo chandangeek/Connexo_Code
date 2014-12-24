@@ -1,10 +1,10 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.common.rest.TimeDurationInfo;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.InboundComPort;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -65,7 +65,7 @@ public abstract class ComServerInfo<S extends ComServer> {
     /**
      * Creates info object containing both ComServer properties and comports
      */
-    public ComServerInfo(ComServer comServer, List<ComPort> comPorts, EngineModelService engineModelService) {
+    public ComServerInfo(ComServer comServer, List<ComPort> comPorts, EngineConfigurationService engineConfigurationService) {
         this(comServer);
         inboundComPorts = new ArrayList<>();
         outboundComPorts = new ArrayList<>();
@@ -73,12 +73,12 @@ public abstract class ComServerInfo<S extends ComServer> {
             if (InboundComPort.class.isAssignableFrom(comPort.getClass())) {
                 inboundComPorts.add(ComPortInfoFactory.asInboundInfo(comPort));
             } else {
-                outboundComPorts.add(ComPortInfoFactory.asOutboundInfo(comPort, engineModelService));
+                outboundComPorts.add(ComPortInfoFactory.asOutboundInfo(comPort, engineConfigurationService));
             }
         }
     }
 
-    public S writeTo(S source,EngineModelService engineModelService) {
+    public S writeTo(S source,EngineConfigurationService engineConfigurationService) {
         Optional<String> name = Optional.ofNullable(this.name);
         if(name.isPresent()) {
             source.setName(name.get());
@@ -107,6 +107,6 @@ public abstract class ComServerInfo<S extends ComServer> {
         return source;
     }
 
-    protected abstract S createNew(EngineModelService engineModelService);
+    protected abstract S createNew(EngineConfigurationService engineConfigurationService);
 
 }
