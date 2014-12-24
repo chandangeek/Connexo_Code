@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 
 import javax.validation.ConstraintValidator;

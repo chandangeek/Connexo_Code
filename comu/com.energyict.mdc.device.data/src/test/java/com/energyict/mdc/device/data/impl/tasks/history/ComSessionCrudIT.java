@@ -58,13 +58,13 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionMessageJourna
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -87,35 +87,6 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.kpi.KpiService;
-import com.elster.jupiter.kpi.impl.KpiModule;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
-import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.tasks.impl.TaskModule;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -186,7 +157,7 @@ public class ComSessionCrudIT {
     private DeviceConfiguration deviceConfiguration;
     private Device device;
     private ProtocolPluggableService protocolPluggableService;
-    private EngineModelService engineModelService;
+    private EngineConfigurationService engineConfigurationService;
     private ScheduledConnectionTask connectionTask;
     private OutboundComPort comport;
     @Mock
@@ -279,7 +250,7 @@ public class ComSessionCrudIT {
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             ((ProtocolPluggableServiceImpl) protocolPluggableService).addConnectionTypeService(this.connectionTypeService);
             when(this.connectionTypeService.createConnectionType(NoParamsConnectionType.class.getName())).thenReturn(new NoParamsConnectionType());
-            engineModelService = injector.getInstance(EngineModelService.class);
+            engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
             deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             taskService = injector.getInstance(TaskService.class);
             ctx.commit();
@@ -321,11 +292,8 @@ public class ComSessionCrudIT {
                     build();
             partialScheduledConnectionTask.save();
 
-            outboundTcpipComPortPool = engineModelService.newOutboundComPortPool();
+            outboundTcpipComPortPool = engineConfigurationService.newOutboundComPortPool("outTCPIPPool", ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
             outboundTcpipComPortPool.setActive(true);
-            outboundTcpipComPortPool.setComPortType(ComPortType.TCP);
-            outboundTcpipComPortPool.setName("outTCPIPPool");
-            outboundTcpipComPortPool.setTaskExecutionTimeout(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
             outboundTcpipComPortPool.save();
 
             connectionTask = this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
@@ -335,7 +303,7 @@ public class ComSessionCrudIT {
             device.save();
             connectionTask.save();
 
-            OnlineComServer onlineComServer = engineModelService.newOnlineComServerInstance();
+            OnlineComServer onlineComServer = engineConfigurationService.newOnlineComServerInstance();
             onlineComServer.setName("ComServer");
             onlineComServer.setStoreTaskQueueSize(1);
             onlineComServer.setStoreTaskThreadPriority(1);

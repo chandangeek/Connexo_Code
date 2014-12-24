@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data.impl.tasks.history;
 
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;

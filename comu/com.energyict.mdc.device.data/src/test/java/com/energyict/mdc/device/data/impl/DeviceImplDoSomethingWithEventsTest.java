@@ -13,8 +13,8 @@ import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.relation.RelationService;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -234,7 +234,7 @@ public class DeviceImplDoSomethingWithEventsTest {
         private DeviceDataModelService deviceDataModelService;
         private Clock clock = Clock.systemDefaultZone();
         private RelationService relationService;
-        private EngineModelService engineModelService;
+        private EngineConfigurationService engineConfigurationService;
         private Environment environment;
         private TaskService taskService;
         private SchedulingService schedulingService;
@@ -292,7 +292,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.taskService = injector.getInstance(TaskService.class);
                 this.validationService = injector.getInstance(ValidationService.class);
                 this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
-                this.engineModelService = injector.getInstance(EngineModelService.class);
+                this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
                 this.relationService = injector.getInstance(RelationService.class);
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
                 this.schedulingService = injector.getInstance(SchedulingService.class);

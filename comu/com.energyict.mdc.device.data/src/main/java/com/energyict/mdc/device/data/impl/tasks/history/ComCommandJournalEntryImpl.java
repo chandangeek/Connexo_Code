@@ -4,7 +4,7 @@ import com.energyict.mdc.device.data.tasks.history.ComCommandJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.device.data.tasks.history.JournalEntryVisitor;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;

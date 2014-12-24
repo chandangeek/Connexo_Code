@@ -31,13 +31,12 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComStatistics;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.ColumnConversion.DATE2INSTANT;
@@ -49,7 +48,6 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2INSTANT;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
@@ -186,12 +184,12 @@ public enum TableSpecs {
                     map("pluggableClass").add();
             table.foreignKey("FK_DDC_CONNECTIONTASK_CPP").
                     on(comPortPool).
-                    references(EngineModelService.COMPONENT_NAME, "MDC_COMPORTPOOL").
+                    references(EngineConfigurationService.COMPONENT_NAME, "MDC_COMPORTPOOL").
                     map(ConnectionTaskFields.COM_PORT_POOL.fieldName()).
                     add();
             table.foreignKey("FK_DDC_CONNECTIONTASK_COMSRVER").
                     on(comServer).
-                    references(EngineModelService.COMPONENT_NAME, "MDC_COMSERVER").
+                    references(EngineConfigurationService.COMPONENT_NAME, "MDC_COMSERVER").
                     map(ConnectionTaskFields.COM_SERVER.fieldName()).
                     add();
             table.foreignKey("FK_DDC_CONNECTIONTASK_INITIATR").
@@ -257,7 +255,7 @@ public enum TableSpecs {
             Column connectionTask = table.column("CONNECTIONTASK").number().conversion(NUMBER2LONGNULLZERO).map("connectionTaskId").add();
             Column protocolDialectConfigurationProperties = table.column("PROTOCOLDIALECTCONFIGPROPS").number().add();
             table.column("IGNORENEXTEXECSPECS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).add();
-            table.foreignKey("FK_DDC_COMTASKEXEC_COMPORT").on(comPort).references(EngineModelService.COMPONENT_NAME, "MDC_COMPORT").map(ComTaskExecutionFields.COMPORT.fieldName()).add();
+            table.foreignKey("FK_DDC_COMTASKEXEC_COMPORT").on(comPort).references(EngineConfigurationService.COMPONENT_NAME, "MDC_COMPORT").map(ComTaskExecutionFields.COMPORT.fieldName()).add();
             table.foreignKey("FK_DDC_COMTASKEXEC_COMTASK").on(comTask).references(TaskService.COMPONENT_NAME, "CTS_COMTASK").map(ComTaskExecutionFields.COMTASK.fieldName()).add();
             table.foreignKey("FK_DDC_COMTASKEXEC_COMSCHEDULE").
                     on(comSchedule).
@@ -321,13 +319,13 @@ public enum TableSpecs {
                     add();
             table.foreignKey("FK_DDC_COMSESSION_COMPORTPOOL").
                     on(comportPool).
-                    references(EngineModelService.COMPONENT_NAME, "MDC_COMPORTPOOL").
+                    references(EngineConfigurationService.COMPONENT_NAME, "MDC_COMPORTPOOL").
                     onDelete(CASCADE).
                     map(ComSessionImpl.Fields.COMPORT_POOL.fieldName()).
                     add();
             table.foreignKey("FK_DDC_COMSESSION_COMPORT").
                     on(comport).
-                    references(EngineModelService.COMPONENT_NAME, "MDC_COMPORT").
+                    references(EngineConfigurationService.COMPONENT_NAME, "MDC_COMPORT").
                     onDelete(CASCADE).
                     map(ComSessionImpl.Fields.COMPORT.fieldName()).
                     add();

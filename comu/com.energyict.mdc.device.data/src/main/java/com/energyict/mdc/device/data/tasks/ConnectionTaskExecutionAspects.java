@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.tasks;
 
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 import java.sql.SQLException;
 
 /**

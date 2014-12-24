@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data.tasks;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
 
 /**
  * Models a {@link ConnectionTask} that take initative to connect to external devices.

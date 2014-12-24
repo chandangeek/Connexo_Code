@@ -26,8 +26,8 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
@@ -178,34 +178,22 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
 //        ipConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().newConnectionTypePluggableClass("IPConnectionType", IpConnectionType.class.getName());
 //        ipConnectionTypePluggableClass.save(); // TODO enable again once JP-1123 is completely finished
 
-        outboundComPortPool = inMemoryPersistence.getEngineModelService().newOutboundComPortPool();
+        outboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool("OutboundComPortPool", ComPortType.TCP, TimeDuration.minutes(15));
         outboundComPortPool.setActive(true);
-        outboundComPortPool.setComPortType(ComPortType.TCP);
-        outboundComPortPool.setName("OutboundComPortPool");
-        outboundComPortPool.setTaskExecutionTimeout(TimeDuration.minutes(15));
         outboundComPortPool.save();
 
-        otherOutboundComPortPool = inMemoryPersistence.getEngineModelService().newOutboundComPortPool();
+        otherOutboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool("OtherPool", ComPortType.TCP, TimeDuration.minutes(30));
         otherOutboundComPortPool.setActive(true);
-        otherOutboundComPortPool.setComPortType(ComPortType.TCP);
-        otherOutboundComPortPool.setName("OtherPool");
-        otherOutboundComPortPool.setTaskExecutionTimeout(TimeDuration.minutes(30));
         otherOutboundComPortPool.save();
 
         inboundDeviceProtocolPluggableClass = inMemoryPersistence.getProtocolPluggableService().newInboundDeviceProtocolPluggableClass("MyInboundDeviceProtocolPluggableClass", SimpleDiscoveryProtocol.class.getName());
         inboundDeviceProtocolPluggableClass.save();
-        inboundComPortPool = inMemoryPersistence.getEngineModelService().newInboundComPortPool();
-        inboundComPortPool.setName("InboundComPortPool");
+        inboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool("InboundComPortPool", ComPortType.TCP, inboundDeviceProtocolPluggableClass);
         inboundComPortPool.setActive(true);
-        inboundComPortPool.setComPortType(ComPortType.TCP);
-        inboundComPortPool.setDiscoveryProtocolPluggableClass(inboundDeviceProtocolPluggableClass);
         inboundComPortPool.save();
 
-        otherInboundComPortPool = inMemoryPersistence.getEngineModelService().newInboundComPortPool();
-        otherInboundComPortPool.setName("OtherInboundPool");
+        otherInboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool("OtherInboundPool", ComPortType.TCP, inboundDeviceProtocolPluggableClass);
         otherInboundComPortPool.setActive(true);
-        otherInboundComPortPool.setComPortType(ComPortType.TCP);
-        otherInboundComPortPool.setDiscoveryProtocolPluggableClass(inboundDeviceProtocolPluggableClass);
         otherInboundComPortPool.save();
     }
 
