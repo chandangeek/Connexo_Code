@@ -69,8 +69,7 @@ public class UserPreferencesServiceTest {
                     new TransactionModule(true),
                     new NlsModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
-            injector.getInstance(UserService.class);
-            userPrefsService = injector.getInstance(UserPreferencesService.class);
+            userPrefsService = injector.getInstance(UserService.class).getUserPreferencesService(); 
             ctx.commit();
         }
     }

@@ -8,6 +8,7 @@ import javax.validation.ConstraintValidatorContext;
 
 import com.elster.jupiter.users.UserPreference;
 import com.elster.jupiter.users.UserPreferencesService;
+import com.elster.jupiter.users.UserService;
 
 public class UniqueDefaultKeyPerLocaleValidator implements ConstraintValidator<UniqueDefaultKeyPerLocale, UserPreference> {
 
@@ -15,8 +16,8 @@ public class UniqueDefaultKeyPerLocaleValidator implements ConstraintValidator<U
     private String message;
 
     @Inject
-    public UniqueDefaultKeyPerLocaleValidator(UserPreferencesService userPreferencesService) {
-        this.userPreferencesService = userPreferencesService;
+    public UniqueDefaultKeyPerLocaleValidator(UserService userService) {
+        this.userPreferencesService = userService.getUserPreferencesService();
     }
 
     @Override

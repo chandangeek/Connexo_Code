@@ -77,4 +77,6 @@ public interface UserService {
     Group findOrCreateGroup(String group);
 
     List<UserDirectory> getUserDirectories();
+
+    UserPreferencesService getUserPreferencesService();
 }

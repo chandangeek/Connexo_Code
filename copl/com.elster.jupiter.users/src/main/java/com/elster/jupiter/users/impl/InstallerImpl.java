@@ -32,7 +32,7 @@ public class InstallerImpl {
         this.defaultDomain = defaultDomain;
         createPrivileges(userService);
         createMasterData();
-        createUserPreferences(userService);
+        createUserPreferences(userService.getUserPreferencesService());
 	}
 	
 	private void createMasterData() {

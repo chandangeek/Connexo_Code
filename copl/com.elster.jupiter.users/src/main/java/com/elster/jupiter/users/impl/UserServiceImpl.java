@@ -2,14 +2,10 @@ package com.elster.jupiter.users.impl;
 
 import static com.elster.jupiter.util.Checks.is;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
@@ -21,7 +17,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -32,7 +27,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.FormatKey;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.NoDefaultDomainException;
@@ -41,7 +35,6 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
-import com.elster.jupiter.users.UserPreference;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -50,15 +43,17 @@ import com.google.inject.AbstractModule;
 
 @Component(
         name = "com.elster.jupiter.users",
-        service = {UserService.class, UserPreferencesService.class, InstallService.class, TranslationKeyProvider.class},
+        service = {UserService.class, InstallService.class, TranslationKeyProvider.class},
         immediate = true,
         property = "name=" + UserService.COMPONENTNAME)
-public class UserServiceImpl implements UserService, UserPreferencesService, InstallService, TranslationKeyProvider {
+public class UserServiceImpl implements UserService, InstallService, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
     private volatile QueryService queryService;
     private volatile Thesaurus thesaurus;
+    private volatile UserPreferencesService userPreferencesService;
+    
     private static final String JUPITER_REALM = "Local";
 
     public UserServiceImpl() {
@@ -83,11 +78,11 @@ public class UserServiceImpl implements UserService, UserPreferencesService, Ins
             protected void configure() {
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(UserService.class).toInstance(UserServiceImpl.this);
-                bind(UserPreferencesService.class).toInstance(UserServiceImpl.this);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Thesaurus.class).toInstance(thesaurus);
             }
         });
+        userPreferencesService = new UserPreferencesServiceImpl(dataModel);
     }
 
     public Optional<User> authenticate(String domain, String userName, String password) {
@@ -382,45 +377,6 @@ public class UserServiceImpl implements UserService, UserPreferencesService, Ins
         return dataModel.mapper(UserDirectory.class).getOptional(domain);
     }
     
-    @Override
-    public UserPreference createUserPreference(Locale locale, FormatKey key, String formatBE, String formatFE, boolean isDefault) {
-        UserPreferenceImpl userPreference = new UserPreferenceImpl();
-        userPreference.setLanguageTag(locale != null ? locale.toLanguageTag() : null);
-        userPreference.setKey(key);
-        userPreference.setFormatBE(formatBE);
-        userPreference.setFormatFE(formatFE);
-        userPreference.setDefault(isDefault);
-        Save.CREATE.save(dataModel, userPreference);
-        return userPreference;
-    }
-
-    @Override
-    public List<Locale> getSupportedLocales() {
-        Map<Locale, List<UserPreference>> locales = dataModel.mapper(UserPreference.class).find().stream().collect(Collectors.groupingBy(up -> up.getLocale()));
-        List<Locale> supportedLocales = new ArrayList<>(locales.size());
-        supportedLocales.addAll(locales.keySet());
-        return supportedLocales;
-    }
-
-    @Override
-    public List<UserPreference> getPreferences(User user) {
-        return dataModel.mapper(UserPreference.class).find(
-                new String[] { "locale", "isDefault" },
-                new Object[] { user.getLocale().orElse(Locale.getDefault()).toLanguageTag(), true });
-    }
-    
-    @Override
-    public Optional<UserPreference> getPreferenceByKey(User user, FormatKey key) {
-        return this.getPreferenceByKey(user.getLocale().orElse(Locale.getDefault()), key);
-    }
-    
-    @Override
-    public Optional<UserPreference> getPreferenceByKey(Locale locale, FormatKey key) {
-        return dataModel.mapper(UserPreference.class).getUnique(
-                new String[] { "locale", "key", "isDefault" },
-                new Object[] { locale.toLanguageTag(), key, true });
-    }
-
     @Reference
     public void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(COMPONENTNAME, "User Management");
@@ -442,6 +398,11 @@ public class UserServiceImpl implements UserService, UserPreferencesService, Ins
     @Reference
     public void setNlsService(NlsService nlsService) {
         thesaurus = nlsService.getThesaurus(UserService.COMPONENTNAME, Layer.DOMAIN);
+    }
+    
+    @Override
+    public UserPreferencesService getUserPreferencesService() {
+        return userPreferencesService;
     }
 
     private DataMapper<User> userFactory() {
