@@ -1,8 +1,7 @@
 package com.energyict.mdc.engine.impl.status;
 
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.status.ComServerStatus;
 
 import java.time.Clock;
@@ -30,19 +29,19 @@ public class StatusServiceImplTest {
     @Mock
     private ManagementBeanFactory managementBeanFactory;
     @Mock
-    private EngineModelService engineModelService;
+    private EngineConfigurationService engineConfigurationService;
     private Clock clock = Clock.systemDefaultZone();
 
     @Test
     public void testStatusWhenComServerWithSystemNameDoesNotExist () {
-        when(this.engineModelService.findComServerBySystemName()).thenReturn(Optional.empty());
+        when(this.engineConfigurationService.findComServerBySystemName()).thenReturn(Optional.empty());
         StatusServiceImpl statusService = this.newStatusService();
 
         // Business method
         ComServerStatus status = statusService.getStatus();
 
         // Asserts
-        verify(this.engineModelService).findComServerBySystemName();
+        verify(this.engineConfigurationService).findComServerBySystemName();
         verifyNoMoreInteractions(this.managementBeanFactory);
         assertThat(status).isNotNull();
         assertThat(status.isRunning()).isFalse();
@@ -52,14 +51,14 @@ public class StatusServiceImplTest {
 
     @Test
     public void testStatusOffNonRunningOnlineComServer () {
-        when(this.engineModelService.findComServerBySystemName()).thenReturn(Optional.empty());
+        when(this.engineConfigurationService.findComServerBySystemName()).thenReturn(Optional.empty());
         StatusServiceImpl statusService = this.newStatusService();
 
         // Business method
         ComServerStatus status = statusService.getStatus();
 
         // Asserts
-        verify(this.engineModelService).findComServerBySystemName();
+        verify(this.engineConfigurationService).findComServerBySystemName();
         verifyNoMoreInteractions(this.managementBeanFactory);
         assertThat(status).isNotNull();
         assertThat(status.isRunning()).isFalse();
@@ -71,7 +70,7 @@ public class StatusServiceImplTest {
         StatusServiceImpl service = new StatusServiceImpl();
         service.setClock(this.clock);
         service.setManagementBeanFactory(this.managementBeanFactory);
-        service.setEngineModelService(this.engineModelService);
+        service.setEngineConfigurationService(this.engineConfigurationService);
         return service;
     }
 

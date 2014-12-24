@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.core.aspects.logging;
 
 import com.energyict.mdc.engine.impl.logging.Configuration;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 /**
@@ -63,7 +63,7 @@ public interface ComPortOperationsLogger {
     public void workFound (String comPortThreadName, int numberOfJobs);
 
     /**
-     * Logs that the specified {@link com.energyict.mdc.engine.model.ComPort} attempted to schedule
+     * Logs that the specified {@link com.energyict.mdc.engine.config.ComPort} attempted to schedule
      * the execution of the {@link ComTaskExecution} but it was already scheduled.
      *
      * @param comPortThreadName The name of the ComPort thread that attempted to start the execution
@@ -74,7 +74,7 @@ public interface ComPortOperationsLogger {
     public void alreadyScheduled (String comPortThreadName, ComTaskExecution comTaskExecution);
 
     /**
-     * Logs that the specified {@link com.energyict.mdc.engine.model.ComPort} attempted to schedule
+     * Logs that the specified {@link com.energyict.mdc.engine.config.ComPort} attempted to schedule
      * the execution of the {@link ComTaskExecution} but the work queue was full.
      *
      * @param comPortThreadName The name of the ComPort thread that attempted to start the execution
@@ -84,7 +84,7 @@ public interface ComPortOperationsLogger {
     public void cannotSchedule (String comPortThreadName, ComTaskExecution comTaskExecution);
 
     /**
-     * Logs that the specified {@link com.energyict.mdc.engine.model.ComPort} unschedule
+     * Logs that the specified {@link com.energyict.mdc.engine.config.ComPort} unschedule
      * the execution of the {@link ComTaskExecution} because another ComPort
      * has picked up the ComTaskExecution for execution.
      *
@@ -95,7 +95,7 @@ public interface ComPortOperationsLogger {
     public void unscheduled (String comPortThreadName, ComTaskExecution comTaskExecution);
 
     /**
-     * Logs that the specified {@link com.energyict.mdc.engine.model.ComPort}
+     * Logs that the specified {@link com.energyict.mdc.engine.config.ComPort}
      * ran into an unexpected problem.
      *
      * @param unexpected The unexpected problem

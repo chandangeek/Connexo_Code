@@ -1,22 +1,22 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 
 import java.util.Set;
 
 /**
  * Provides an implementation for the {@link RequestType} interface
- * for {@link com.energyict.mdc.engine.model.ComPortPool}s.
+ * for {@link com.energyict.mdc.engine.config.ComPortPool}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-15 (16:55)
  */
 public class ComPortPoolRequestType extends IdBusinessObjectRequestType {
 
-    private final EngineModelService engineModelService;
+    private final EngineConfigurationService engineConfigurationService;
 
-    public ComPortPoolRequestType(EngineModelService engineModelService) {
-        this.engineModelService = engineModelService;
+    public ComPortPoolRequestType(EngineConfigurationService engineConfigurationService) {
+        this.engineConfigurationService = engineConfigurationService;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class ComPortPoolRequestType extends IdBusinessObjectRequestType {
 
     @Override
     protected Request newRequestFor (Set<Long> ids) {
-        return new ComPortPoolRequest(engineModelService, ids);
+        return new ComPortPoolRequest(engineConfigurationService, ids);
     }
 
 }

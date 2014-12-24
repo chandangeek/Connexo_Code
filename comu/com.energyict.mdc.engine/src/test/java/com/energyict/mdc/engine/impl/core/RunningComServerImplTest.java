@@ -15,12 +15,12 @@ import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.engine.model.RemoteComServer;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.RemoteComServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class RunningComServerImplTest {
     @Mock
     private EmbeddedWebServerFactory embeddedWebServerFactory;
     @Mock
-    private EngineModelService engineModelService;
+    private EngineConfigurationService engineConfigurationService;
     @Mock
     private EngineService engineService;
     @Mock
@@ -77,7 +77,7 @@ public class RunningComServerImplTest {
     @Before
     public void setupServiceProvider() {
         this.serviceProvider.setClock(this.clock);
-        this.serviceProvider.setEngineModelService(this.engineModelService);
+        this.serviceProvider.setEngineConfigurationService(this.engineConfigurationService);
         this.serviceProvider.setEngineService(this.engineService);
         this.serviceProvider.setDeviceService(this.deviceService);
         this.serviceProvider.setManagementBeanFactory(this.managementBeanFactory);
@@ -187,7 +187,7 @@ public class RunningComServerImplTest {
         Thread shutdownHookTread = this.mockedThread();
         when(threadFactory.newThread(any(Runnable.class))).thenReturn(timeOutMonitorThread, changesMonitorThread, shutdownHookTread);
         List<RemoteComServer> noRemoteComServers = new ArrayList<>(0);
-        when(this.engineModelService.findRemoteComServersForOnlineComServer(comServer)).thenReturn(noRemoteComServers);
+        when(this.engineConfigurationService.findRemoteComServersForOnlineComServer(comServer)).thenReturn(noRemoteComServers);
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
         when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
 
@@ -205,7 +205,7 @@ public class RunningComServerImplTest {
         verify(timeOutMonitorThread).start();
         verify(cleanupDuringStartup).releaseInterruptedTasks();
         verify(this.engineService).register(runningComServer);
-        verify(this.engineModelService).findRemoteComServersForOnlineComServer(comServer);
+        verify(this.engineConfigurationService).findRemoteComServersForOnlineComServer(comServer);
         verify(this.embeddedWebServerFactory, never()).findOrCreateRemoteQueryWebServer(runningComServer);
     }
 
@@ -228,7 +228,7 @@ public class RunningComServerImplTest {
         Thread shutdownHookTread = this.mockedThread();
         when(threadFactory.newThread(any(Runnable.class))).thenReturn(timeOutMonitorThread, changesMonitorThread, shutdownHookTread);
         RemoteComServer remoteComServer = mock(RemoteComServer.class);
-        when(this.engineModelService.findRemoteComServersForOnlineComServer(comServer)).thenReturn(Arrays.asList(remoteComServer));
+        when(this.engineConfigurationService.findRemoteComServersForOnlineComServer(comServer)).thenReturn(Arrays.asList(remoteComServer));
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
         when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
         EmbeddedWebServer queryWebServer = mock(EmbeddedWebServer.class);
@@ -337,7 +337,7 @@ public class RunningComServerImplTest {
         Thread shutdownHookTread = this.mockedThread();
         when(threadFactory.newThread(any(Runnable.class))).thenReturn(timeOutMonitorThread, changesMonitorThread, shutdownHookTread);
         RemoteComServer remoteComServer = mock(RemoteComServer.class);
-        when(this.engineModelService.findRemoteComServersForOnlineComServer(comServer)).thenReturn(Arrays.asList(remoteComServer));
+        when(this.engineConfigurationService.findRemoteComServersForOnlineComServer(comServer)).thenReturn(Arrays.asList(remoteComServer));
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
         when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
         EmbeddedWebServer queryWebServer = mock(EmbeddedWebServer.class);
@@ -377,7 +377,7 @@ public class RunningComServerImplTest {
         Thread shutdownHookTread = this.mockedThread();
         when(threadFactory.newThread(any(Runnable.class))).thenReturn(timeOutMonitorThread, changesMonitorThread, shutdownHookTread);
         RemoteComServer remoteComServer = mock(RemoteComServer.class);
-        when(this.engineModelService.findRemoteComServersForOnlineComServer(comServer)).thenReturn(Arrays.asList(remoteComServer));
+        when(this.engineConfigurationService.findRemoteComServersForOnlineComServer(comServer)).thenReturn(Arrays.asList(remoteComServer));
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
         when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
         EmbeddedWebServer queryWebServer = mock(EmbeddedWebServer.class);

@@ -2,10 +2,10 @@ package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.common.Environment;
+
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.issues.IssueService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -27,7 +27,7 @@ public class LaunchComServer implements EngineService.DeactivationNotificationLi
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UserService userService;
     private volatile IssueService issueService;
-    private volatile EngineModelService engineModelService;
+    private volatile EngineConfigurationService engineConfigurationService;
     private volatile EngineService engineService;
 
     private boolean autoStart;
@@ -107,8 +107,8 @@ public class LaunchComServer implements EngineService.DeactivationNotificationLi
     }
 
     @Reference
-    public void setEngineModelService(EngineModelService engineModelService) {
-        this.engineModelService = engineModelService;
+    public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
+        this.engineConfigurationService = engineConfigurationService;
     }
 
     @Reference

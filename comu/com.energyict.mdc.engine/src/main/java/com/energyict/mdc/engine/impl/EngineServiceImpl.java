@@ -29,7 +29,7 @@ import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiServiceFactory;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.io.LibraryType;
 import com.energyict.mdc.io.ModemType;
@@ -69,7 +69,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     private volatile Clock clock;
 
     private volatile HexService hexService;
-    private volatile EngineModelService engineModelService;
+    private volatile EngineConfigurationService engineConfigurationService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile IssueService issueService;
     private volatile ConnectionTaskService connectionTaskService;
@@ -99,7 +99,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     @Inject
     public EngineServiceImpl(
             OrmService ormService, EventService eventService, NlsService nlsService, TransactionService transactionService, Clock clock, ThreadPrincipalService threadPrincipalService,
-            HexService hexService, EngineModelService engineModelService, IssueService issueService,
+            HexService hexService, EngineConfigurationService engineConfigurationService, IssueService issueService,
             MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, DeviceConfigurationService deviceConfigurationService,
             ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, LogBookService logBookService, DeviceService deviceService, TopologyService topologyService,
             ProtocolPluggableService protocolPluggableService, StatusService statusService,
@@ -113,7 +113,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         setTransactionService(transactionService);
         setClock(clock);
         setHexService(hexService);
-        setEngineModelService(engineModelService);
+        setEngineConfigurationService(engineConfigurationService);
         setThreadPrincipalService(threadPrincipalService);
         setIssueService(issueService);
         this.setDeviceService(deviceService);
@@ -183,8 +183,8 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     }
 
     @Reference
-    public void setEngineModelService(EngineModelService engineModelService) {
-        this.engineModelService = engineModelService;
+    public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
+        this.engineConfigurationService = engineConfigurationService;
     }
 
     @Reference
@@ -392,8 +392,8 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         }
 
         @Override
-        public EngineModelService engineModelService() {
-            return engineModelService;
+        public EngineConfigurationService engineConfigurationService() {
+            return engineConfigurationService;
         }
 
         @Override

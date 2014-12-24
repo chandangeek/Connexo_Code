@@ -17,12 +17,12 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
 import com.energyict.mdc.engine.impl.core.ServerProcess;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
@@ -66,7 +66,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Provides an implementation for the {@link ComServerDAO} interface
  * that will post a JSon representation of the query
- * to a companion {@link com.energyict.mdc.engine.model.OnlineComServer}
+ * to a companion {@link com.energyict.mdc.engine.config.OnlineComServer}
  * that has a servlet running that will listen for these queries.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -78,7 +78,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
         public Clock clock();
 
-        public EngineModelService engineModelService();
+        public EngineConfigurationService engineConfigurationService();
 
     }
 
@@ -386,7 +386,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
     private ComServer toComServer (JSONObject response) {
         try {
-            return new ComServerParser(this.serviceProvider.engineModelService()).parse(response);
+            return new ComServerParser(this.serviceProvider.engineConfigurationService()).parse(response);
         }
         catch (JSONException e) {
             throw new DataAccessException(e);
@@ -395,7 +395,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
     private ComPort toComPort (JSONObject response) {
         try {
-            return new ComPortParser(this.serviceProvider.engineModelService()).parse(response);
+            return new ComPortParser(this.serviceProvider.engineConfigurationService()).parse(response);
         }
         catch (JSONException e) {
             throw new DataAccessException(e);

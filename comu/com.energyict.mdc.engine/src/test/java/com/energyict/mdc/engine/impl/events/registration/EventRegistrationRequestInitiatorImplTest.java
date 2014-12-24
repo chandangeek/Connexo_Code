@@ -1,14 +1,14 @@
 package com.energyict.mdc.engine.impl.events.registration;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.OfflineComServer;
-import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.RemoteComServer;
-import com.energyict.mdc.engine.model.impl.OfflineComServerImpl;
-import com.energyict.mdc.engine.model.impl.OnlineComServerImpl;
-import com.energyict.mdc.engine.model.impl.RemoteComServerImpl;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.OfflineComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.RemoteComServer;
+import com.energyict.mdc.engine.config.impl.OfflineComServerImpl;
+import com.energyict.mdc.engine.config.impl.OnlineComServerImpl;
+import com.energyict.mdc.engine.config.impl.RemoteComServerImpl;
 
 import java.util.Optional;
 
@@ -34,15 +34,15 @@ public class EventRegistrationRequestInitiatorImplTest {
     private static final String EVENT_REGISTRATION_URI = "ws://comserver.energyict.com/events/registration";
 
     @Mock
-    private EngineModelService engineModelService;
+    private EngineConfigurationService engineConfigurationService;
 
     @Test(expected = BusinessException.class)
     public void testNonExistingComServer () throws BusinessException {
         String comServerName = "Does not exist";
-        when(this.engineModelService.findComServer(comServerName)).thenReturn(Optional.empty());
+        when(this.engineConfigurationService.findComServer(comServerName)).thenReturn(Optional.empty());
 
         // Business method
-        new EventRegistrationRequestInitiatorImpl(this.engineModelService).getRegistrationURL(comServerName);
+        new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServerName);
 
         // Expected BusinessException because the ComServer does not exist
     }
@@ -52,10 +52,10 @@ public class EventRegistrationRequestInitiatorImplTest {
         String comServerName = "Offline";
         OfflineComServer comServer = mock(OfflineComServerImpl.class);
         doCallRealMethod().when(comServer).getEventRegistrationUriIfSupported();
-        when(this.engineModelService.findComServer(comServerName)).thenReturn(Optional.<ComServer>of(comServer));
+        when(this.engineConfigurationService.findComServer(comServerName)).thenReturn(Optional.<ComServer>of(comServer));
 
         // Business method
-        new EventRegistrationRequestInitiatorImpl(this.engineModelService).getRegistrationURL(comServerName);
+        new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServerName);
 
         // Expected BusinessException because OfflineComServer does not support event registration
     }
@@ -66,7 +66,7 @@ public class EventRegistrationRequestInitiatorImplTest {
         doCallRealMethod().when(comServer).getEventRegistrationUriIfSupported();
 
         // Business method
-        new EventRegistrationRequestInitiatorImpl(this.engineModelService).getRegistrationURL(comServer);
+        new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServer);
 
         // Expected BusinessException because OfflineComServer does not support event registration
     }
@@ -78,7 +78,7 @@ public class EventRegistrationRequestInitiatorImplTest {
         when(comServer.getEventRegistrationUri()).thenReturn(EVENT_REGISTRATION_URI);
 
         // Business method
-        String url = new EventRegistrationRequestInitiatorImpl(this.engineModelService).getRegistrationURL(comServer);
+        String url = new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServer);
 
         // Asserts
         assertThat(url).isEqualTo(EVENT_REGISTRATION_URI);
@@ -91,7 +91,7 @@ public class EventRegistrationRequestInitiatorImplTest {
         when(comServer.getEventRegistrationUri()).thenReturn(null);
 
         // Business method
-        new EventRegistrationRequestInitiatorImpl(this.engineModelService).getRegistrationURL(comServer);
+        new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServer);
 
         // Expected BusinessException because the ComServer explicitly did not support event registration
     }
@@ -105,7 +105,7 @@ public class EventRegistrationRequestInitiatorImplTest {
 //        when(this.comServerFactory.findBySystemName(comServerName)).thenReturn((ComServer)comServer);
 
         // Business method
-        String url = new EventRegistrationRequestInitiatorImpl(this.engineModelService).getRegistrationURL(comServer);
+        String url = new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServer);
 
         // Asserts
         assertThat(url).isEqualTo(EVENT_REGISTRATION_URI);
@@ -118,7 +118,7 @@ public class EventRegistrationRequestInitiatorImplTest {
         when(comServer.getEventRegistrationUri()).thenReturn(EVENT_REGISTRATION_URI);
 
         // Business method
-        String url = new EventRegistrationRequestInitiatorImpl(this.engineModelService).getRegistrationURL(comServer);
+        String url = new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServer);
 
         // Asserts
         assertThat(url).isEqualTo(EVENT_REGISTRATION_URI);
@@ -131,7 +131,7 @@ public class EventRegistrationRequestInitiatorImplTest {
         when(comServer.getEventRegistrationUri()).thenReturn(null);
 
         // Business method
-        new EventRegistrationRequestInitiatorImpl(this.engineModelService).getRegistrationURL(comServer);
+        new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServer);
 
         // Expected BusinessException because the ComServer explicitly did not support event registration
     }
@@ -142,10 +142,10 @@ public class EventRegistrationRequestInitiatorImplTest {
         RemoteComServer comServer = mock(RemoteComServerImpl.class);
         doCallRealMethod().when(comServer).getEventRegistrationUriIfSupported();
         when(comServer.getEventRegistrationUri()).thenReturn(EVENT_REGISTRATION_URI);
-        when(this.engineModelService.findComServer(comServerName)).thenReturn(Optional.<ComServer>of(comServer));
+        when(this.engineConfigurationService.findComServer(comServerName)).thenReturn(Optional.<ComServer>of(comServer));
 
         // Business method
-        String url = new EventRegistrationRequestInitiatorImpl(this.engineModelService).getRegistrationURL(comServer);
+        String url = new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServer);
 
         // Asserts
         assertThat(url).isEqualTo(EVENT_REGISTRATION_URI);

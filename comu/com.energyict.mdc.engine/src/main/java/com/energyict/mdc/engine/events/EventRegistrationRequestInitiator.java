@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.events;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.RemoteComServer;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.RemoteComServer;
 
 /**
  * Supports client applications to initiate the event registration mechanism.

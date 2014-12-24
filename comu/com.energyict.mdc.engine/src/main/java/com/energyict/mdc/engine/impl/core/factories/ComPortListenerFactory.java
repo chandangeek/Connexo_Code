@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.core.factories;
 
 import com.energyict.mdc.engine.impl.core.ComPortListener;
-import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.config.InboundComPort;
 
 /**
  * Provides factory services for {@link ComPortListener}s,

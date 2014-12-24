@@ -1,10 +1,10 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiService;
-import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
 
 /**
- * Models the aspects of a {@link com.energyict.mdc.engine.model.OnlineComServer} that is actually running.
+ * Models the aspects of a {@link com.energyict.mdc.engine.config.OnlineComServer} that is actually running.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-16 (10:07)

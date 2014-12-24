@@ -21,10 +21,10 @@ import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +54,7 @@ public class RunningComServerChangesTest {
     @Mock
     private EmbeddedWebServerFactory embeddedWebServerFactory;
     @Mock
-    private EngineModelService engineModelService;
+    private EngineConfigurationService engineConfigurationService;
     @Mock
     private EngineService engineService;
     @Mock
@@ -75,7 +75,7 @@ public class RunningComServerChangesTest {
     public void setupServiceProvider() {
         this.serviceProvider.setClock(this.clock);
         this.serviceProvider.setEngineService(this.engineService);
-        this.serviceProvider.setEngineModelService(this.engineModelService);
+        this.serviceProvider.setEngineConfigurationService(this.engineConfigurationService);
         this.serviceProvider.setDeviceService(this.deviceService);
         this.serviceProvider.setManagementBeanFactory(this.managementBeanFactory);
         ServiceProvider.instance.set(this.serviceProvider);

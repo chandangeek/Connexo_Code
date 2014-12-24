@@ -7,7 +7,7 @@ import java.time.Clock;
 
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 
 import org.joda.time.DateTime;
 import java.time.Instant;

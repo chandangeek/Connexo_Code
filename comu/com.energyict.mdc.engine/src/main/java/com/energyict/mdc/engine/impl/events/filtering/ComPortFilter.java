@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.events.filtering;
 
 import com.energyict.mdc.engine.events.ComPortRelatedEvent;
 import com.energyict.mdc.engine.events.ComServerEvent;
-import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.config.ComPort;
 
 import java.util.List;
 

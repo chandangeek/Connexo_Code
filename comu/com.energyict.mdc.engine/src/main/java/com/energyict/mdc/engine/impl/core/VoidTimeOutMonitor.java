@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.core;
 /**
  * Provides an implementation for the {@link TimeOutMonitor} interface
  * that does absolutely nothing which is practical for
- * {@link com.energyict.mdc.engine.model.OfflineComServer}
+ * {@link com.energyict.mdc.engine.config.OfflineComServer}
  * that do not need any monitoring.
  *
  * @author Rudi Vankeirsbilck (rudi)

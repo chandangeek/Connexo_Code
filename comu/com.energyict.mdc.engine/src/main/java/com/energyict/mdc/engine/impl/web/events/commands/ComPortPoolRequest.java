@@ -2,8 +2,8 @@ package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,17 +20,17 @@ import java.util.Set;
  */
 public class ComPortPoolRequest extends IdBusinessObjectRequest {
 
-    private final EngineModelService engineModelService;
+    private final EngineConfigurationService engineConfigurationService;
 
     private List<ComPortPool> comPortPools;
 
-    public ComPortPoolRequest(EngineModelService engineModelService, long comPortPoolId) {
-        this(engineModelService, Collections.singleton(comPortPoolId));
+    public ComPortPoolRequest(EngineConfigurationService engineConfigurationService, long comPortPoolId) {
+        this(engineConfigurationService, Collections.singleton(comPortPoolId));
     }
 
-    public ComPortPoolRequest (EngineModelService engineModelService, Set<Long> comPortPoolIds) {
+    public ComPortPoolRequest (EngineConfigurationService engineConfigurationService, Set<Long> comPortPoolIds) {
         super(comPortPoolIds);
-        this.engineModelService = engineModelService;
+        this.engineConfigurationService = engineConfigurationService;
         this.validateComPortPoolIds();
     }
 
@@ -42,13 +42,9 @@ public class ComPortPoolRequest extends IdBusinessObjectRequest {
     }
 
     private ComPortPool findComPortPool (long comPortPoolId) {
-        ComPortPool comPortPool = engineModelService.findComPortPool(comPortPoolId);
-        if (comPortPool == null) {
-            throw new NotFoundException("ComPortPool with id " + comPortPoolId + " not found");
-        }
-        else {
-            return comPortPool;
-        }
+        return engineConfigurationService
+                .findComPortPool(comPortPoolId)
+                .orElseThrow(() -> new NotFoundException("ComPortPool with id " + comPortPoolId + " not found"));
     }
 
     @Override

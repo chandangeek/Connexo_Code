@@ -5,7 +5,7 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 
 /**
- * Defines all the log messages for connection related {@link com.energyict.mdc.engine.model.ComPort} operations.
+ * Defines all the log messages for connection related {@link com.energyict.mdc.engine.config.ComPort} operations.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-05-14 (13:34)
@@ -20,7 +20,7 @@ public interface ComPortConnectionLogger {
     public String getLoggingCategoryName ();
 
     /**
-     * Logs that the specified {@link com.energyict.mdc.engine.model.ComPort} is about to start
+     * Logs that the specified {@link com.energyict.mdc.engine.config.ComPort} is about to start
      * the execution of the {@link com.energyict.mdc.tasks.ComTask}.
      *
      * @param comPortThreadName The name of the ComPort thread that is starting the execution
@@ -31,7 +31,7 @@ public interface ComPortConnectionLogger {
 
     /**
      * Logs that a ScheduledJobImpl thread has established a connection
-     * to a device through the {@link com.energyict.mdc.engine.model.ComPort}.
+     * to a device through the {@link com.energyict.mdc.engine.config.ComPort}.
      *
      * @param comPortThreadName The name of the ComPort thread that attempted to start the execution
      */
@@ -39,7 +39,7 @@ public interface ComPortConnectionLogger {
     public void connectionEstablished (String comPortThreadName, String comPortName);
 
     /**
-     * Logs that the specified {@link com.energyict.mdc.engine.model.ComPort} failed to establish a connection.
+     * Logs that the specified {@link com.energyict.mdc.engine.config.ComPort} failed to establish a connection.
      *
      * @param comPortThreadName The name of the ComPort thread that attempted to start the execution
      */
@@ -47,7 +47,7 @@ public interface ComPortConnectionLogger {
     public void cannotEstablishConnection (ConnectionException e, String comPortThreadName);
 
     /**
-     * Logs that the specified {@link com.energyict.mdc.engine.model.ComPort} just completing
+     * Logs that the specified {@link com.energyict.mdc.engine.config.ComPort} just completing
      * the execution of the {@link com.energyict.mdc.tasks.ComTask}.
      *
      * @param comPortThreadName The name of the ComPort thread that completed the execution
@@ -58,7 +58,7 @@ public interface ComPortConnectionLogger {
 
     /**
      * Logs that the execution of a {@link com.energyict.mdc.tasks.ComTask}
-     * by a {@link com.energyict.mdc.engine.model.ComPort} failed due to {@link com.energyict.mdc.issues.Problem}s
+     * by a {@link com.energyict.mdc.engine.config.ComPort} failed due to {@link com.energyict.mdc.issues.Problem}s
      * that were reported while executing.
      *
      * @param comPortThreadName The name of the ComPort thread that completed the execution
@@ -69,7 +69,7 @@ public interface ComPortConnectionLogger {
 
     /**
      * Logs that the execution of a {@link com.energyict.mdc.tasks.ComTask}
-     * by a {@link com.energyict.mdc.engine.model.ComPort} failed with the specified RuntimeException.
+     * by a {@link com.energyict.mdc.engine.config.ComPort} failed with the specified RuntimeException.
      *
      * @param e The RuntimeException that occurred while executing the ComTaskExecution
      * @param comPortThreadName The name of the ComPort thread that completed the execution
@@ -80,7 +80,7 @@ public interface ComPortConnectionLogger {
 
     /**
      * Logs that the execution of a {@link com.energyict.mdc.tasks.ComTask} by a
-     * {@link com.energyict.mdc.engine.model.ComPort} will be rescheduled due to a previous failure.
+     * {@link com.energyict.mdc.engine.config.ComPort} will be rescheduled due to a previous failure.
      *
      * @param comPortThreadName The name of the ComPort thread that completed the execution
      * @param comTaskName The name of the ComTask

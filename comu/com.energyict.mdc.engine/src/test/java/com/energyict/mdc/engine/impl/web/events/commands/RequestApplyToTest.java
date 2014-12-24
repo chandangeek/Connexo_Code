@@ -10,9 +10,9 @@ import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventReceiver;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -31,6 +31,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anySetOf;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -58,7 +59,7 @@ public class RequestApplyToTest {
     @Mock
     private DeviceService deviceService;
     @Mock
-    private EngineModelService engineModelService;
+    private EngineConfigurationService engineConfigurationService;
     @Mock
     private IdentificationService identificationService;
 
@@ -123,7 +124,7 @@ public class RequestApplyToTest {
     @Test
     public void testComPortRequest() {
         ComPort comPort = this.mockComPort();
-        ComPortRequest request = new ComPortRequest(engineModelService, COM_PORT_ID);
+        ComPortRequest request = new ComPortRequest(engineConfigurationService, COM_PORT_ID);
         EventPublisher eventPublisher = mock(EventPublisher.class);
 
         // Business method
@@ -138,7 +139,7 @@ public class RequestApplyToTest {
     @Test
     public void testComPortPoolRequest() {
         ComPortPool comPortPool = this.mockComPortPool();
-        ComPortPoolRequest request = new ComPortPoolRequest(engineModelService, COM_PORT_POOL_ID);
+        ComPortPoolRequest request = new ComPortPoolRequest(engineConfigurationService, COM_PORT_POOL_ID);
         EventPublisher eventPublisher = mock(EventPublisher.class);
 
         // Business method
@@ -179,14 +180,14 @@ public class RequestApplyToTest {
     private ComPort mockComPort() {
         ComPort comPort = mock(ComPort.class);
         when(comPort.getId()).thenReturn(COM_PORT_ID);
-        when(this.engineModelService.findComPort(COM_PORT_ID)).thenReturn(comPort);
+        doReturn(Optional.of(comPort)).when(this.engineConfigurationService).findComPort(COM_PORT_ID);
         return comPort;
     }
 
     private ComPortPool mockComPortPool() {
         ComPortPool comPortPool = mock(ComPortPool.class);
         when(comPortPool.getId()).thenReturn(Long.valueOf(COM_PORT_POOL_ID));
-        when(this.engineModelService.findComPortPool(COM_PORT_POOL_ID)).thenReturn(comPortPool);
+        doReturn(Optional.of(comPortPool)).when(this.engineConfigurationService).findComPortPool(COM_PORT_POOL_ID);
         return comPortPool;
     }
 

@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 
 /**
- * Models the aspects of a {@link com.energyict.mdc.engine.model.ComServer} that is actually running.
+ * Models the aspects of a {@link com.energyict.mdc.engine.config.ComServer} that is actually running.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-03 (09:55)

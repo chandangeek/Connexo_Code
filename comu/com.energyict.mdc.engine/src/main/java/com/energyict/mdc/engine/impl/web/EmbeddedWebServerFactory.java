@@ -4,8 +4,8 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 
 /**
  * Provides factory services for {@link EmbeddedWebServer}s.
@@ -32,7 +32,7 @@ public interface EmbeddedWebServerFactory {
      * Finds or creates the {@link EmbeddedWebServer} that hosts
      * the servlet that supports remote clients to register for
      * and receive events about what is going on in the specified
-     * {@link com.energyict.mdc.engine.model.ComServer}.
+     * {@link com.energyict.mdc.engine.config.ComServer}.
      *
      * @param comServer The ComServer
      * @return The EmbeddedWebServer
@@ -41,9 +41,9 @@ public interface EmbeddedWebServerFactory {
 
     /**
      * Finds or creates the {@link EmbeddedWebServer} that hosts
-     * the servlet that supports {@link com.energyict.mdc.engine.model.RemoteComServer}s
+     * the servlet that supports {@link com.energyict.mdc.engine.config.RemoteComServer}s
      * to execute queries using the specified
-     * {@link com.energyict.mdc.engine.model.OnlineComServer}.
+     * {@link com.energyict.mdc.engine.config.OnlineComServer}.
      *
      * @param comServer The RunningOnlineComServer
      * @return The EmbeddedWebServer

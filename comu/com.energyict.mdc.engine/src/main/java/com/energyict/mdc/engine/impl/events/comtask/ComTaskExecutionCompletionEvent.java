@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.events.comtask;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.config.ComPort;
 
 import org.json.JSONException;
 import org.json.JSONWriter;

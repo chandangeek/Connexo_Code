@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.core.mocks;
 
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.ComPortType;
 
 import java.util.Date;

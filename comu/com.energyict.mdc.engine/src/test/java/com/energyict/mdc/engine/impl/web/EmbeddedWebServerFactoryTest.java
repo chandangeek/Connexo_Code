@@ -3,12 +3,12 @@ package com.energyict.mdc.engine.impl.web;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
-import com.energyict.mdc.engine.model.OfflineComServer;
-import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.RemoteComServer;
-import com.energyict.mdc.engine.model.impl.OfflineComServerImpl;
-import com.energyict.mdc.engine.model.impl.OnlineComServerImpl;
-import com.energyict.mdc.engine.model.impl.RemoteComServerImpl;
+import com.energyict.mdc.engine.config.OfflineComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.RemoteComServer;
+import com.energyict.mdc.engine.config.impl.OfflineComServerImpl;
+import com.energyict.mdc.engine.config.impl.OnlineComServerImpl;
+import com.energyict.mdc.engine.config.impl.RemoteComServerImpl;
 
 import org.fest.assertions.api.Assertions;
 

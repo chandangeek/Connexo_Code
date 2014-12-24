@@ -35,7 +35,7 @@ import com.energyict.mdc.engine.impl.commands.store.RescheduleSuccessfulExecutio
 import com.energyict.mdc.engine.impl.commands.store.UnlockScheduledJobDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
-import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.io.ComChannel;
@@ -73,7 +73,7 @@ import static com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessio
 import static com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession.SuccessIndicator.Success;
 
 /**
- * Provides code reuse for in- and outbound {@link com.energyict.mdc.engine.model.ComPort ComPorts }
+ * Provides code reuse for in- and outbound {@link com.energyict.mdc.engine.config.ComPort ComPorts }
  * which perform one or more ComTasks.
  * It will be useful to group the AOP logging as well.
  * <p>

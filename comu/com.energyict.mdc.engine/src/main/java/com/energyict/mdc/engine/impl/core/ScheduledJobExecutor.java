@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 
 import com.elster.jupiter.transaction.Transaction;

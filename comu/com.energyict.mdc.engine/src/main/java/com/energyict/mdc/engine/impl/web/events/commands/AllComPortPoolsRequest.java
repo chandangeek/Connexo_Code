@@ -4,7 +4,7 @@ import com.energyict.mdc.engine.impl.events.EventPublisher;
 
 /**
  * Models a request to widen the interest of
- * {@link com.energyict.mdc.engine.model.ComPortPool}
+ * {@link com.energyict.mdc.engine.config.ComPortPool}
  * related events to all ComPortPools.
  *
  * @author Rudi Vankeirsbilck (rudi)

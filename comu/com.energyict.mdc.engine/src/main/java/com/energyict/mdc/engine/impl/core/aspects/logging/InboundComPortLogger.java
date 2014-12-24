@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.core.aspects.logging;
 
 import com.energyict.mdc.engine.impl.logging.Configuration;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.config.InboundComPort;
 
 /**
  * Defines all the log messages for {@link InboundComPort}s.

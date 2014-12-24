@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.events;
 
-import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 

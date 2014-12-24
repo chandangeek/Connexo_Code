@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.core.mocks;
 
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 
 /**
@@ -84,7 +84,7 @@ public class MockTCPInboundComPort extends MockComPort implements TCPBasedInboun
     /**
      * Indicate that this InboundComPort is UDP-based
      *
-     * @return true if this port is an instance of {@link com.energyict.mdc.engine.model.UDPBasedInboundComPort}, false otherwise
+     * @return true if this port is an instance of {@link com.energyict.mdc.engine.config.UDPBasedInboundComPort}, false otherwise
      */
     @Override
     public boolean isUDPBased() {

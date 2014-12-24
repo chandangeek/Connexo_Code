@@ -5,15 +5,15 @@ import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactory;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiService;
-import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.RemoteComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.RemoteComServer;
 
 import java.util.List;
 import java.util.concurrent.ThreadFactory;
 
 /**
  * Extends the {@link RunningComServerImpl} and specializes on
- * {@link com.energyict.mdc.engine.model.OnlineComServer}s.
+ * {@link com.energyict.mdc.engine.config.OnlineComServer}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-04-08 (15:54)
@@ -49,7 +49,7 @@ public class RunningOnlineComServerImpl extends RunningComServerImpl implements 
     }
 
     private void startQueryApiListenerIfNecessary () {
-        List<RemoteComServer> remoteComServers = getServiceProvider().engineModelService().findRemoteComServersForOnlineComServer(this.comServer);
+        List<RemoteComServer> remoteComServers = getServiceProvider().engineConfigurationService().findRemoteComServersForOnlineComServer(this.comServer);
         if (!remoteComServers.isEmpty()) {
             this.startQueryApiListener();
         }

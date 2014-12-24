@@ -2,8 +2,8 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.io.CommunicationException;
 
 import java.util.concurrent.Executors;
@@ -192,7 +192,7 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
 
     /**
      * Simple class to check and apply changes to this ComPort.
-     * It will sleep until the {@link com.energyict.mdc.engine.model.ComServer#getChangesInterPollDelay()}
+     * It will sleep until the {@link com.energyict.mdc.engine.config.ComServer#getChangesInterPollDelay()}
      * has expired, or someone calls {@link #stopTimer()}
      */
     protected class ChangeConfigTimer implements Runnable {

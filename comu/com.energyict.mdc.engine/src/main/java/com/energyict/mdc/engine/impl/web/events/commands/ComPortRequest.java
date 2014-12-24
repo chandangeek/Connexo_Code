@@ -2,11 +2,12 @@ package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static java.util.Collections.singleton;
@@ -21,16 +22,16 @@ import static java.util.Collections.singleton;
  */
 public class ComPortRequest extends IdBusinessObjectRequest {
 
-    private final EngineModelService engineModelService;
+    private final EngineConfigurationService engineConfigurationService;
     private List<ComPort> comPorts;
 
-    public ComPortRequest(EngineModelService engineModelService, long comPortId) {
-        this(engineModelService, singleton(comPortId));
+    public ComPortRequest(EngineConfigurationService engineConfigurationService, long comPortId) {
+        this(engineConfigurationService, singleton(comPortId));
     }
 
-    public ComPortRequest(EngineModelService engineModelService, Set<Long> comPortIds) {
+    public ComPortRequest(EngineConfigurationService engineConfigurationService, Set<Long> comPortIds) {
         super(comPortIds);
-        this.engineModelService = engineModelService;
+        this.engineConfigurationService = engineConfigurationService;
         this.validateComPortIds();
     }
 
@@ -42,13 +43,8 @@ public class ComPortRequest extends IdBusinessObjectRequest {
     }
 
     private ComPort findComPort (long comPortId) {
-        ComPort comPort = engineModelService.findComPort(comPortId);
-        if (comPort == null) {
-            throw new NotFoundException("ComPort with id " + comPortId + " not found");
-        }
-        else {
-            return comPort;
-        }
+        Optional<? extends ComPort> comPort = engineConfigurationService.findComPort(comPortId);
+        return comPort.orElseThrow(() -> new NotFoundException("ComPort with id " + comPortId + " not found"));
     }
 
     @Override

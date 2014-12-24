@@ -4,7 +4,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 /**
  * Provides an implementation for the {@link ComJobFactory} that
- * is intended for single threaded {@link com.energyict.mdc.engine.model.OutboundComPort},
+ * is intended for single threaded {@link com.energyict.mdc.engine.config.OutboundComPort},
  * i.e. ComPorts that have only 1 simultaneous connections.
  */
 public final class SingleThreadedComJobFactory extends GroupingComJobFactory {

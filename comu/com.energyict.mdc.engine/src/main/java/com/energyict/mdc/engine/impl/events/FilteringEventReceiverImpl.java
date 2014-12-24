@@ -14,8 +14,8 @@ import com.energyict.mdc.engine.impl.events.filtering.DeviceFilter;
 import com.energyict.mdc.engine.impl.events.filtering.EventFilterCriterion;
 import com.energyict.mdc.engine.impl.events.filtering.LogLevelFilter;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
 
 import java.util.EnumSet;
 import java.util.Iterator;

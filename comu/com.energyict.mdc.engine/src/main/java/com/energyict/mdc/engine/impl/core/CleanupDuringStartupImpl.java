@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.model.OutboundCapableComServer;
+import com.energyict.mdc.engine.config.OutboundCapableComServer;
 
 import java.sql.SQLException;
 

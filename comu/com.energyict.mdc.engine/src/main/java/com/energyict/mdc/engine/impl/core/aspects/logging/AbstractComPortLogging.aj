@@ -12,12 +12,11 @@ import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.core.ComPortServerProcess;
 import com.energyict.mdc.engine.impl.core.MultiThreadedScheduledComPort;
 import com.energyict.mdc.engine.impl.core.ScheduledComPortImpl;
-import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.tasks.ComTask;
 
 import java.util.logging.Logger;
 

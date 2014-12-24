@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.monitor;
 
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 
 /**
  * Models the operational statistics that are gathered by the process

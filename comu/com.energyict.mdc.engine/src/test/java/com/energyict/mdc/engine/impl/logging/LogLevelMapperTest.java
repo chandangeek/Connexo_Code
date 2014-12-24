@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.logging;
 
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 
 import java.util.logging.Level;
 

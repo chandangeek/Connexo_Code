@@ -5,7 +5,7 @@ import com.energyict.mdc.engine.impl.monitor.ComServerMonitor;
 import com.energyict.mdc.engine.impl.monitor.ComServerOperationalStatistics;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortOperationalStatistics;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.status.ComServerType;
 
 import java.time.Clock;

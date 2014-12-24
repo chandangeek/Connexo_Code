@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 /**
@@ -80,7 +80,7 @@ public interface DeviceCommand {
     /**
      * Gets the minimum LogLevel that needs to be activated
      * before this DeviceCommand must be logged.
-     * As an example when LogLevel {@link com.energyict.mdc.engine.model.ComServer.LogLevel#INFO} is returned
+     * As an example when LogLevel {@link com.energyict.mdc.engine.config.ComServer.LogLevel#INFO} is returned
      * then the ComServer's log level must be at least INFO or higher
      * before this DeviceCommand will actually be logged as a
      * ComSessionJournalEntryShadow.
