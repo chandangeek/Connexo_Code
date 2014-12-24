@@ -44,7 +44,8 @@ public class UserPreferencesServiceImpl implements UserPreferencesService {
 
     @Override
     public List<UserPreference> getPreferences(User user) {
-        return dataModel.mapper(UserPreference.class).find(new String[] { "locale", "isDefault" },
+        return dataModel.mapper(UserPreference.class).find(
+                new String[] { "locale", "isDefault" },
                 new Object[] { user.getLocale().orElse(Locale.getDefault()).toLanguageTag(), true });
     }
 
@@ -55,6 +56,8 @@ public class UserPreferencesServiceImpl implements UserPreferencesService {
 
     @Override
     public Optional<UserPreference> getPreferenceByKey(Locale locale, FormatKey key) {
-        return dataModel.mapper(UserPreference.class).getUnique(new String[] { "locale", "key", "isDefault" }, new Object[] { locale.toLanguageTag(), key, true });
+        return dataModel.mapper(UserPreference.class).getUnique(
+                new String[] { "locale", "key", "isDefault" },
+                new Object[] { locale.toLanguageTag(), key, true });
     }
 }
