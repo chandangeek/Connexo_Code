@@ -4,7 +4,7 @@ import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
-import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
+import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.ModemComponent;
@@ -21,7 +21,7 @@ import java.io.IOException;
 
 /**
  * Implementation of an {@link InboundComPortConnector}
- * for a {@link com.energyict.mdc.engine.model.ComPort}
+ * for a {@link com.energyict.mdc.engine.config.ComPort}
  * of the type {@link ComPortType#SERIAL}
  * <p/>
  * Copyrights EnergyICT

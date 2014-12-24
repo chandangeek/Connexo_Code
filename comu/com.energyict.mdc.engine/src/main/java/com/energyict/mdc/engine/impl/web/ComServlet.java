@@ -4,7 +4,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
-import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;

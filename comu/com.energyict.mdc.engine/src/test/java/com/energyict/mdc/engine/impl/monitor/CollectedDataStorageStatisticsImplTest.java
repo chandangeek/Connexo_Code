@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.monitor;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;

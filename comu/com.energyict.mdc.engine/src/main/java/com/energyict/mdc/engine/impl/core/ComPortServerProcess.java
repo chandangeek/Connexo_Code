@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.config.ComPort;
 
 /**
- * Models the fact that a {@link com.energyict.mdc.engine.model.ComPort ComPort}
+ * Models the fact that a {@link com.energyict.mdc.engine.config.ComPort ComPort}
  * <i>(in- or outbound)</i> is a {@link ServerProcess} and is easily
  * wrappable by AOP.
  * <p/>

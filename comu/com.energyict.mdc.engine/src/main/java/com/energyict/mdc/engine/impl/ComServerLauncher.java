@@ -15,11 +15,11 @@ import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.core.remote.RemoteComServerDAOImpl;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.meterdata.DefaultCollectedDataFactoryProvider;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.HostName;
-import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.RemoteComServer;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.HostName;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.RemoteComServer;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 
 import com.elster.jupiter.events.EventService;
@@ -37,8 +37,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Launches the {@link com.energyict.mdc.engine.model.OnlineComServer}
- * or {@link com.energyict.mdc.engine.model.RemoteComServer}
+ * Launches the {@link com.energyict.mdc.engine.config.OnlineComServer}
+ * or {@link com.energyict.mdc.engine.config.RemoteComServer}
  * that is configured to run on the machine where this class is executing.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -165,8 +165,8 @@ public final class ComServerLauncher {
         }
 
         @Override
-        public EngineModelService engineModelService() {
-            return serviceProvider.engineModelService();
+        public EngineConfigurationService engineConfigurationService() {
+            return serviceProvider.engineConfigurationService();
         }
 
         @Override
@@ -213,8 +213,8 @@ public final class ComServerLauncher {
         }
 
         @Override
-        public EngineModelService engineModelService() {
-            return serviceProvider.engineModelService();
+        public EngineConfigurationService engineConfigurationService() {
+            return serviceProvider.engineConfigurationService();
         }
 
     }

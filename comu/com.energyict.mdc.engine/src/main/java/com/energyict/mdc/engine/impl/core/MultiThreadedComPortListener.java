@@ -5,7 +5,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.concurrent.ResizeableSemaphore;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactory;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
-import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.config.InboundComPort;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

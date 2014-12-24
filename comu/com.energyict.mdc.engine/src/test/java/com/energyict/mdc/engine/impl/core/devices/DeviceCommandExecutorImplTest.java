@@ -20,7 +20,7 @@ import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 import java.util.Optional;
 import org.joda.time.DateTimeConstants;
 import org.junit.After;

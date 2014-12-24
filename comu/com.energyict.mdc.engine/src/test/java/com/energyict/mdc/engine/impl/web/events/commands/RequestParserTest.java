@@ -10,9 +10,9 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -25,6 +25,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -61,7 +62,7 @@ public class RequestParserTest {
     @Mock
     private DeviceService deviceService;
     @Mock
-    private EngineModelService engineModelService;
+    private EngineConfigurationService engineConfigurationService;
     @Mock
     private IdentificationService identificationService;
 
@@ -72,7 +73,7 @@ public class RequestParserTest {
         this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
         this.serviceProvider.setCommunicationTaskService(this.communicationTaskService);
         this.serviceProvider.setDeviceService(this.deviceService);
-        this.serviceProvider.setEngineModelService(this.engineModelService);
+        this.serviceProvider.setEngineConfigurationService(this.engineConfigurationService);
         this.serviceProvider.setIdentificationService(this.identificationService);
     }
 
@@ -667,8 +668,9 @@ public class RequestParserTest {
         when(comPort1.getId()).thenReturn(COM_PORT1_ID);
         ComPort comPort2 = mock(ComPort.class);
         when(comPort2.getId()).thenReturn(COM_PORT2_ID);
-        when(this.engineModelService.findComPort(COM_PORT1_ID)).thenReturn(comPort1);
-        when(this.engineModelService.findComPort(COM_PORT2_ID)).thenReturn(comPort2);
+        doReturn(Optional.of(comPort1)).when(this.engineConfigurationService).findComPort(COM_PORT1_ID);
+        doReturn(Optional.of(comPort2)).when(this.engineConfigurationService).findComPort(COM_PORT2_ID);
+        doReturn(Optional.empty()).when(this.engineConfigurationService).findComPort(NON_EXISTING_COMPORT_ID);
     }
 
     private void mockComPortPools() {
@@ -676,8 +678,9 @@ public class RequestParserTest {
         when(comPortPool1.getId()).thenReturn(Long.valueOf(COM_PORT_POOL1_ID));
         ComPortPool comPortPool2 = mock(ComPortPool.class);
         when(comPortPool2.getId()).thenReturn(Long.valueOf(COM_PORT_POOL2_ID));
-        when(this.engineModelService.findComPortPool(COM_PORT_POOL1_ID)).thenReturn(comPortPool1);
-        when(this.engineModelService.findComPortPool(COM_PORT_POOL2_ID)).thenReturn(comPortPool2);
+        doReturn(Optional.of(comPortPool1)).when(this.engineConfigurationService).findComPortPool(COM_PORT_POOL1_ID);
+        doReturn(Optional.of(comPortPool2)).when(this.engineConfigurationService).findComPortPool(COM_PORT_POOL2_ID);
+        doReturn(Optional.empty()).when(this.engineConfigurationService).findComPortPool(NON_EXISTING_COMPORT_POOL_ID);
     }
 
 }

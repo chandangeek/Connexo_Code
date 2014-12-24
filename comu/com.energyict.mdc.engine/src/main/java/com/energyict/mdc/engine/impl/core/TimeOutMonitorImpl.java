@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.engine.model.OutboundCapableComServer;
+import com.energyict.mdc.engine.config.OutboundCapableComServer;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Monitors the exeuction of {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}
  * and will abort executions that run longer than the task execution timeout
- * that is specified on the {@link com.energyict.mdc.engine.model.OutboundComPortPool}
+ * that is specified on the {@link com.energyict.mdc.engine.config.OutboundComPortPool}
  * of the OutboundComPort it is running on.
  *
  * @author Rudi Vankeirsbilck (rudi)

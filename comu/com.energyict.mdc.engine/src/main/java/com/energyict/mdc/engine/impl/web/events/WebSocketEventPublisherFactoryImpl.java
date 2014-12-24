@@ -4,7 +4,7 @@ import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.impl.web.events.commands.RequestParser;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -21,7 +21,7 @@ public class WebSocketEventPublisherFactoryImpl implements WebSocketEventPublish
     private volatile ConnectionTaskService connectionTaskService;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile DeviceService deviceService;
-    private volatile EngineModelService engineModelService;
+    private volatile EngineConfigurationService engineConfigurationService;
     private volatile IdentificationService identificationService;
 
     @Override
@@ -45,8 +45,8 @@ public class WebSocketEventPublisherFactoryImpl implements WebSocketEventPublish
     }
 
     @Reference
-    public void setEngineModelService(EngineModelService engineModelService) {
-        this.engineModelService = engineModelService;
+    public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
+        this.engineConfigurationService = engineConfigurationService;
     }
 
     @Reference
@@ -72,8 +72,8 @@ public class WebSocketEventPublisherFactoryImpl implements WebSocketEventPublish
         }
 
         @Override
-        public EngineModelService engineModelService() {
-            return engineModelService;
+        public EngineConfigurationService engineConfigurationService() {
+            return engineConfigurationService;
         }
 
         @Override

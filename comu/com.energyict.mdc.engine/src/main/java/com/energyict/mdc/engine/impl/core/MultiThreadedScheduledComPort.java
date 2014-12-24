@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPort;
 
 import com.elster.jupiter.users.User;
 
@@ -225,7 +225,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
          * so that it can be picked up by one of the delegates.
          * Ignores the ScheduledComTask if it is in fact already scheduled.
          * The latter is possible if the execution of ScheduledComTasks
-         * is slower than the {@link com.energyict.mdc.engine.model.ComServer}'s
+         * is slower than the {@link com.energyict.mdc.engine.config.ComServer}'s
          * scheduling interpoll delay.
          *
          * @param comTask The ComTaskExecution

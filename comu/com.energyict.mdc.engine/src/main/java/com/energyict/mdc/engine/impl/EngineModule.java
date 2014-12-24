@@ -19,7 +19,7 @@ import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactoryImpl;
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiServiceFactory;
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiServiceFactoryImpl;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.issues.IssueService;
@@ -45,7 +45,7 @@ public class EngineModule extends AbstractModule {
         requireBinding(TransactionService.class);
         requireBinding(Clock.class);
         requireBinding(HexService.class);
-        requireBinding(EngineModelService.class);
+        requireBinding(EngineConfigurationService.class);
         requireBinding(ThreadPrincipalService.class);
         requireBinding(IssueService.class);
         requireBinding(DeviceService.class);

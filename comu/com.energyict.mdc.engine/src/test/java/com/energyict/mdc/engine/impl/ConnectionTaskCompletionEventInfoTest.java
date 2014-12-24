@@ -4,8 +4,8 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;

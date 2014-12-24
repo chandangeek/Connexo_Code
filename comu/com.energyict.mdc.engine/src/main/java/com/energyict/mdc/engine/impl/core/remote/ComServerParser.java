@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.core.remote;
 
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -14,14 +14,14 @@ import org.json.JSONObject;
  */
 public class ComServerParser {
 
-    private final EngineModelService engineModelService;
+    private final EngineConfigurationService engineConfigurationService;
 
-    public ComServerParser(EngineModelService engineModelService) {
-        this.engineModelService = engineModelService;
+    public ComServerParser(EngineConfigurationService engineConfigurationService) {
+        this.engineConfigurationService = engineConfigurationService;
     }
 
     public ComServer parse (JSONObject queryResult) throws JSONException {
         Object comServerJSon = queryResult.get(RemoteComServerQueryJSonPropertyNames.SINGLE_OBJECT_RESULT);
-        return engineModelService.parseComServerQueryResult((JSONObject) comServerJSon);
+        return engineConfigurationService.parseComServerQueryResult((JSONObject) comServerJSon);
     }
 }

@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.core.aspects.logging;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.logging.Configuration;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 
 import java.sql.SQLException;
 
@@ -52,7 +52,7 @@ public interface ComServerLogger {
 
     /**
      * Logs that the specified {@link ComServer} is now monitoring for changes
-     * applied to itself or to one of its {@link com.energyict.mdc.engine.model.ComPort}s.
+     * applied to itself or to one of its {@link com.energyict.mdc.engine.config.ComPort}s.
      *
      * @param comServer The ComServer
      */

@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.monitor;
 import com.elster.jupiter.nls.Thesaurus;
 import java.time.Clock;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;

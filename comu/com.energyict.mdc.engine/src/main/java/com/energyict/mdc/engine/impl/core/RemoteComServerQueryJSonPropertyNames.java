@@ -30,21 +30,21 @@ public final class RemoteComServerQueryJSonPropertyNames {
 
     /**
      * The name of the property that specifies the unique identifier
-     * of a {@link com.energyict.mdc.engine.model.ComServer}
+     * of a {@link com.energyict.mdc.engine.config.ComServer}
      * that is passed as an argument to a remote com server query.
      */
     public static final String COMSERVER = "com-server";
 
     /**
      * The name of the property that specifies the host name
-     * of a {@link com.energyict.mdc.engine.model.RemoteComServer}
+     * of a {@link com.energyict.mdc.engine.config.RemoteComServer}
      * that is passed as an argument to a remote com server query.
      */
     public static final String HOSTNAME = "host-name";
 
     /**
      * The name of the property that specifies the unique identifier
-     * of a {@link com.energyict.mdc.engine.model.ComPort}
+     * of a {@link com.energyict.mdc.engine.config.ComPort}
      * that is passed as an argument to a remote com server query.
      */
     public static final String COMPORT = "com-port";

@@ -5,14 +5,14 @@ import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublishingLogHandler;
 import com.energyict.mdc.engine.impl.events.logging.CommunicationLoggingEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 
 /**
  * Provides an implementation for the log Handler interface
  * that creates simple log messages that relate
- * to the {@link com.energyict.mdc.engine.model.ComPort}
+ * to the {@link com.energyict.mdc.engine.config.ComPort}
  * and the {@link com.energyict.mdc.device.data.tasks.ConnectionTask}
  * of inbound communication discovery.
  *

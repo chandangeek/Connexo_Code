@@ -16,7 +16,7 @@ import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.Inboun
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.InboundCollectedRegisterCommandImpl;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
-import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.io.ComChannel;

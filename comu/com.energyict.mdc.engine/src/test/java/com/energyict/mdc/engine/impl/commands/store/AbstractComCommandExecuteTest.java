@@ -15,10 +15,10 @@ import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.tasks.ComTask;
 

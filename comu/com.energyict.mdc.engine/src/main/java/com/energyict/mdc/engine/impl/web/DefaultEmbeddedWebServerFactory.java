@@ -8,8 +8,8 @@ import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

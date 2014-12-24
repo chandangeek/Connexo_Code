@@ -2,15 +2,15 @@ package com.energyict.mdc.engine.impl.core.mocks;
 
 import com.energyict.mdc.common.BusinessException;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
-import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
-import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
-import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
+import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.io.SerialPortConfiguration;
 

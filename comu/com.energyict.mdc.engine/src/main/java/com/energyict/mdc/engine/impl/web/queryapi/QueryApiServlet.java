@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.web.queryapi;
 
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
-import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 

@@ -4,7 +4,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 
 /**
  * Defines pointcuts and advice that will do logging for the

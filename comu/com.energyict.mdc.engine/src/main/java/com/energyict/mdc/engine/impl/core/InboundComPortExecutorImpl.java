@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
-import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
 
 import java.util.logging.Logger;

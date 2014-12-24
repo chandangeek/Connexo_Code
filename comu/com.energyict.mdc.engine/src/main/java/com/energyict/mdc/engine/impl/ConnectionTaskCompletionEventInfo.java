@@ -3,8 +3,8 @@ package com.energyict.mdc.engine.impl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
 
 import java.util.List;
 import java.util.stream.Collectors;

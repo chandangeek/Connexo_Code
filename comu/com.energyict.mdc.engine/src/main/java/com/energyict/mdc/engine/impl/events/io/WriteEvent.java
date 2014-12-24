@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.events.io;
 
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
-import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.config.ComPort;
 
 /**
  * Models an event that represent a write session for a {@link ComPortRelatedComChannel}.

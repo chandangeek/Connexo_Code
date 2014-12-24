@@ -9,7 +9,7 @@ import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.io.ReadEvent;
 import com.energyict.mdc.engine.impl.events.io.WriteEvent;
-import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.protocol.api.services.HexService;
 

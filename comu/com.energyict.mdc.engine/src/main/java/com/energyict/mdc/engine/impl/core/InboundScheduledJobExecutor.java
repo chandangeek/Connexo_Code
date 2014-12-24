@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 
 /**
  * Serves as an implementation of a ScheduledJobExecutor for an Inbound job

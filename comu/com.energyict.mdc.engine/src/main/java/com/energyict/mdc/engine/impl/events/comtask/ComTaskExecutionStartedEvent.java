@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.events.comtask;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.config.ComPort;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
@@ -11,7 +11,7 @@ import java.time.Instant;
 
 /**
  * Represents a {@link com.energyict.mdc.engine.events.ComTaskExecutionEvent}
- * that indicates that a ComTaskExecution started on a {@link com.energyict.mdc.engine.model.ComPort}.
+ * that indicates that a ComTaskExecution started on a {@link com.energyict.mdc.engine.config.ComPort}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-06 (15:43)

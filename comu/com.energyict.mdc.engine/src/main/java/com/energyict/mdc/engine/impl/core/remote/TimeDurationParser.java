@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.StringReader;
 
 /**
- * Parses a JSONObject that was returned by a remote query to a {@link com.energyict.mdc.engine.model.ComPort}.
+ * Parses a JSONObject that was returned by a remote query to a {@link com.energyict.mdc.engine.config.ComPort}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-04-11 (09:52)

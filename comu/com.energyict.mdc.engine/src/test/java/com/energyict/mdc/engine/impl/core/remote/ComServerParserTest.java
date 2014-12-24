@@ -5,11 +5,11 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdc.common.impl.MdcCommonModule;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.RemoteComServer;
-import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.RemoteComServer;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -57,7 +57,7 @@ public class ComServerParserTest {
 
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-    private static EngineModelService engineModelService;
+    private static EngineConfigurationService engineConfigurationService;
 
     @BeforeClass
     public static void initializeDatabase () {
@@ -81,7 +81,7 @@ public class ComServerParserTest {
             injector.getInstance(EnvironmentImpl.class);
             injector.getInstance(NlsService.class);
             injector.getInstance(ProtocolPluggableService.class);
-            engineModelService = injector.getInstance(EngineModelService.class);
+            engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
             ctx.commit();
         }
     }
@@ -97,23 +97,23 @@ public class ComServerParserTest {
 
     @Test
     public void testDelegateToEngineModelService () throws JSONException {
-        EngineModelService engineModelService = mock(EngineModelService.class);
+        EngineConfigurationService engineConfigurationService = mock(EngineConfigurationService.class);
         JSONObject jsonObject = new JSONObject(ONLINE_COMSERVER_AS_QUERY_RESULT);
         JSONObject comserverJsonObject = (JSONObject) jsonObject.get("single-value");
-        ComServerParser comServerParser = new ComServerParser(engineModelService);
+        ComServerParser comServerParser = new ComServerParser(engineConfigurationService);
 
         // Business method
         comServerParser.parse(jsonObject);
 
         // Asserts
-        verify(engineModelService).parseComServerQueryResult(comserverJsonObject);
+        verify(engineConfigurationService).parseComServerQueryResult(comserverJsonObject);
     }
 
     @Test
     @Transactional
     public void testOnline () throws JSONException {
-        this.createTestOnlineComServer(engineModelService);
-        ComServerParser comServerParser = new ComServerParser(engineModelService);
+        this.createTestOnlineComServer(engineConfigurationService);
+        ComServerParser comServerParser = new ComServerParser(engineConfigurationService);
         JSONObject jsonObject = new JSONObject(ONLINE_COMSERVER_AS_QUERY_RESULT);
 
         // Business method
@@ -138,8 +138,8 @@ public class ComServerParserTest {
     @Test
     @Transactional
     public void testRemote () throws JSONException {
-        this.createTestRemoteComServer(engineModelService);
-        ComServerParser comServerParser = new ComServerParser(engineModelService);
+        this.createTestRemoteComServer(engineConfigurationService);
+        ComServerParser comServerParser = new ComServerParser(engineConfigurationService);
         JSONObject jsonObject = new JSONObject(REMOTE_COMSERVER_AS_QUERY_RESULT);
 
         // Business method
@@ -157,8 +157,8 @@ public class ComServerParserTest {
         assertThat(remoteComServer.getEventRegistrationUri()).isEqualTo("ws://remote.comserver.energyict.com:" + ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER + "/events/registration");
     }
 
-    private OnlineComServer createTestOnlineComServer(EngineModelService engineModelService) {
-        OnlineComServer onlineComServer = engineModelService.newOnlineComServerInstance();
+    private OnlineComServer createTestOnlineComServer(EngineConfigurationService engineConfigurationService) {
+        OnlineComServer onlineComServer = engineConfigurationService.newOnlineComServerInstance();
         String name = "online.comserver.energyict.com";
         onlineComServer.setName(name);
         onlineComServer.setActive(true);
@@ -173,9 +173,9 @@ public class ComServerParserTest {
         return onlineComServer;
     }
 
-    private RemoteComServer createTestRemoteComServer (EngineModelService engineModelService) {
-        OnlineComServer onlineComServer = this.createTestOnlineComServer(engineModelService);
-        RemoteComServer remoteComServer = engineModelService.newRemoteComServerInstance();
+    private RemoteComServer createTestRemoteComServer (EngineConfigurationService engineConfigurationService) {
+        OnlineComServer onlineComServer = this.createTestOnlineComServer(engineConfigurationService);
+        RemoteComServer remoteComServer = engineConfigurationService.newRemoteComServerInstance();
         String name = "remote.comserver.energyict.com";
         remoteComServer.setName(name);
         remoteComServer.setActive(true);

@@ -5,7 +5,7 @@ import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ScheduledJob;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 
 /**
  * Provides code reuse opportunities for components that implement

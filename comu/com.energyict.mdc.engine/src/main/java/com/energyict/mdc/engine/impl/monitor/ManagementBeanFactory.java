@@ -3,8 +3,8 @@ package com.energyict.mdc.engine.impl.monitor;
 import com.energyict.mdc.engine.impl.core.ComPortListener;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.ScheduledComPort;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
 
 import java.util.Optional;
 

@@ -11,7 +11,7 @@ import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
 import com.energyict.mdc.engine.impl.events.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.engine.impl.meterdata.CollectedDeviceData;
 import com.energyict.mdc.engine.impl.meterdata.DeviceTopology;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;

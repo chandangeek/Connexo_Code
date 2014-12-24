@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.core.factories;
 
 import com.energyict.mdc.engine.impl.core.ScheduledComPort;
-import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPort;
 
 /**
  * Provides factory services for {@link com.energyict.mdc.engine.impl.core.ScheduledComPort}s,

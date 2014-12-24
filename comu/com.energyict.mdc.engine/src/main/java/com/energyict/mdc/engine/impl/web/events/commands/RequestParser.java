@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.web.events.commands;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.util.Arrays;
@@ -27,7 +27,7 @@ public class RequestParser {
 
         public DeviceService deviceService();
 
-        public EngineModelService engineModelService();
+        public EngineConfigurationService engineConfigurationService();
 
         public IdentificationService identificationService();
 
@@ -76,8 +76,8 @@ public class RequestParser {
                         new DeviceRequestType(serviceProvider.identificationService()),
                         new ConnectionTaskRequestType(serviceProvider.connectionTaskService()),
                         new ComTaskExecutionRequestType(serviceProvider.communicationTaskService()),
-                        new ComPortRequestType(serviceProvider.engineModelService()),
-                        new ComPortPoolRequestType(serviceProvider.engineModelService()));
+                        new ComPortRequestType(serviceProvider.engineConfigurationService()),
+                        new ComPortPoolRequestType(serviceProvider.engineConfigurationService()));
     }
 
 }

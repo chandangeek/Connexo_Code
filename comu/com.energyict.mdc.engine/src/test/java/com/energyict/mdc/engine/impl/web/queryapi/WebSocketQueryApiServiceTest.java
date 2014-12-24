@@ -27,16 +27,15 @@ import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.remote.QueryMethod;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.HostName;
-import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.engine.model.RemoteComServer;
-import com.energyict.mdc.engine.model.impl.EngineModelModule;
-import com.energyict.mdc.engine.model.impl.EngineModelServiceImpl;
-import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.HostName;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.RemoteComServer;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
+import com.energyict.mdc.engine.config.impl.EngineConfigurationServiceImpl;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.AbstractModule;
@@ -80,7 +79,7 @@ public class WebSocketQueryApiServiceTest {
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private static DataModel dataModel;
-    private static EngineModelService engineModelService;
+    private static EngineConfigurationService engineConfigurationService;
     private static DeviceService deviceService;
     private static TransactionService transactionService;
     private static ServiceProvider serviceProvider;
@@ -116,12 +115,12 @@ public class WebSocketQueryApiServiceTest {
             injector.getInstance(NlsService.class); // fake call to make sure component is initialized
             injector.getInstance(ProtocolPluggableService.class); // fake call to make sure component is initialized
             transactionService = injector.getInstance(TransactionService.class);
-            EngineModelServiceImpl engineModelServiceImpl = (EngineModelServiceImpl) injector.getInstance(EngineModelService.class);
-            dataModel = engineModelServiceImpl.getDataModel();
-            engineModelService = engineModelServiceImpl;
+            EngineConfigurationServiceImpl engineConfigurationServiceImpl = (EngineConfigurationServiceImpl) injector.getInstance(EngineConfigurationService.class);
+            dataModel = engineConfigurationServiceImpl.getDataModel();
+            engineConfigurationService = engineConfigurationServiceImpl;
             ctx.commit();
         }
-        when(serviceProvider.engineModelService()).thenReturn(engineModelService);
+        when(serviceProvider.engineConfigurationService()).thenReturn(engineConfigurationService);
         when(serviceProvider.transactionService()).thenReturn(transactionService);
     }
 
@@ -353,7 +352,7 @@ public class WebSocketQueryApiServiceTest {
 
     private OnlineComServer createOnlineComServer(String hostName) {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            OnlineComServer onlineComServer = engineModelService.newOnlineComServerInstance();
+            OnlineComServer onlineComServer = engineConfigurationService.newOnlineComServerInstance();
             onlineComServer.setName(hostName);
             onlineComServer.setActive(true);
             onlineComServer.setActive(true);
@@ -379,7 +378,7 @@ public class WebSocketQueryApiServiceTest {
     }
 
     private RemoteComServer doCreateRemoteComServer(String hostName, OnlineComServer onlineComServer) {
-        RemoteComServer remoteComServer = engineModelService.newRemoteComServerInstance();
+        RemoteComServer remoteComServer = engineConfigurationService.newRemoteComServerInstance();
         remoteComServer.setName(hostName);
         remoteComServer.setOnlineComServer(onlineComServer);
         remoteComServer.setActive(true);

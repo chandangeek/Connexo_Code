@@ -5,7 +5,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeFactory;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;

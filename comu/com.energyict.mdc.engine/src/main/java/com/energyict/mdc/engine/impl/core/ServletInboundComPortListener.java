@@ -3,8 +3,8 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
-import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 
 /**
  * Implementation of a ComPortListener which servers functionality to use a Jetty server to process

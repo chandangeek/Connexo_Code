@@ -16,7 +16,7 @@ import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
@@ -28,9 +28,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;

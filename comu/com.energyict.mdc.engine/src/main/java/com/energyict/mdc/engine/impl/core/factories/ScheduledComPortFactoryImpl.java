@@ -6,7 +6,7 @@ import com.energyict.mdc.engine.impl.core.MultiThreadedScheduledComPort;
 import com.energyict.mdc.engine.impl.core.ScheduledComPort;
 import com.energyict.mdc.engine.impl.core.ScheduledComPortImpl;
 import com.energyict.mdc.engine.impl.core.SingleThreadedScheduledComPort;
-import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPort;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;

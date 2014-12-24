@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.events;
 
-import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.config.ComPortPool;
 
 /**
  * Marks a {@link ComServerEvent} as relating to a ComPortPool.

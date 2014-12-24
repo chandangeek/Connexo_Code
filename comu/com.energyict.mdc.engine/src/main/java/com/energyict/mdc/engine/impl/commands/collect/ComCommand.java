@@ -97,7 +97,7 @@ public interface ComCommand {
     /**
      * Gets the minimum LogLevel that needs to be activated
      * before this ComCommand must be logged.
-     * As an example when LogLevel {@link com.energyict.mdc.engine.model.ComServer.LogLevel#INFO} is returned
+     * As an example when LogLevel {@link com.energyict.mdc.engine.config.ComServer.LogLevel#INFO} is returned
      * then the ComServer's log level must be at least INFO or higher
      * before this ComCommand will actually be logged as a
      * ComCommandJournalEntryShadow.

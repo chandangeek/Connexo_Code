@@ -5,10 +5,10 @@ import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitorImplMBean;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.OutboundCapableComServer;
-import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.OutboundCapableComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.StatusService;
 
@@ -31,7 +31,7 @@ import java.util.List;
 public class StatusServiceImpl implements StatusService {
 
     private volatile Clock clock;
-    private volatile EngineModelService engineModelService;
+    private volatile EngineConfigurationService engineConfigurationService;
     private volatile ManagementBeanFactory managementBeanFactory;
 
     @Reference
@@ -40,8 +40,8 @@ public class StatusServiceImpl implements StatusService {
     }
 
     @Reference
-    public void setEngineModelService(EngineModelService engineModelService) {
-        this.engineModelService = engineModelService;
+    public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
+        this.engineConfigurationService = engineConfigurationService;
     }
 
     @Reference
@@ -51,7 +51,7 @@ public class StatusServiceImpl implements StatusService {
 
     @Override
     public ComServerStatus getStatus() {
-        Optional<ComServer> comServer = this.engineModelService.findComServerBySystemName();
+        Optional<ComServer> comServer = this.engineConfigurationService.findComServerBySystemName();
         if (comServer.isPresent()) {
             return this.getStatus(comServer.get());
         }

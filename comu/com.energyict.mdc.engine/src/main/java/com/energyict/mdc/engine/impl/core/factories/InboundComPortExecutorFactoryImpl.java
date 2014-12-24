@@ -4,7 +4,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.InboundComPortExecutor;
 import com.energyict.mdc.engine.impl.core.InboundComPortExecutorImpl;
-import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.config.InboundComPort;
 
 /**
  * Provides simple functionality to create an {@link InboundComPortExecutor}.

@@ -3,8 +3,8 @@ package com.energyict.mdc.engine.impl.core.factories;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;

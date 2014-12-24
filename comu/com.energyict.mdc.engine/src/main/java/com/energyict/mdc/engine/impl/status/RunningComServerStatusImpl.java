@@ -4,7 +4,7 @@ import com.energyict.mdc.engine.impl.monitor.ComServerMonitor;
 import com.energyict.mdc.engine.impl.monitor.ComServerOperationalStatistics;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortOperationalStatistics;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.ComServerType;
 
@@ -16,7 +16,7 @@ import java.util.List;
 
 /**
  * Provides an implementation for the {@link ComServerStatus}
- * of an actual running {@link com.energyict.mdc.engine.model.ComServer}.
+ * of an actual running {@link com.energyict.mdc.engine.config.ComServer}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-18 (13:08)

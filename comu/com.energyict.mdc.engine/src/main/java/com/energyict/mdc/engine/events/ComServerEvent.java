@@ -68,7 +68,7 @@ public interface ComServerEvent {
     public boolean isConnectionTaskRelated ();
 
     /**
-     * Tests if this ComServerEvent relates to a {@link com.energyict.mdc.engine.model.ComPort}.
+     * Tests if this ComServerEvent relates to a {@link com.energyict.mdc.engine.config.ComPort}.
      * When that is the case, it should be possible to cast
      * this ComServerEvent to {@link ComPortRelatedEvent} to obtain the ComPort
      * from the event. The ComPort that is obtained from the event is guaranteed
@@ -79,7 +79,7 @@ public interface ComServerEvent {
     public boolean isComPortRelated ();
 
     /**
-     * Tests if this ComServerEvent relates to a {@link com.energyict.mdc.engine.model.ComPortPool}.
+     * Tests if this ComServerEvent relates to a {@link com.energyict.mdc.engine.config.ComPortPool}.
      * When that is the case, it should be possible to cast
      * this ComServerEvent to {@link ComPortPoolRelatedEvent} to obtain the ComPortPool
      * from the event. The ComPortPool that is obtained from the event is guaranteed

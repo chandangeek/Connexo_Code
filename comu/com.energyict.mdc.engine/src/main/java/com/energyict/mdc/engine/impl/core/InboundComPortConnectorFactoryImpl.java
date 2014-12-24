@@ -4,10 +4,10 @@ import com.energyict.mdc.engine.impl.core.inbound.InboundComPortConnector;
 import com.energyict.mdc.engine.impl.core.inbound.SerialPortConnector;
 import com.energyict.mdc.engine.impl.core.inbound.TCPPortConnector;
 import com.energyict.mdc.engine.impl.core.inbound.UDPPortConnector;
-import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
-import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
-import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
+import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
+import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.protocol.api.services.HexService;
 

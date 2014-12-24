@@ -6,7 +6,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.impl.ConnectionTaskCompletionEventInfo;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.config.ComPort;
 
 import com.elster.jupiter.events.EventService;
 

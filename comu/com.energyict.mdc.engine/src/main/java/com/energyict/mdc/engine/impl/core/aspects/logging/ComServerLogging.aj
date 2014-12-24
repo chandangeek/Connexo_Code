@@ -7,11 +7,11 @@ import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.core.TimeOutMonitorImpl;
-import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.InboundCapableComServer;
-import com.energyict.mdc.engine.model.OutboundCapableComServer;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.InboundCapableComServer;
+import com.energyict.mdc.engine.config.OutboundCapableComServer;
 
 import java.util.Collection;
 

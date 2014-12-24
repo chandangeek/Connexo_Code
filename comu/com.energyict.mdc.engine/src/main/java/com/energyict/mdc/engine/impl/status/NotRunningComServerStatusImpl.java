@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.status;
 
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.ComServerType;
 

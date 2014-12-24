@@ -6,12 +6,11 @@ import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.core.remote.QueryMethod;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
-import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 
 import org.eclipse.jetty.websocket.WebSocket;

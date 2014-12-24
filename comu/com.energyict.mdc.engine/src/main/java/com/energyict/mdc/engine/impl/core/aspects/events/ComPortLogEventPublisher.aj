@@ -7,7 +7,7 @@ import com.energyict.mdc.engine.impl.core.aspects.logging.ComPortConnectionLogge
 import com.energyict.mdc.engine.impl.core.aspects.logging.ComPortOperationsLogger;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
-import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.config.ComPort;
 
 import java.util.logging.Handler;
 import java.util.logging.Level;

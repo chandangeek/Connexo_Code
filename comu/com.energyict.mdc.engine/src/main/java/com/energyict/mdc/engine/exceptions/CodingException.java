@@ -2,8 +2,8 @@ package com.energyict.mdc.engine.exceptions;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.common.ComServerRuntimeException;
 
 import com.elster.jupiter.util.exception.MessageSeed;

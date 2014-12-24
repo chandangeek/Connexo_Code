@@ -24,7 +24,7 @@ import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 import com.energyict.mdc.engine.impl.web.events.commands.RequestParser;
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiServiceFactory;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -64,7 +64,7 @@ public class FakeServiceProvider
     private EngineService engineService;
     private UserService userService;
     private ThreadPrincipalService threadPrincipalService;
-    private EngineModelService engineModelService;
+    private EngineConfigurationService engineConfigurationService;
     private DeviceConfigurationService deviceConfigurationService;
     private ProtocolPluggableService protocolPluggableService;
     private SocketService socketService;
@@ -154,8 +154,8 @@ public class FakeServiceProvider
     }
 
     @Override
-    public EngineModelService engineModelService() {
-        return engineModelService;
+    public EngineConfigurationService engineConfigurationService() {
+        return engineConfigurationService;
     }
 
     @Override
@@ -233,8 +233,8 @@ public class FakeServiceProvider
         this.threadPrincipalService = threadPrincipalService;
     }
 
-    public void setEngineModelService(EngineModelService engineModelService) {
-        this.engineModelService = engineModelService;
+    public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
+        this.engineConfigurationService = engineConfigurationService;
     }
 
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {

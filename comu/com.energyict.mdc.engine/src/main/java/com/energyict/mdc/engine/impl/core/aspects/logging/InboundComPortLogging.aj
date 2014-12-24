@@ -6,8 +6,8 @@ import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl;
 import com.energyict.mdc.engine.impl.core.ComPortListener;
 import com.energyict.mdc.engine.impl.core.ComPortListenerImpl;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
 
 /**
  * Defines pointcuts and advice that will do logging for the

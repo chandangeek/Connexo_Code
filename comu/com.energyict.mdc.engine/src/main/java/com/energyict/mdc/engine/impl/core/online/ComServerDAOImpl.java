@@ -35,12 +35,12 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -92,7 +92,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
         public Clock clock();
 
-        public EngineModelService engineModelService();
+        public EngineConfigurationService engineConfigurationService();
 
         public ConnectionTaskService connectionTaskService();
 
@@ -118,8 +118,8 @@ public class ComServerDAOImpl implements ComServerDAO {
         this.serviceProvider = serviceProvider;
     }
 
-    private EngineModelService getEngineModelService() {
-        return this.serviceProvider.engineModelService();
+    private EngineConfigurationService getEngineModelService() {
+        return this.serviceProvider.engineConfigurationService();
     }
 
     private DeviceService getDeviceDataService() {
@@ -209,13 +209,21 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public ComPort refreshComPort(ComPort comPort) {
-        ComPort reloaded = getEngineModelService().findComPort(comPort.getId());
-        if (reloaded == null || reloaded.isObsolete()) {
+        Optional<? extends ComPort> reloaded = getEngineModelService().findComPort(comPort.getId());
+        if (reloaded.isPresent()) {
+            ComPort reloadedPort = reloaded.get();
+            if (reloadedPort.isObsolete()) {
+                return null;
+            }
+            else if (reloadedPort.getModificationDate().isAfter(comPort.getModificationDate())) {
+                return reloadedPort;
+            }
+            else {
+                return comPort;
+            }
+        }
+        else {
             return null;
-        } else if (reloaded.getModificationDate().isAfter(comPort.getModificationDate())) {
-            return reloaded;
-        } else {
-            return comPort;
         }
     }
 
