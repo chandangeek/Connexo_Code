@@ -1,5 +1,7 @@
 package com.elster.jupiter.users.rest.impl;
 
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
@@ -13,6 +15,7 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 
+import org.junit.Before;
 import org.mockito.Mock;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
@@ -32,7 +35,6 @@ public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     UserPreferencesService userPreferencesService;
     @Mock
     ThreadPrincipalService threadPrincipalService;
-    
     @Mock
     static SecurityContext securityContext;
     
@@ -44,7 +46,7 @@ public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
             requestContext.setSecurityContext(securityContext);
         }
     }
-    
+
     @Override
     protected Application getApplication() {
         UsersApplication application = new UsersApplication() {
@@ -67,10 +69,9 @@ public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         };
         application.setRestQueryService(restQueryService);
         application.setTransactionService(transactionService);
+        when(userService.getUserPreferencesService()).thenReturn(userPreferencesService);
         application.setUserService(userService);
-        application.setUserPreferencesService(userPreferencesService);
         application.setThreadPrincipalService(threadPrincipalService);
-        
         return application;
     }
 

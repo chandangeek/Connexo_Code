@@ -41,11 +41,7 @@ public class UsersApplication extends Application implements BinderProvider {
     @Reference
     public void setUserService(UserService partyService) {
         this.userService = partyService;
-    }
-    
-    @Reference
-    public void setUserPreferencesService(UserPreferencesService userPreferencesService) {
-        this.userPreferencesService = userPreferencesService;
+        this.userPreferencesService = partyService.getUserPreferencesService();
     }
 
     @Reference
