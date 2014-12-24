@@ -25,6 +25,8 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -32,6 +34,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.FormatKey;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.NoDefaultDomainException;
 import com.elster.jupiter.users.NoDomainFoundException;
 import com.elster.jupiter.users.Privilege;
@@ -47,10 +50,10 @@ import com.google.inject.AbstractModule;
 
 @Component(
         name = "com.elster.jupiter.users",
-        service = {UserService.class, UserPreferencesService.class, InstallService.class},
+        service = {UserService.class, UserPreferencesService.class, InstallService.class, TranslationKeyProvider.class},
         immediate = true,
         property = "name=" + UserService.COMPONENTNAME)
-public class UserServiceImpl implements UserService, UserPreferencesService, InstallService {
+public class UserServiceImpl implements UserService, UserPreferencesService, InstallService, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
@@ -332,6 +335,21 @@ public class UserServiceImpl implements UserService, UserPreferencesService, Ins
 
     public void install() {
         new InstallerImpl(dataModel).install(this, getRealm());
+    }
+    
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+    
+    @Override
+    public String getComponentName() {
+        return COMPONENTNAME;
+    }
+    
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
     }
 
     @Override

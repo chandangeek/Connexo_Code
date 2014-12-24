@@ -1,10 +1,11 @@
 package com.elster.jupiter.users;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed{
+public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_DEFAULT_REALM(1001, "domain.no.default", "No default domain found.", Level.SEVERE),
     NO_REALM_FOUND(1002, "domain.not.found", "No domain found with the name {0}.", Level.SEVERE),
     FIELD_CAN_NOT_BE_EMPTY(1003, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty", Level.SEVERE),
