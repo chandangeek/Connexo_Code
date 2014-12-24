@@ -29,7 +29,7 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             persist: false,
             mapping: function (data) {
                 if (data.startedOn && (data.startedOn !== 0)) {
-                    return moment(data.startedOn).format('ddd, DD MMM YYYY HH:mm:ss');
+                    return Uni.DateTime.formatDateTimeLong(new Date(data.startedOn));
                 }
                 return '-';
             }
@@ -39,7 +39,7 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             persist: false,
             mapping: function (data) {
                 if (data.finishedOn && (data.finishedOn !== 0)) {
-                    return moment(data.finishedOn).format('ddd, DD MMM YYYY HH:mm:ss');
+                    return Uni.DateTime.formatDateTimeLong(new Date(data.finishedOn));
                 }
                 return '-';
             }
@@ -70,8 +70,8 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             mapping: function (data) {
                 if ((data.exportPeriodFrom && data.exportPeriodFrom !== 0) &&
                     (data.exportPeriodTo && data.exportPeriodTo !== 0)) {
-                    return 'From ' + moment(data.exportPeriodFrom).format('ddd, DD MMM YYYY HH:mm:ss') +
-                        ' to ' + moment(data.exportPeriodTo).format('ddd, DD MMM YYYY HH:mm:ss');
+                    return 'From ' + Uni.DateTime.formatDateTimeShort(new Date(data.exportPeriodFrom)) +
+                        ' to ' + Uni.DateTime.formatDateTimeShort(new Date(data.exportPeriodTo));
                 }
                 return '-';
             }

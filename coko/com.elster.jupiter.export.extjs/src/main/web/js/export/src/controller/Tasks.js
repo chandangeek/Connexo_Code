@@ -173,7 +173,8 @@ Ext.define('Dxp.controller.Tasks', {
     initFilter: function () {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
-            filter = router.filter;
+            filter = router.filter,
+            date;
 
         me.getSideFilterForm().loadRecord(filter);
         for (var f in filter.getData()) {
@@ -198,8 +199,12 @@ Ext.define('Dxp.controller.Tasks', {
                     break;
             }
             if (!Ext.isEmpty(filter.get(f))) {
-                me.getFilterTopPanel().setFilter(f, name, Ext.util.Format.date(new Date(filter.get(f)),
-                    ('D d M Y' + (exportPeriod ? '' : ' \\a\\t h:i A'))));
+                date = new Date(filter.get(f));
+                me.getFilterTopPanel().setFilter(f, name, exportPeriod
+                    ? Uni.DateTime.formatDateShort(date)
+                    : Uni.DateTime.formatDateShort(date)
+                    + ' ' + Uni.I18n.translate('general.at', 'DES', 'At').toLowerCase() + ' '
+                    + Uni.DateTime.formatTimeShort(date));
             }
         }
         me.getFilterTopPanel().setVisible(true);
