@@ -2,11 +2,10 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.Holder;
-import com.elster.jupiter.util.HolderBuilder;
+
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.config.ComPortPool;
 
 import java.util.List;
 import java.util.stream.Collectors;

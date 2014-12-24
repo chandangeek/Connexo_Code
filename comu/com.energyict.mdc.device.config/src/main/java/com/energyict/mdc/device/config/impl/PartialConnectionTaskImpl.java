@@ -15,8 +15,8 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -46,7 +46,7 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
 
     public static final Map<String, Class<? extends PartialConnectionTask>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends PartialConnectionTask>>of("0", PartialConnectionInitiationTaskImpl.class, "1", PartialInboundConnectionTaskImpl.class, "2", PartialScheduledConnectionTaskImpl.class);
 
-    private final EngineModelService engineModelService;
+    private final EngineConfigurationService engineConfigurationService;
     private final ProtocolPluggableService protocolPluggableService;
 
 
@@ -77,9 +77,9 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
     private Date modDate;
 
     @Inject
-    PartialConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
+    PartialConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService) {
         super(PartialConnectionTask.class, dataModel, eventService, thesaurus);
-        this.engineModelService = engineModelService;
+        this.engineConfigurationService = engineConfigurationService;
         this.protocolPluggableService = protocolPluggableService;
     }
 

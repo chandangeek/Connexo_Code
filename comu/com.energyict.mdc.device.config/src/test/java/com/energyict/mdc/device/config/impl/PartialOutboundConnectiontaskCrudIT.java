@@ -51,9 +51,9 @@ import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -67,10 +67,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
-import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
@@ -148,7 +146,7 @@ public class PartialOutboundConnectiontaskCrudIT {
     private ApplicationContext applicationContext;
     private PropertySpecServiceImpl propertySpecService;
     private ProtocolPluggableService protocolPluggableService;
-    private EngineModelService engineModelService;
+    private EngineConfigurationService engineConfigurationService;
     private InMemoryBootstrapModule bootstrapModule;
     @Mock
     private IdBusinessObjectFactory businessObjectFactory;
@@ -221,7 +219,7 @@ public class PartialOutboundConnectiontaskCrudIT {
             this.initializeMocks(this.propertySpecService);
             injector.getInstance(MeteringService.class);
             injector.getInstance(MdcReadingTypeUtilService.class);
-            engineModelService = injector.getInstance(EngineModelService.class);
+            engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             ((ProtocolPluggableServiceImpl) protocolPluggableService).addLicensedProtocolService(this.licensedProtocolService);
             ((ProtocolPluggableServiceImpl) protocolPluggableService).addConnectionTypeService(this.connectionTypeService);
@@ -267,24 +265,18 @@ public class PartialOutboundConnectiontaskCrudIT {
         });
 
         protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
-        engineModelService = injector.getInstance(EngineModelService.class);
+        engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
 
         try (TransactionContext context = transactionService.getContext()) {
             connectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("NoParamsConnectionType", OutboundNoParamsConnectionTypeImpl.class.getName());
             connectionTypePluggableClass.save();
             connectionTypePluggableClass2 = protocolPluggableService.newConnectionTypePluggableClass("NoParamsConnectionType2", OutboundNoParamsConnectionTypeImpl.class.getName());
             connectionTypePluggableClass2.save();
-            outboundComPortPool = engineModelService.newOutboundComPortPool();
+            outboundComPortPool = engineConfigurationService.newOutboundComPortPool("inboundComPortPool", ComPortType.TCP, FIFTEEN_MINUTES);
             outboundComPortPool.setActive(true);
-            outboundComPortPool.setComPortType(ComPortType.TCP);
-            outboundComPortPool.setName("inboundComPortPool");
-            outboundComPortPool.setTaskExecutionTimeout(FIFTEEN_MINUTES);
             outboundComPortPool.save();
-            outboundComPortPool1 = engineModelService.newOutboundComPortPool();
+            outboundComPortPool1 = engineConfigurationService.newOutboundComPortPool("inboundComPortPool2", ComPortType.TCP, TimeDuration.minutes(5));
             outboundComPortPool1.setActive(true);
-            outboundComPortPool1.setComPortType(ComPortType.TCP);
-            outboundComPortPool1.setName("inboundComPortPool2");
-            outboundComPortPool1.setTaskExecutionTimeout(TimeDuration.minutes(5));
             outboundComPortPool1.save();
             context.commit();
         }

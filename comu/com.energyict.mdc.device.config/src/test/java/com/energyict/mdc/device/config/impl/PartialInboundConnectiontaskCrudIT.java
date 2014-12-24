@@ -13,9 +13,9 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -131,7 +131,7 @@ public class PartialInboundConnectiontaskCrudIT {
     @Mock
     private ApplicationContext applicationContext;
     private ProtocolPluggableService protocolPluggableService;
-    private EngineModelService engineModelService;
+    private EngineConfigurationService engineConfigurationService;
     private InMemoryBootstrapModule bootstrapModule;
     private InboundDeviceProtocolPluggableClass discoveryPluggable;
 
@@ -196,7 +196,7 @@ public class PartialInboundConnectiontaskCrudIT {
             injector.getInstance(NlsService.class);
             injector.getInstance(MeteringService.class);
             injector.getInstance(MdcReadingTypeUtilService.class);
-            engineModelService = injector.getInstance(EngineModelService.class);
+            engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             injector.getInstance(InboundDeviceProtocolService.class);
             injector.getInstance(PluggableService.class);
@@ -231,7 +231,7 @@ public class PartialInboundConnectiontaskCrudIT {
         when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
         initializeDatabase(false);
         protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
-        engineModelService = injector.getInstance(EngineModelService.class);
+        engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
 
         try (TransactionContext context = transactionService.getContext()) {
             ((ProtocolPluggableServiceImpl) protocolPluggableService).addInboundDeviceProtocolService(new InboundDeviceProtocolService());
@@ -243,17 +243,11 @@ public class PartialInboundConnectiontaskCrudIT {
             connectionTypePluggableClass2.save();
             discoveryPluggable = protocolPluggableService.newInboundDeviceProtocolPluggableClass("MyDiscoveryName", DummyInboundDiscoveryProtocol.class.getName());
             discoveryPluggable.save();
-            inboundComPortPool = engineModelService.newInboundComPortPool();
+            inboundComPortPool = engineConfigurationService.newInboundComPortPool("inboundComPortPool", ComPortType.TCP, discoveryPluggable);
             inboundComPortPool.setActive(true);
-            inboundComPortPool.setComPortType(ComPortType.TCP);
-            inboundComPortPool.setName("inboundComPortPool");
-            inboundComPortPool.setDiscoveryProtocolPluggableClass(discoveryPluggable);
             inboundComPortPool.save();
-            inboundComPortPool2 = engineModelService.newInboundComPortPool();
+            inboundComPortPool2 = engineConfigurationService.newInboundComPortPool("inboundComPortPool2", ComPortType.TCP, discoveryPluggable);
             inboundComPortPool2.setActive(true);
-            inboundComPortPool2.setComPortType(ComPortType.TCP);
-            inboundComPortPool2.setName("inboundComPortPool2");
-            inboundComPortPool2.setDiscoveryProtocolPluggableClass(discoveryPluggable);
             inboundComPortPool2.save();
             context.commit();
         }

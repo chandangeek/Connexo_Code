@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.device.config.impl.PartialInboundConnectionTaskImpl;
-import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.config.InboundComPortPool;
 
 /**
  * Copyrights EnergyICT

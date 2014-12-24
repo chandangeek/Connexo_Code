@@ -15,7 +15,7 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.elster.jupiter.time.TemporalExpression;
@@ -45,8 +45,8 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
     private Reference<PartialConnectionInitiationTask> initiator = ValueReference.absent();
 
     @Inject
-    PartialScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {
-        super(dataModel, eventService, thesaurus, engineModelService, protocolPluggableService, schedulingService);
+    PartialScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {
+        super(dataModel, eventService, thesaurus, engineConfigurationService, protocolPluggableService, schedulingService);
     }
 
     static PartialScheduledConnectionTaskImpl from(DataModel dataModel, DeviceCommunicationConfiguration configuration) {

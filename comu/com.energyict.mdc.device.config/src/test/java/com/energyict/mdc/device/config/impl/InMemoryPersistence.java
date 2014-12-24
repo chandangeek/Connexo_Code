@@ -6,8 +6,8 @@ import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -112,7 +112,7 @@ public class InMemoryPersistence {
     private DeviceConfigurationServiceImpl deviceConfigurationService;
     private MeteringService meteringService;
     private MdcReadingTypeUtilService readingTypeUtilService;
-    private EngineModelService engineModelService;
+    private EngineConfigurationService engineConfigurationService;
     private UserService userService;
     private DataModel dataModel;
     private Injector injector;
@@ -155,7 +155,7 @@ public class InMemoryPersistence {
             this.nlsService = injector.getInstance(NlsService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
-            this.engineModelService = injector.getInstance(EngineModelService.class);
+            this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
             this.masterDataService = injector.getInstance(MasterDataService.class);
             this.taskService = injector.getInstance(TaskService.class);
             this.validationService = injector.getInstance(ValidationService.class);

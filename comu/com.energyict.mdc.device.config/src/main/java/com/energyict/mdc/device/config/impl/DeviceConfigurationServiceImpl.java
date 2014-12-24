@@ -20,8 +20,8 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -101,7 +101,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile Thesaurus thesaurus;
     private volatile MeteringService meteringService;
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
-    private volatile EngineModelService engineModelService;
+    private volatile EngineConfigurationService engineConfigurationService;
     private volatile MasterDataService masterDataService;
     private volatile SchedulingService schedulingService;
     private volatile UserService userService;
@@ -116,11 +116,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, MasterDataService masterDataService, SchedulingService schedulingService, ValidationService validationService) {
-        this(ormService, eventService, nlsService, meteringService, mdcReadingTypeUtilService, protocolPluggableService, userService, engineModelService, masterDataService, false, schedulingService, validationService);
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, MasterDataService masterDataService, SchedulingService schedulingService, ValidationService validationService) {
+        this(ormService, eventService, nlsService, meteringService, mdcReadingTypeUtilService, protocolPluggableService, userService, engineConfigurationService, masterDataService, false, schedulingService, validationService);
     }
 
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, ProtocolPluggableService protocolPluggableService, UserService userService, EngineModelService engineModelService, MasterDataService masterDataService, boolean createMasterData, SchedulingService schedulingService, ValidationService validationService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, ProtocolPluggableService protocolPluggableService, UserService userService, EngineConfigurationService engineConfigurationService, MasterDataService masterDataService, boolean createMasterData, SchedulingService schedulingService, ValidationService validationService) {
         this();
         this.setOrmService(ormService);
         this.setUserService(userService);
@@ -129,7 +129,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setMeteringService(meteringService);
         this.setProtocolPluggableService(protocolPluggableService);
         this.setReadingTypeUtilService(mdcReadingTypeUtilService);
-        this.setEngineModelService(engineModelService);
+        this.setEngineConfigurationService(engineConfigurationService);
         this.setMasterDataService(this.masterDataService);
         this.setSchedulingService(schedulingService);
         this.setValidationService(validationService);
@@ -439,7 +439,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
                 bind(MeteringService.class).toInstance(meteringService);
-                bind(EngineModelService.class).toInstance(engineModelService);
+                bind(EngineConfigurationService.class).toInstance(engineConfigurationService);
                 bind(UserService.class).toInstance(userService);
                 bind(SchedulingService.class).toInstance(schedulingService);
                 bind(ValidationService.class).toInstance(validationService);
@@ -479,8 +479,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Reference
-    public void setEngineModelService(EngineModelService engineModelService) {
-        this.engineModelService = engineModelService;
+    public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
+        this.engineConfigurationService = engineConfigurationService;
     }
 
     @Reference
