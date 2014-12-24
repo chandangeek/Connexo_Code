@@ -46,7 +46,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.favorites.DeviceLabel;
 import com.energyict.mdc.favorites.FavoriteDeviceGroup;
 import com.energyict.mdc.favorites.FavoritesService;
