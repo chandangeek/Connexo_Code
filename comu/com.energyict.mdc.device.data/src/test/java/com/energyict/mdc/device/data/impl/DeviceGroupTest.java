@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
@@ -15,13 +16,16 @@ import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
+import com.elster.jupiter.metering.groups.impl.SimpleEndDeviceQueryProvider;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.pubsub.impl.PublisherImpl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
@@ -32,6 +36,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
@@ -42,8 +47,10 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.events.EndDeviceGroupDeletionVetoEventHandler;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
@@ -70,10 +77,18 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import java.math.BigDecimal;
+import java.security.Principal;
+import java.sql.SQLException;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -82,14 +97,10 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
-import java.security.Principal;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -164,6 +175,7 @@ public class DeviceGroupTest {
             bind(DeviceProtocolService.class).toInstance(deviceProtocolService);
             bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
             bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
+            bind(Thesaurus.class).toInstance(thesaurus);
             bind(LogService.class).toInstance(mock(LogService.class));
         }
     }
@@ -206,6 +218,10 @@ public class DeviceGroupTest {
                 new DeviceDataModule(),
                 new MockModule()
         );
+        when(bundleContext.registerService(eq(Subscriber.class), any(), any())).thenAnswer(invocation -> {
+            injector.getInstance(PublisherImpl.class).addHandler((Subscriber) invocation.getArguments()[1]);
+            return null;
+        });
         injector.getInstance(TransactionService.class).execute(() -> {
             injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(ThreadPrincipalService.class);
@@ -327,6 +343,34 @@ public class DeviceGroupTest {
         assertThat(members).hasSize(1);
         assertThat(members.get(0).getId()).isEqualTo(endDevice.getId());
     }
+
+    @Test
+    @Ignore // Can't get the TopicHandler registration right
+    public void testVetoDeletionOfDeviceGroupInKpi() throws Exception {
+        injector.getInstance(EventServiceImpl.class).addTopicHandler(injector.getInstance(EndDeviceGroupDeletionVetoEventHandler.class));
+        MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
+        DataCollectionKpiService kpiService = injector.getInstance(DataCollectionKpiService.class);
+        QueryEndDeviceGroup queryEndDeviceGroup;
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            queryEndDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(Operator.EQUAL.compare("id", 15).or(Operator.EQUAL.compare("mRID", ED_MRID)));
+            queryEndDeviceGroup.setMRID("mine");
+            queryEndDeviceGroup.setQueryProviderName(SimpleEndDeviceQueryProvider.SIMPLE_ENDDEVICE_QUERYPRVIDER);
+            queryEndDeviceGroup.save();
+            ctx.commit();
+        }
+
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            DataCollectionKpiService.DataCollectionKpiBuilder dataCollectionKpiBuilder = kpiService.newDataCollectionKpi(queryEndDeviceGroup);
+            dataCollectionKpiBuilder.calculateConnectionSetupKpi(Duration.ofMinutes(15)).expectingAsMaximum(BigDecimal.TEN);
+            dataCollectionKpiBuilder.save();
+            ctx.commit();
+        }
+
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            queryEndDeviceGroup.delete();
+        }
+    }
+
 
     private DeviceConfiguration getDeviceConfiguration() {
 

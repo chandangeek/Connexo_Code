@@ -1,16 +1,15 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
@@ -18,32 +17,34 @@ import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import java.time.Clock;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.tasks.TaskService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Module;
@@ -59,6 +60,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -75,10 +77,9 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-30 (17:33)
  */
-@Component(name="com.energyict.mdc.device.data", service = {DeviceDataModelService.class, ReferencePropertySpecFinderProvider.class, InstallService.class}, property = "name=" + DeviceDataServices.COMPONENT_NAME, immediate = true)
-public class DeviceDataModelServiceImpl implements DeviceDataModelService, ReferencePropertySpecFinderProvider, InstallService {
+@Component(name="com.energyict.mdc.device.data", service = {DeviceDataModelService.class, ReferencePropertySpecFinderProvider.class, InstallService.class, TranslationKeyProvider.class}, property = {"name=" + DeviceDataServices.COMPONENT_NAME,"osgi.command.scope=mdc.service.testing", "osgi.command.function=testSearch",}, immediate = true)
+public class DeviceDataModelServiceImpl implements DeviceDataModelService, ReferencePropertySpecFinderProvider, InstallService, TranslationKeyProvider {
 
-    private volatile BundleContext bundleContext;
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
@@ -96,6 +97,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile EngineModelService engineModelService;
     private volatile SchedulingService schedulingService;
     private volatile SecurityPropertyService securityPropertyService;
+//    private volatile IdentificationService identificationService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ServerCommunicationTaskService communicationTaskService;
@@ -106,8 +108,10 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
-    public DeviceDataModelServiceImpl() {}
+    // For OSGi purposes only
+    public DeviceDataModelServiceImpl() {super();}
 
+    // For unit testing purposes only
     @Inject
     public DeviceDataModelServiceImpl(BundleContext bundleContext,
                                       OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, com.elster.jupiter.tasks.TaskService taskService,
@@ -115,7 +119,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                                       EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService,
                                       MeteringService meteringService, ValidationService validationService,
                                       SchedulingService schedulingService, MessageService messageService,
-                                      SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+                                      SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, IdentificationService identificationService) {
+        this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
@@ -133,6 +138,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setSecurityPropertyService(securityPropertyService);
         this.setUserService(userService);
         this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+//        this.setIdentificationService(identificationService);
         this.activate(bundleContext);
         this.install(true);
     }
@@ -316,6 +322,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.taskService = taskService;
     }
 
+//    @Reference
+//    public void setIdentificationService(IdentificationService identificationService) {
+//        this.identificationService = identificationService;
+//    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -346,6 +357,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(ServerDeviceService.class).toInstance(deviceService);
                 bind(LoadProfileService.class).toInstance(loadProfileService);
                 bind(LogBookService.class).toInstance(logBookService);
+//                bind(IdentificationService.class).toInstance(identificationService);
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
             }
         };
@@ -353,14 +365,13 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
 
     @Activate
     public void activate(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
         this.createRealServices();
         this.dataModel.register(this.getModule());
         this.registerRealServices(bundleContext);
     }
 
     private void createRealServices() {
-        this.connectionTaskService = new ConnectionTaskServiceImpl(this);
+        this.connectionTaskService = new ConnectionTaskServiceImpl(this, eventService);
         this.communicationTaskService = new CommunicationTaskServiceImpl(this);
         this.deviceService = new DeviceServiceImpl(this);
         this.loadProfileService = new LoadProfileServiceImpl(this);
@@ -405,7 +416,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     @Deactivate
-    public void stop(BundleContext bundleContext) throws Exception {
+    public void stop() throws Exception {
         for (ServiceRegistration serviceRegistration : this.serviceRegistrations) {
             serviceRegistration.unregister();
         }
@@ -416,8 +427,23 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.install(true);
     }
 
+    @Override
+    public String getComponentName() {
+        return DeviceDataServices.COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
     private void install(boolean exeuteDdl) {
-        new Installer(this.dataModel, this.eventService, this.thesaurus, messagingService, this.userService).install(exeuteDdl);
+        new Installer(this.dataModel, this.eventService, messagingService, this.userService).install(exeuteDdl);
     }
 
     @Override
@@ -431,11 +457,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
-    }
-
-    @Override
-    public void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask connectionTask) {
-        this.communicationTaskService.setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(device, connectionTask);
     }
 
     @Override
@@ -506,4 +527,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         }
     }
 
+
+    public void testSearch(){
+        this.deviceService.findDevicesByConnectionTypeAndProperty(null, "", "");
+    }
 }

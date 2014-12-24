@@ -65,9 +65,9 @@ public abstract class PersistenceIntegrationTest {
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     @Mock
-    DeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
-    DeviceProtocol deviceProtocol;
+    protected DeviceProtocol deviceProtocol;
 
     protected static Clock clock = mock(Clock.class);
     protected static InMemoryIntegrationPersistence inMemoryPersistence;

@@ -1,16 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.FlowDirection;
-import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -22,26 +12,30 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.time.TimeDuration;
+import org.fest.assertions.core.Condition;
 
 import java.time.Instant;
-import java.util.Optional;
-import org.fest.assertions.core.Condition;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+
+import org.junit.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
- * Tests the persistent {@link com.energyict.mdc.device.data.impl.LoadProfileImpl} component
+ * Tests the persistent {@link LoadProfileImpl} component.
  * <p>
  * Copyrights EnergyICT
  * Date: 3/18/14
@@ -183,154 +177,11 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
 
     @Test
     @Transactional
-    public void getAllChannelsTestWithoutSlaveDevices() {
-        Device deviceWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", MRID);
-        deviceWithLoadProfile.save();
-
-        LoadProfile reloadedLoadProfile = getReloadedLoadProfile(deviceWithLoadProfile);
-        assertThat(reloadedLoadProfile.getAllChannels()).hasSize(2);
-        assertThat(reloadedLoadProfile.getAllChannels()).has(new Condition<List<Channel>>() {
-            @Override
-            public boolean matches(List<Channel> value) {
-                boolean bothMatch = true;
-                for (Channel channel : value) {
-                    bothMatch &= (channel.getRegisterTypeObisCode().equals(obisCode1) || channel.getRegisterTypeObisCode().equals(obisCode2));
-                }
-                return bothMatch;
-            }
-        });
-    }
-
-    @Test
-    @Transactional
-    public void getAllChannelsTestWithASlaveDeviceTest() {
-
-        final Device masterWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", "dwl");
-        masterWithLoadProfile.save();
-        final Device slave = createSlaveDeviceWithSameLoadProfileType(masterWithLoadProfile);
-
-        LoadProfile reloadedLoadProfile = getReloadedLoadProfile(masterWithLoadProfile);
-
-        assertThat(reloadedLoadProfile.getAllChannels()).hasSize(4);
-        assertThat(reloadedLoadProfile.getAllChannels()).has(new Condition<List<Channel>>() {
-            @Override
-            public boolean matches(List<Channel> value) {
-                int masterChannels = 0;
-                int slaveChannels = 0;
-                int obisCode1Match = 0;
-                int obisCode2Match = 0;
-                for (Channel channel : value) {
-                    if (channel.getDevice().getId() == masterWithLoadProfile.getId()) {
-                        masterChannels++;
-                    }
-                    if (channel.getDevice().getId() == slave.getId()) {
-                        slaveChannels++;
-                    }
-                    if (channel.getRegisterTypeObisCode().equals(obisCode1)) {
-                        obisCode1Match++;
-                    }
-                    if (channel.getRegisterTypeObisCode().equals(obisCode2)) {
-                        obisCode2Match++;
-                    }
-                }
-                return masterChannels == 2 && slaveChannels == 2 && obisCode1Match == 2 && obisCode2Match == 2;
-            }
-        });
-    }
-
-    @Test
-    @Transactional
     public void isNotVirtualLoadProfileTest() {
         Device masterWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", MRID);
         masterWithLoadProfile.save();
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(masterWithLoadProfile);
         assertThat(reloadedLoadProfile.isVirtualLoadProfile()).isFalse();
-    }
-
-    @Test
-    @Transactional
-    public void isVirtualLoadProfileTest() {
-        Device masterWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", "dwl");
-        masterWithLoadProfile.save();
-
-        Device slave = createSlaveDeviceWithSameLoadProfileType(masterWithLoadProfile);
-
-        LoadProfile reloadedLoadProfile = getReloadedLoadProfile(slave);
-        assertThat(reloadedLoadProfile.isVirtualLoadProfile()).isTrue();
-    }
-
-    @Test
-    @Transactional
-    public void isNotVirtualLoadProfileBecauseDeviceProtocolNotLogicalSlaveTest() {
-        Device masterWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", "dwl");
-        masterWithLoadProfile.save();
-        Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "Slave", "slave");
-        slaveWithLoadProfile.setPhysicalGateway(masterWithLoadProfile);
-        slaveWithLoadProfile.save();
-
-        LoadProfile reloadedLoadProfile = getReloadedLoadProfile(slaveWithLoadProfile);
-
-        assertThat(reloadedLoadProfile.isVirtualLoadProfile()).isFalse();
-    }
-
-    private Device createSlaveDeviceWithSameLoadProfileType(Device masterWithLoadProfile) {
-        DeviceProtocolPluggableClass slaveDeviceProtocolPluggableClass = createSlaveDeviceProtocol();
-
-        DeviceType slaveDeviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("SlaveDeviceType", slaveDeviceProtocolPluggableClass);
-        slaveDeviceType.addLoadProfileType(loadProfileType);
-        ChannelType channelTypeForRegisterType1 = loadProfileType.getChannelTypes().get(0);
-        ChannelType channelTypeForRegisterType2 = loadProfileType.getChannelTypes().get(1);
-        DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = slaveDeviceType.newConfiguration("SlaveConfig");
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(loadProfileType);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, phenomenon1, loadProfileSpecBuilder);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, phenomenon2, loadProfileSpecBuilder);
-        DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
-        slaveDeviceType.save();
-        deviceConfiguration.activate();
-
-        Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave", MRID);
-        slaveWithLoadProfile.setPhysicalGateway(masterWithLoadProfile);
-        slaveWithLoadProfile.save();
-        return slaveWithLoadProfile;
-    }
-
-    @Test
-    @Transactional
-    public void isNotVirtualLoadProfileBecauseSlaveHasLoadProfileTypeWithWildCardBFieldTest() {
-        Device masterWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", "M");
-        masterWithLoadProfile.save();
-
-        LoadProfileType slaveLoadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType("SlaveType", ObisCode.fromString("0.x.24.3.0.255"), interval);
-        ChannelType channelTypeForRegisterType = slaveLoadProfileType.createChannelTypeForRegisterType(registerType1);
-        slaveLoadProfileType.save();
-        DeviceProtocolPluggableClass slaveDeviceProtocolPluggableClass = createSlaveDeviceProtocol();
-
-        DeviceType slaveDeviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("SlaveDeviceType", slaveDeviceProtocolPluggableClass);
-        slaveDeviceType.addLoadProfileType(slaveLoadProfileType);
-        DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = slaveDeviceType.newConfiguration("SlaveConfig");
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(slaveLoadProfileType);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType, phenomenon1, loadProfileSpecBuilder);
-        DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
-        slaveDeviceType.save();
-        deviceConfiguration.activate();
-
-        Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave", "S");
-        slaveWithLoadProfile.setPhysicalGateway(masterWithLoadProfile);
-        slaveWithLoadProfile.save();
-
-        LoadProfile reloadedLoadProfile = getReloadedLoadProfile(slaveWithLoadProfile);
-        assertThat(reloadedLoadProfile.isVirtualLoadProfile()).isFalse();
-    }
-
-    private DeviceProtocolPluggableClass createSlaveDeviceProtocol() {
-        long slavePluggableClassId = 654;
-        DeviceProtocol slaveDeviceProtocol = mock(DeviceProtocol.class);
-        when(slaveDeviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_SLAVE));
-        DeviceProtocolPluggableClass slaveDeviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
-        when(slaveDeviceProtocolPluggableClass.getId()).thenReturn(slavePluggableClassId);
-        when(slaveDeviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(slaveDeviceProtocol);
-        when(inMemoryPersistence.getProtocolPluggableService().findDeviceProtocolPluggableClass(slavePluggableClassId)).thenReturn(Optional.of(slaveDeviceProtocolPluggableClass));
-        return slaveDeviceProtocolPluggableClass;
     }
 
     @Test
@@ -461,4 +312,5 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
 
         assertThat(inMemoryPersistence.getDataModel().mapper(LoadProfile.class).find()).isEmpty();
     }
+
 }

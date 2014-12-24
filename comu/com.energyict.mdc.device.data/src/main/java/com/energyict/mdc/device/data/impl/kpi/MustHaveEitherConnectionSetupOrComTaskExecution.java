@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-import com.energyict.mdc.device.data.impl.constraintvalidators.GatewayNotSameAsOriginValidator;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 
 import javax.validation.Constraint;
@@ -22,7 +21,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({java.lang.annotation.ElementType.TYPE})
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = {GatewayNotSameAsOriginValidator.class, MustHaveEitherConnectionSetupOrComTaskExecutionValidator.class})
+@Constraint(validatedBy = {MustHaveEitherConnectionSetupOrComTaskExecutionValidator.class})
 public @interface MustHaveEitherConnectionSetupOrComTaskExecution {
 
     String message() default "{" + MessageSeeds.Keys.EMPTY_DATA_COLLECTION_KPI + "}";

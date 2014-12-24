@@ -22,8 +22,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 public class ScheduleQueryTest extends ConnectionTaskImplIT {
 
-    private ConnectionTask.ConnectionTaskLifecycleStatus status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
-
     private ScheduledConnectionTaskImpl createAsapWithNoPropertiesWithoutViolations(String name) {
         this.partialScheduledConnectionTask.setName(name);
         this.partialScheduledConnectionTask.save();

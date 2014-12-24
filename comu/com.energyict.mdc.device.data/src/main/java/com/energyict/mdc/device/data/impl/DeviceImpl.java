@@ -29,8 +29,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.TemporalReference;
-import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TemporalExpression;
@@ -60,7 +58,6 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.DeviceTopology;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
@@ -73,7 +70,6 @@ import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichI
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
-import com.energyict.mdc.device.data.exceptions.StillGatewayException;
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
@@ -89,7 +85,6 @@ import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -105,7 +100,6 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
@@ -140,7 +134,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -194,10 +187,6 @@ public class DeviceImpl implements Device, CanLock {
     private Instant modificationDate;
     private Instant yearOfCertification;
 
-    @Valid
-    private TemporalReference<CommunicationGatewayReference> communicationGatewayReferenceDevice = Temporals.absent();
-    @Valid
-    private TemporalReference<PhysicalGatewayReference> physicalGatewayReferenceDevice = Temporals.absent();
     @Valid
     private List<DeviceProtocolProperty> deviceProperties = new ArrayList<>();
     @Valid
@@ -371,7 +360,6 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public void delete() {
-        this.validateDelete();
         this.notifyDeviceIsGoingToBeDeleted();
         this.doDelete();
         this.notifyDeleted();
@@ -415,21 +403,6 @@ public class DeviceImpl implements Device, CanLock {
 
     private void deleteProperties() {
         this.deviceProperties.clear();
-    }
-
-    private void validateDelete() {
-        validateGatewayUsage();
-    }
-
-    private void validateGatewayUsage() {
-        List<Device> physicalConnectedDevices = getPhysicalConnectedDevices();
-        if (!physicalConnectedDevices.isEmpty()) {
-            throw StillGatewayException.forPhysicalGateway(thesaurus, this, physicalConnectedDevices.toArray(new Device[physicalConnectedDevices.size()]));
-        }
-        List<Device> communicationReferencingDevices = getCommunicationReferencingDevices();
-        if (!communicationReferencingDevices.isEmpty()) {
-            throw StillGatewayException.forCommunicationGateway(thesaurus, this, communicationReferencingDevices.toArray(new Device[communicationReferencingDevices.size()]));
-        }
     }
 
     @Override
@@ -562,171 +535,6 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
-    public List<Device> getPhysicalConnectedDevices() {
-        return this.deviceService.findPhysicalConnectedDevicesFor(this);
-    }
-
-    @Override
-    public Device getPhysicalGateway() {
-        return this.getPhysicalGateway(clock.instant());
-    }
-
-    @Override
-    public Device getPhysicalGateway(Instant timestamp) {
-        return this.physicalGatewayReferenceDevice.effective(timestamp)
-                .map(PhysicalGatewayReference::getGateway)
-                .orElse(null);
-    }
-
-    private void topologyChanged() {
-        List<ComTaskExecution> comTasksForDefaultConnectionTask = this.communicationTaskService.findComTasksByDefaultConnectionTask(this);
-        Device gateway = this.getPhysicalGateway();
-        if (gateway != null) {
-            updateComTasksToUseNewDefaultConnectionTask(comTasksForDefaultConnectionTask);
-        } else {
-            updateComTasksToUseNonExistingDefaultConnectionTask(comTasksForDefaultConnectionTask);
-        }
-
-    }
-
-    private void updateComTasksToUseNonExistingDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask) {
-        for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
-            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
-            comTaskExecutionUpdater.connectionTask(null);
-            comTaskExecutionUpdater.useDefaultConnectionTask(true);
-            comTaskExecutionUpdater.update();
-        }
-    }
-
-    private void updateComTasksToUseNewDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask) {
-        ConnectionTask<?, ?> defaultConnectionTaskForGateway = getDefaultConnectionTask();
-        for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
-            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
-            comTaskExecutionUpdater.useDefaultConnectionTask(defaultConnectionTaskForGateway);
-            comTaskExecutionUpdater.update();
-        }
-    }
-
-    private ConnectionTask<?, ?> getDefaultConnectionTask() {
-        for (ConnectionTaskImpl<?, ?> connectionTask : this.getConnectionTaskImpls()) {
-            if (connectionTask.isDefault()) {
-                return connectionTask;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public void setPhysicalGateway(BaseDevice gateway) {
-        if (gateway != null) {
-            Instant currentTime = clock.instant();
-            terminateTemporal(currentTime, this.physicalGatewayReferenceDevice);
-            PhysicalGatewayReferenceImpl physicalGatewayReference =
-                    this.dataModel.getInstance(PhysicalGatewayReferenceImpl.class)
-                            .createFor(Interval.startAt(currentTime), (Device) gateway, this);
-            savePhysicalGateway(physicalGatewayReference);
-            topologyChanged();
-        }
-    }
-
-    private void savePhysicalGateway(PhysicalGatewayReferenceImpl physicalGatewayReference) {
-        Save.action(getId()).validate(this.dataModel, physicalGatewayReference);
-        this.physicalGatewayReferenceDevice.add(physicalGatewayReference);
-    }
-
-    @Override
-    public void clearPhysicalGateway() {
-        terminateTemporal(clock.instant(), this.physicalGatewayReferenceDevice);
-        topologyChanged();
-    }
-
-    private void terminateTemporal(Instant currentTime, TemporalReference<? extends GatewayReference> temporalReference) {
-        Optional<? extends GatewayReference> currentGateway = temporalReference.effective(currentTime);
-        if (currentGateway.isPresent()) {
-            GatewayReference gateway = currentGateway.get();
-            gateway.terminate(currentTime);
-            this.dataModel.update(gateway);
-        }
-    }
-
-    @Override
-    public void setCommunicationGateway(Device gateway) {
-        if (gateway != null) {
-            Instant currentTime = clock.instant();
-            terminateTemporal(currentTime, this.communicationGatewayReferenceDevice);
-            CommunicationGatewayReferenceImpl communicationGatewayReference =
-                    this.dataModel.getInstance(CommunicationGatewayReferenceImpl.class)
-                            .createFor(Interval.startAt(currentTime), gateway, this);
-            saveCommunicationGateway(communicationGatewayReference);
-            topologyChanged();
-        }
-    }
-
-    private void saveCommunicationGateway(CommunicationGatewayReferenceImpl communicationGatewayReference) {
-        Save.action(getId()).validate(this.dataModel, communicationGatewayReference);
-        this.communicationGatewayReferenceDevice.add(communicationGatewayReference);
-    }
-
-    @Override
-    public void clearCommunicationGateway() {
-        terminateTemporal(clock.instant(), this.communicationGatewayReferenceDevice);
-        topologyChanged();
-    }
-
-    @Override
-    public List<Device> getCommunicationReferencingDevices() {
-        return this.deviceService.findCommunicationReferencingDevicesFor(this);
-    }
-
-    @Override
-    public List<Device> getCommunicationReferencingDevices(Instant timestamp) {
-        return this.deviceService.findCommunicationReferencingDevicesFor(this, timestamp);
-    }
-
-    @Override
-    public List<Device> getAllCommunicationReferencingDevices() {
-        return this.getAllCommunicationReferencingDevices(clock.instant());
-    }
-
-    @Override
-    public List<Device> getAllCommunicationReferencingDevices(Instant timestamp) {
-        Map<Long, Device> allDevicesInTopology = new HashMap<>();
-        this.collectAllCommunicationReferencingDevices(timestamp, this, allDevicesInTopology);
-        return new ArrayList<>(allDevicesInTopology.values());
-    }
-
-    private void collectAllCommunicationReferencingDevices(Instant timestamp, Device topologyRoot, Map<Long, Device> devices) {
-        topologyRoot.getCommunicationReferencingDevices(timestamp)
-                .stream()
-                // Filter the devices that were not encountered yet
-                .filter(device -> !devices.containsKey(device.getId()))
-                // and collect the referencing devices for those
-                .forEach(device -> {
-                    devices.put(device.getId(), device);
-                    this.collectAllCommunicationReferencingDevices(timestamp, device, devices);
-        });
-    }
-
-    @Override
-    public DeviceTopology getCommunicationTopology(Range<Instant> period) {
-        return this.deviceService.buildCommunicationTopology(this, period);
-    }
-
-    @Override
-    public Device getCommunicationGateway() {
-        return this.getCommunicationGateway(clock.instant());
-    }
-
-    @Override
-    public Device getCommunicationGateway(Instant timestamp) {
-        Optional<CommunicationGatewayReference> communicationGatewayReferenceOptional = this.communicationGatewayReferenceDevice.effective(timestamp);
-        if (communicationGatewayReferenceOptional.isPresent()) {
-            return communicationGatewayReferenceOptional.get().getGateway();
-        }
-        return null;
-    }
-
-    @Override
     public boolean isLogicalSlave() {
         return getDeviceType().isLogicalSlave();
     }
@@ -806,27 +614,6 @@ public class DeviceImpl implements Device, CanLock {
         protected LoadProfileUpdaterForDevice(LoadProfileImpl loadProfile) {
             super(loadProfile);
         }
-    }
-
-    public TypedProperties getDeviceProtocolProperties() {
-        TypedProperties properties = TypedProperties.inheritingFrom(this.getDeviceConfiguration().getDeviceProtocolProperties().getTypedProperties());
-        TypedProperties localProperties = getLocalProperties(this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs());
-        properties.setAllProperties(localProperties);
-        return properties;
-    }
-
-
-    private Optional<PropertySpec> getPropertySpecForProperty(String name) {
-        return this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs().stream().filter(spec->spec.getName().equals(name)).findFirst();
-    }
-
-    private boolean propertyExistsOnDeviceProtocol(String name) {
-        for (PropertySpec propertySpec : this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs()) {
-            if (propertySpec.getName().equals(name)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override
@@ -928,7 +715,7 @@ public class DeviceImpl implements Device, CanLock {
             transaction.setTo(null);
             transaction.set(DEVICE_ATTRIBUTE_NAME, this);
             transaction.set(SECURITY_PROPERTY_SET_ATTRIBUTE_NAME, securityPropertySet);
-            typedProperties.propertyNames().stream().forEach(p -> transaction.set(p, typedProperties.getPropertyValue(p)));
+            typedProperties.propertyNames().stream().forEach(p -> transaction.set(p, typedProperties.getLocalValue(p)));
             transaction.set(STATUS_ATTRIBUTE_NAME, isSecurityPropertySetComplete(securityPropertySet,typedProperties));
             transaction.execute();
         } catch (BusinessException | SQLException e) {
@@ -937,7 +724,7 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private boolean isSecurityPropertySetComplete(SecurityPropertySet securityPropertySet, TypedProperties typedProperties){
-        if (securityPropertySet.getPropertySpecs().stream().anyMatch(p -> p.isRequired() && typedProperties.getPropertyValue(p.getName()) == null)) {
+        if (securityPropertySet.getPropertySpecs().stream().anyMatch(p -> p.isRequired() && typedProperties.getLocalValue(p.getName()) == null)) {
             return false;
         } else {
             return true;
@@ -973,15 +760,25 @@ public class DeviceImpl implements Device, CanLock {
         }
     }
 
-    private TypedProperties getLocalProperties(List<PropertySpec> propertySpecs) {
-        TypedProperties properties = TypedProperties.empty();
+    @Override
+    public TypedProperties getDeviceProtocolProperties() {
+        TypedProperties properties = TypedProperties.inheritingFrom(this.getDeviceConfiguration().getDeviceProtocolProperties().getTypedProperties());
+        this.addLocalProperties(properties, this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs());
+        return properties;
+    }
+
+
+    private Optional<PropertySpec> getPropertySpecForProperty(String name) {
+        return this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs().stream().filter(spec->spec.getName().equals(name)).findFirst();
+    }
+
+    private void addLocalProperties(TypedProperties properties,  List<PropertySpec> propertySpecs) {
         for (PropertySpec propertySpec : propertySpecs) {
             DeviceProtocolProperty deviceProtocolProperty = findDevicePropertyFor(propertySpec);
             if (deviceProtocolProperty != null) {
                 properties.setProperty(deviceProtocolProperty.getName(), propertySpec.getValueFactory().fromStringValue(deviceProtocolProperty.getPropertyValue()));
             }
         }
-        return properties;
     }
 
     private DeviceProtocolProperty findDevicePropertyFor(PropertySpec propertySpec) {
@@ -1152,7 +949,7 @@ public class DeviceImpl implements Device, CanLock {
                                 //code below is the processing of removed readings
                                 Optional<? extends ReadingQuality> readingQuality = s.getReadingQualities().stream().filter(rq -> rq.getType().equals(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED))).findAny();
                                 if (readingQuality.isPresent()) {
-                                    loadProfileReading.setReadingTime(((ReadingQualityRecord)readingQuality.get()).getTimestamp());
+                                    loadProfileReading.setReadingTime(((ReadingQualityRecord) readingQuality.get()).getTimestamp());
                                 }
                             }
                         });
@@ -1577,26 +1374,39 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public List<ComTaskExecution> getComTaskExecutions() {
-        return new ArrayList<ComTaskExecution>(this.getComTaskExecutionImpls());
+        return new ArrayList<>(this.getComTaskExecutionImpls());
     }
 
     private List<ComTaskExecutionImpl> getComTaskExecutionImpls() {
-        if (this.comTaskExecutions == null) {
-            this.loadComTaskExecutions();
-        }
+        return this.getAllComTaskExecutionImpls()
+                .stream()
+                .filter(cte -> !cte.isObsolete())
+                .collect(Collectors.toList());
+    }
+
+    private List<ComTaskExecutionImpl> getAllComTaskExecutionImpls() {
+        this.ensureComTaskExecutionsLoaded();
         return this.comTaskExecutions;
     }
 
-    private void loadComTaskExecutions() {
-        List<ComTaskExecutionImpl> comTaskExecutionImpls = new ArrayList<>();
-        for (ComTaskExecution comTaskExecution : this.communicationTaskService.findComTaskExecutionsByDevice(this)) {
-            comTaskExecutionImpls.add((ComTaskExecutionImpl) comTaskExecution);
+    private void ensureComTaskExecutionsLoaded() {
+        if (this.comTaskExecutions == null) {
+            this.loadComTaskExecutions();
         }
-        this.comTaskExecutions = comTaskExecutionImpls;
+    }
+
+    private void loadComTaskExecutions() {
+        this.comTaskExecutions =
+            this.communicationTaskService
+                .findComTaskExecutionsByDevice(this)
+                .stream()
+                .map(comTaskExecution -> (ComTaskExecutionImpl) comTaskExecution)
+                .collect(Collectors.toList());
     }
 
     private void add(ComTaskExecutionImpl comTaskExecution) {
-        this.getComTaskExecutionImpls().add(comTaskExecution);
+        this.ensureComTaskExecutionsLoaded();
+        this.comTaskExecutions.add(comTaskExecution);
         if (this.id != 0) {
             Save.CREATE.validate(this.dataModel, this);  // To validate that all scheduled ComTasks are unique
         }
@@ -1634,7 +1444,8 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public void removeComTaskExecution(ComTaskExecution comTaskExecution) {
-        Iterator<ComTaskExecutionImpl> comTaskExecutionIterator = this.getComTaskExecutionImpls().iterator();
+        this.ensureComTaskExecutionsLoaded();
+        Iterator<ComTaskExecutionImpl> comTaskExecutionIterator = this.comTaskExecutions.iterator();
         while (comTaskExecutionIterator.hasNext()) {
             ComTaskExecution comTaskExecutionToRemove = comTaskExecutionIterator.next();
             if (comTaskExecutionToRemove.getId() == comTaskExecution.getId()) {
@@ -1648,7 +1459,8 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public void removeComSchedule(ComSchedule comSchedule) {
-        Iterator<ComTaskExecutionImpl> comTaskExecutionIterator = this.getComTaskExecutionImpls().iterator();
+        this.ensureComTaskExecutionsLoaded();
+        Iterator<ComTaskExecutionImpl> comTaskExecutionIterator = this.comTaskExecutions.iterator();
         while (comTaskExecutionIterator.hasNext()) {
             ComTaskExecutionImpl comTaskExecution = comTaskExecutionIterator.next();
             if (comTaskExecution.executesComSchedule(comSchedule)) {
@@ -1658,21 +1470,6 @@ public class DeviceImpl implements Device, CanLock {
             }
         }
         throw new CannotDeleteComScheduleFromDevice(this.thesaurus, comSchedule, this);
-    }
-
-    @Override
-    public int countNumberOfEndDeviceEvents(List<EndDeviceEventType> eventTypes, Interval interval) {
-        int eventCounter = 0;
-        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
-        if (amrSystem.isPresent()) {
-            for (Device slaveDevice : this.getPhysicalConnectedDevices()) {
-                Optional<Meter> slaveMeter = amrSystem.get().findMeter(String.valueOf(slaveDevice.getId()));
-                if (slaveMeter.isPresent()) {
-                    eventCounter = eventCounter + this.countUniqueEndDeviceEvents(slaveMeter.get(), eventTypes, interval);
-                }
-            }
-        }
-        return eventCounter;
     }
 
     @Override
@@ -1935,7 +1732,7 @@ public class DeviceImpl implements Device, CanLock {
         @Override
         public ManuallyScheduledComTaskExecution add() {
             ManuallyScheduledComTaskExecution comTaskExecution = super.add();
-            DeviceImpl.this.getComTaskExecutionImpls().add((ComTaskExecutionImpl) comTaskExecution);
+            DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
             return comTaskExecution;
         }
     }
@@ -1951,7 +1748,7 @@ public class DeviceImpl implements Device, CanLock {
         @Override
         public ManuallyScheduledComTaskExecution add() {
             ManuallyScheduledComTaskExecution comTaskExecution = super.add();
-            DeviceImpl.this.getComTaskExecutionImpls().add((ComTaskExecutionImpl) comTaskExecution);
+            DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
             return comTaskExecution;
         }
     }

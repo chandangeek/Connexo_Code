@@ -10,7 +10,6 @@ import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -25,7 +24,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-06-05 (09:03)
  */
-public class ModemConnectionType implements ServerConnectionType {
+public class ModemConnectionType implements ConnectionType {
 
     public static final String PHONE_NUMBER_PROPERTY_NAME = "phoneNumber";
     private static final int HASH_CODE = 91153; // Random prime number

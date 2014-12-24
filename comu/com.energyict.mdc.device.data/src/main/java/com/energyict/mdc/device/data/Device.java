@@ -29,11 +29,8 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
-import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.util.HasName;
-import com.elster.jupiter.util.time.Interval;
-import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
@@ -65,97 +62,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @return the receiver's DeviceType
      */
     public DeviceType getDeviceType();
-
-    @Override
-    public Device getPhysicalGateway();
-
-    public Device getPhysicalGateway(Instant timestamp);
-
-    /**
-     * Get the Device which is used for <i>communication</i><br>
-     * <i>Note that this can be another device than the physical gateway</i>
-     *
-     * @return the Device which is used to communicate with the HeadEnd
-     */
-    public Device getCommunicationGateway();
-
-    /**
-     * Get the Device which was used for <i>communication</i> on the specified Date<br>
-     * <i>Note that this can be another device than the physical gateway</i>
-     *
-     * @return the Device which is used to communicate with the HeadEnd
-     */
-    public Device getCommunicationGateway(Instant timestamp);
-
-    /**
-     * Set the device which will be used to communicate with the HeadEnd.<br>
-     *
-     * @param device the communication gateway for this device
-     */
-    void setCommunicationGateway(Device device);
-
-    /**
-     * Remove the current link to the communication gateway
-     */
-    void clearCommunicationGateway();
-
-    @Override
-    List<Device> getPhysicalConnectedDevices();
-
-    /**
-     * Gets the list of Devices which are referencing this Device for Communication.
-     * This means that for each returned Device, the {@link #getCommunicationGateway()}
-     * will return this Device for the current timestamp.
-     *
-     * @return the list of Devices which are currently linked to this Device for communication
-     */
-    List<Device> getCommunicationReferencingDevices();
-
-    /**
-     * Gets the list of Devices which are referencing this Device for Communication.
-     * This means that for each returned Device, the {@link #getCommunicationGateway()}
-     * will return this Device for the specified timestamp.
-     *
-     * @param timestamp The timestamp on which the devices were linked for communication to this Device
-     * @return the list of Devices which are currently linked to this Device for communication
-     */
-    List<Device> getCommunicationReferencingDevices(Instant timestamp);
-
-    /**
-     * Gets the list of Devices which are, in the end, referencing this Device for Communication.
-     * The reference can be direct or indirect. When direct, the {@link #getCommunicationGateway()}
-     * will return this Device for the current timestamp. When indirect, the communication gateway
-     * for the current timestamp will be another Device that directly or indirectly references
-     * this Device for communication.
-     * In other words, this will return the complete communication topology for the current timestamp
-     * starting from this Device.
-     *
-     * @return the list of Devices which are currently linked to this Device for communication
-     */
-    List<Device> getAllCommunicationReferencingDevices();
-
-    /**
-     * Gets the list of Devices which are, in the end, referencing this Device for Communication.
-     * The reference can be direct or indirect. When direct, the {@link #getCommunicationGateway()}
-     * will return this Device for the current timestamp. When indirect, the communication gateway
-     * for the current timestamp will be another Device that directly or indirectly references
-     * this Device for communication.
-     * In other words, this will return the complete communication topology for the current timestamp
-     * starting from this Device.
-     *
-     * @param timestamp The timestamp on which the devices were linked for communication to this Device
-     * @return the list of Devices which are currently linked to this Device for communication
-     */
-    List<Device> getAllCommunicationReferencingDevices(Instant timestamp);
-
-    /**
-     * Gets the {@link DeviceTopology communication topology} for this Device
-     * during the specified Interval, organized (or sorted) along the timeline.
-     *
-     * @param period The period in time during which the devices were linked for communication to this Device
-     * @return The CommunicationTopologies
-     */
-    public DeviceTopology getCommunicationTopology(Range<Instant> period);
 
     List<DeviceMessage<Device>> getMessages();
 
@@ -218,13 +124,25 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     LoadProfile.LoadProfileUpdater getLoadProfileUpdaterFor(LoadProfile loadProfile);
 
-    TypedProperties getDeviceProtocolProperties();
-
     List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter);
+
+    TypedProperties getDeviceProtocolProperties();
 
     void setProtocolProperty(String name, Object value);
 
     void removeProtocolProperty(String name);
+
+    /**
+     * Indicates if there are properties for the device and the specified {@link SecurityPropertySet}.
+     *
+     * @param securityPropertySet The SecurityPropertySet
+     * @return A flag that indicates if this Device has properties for the SecurityPropertySet
+     */
+    boolean hasSecurityProperties(SecurityPropertySet securityPropertySet);
+
+    List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet);
+
+    List<SecurityProperty> getAllSecurityProperties(SecurityPropertySet securityPropertySet);
 
     void setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties properties);
 
@@ -327,17 +245,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     void removeComTaskExecution(ComTaskExecution comTaskExecution);
 
     /**
-     * Counts the number of EndDeviceEvents of the specified types
-     * that have occurred in the specified {@link Interval}
-     * within the topology that starts from this Device.
-     *
-     * @param eventTypes The List of EndDeviceEventType of interest
-     * @param interval The Interval during which the EndDeviceEvents have occurred
-     * @return The number of EndDeviceEvents
-     */
-    public int countNumberOfEndDeviceEvents(List<EndDeviceEventType> eventTypes, Interval interval);
-
-    /**
      * Returns a {@link ComTaskExecutionBuilder} that will build a
      * {@link ScheduledComTaskExecution} for the {@link ComSchedule} on this Device.
      * This will enable all the current and future {@link com.energyict.mdc.tasks.ComTask}s
@@ -355,10 +262,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     public ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);
 
-    List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet);
-
-    List<SecurityProperty> getAllSecurityProperties(SecurityPropertySet securityPropertySet);
-
     List<ProtocolDialectConfigurationProperties> getProtocolDialects();
 
     /**
@@ -369,14 +272,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @param comSchedule The ComSchedule
      */
     public void removeComSchedule (ComSchedule comSchedule);
-
-    /**
-     * Indicates if there are properties for the device and the passed securityPropertySet.
-     *
-     * @param securityPropertySet The SecurityPropertySet
-     * @return A flag that indicates if this Device has properties for the SecurityPropertySet
-     */
-    boolean hasSecurityProperties(SecurityPropertySet securityPropertySet);
 
     DeviceValidation forValidation();
     GatewayType getConfigurationGatewayType();

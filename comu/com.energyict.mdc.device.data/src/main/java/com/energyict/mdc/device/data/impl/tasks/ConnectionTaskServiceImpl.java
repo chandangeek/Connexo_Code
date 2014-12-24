@@ -11,6 +11,7 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionBuilderImpl;
@@ -31,6 +32,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.QueryExecutor;
@@ -75,11 +77,13 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     private final DeviceDataModelService deviceDataModelService;
+    private final EventService eventService;
 
     @Inject
-    public ConnectionTaskServiceImpl(DeviceDataModelService deviceDataModelService) {
+    public ConnectionTaskServiceImpl(DeviceDataModelService deviceDataModelService, EventService eventService) {
         super();
         this.deviceDataModelService = deviceDataModelService;
+        this.eventService = eventService;
     }
 
     @Override
@@ -185,20 +189,17 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     }
 
     @Override
-    public ConnectionTask findDefaultConnectionTaskForDevice(Device device) {
+    public Optional<ConnectionTask> findDefaultConnectionTaskForDevice(Device device) {
         Condition condition = where(ConnectionTaskFields.DEVICE.fieldName()).isEqualTo(device).
                           and(where("isDefault").isEqualTo(true)).
                           and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
         List<ConnectionTask> connectionTasks = this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition);
-        if (connectionTasks != null && connectionTasks.size() == 1) {
-            return connectionTasks.get(0);
+        if (connectionTasks.size() == 1) {
+            return Optional.of(connectionTasks.get(0));
         }
         else {
-            if (device.getPhysicalGateway() != null) {
-                return this.findDefaultConnectionTaskForDevice(device.getPhysicalGateway());
-            }
+            return Optional.empty();
         }
-        return null;  //if no default is found, null is returned
     }
 
     @Override
@@ -437,16 +438,22 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     }
 
     public void doSetDefaultConnectionTask(final Device device, final ConnectionTaskImpl newDefaultConnectionTask) {
-        List<ConnectionTask> connectionTasks = this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).find(ConnectionTaskFields.DEVICE.fieldName(), device);
-        for (ConnectionTask connectionTask : connectionTasks) {
-            if (isPreviousDefault(newDefaultConnectionTask, connectionTask)) {
-                ((ConnectionTaskImpl) connectionTask).clearDefault();
-            }
-        }
-        this.deviceDataModelService.setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(device, newDefaultConnectionTask);
+        this.clearOldDefault(device, newDefaultConnectionTask);
         if (newDefaultConnectionTask != null) {
             newDefaultConnectionTask.setAsDefault();
         }
+        else {
+            this.eventService.postEvent(EventType.CONNECTIONTASK_CLEARDEFAULT.topic(), device);
+        }
+    }
+
+    private void clearOldDefault(Device device, ConnectionTaskImpl newDefaultConnectionTask) {
+        List<ConnectionTask> connectionTasks = this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).find(ConnectionTaskFields.DEVICE.fieldName(), device);
+        connectionTasks
+                .stream()
+                .filter(connectionTask -> isPreviousDefault(newDefaultConnectionTask, connectionTask))
+                .map(ConnectionTaskImpl.class::cast)
+                .forEach(ConnectionTaskImpl::clearDefault);
     }
 
     @Override

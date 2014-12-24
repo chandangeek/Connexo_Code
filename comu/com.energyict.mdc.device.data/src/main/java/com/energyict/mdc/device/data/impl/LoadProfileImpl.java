@@ -1,13 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
@@ -19,13 +11,21 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.time.Interval;
+
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation of a LoadProfile of a {@link com.energyict.mdc.device.data.Device}
@@ -37,7 +37,6 @@ import java.util.Optional;
 public class LoadProfileImpl implements LoadProfile {
 
     private final DeviceConfigurationService deviceConfigurationService;
-    private final ValidationService validationService;
     private final DataModel dataModel;
 
     private long id;
@@ -46,9 +45,9 @@ public class LoadProfileImpl implements LoadProfile {
     private Instant lastReading;
 
     @Inject
-    public LoadProfileImpl(DataModel dataModel, DeviceConfigurationService deviceConfigurationService, ValidationService validationService) {
+    public LoadProfileImpl(DataModel dataModel, DeviceConfigurationService deviceConfigurationService) {
+        super();
         this.deviceConfigurationService = deviceConfigurationService;
-        this.validationService = validationService;
         this.dataModel = dataModel;
     }
 
@@ -65,18 +64,18 @@ public class LoadProfileImpl implements LoadProfile {
 
     @Override
     public List<Channel> getChannels() {
-        List<Channel> channels = new ArrayList<>();
-        for (ChannelSpec channelSpec : this.deviceConfigurationService.findChannelSpecsForLoadProfileSpec(getLoadProfileSpec())) {
-            channels.add(new ChannelImpl(channelSpec, this));
-        }
-        return channels;
+        return this.deviceConfigurationService
+                .findChannelSpecsForLoadProfileSpec(getLoadProfileSpec())
+                .stream()
+                .map(channelSpec -> new ChannelImpl(channelSpec, this))
+                .collect(Collectors.toList());
     }
 
     @Override
     public boolean isVirtualLoadProfile() {
         boolean needsProxy = this.device.get().getDeviceType().isLogicalSlave();
-        boolean wildCardInBfield = getLoadProfileSpec().getDeviceObisCode().anyChannel();
-        return needsProxy && !wildCardInBfield;
+        boolean noWildCardInBfield = !getLoadProfileSpec().getDeviceObisCode().anyChannel();
+        return needsProxy && noWildCardInBfield;
     }
 
     @Override
@@ -102,21 +101,6 @@ public class LoadProfileImpl implements LoadProfile {
     @Override
     public Device getDevice() {
         return this.device.get();
-    }
-
-    @Override
-    public List<Channel> getAllChannels() {
-        List<Channel> allChannels = getChannels();
-        for (Device physicalConnectedDevice : this.device.get().getPhysicalConnectedDevices()) {
-            if (physicalConnectedDevice.isLogicalSlave()) {
-                for (Channel channel : physicalConnectedDevice.getChannels()) {
-                    if (channel.getLoadProfile().getLoadProfileTypeId() == this.getLoadProfileTypeId()) {
-                        allChannels.add(channel);
-                    }
-                }
-            }
-        }
-        return allChannels;
     }
 
     @Override
@@ -274,5 +258,10 @@ public class LoadProfileImpl implements LoadProfile {
             return LoadProfileImpl.this.device.get().getChannelData(this, interval);
         }
 
+        @Override
+        public Optional<Instant> getLastDateTime() {
+            Optional<com.elster.jupiter.metering.Channel> koreChannel = LoadProfileImpl.this.device.get().findKoreChannel(this, Instant.now());
+            return koreChannel.map(com.elster.jupiter.metering.Channel::getLastDateTime);
+        }
     }
 }

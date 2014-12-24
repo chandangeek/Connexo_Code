@@ -41,6 +41,7 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
@@ -78,7 +79,6 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -161,7 +161,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new OrmModule(),
                 new DataVaultModule(),
                 new IssuesModule(),
-                new ProtocolsModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
@@ -184,6 +183,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         environment.put(InMemoryPersistenceWithMockedDeviceProtocol.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
         environment.setApplicationContext(this.applicationContext);
         try (TransactionContext ctx = this.transactionService.getContext()) {
+            injector.getInstance(PluggableService.class);
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             this.ormService = injector.getInstance(OrmService.class);
             this.eventService = injector.getInstance(EventService.class);
@@ -306,7 +306,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         return (MockProtocolPluggableService) protocolPluggableService;
     }
 
-
     public static class MockProtocolPluggableService implements ProtocolPluggableService {
 
         private final ProtocolPluggableService protocolPluggableService;
@@ -316,7 +315,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         }
 
         @Inject
-        private MockProtocolPluggableService(OrmService ormService, EventService eventService, NlsService nlsService, RelationService relationService, ConnectionTypeService connectionTypeService, InboundDeviceProtocolService inboundDeviceProtocolService, DeviceProtocolSecurityService deviceProtocolSecurityService, DeviceProtocolMessageService deviceProtocolMessageService, DeviceProtocolService deviceProtocolService, PluggableService pluggableService, PropertySpecService propertySpecService, IssueService issueService) {
+        private MockProtocolPluggableService() {
             this.protocolPluggableService = mock(ProtocolPluggableService.class);
         }
 
@@ -336,8 +335,8 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         }
 
         @Override
-        public Class loadProtocolClass(String javaClassName) {
-            return protocolPluggableService.loadProtocolClass(javaClassName);
+        public Object createProtocol(String className) {
+            return protocolPluggableService.createProtocol(className);
         }
 
         @Override
