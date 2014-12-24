@@ -17,21 +17,21 @@ Ext.define('Uni.form.field.EditedDisplay', {
             date = Ext.isDate(value.date) ? value.date : new Date(value.date);
             switch (value.flag) {
                 case 'ADDED':
-                    iconClass = 'icon-edit';
+                    iconClass = 'uni-icon-edit';
                     tooltipText = Uni.I18n.translate('general.addedOn', 'UNI', 'Added on') + ' '
                         + Uni.DateTime.formatDateLong(date)
                         + ' ' + Uni.I18n.translate('general.at', 'UNI', 'At').toLowerCase() + ' '
                         + Uni.DateTime.formatTimeLong(date);
                     break;
                 case 'EDITED':
-                    iconClass = 'icon-edit';
+                    iconClass = 'uni-icon-edit';
                     tooltipText = Uni.I18n.translate('general.editedOn', 'UNI', 'Edited on') + ' '
                         + Uni.DateTime.formatDateLong(date)
                         + ' ' + Uni.I18n.translate('general.at', 'UNI', 'At').toLowerCase() + ' '
                         + Uni.DateTime.formatTimeLong(date);
                     break;
                 case 'REMOVED':
-                    iconClass = 'icon-remove';
+                    iconClass = 'uni-icon-remove';
                     tooltipText = Uni.I18n.translate('general.removedOn', 'UNI', 'Removed on') + ' '
                         + Uni.DateTime.formatDateLong(date)
                         + ' ' + Uni.I18n.translate('general.at', 'UNI', 'At').toLowerCase() + ' '

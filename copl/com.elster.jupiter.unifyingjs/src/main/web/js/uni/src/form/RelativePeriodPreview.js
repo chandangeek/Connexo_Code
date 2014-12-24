@@ -118,7 +118,7 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                     {
                         xtype: 'button',
                         tooltip: Uni.I18n.translate('relativeperiod.form.referencedate.tooltip', 'TME', 'Select a reference date to evaluate the relative period.'),
-                        iconCls: 'icon-info-small',
+                        iconCls: 'uni-icon-info-small',
                         ui: 'blank',
                         itemId: 'latestReadingHelp',
                         shadow: false,

@@ -6,7 +6,7 @@ Ext.define('Uni.view.navigation.Help', {
     alias: 'widget.navigationHelp',
     scale: 'small',
     cls: 'nav-help',
-    iconCls: 'icon-help',
+    iconCls: 'uni-icon-help',
     href: 'help/index.html',
     hrefTarget: '_blank'
 });

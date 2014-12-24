@@ -6,13 +6,13 @@ Ext.define('Uni.grid.column.ValidationFlag', {
     renderer: function (value, metaData, record) {
         switch (record.get('validationResult')) {
             case 'validationStatus.notValidated':
-                return '<span class="validation-column-align"><span class="icon-validation icon-validation-black"></span>';
+                return '<span class="validation-column-align"><span class="uni-icon-validation uni-icon-validation-black"></span>';
                 break;
             case 'validationStatus.ok':
-                return '<span class="validation-column-align"><span class="icon-validation"></span>';
+                return '<span class="validation-column-align"><span class="uni-icon-validation"></span>';
                 break;
             case 'validationStatus.suspect':
-                return '<span class="validation-column-align"><span class="icon-validation icon-validation-red"></span>';
+                return '<span class="validation-column-align"><span class="uni-icon-validation uni-icon-validation-red"></span>';
                 break;
             default:
                 return '';

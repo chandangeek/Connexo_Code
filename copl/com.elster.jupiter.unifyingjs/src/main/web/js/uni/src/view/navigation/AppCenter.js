@@ -6,7 +6,7 @@ Ext.define('Uni.view.navigation.AppCenter', {
     xtype: 'uni-nav-appcenter',
 
     text: '',
-    iconCls: 'icon-appcenter',
+    iconCls: 'uni-icon-appcenter',
     cls: Uni.About.baseCssPrefix + 'nav-appcenter',
 
     menu: {
@@ -28,7 +28,7 @@ Ext.define('Uni.view.navigation.AppCenter', {
                     '<div class="app-item',
                     '<tpl if="isActive"> x-pressed</tpl>',
                     '">',
-                    '<div class="icon icon-{icon}">&nbsp;</div>',
+                    '<div class="icon uni-icon-{icon}">&nbsp;</div>',
                     '<span class="name">{name}</span>',
                     '</div>',
                     '</a>',
