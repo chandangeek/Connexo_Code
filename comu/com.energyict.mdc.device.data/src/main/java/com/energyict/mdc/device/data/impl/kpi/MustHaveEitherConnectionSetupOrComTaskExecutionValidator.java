@@ -19,7 +19,14 @@ public class MustHaveEitherConnectionSetupOrComTaskExecutionValidator implements
 
     @Override
     public boolean isValid(DataCollectionKpiImpl value, ConstraintValidatorContext context) {
-        return value.calculatesConnectionSetupKpi() || value.calculatesComTaskExecutionKpi();
+        if (!(value.calculatesConnectionSetupKpi() || value.calculatesComTaskExecutionKpi())) {
+            context.
+                    buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate()).
+                    addPropertyNode(DataCollectionKpiImpl.Fields.COMMUNICATION_KPI.fieldName()).
+                    addConstraintViolation().disableDefaultConstraintViolation();
+            return false;
+        }
+        return true;
     }
 
 }

@@ -359,6 +359,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(LogBookService.class).toInstance(logBookService);
 //                bind(IdentificationService.class).toInstance(identificationService);
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
+                bind(DataCollectionKpiService.class).toInstance(dataCollectionKpiService);
             }
         };
     }
