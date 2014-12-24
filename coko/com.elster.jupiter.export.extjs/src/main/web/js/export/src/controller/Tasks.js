@@ -273,7 +273,7 @@ Ext.define('Dxp.controller.Tasks', {
 
         if (record) {
             preview.setTitle(record.get('startedOn_formatted'));
-            previewForm.down('displayfield[name=lastRun_formatted]').setVisible(false);
+            previewForm.down('displayfield[name=lastRun]').setVisible(false);
             previewForm.down('displayfield[name=nextRun_formatted]').setVisible(false);
             previewForm.down('displayfield[name=startedOn]').setVisible(false);
             previewForm.down('displayfield[name=finishedOn]').setVisible(false);
