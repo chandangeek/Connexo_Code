@@ -14,25 +14,25 @@ import javax.ws.rs.core.SecurityContext;
 
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreference;
-import com.elster.jupiter.users.UserPreferencesService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.UserInfo;
 import com.elster.jupiter.users.security.Privileges;
 
 @Path("/currentuser")
 public class CurrentUserResource {
     
-    private final UserPreferencesService userPreferencesService;
+    private final UserService userService;
     
     @Inject
-    public CurrentUserResource(UserPreferencesService userPreferencesService) {
-        this.userPreferencesService = userPreferencesService;
+    public CurrentUserResource(UserService userService) {
+        this.userService = userService;
     }
     
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_USER_ROLE)
     public Response getCurrentUser(@Context SecurityContext securityContext) {
-        User user = (User) securityContext.getUserPrincipal();
+        User user = fetchUser((User) securityContext.getUserPrincipal());
         return Response.ok(new UserInfo(user)).build();
     }
     
@@ -41,8 +41,12 @@ public class CurrentUserResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_USER_ROLE)
     public Response getUserPreferences(@Context SecurityContext securityContext) {
-        User user = (User) securityContext.getUserPrincipal();
-        List<UserPreference> preferences = userPreferencesService.getPreferences(user);
+        User user = fetchUser((User) securityContext.getUserPrincipal());
+        List<UserPreference> preferences = userService.getUserPreferencesService().getPreferences(user);
         return Response.ok(new UserPreferenceInfos(preferences)).build();
+    }
+    
+    private User fetchUser(User cachedUser) {
+        return userService.getUser(cachedUser.getId()).orElse(null);
     }
 }

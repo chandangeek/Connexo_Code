@@ -15,7 +15,6 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 
-import org.junit.Before;
 import org.mockito.Mock;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;

@@ -25,6 +25,7 @@ public class CurrentUserResourceTest extends UsersRestApplicationJerseyTest {
     public void testGetCurrentUser() {
         User user = mock(User.class);
         when(securityContext.getUserPrincipal()).thenReturn(user);
+        when(userService.getUser(13L)).thenReturn(Optional.of(user));
         when(user.getId()).thenReturn(13L);
         when(user.getName()).thenReturn("Admin");
         when(user.getDescription()).thenReturn("Administrator");
@@ -52,6 +53,8 @@ public class CurrentUserResourceTest extends UsersRestApplicationJerseyTest {
     @Test
     public void testGetPreferences() {
         User user = mock(User.class);
+        when(user.getId()).thenReturn(13L);
+        when(userService.getUser(13L)).thenReturn(Optional.of(user));
         when(securityContext.getUserPrincipal()).thenReturn(user);
         when(user.getLocale()).thenReturn(Optional.of(Locale.ENGLISH));
         List<UserPreference> preferences = Arrays.asList(
