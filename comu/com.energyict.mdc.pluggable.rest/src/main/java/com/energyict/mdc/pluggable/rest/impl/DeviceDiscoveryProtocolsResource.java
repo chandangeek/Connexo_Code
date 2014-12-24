@@ -1,6 +1,6 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
-import com.energyict.mdc.engine.model.security.Privileges;
+import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
