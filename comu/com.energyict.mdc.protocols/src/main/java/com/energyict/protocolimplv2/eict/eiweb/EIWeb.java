@@ -98,7 +98,7 @@ public class EIWeb implements DeviceProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.<ConnectionType>asList(new EIWebConnectionType());
+        return Arrays.<ConnectionType>asList(new EIWebConnectionType(propertySpecService));
     }
 
     @Override
