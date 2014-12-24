@@ -10,8 +10,8 @@ import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.ConnectionTaskLifecycleStateAdapter;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -65,7 +65,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     }
 
 
-    protected void writeTo(T connectionTask, PartialConnectionTask partialConnectionTask, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils) {
+    protected void writeTo(T connectionTask, PartialConnectionTask partialConnectionTask, EngineConfigurationService engineConfigurationService, MdcPropertyUtils mdcPropertyUtils) {
         if (this.properties != null) {
             for (PropertySpec<?> propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
                 Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
@@ -79,6 +79,6 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     }
 
 
-    public abstract ConnectionTask<?, ?> createTask(EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask);
+    public abstract ConnectionTask<?, ?> createTask(EngineConfigurationService engineConfigurationService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask);
 
 }

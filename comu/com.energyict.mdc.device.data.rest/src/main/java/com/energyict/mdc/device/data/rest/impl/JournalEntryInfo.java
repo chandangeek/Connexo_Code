@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.device.data.rest.LogLevelAdapter;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 
 import com.elster.jupiter.rest.util.JsonInstantAdapter;
 
