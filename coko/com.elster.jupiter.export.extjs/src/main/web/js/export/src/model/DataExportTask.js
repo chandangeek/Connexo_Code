@@ -29,6 +29,7 @@ Ext.define('Dxp.model.DataExportTask', {
                 var result;
                 if (data.nextRun && (data.nextRun !== 0)) {
                     result = moment(data.nextRun).format('ddd, DD MMM YYYY HH:mm:ss');
+                    result = Uni.DateTime.formatDateTimeLong(new Date(data.nextRun));
                 } else {
                     result = Uni.I18n.translate('general.notScheduled', 'DES', 'Not scheduled')
                 }
@@ -86,7 +87,7 @@ Ext.define('Dxp.model.DataExportTask', {
             persist: false,
             mapping: function (data) {
                 if (data.lastExportOccurence && data.lastExportOccurence.startedOn) {
-                    return moment(data.lastExportOccurence.startedOn).format('ddd, DD MMM YYYY HH:mm:ss');
+                    return Uni.DateTime.formatDateTimeLong(new Date(data.lastExportOccurence.startedOn));
                 } else {
                     return '-';
                 }
@@ -97,7 +98,7 @@ Ext.define('Dxp.model.DataExportTask', {
             persist: false,
             mapping: function (data) {
                 if (data.lastExportOccurence && data.lastExportOccurence.finishedOn) {
-                    return moment(data.lastExportOccurence.finishedOn).format('ddd, DD MMM YYYY HH:mm:ss');
+                    return Uni.DateTime.formatDateTimeLong(new Date(data.lastExportOccurence.finishedOn));
                 } else {
                     return '-';
                 }
