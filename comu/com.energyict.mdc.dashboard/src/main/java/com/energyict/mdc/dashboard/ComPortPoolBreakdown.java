@@ -1,6 +1,6 @@
 package com.energyict.mdc.dashboard;
 
-import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.config.ComPortPool;
 
 /**
  * Models the break down of the execution of tasks by {@link ComPortPool}.

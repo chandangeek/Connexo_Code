@@ -3,7 +3,7 @@ package com.energyict.mdc.dashboard.impl;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.AbstractModule;
 
@@ -17,7 +17,7 @@ public class DashboardModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        requireBinding(EngineModelService.class);
+        requireBinding(EngineConfigurationService.class);
         requireBinding(DeviceConfigurationService.class);
         requireBinding(DeviceService.class);
         requireBinding(ProtocolPluggableService.class);

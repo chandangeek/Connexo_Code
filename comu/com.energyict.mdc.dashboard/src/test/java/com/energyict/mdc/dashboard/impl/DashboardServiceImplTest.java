@@ -18,8 +18,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -60,7 +60,7 @@ public class DashboardServiceImplTest {
     private static final long EXPECTED_STATUS_COUNT_VALUE = 97L;
 
     @Mock
-    private EngineModelService engineModelService;
+    private EngineConfigurationService engineConfigurationService;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
@@ -147,7 +147,7 @@ public class DashboardServiceImplTest {
     @Test
     public void testComPortPoolBreakdownWithComPortPoolsButNoConnections() {
         ComPortPool comPortPool = mock(ComPortPool.class);
-        when(this.engineModelService.findAllComPortPools()).thenReturn(Arrays.asList(comPortPool));
+        when(this.engineConfigurationService.findAllComPortPools()).thenReturn(Arrays.asList(comPortPool));
         Map<TaskStatus, Long> statusCounters = new EnumMap<>(TaskStatus.class);
         for (TaskStatus taskStatus : TaskStatus.values()) {
             statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);

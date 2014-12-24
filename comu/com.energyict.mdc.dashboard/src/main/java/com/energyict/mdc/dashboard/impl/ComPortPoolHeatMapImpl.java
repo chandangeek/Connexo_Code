@@ -1,7 +1,7 @@
 package com.energyict.mdc.dashboard.impl;
 
 import com.energyict.mdc.dashboard.ComPortPoolHeatMap;
-import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.config.ComPortPool;
 
 /**
  * Provides an implementation for the {@link ComPortPoolHeatMap} interface.
