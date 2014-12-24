@@ -161,7 +161,6 @@ public class DeviceImpl implements Device, CanLock {
     private final ValidationService validationService;
     private final ServerConnectionTaskService connectionTaskService;
     private final ServerCommunicationTaskService communicationTaskService;
-    private final ServerDeviceService deviceService;
     private final SecurityPropertyService securityPropertyService;
     private final ProtocolPluggableService protocolPluggableService;
 
@@ -217,7 +216,6 @@ public class DeviceImpl implements Device, CanLock {
             ValidationService validationService,
             ServerConnectionTaskService connectionTaskService,
             ServerCommunicationTaskService communicationTaskService,
-            ServerDeviceService deviceService,
             SecurityPropertyService securityPropertyService,
             Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
             Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
@@ -233,7 +231,6 @@ public class DeviceImpl implements Device, CanLock {
         this.validationService = validationService;
         this.connectionTaskService = connectionTaskService;
         this.communicationTaskService = communicationTaskService;
-        this.deviceService = deviceService;
         this.securityPropertyService = securityPropertyService;
         this.scheduledConnectionTaskProvider = scheduledConnectionTaskProvider;
         this.inboundConnectionTaskProvider = inboundConnectionTaskProvider;
@@ -983,27 +980,25 @@ public class DeviceImpl implements Device, CanLock {
         Map<Instant, LoadProfileReadingImpl> loadProfileReadingMap = new TreeMap<>();
         TemporalAmount intervalLength = this.intervalLength(loadProfile);
         List<MeterActivation> allMeterActivations = new ArrayList<>(meter.getMeterActivations());
-        List<MeterActivation> affectedMeterActivations =
-                allMeterActivations
-                        .stream()
-                        .filter(ma -> ma.overlaps(requestedInterval))
-                        .collect(toList());
-        for (MeterActivation affectedMeterActivation : affectedMeterActivations) {
-            Range<Instant> requestedIntervalClippedToMeterActivation = requestedInterval.intersection(affectedMeterActivation.getRange());
-            ZonedDateTime requestStart = this.prefilledIntervalStart(loadProfile, affectedMeterActivation.getZoneId(), requestedIntervalClippedToMeterActivation);
-            ZonedDateTime requestEnd =
-                    ZonedDateTime.ofInstant(
-                            this.lastReadingClipped(loadProfile, requestedInterval),
-                            affectedMeterActivation.getZoneId());
-            Range<Instant> meterActivationInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
-            while (meterActivationInterval.contains(requestStart.toInstant())) {
-                ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
-                LoadProfileReadingImpl value = new LoadProfileReadingImpl();
-                value.setInterval(Interval.of(requestStart.toInstant(), readingTimestamp.toInstant()));
-                loadProfileReadingMap.put(readingTimestamp.toInstant(), value);
-                requestStart = readingTimestamp;
-            }
-        }
+        allMeterActivations
+            .stream()
+            .filter(ma -> ma.overlaps(requestedInterval))
+            .forEach(affectedMeterActivation -> {
+                Range<Instant> requestedIntervalClippedToMeterActivation = requestedInterval.intersection(affectedMeterActivation.getRange());
+                ZonedDateTime requestStart = this.prefilledIntervalStart(loadProfile, affectedMeterActivation.getZoneId(), requestedIntervalClippedToMeterActivation);
+                ZonedDateTime requestEnd =
+                        ZonedDateTime.ofInstant(
+                                this.lastReadingClipped(loadProfile, requestedInterval),
+                                affectedMeterActivation.getZoneId());
+                Range<Instant> meterActivationInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
+                while (meterActivationInterval.contains(requestStart.toInstant())) {
+                    ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
+                    LoadProfileReadingImpl value = new LoadProfileReadingImpl();
+                    value.setInterval(Interval.of(requestStart.toInstant(), readingTimestamp.toInstant()));
+                    loadProfileReadingMap.put(readingTimestamp.toInstant(), value);
+                    requestStart = readingTimestamp;
+                }
+            });
         return loadProfileReadingMap;
     }
 
