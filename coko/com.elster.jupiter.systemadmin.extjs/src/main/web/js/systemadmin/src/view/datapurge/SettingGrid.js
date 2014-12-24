@@ -37,7 +37,7 @@ Ext.define('Sam.view.datapurge.SettingGrid', {
             dataIndex: 'retention',
             align: 'right',
             renderer: function (value) {
-                return Uni.I18n.formatNumber(value, null, 0);
+                return Uni.Number.formatNumber(value, 0);
             }
         }
     ],
