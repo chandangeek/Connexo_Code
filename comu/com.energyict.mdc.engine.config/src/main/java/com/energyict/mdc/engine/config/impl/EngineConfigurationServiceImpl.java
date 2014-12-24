@@ -60,7 +60,7 @@ import static com.energyict.mdc.engine.config.impl.ComServerImpl.OFFLINE_COMSERV
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.ONLINE_COMSERVER_DISCRIMINATOR;
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.REMOTE_COMSERVER_DISCRIMINATOR;
 
-@Component(name = "com.energyict.mdc.engine.model", service = {EngineConfigurationService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + EngineConfigurationService.COMPONENT_NAME)
+@Component(name = "com.energyict.mdc.engine.config", service = {EngineConfigurationService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + EngineConfigurationService.COMPONENT_NAME)
 public class EngineConfigurationServiceImpl implements EngineConfigurationService, InstallService, TranslationKeyProvider, OrmClient {
 
     private volatile DataModel dataModel;
