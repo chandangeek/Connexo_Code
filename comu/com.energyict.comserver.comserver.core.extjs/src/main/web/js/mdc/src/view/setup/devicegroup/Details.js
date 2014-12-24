@@ -37,6 +37,7 @@ Ext.define('Mdc.view.setup.devicegroup.Details', {
                     },
                     {
                         xtype: 'button',
+                        itemId: 'deviceGroupDetailsActionMenu',
                         text: Uni.I18n.translate('general.actions', 'DES', 'Actions'),
                         iconCls: 'x-uni-action-iconD',
                         margin: '20 0 0 0',
@@ -63,6 +64,7 @@ Ext.define('Mdc.view.setup.devicegroup.Details', {
         ]
     },
 
+
     initComponent: function () {
         var me = this;
 
@@ -85,6 +87,7 @@ Ext.define('Mdc.view.setup.devicegroup.Details', {
 
         this.callParent(arguments);
     }
+
 });
 
 

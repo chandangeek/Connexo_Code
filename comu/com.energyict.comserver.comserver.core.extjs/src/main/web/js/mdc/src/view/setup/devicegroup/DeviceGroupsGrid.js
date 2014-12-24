@@ -20,10 +20,7 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupsGrid', {
                 header: Uni.I18n.translate('devicegroup.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 renderer: function (value, b, record) {
-                    //if (!Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup','privilege.view.deviceGroupDetail'])) {
-                    if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup'])) {
-                        return '<a href="#/devices/devicegroups/' + record.get('id') + '">' + value + '</a>';
-                    } else if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroupDetail'])) {
+                    if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup','privilege.view.deviceGroupDetail'])) {
                         return '<a href="#/devices/devicegroups/' + record.get('id') + '">' + value + '</a>';
                     } else if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceOfEnumeratedGroup'])) {
                         if (record.get('dynamic')) {

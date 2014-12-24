@@ -36,7 +36,10 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         {ref: 'searchCriteriaContainer', selector: '#searchCriteriaContainer'},
         {ref: 'createDeviceGroupButton', selector: '#createDeviceGroupButton'},
         {ref: 'devicesOfDeviceGroupGrid', selector: '#allDevicesOfDeviceGroupGrid'},
-        {ref: 'devicesOfDeviceGroupGrid', selector: '#allDevicesOfDeviceGroupGrid'}
+        {ref: 'devicesOfDeviceGroupGrid', selector: '#allDevicesOfDeviceGroupGrid'},
+        {ref: 'deviceGroupDetailsActionMenu', selector: '#deviceGroupDetailsActionMenu'},
+        {ref: 'removeDeviceGroupMenuItem', selector: '#remove-device-group'},
+        {ref: 'editDeviceGroupMenuItem', selector: '#edit-device-group'}
 
         /*{
             ref: 'deviceGroupFormForDetails',
@@ -231,11 +234,41 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
                         widget.down('form').loadRecord(record);
                         me.getApplication().fireEvent('loadDeviceGroup', record);
                         me.updateCriteria(record);
+                        me.updateActionMenuVisibility(record);
                     }
                 });
             }
         });
 
+    },
+
+    updateActionMenuVisibility: function(record) {
+        var actionMenu = this.getDeviceGroupDetailsActionMenu();
+        var removeItem = this.getRemoveDeviceGroupMenuItem();
+        var editItem = this.getEditDeviceGroupMenuItem();
+        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup'])) {
+            actionMenu.setVisible(true);
+            removeItem.setVisible(true);
+            editItem.setVisible(true);
+        } else if (Uni.Auth.hasAnyPrivilege(['privilege.view.deviceGroupDetail'])) {
+            actionMenu.setVisible(false);
+            removeItem.setVisible(false);
+            editItem.setVisible(false);
+        } else if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceOfEnumeratedGroup'])) {
+            if (record.get('dynamic')) {
+                actionMenu.setVisible(false);
+                removeItem.setVisible(false);
+                editItem.setVisible(false);
+            } else {
+                actionMenu.setVisible(true);
+                removeItem.setVisible(false);
+                editItem.setVisible(true);
+            }
+        } else {
+            actionMenu.setVisible(false);
+            removeItem.setVisible(false);
+            editItem.setVisible(false);
+        }
     },
 
     chooseAction: function (menu, item) {
