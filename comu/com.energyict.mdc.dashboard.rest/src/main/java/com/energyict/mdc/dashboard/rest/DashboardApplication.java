@@ -32,7 +32,7 @@ import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
@@ -79,7 +79,7 @@ public class DashboardApplication extends Application implements TranslationKeyP
     public static final String COMPONENT_NAME = "DSR";
 
     private volatile StatusService statusService;
-    private volatile EngineModelService engineModelService;
+    private volatile EngineConfigurationService engineConfigurationService;
     private volatile NlsService nlsService;
     private volatile DashboardService dashboardService;
     private volatile Thesaurus thesaurus;
@@ -105,8 +105,8 @@ public class DashboardApplication extends Application implements TranslationKeyP
     }
 
     @Reference
-    public void setEngineModelService(EngineModelService engineModelService) {
-        this.engineModelService = engineModelService;
+    public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
+        this.engineConfigurationService = engineConfigurationService;
     }
 
     @Reference
@@ -247,7 +247,7 @@ public class DashboardApplication extends Application implements TranslationKeyP
         @Override
         protected void configure() {
             bind(statusService).to(StatusService.class);
-            bind(engineModelService).to(EngineModelService.class);
+            bind(engineConfigurationService).to(EngineConfigurationService.class);
             bind(nlsService).to(NlsService.class);
             bind(dashboardService).to(DashboardService.class);
             bind(thesaurus).to(Thesaurus.class);

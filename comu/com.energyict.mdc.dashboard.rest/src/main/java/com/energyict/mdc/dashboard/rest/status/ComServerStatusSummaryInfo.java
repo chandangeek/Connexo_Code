@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents the summary of statusses of all {@link com.energyict.mdc.engine.model.ComServer}s
+ * Represents the summary of statusses of all {@link com.energyict.mdc.engine.config.ComServer}s
  * that are configured in the system, in the REST layer.
  *
  * @author Rudi Vankeirsbilck (rudi)

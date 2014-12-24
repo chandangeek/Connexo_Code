@@ -2,7 +2,7 @@ package com.energyict.mdc.dashboard.rest.status;
 
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.StatusService;
-import com.energyict.mdc.engine.model.security.Privileges;
+import com.energyict.mdc.engine.config.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -15,7 +15,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 /**
- * Models the REST resource that gets the status of the {@link com.energyict.mdc.engine.model.ComServer}
+ * Models the REST resource that gets the status of the {@link com.energyict.mdc.engine.config.ComServer}
  * that is configured to run in this instance of the MDC application.
  *
  * @author Rudi Vankeirsbilck (rudi)

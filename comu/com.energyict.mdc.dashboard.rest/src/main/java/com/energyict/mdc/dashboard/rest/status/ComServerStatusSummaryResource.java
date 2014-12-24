@@ -1,10 +1,10 @@
 package com.energyict.mdc.dashboard.rest.status;
 
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.RemoteComServer;
-import com.energyict.mdc.engine.model.security.Privileges;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.RemoteComServer;
+import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.engine.status.ComServerType;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,7 +28,7 @@ import org.joda.time.DateTimeConstants;
 
 /**
  * Models the REST resource that gets the summary of all the statusse
- * of the {@link com.energyict.mdc.engine.model.ComServer}s
+ * of the {@link com.energyict.mdc.engine.config.ComServer}s
  * that are configured in the system by invoking the
  * {@link ComServerStatusResource} for each such ComServer.
  *
@@ -40,13 +40,13 @@ public class ComServerStatusSummaryResource {
 
     private static final Logger LOGGER = Logger.getLogger(ComServerStatusSummaryResource.class.getName());
 
-    private final EngineModelService engineModelService;
+    private final EngineConfigurationService engineConfigurationService;
     private final ComServerStatusInfoFactory comServerStatusInfoFactory;
 
     @Inject
-    public ComServerStatusSummaryResource(EngineModelService engineModelService, ComServerStatusInfoFactory comServerStatusInfoFactory) {
+    public ComServerStatusSummaryResource(EngineConfigurationService engineConfigurationService, ComServerStatusInfoFactory comServerStatusInfoFactory) {
         super();
-        this.engineModelService = engineModelService;
+        this.engineConfigurationService = engineConfigurationService;
         this.comServerStatusInfoFactory = comServerStatusInfoFactory;
     }
 
@@ -57,8 +57,8 @@ public class ComServerStatusSummaryResource {
         Client jerseyClient = this.newJerseyClient();
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path(ComServerStatusResource.class).host("{host}");
         ComServerStatusSummaryInfo statusSummaryInfo = new ComServerStatusSummaryInfo();
-        this.engineModelService.findAllOnlineComServers().stream().filter(ComServer::isActive).forEach(cs -> addStatusInfo(statusSummaryInfo, cs, jerseyClient, uriBuilder));
-        this.engineModelService.findAllRemoteComServers().stream().filter(ComServer::isActive).forEach(cs -> addStatusInfo(statusSummaryInfo, cs, jerseyClient, uriBuilder));
+        this.engineConfigurationService.findAllOnlineComServers().stream().filter(ComServer::isActive).forEach(cs -> addStatusInfo(statusSummaryInfo, cs, jerseyClient, uriBuilder));
+        this.engineConfigurationService.findAllRemoteComServers().stream().filter(ComServer::isActive).forEach(cs -> addStatusInfo(statusSummaryInfo, cs, jerseyClient, uriBuilder));
         return statusSummaryInfo;
     }
 
