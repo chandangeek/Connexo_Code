@@ -12,9 +12,8 @@
 
     <artifactId>mdc.engine.config</artifactId>
     <packaging>bundle</packaging>
-    <name>[MDC] mdc.engine.model [init MDC]</name>
-    <description>contains the configuration aspects of the components that implement the engine of data collection
-    </description>
+    <name>[MDC] mdc.engine.config [init MDC]</name>
+    <description>contains the configuration aspects of the components that implement the engine of data collection</description>
 
     <dependencies>
         <dependency>
