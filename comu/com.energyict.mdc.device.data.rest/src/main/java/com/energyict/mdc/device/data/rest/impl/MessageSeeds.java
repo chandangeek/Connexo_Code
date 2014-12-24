@@ -198,6 +198,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_SUCH_DEVICE_GROUP(227, "NoSuchDeviceGroup", "No end device group with id ''{0}''"),
     NO_UPDATE_ALLOWED(228, "NoUpdateAllowed", "You are not allowed to change this field"),
     IMPOSSIBLE_TO_SET_MASTER_DEVICE(229, "ImpossibleToSetMasterDevice", "Device {0} is directly addressable. It is not possible to set master device"),
+    FIELD_CAN_NOT_BE_EMPTY(230, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can not be empty"),
 
     ;
     private final int number;
@@ -332,6 +333,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String SIMPLEPASSWORDSECURITYSUPPORT_AUTHENTICATIONLEVEL_0 = "SimplePasswordSecuritySupport.authenticationlevel.0";
         public static final String WAVENISSECURITYSUPPORT_AUTHENTICATIONLEVEL_0 = "WavenisSecuritySupport.authenticationlevel.0";
         public static final String WAVENISSECURITYSUPPORT_ENCRYPTIONLEVEL_0 = "WavenisSecuritySupport.encryptionlevel.0";
+        public static final String FIELD_CAN_NOT_BE_EMPTY = "FieldCanNotBeEmpty";
 
     }
 

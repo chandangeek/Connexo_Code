@@ -2,6 +2,8 @@ package com.energyict.mdc.device.data.kpi.rest;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.common.rest.ExceptionFactory;
@@ -39,13 +41,15 @@ public class KpiResource {
     private final DataCollectionKpiInfoFactory dataCollectionKpiInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final MeteringGroupsService meteringGroupsService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public KpiResource(DataCollectionKpiService dataCollectionKpiService, DataCollectionKpiInfoFactory dataCollectionKpiInfoFactory, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService) {
+    public KpiResource(DataCollectionKpiService dataCollectionKpiService, DataCollectionKpiInfoFactory dataCollectionKpiInfoFactory, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus) {
         this.dataCollectionKpiService = dataCollectionKpiService;
         this.dataCollectionKpiInfoFactory = dataCollectionKpiInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.meteringGroupsService = meteringGroupsService;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -102,6 +106,10 @@ public class KpiResource {
     public Response createKpi(DataCollectionKpiInfo kpiInfo) {
         EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(kpiInfo.deviceGroup.id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_GROUP, kpiInfo.deviceGroup.id));
         DataCollectionKpiService.DataCollectionKpiBuilder dataCollectionKpiBuilder = dataCollectionKpiService.newDataCollectionKpi(endDeviceGroup);
+        if (kpiInfo.frequency == null || kpiInfo.frequency.every == null){
+            /* Send the correct validation error because if frequency is null we can't create connection or communication kpi -> FE receive unclear message */
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY, "frequency");
+        }
         if (kpiInfo.communicationTarget!=null && kpiInfo.frequency !=null && kpiInfo.frequency.every!=null) {
             dataCollectionKpiBuilder.calculateComTaskExecutionKpi(kpiInfo.frequency.every.asTimeDuration().asTemporalAmount()).expectingAsMaximum(kpiInfo.communicationTarget);
         }
