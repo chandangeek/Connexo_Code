@@ -38,7 +38,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.Grid', {
                 header: Uni.I18n.translate('devicelogbooks.timestampLastEvent', 'MDC', 'Timestamp last event'),
                 dataIndex: 'lastEventDate',
                 renderer: function (value) {
-                    return value ? Uni.I18n.formatDate('devicelogbooks.preview.lastEventDate.dateFormat', value, 'MDC', 'F d Y, H:i:s') : '';
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
                 },
                 flex: 1
             }
