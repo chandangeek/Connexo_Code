@@ -54,13 +54,16 @@ public class TemporalExpressionInfo {
         }
     }
 
+    private static void fromTemporalAmount(TimeDurationInfo info, TemporalAmount temporalAmount, TemporalUnit unit){
+        if (info != null && info.count == 0){
+            info.count = temporalAmount.get(unit);
+            info.timeUnit = unit.toString().toLowerCase();
+        }
+    }
     private static TimeDurationInfo fromTemporalAmount(TemporalAmount temporalAmount){
-        TimeDurationInfo durationInfo=new TimeDurationInfo();
-        List<TemporalUnit> supportedUnits = temporalAmount.getUnits();
-        if (supportedUnits != null && !supportedUnits.isEmpty()) {
-            TemporalUnit biggestUnit = supportedUnits.get(0);
-            durationInfo.count = temporalAmount.get(biggestUnit);
-            durationInfo.timeUnit = biggestUnit.toString().toLowerCase();
+        TimeDurationInfo durationInfo = new TimeDurationInfo();
+        for (TemporalUnit unit : temporalAmount.getUnits()) {
+            fromTemporalAmount(durationInfo, temporalAmount, unit);
         }
         return durationInfo;
     }
