@@ -52,35 +52,15 @@ Ext.define('Mdc.view.setup.devicechannels.ValidationOverview', {
                 }
             },
             {
-                xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.validation.lastChecked', 'MDC', 'Last checked'),
+                name: 'lastChecked_formatted',
                 itemId: 'lastCheckedCont',
-                layout: 'hbox',
-                items: [
-                    {
-                        xtype: 'displayfield',
-                        name: 'lastChecked_formatted',
-                        renderer: function (value, field) {
-                            if (!_.isEmpty(value)) {
-                                field.up('#lastCheckedCont').show();
-                                this.nextSibling('button').setVisible(value ? true : false);
-                                return value;
-                            } else {
-                                field.up('#lastCheckedCont').hide();
-                            }
-                        }
-                    },
-                    {
-                        xtype: 'button',
-                        tooltip: Uni.I18n.translate('deviceloadprofiles.tooltip.lastChecked', 'MDC', 'The moment when the last interval was checked in the validation process.'),
-                        iconCls: 'icon-info-small',
-                        ui: 'blank',
-                        itemId: 'lastCheckedHelp',
-                        shadow: false,
-                        margin: '6 0 0 10',
-                        width: 16
-                    }
-                ]
+                renderer: function (value) {
+                    var tooltip = Uni.I18n.translate('deviceloadprofiles.tooltip.lastChecked', 'MDC', 'The moment when the last interval was checked in the validation process.');
+                    return value
+                        ? value + '<span style="margin: 0 0 0 10px; width: 16px; height: 16px" class="icon-info-small" data-qtip="' + tooltip + '"></span>'
+                        : '';
+                }
             }
         ];
 
