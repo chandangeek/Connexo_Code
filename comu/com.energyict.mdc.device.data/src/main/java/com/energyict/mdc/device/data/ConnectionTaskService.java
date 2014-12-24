@@ -12,9 +12,9 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
@@ -128,7 +128,7 @@ public interface ConnectionTaskService {
     /**
      * Counts all {@link ConnectionTask}s whose current status is
      * in the Set of {@link TaskStatus} grouping them by
-     * {@link com.energyict.mdc.engine.model.ComPortPool}.
+     * {@link com.energyict.mdc.engine.config.ComPortPool}.
      *
      * @param taskStatuses The Set of TaskStatus
      * @return The numbers, broken down by ComPortPool and TaskStatus
@@ -140,7 +140,7 @@ public interface ConnectionTaskService {
      * {@link com.energyict.mdc.device.data.Device}s
      * that are part of the specified {@link QueryEndDeviceGroup}
      * and whose current status is in the Set of {@link TaskStatus}
-     * grouping them by {@link com.energyict.mdc.engine.model.ComPortPool}.
+     * grouping them by {@link com.energyict.mdc.engine.config.ComPortPool}.
      *
      * @param taskStatuses The Set of TaskStatus
      * @return The numbers, broken down by ComPortPool and TaskStatus
@@ -256,9 +256,9 @@ public interface ConnectionTaskService {
 
     /**
      * Cleans up any marker flags on {@link ConnectionTask}s that are running
-     * on {@link com.energyict.mdc.engine.model.OutboundComPort}s of the {@link ComServer}
+     * on {@link com.energyict.mdc.engine.config.OutboundComPort}s of the {@link ComServer}
      * for a period of time that is longer than the task execution timeout specified
-     * on the {@link com.energyict.mdc.engine.model.OutboundComPortPool} they are contained in.
+     * on the {@link com.energyict.mdc.engine.config.OutboundComPortPool} they are contained in.
      *
      * @param outboundCapableComServer The ComServer
      */

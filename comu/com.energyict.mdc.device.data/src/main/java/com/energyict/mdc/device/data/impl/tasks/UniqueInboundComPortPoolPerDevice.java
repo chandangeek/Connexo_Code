@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 
 /**
  * Models the contraint that there can be only 1
- * {@link com.energyict.mdc.engine.model.InboundComPortPool}
+ * {@link com.energyict.mdc.engine.config.InboundComPortPool}
  * assigned to a Device at a time.
  *
  * @author Rudi Vankeirsbilck (rudi)

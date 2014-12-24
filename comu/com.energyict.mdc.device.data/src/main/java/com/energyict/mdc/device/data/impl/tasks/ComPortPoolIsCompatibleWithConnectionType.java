@@ -10,8 +10,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Models the contraint that the type of the {@link com.energyict.mdc.engine.model.ComPort}s
- * that are contained in the {@link com.energyict.mdc.engine.model.ComPortPool}
+ * Models the contraint that the type of the {@link com.energyict.mdc.engine.config.ComPort}s
+ * that are contained in the {@link com.energyict.mdc.engine.config.ComPortPool}
  * of a {@link com.energyict.mdc.device.data.tasks.ConnectionTask} is supported
  * by the ConnectionTask's {@link com.energyict.mdc.protocol.api.ConnectionType}.
  *

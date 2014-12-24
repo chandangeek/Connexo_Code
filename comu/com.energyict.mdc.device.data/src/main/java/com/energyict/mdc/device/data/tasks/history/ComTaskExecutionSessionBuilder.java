@@ -1,9 +1,8 @@
 package com.energyict.mdc.device.data.tasks.history;
 
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 
 import java.time.Instant;
-import java.util.Date;
 
 /**
  * Copyrights EnergyICT

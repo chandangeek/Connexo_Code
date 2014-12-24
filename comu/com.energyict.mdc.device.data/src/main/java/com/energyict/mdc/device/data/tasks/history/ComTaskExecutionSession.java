@@ -4,7 +4,7 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;

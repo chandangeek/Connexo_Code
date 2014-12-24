@@ -7,8 +7,8 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.TaskExecutionSummary;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.pluggable.PluggableClassUsage;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -244,7 +244,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
     public boolean allowsSimultaneousConnections();
 
     /**
-     * Gets the ComPortPool from which a {@link com.energyict.mdc.engine.model.ComPort} will
+     * Gets the ComPortPool from which a {@link com.energyict.mdc.engine.config.ComPort} will
      * be pulled when a connection needs to be established for an outbound task
      * or the ComPortPool that contains the ComPorts that will be used by
      * the physical device to connect to the platform for an inbound task.

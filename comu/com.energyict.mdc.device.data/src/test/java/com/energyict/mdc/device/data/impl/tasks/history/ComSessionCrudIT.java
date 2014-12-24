@@ -58,13 +58,13 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionMessageJourna
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -158,7 +158,7 @@ public class ComSessionCrudIT {
     private DeviceConfiguration deviceConfiguration;
     private Device device;
     private ProtocolPluggableService protocolPluggableService;
-    private EngineModelService engineModelService;
+    private EngineConfigurationService engineConfigurationService;
     private ScheduledConnectionTask connectionTask;
     private OutboundComPort comport;
     @Mock
@@ -252,7 +252,7 @@ public class ComSessionCrudIT {
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             ((ProtocolPluggableServiceImpl) protocolPluggableService).addConnectionTypeService(this.connectionTypeService);
             when(this.connectionTypeService.createConnectionType(NoParamsConnectionType.class.getName())).thenReturn(new NoParamsConnectionType());
-            engineModelService = injector.getInstance(EngineModelService.class);
+            engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
             deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             taskService = injector.getInstance(TaskService.class);
             ctx.commit();
@@ -294,11 +294,8 @@ public class ComSessionCrudIT {
                     build();
             partialScheduledConnectionTask.save();
 
-            outboundTcpipComPortPool = engineModelService.newOutboundComPortPool();
+            outboundTcpipComPortPool = engineConfigurationService.newOutboundComPortPool("outTCPIPPool", ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
             outboundTcpipComPortPool.setActive(true);
-            outboundTcpipComPortPool.setComPortType(ComPortType.TCP);
-            outboundTcpipComPortPool.setName("outTCPIPPool");
-            outboundTcpipComPortPool.setTaskExecutionTimeout(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
             outboundTcpipComPortPool.save();
 
             connectionTask = this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
@@ -308,7 +305,7 @@ public class ComSessionCrudIT {
             device.save();
             connectionTask.save();
 
-            OnlineComServer onlineComServer = engineModelService.newOnlineComServerInstance();
+            OnlineComServer onlineComServer = engineConfigurationService.newOnlineComServerInstance();
             onlineComServer.setName("ComServer");
             onlineComServer.setStoreTaskQueueSize(1);
             onlineComServer.setStoreTaskThreadPriority(1);

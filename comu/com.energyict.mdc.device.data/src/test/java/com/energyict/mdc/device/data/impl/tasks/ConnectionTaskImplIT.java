@@ -21,11 +21,11 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -263,31 +263,22 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private static OutboundComPortPool createOutboundIpComPortPool(String name) {
-        OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineModelService().newOutboundComPortPool();
+        OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
         ipComPortPool.setActive(true);
-        ipComPortPool.setComPortType(ComPortType.TCP);
-        ipComPortPool.setName(name);
-        ipComPortPool.setTaskExecutionTimeout(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
         ipComPortPool.save();
         return ipComPortPool;
     }
 
     private static OutboundComPortPool createOutboundModemComPortPool(String name) {
-        OutboundComPortPool modemComPortPool = inMemoryPersistence.getEngineModelService().newOutboundComPortPool();
+        OutboundComPortPool modemComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.SERIAL, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
         modemComPortPool.setActive(true);
-        modemComPortPool.setComPortType(ComPortType.SERIAL);
-        modemComPortPool.setName(name);
-        modemComPortPool.setTaskExecutionTimeout(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
         modemComPortPool.save();
         return modemComPortPool;
     }
 
     private static InboundComPortPool createInboundIpComPortPool(String name) {
-        InboundComPortPool ipComPortPool = inMemoryPersistence.getEngineModelService().newInboundComPortPool();
+        InboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool(name, ComPortType.TCP, discoveryProtocolPluggableClass);
         ipComPortPool.setActive(true);
-        ipComPortPool.setComPortType(ComPortType.TCP);
-        ipComPortPool.setName(name);
-        ipComPortPool.setDiscoveryProtocolPluggableClass(discoveryProtocolPluggableClass);
         ipComPortPool.save();
         return ipComPortPool;
     }
@@ -299,7 +290,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     protected OnlineComServer createComServer(String name) {
-        OnlineComServer onlineComServer = inMemoryPersistence.getEngineModelService().newOnlineComServerInstance();
+        OnlineComServer onlineComServer = inMemoryPersistence.getEngineConfigurationService().newOnlineComServerInstance();
         onlineComServer.setName(name);
         onlineComServer.setNumberOfStoreTaskThreads(ComServer.MINIMUM_NUMBER_OF_STORE_TASK_THREADS);
         onlineComServer.setStoreTaskQueueSize(ComServer.MINIMUM_STORE_TASK_QUEUE_SIZE);

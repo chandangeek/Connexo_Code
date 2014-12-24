@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.tasks;
 
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.config.InboundComPortPool;
 
 /**
  * Models a {@link ConnectionTask} that is used for Inbound communication.

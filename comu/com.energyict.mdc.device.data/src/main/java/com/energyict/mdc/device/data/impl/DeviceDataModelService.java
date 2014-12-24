@@ -5,7 +5,7 @@ import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 
@@ -34,7 +34,7 @@ public interface DeviceDataModelService {
 
     public SchedulingService schedulingService();
 
-    public EngineModelService engineModelService();
+    public EngineConfigurationService engineConfigurationService();
 
     public KpiService kpiService();
 

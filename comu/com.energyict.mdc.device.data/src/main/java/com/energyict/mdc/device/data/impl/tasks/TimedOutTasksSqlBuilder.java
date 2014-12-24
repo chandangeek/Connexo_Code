@@ -1,17 +1,17 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.device.data.impl.TableSpecs;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
 
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 /**
  * Provides sql building services that support cleaning marker flags on
  * ComTaskExecutions and {@link com.energyict.mdc.device.data.tasks.ConnectionTask}s that are running
- * on {@link com.energyict.mdc.engine.model.OutboundComPort}s of a {@link com.energyict.mdc.engine.model.ComServer}
+ * on {@link com.energyict.mdc.engine.config.OutboundComPort}s of a {@link com.energyict.mdc.engine.config.ComServer}
  * for a period of time that is longer than the task execution timeout specified
- * on the {@link com.energyict.mdc.engine.model.OutboundComPortPool} they are contained in.
+ * on the {@link com.energyict.mdc.engine.config.OutboundComPortPool} they are contained in.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-05-02 (16:11)

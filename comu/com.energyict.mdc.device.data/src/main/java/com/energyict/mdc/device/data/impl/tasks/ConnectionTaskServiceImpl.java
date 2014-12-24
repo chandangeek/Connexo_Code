@@ -26,10 +26,10 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import com.elster.jupiter.events.EventService;
@@ -102,7 +102,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     @Override
     public void releaseTimedOutConnectionTasks(ComServer outboundCapableComServer) {
-        List<ComPortPool> containingComPortPoolsForComServer = this.deviceDataModelService.engineModelService().findContainingComPortPoolsForComServer(outboundCapableComServer);
+        List<ComPortPool> containingComPortPoolsForComServer = this.deviceDataModelService.engineConfigurationService().findContainingComPortPoolsForComServer(outboundCapableComServer);
         for (ComPortPool comPortPool : containingComPortPoolsForComServer) {
             this.releaseTimedOutConnectionTasks((OutboundComPortPool) comPortPool);
         }
@@ -298,7 +298,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     }
 
     private Map<ComPortPool, Map<TaskStatus, Long>> injectComPortPoolsAndAddMissing(Map<Long, Map<TaskStatus, Long>> statusBreakdown) {
-        Map<Long, ComPortPool> comPortPools = this.deviceDataModelService.engineModelService().findAllComPortPools().stream().collect(Collectors.toMap(ComPortPool::getId, Function.identity()));
+        Map<Long, ComPortPool> comPortPools = this.deviceDataModelService.engineConfigurationService().findAllComPortPools().stream().collect(Collectors.toMap(ComPortPool::getId, Function.identity()));
         return this.injectBreakDownsAndAddMissing(statusBreakdown, comPortPools);
     }
 
@@ -933,7 +933,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     private Map<ComPortPool, List<Long>> buildComPortPoolHeatMap(Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters, Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters) {
         Map<Long, ComPortPool> comPortPools =
-                this.deviceDataModelService.engineModelService().findAllComPortPools().
+                this.deviceDataModelService.engineConfigurationService().findAllComPortPools().
                         stream().
                         collect(Collectors.toMap(
                                 ComPortPool::getId,
