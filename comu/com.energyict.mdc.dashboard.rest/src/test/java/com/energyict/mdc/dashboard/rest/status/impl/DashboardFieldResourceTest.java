@@ -1,6 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.config.ComPortPool;
 import java.util.Arrays;
 import java.util.Map;
 import org.junit.Test;
@@ -21,7 +21,7 @@ public class DashboardFieldResourceTest extends DashboardApplicationJerseyTest {
         ComPortPool comPortPool1 = mockComPortPool(1, "one");
         ComPortPool comPortPool2 = mockComPortPool(2, "two");
         ComPortPool comPortPool3 = mockComPortPool(3, "three");
-        when(engineModelService.findAllComPortPools()).thenReturn(Arrays.asList(comPortPool1, comPortPool2, comPortPool3));
+        when(engineConfigurationService.findAllComPortPools()).thenReturn(Arrays.asList(comPortPool1, comPortPool2, comPortPool3));
 
         target("/field/comportpools").request().get(Map.class);
     }

@@ -3,8 +3,8 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusInfo;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusSummaryInfo;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.ComServerType;
 import java.util.Arrays;
@@ -27,7 +27,7 @@ public class ComServerStatusSummaryResourceTest extends DashboardApplicationJers
     public void testNoServersConfigured() {
         Finder<ComServer> allComServers = mock(Finder.class);
         when(allComServers.find()).thenReturn(Collections.emptyList());
-        when(this.engineModelService.findAllComServers()).thenReturn(allComServers);
+        when(this.engineConfigurationService.findAllComServers()).thenReturn(allComServers);
 
         // Business method
         ComServerStatusSummaryInfo summaryInfo = target("/comserverstatussummary").request().get(ComServerStatusSummaryInfo.class);
@@ -45,7 +45,7 @@ public class ComServerStatusSummaryResourceTest extends DashboardApplicationJers
         when(comServer.getName()).thenReturn(comServerName);
         when(comServer.isActive()).thenReturn(true);
         when(comServer.getStatusUri()).thenReturn("http://localhost:9998");
-        when(this.engineModelService.findAllOnlineComServers()).thenReturn(Arrays.asList(comServer));
+        when(this.engineConfigurationService.findAllOnlineComServers()).thenReturn(Arrays.asList(comServer));
 
         ComServerStatus notRunning = mock(ComServerStatus.class);
         when(notRunning.isRunning()).thenReturn(false);

@@ -16,10 +16,10 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -104,7 +104,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(comPortPool1.getId()).thenReturn(1001L);
         ComPortPool comPortPool2 = mock(ComPortPool.class);
         when(comPortPool2.getId()).thenReturn(1002L);
-        when(engineModelService.findAllComPortPools()).thenReturn(Arrays.asList(comPortPool1, comPortPool2));
+        when(engineConfigurationService.findAllComPortPools()).thenReturn(Arrays.asList(comPortPool1, comPortPool2));
 
         Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("comPortPools", Arrays.asList(1001L, 1002L))).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
 

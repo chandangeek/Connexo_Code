@@ -11,7 +11,7 @@ import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
@@ -54,7 +54,7 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
     @Mock
     DashboardService dashboardService;
     @Mock
-    EngineModelService engineModelService;
+    EngineConfigurationService engineConfigurationService;
     @Mock
     ProtocolPluggableService protocolPluggableService;
     @Mock
@@ -77,7 +77,7 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
         dashboardApplication.setConnectionTaskService(connectionTaskService);
         dashboardApplication.setCommunicationTaskService(communicationTaskService);
         dashboardApplication.setDeviceService(deviceService);
-        dashboardApplication.setEngineModelService(engineModelService);
+        dashboardApplication.setEngineConfigurationService(engineConfigurationService);
         dashboardApplication.setNlsService(nlsService);
         dashboardApplication.setProtocolPluggableService(protocolPluggableService);
         dashboardApplication.setSchedulingService(schedulingService);

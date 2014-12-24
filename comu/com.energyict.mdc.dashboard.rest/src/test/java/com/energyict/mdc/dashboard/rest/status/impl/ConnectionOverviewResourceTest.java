@@ -15,7 +15,7 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
@@ -102,7 +102,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         assertThat(connectionOverviewInfo.breakdowns.get(2).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.kpi).isNull();
         assertThat(connectionOverviewInfo.deviceGroup).isNull();
-        
+
         assertThat(connectionOverviewInfo.connectionSummary.target).isNull();
     }
 
@@ -138,7 +138,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         assertThat(connectionOverviewInfo.breakdowns.get(0).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.breakdowns.get(1).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.breakdowns.get(2).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
-        
+
         assertThat(connectionOverviewInfo.connectionSummary.target).isEqualTo(100L);
     }
 
@@ -185,7 +185,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         assertThat(connectionOverviewInfo.kpi.series.get(2).data.get(56)).isEqualTo(BigDecimal.valueOf(10L));
         assertThat(connectionOverviewInfo.kpi.series.get(3).name).isEqualTo("Target");
         assertThat(connectionOverviewInfo.kpi.series.get(3).data.get(56)).isEqualTo(BigDecimal.valueOf(100L));
-        
+
         assertThat(connectionOverviewInfo.connectionSummary.target).isEqualTo(100L);
     }
 

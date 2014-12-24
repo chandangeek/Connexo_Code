@@ -19,8 +19,8 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
@@ -55,7 +55,7 @@ public class ConnectionResource {
     public static final LongAdapter LONG_ADAPTER = new LongAdapter();
 
     private final ConnectionTaskService connectionTaskService;
-    private final EngineModelService engineModelService;
+    private final EngineConfigurationService engineConfigurationService;
     private final ProtocolPluggableService protocolPluggableService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final ConnectionTaskInfoFactory connectionTaskInfoFactory;
@@ -64,10 +64,10 @@ public class ConnectionResource {
     private final ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory;
 
     @Inject
-    public ConnectionResource(ConnectionTaskService connectionTaskService, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory) {
+    public ConnectionResource(ConnectionTaskService connectionTaskService, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory) {
         super();
         this.connectionTaskService = connectionTaskService;
-        this.engineModelService = engineModelService;
+        this.engineConfigurationService = engineConfigurationService;
         this.protocolPluggableService = protocolPluggableService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.connectionTaskInfoFactory = connectionTaskInfoFactory;
@@ -120,7 +120,7 @@ public class ConnectionResource {
         if (jsonQueryFilter.hasProperty(HeatMapBreakdownOption.comPortPools.name())) {
             List<Long> comPortPoolIds = jsonQueryFilter.getLongList(FilterOption.comPortPools.name());
             // already optimized
-            for (ComPortPool comPortPool : engineModelService.findAllComPortPools()) {
+            for (ComPortPool comPortPool : engineConfigurationService.findAllComPortPools()) {
                 for (Long comPortPoolId : comPortPoolIds) {
                     if (comPortPool.getId() == comPortPoolId) {
                         filter.comPortPools.add(comPortPool);

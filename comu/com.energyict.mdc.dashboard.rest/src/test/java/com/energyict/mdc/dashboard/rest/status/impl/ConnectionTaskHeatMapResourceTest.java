@@ -10,7 +10,7 @@ import com.energyict.mdc.dashboard.impl.ComSessionSuccessIndicatorOverviewImpl;
 import com.energyict.mdc.dashboard.impl.ConnectionTaskHeatMapRowImpl;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.config.ComPortPool;
 import com.jayway.jsonpath.JsonModel;
 import java.util.ArrayList;
 import java.util.Arrays;

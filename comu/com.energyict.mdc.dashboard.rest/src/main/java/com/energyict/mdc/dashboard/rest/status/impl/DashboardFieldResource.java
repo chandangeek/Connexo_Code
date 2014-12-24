@@ -14,7 +14,7 @@ import com.energyict.mdc.device.data.rest.ConnectionTaskLifecycleStatusAdapter;
 import com.energyict.mdc.device.data.rest.ConnectionTaskSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
@@ -44,16 +44,16 @@ public class DashboardFieldResource extends FieldResource {
     private static final Comparator<HasName> byNameComparator = (HasName d1, HasName d2) -> d1.getName().compareToIgnoreCase(d2.getName());
     private static final BreakdownOptionAdapter BREAKDOWN_OPTION_ADAPTER = new BreakdownOptionAdapter();
     private final DeviceConfigurationService deviceConfigurationService;
-    private final EngineModelService engineModelService;
+    private final EngineConfigurationService engineConfigurationService;
     private final ProtocolPluggableService protocolPluggableService;
     private final TaskService taskService;
     private final SchedulingService schedulingService;
 
     @Inject
-    public DashboardFieldResource(NlsService nlsService, DeviceConfigurationService deviceConfigurationService, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, TaskService taskService, SchedulingService schedulingService) {
+    public DashboardFieldResource(NlsService nlsService, DeviceConfigurationService deviceConfigurationService, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, TaskService taskService, SchedulingService schedulingService) {
         super(nlsService.getThesaurus(DashboardApplication.COMPONENT_NAME, Layer.REST));
         this.deviceConfigurationService = deviceConfigurationService;
-        this.engineModelService = engineModelService;
+        this.engineConfigurationService = engineConfigurationService;
         this.protocolPluggableService = protocolPluggableService;
         this.taskService = taskService;
         this.schedulingService = schedulingService;
@@ -120,7 +120,7 @@ public class DashboardFieldResource extends FieldResource {
     @Produces("application/json")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getComPortPools() {
-        return Response.ok(asInfoMap("comPortPools", engineModelService.findAllComPortPools())).build();
+        return Response.ok(asInfoMap("comPortPools", engineConfigurationService.findAllComPortPools())).build();
     }
 
     @GET
