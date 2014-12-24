@@ -30,7 +30,7 @@ Ext.define('Uni.form.field.LastEventDateDisplay', {
     },
 
     renderer: function (value, field) {
-        var result = Uni.I18n.formatDate('lastEventDate.dateFormat', Ext.isDate(value) ? value : new Date(value), 'UNI', 'F d, Y H:i:s'),
+        var result = Uni.DateTime.formatDateTimeLong(Ext.isDate(value) ? value : new Date(value)),
             tooltip = Uni.I18n.translate('lastEventDate.tooltip', 'UNI', 'Date and time of last received event');
 
         if (!value) {

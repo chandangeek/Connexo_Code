@@ -30,7 +30,7 @@ Ext.define('Uni.form.field.LastReadingDisplay', {
     },
 
     renderer: function (value, field) {
-        var result = Uni.I18n.formatDate('lastReading.dateFormat', Ext.isDate(value) ? value : new Date(value), 'UNI', 'F d, Y H:i:s'),
+        var result = Uni.DateTime.formatDateTimeLong(Ext.isDate(value) ? value : new Date(value)),
             tooltip = Uni.I18n.translate('lastReading.tooltip', 'UNI', 'The moment when the data was read out for the last time');
 
         if (!value) {
