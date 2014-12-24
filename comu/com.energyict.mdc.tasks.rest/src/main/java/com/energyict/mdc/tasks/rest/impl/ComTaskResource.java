@@ -3,7 +3,7 @@ package com.energyict.mdc.tasks.rest.impl;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.engine.model.security.Privileges;
+import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
