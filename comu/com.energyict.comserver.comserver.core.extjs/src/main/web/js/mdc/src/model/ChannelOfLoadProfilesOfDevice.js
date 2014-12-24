@@ -39,7 +39,9 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
             name: 'lastChecked_formatted',
             persist: false,
             mapping: function (data) {
-                return (data.validationInfo && data.validationInfo.lastChecked) ? Uni.I18n.formatDate('deviceloadprofiles.dateFormat', new Date(data.validationInfo.lastChecked), 'MDC', 'M d, Y H:i') : '';
+                return (data.validationInfo && data.validationInfo.lastChecked)
+                    ? Uni.DateTime.formatDateTimeLong(new Date(data.validationInfo.lastChecked))
+                    : '';
             }
         },
         {
@@ -80,7 +82,9 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
             name: 'lastValueTimestamp_formatted',
             persist: false,
             mapping: function (data) {
-                return data.lastReading && data.lastValueTimestamp ? Uni.I18n.formatDate('deviceloadprofiles.dateFormat', new Date(data.lastValueTimestamp), 'MDC', 'M d, Y H:i') : '';
+                return data.lastReading && data.lastValueTimestamp
+                    ? Uni.DateTime.formatDateTimeLong(new Date(data.lastValueTimestamp))
+                    : '';
             }
         }
     ],

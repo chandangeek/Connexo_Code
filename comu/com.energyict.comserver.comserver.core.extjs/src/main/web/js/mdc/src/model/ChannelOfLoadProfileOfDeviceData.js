@@ -81,22 +81,34 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {
             name: 'interval_end',
             persist: false,
-            mapping: function (data) {
-                return data.interval ? Uni.I18n.formatDate('deviceloadprofiles.data.dateFormat', new Date(data.interval.end), 'MDC', 'M d, Y \\a\\t H:i') : '';
-            }
+            mapping: 'interval.end',
+            dateFormat: 'time',
+            type: 'date'
         },
         {
             name: 'interval_formatted',
             persist: false,
             mapping: function (data) {
-                return data.interval ? Uni.I18n.formatDate('deviceloadprofiles.data.dateFormat', new Date(data.interval.start), 'MDC', 'M d, Y \\a\\t H:i') + ' - ' + Uni.I18n.formatDate('deviceloadprofiles.data.dateFormat', new Date(data.interval.end), 'MDC', 'M d, Y \\a\\t H:i') : '';
+                return data.interval
+                    ? Uni.DateTime.formatDateLong(new Date(data.interval.start))
+                    + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                    + Uni.DateTime.formatTimeLong(new Date(data.interval.start))
+                    + ' - '
+                    + Uni.DateTime.formatDateLong(new Date(data.interval.end))
+                    + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                    + Uni.DateTime.formatTimeLong(new Date(data.interval.end))
+                    : '';
             }
         },
         {
             name: 'readingTime_formatted',
             persist: false,
             mapping: function (data) {
-                return data.readingTime ? Uni.I18n.formatDate('deviceloadprofiles.data.dateFormat', new Date(data.readingTime), 'MDC', 'M d, Y \\a\\t H:i') : '';
+                return data.readingTime
+                    ? Uni.DateTime.formatDateLong(new Date(data.readingTime))
+                    + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                    + Uni.DateTime.formatTimeLong(new Date(data.readingTime))
+                    : '';
             }
         },
         {
