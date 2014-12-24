@@ -34,8 +34,11 @@ Ext.define('Dsh.view.MyFavoriteDeviceGroups', {
             {
                 xtype: 'grid',
                 itemId: 'my-favorite-device-groups-grid',
+                extend:'Uni.view.grid.SelectionGrid',
                 store: 'Dsh.store.FavoriteDeviceGroups',
                 disableSelection: true,
+                overflowY: 'auto',
+                maxHeight: 450,
                 viewConfig: {
                     markDirty: false
                 },
