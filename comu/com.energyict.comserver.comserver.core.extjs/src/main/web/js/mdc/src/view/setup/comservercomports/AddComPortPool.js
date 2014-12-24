@@ -21,8 +21,8 @@ Ext.define('Mdc.view.setup.comservercomports.AddComPortPool', {
         }
     ],
 
-    updateCancelHref: function (comServerId) {
-        this.down('add-com-port-pools-grid').updateCancelHref(comServerId);
+    updateCancelHref: function (comServerId, comPortId) {
+        this.down('add-com-port-pools-grid').updateCancelHref(comServerId, comPortId);
     }
 });
 

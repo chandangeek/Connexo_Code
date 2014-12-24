@@ -192,7 +192,8 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
     },
 
     cancelAddPool: function () {
-        var router = this.getController('Uni.controller.history.Router');
+        var me = this;
+        var router = me.getController('Uni.controller.history.Router');
         router.getRoute(this.currentUrl).forward();
     },
 
@@ -448,6 +449,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         me.comServerId = id;
         me.comportEdit = widget;
         me.portDirection = 'outbound';
+        me.comPortId = undefined;
         me.portType = me.portType ? me.portType : me.defaultType;
 
         me.getApplication().fireEvent('changecontentevent', widget);
@@ -482,6 +484,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         me.portType = me.defaultType;
         me.comServerId = id;
         me.comportEdit = widget;
+        me.comPortId = undefined;
         me.portDirection = 'inbound';
 
         me.getApplication().fireEvent('changecontentevent', widget);
@@ -507,7 +510,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
        // me.showAddOutbound(router.arguments.id);
         me.saveState();
         me.getApplication().fireEvent('changecontentevent', widget);
-        widget.updateCancelHref(me.comServerId);
+        widget.updateCancelHref(me.comServerId, me.comPortId);
         me.filterStore();
     },
 
