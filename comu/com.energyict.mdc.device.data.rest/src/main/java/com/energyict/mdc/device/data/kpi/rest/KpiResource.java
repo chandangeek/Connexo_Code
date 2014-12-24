@@ -2,13 +2,15 @@ package com.energyict.mdc.device.data.kpi.rest;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
-import java.util.List;
+
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -21,6 +23,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -44,11 +49,28 @@ public class KpiResource {
     }
 
     @GET
+    @Path("/groups")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAvailableDeviceGroups(@BeanParam QueryParameters queryParameters){
+        List<EndDeviceGroup> allGroups = meteringGroupsService.getEndDeviceGroupQuery().select(Condition.TRUE, Order.ascending("upper(name)"));
+        List<Long> usedGroupIds = dataCollectionKpiService.findAllDataCollectionKpis().stream().map(kpi -> kpi.getDeviceGroup().getId()).collect(Collectors.toList());
+        Iterator<EndDeviceGroup> groupIterator = allGroups.iterator();
+        while (groupIterator.hasNext()) {
+            EndDeviceGroup next =  groupIterator.next();
+            if (usedGroupIds.contains(next.getId())){
+                groupIterator.remove();
+            }
+        }
+        return Response.ok(PagedInfoList.asJson("deviceGroups", allGroups.stream()
+                .map(gr -> new LongIdWithNameInfo(gr.getId(), gr.getName())).collect(Collectors.toList()), queryParameters)).build();
+    }
+
+    @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getAllKpis(@BeanParam QueryParameters queryParameters) {
         List<DataCollectionKpiInfo> collection = dataCollectionKpiService.dataCollectionKpiFinder().
-                from(queryParameters).defaultSortColumn("endDeviceGroup.label").
+                from(queryParameters).defaultSortColumn("endDeviceGroup.name").
                 stream().
                 map(dataCollectionKpiInfoFactory::from).
                 collect(toList());
