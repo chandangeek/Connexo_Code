@@ -45,7 +45,7 @@ Ext.define('Tme.view.relativeperiod.PreviewForm', {
         if (value.startFixedDay && value.startFixedMonth && value.startFixedYear) {
             var fixedDate = moment([parseInt(value.startFixedYear), parseInt(value.startFixedMonth) - 1, parseInt(value.startFixedDay)]).format('ddd, DD MMM YYYY');
             str += Uni.I18n.translate('general.fixedDate', 'TME', 'fixed date') + ' ' + fixedDate + ' ' + Uni.I18n.translate('general.at', 'TME', 'at') + ' ' + hoursMinutes;
-        } else if (value.startAmountAgo && value.startPeriodAgo && value.startTimeMode) {
+        } else if (value.startPeriodAgo && value.startTimeMode) {
             var startTimeMode,
                 startPeriodAgo;
 
