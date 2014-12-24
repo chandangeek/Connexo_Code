@@ -16,12 +16,12 @@ import static com.elster.jupiter.time.RelativeField.*;
 
 public enum DefaultRelativePeriodDefinition {
     LAST_7_DAYS("Last 7 days", atMidnight(DAY.minus(7)), atMidnight()),
-    PREVIOUS_MONTH("Previous month", atMidnight(MONTH.minus(1), DAY.equalTo(1)), atMidnight(DAY.equalTo(1))),
-    THIS_MONTH("This month", atMidnight(DAY.equalTo(1)), NOW),
-    PREVIOUS_WEEK("Previous week", onFirstDayOfWeek(atMidnight(WEEK.minus(1))), onFirstDayOfWeek(atMidnight())),
-    THIS_WEEK("This week", onFirstDayOfWeek(atMidnight()), NOW),
+    PREVIOUS_MONTH("Previous month", atMidnight(MONTH.minus(1), DAY.equalTo(1)), atMidnight(MONTH.minus(0), DAY.equalTo(1))),
+    THIS_MONTH("This month", atMidnight(MONTH.minus(0), DAY.equalTo(1)), NOW),
+    PREVIOUS_WEEK("Previous week", onFirstDayOfWeek(atMidnight(WEEK.minus(1))), onFirstDayOfWeek(atMidnight(WEEK.minus(0)))),
+    THIS_WEEK("This week", onFirstDayOfWeek(atMidnight(WEEK.minus(0))), NOW),
     YESTERDAY("Yesterday", atMidnight(DAY.minus(1)), atMidnight()),
-    TODAY("Today", atMidnight(), NOW);
+    TODAY("Today", atMidnight(DAY.minus(0)), NOW);
 
     private final String name;
     private final RelativeDate from;
