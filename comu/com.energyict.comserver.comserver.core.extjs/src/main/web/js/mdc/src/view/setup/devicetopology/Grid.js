@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.devicetopology.Grid', {
                 dataIndex: 'creationTime',
                 flex: 1,
                 renderer: function (value) {
-                    return Uni.I18n.formatDate('deviceloadprofiles.dateFormat', new Date(value), 'MDC', 'M d, Y H:i');
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
                 }
             }
         ];
