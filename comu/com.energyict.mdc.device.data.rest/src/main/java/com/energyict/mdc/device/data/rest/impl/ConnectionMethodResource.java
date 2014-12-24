@@ -9,8 +9,8 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
 import javax.annotation.security.RolesAllowed;
@@ -37,17 +37,17 @@ public class ConnectionMethodResource {
 
     private final ResourceHelper resourceHelper;
     private final ConnectionMethodInfoFactory connectionMethodInfoFactory;
-    private final EngineModelService engineModelService;
+    private final EngineConfigurationService engineConfigurationService;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final ConnectionTaskService connectionTaskService;
     private final ExceptionFactory exceptionFactory;
     private final Provider<ComSessionResource> comTaskExecutionResourceProvider;
 
     @Inject
-    public ConnectionMethodResource(ResourceHelper resourceHelper, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils, ConnectionTaskService connectionTaskService, ExceptionFactory exceptionFactory, Provider<ComSessionResource> comTaskExecutionResourceProvider) {
+    public ConnectionMethodResource(ResourceHelper resourceHelper, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineConfigurationService engineConfigurationService, MdcPropertyUtils mdcPropertyUtils, ConnectionTaskService connectionTaskService, ExceptionFactory exceptionFactory, Provider<ComSessionResource> comTaskExecutionResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.connectionMethodInfoFactory = connectionMethodInfoFactory;
-        this.engineModelService = engineModelService;
+        this.engineConfigurationService = engineConfigurationService;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.connectionTaskService = connectionTaskService;
         this.exceptionFactory = exceptionFactory;
@@ -70,7 +70,7 @@ public class ConnectionMethodResource {
     public Response createConnectionMethod(@PathParam("mRID") String mrid, @Context UriInfo uriInfo, ConnectionMethodInfo<?> connectionMethodInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
-        ConnectionTask<?, ?> task = connectionMethodInfo.createTask(engineModelService, device, mdcPropertyUtils, partialConnectionTask);
+        ConnectionTask<?, ?> task = connectionMethodInfo.createTask(engineConfigurationService, device, mdcPropertyUtils, partialConnectionTask);
         if (connectionMethodInfo.isDefault) {
             connectionTaskService.setDefaultConnectionTask(task);
         }
@@ -109,7 +109,7 @@ public class ConnectionMethodResource {
         boolean wasConnectionTaskDefault = task.isDefault();
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
 
-        connectionMethodInfo.writeTo(task, partialConnectionTask, engineModelService, mdcPropertyUtils);
+        connectionMethodInfo.writeTo(task, partialConnectionTask, engineConfigurationService, mdcPropertyUtils);
         task.save();
         pauseOrResumeTask(connectionMethodInfo, task);
         if (connectionMethodInfo.isDefault) {

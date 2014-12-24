@@ -11,7 +11,7 @@ import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfoFactory;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -81,7 +81,7 @@ public class DeviceApplication extends Application implements InstallService, Tr
     private volatile NlsService nlsService;
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
-    private volatile EngineModelService engineModelService;
+    private volatile EngineConfigurationService engineConfigurationService;
     private volatile SchedulingService schedulingService;
     private volatile ValidationService validationService;
     private volatile MeteringService meteringService;
@@ -223,8 +223,8 @@ public class DeviceApplication extends Application implements InstallService, Tr
     }
 
     @Reference
-    public void setEngineModelService(EngineModelService engineModelService) {
-        this.engineModelService = engineModelService;
+    public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
+        this.engineConfigurationService = engineConfigurationService;
     }
 
     @Reference
@@ -320,7 +320,7 @@ public class DeviceApplication extends Application implements InstallService, Tr
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(deviceImportService).to(DeviceImportService.class);
-            bind(engineModelService).to(EngineModelService.class);
+            bind(engineConfigurationService).to(EngineConfigurationService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(schedulingService).to(SchedulingService.class);
             bind(validationService).to(ValidationService.class);

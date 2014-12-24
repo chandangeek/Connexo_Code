@@ -10,7 +10,7 @@ import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfoFactory;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.config.ComPortPool;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;

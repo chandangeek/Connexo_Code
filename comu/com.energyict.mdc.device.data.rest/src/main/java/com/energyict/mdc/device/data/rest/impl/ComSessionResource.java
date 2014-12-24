@@ -13,7 +13,7 @@ import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
