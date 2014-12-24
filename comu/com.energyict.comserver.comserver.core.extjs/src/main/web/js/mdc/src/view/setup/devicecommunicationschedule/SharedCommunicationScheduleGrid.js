@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.SharedCommunicationSchedu
                     dataIndex: 'plannedDate',
                     renderer: function (value) {
                         if (value !== null) {
-                            return new Date(value).toLocaleString();
+                            return Uni.DateTime.formatDateTimeLong(new Date(value));
                         } else {
                             return '';
                         }

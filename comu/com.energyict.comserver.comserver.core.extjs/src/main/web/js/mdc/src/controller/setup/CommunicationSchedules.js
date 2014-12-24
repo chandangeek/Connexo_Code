@@ -392,7 +392,9 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                 + Uni.I18n.translate('communicationschedule.repeat', 'MDC', 'Repeat') + ' '
                 + scheduleFormatted.join(' ')
                 + ' ' + Uni.I18n.translate('communicationschedule.startingFrom', 'MDC', 'Starting from').toLowerCase() + ' '
-                + Uni.I18n.formatDate('communicationschedule.startingDateFormat', new Date(startDate), 'MDC', 'F d, Y \\a\\t H:i:s')
+                + Uni.DateTime.formatDateLong(new Date(startDate))
+                + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                + Uni.DateTime.formatTimeLong(new Date(startDate))
                 + '</b>');
 
             this.setEditFormPreview(startDate, schedule);

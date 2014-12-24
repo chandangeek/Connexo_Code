@@ -71,9 +71,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
                                                 fieldLabel: Uni.I18n.translate('deviceconnectionhistory.startedOn', 'MDC', 'Started on'),
                                                 itemId: 'startedOn',
                                                 renderer: function (value) {
-                                                    if (value !== null) {
-                                                        return new Date(value).toLocaleString();
-                                                    }
+                                                    return value ? Uni.DateTime.formatDateTimeLong(value) : '';
                                                 }
                                             },
                                             {

@@ -305,11 +305,14 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
     },
 
     showPreview: function (selectionModel, record) {
-        var preview = this.getPage().down('#deviceLoadProfilesDataPreview');
+        var preview = this.getPage().down('#deviceLoadProfilesDataPreview'),
+            intervalEnd = record.get('interval_end');
 
         preview.rendered && Ext.suspendLayouts();
 
-        preview.setTitle(record.get('interval_end'));
+        preview.setTitle(Uni.DateTime.formatDateLong(intervalEnd)
+            + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+            + Uni.DateTime.formatTimeLong(intervalEnd));
         preview.down('#deviceLoadProfilesDataPreviewForm').loadRecord(record);
 
         preview.rendered && Ext.resumeLayouts(true);
@@ -364,7 +367,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             nonSuspect = nonSuspectField.boxLabel,
             eventDateText = '';
         eventDateText += intervalEnd + ' ' + intervalStartField.getFieldLabel().toLowerCase() + ' '
-            + Uni.I18n.formatDate('devicelogbooks.topFilter.tagButton.dateFormat', intervalStart, 'MDC', 'd/m/Y') + ' ';
+            + Uni.DateTime.formatDateShort(intervalStart) + ' ';
         filterView.setFilter('eventDateChanged', filterForm.down('#dateContainer').getFieldLabel(), eventDateText, true);
         filterView.down('#Reset').setText('Reset');
         if (suspectField.getValue()) {

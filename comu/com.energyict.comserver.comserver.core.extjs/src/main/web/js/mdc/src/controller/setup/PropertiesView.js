@@ -104,7 +104,7 @@ Ext.define('Mdc.controller.setup.PropertiesView', {
                     case 'CLOCK':
                         if (value !== null && value !== '') {
                             var date = new Date(value);
-                            propertiesView.addProperty(key, date.toLocaleString(), columnNumber);
+                            propertiesView.addProperty(key, Uni.DateTime.formatDateTimeLong(date), columnNumber);
                         } else {
                             propertiesView.addProperty(key, value, columnNumber);
                         }

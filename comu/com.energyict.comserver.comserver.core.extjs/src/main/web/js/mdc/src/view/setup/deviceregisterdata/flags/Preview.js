@@ -21,20 +21,22 @@ Ext.define('Mdc.view.setup.deviceregisterdata.flags.Preview', {
                     {
                         fieldLabel: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
                         name: 'timeStamp',
-                        format: 'M j, Y \\a\\t G:i',
                         renderer: function (value) {
-                            if(!Ext.isEmpty(value)) {
-                                return Ext.util.Format.date(new Date(value), this.format);
+                            if (!Ext.isEmpty(value)) {
+                                return Uni.DateTime.formatDateLong(new Date(value))
+                                    + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                                    + Uni.DateTime.formatTimeLong(new Date(value));
                             }
                         }
                     },
                     {
                         fieldLabel: Uni.I18n.translate('device.registerData.readingTime', 'MDC', 'Reading time'),
                         name: 'reportedDateTime',
-                        format: 'M j, Y \\a\\t G:i',
                         renderer: function (value) {
-                            if(!Ext.isEmpty(value)) {
-                                return Ext.util.Format.date(value, this.format);
+                            if (!Ext.isEmpty(value)) {
+                                return Uni.DateTime.formatDateLong(value)
+                                    + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                                    + Uni.DateTime.formatTimeLong(value);
                             }
                         }
                     },

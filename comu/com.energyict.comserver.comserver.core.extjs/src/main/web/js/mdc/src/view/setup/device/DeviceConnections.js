@@ -41,11 +41,11 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
         '</tr>',
         '<tr>',
         '<td>' + Uni.I18n.translate('device.connections.startedOn', 'MDC', 'Started on') + '</td>',
-        '<td>{[values.startDateTime]}</td>',
+        '<td>{[Uni.DateTime.formatDateTimeLong(values.startDateTime)]}</td>',
         '</tr>',
         '<tr>',
         '<td>' + Uni.I18n.translate('device.connections.finishedOn', 'MDC', 'Finished on') + '</td>',
-        '<td>{[values.endDateTime]}</td>',
+        '<td>{[Uni.DateTime.formatDateTimeLong(values.endDateTime)]}</td>',
         '</tr>',
         '</tpl>',
         '</table>'
@@ -124,16 +124,18 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                     itemId: 'nextExecution',
                     text: Uni.I18n.translate('device.connections.nextExecution', 'MDC', 'Next connection'),
                     dataIndex: 'nextExecution',
-                    xtype: 'datecolumn',
-                    format: 'd/m/Y h:i:s',
+                    renderer: function (value) {
+                        return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                    },
                     flex: 1
                 },
                 {
                     itemId: 'startDateTime',
                     text: Uni.I18n.translate('device.connections.startDateTime', 'MDC', 'Started on'),
                     dataIndex: 'startDateTime',
-                    xtype: 'datecolumn',
-                    format: 'd/m/Y h:i:s',
+                    renderer: function (value) {
+                        return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                    },
                     flex: 1
                 },
                 {

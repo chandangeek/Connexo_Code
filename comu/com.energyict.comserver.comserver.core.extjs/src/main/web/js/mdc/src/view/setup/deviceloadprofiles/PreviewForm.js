@@ -45,30 +45,14 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.PreviewForm', {
                         name: 'interval_formatted'
                     },
                     {
-                        xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('deviceloadprofiles.lastReading', 'MDC', 'Last reading'),
-                        layout: 'hbox',
-                        items: [
-                            {
-                                xtype: 'displayfield',
-                                name: 'lastReading_formatted',
-                                margin: '3 0 0 0',
-                                renderer: function (value) {
-                                    this.nextSibling('button').setVisible(value ? true : false);
-                                    return value;
-                                }
-                            },
-                            {
-                                xtype: 'button',
-                                tooltip: Uni.I18n.translate('deviceloadprofiles.tooltip.lastreading', 'MDC', 'The moment when the data was read out for the last time.'),
-                                iconCls: 'icon-info-small',
-                                ui: 'blank',
-                                itemId: 'lastReadingHelp',
-                                shadow: false,
-                                margin: '6 0 0 10',
-                                width: 16
-                            }
-                        ]
+                        name: 'lastReading',
+                        renderer: function (value) {
+                            var tooltip = Uni.I18n.translate('deviceloadprofiles.tooltip.lastreading', 'MDC', 'The moment when the data was read out for the last time.');
+                            return value
+                                ? Uni.DateTime.formatDateTimeLong(value) + '<span style="margin: 0 0 0 10px; width: 16px; height: 16px" class="icon-info-small" data-qtip="' + tooltip + '"></span>'
+                                : '';
+                        }
                     },
                     {
                         fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels', 'MDC', 'Channels'),

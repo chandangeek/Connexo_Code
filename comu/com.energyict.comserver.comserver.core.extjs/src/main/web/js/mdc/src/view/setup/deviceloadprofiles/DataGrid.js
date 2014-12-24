@@ -27,6 +27,13 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
             {
                 header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval'),
                 dataIndex: 'interval_end',
+                renderer: function (value) {
+                    return value
+                        ? Uni.DateTime.formatDateShort(value)
+                        + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                        + Uni.DateTime.formatTimeShort(value)
+                        : '';
+                },
                 width: 200
             }
         ];

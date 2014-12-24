@@ -11,12 +11,12 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
             {
                 header: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
                 dataIndex: 'timeStamp',
-                xtype: 'datecolumn',
-                format: 'M j, Y \\a\\t G:i',
-                defaultRenderer: function (value) {
-                    if (!Ext.isEmpty(value)) {
-                        return Ext.util.Format.date(new Date(value), this.format);
-                    }
+                renderer: function (value) {
+                    return value
+                        ? Uni.DateTime.formatDateShort(new Date(value))
+                        + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                        + Uni.DateTime.formatTimeShort(new Date(value))
+                        : '';
                 },
                 flex: 1
             },
@@ -26,9 +26,14 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
                 renderer: function (value) {
                     if (!Ext.isEmpty(value)) {
                         var startDate = new Date(value.start),
-                            endDate = new Date(value.end),
-                            format = 'M j, Y \\a\\t G:i';
-                        return Ext.util.Format.date(startDate, format) + ' - ' + Ext.util.Format.date(endDate, format);
+                            endDate = new Date(value.end);
+                        return Uni.DateTime.formatDateShort(startDate)
+                            + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                            + Uni.DateTime.formatTimeShort(startDate)
+                            + ' - '
+                            + Uni.DateTime.formatDateShort(endDate)
+                            + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                            + Uni.DateTime.formatTimeShort(endDate);
                     }
                 },
                 flex: 2

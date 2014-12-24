@@ -94,7 +94,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskGrid',
                 flex: 2,
                 renderer: function (value,metadata) {
                     if (value !== null) {
-                        return new Date(value).toLocaleString();
+                        return Uni.DateTime.formatDateTimeLong(new Date(value));
                     } else {
                         metadata.tdAttr = 'data-qtip="' + Uni.I18n.translate('deviceCommunicationTask.noNextCommunication', 'MDC', 'No next communication') + '"';
                         return '-';

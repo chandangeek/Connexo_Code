@@ -49,10 +49,11 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Preview', {
                                     {
                                         xtype: 'displayfield',
                                         name: 'reportedDateTime',
-                                        format: 'M j, Y \\a\\t G:i',
                                         renderer: function (value) {
                                             if (!Ext.isEmpty(value)) {
-                                                return Ext.util.Format.date(new Date(value), this.format);
+                                                return Uni.DateTime.formatDateLong(new Date(value))
+                                                    + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                                                    + Uni.DateTime.formatTimeLong(new Date(value));
                                             }
 
                                             return Uni.I18n.translate('deviceregisterconfiguration.latestReading.notspecified', 'MDC', '-')
