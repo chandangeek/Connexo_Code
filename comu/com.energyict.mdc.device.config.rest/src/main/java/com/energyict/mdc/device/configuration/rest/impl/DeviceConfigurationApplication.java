@@ -6,7 +6,7 @@ import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -58,7 +58,7 @@ public class DeviceConfigurationApplication extends Application implements Trans
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile TransactionService transactionService;
     private volatile MeteringService meteringService;
-    private volatile EngineModelService engineModelService;
+    private volatile EngineConfigurationService engineConfigurationService;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private volatile TaskService taskService;
     private volatile NlsService nlsService;
@@ -179,8 +179,8 @@ public class DeviceConfigurationApplication extends Application implements Trans
     }
 
     @Reference
-    public void setEngineModelService(EngineModelService engineModelService) {
-        this.engineModelService = engineModelService;
+    public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
+        this.engineConfigurationService = engineConfigurationService;
     }
 
     @Reference
@@ -245,7 +245,7 @@ public class DeviceConfigurationApplication extends Application implements Trans
             bind(nlsService).to(NlsService.class);
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
-            bind(engineModelService).to(EngineModelService.class);
+            bind(engineConfigurationService).to(EngineConfigurationService.class);
             bind(validationService).to(ValidationService.class);
             bind(deviceService).to(DeviceService.class);
             bind(userService).to(UserService.class);

@@ -8,7 +8,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -34,7 +34,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     @Mock
     ProtocolPluggableService protocolPluggableService;
     @Mock
-    EngineModelService engineModelService;
+    EngineConfigurationService engineConfigurationService;
     @Mock
     DeviceService deviceService;
     @Mock
@@ -63,7 +63,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         application.setDeviceConfigurationService(deviceConfigurationService);
         application.setValidationService(validationService);
         application.setProtocolPluggableService(protocolPluggableService);
-        application.setEngineModelService(engineModelService);
+        application.setEngineConfigurationService(engineConfigurationService);
         application.setDeviceService(deviceService);
         application.setUserService(userService);
         application.setJsonService(jsonService);
