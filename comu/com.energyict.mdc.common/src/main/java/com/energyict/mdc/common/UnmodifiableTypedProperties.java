@@ -145,28 +145,23 @@ public class UnmodifiableTypedProperties extends TypedProperties {
     }
 
     @Override
-    @Deprecated
-    public void put(String key, String value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public TypedProperties getInheritedProperties() {
         return delegate.getInheritedProperties();
-    }
-
-    @Override
-    public void setInheritedProperties(TypedProperties inheritedProperties) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void doCopy(TypedProperties source) {
-        throw new UnsupportedOperationException();
     }
 
     @Override
     public TypedProperties getUnmodifiableView() {
         return this;
     }
+
+    @Override
+    public Object getLocalValue(String propertyName) {
+        return this.delegate.getLocalValue(propertyName);
+    }
+
+    @Override
+    public Object getInheritedValue(String propertyName) {
+        return this.delegate.getInheritedValue(propertyName);
+    }
+
 }

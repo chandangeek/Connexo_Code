@@ -88,13 +88,7 @@ public class TypedProperties {
         return typedProperties;
     }
 
-    /**
-     * @deprecated Used for serialization purposes only,
-     *             use the factory method empty() instead.
-     * @see #empty()
-     */
-    @Deprecated
-    public TypedProperties() {
+    protected TypedProperties() {
         super();
     }
 
@@ -402,36 +396,8 @@ public class TypedProperties {
         return other.props.equals(this.props);
     }
 
-    /**
-     * Method for backwards compatibility, mainly when importing master data.
-     * Use {@link #setProperty(String, Object)} instead.
-     *
-     * @param key key of the property
-     * @param value value for the property
-     * @deprecated use setProperty(String, Object) instead
-     */
-    @Deprecated
-    public void put(String key, String value) {
-        setProperty(key, value);
-    }
-
     public TypedProperties getInheritedProperties () {
         return inheritedProperties;
-    }
-
-    public void setInheritedProperties (TypedProperties inheritedProperties) {
-        this.inheritedProperties = inheritedProperties;
-    }
-
-    public void doCopy(TypedProperties source) {
-        this.props = new HashMap<>();
-        for (String key : source.props.keySet()) {
-            this.props.put(key, source.props.get(key));
-        }
-        if (source.getInheritedProperties()!=null) {
-            this.inheritedProperties = TypedProperties.empty();
-            this.inheritedProperties.doCopy(source.getInheritedProperties());
-        }
     }
 
     public TypedProperties getUnmodifiableView() {
@@ -451,6 +417,22 @@ public class TypedProperties {
      */
     public Object getLocalValue(String propertyName) {
         return this.props.get(propertyName);
+    }
+
+    /**
+     * Gets the value for the property with the specified name
+     * that is defined at a higher level.
+     *
+     * @param propertyName The name of the property
+     * @return The value defined at a higher level or <code>null</code> if there is no inherited value
+     */
+    public Object getInheritedValue(String propertyName) {
+        if (this.inheritedProperties != null) {
+            return this.inheritedProperties.getProperty(propertyName);
+        }
+        else {
+            return null;
+        }
     }
 
 }
