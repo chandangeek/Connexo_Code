@@ -1,5 +1,8 @@
 package com.elster.jupiter.time;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.time.impl.MessageSeeds;
+
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -295,7 +298,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
                 this.timeUnit = YEARS;
                 break;
             }
-//            default: throw new InvalidValueException("UnknownTimeUnit", "Unknown time unit", "timeUnit", timeUnitAsString);
+            default: throw new LocalizedFieldValidationException(MessageSeeds.UNKNOWN_TIME_UNIT, "timeUnit", timeUnitAsString);
         }
         timeUnitCode = timeUnit.getCode();
     }
