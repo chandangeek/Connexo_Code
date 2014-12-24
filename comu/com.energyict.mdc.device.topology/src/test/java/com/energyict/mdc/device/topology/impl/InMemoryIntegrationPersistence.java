@@ -16,12 +16,11 @@ import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
 import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
-import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.relation.RelationService;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -90,7 +89,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
-import javax.validation.MessageInterpolator;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.Principal;
@@ -102,8 +100,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-
-import org.mockito.Mock;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -131,7 +127,7 @@ public class InMemoryIntegrationPersistence {
     private JsonService jsonService;
     private Environment environment;
     private RelationService relationService;
-    private EngineModelService engineModelService;
+    private EngineConfigurationService engineConfigurationService;
     private MasterDataService masterDataService;
     private DeviceConfigurationService deviceConfigurationService;
     private MeteringService meteringService;
@@ -224,7 +220,7 @@ public class InMemoryIntegrationPersistence {
             this.taskService = injector.getInstance(TaskService.class);
             this.validationService = injector.getInstance(ValidationService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
-            this.engineModelService = injector.getInstance(EngineModelService.class);
+            this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
             this.relationService = injector.getInstance(RelationService.class);
             this.protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
             this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
@@ -293,8 +289,8 @@ public class InMemoryIntegrationPersistence {
         return jsonService;
     }
 
-    public EngineModelService getEngineModelService() {
-        return engineModelService;
+    public EngineConfigurationService getEngineConfigurationService() {
+        return engineConfigurationService;
     }
 
     public MeteringService getMeteringService() {
