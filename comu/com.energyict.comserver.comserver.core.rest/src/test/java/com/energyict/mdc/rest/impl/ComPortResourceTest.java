@@ -75,6 +75,7 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
 
     @Test
     public void testGetNonExistingComPortReturns404() throws Exception {
+        when(engineConfigurationService.findComPort(anyLong())).thenReturn(Optional.empty());
         final Response response = target("/comports/3").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
