@@ -40,16 +40,18 @@ public class DeviceComTaskExecutionInfoFactory extends BaseComTaskExecutionInfoF
         info.isOnHold = comTaskExecution.isOnHold();
         info.plannedDate = comTaskExecution.getPlannedNextExecutionTimestamp();
         ConnectionTask<?, ?> connectionTask = comTaskExecution.getConnectionTask();
-        info.connectionMethod = connectionTask.getPartialConnectionTask().getName();
-        if (connectionTask.isDefault()) {
-            info.connectionMethod += " (" + getThesaurus().getString(MessageSeeds.DEFAULT.getKey(), "default") + ")";
-        }
-        if (connectionTask instanceof ScheduledConnectionTask) {
-            ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
-            info.connectionStrategy = new ConnectionStrategyInfo();
-            info.connectionStrategy.id = scheduledConnectionTask.getConnectionStrategy();
-            info.connectionStrategy.displayValue = getThesaurus().getString(CONNECTION_STRATEGY_ADAPTER.marshal(scheduledConnectionTask.getConnectionStrategy()),
-                    scheduledConnectionTask.getConnectionStrategy().name());
+        if (connectionTask != null) {
+            info.connectionMethod = connectionTask.getPartialConnectionTask().getName();
+            if (connectionTask.isDefault()) {
+                info.connectionMethod += " (" + getThesaurus().getString(MessageSeeds.DEFAULT.getKey(), "default") + ")";
+            }
+            if (connectionTask instanceof ScheduledConnectionTask) {
+                ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
+                info.connectionStrategy = new ConnectionStrategyInfo();
+                info.connectionStrategy.id = scheduledConnectionTask.getConnectionStrategy();
+                info.connectionStrategy.displayValue = getThesaurus().getString(CONNECTION_STRATEGY_ADAPTER.marshal(scheduledConnectionTask.getConnectionStrategy()),
+                        scheduledConnectionTask.getConnectionStrategy().name());
+            }
         }
     }
 

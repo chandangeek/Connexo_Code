@@ -5,9 +5,10 @@ import com.elster.jupiter.metering.*;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.Batch;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.device.topology.TopologyService;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.ZoneId;
@@ -41,13 +42,15 @@ public class DeviceInfo {
     public Boolean hasRegisters;
     public Boolean hasLogBooks;
     public Boolean hasLoadProfiles;
+    public Boolean isDirectlyAddressed;
+    public Boolean isGateway;
     public String serviceCategory;
     public String usagePoint;
 
     public DeviceInfo() {
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, DeviceImportService deviceImportService, DeviceService deviceService, IssueService issueService, MeteringService meteringService) {
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, DeviceImportService deviceImportService, TopologyService topologyService, IssueService issueService, MeteringService meteringService) {
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
         deviceInfo.mRID = device.getmRID();
@@ -65,9 +68,10 @@ public class DeviceInfo {
         if (optionalBatch.isPresent()) {
             deviceInfo.batch = optionalBatch.get().getName();
         }
-        if (device.getPhysicalGateway() != null) {
-            deviceInfo.masterDeviceId = device.getPhysicalGateway().getId();
-            deviceInfo.masterDevicemRID = device.getPhysicalGateway().getmRID();
+        Optional<Device> physicalGateway = topologyService.getPhysicalGateway(device);
+        if (physicalGateway.isPresent()) {
+            deviceInfo.masterDeviceId = physicalGateway.get().getId();
+            deviceInfo.masterDevicemRID = physicalGateway.get().getmRID();
         }
 
         deviceInfo.gatewayType = device.getConfigurationGatewayType();
@@ -76,6 +80,8 @@ public class DeviceInfo {
         deviceInfo.hasLoadProfiles = !device.getLoadProfiles().isEmpty();
         deviceInfo.hasLogBooks = !device.getLogBooks().isEmpty();
         deviceInfo.hasRegisters = !device.getRegisters().isEmpty();
+        deviceInfo.isDirectlyAddressed = device.getDeviceConfiguration().canBeDirectlyAddressable();
+        deviceInfo.isGateway = device.getDeviceConfiguration().canActAsGateway();
 
         Optional<AmrSystem> amrSystem = getMdcAmrSystem(meteringService);
         if (amrSystem.isPresent()) {

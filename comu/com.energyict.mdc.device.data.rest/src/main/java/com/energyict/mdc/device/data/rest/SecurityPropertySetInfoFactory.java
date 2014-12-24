@@ -76,6 +76,9 @@ public class SecurityPropertySetInfoFactory {
     }
 
     private boolean getStatus(Device device, SecurityPropertySet securityPropertySet,TypedProperties typedProperties) {
+        if (securityPropertySet.getPropertySpecs().isEmpty()) {
+            return true;
+        }
         if (device.getAllSecurityProperties(securityPropertySet).isEmpty()) {
             if (typedProperties == TypedProperties.empty()) {
                 return true;

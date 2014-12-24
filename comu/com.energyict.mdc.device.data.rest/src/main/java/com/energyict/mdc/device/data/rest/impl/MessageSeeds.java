@@ -2,12 +2,13 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.energyict.mdc.protocol.api.ConnectionType;
 import java.text.MessageFormat;
 import java.util.logging.Level;
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     NO_SUCH_DEVICE(14, "noSuchDevice", "No device with mrId {0}"),
     DEVICE_DOES_NOT_MATCH_CONFIG(15, "deviceDoesNotMatchConfig", "Device does not match device configuration"),
@@ -195,9 +196,10 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_COMMUNICATION(225, "NoSuchComTaskExecution", "No such communication with id ''{0}'' on device ''{1}''"),
     NO_SUCH_KPI(226, "NoSuchKpi", "No data collection with id ''{0}'' could be found"),
     NO_SUCH_DEVICE_GROUP(227, "NoSuchDeviceGroup", "No end device group with id ''{0}''"),
-    NO_UPDATE_ALLOWED(228, "NoUpdateAllowed", "You are not allowed to change this field");
+    NO_UPDATE_ALLOWED(228, "NoUpdateAllowed", "You are not allowed to change this field"),
+    IMPOSSIBLE_TO_SET_MASTER_DEVICE(229, "ImpossibleToSetMasterDevice", "Device {0} is directly addressable. It is not possible to set master device"),
 
-
+    ;
     private final int number;
     private final String key;
     private final String format;
