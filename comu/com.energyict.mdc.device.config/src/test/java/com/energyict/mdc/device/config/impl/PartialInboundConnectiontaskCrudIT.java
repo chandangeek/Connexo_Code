@@ -1,8 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.ApplicationContext;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -113,7 +110,6 @@ public class PartialInboundConnectionTaskCrudIT {
     private static EngineModelService engineModelService;
     private static ProtocolPluggableService protocolPluggableService;
     private static DeviceConfigurationServiceImpl deviceConfigurationService;
-    private static ApplicationContext applicationContext;
     private static ConnectionTypePluggableClass connectionTypePluggableClass, connectionTypePluggableClass2;
     private static LicensedProtocolService licensedProtocolService;
     private static ConnectionTypeService connectionTypeService;
@@ -193,9 +189,6 @@ public class PartialInboundConnectionTaskCrudIT {
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
         }
-        Environment environment = injector.getInstance(Environment.class);
-        environment.put(InMemoryPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
-        environment.setApplicationContext(applicationContext);
         setupMasterData();
     }
 
@@ -205,11 +198,6 @@ public class PartialInboundConnectionTaskCrudIT {
         licenseService = mock(LicenseService.class);
         when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
         bootstrapModule = new InMemoryBootstrapModule();
-        applicationContext = mock(ApplicationContext.class);
-        Translator translator = mock(Translator.class);
-        when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
-        when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
-        when(applicationContext.getTranslator()).thenReturn(translator);
         licensedProtocolService = mock(LicensedProtocolService.class);
         when(licensedProtocolService.isValidJavaClassName(anyString(), any(License.class))).thenReturn(true);
         connectionTypeService = mock(ConnectionTypeService.class);

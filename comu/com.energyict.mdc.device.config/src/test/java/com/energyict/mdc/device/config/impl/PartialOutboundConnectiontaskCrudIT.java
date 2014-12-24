@@ -4,6 +4,8 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -52,6 +54,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.io.impl.MdcIOModule;
@@ -85,10 +88,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+
+import org.junit.*;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -111,7 +112,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PartialOutboundConnectiontaskCrudIT {
+public class PartialOutboundConnectionTaskCrudIT {
 
     private static final ComWindow COM_WINDOW = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR, DateTimeConstants.SECONDS_PER_HOUR * 2);
     private static final TimeDuration SIXTY_SECONDS = TimeDuration.seconds(DateTimeConstants.SECONDS_PER_MINUTE);   // In other words: 1 minute
@@ -121,11 +122,26 @@ public class PartialOutboundConnectiontaskCrudIT {
     private static final TimeDuration TWO_HOURS = new TimeDuration(2, TimeDuration.TimeUnit.HOURS);
     private static final TimeDuration TWO_HOURS_IN_MINUTES = TimeDuration.minutes(120);
     private static final TimeDuration ONE_HOUR_IN_MINUTES = TimeDuration.minutes(60);
-    private OutboundComPortPool outboundComPortPool, outboundComPortPool1;
-    private ConnectionTypePluggableClass connectionTypePluggableClass, connectionTypePluggableClass2;
 
     @Rule
     public final TestRule thereIsNOOOORuleNumber6 = new ExpectedConstraintViolationRule();
+    @Rule
+    public final TestRule transactional = new TransactionalRule(transactionService);
+
+    private static InMemoryBootstrapModule bootstrapModule;
+    private static EventAdmin eventAdmin;
+    private static BundleContext bundleContext;
+    private static LicenseService licenseService;
+    private static TransactionService transactionService;
+    private static EngineModelService engineModelService;
+    private static ProtocolPluggableService protocolPluggableService;
+    private static DeviceConfigurationServiceImpl deviceConfigurationService;
+    private static ConnectionTypePluggableClass connectionTypePluggableClass, connectionTypePluggableClass2;
+    private static LicensedProtocolService licensedProtocolService;
+    private static ConnectionTypeService connectionTypeService;
+    private static OutboundComPortPool outboundComPortPool, outboundComPortPool1;
+    private static SpyEventService eventService;
+    private static SchedulingService schedulingService;
 
     @Mock
     private MyDeviceProtocolPluggableClass deviceProtocolPluggableClass;
@@ -133,58 +149,31 @@ public class PartialOutboundConnectiontaskCrudIT {
     private DeviceProtocol deviceProtocol;
 
     @Mock
-    private BundleContext bundleContext;
-    @Mock
-    private Principal principal;
-    @Mock
-    private EventAdmin eventAdmin;
-    private TransactionService transactionService;
-    private SpyEventService eventService;
-    private DeviceConfigurationServiceImpl deviceConfigurationService;
-    private SchedulingService schedulingService;
-    private DataModel dataModel;
-    private Injector injector;
-    @Mock
-    private ApplicationContext applicationContext;
-    private PropertySpecServiceImpl propertySpecService;
-    private ProtocolPluggableService protocolPluggableService;
-    private EngineModelService engineModelService;
-    private InMemoryBootstrapModule bootstrapModule;
-    @Mock
     private IdBusinessObjectFactory businessObjectFactory;
-    @Mock
-    private LicenseService licenseService;
-    @Mock
-    private LicensedProtocolService licensedProtocolService;
-    @Mock
-    private ConnectionTypeService connectionTypeService;
 
-    private class MockModule extends AbstractModule {
+    private static class MockModule extends AbstractModule {
 
         @Override
         protected void configure() {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
-            bind(DataModel.class).toProvider(new Provider<DataModel>() {
-                @Override
-                public DataModel get() {
-                    return dataModel;
-                }
-            });
             bind(EventService.class).to(SpyEventService.class).in(Scopes.SINGLETON);
         }
 
     }
 
-    public void initializeDatabase(boolean showSqlLogging) throws SQLException {
-        bootstrapModule = new InMemoryBootstrapModule();
-        injector = Guice.createInjector(
+    @BeforeClass
+    public static void initializeDatabase() throws SQLException {
+        initializeStaticMocks();
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn(PartialOutboundConnectionTaskCrudIT.class.getSimpleName());
+        Injector injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
                 new ThreadSecurityModule(principal),
                 new PubSubModule(),
-                new TransactionModule(showSqlLogging),
+                new TransactionModule(false),
                 new UtilModule(),
                 new NlsModule(),
                 new DomainUtilModule(),
@@ -217,58 +206,50 @@ public class PartialOutboundConnectiontaskCrudIT {
             injector.getInstance(OrmService.class);
             eventService = (SpyEventService) injector.getInstance(EventService.class);
             injector.getInstance(NlsService.class);
-            propertySpecService = (PropertySpecServiceImpl) injector.getInstance(PropertySpecService.class);
-            this.initializeMocks(this.propertySpecService);
+            PropertySpecServiceImpl propertySpecService = (PropertySpecServiceImpl) injector.getInstance(PropertySpecService.class);
+            initializeConnectionTypes(propertySpecService);
             injector.getInstance(MeteringService.class);
             injector.getInstance(MdcReadingTypeUtilService.class);
             engineModelService = injector.getInstance(EngineModelService.class);
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
-            ((ProtocolPluggableServiceImpl) protocolPluggableService).addLicensedProtocolService(this.licensedProtocolService);
-            ((ProtocolPluggableServiceImpl) protocolPluggableService).addConnectionTypeService(this.connectionTypeService);
+            ((ProtocolPluggableServiceImpl) protocolPluggableService).addLicensedProtocolService(licensedProtocolService);
+            ((ProtocolPluggableServiceImpl) protocolPluggableService).addConnectionTypeService(connectionTypeService);
             injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
             injector.getInstance(ValidationService.class);
             schedulingService = injector.getInstance(SchedulingService.class);
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
-            dataModel = deviceConfigurationService.getDataModel();
+            DataModel dataModel = deviceConfigurationService.getDataModel();
             createOracleAliases(dataModel.getConnection(true));
             ctx.commit();
         }
-        Environment environment = injector.getInstance(Environment.class);
-        environment.put(InMemoryPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
-        environment.setApplicationContext(applicationContext);
+        setupMasterData();
     }
 
-    private void initializeMocks(PropertySpecService propertySpecService) {
-        this.licensedProtocolService = mock(LicensedProtocolService.class);
-        when(this.licensedProtocolService.isValidJavaClassName(anyString(), any(License.class))).thenReturn(true);
-        this.connectionTypeService = mock(ConnectionTypeService.class);
-        when(this.connectionTypeService.createConnectionType(OutboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new OutboundNoParamsConnectionTypeImpl());
-        when(this.connectionTypeService.createConnectionType(InboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new InboundNoParamsConnectionTypeImpl());
-        when(this.connectionTypeService.createConnectionType(IpConnectionType.class.getName())).thenReturn(new IpConnectionType(propertySpecService));
-    }
-
-    @Before
-    public void setUp() throws SQLException {
-        when(principal.getName()).thenReturn("test");
-        Translator translator = mock(Translator.class);
-        when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
-        when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
-        when(applicationContext.getTranslator()).thenReturn(translator);
-        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+    private static void initializeStaticMocks() {
+        eventAdmin = mock(EventAdmin.class);
+        bundleContext = mock(BundleContext.class);
+        licenseService = mock(LicenseService.class);
         when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
-        initializeDatabase(false);
+        bootstrapModule = new InMemoryBootstrapModule();
+        licensedProtocolService = mock(LicensedProtocolService.class);
+        when(licensedProtocolService.isValidJavaClassName(anyString(), any(License.class))).thenReturn(true);
+    }
 
+    private static void initializeConnectionTypes(PropertySpecServiceImpl propertySpecService) {
         propertySpecService.addFactoryProvider(() -> {
             List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
             finders.add(new ConnectionTaskFinder());
             return finders;
         });
+        connectionTypeService = mock(ConnectionTypeService.class);
+        when(connectionTypeService.createConnectionType(OutboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new OutboundNoParamsConnectionTypeImpl());
+        when(connectionTypeService.createConnectionType(InboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new InboundNoParamsConnectionTypeImpl());
+        when(connectionTypeService.createConnectionType(IpConnectionType.class.getName())).thenReturn(new IpConnectionType(propertySpecService));
+    }
 
-        protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
-        engineModelService = injector.getInstance(EngineModelService.class);
-
+    private static void setupMasterData() {
         try (TransactionContext context = transactionService.getContext()) {
             connectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("NoParamsConnectionType", OutboundNoParamsConnectionTypeImpl.class.getName());
             connectionTypePluggableClass.save();
@@ -290,32 +271,33 @@ public class PartialOutboundConnectiontaskCrudIT {
         }
     }
 
-    @After
-    public void tearDown() {
+    @AfterClass
+    public static void tearDown() {
         bootstrapModule.deactivate();
     }
 
-    @Test
-    public void testCreate() {
+    @Before
+    public void initializeMocks() throws SQLException {
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+    }
 
+    @Test
+    @Transactional
+    public void testCreate() {
         PartialScheduledConnectionTaskImpl outboundConnectionTask;
         DeviceConfiguration deviceConfiguration;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
-                    .comPortPool(outboundComPortPool)
-                    .comWindow(COM_WINDOW)
-                    .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
-                    .asDefault(true).build();
-            deviceConfiguration.save();
-
-            context.commit();
-        }
+        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
+                .asDefault(true).build();
+        deviceConfiguration.save();
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found.isPresent()).isTrue();
@@ -341,29 +323,26 @@ public class PartialOutboundConnectiontaskCrudIT {
     }
 
     @Test
+    @Transactional
     public void createDefaultWithoutDefaultTest() {
         PartialScheduledConnectionTaskImpl notTheDefault;
         PartialScheduledConnectionTaskImpl theDefault;
         DeviceConfiguration deviceConfiguration;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            notTheDefault = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
-                    .comPortPool(outboundComPortPool)
-                    .comWindow(COM_WINDOW)
-                    .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
-                    .asDefault(false).build();
-            theDefault = deviceConfiguration.newPartialScheduledConnectionTask("MyDefault", connectionTypePluggableClass2, TimeDuration.days(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
-                    .comPortPool(outboundComPortPool)
-                    .asDefault(true).build();
-            deviceConfiguration.save();
-
-            context.commit();
-        }
+        notTheDefault = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
+                .asDefault(false).build();
+        theDefault = deviceConfiguration.newPartialScheduledConnectionTask("MyDefault", connectionTypePluggableClass2, TimeDuration.days(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .comPortPool(outboundComPortPool)
+                .asDefault(true).build();
+        deviceConfiguration.save();
 
         Optional<PartialConnectionTask> foundTheNotDefault = deviceConfigurationService.getPartialConnectionTask(notTheDefault.getId());
         Optional<PartialConnectionTask> foundTheDefault = deviceConfigurationService.getPartialConnectionTask(theDefault.getId());
@@ -374,29 +353,26 @@ public class PartialOutboundConnectiontaskCrudIT {
     }
 
     @Test
+    @Transactional
     public void createDefaultWithAlreadyDefaultTest() {
         PartialScheduledConnectionTaskImpl notTheDefault;
         PartialScheduledConnectionTaskImpl theDefault;
         DeviceConfiguration deviceConfiguration;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            notTheDefault = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
-                    .comPortPool(outboundComPortPool)
-                    .comWindow(COM_WINDOW)
-                    .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
-                    .asDefault(true).build();
-            theDefault = deviceConfiguration.newPartialScheduledConnectionTask("MyDefault", connectionTypePluggableClass2, TimeDuration.days(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
-                    .comPortPool(outboundComPortPool)
-                    .asDefault(true).build();
-            deviceConfiguration.save();
-
-            context.commit();
-        }
+        notTheDefault = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
+                .asDefault(true).build();
+        theDefault = deviceConfiguration.newPartialScheduledConnectionTask("MyDefault", connectionTypePluggableClass2, TimeDuration.days(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .comPortPool(outboundComPortPool)
+                .asDefault(true).build();
+        deviceConfiguration.save();
 
         Optional<PartialConnectionTask> foundTheNotDefault = deviceConfigurationService.getPartialConnectionTask(notTheDefault.getId());
         Optional<PartialConnectionTask> foundTheDefault = deviceConfigurationService.getPartialConnectionTask(theDefault.getId());
@@ -407,41 +383,33 @@ public class PartialOutboundConnectiontaskCrudIT {
     }
 
     @Test
+    @Transactional
     public void testUpdate() {
-
         PartialScheduledConnectionTaskImpl outboundConnectionTask;
         DeviceConfiguration deviceConfiguration;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
-                    .comPortPool(outboundComPortPool)
-                    .comWindow(COM_WINDOW)
-                    .nextExecutionSpec().temporalExpression(new TimeDuration(10, TimeDuration.TimeUnit.HOURS),new TimeDuration(1, TimeDuration.TimeUnit.HOURS)).set()
-                    .asDefault(true).build();
-            deviceConfiguration.save();
-
-            context.commit();
-        }
+        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .nextExecutionSpec().temporalExpression(new TimeDuration(10, TimeDuration.TimeUnit.HOURS),new TimeDuration(1, TimeDuration.TimeUnit.HOURS)).set()
+                .asDefault(true).build();
+        deviceConfiguration.save();
 
         ComWindow newComWindow = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR * 2, DateTimeConstants.SECONDS_PER_HOUR * 3);
         PartialScheduledConnectionTask task;
-        try (TransactionContext context = transactionService.getContext()) {
-            task = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
-            task.setDefault(false);
-            task.setComportPool(outboundComPortPool1);
-            task.setConnectionTypePluggableClass(connectionTypePluggableClass2);
-            task.setTemporalExpression(new TemporalExpression(TWELVE_HOURS, TWO_HOURS));
-            task.setComWindow(newComWindow);
-            task.setName("Changed");
-            task.save();
-
-            context.commit();
-        }
+        task = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
+        task.setDefault(false);
+        task.setComportPool(outboundComPortPool1);
+        task.setConnectionTypePluggableClass(connectionTypePluggableClass2);
+        task.setTemporalExpression(new TemporalExpression(TWELVE_HOURS, TWO_HOURS));
+        task.setComWindow(newComWindow);
+        task.setName("Changed");
+        task.save();
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found.isPresent()).isTrue();
@@ -450,54 +418,47 @@ public class PartialOutboundConnectiontaskCrudIT {
 
         assertThat(partialConnectionTask).isInstanceOf(PartialScheduledConnectionTaskImpl.class);
 
-        PartialScheduledConnectionTaskImpl partialOutboundConnectionTask = (PartialScheduledConnectionTaskImpl) partialConnectionTask;
+        PartialScheduledConnectionTaskImpl reloadedPartialOutboundConnectionTask = (PartialScheduledConnectionTaskImpl) partialConnectionTask;
 
-        assertThat(partialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool1.getId());
-        assertThat(partialOutboundConnectionTask.isDefault()).isFalse();
-        assertThat(partialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
-        assertThat(partialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass2.getConnectionType());
-        assertThat(partialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(newComWindow);
-        assertThat(partialOutboundConnectionTask.getTemporalExpression().getEvery().getCount()).isEqualTo(12);
-        assertThat(partialOutboundConnectionTask.getTemporalExpression().getEvery().getTimeUnit()).isEqualTo(TimeDuration.TimeUnit.HOURS);
-        assertThat(partialOutboundConnectionTask.getName()).isEqualTo("Changed");
+        assertThat(reloadedPartialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool1.getId());
+        assertThat(reloadedPartialOutboundConnectionTask.isDefault()).isFalse();
+        assertThat(reloadedPartialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
+        assertThat(reloadedPartialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass2.getConnectionType());
+        assertThat(reloadedPartialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(newComWindow);
+        assertThat(reloadedPartialOutboundConnectionTask.getTemporalExpression().getEvery().getCount()).isEqualTo(12);
+        assertThat(reloadedPartialOutboundConnectionTask.getTemporalExpression().getEvery().getTimeUnit()).isEqualTo(TimeDuration.TimeUnit.HOURS);
+        assertThat(reloadedPartialOutboundConnectionTask.getName()).isEqualTo("Changed");
 
         verify(eventService.getSpy()).postEvent(EventType.PARTIAL_SCHEDULED_CONNECTION_TASK_UPDATED.topic(), task);
 
     }
 
     @Test
+    @Transactional
     public void updateToDefaultWithoutCurrentDefaultTest() {
         DeviceConfiguration deviceConfiguration;
         final String connectionTaskName1 = "MyOutbound";
         final String connectionTaskName2 = "MyDefault";
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName1, connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
-                    .comPortPool(outboundComPortPool)
-                    .comWindow(COM_WINDOW)
-                    .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
-                    .asDefault(false).build();
-            deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName2, connectionTypePluggableClass2, TimeDuration.days(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
-                    .comPortPool(outboundComPortPool)
-                    .asDefault(false).build();
-            deviceConfiguration.save();
-
-            context.commit();
-        }
+        deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName1, connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
+                .asDefault(false).build();
+        deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName2, connectionTypePluggableClass2, TimeDuration.days(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .comPortPool(outboundComPortPool)
+                .asDefault(false).build();
+        deviceConfiguration.save();
 
         PartialScheduledConnectionTask task;
-        try (TransactionContext context = transactionService.getContext()) {
-            task = getConnectionTaskWithName(deviceConfiguration, connectionTaskName2);
-            task.setDefault(true);
-            task.save();
-
-            context.commit();
-        }
+        task = getConnectionTaskWithName(deviceConfiguration, connectionTaskName2);
+        task.setDefault(true);
+        task.save();
 
         DeviceConfiguration reloadedDeviceConfig = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId()).get();
         PartialScheduledConnectionTask partialConnectionTask1 = getConnectionTaskWithName(reloadedDeviceConfig, connectionTaskName1);
@@ -507,41 +468,34 @@ public class PartialOutboundConnectiontaskCrudIT {
     }
 
     @Test
+    @Transactional
     public void updateToDefaultWithCurrentDefaultTest() {
         DeviceConfiguration deviceConfiguration;
         final String connectionTaskName1 = "MyOutbound";
         final String connectionTaskName2 = "MyDefault";
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName1, connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
-                    .comPortPool(outboundComPortPool)
-                    .comWindow(COM_WINDOW)
-                    .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
-                    .asDefault(true).build();
-            deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName2, connectionTypePluggableClass2, TimeDuration.days(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
-                    .comPortPool(outboundComPortPool)
-                    .asDefault(false).build();
-            deviceConfiguration.save();
-
-            context.commit();
-        }
+        deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName1, connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
+                .asDefault(true).build();
+        deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName2, connectionTypePluggableClass2, TimeDuration.days(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .comPortPool(outboundComPortPool)
+                .asDefault(false).build();
+        deviceConfiguration.save();
 
         PartialScheduledConnectionTask initialDefault = getConnectionTaskWithName(deviceConfiguration, connectionTaskName1);
         assertThat(initialDefault.isDefault()).isTrue();
 
         PartialScheduledConnectionTask task;
-        try (TransactionContext context = transactionService.getContext()) {
-            task = getConnectionTaskWithName(deviceConfiguration, connectionTaskName2);
-            task.setDefault(true);
-            task.save();
-
-            context.commit();
-        }
+        task = getConnectionTaskWithName(deviceConfiguration, connectionTaskName2);
+        task.setDefault(true);
+        task.save();
 
         DeviceConfiguration reloadedDeviceConfig = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId()).get();
         PartialScheduledConnectionTask partialConnectionTask1 = getConnectionTaskWithName(reloadedDeviceConfig, connectionTaskName1);
@@ -560,40 +514,32 @@ public class PartialOutboundConnectiontaskCrudIT {
     }
 
     @Test
+    @Transactional
     public void testUpdateNextExecutionSpecsWithMinimizeConnections() {
-
         PartialScheduledConnectionTaskImpl outboundConnectionTask;
         DeviceConfiguration deviceConfiguration;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
-                    .comPortPool(outboundComPortPool)
-                    .comWindow(COM_WINDOW)
-                    .nextExecutionSpec().temporalExpression(TWO_HOURS_IN_MINUTES, ONE_HOUR_IN_MINUTES).set()
-                    .asDefault(true).build();
-            deviceConfiguration.save();
-
-            context.commit();
-        }
+        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .nextExecutionSpec().temporalExpression(TWO_HOURS_IN_MINUTES, ONE_HOUR_IN_MINUTES).set()
+                .asDefault(true).build();
+        deviceConfiguration.save();
 
         deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId()).get();
 
         PartialScheduledConnectionTask task;
-        try (TransactionContext context = transactionService.getContext()) {
-            task = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
-            NextExecutionSpecsImpl instance = (NextExecutionSpecsImpl) schedulingService.newNextExecutionSpecs(null);
-            instance.setTemporalExpression(new TemporalExpression(ONE_HOUR_IN_MINUTES, ONE_HOUR_IN_MINUTES));
-            instance.save();
-            task.setNextExecutionSpecs(instance);
-            task.save();
-
-            context.commit();
-        }
+        task = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
+        NextExecutionSpecsImpl instance = (NextExecutionSpecsImpl) schedulingService.newNextExecutionSpecs(null);
+        instance.setTemporalExpression(new TemporalExpression(ONE_HOUR_IN_MINUTES, ONE_HOUR_IN_MINUTES));
+        instance.save();
+        task.setNextExecutionSpecs(instance);
+        task.save();
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found.isPresent()).isTrue();
@@ -609,61 +555,50 @@ public class PartialOutboundConnectiontaskCrudIT {
     }
 
     @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_NOT_ALLOWED_FOR_ASAP + "}", property = "nextExecutionSpecs")
     public void testCanNotCreateConnectionTaskWithNextExecutionSpecIfAsSoonAsPossible() {
 
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceConfiguration deviceConfiguration;
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceConfiguration deviceConfiguration;
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.AS_SOON_AS_POSSIBLE)
-                    .comPortPool(outboundComPortPool)
-                    .comWindow(COM_WINDOW)
-                    .nextExecutionSpec().temporalExpression(TWO_HOURS_IN_MINUTES, ONE_HOUR_IN_MINUTES).set()
-                    .asDefault(true).build();
-            deviceConfiguration.save();
-
-            context.commit();
-        }
+        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .nextExecutionSpec().temporalExpression(TWO_HOURS_IN_MINUTES, ONE_HOUR_IN_MINUTES).set()
+                .asDefault(true).build();
+        deviceConfiguration.save();
     }
 
     @Test
+    @Transactional
     public void testUpdateNextExecutionSpecsWithAsSoonAsPossible() {
-
         PartialScheduledConnectionTaskImpl outboundConnectionTask;
         DeviceConfiguration deviceConfiguration;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.AS_SOON_AS_POSSIBLE)
-                    .comPortPool(outboundComPortPool)
-                    .comWindow(COM_WINDOW)
-                    .asDefault(true).build();
-            deviceConfiguration.save();
-
-            context.commit();
-        }
+        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .asDefault(true).build();
+        deviceConfiguration.save();
 
         deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId()).get();
 
         PartialScheduledConnectionTask task;
-        try (TransactionContext context = transactionService.getContext()) {
-            task = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
-            NextExecutionSpecsImpl instance = (NextExecutionSpecsImpl) schedulingService.newNextExecutionSpecs(null);
-            instance.setTemporalExpression(new TemporalExpression(ONE_HOUR_IN_MINUTES, ONE_HOUR_IN_MINUTES));
-            instance.save();
-            task.save();
-
-            context.commit();
-        }
+        task = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
+        NextExecutionSpecsImpl instance = (NextExecutionSpecsImpl) schedulingService.newNextExecutionSpecs(null);
+        instance.setTemporalExpression(new TemporalExpression(ONE_HOUR_IN_MINUTES, ONE_HOUR_IN_MINUTES));
+        instance.save();
+        task.save();
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found.isPresent()).isTrue();
@@ -679,33 +614,26 @@ public class PartialOutboundConnectiontaskCrudIT {
     }
 
     @Test
+    @Transactional
     public void testDelete() {
         PartialScheduledConnectionTaskImpl outboundConnectionTask;
         DeviceConfiguration deviceConfiguration;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.AS_SOON_AS_POSSIBLE)
-                    .comPortPool(outboundComPortPool)
-                    .comWindow(COM_WINDOW)
-                    .asDefault(true).build();
-            deviceConfiguration.save();
-
-            context.commit();
-        }
+        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .asDefault(true).build();
+        deviceConfiguration.save();
 
         PartialScheduledConnectionTask partialOutboundConnectionTask;
-        try (TransactionContext context = transactionService.getContext()) {
-            partialOutboundConnectionTask = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
-            deviceConfiguration.remove(partialOutboundConnectionTask);
-            deviceConfiguration.save();
-
-            context.commit();
-        }
+        partialOutboundConnectionTask = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
+        deviceConfiguration.remove(partialOutboundConnectionTask);
+        deviceConfiguration.save();
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found.isPresent()).isFalse();
@@ -715,40 +643,31 @@ public class PartialOutboundConnectiontaskCrudIT {
     }
 
     @Test
+    @Transactional
     public void testCreateReferencingInitiation() {
-
         PartialConnectionInitiationTaskImpl connectionInitiationTask;
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType;
-        try (TransactionContext context = transactionService.getContext()) {
-            deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            connectionInitiationTask = deviceConfiguration.newPartialConnectionInitiationTask("MyInitiation", connectionTypePluggableClass, SIXTY_SECONDS)
-                    .comPortPool(outboundComPortPool)
-                    .rescheduleDelay(SIXTY_SECONDS)
-                    .build();
-            deviceConfiguration.save();
-
-            context.commit();
-        }
+        connectionInitiationTask = deviceConfiguration.newPartialConnectionInitiationTask("MyInitiation", connectionTypePluggableClass, SIXTY_SECONDS)
+                .comPortPool(outboundComPortPool)
+                .rescheduleDelay(SIXTY_SECONDS)
+                .build();
+        deviceConfiguration.save();
 
         PartialScheduledConnectionTaskImpl outboundConnectionTask;
-        try (TransactionContext context = transactionService.getContext()) {
-
-            outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
-                    .comPortPool(outboundComPortPool)
-                    .comWindow(COM_WINDOW)
-                    .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
-                    .initiationTask(connectionInitiationTask)
-                    .asDefault(true).build();
-            deviceConfiguration.save();
-
-            context.commit();
-        }
+        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
+                .initiationTask(connectionInitiationTask)
+                .asDefault(true).build();
+        deviceConfiguration.save();
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found.isPresent()).isTrue();
@@ -772,174 +691,144 @@ public class PartialOutboundConnectiontaskCrudIT {
     }
 
     @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.CONNECTION_STRATEGY_REQUIRED + '}')
     public void testCreateWithoutConnectionStrategy() {
-
         DeviceConfiguration deviceConfiguration;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, null)
-                    .comPortPool(outboundComPortPool)
-                    .comWindow(COM_WINDOW)
-                    .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
-                    .asDefault(true).build();
-            deviceConfiguration.save();
-
-            context.commit();
-        }
+        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, null)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
+                .asDefault(true).build();
+        deviceConfiguration.save();
     }
 
     @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS + '}')
     public void testCreateMinimizingConnectionsWithoutNextExecutionSpecs() {
 
         DeviceConfiguration deviceConfiguration;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
-                    .comPortPool(outboundComPortPool)
-                    .comWindow(COM_WINDOW)
-                    .asDefault(true).build();
-            deviceConfiguration.save();
-
-            context.commit();
-        }
+        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .asDefault(true).build();
+        deviceConfiguration.save();
     }
 
     @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW + '}')
     public void testCreateWithNextExecutionSpecsOffsetNotWithinComWindowTest() {
 
         DeviceConfiguration deviceConfiguration;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
-                    .comPortPool(outboundComPortPool)
-                    .comWindow(COM_WINDOW)
-                    .nextExecutionSpec().temporalExpression(TimeDuration.hours(15), TimeDuration.hours(4)).set()
-                    .asDefault(true).build();
-            deviceConfiguration.save();
-
-            context.commit();
-        }
+        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .nextExecutionSpec().temporalExpression(TimeDuration.hours(15), TimeDuration.hours(4)).set()
+                .asDefault(true).build();
+        deviceConfiguration.save();
     }
 
     @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.UNDER_MINIMUM_RESCHEDULE_DELAY + '}')
     public void testCreateWithTooLowReschedulingRetryDelayTest() {
 
         DeviceConfiguration deviceConfiguration;
-        try (TransactionContext context = transactionService.getContext()) {
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, TimeDuration.seconds(59), ConnectionStrategy.MINIMIZE_CONNECTIONS)
-                    .comPortPool(outboundComPortPool)
-                    .comWindow(COM_WINDOW)
-                    .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
-                    .asDefault(true).build();
-            deviceConfiguration.save();
-
-            context.commit();
-        }
+        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, TimeDuration.seconds(59), ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
+                .asDefault(true).build();
+        deviceConfiguration.save();
     }
 
     @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC + '}')
     public void testCreateWithNonSpecifiedProperty() {
         DeviceConfiguration deviceConfiguration;
-        try (TransactionContext context = transactionService.getContext()) {
-            connectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("IPConnectionType", IpConnectionType.class.getName());
-            connectionTypePluggableClass.save();
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
-                    .comPortPool(outboundComPortPool)
-                    .comWindow(COM_WINDOW)
-                    .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
-                    .addProperty("NONSPECCED", 5)
-                    .asDefault(true).build();
-            deviceConfiguration.save();
-
-            context.commit();
-        }
-
-
+        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
+                .addProperty("NONSPECCED", 5)
+                .asDefault(true).build();
+        deviceConfiguration.save();
     }
 
     @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE + '}')
     public void testCreateWithWrongValueForProperty() {
         DeviceConfiguration deviceConfiguration;
-        try (TransactionContext context = transactionService.getContext()) {
-            connectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("IPConnectionType", IpConnectionType.class.getName());
-            connectionTypePluggableClass.save();
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        connectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("IPConnectionType", IpConnectionType.class.getName());
+        connectionTypePluggableClass.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
-                    .comPortPool(outboundComPortPool)
-                    .comWindow(COM_WINDOW)
-                    .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
-                    .addProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, BigDecimal.valueOf(140024, 2))
-                    .asDefault(true).build();
-            deviceConfiguration.save();
-
-            context.commit();
-        }
-
-
+        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
+                .addProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, BigDecimal.valueOf(140024, 2))
+                .asDefault(true).build();
+        deviceConfiguration.save();
     }
 
     @Test
+    @Transactional
     public void testCreateWithCorrectProperty() {
-
         PartialScheduledConnectionTaskImpl outboundConnectionTask;
         DeviceConfiguration deviceConfiguration;
-        try (TransactionContext context = transactionService.getContext()) {
-            connectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("IPConnectionType", IpConnectionType.class.getName());
-            connectionTypePluggableClass.save();
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
-                    .comPortPool(outboundComPortPool)
-                    .comWindow(COM_WINDOW)
-                    .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
-                    .addProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, "127.0.0.1")
-                    .asDefault(true).build();
-            deviceConfiguration.save();
+        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
+                .addProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, "127.0.0.1")
+                .asDefault(true).build();
+        deviceConfiguration.save();
 
-            context.commit();
-        }
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found.isPresent()).isTrue();
 
@@ -953,34 +842,31 @@ public class PartialOutboundConnectiontaskCrudIT {
 
 
     @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD + "}")
     public void createOutboundConnectionMethodWithInboundConnectionTypeTest() {
         DeviceConfiguration deviceConfiguration;
-        try (TransactionContext context = transactionService.getContext()) {
-            ConnectionTypePluggableClass inboundConnectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("Inboundtype", InboundNoParamsConnectionTypeImpl.class.getName());
-            inboundConnectionTypePluggableClass.save();
-            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-            deviceType.save();
+        ConnectionTypePluggableClass inboundConnectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("Inboundtype", InboundNoParamsConnectionTypeImpl.class.getName());
+        inboundConnectionTypePluggableClass.save();
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
 
-            deviceConfiguration = deviceType.newConfiguration("Normal").add();
-            deviceConfiguration.save();
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
 
-            deviceConfiguration.newPartialScheduledConnectionTask("MyOutboundWhichIsActuallyAnInbound", inboundConnectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
-                    .comPortPool(outboundComPortPool)
-                    .comWindow(COM_WINDOW)
-                    .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
-                    .asDefault(true).build();
-            deviceConfiguration.save();
-
-            context.commit();
-        }
+        deviceConfiguration.newPartialScheduledConnectionTask("MyOutboundWhichIsActuallyAnInbound", inboundConnectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
+                .asDefault(true).build();
+        deviceConfiguration.save();
     }
 
     public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
 
     }
 
-    public class ConnectionTaskFinder implements CanFindByLongPrimaryKey {
+    public static class ConnectionTaskFinder implements CanFindByLongPrimaryKey {
 
         @Override
         public FactoryIds factoryId() {
@@ -998,7 +884,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         }
     }
 
-    private void createOracleAliases(Connection connection) {
+    private static void createOracleAliases(Connection connection) {
         try {
             try (PreparedStatement preparedStatement = connection.prepareStatement(
                     "CREATE VIEW IF NOT EXISTS USER_TABLES AS select table_name from INFORMATION_SCHEMA.TABLES where table_schema = 'PUBLIC'"
