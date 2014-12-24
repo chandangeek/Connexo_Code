@@ -85,7 +85,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceLoadProfileTab',
         'Mdc.controller.setup.DeviceChannelTab',
         'Mdc.controller.setup.DevicesEditGroupController',
-        'Mdc.controller.setup.DeviceLogbookData'
+        'Mdc.controller.setup.DeviceLogbookData',
+        'Mdc.controller.setup.DataCollectionKpi'
     ],
 
     refs: [
@@ -221,6 +222,11 @@ Ext.define('Mdc.controller.Main', {
                             href: '#/administration/communicationtasks',
                             hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationAdministration','privilege.view.communicationAdministration']),
                             route: 'communicationtasks'
+                        },
+                        {
+                            text: Uni.I18n.translate('general.dataCollectionKpis', 'MDC', 'Data collection KPIs'),
+                            href: '#/administration/datacollectionkpis',
+                            route: 'datacollectionkpis'
                         }
                     ]
                 });

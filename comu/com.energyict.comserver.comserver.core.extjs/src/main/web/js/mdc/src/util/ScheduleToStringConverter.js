@@ -3,11 +3,11 @@ Ext.define('Mdc.util.ScheduleToStringConverter', {
 
     daysOfWeekStore: Ext.create('Mdc.store.DaysOfWeek'),
 
-    convert: function(temporalExpression){
-        if(temporalExpression!==null && temporalExpression !== ''){
+    convert: function (temporalExpression) {
+        if (temporalExpression !== null && temporalExpression !== '') {
             var timeUnit = temporalExpression.every.timeUnit,
                 count = temporalExpression.every.count,
-                formattedSchedule = Ext.String.format('Every {0} {1}', count,  Uni.I18n.translatePlural('general.timeUnit.' + timeUnit, count, 'MDC', timeUnit));
+                formattedSchedule = Ext.String.format('Every {0} {1}', count, Uni.I18n.translatePlural('general.timeUnit.' + timeUnit, count, 'MDC', timeUnit));
             return formattedSchedule + this.formatOffset(temporalExpression);
         } else {
             return undefined;
@@ -23,68 +23,70 @@ Ext.define('Mdc.util.ScheduleToStringConverter', {
             days,
             dayOfWeek;
 
-        switch(temporalExpression.every.timeUnit){
-            case 'minutes':
-                seconds = offset.count;
+        if (!!offset) {
+            switch (temporalExpression.every.timeUnit) {
+                case 'minutes':
+                    seconds = offset.count;
 
-                if (seconds) {
-                    result += ' ' + Uni.I18n.translate('scheduleToStringConverter.at', 'MDC', 'at') + ' ';
-                    result += Ext.String.format(Uni.I18n.translatePlural('scheduleToStringConverter.seconds', seconds, 'MDC', '{0} seconds'), seconds);
-                }
-                break;
-            case 'hours':
-                seconds = (offset.count%3600)%60;
-                minutes = Math.floor((offset.count%3600)/60);
-
-                if (minutes || seconds) {
-                    result += ' ' + Uni.I18n.translate('scheduleToStringConverter.at', 'MDC', 'at') + ' ';
-                    if (minutes) {
-                        result += Ext.String.format(Uni.I18n.translatePlural('scheduleToStringConverter.minutes', minutes, 'MDC', '{0} minutes'), minutes);
-                    }
-                    if (minutes && seconds) {
-                        result += ' ' + Uni.I18n.translate('scheduleToStringConverter.and', 'MDC', 'and') + ' ';
-                    }
                     if (seconds) {
+                        result += ' ' + Uni.I18n.translate('scheduleToStringConverter.at', 'MDC', 'at') + ' ';
                         result += Ext.String.format(Uni.I18n.translatePlural('scheduleToStringConverter.seconds', seconds, 'MDC', '{0} seconds'), seconds);
                     }
-                }
-                break;
-            case 'days':
-                seconds = (offset.count%3600)%60;
-                minutes = Math.floor((offset.count%3600)/60);
-                hours = Math.floor(offset.count/3600);
+                    break;
+                case 'hours':
+                    seconds = (offset.count % 3600) % 60;
+                    minutes = Math.floor((offset.count % 3600) / 60);
 
-                result += this.formatTime(hours, minutes, seconds);
+                    if (minutes || seconds) {
+                        result += ' ' + Uni.I18n.translate('scheduleToStringConverter.at', 'MDC', 'at') + ' ';
+                        if (minutes) {
+                            result += Ext.String.format(Uni.I18n.translatePlural('scheduleToStringConverter.minutes', minutes, 'MDC', '{0} minutes'), minutes);
+                        }
+                        if (minutes && seconds) {
+                            result += ' ' + Uni.I18n.translate('scheduleToStringConverter.and', 'MDC', 'and') + ' ';
+                        }
+                        if (seconds) {
+                            result += Ext.String.format(Uni.I18n.translatePlural('scheduleToStringConverter.seconds', seconds, 'MDC', '{0} seconds'), seconds);
+                        }
+                    }
+                    break;
+                case 'days':
+                    seconds = (offset.count % 3600) % 60;
+                    minutes = Math.floor((offset.count % 3600) / 60);
+                    hours = Math.floor(offset.count / 3600);
 
-                break;
-            case 'weeks':
-                seconds = ((offset.count%86400)%3600)%60;
-                minutes = Math.floor(((offset.count%86400)%3600)/60);
-                hours = Math.floor((offset.count%86400)/3600);
-                dayOfWeek = this.daysOfWeekStore.getById((Math.floor(offset.count/86400))+1).get('translation');
+                    result += this.formatTime(hours, minutes, seconds);
 
-                if (dayOfWeek) {
-                    result += ' ' + Uni.I18n.translate('scheduleToStringConverter.on', 'MDC', 'on') + ' ' + dayOfWeek;
-                }
+                    break;
+                case 'weeks':
+                    seconds = ((offset.count % 86400) % 3600) % 60;
+                    minutes = Math.floor(((offset.count % 86400) % 3600) / 60);
+                    hours = Math.floor((offset.count % 86400) / 3600);
+                    dayOfWeek = this.daysOfWeekStore.getById((Math.floor(offset.count / 86400)) + 1).get('translation');
 
-                result += this.formatTime(hours, minutes, seconds);
+                    if (dayOfWeek) {
+                        result += ' ' + Uni.I18n.translate('scheduleToStringConverter.on', 'MDC', 'on') + ' ' + dayOfWeek;
+                    }
 
-                break;
-            case 'months':
-                seconds = ((offset.count%86400)%3600)%60;
-                minutes = Math.floor(((offset.count%86400)%3600)/60);
-                hours = Math.floor((offset.count%86400)/3600);
-                days = Math.floor(Math.floor(offset.count/86400));
+                    result += this.formatTime(hours, minutes, seconds);
 
-                if (temporalExpression.lastDay === false) {
-                    result += days ? ' ' + Ext.String.format(Uni.I18n.translate('scheduleToStringConverter.onTheDay', 'MDC', 'on the {0} day'), days) : '';
-                } else {
-                    result += ' ' + Uni.I18n.translate('scheduleToStringConverter.onTheLastDay', 'MDC', 'on the last day');
-                }
+                    break;
+                case 'months':
+                    seconds = ((offset.count % 86400) % 3600) % 60;
+                    minutes = Math.floor(((offset.count % 86400) % 3600) / 60);
+                    hours = Math.floor((offset.count % 86400) / 3600);
+                    days = Math.floor(Math.floor(offset.count / 86400));
 
-                result += this.formatTime(hours, minutes, seconds);
+                    if (temporalExpression.lastDay === false) {
+                        result += days ? ' ' + Ext.String.format(Uni.I18n.translate('scheduleToStringConverter.onTheDay', 'MDC', 'on the {0} day'), days) : '';
+                    } else {
+                        result += ' ' + Uni.I18n.translate('scheduleToStringConverter.onTheLastDay', 'MDC', 'on the last day');
+                    }
 
-                break;
+                    result += this.formatTime(hours, minutes, seconds);
+
+                    break;
+            }
         }
         return result;
     },

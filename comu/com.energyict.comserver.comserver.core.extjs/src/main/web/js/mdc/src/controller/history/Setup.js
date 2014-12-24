@@ -826,6 +826,33 @@ Ext.define('Mdc.controller.history.Setup', {
                         }
                     }
                 },
+                datacollectionkpis: {
+                    title: Uni.I18n.translate('general.dataCollectionKpis', 'MDC', 'Data collection KPIs'),
+                    route: 'datacollectionkpis',
+                    controller: 'Mdc.controller.setup.DataCollectionKpi',
+                    action: 'showDataCollectionKpiView',
+                    items: {
+                        create: {
+                            title: Uni.I18n.translate('datacollectionkpis.addDataCollectionKpi', 'MDC', 'Add data collection KPI'),
+                            route: 'create',
+                            controller: 'Mdc.controller.setup.DataCollectionKpi',
+                            action: 'showDataCollectionKpiEditView'
+                        },
+                        edit: {
+                            title: Uni.I18n.translate('datacollectionkpis.editDataCollectionKpi', 'MDC', 'Edit data collection KPI'),
+                            route: '{id}/edit',
+                            controller: 'Mdc.controller.setup.DataCollectionKpi',
+                            action: 'showDataCollectionKpiEditView',
+                            callback: function (route) {
+                                this.getApplication().on('loadDataCollectionKpi', function (title) {
+                                    route.setTitle(title);
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            }
+                        }
+                    }
+                },
                 communicationschedules: {
                     title: 'Shared communication schedules',
                     route: 'communicationschedules',
