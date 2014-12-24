@@ -367,7 +367,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             nonSuspect = nonSuspectField.boxLabel,
             eventDateText = '';
         eventDateText += intervalEnd + ' ' + intervalStartField.getFieldLabel().toLowerCase() + ' '
-            + Uni.DateTime.formatDateShort(intervalStart) + ' ';
+            + Uni.DateTime.formatDateShort(intervalStart);
         filterView.setFilter('eventDateChanged', filterForm.down('#dateContainer').getFieldLabel(), eventDateText, true);
         filterView.down('#Reset').setText('Reset');
         if (suspectField.getValue()) {

@@ -342,7 +342,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             nonSuspect = nonSuspectField.boxLabel,
             eventDateText = '';
         eventDateText += intervalEnd + ' ' + intervalStartField.getFieldLabel().toLowerCase() + ' '
-            + Uni.I18n.formatDate('devicelogbooks.topFilter.tagButton.dateFormat', intervalStart, 'MDC', 'd/m/Y') + ' ';
+            + Uni.DateTime.formatDateShort(intervalStart);
         filterView.setFilter('eventDateChanged', filterForm.down('#dateContainer').getFieldLabel(), eventDateText, true);
         filterView.down('#Reset').setText('Reset');
         if (suspectField.getValue()) {
