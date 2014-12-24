@@ -41,7 +41,7 @@ Ext.define('Dxp.controller.Log', {
                     });
                     occurrenceTask = this.getById(parseInt(occurrenceId));
                     runStartedOn = moment(occurrenceTask.startedOn).valueOf();
-                    runStartedOnFormatted = moment(runStartedOn).format('ddd, DD MMM YYYY HH:mm:ss');
+                    runStartedOnFormatted = Uni.DateTime.formatDateTimeLong(new Date(runStartedOn));
                     view = Ext.widget('log-setup', {
                         router: router,
                         task: record,
