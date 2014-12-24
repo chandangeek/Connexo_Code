@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 /**

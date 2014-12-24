@@ -18,7 +18,7 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -387,7 +387,7 @@ public enum TableSpecs {
                     add();
             table.foreignKey("FK_DTC_PARTIALCT_COMPORTPOOL").
                     on(comportpool).
-                    references(EngineModelService.COMPONENT_NAME, "MDC_COMPORTPOOL").
+                    references(EngineConfigurationService.COMPONENT_NAME, "MDC_COMPORTPOOL").
                     map("comPortPool").
                     add();
             table.foreignKey("FK_DTC_PARTIALCT_DEVCONFIG").

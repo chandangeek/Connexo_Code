@@ -3,7 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
-import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.config.InboundComPortPool;
 
 /**
  * Copyrights EnergyICT

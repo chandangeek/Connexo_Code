@@ -4,7 +4,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;

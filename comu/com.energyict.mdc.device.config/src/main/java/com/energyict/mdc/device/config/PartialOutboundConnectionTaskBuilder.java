@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
 
 /**
  * Copyrights EnergyICT
