@@ -11,6 +11,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
@@ -24,6 +25,7 @@ public class UsersApplication extends Application implements BinderProvider {
     private volatile RestQueryService restQueryService;
     private volatile UserService userService;
     private volatile UserPreferencesService userPreferencesService;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -32,7 +34,8 @@ public class UsersApplication extends Application implements BinderProvider {
                                PrivilegeResource.class,
                                DomainResource.class,
                                ResourceResource.class,
-                               CurrentUserResource.class);
+                               CurrentUserResource.class,
+                               UsersFieldResource.class);
     }
     
     @Reference
@@ -54,6 +57,11 @@ public class UsersApplication extends Application implements BinderProvider {
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
+    
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
 
     @Override
     public Binder getBinder() {
@@ -64,6 +72,7 @@ public class UsersApplication extends Application implements BinderProvider {
                 bind(userPreferencesService).to(UserPreferencesService.class);
                 bind(transactionService).to(TransactionService.class);
                 bind(restQueryService).to(RestQueryService.class);
+                bind(threadPrincipalService).to(ThreadPrincipalService.class);
             }
         };
     }

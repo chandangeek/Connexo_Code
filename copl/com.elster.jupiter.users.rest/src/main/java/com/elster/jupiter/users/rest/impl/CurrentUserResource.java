@@ -15,6 +15,7 @@ import javax.ws.rs.core.SecurityContext;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreference;
 import com.elster.jupiter.users.UserPreferencesService;
+import com.elster.jupiter.users.rest.UserInfo;
 import com.elster.jupiter.users.security.Privileges;
 
 @Path("/currentuser")
@@ -25,6 +26,14 @@ public class CurrentUserResource {
     @Inject
     public CurrentUserResource(UserPreferencesService userPreferencesService) {
         this.userPreferencesService = userPreferencesService;
+    }
+    
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_USER_ROLE)
+    public Response getCurrentUser(@Context SecurityContext securityContext) {
+        User user = (User) securityContext.getUserPrincipal();
+        return Response.ok(new UserInfo(user)).build();
     }
     
     @GET

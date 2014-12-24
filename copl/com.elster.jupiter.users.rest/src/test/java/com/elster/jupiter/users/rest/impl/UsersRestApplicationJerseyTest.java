@@ -17,6 +17,7 @@ import org.mockito.Mock;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -29,6 +30,9 @@ public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     UserService userService;
     @Mock
     UserPreferencesService userPreferencesService;
+    @Mock
+    ThreadPrincipalService threadPrincipalService;
+    
     @Mock
     static SecurityContext securityContext;
     
@@ -65,6 +69,7 @@ public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         application.setTransactionService(transactionService);
         application.setUserService(userService);
         application.setUserPreferencesService(userPreferencesService);
+        application.setThreadPrincipalService(threadPrincipalService);
         
         return application;
     }
