@@ -77,12 +77,15 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             },
             '#deviceTypeEdit #communicationProtocolComboBox': {
                 change: this.proposeDeviceTypeName
+            },
+            '#deviceTypeEdit #cancelLink': {
+                click: this.moveToOverviewPage
             }
         });
     },
 
-    showEditView: function (id) {
-
+    moveToOverviewPage: function() {
+         this.getController('Uni.controller.history.Router').getRoute('administration/devicetypes').forward();
     },
 
     previewDeviceType: function (grid, record) {
@@ -175,7 +178,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         var me = this;
         var widget = Ext.widget('deviceTypeEdit', {
             edit: true,
-            returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens(),
             deviceCommunicationProtocols: protocolStore
         });
         this.getApplication().fireEvent('changecontentevent', widget);
