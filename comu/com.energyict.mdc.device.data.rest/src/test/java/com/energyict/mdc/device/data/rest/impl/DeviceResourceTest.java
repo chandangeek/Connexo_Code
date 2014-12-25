@@ -35,7 +35,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -139,7 +139,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("1")).thenReturn(device);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
-        when(engineModelService.findComPortPool("cpp")).thenReturn(comPortPool);
+        doReturn(Optional.of(comPortPool)).when(engineConfigurationService).findInboundComPortPoolByName("cpp");
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
         when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
         when(partialConnectionTask.getName()).thenReturn("inbConnMethod");
@@ -177,7 +177,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("1")).thenReturn(device);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
-        when(engineModelService.findComPortPool("cpp")).thenReturn(comPortPool);
+        doReturn(Optional.of(comPortPool)).when(engineConfigurationService).findInboundComPortPoolByName("cpp");
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
         when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
         when(partialConnectionTask.getName()).thenReturn("inbConnMethod");
@@ -216,7 +216,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("1")).thenReturn(device);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
-        when(engineModelService.findComPortPool("cpp")).thenReturn(comPortPool);
+        doReturn(Optional.of(comPortPool)).when(engineConfigurationService).findInboundComPortPoolByName("cpp");
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
         when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
         when(partialConnectionTask.getName()).thenReturn("inbConnMethod");
@@ -251,7 +251,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("1")).thenReturn(device);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
-        when(engineModelService.findComPortPool("cpp")).thenReturn(comPortPool);
+        doReturn(Optional.of(comPortPool)).when(engineConfigurationService).findInboundComPortPoolByName("cpp");
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
         when(device.getConnectionTasks()).thenReturn(Arrays.<ConnectionTask<?, ?>>asList(connectionTask));
         when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
@@ -289,7 +289,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("1")).thenReturn(device);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
-        when(engineModelService.findComPortPool("cpp")).thenReturn(comPortPool);
+        doReturn(Optional.of(comPortPool)).when(engineConfigurationService).findInboundComPortPoolByName("cpp");
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
         when(device.getConnectionTasks()).thenReturn(Arrays.<ConnectionTask<?, ?>>asList(connectionTask));
         when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
@@ -1035,7 +1035,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         infos = DeviceTopologyInfo.from(topologyTimeline);
         assertThat(infos.size()).isEqualTo(1);
     }
-    
+
     @Test
     public void testUpdateMasterDevice() {
         Device device = mockDeviceForTopologyTest("device");
@@ -1046,33 +1046,33 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.empty());
         Device oldGateway = mockDeviceForTopologyTest("oldGateway");
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldGateway));
-        
+
         DeviceInfo info = new DeviceInfo();
         info.masterDeviceId = gateway.getId();
         info.masterDevicemRID = gateway.getmRID();
-        
+
         Response response = target("/devices/device").request().put(Entity.json(info));
-        
+
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(topologyService).setPhysicalGateway(device, gateway);
     }
-    
+
     @Test
     public void testImpossibleToSetMasterDeviceBecauseItIsGateway() {
         Device device = mockDeviceForTopologyTest("device");
         DeviceConfiguration deviceConfig = device.getDeviceConfiguration();
         when(deviceConfig.canBeDirectlyAddressable()).thenReturn(true);
         when(deviceService.findByUniqueMrid("device")).thenReturn(device);
-        
+
         DeviceInfo info = new DeviceInfo();
         info.masterDeviceId = 1L;
         info.masterDevicemRID = "1";
-        
+
         Response response = target("/devices/device").request().put(Entity.json(info));
-        
+
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
-    
+
     @Test
     public void testDeleteMasterDevice() {
         Device device = mockDeviceForTopologyTest("device");
@@ -1081,12 +1081,12 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.empty());
         Device oldMaster = mock(Device.class);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldMaster));
-        
+
         DeviceInfo info = new DeviceInfo();
         info.masterDevicemRID = null;
-        
+
         Response response = target("/devices/device").request().put(Entity.json(info));
-        
+
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(topologyService).clearPhysicalGateway(device);
     }

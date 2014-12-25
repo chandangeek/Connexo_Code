@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.rest;
 
 import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.config.ComServer;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import org.junit.Test;
 

@@ -28,7 +28,7 @@ import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -62,7 +62,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     DeviceConfigurationService deviceConfigurationService;
     @Mock
-    EngineModelService engineModelService;
+    EngineConfigurationService engineConfigurationService;
     @Mock
     IssueService issueService;
     @Mock
@@ -115,7 +115,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setDeviceService(deviceService);
         application.setTopologyService(topologyService);
         application.setDeviceImportService(deviceImportService);
-        application.setEngineModelService(engineModelService);
+        application.setEngineConfigurationService(engineConfigurationService);
         application.setIssueService(issueService);
         application.setMeteringGroupsService(meteringGroupService);
         application.setMeteringService(meteringService);
