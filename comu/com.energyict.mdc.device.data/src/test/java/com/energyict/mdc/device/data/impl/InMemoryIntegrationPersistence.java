@@ -155,6 +155,7 @@ public class InMemoryIntegrationPersistence {
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private UserService userService;
     private ThreadPrincipalService threadPrincipalService;
+    private MeteringGroupsService meteringGroupsService;
 
     public InMemoryIntegrationPersistence(Clock clock) {
         super();
@@ -227,7 +228,7 @@ public class InMemoryIntegrationPersistence {
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
-            injector.getInstance(MeteringGroupsService.class);
+            meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.masterDataService = injector.getInstance(MasterDataService.class);
             this.taskService = injector.getInstance(TaskService.class);
@@ -379,6 +380,10 @@ public class InMemoryIntegrationPersistence {
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
+    }
+
+    public MeteringGroupsService getMeteringGroupsService() {
+        return meteringGroupsService;
     }
 
     public int update(SqlBuilder sqlBuilder) throws SQLException {
