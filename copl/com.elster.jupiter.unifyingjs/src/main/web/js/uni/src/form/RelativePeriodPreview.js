@@ -73,7 +73,8 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                         editable: false,
                         value: new Date(),
                         width: 128,
-                        margin: '0 6 0 6'
+                        margin: '0 6 0 6',
+                        format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                     },
                     {
                         xtype: 'label',
@@ -207,8 +208,12 @@ Ext.define('Uni.form.RelativePeriodPreview', {
 
     updatePreviewLabel: function (startDate, endDate) {
         var me = this,
-            startDateString = Uni.I18n.formatDate('datetime.longdate', startDate, 'UNI', 'l F j, Y \\a\\t H:i a'),
-            endDateString = Uni.I18n.formatDate('datetime.longdate', endDate, 'UNI', 'l F j, Y \\a\\t H:i a'),
+            startDateString = Uni.DateTime.formatDateLong(startDate)
+                + ' ' + Uni.I18n.translate('general.at', 'UNI', 'At').toLowerCase() + ' '
+                + Uni.DateTime.formatTimeLong(startDate),
+            endDateString = Uni.DateTime.formatDateLong(endDate)
+                + ' ' + Uni.I18n.translate('general.at', 'UNI', 'At').toLowerCase() + ' '
+                + Uni.DateTime.formatTimeLong(endDate),
             dateString = me.formatPreviewTextFn(startDateString, endDateString);
 
         if (typeof startDate !== 'undefined' && typeof endDate !== 'undefined') {
