@@ -14,19 +14,13 @@ Ext.define('Dxp.model.DataSource', {
         },
         {
             name: 'lastRun',
-            mapping: function (data) {
-                return moment(data.lastRun).format('ddd, DD MMM YYYY HH:mm:ss');
-            }
+            dateFormat: 'time',
+            type: 'date'
         },
         {
             name: 'lastExportedDate',
-            mapping: function (data) {
-                if (data.lastExportedDate) {
-                    return moment(data.lastExportedDate).format('ddd, DD MMM YYYY HH:mm:ss');
-                } else {
-                    return '';
-                }
-            }
+            dateFormat: 'time',
+            type: 'date'
         }
     ]
 });
