@@ -8,9 +8,15 @@ Ext.define('Ldr.Loader', {
     appScript: 'app.js',
 
     requires: [
+        'Ldr.store.Preferences',
         'Ldr.store.Privileges',
         'Ldr.store.Translations'
     ],
+
+    /**
+     * Used to count if both preferences and translations have been loaded.
+     */
+    loadCallbackCounter: 0,
 
     /**
      * Called whenever Ext has finished loading. Loads the privileges and then
@@ -28,7 +34,10 @@ Ext.define('Ldr.Loader', {
      * @param {Object} scope Scope
      */
     onPrivilegesLoad: function (scope) {
-        scope.loadTranslations(scope.onTranslationsLoad, scope);
+        scope.loadCallbackCounter = 0;
+
+        scope.loadPreferences(scope.checkAppLoadable, scope);
+        scope.loadTranslations(scope.checkAppLoadable, scope);
     },
 
     /**
@@ -36,8 +45,8 @@ Ext.define('Ldr.Loader', {
      *
      * @param {Object} scope Scope
      */
-    onTranslationsLoad: function (scope) {
-        if (!scope.isAppScriptLoaded(scope)) {
+    checkAppLoadable: function (scope) {
+        if (scope.loadCallbackCounter > 1 && !scope.isAppScriptLoaded(scope)) {
             scope.loadApp(scope);
         }
     },
@@ -68,6 +77,28 @@ Ext.define('Ldr.Loader', {
     },
 
     /**
+     * Loads the preferences for the current user.
+     *
+     * @param {Function} callback Callback after loading
+     * @param {Object} scope Scope
+     */
+    loadPreferences: function (callback, scope) {
+        Ldr.store.Preferences.load({
+            callback: function (records, operation, success) {
+                scope.loadCallbackCounter++;
+
+                //<debug>
+                if (!success) {
+                    console.warn('Preferences could not be loaded, continuing anyways.');
+                }
+                //</debug>
+
+                callback(scope);
+            }
+        });
+    },
+
+    /**
      * Loads the internationalization translations for the current component settings.
      * The array 'i18nComponents' should be defined in the index file for the translations.
      *
@@ -84,6 +115,8 @@ Ext.define('Ldr.Loader', {
 
         Ldr.store.Translations.load({
             callback: function (records, operation, success) {
+                scope.loadCallbackCounter++;
+
                 //<debug>
                 if (!success) {
                     console.warn('Translations could not be loaded, continuing anyways.');
