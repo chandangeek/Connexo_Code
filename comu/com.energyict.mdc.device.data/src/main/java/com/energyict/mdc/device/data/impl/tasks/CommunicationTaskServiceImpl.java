@@ -314,7 +314,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
      * @return The QueryExecutor
      */
     private QueryExecutor<Device> deviceFromDeviceGroupQueryExecutor() {
-        return this.deviceDataModelService.dataModel().query(Device.class, DeviceType.class, DeviceConfiguration.class);
+        return this.deviceDataModelService.dataModel().query(Device.class, DeviceConfiguration.class, DeviceType.class);
     }
 
     private Map<DeviceType, Map<TaskStatus, Long>> injectDeviceTypesAndAddMissing(Map<Long, Map<TaskStatus, Long>> breakdown) {

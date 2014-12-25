@@ -258,7 +258,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
      * @return The QueryExecutor
      */
     private QueryExecutor<Device> deviceFromDeviceGroupQueryExecutor() {
-        return this.deviceDataModelService.dataModel().query(Device.class, DeviceType.class, DeviceConfiguration.class);
+        return this.deviceDataModelService.dataModel().query(Device.class, DeviceConfiguration.class, DeviceType.class);
     }
 
     @Override
