@@ -21,7 +21,9 @@ Ext.define('Sam.view.datapurge.HistoryGrid', {
                 dataIndex: 'startDate',
                 flex: 1,
                 renderer: function (value) {
-                    return value ? Uni.I18n.formatDate('datapurge.history.startedon.dateFormat', value, 'SAM', 'D, d M Y \\a\\t h:i:s') : '';
+                    return value ? Uni.DateTime.formatDateShort(value)
+                        + ' ' + Uni.I18n.translate('general.at', 'SAM', 'At').toLowerCase() + ' '
+                        + Uni.DateTime.formatTimeShort(value) : '';
                 }
             },
             {

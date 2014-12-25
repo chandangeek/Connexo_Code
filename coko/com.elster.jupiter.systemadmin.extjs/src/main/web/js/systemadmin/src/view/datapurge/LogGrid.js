@@ -15,7 +15,7 @@ Ext.define('Sam.view.datapurge.LogGrid', {
             dataIndex: 'timestamp',
             width: 200,
             renderer: function (value) {
-                return value ? Uni.I18n.formatDate('datapurge.log.timestamp.dateFormat', value, 'SAM', 'Y M d H:i:s') : '';
+                return value ? Uni.DateTime.formatDateTimeShort(value) : '';
             }
         },
         {
