@@ -68,10 +68,11 @@ Ext.define('Sam.view.licensing.List', {
                     {
                         itemId: 'expirationDate',
                         header: 'Expiration date',
-                        xtype: 'datecolumn',
-                        format: 'd-m-Y',
                         dataIndex: 'expires',
                         sortable: true,
+                        renderer: function (value) {
+                            return value ? Uni.DateTime.formatDateShort(value) : '';
+                        },
                         flex: 2
                     }
                 ]

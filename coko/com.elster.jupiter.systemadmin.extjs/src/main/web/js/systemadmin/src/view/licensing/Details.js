@@ -65,7 +65,7 @@ Ext.define('Sam.view.licensing.Details', {
                         '</table>',
                         {
                             formatActivationDate: function (date) {
-                                return Ext.Date.format(date, 'd-m-Y');
+                                return Uni.DateTime.formatDateLong(date);
                             }
                         }
                     )
