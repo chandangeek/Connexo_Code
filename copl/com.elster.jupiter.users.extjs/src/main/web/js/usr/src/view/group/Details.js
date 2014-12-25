@@ -82,12 +82,18 @@ Ext.define('Usr.view.group.Details', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'createdOn',
-                                    fieldLabel: Uni.I18n.translate('group.created', 'USR', 'Created on')
+                                    fieldLabel: Uni.I18n.translate('group.created', 'USR', 'Created on'),
+                                    renderer: function (value) {
+                                        return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '';
+                                    }
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'modifiedOn',
-                                    fieldLabel: Uni.I18n.translate('group.modified', 'USR', 'Modified on')
+                                    fieldLabel: Uni.I18n.translate('group.modified', 'USR', 'Modified on'),
+                                    renderer: function (value) {
+                                        return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '';
+                                    }
                                 }
                             ]
                         }

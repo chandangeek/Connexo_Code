@@ -99,12 +99,18 @@ Ext.define('Usr.view.user.Details', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'createdOn',
-                                    fieldLabel: Uni.I18n.translate('user.created', 'USR', 'Created on')
+                                    fieldLabel: Uni.I18n.translate('user.created', 'USR', 'Created on'),
+                                    renderer: function (value) {
+                                        return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '';
+                                    }
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'modifiedOn',
-                                    fieldLabel: Uni.I18n.translate('user.modified', 'USR', 'Modified on')
+                                    fieldLabel: Uni.I18n.translate('user.modified', 'USR', 'Modified on'),
+                                    renderer: function (value) {
+                                        return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '';
+                                    }
                                 }
                             ]
                         }
