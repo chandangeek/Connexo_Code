@@ -6,8 +6,26 @@ Ext.define('Mdc.model.RegisterData', {
         {name: 'reportedDateTime', type:'date', dateFormat: 'time'},
         {name: 'validationStatus', type:'auto', useNull: true, persist: false},
         {name: 'type', type:'string'},
-        {name: 'value', type:'string'},
-        {name: 'deltaValue', type:'string'},
+        {name: 'value', type:'string',
+         convert: function (v, record) {
+              if (record.data.type == 'numerical') {
+                   if(!Ext.isEmpty(record.data.rawValue)) {
+                        return Uni.Number.formatNumber(record.data.rawValue, 0);
+                   }
+                   return Uni.I18n.translate('registerdata.value.notspecified', 'MDC', '-')
+              }
+         }
+        },
+        {name: 'deltaValue', type:'string',
+            convert: function (v, record) {
+                if (record.data.type == 'numerical') {
+                    if(!Ext.isEmpty(v)) {
+                        return Uni.Number.formatNumber(v, 0);
+                    }
+                    return Uni.I18n.translate('registerdata.deltaValue.notspecified', 'MDC', '-')
+                }
+            }
+        },
         {name: 'dataValidated', type:'auto', persist: false},
         {name: 'suspectReason', type:'auto', persist: false},
         {name: 'validationResult', type:'auto', persist: false},

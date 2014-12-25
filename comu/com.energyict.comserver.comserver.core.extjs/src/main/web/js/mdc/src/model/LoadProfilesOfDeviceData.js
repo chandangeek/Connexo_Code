@@ -5,9 +5,33 @@ Ext.define('Mdc.model.LoadProfilesOfDeviceData', {
         {name: 'interval', type: 'auto'},
         {name: 'readingTime', dateFormat: 'time', type: 'date'},
         {name: 'intervalFlags', type: 'auto'},
-        {name: 'channelData', type: 'auto'},
+        {name: 'channelData', type: 'auto',
+            convert: function (v) {
+                for(var key in v) {
+                    if(v.hasOwnProperty(key)) {
+                        if(!Ext.isEmpty((v[key]))) {
+                           v[key] = Uni.Number.formatNumber(v[key], 0);
+                        }
+                    }
+
+                }
+            return v;
+            }
+        },
         {name: 'channelValidationData', type: 'auto'},
-        {name: 'channelCollectedData', type: 'auto'},
+        {name: 'channelCollectedData', type: 'auto',
+            convert: function (v) {
+                for(var key in v) {
+                    if(v.hasOwnProperty(key)) {
+                        if(!Ext.isEmpty((v[key]))) {
+                            v[key] = Uni.Number.formatNumber(v[key], 0);
+                        }
+                    }
+
+                }
+                return v;
+            }
+       },
         {name: 'validationActive', type: 'auto'},
         {
             name: 'interval_start',
