@@ -20,7 +20,7 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.relation.RelationService;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -94,7 +94,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile RelationService relationService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile DeviceConfigurationService deviceConfigurationService;
-    private volatile EngineModelService engineModelService;
+    private volatile EngineConfigurationService engineConfigurationService;
     private volatile SchedulingService schedulingService;
     private volatile SecurityPropertyService securityPropertyService;
 //    private volatile IdentificationService identificationService;
@@ -116,7 +116,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     public DeviceDataModelServiceImpl(BundleContext bundleContext,
                                       OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, com.elster.jupiter.tasks.TaskService taskService,
                                       RelationService relationService, ProtocolPluggableService protocolPluggableService,
-                                      EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService,
+                                      EngineConfigurationService engineConfigurationService, DeviceConfigurationService deviceConfigurationService,
                                       MeteringService meteringService, ValidationService validationService,
                                       SchedulingService schedulingService, MessageService messageService,
                                       SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, IdentificationService identificationService) {
@@ -129,7 +129,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setKpiService(kpiService);
         this.setTaskService(taskService);
         this.setProtocolPluggableService(protocolPluggableService);
-        this.setEngineModelService(engineModelService);
+        this.setEngineConfigurationService(engineConfigurationService);
         this.setDeviceConfigurationService(deviceConfigurationService);
         this.setMeteringService(meteringService);
         this.setValidationService(validationService);
@@ -148,7 +148,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         return Arrays.asList(
                 DeviceConfigurationService.COMPONENTNAME,
                 PluggableService.COMPONENTNAME,
-                EngineModelService.COMPONENT_NAME,
+                EngineConfigurationService.COMPONENT_NAME,
                 SchedulingService.COMPONENT_NAME,
                 TaskService.COMPONENT_NAME,
                 MeteringGroupsService.COMPONENTNAME,
@@ -263,13 +263,13 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     @Override
-    public EngineModelService engineModelService() {
-        return this.engineModelService;
+    public EngineConfigurationService engineConfigurationService() {
+        return this.engineConfigurationService;
     }
 
     @Reference
-    public void setEngineModelService(EngineModelService engineModelService) {
-        this.engineModelService = engineModelService;
+    public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
+        this.engineConfigurationService = engineConfigurationService;
     }
 
     @Reference
@@ -346,7 +346,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(MessageService.class).toInstance(messagingService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
-                bind(EngineModelService.class).toInstance(engineModelService);
+                bind(EngineConfigurationService.class).toInstance(engineConfigurationService);
                 bind(KpiService.class).toInstance(kpiService);
                 bind(com.elster.jupiter.tasks.TaskService.class).toInstance(taskService);
                 bind(ConnectionTaskService.class).toInstance(connectionTaskService);

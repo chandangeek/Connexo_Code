@@ -7,10 +7,9 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImplIT;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import org.junit.Test;
 
@@ -46,7 +45,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
 
 
     private OutboundComPort createOutboundComPort() {
-        OnlineComServer onlineComServer = inMemoryPersistence.getEngineModelService().newOnlineComServerInstance();
+        OnlineComServer onlineComServer = inMemoryPersistence.getEngineConfigurationService().newOnlineComServerInstance();
         onlineComServer.setName("ComServer");
         onlineComServer.setStoreTaskQueueSize(1);
         onlineComServer.setStoreTaskThreadPriority(1);
@@ -65,7 +64,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
     }
 
     private OutboundComPort createComPortInOtherComPortPool() {
-        OnlineComServer onlineComServer = inMemoryPersistence.getEngineModelService().newOnlineComServerInstance();
+        OnlineComServer onlineComServer = inMemoryPersistence.getEngineConfigurationService().newOnlineComServerInstance();
         onlineComServer.setName("ComServer");
         onlineComServer.setStoreTaskQueueSize(1);
         onlineComServer.setStoreTaskThreadPriority(1);

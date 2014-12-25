@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Builds the SQL query thats counts {@link ConnectionTask}s
  * for a single {@link TaskStatus} grouped by the
- * {@link com.energyict.mdc.engine.model.ComPortPool}.
+ * {@link com.energyict.mdc.engine.config.ComPortPool}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-06 (13:06)

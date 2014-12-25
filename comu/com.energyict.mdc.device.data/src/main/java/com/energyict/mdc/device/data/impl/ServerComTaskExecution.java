@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.device.data.impl.tasks.HasLastComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.config.ComPort;
 
 /**
  * Adds behavior to ComTaskExecution that is private

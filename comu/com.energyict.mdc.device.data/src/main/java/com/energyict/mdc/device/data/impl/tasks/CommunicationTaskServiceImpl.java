@@ -24,13 +24,13 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
@@ -101,7 +101,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     @Override
     public TimeDuration releaseTimedOutComTasks(ComServer comServer) {
         int waitTime = -1;
-        List<ComPortPool> containingComPortPoolsForComServer = this.deviceDataModelService.engineModelService().findContainingComPortPoolsForComServer(comServer);
+        List<ComPortPool> containingComPortPoolsForComServer = this.deviceDataModelService.engineConfigurationService().findContainingComPortPoolsForComServer(comServer);
         for (ComPortPool comPortPool : containingComPortPoolsForComServer) {
             this.releaseTimedOutComTasks((OutboundComPortPool) comPortPool);
             waitTime = this.minimumWaitTime(waitTime, ((OutboundComPortPool) comPortPool).getTaskExecutionTimeout().getSeconds());
@@ -740,7 +740,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public Fetcher<ComTaskExecution> getPlannedComTaskExecutionsFor(OutboundComPort comPort) {
-        List<OutboundComPortPool> comPortPools = this.deviceDataModelService.engineModelService().findContainingComPortPoolsForComPort(comPort);
+        List<OutboundComPortPool> comPortPools = this.deviceDataModelService.engineConfigurationService().findContainingComPortPoolsForComPort(comPort);
         if (!comPortPools.isEmpty()) {
             long nowInSeconds = this.toSeconds(this.deviceDataModelService.clock().instant());
             DataMapper<ComTaskExecution> mapper = this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class);

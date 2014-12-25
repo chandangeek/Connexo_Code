@@ -3,7 +3,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.config.InboundComPortPool;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
