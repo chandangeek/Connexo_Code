@@ -18,7 +18,7 @@ Ext.define('Uni.form.field.IntervalFlagsDisplay', {
                 index++;
                 tooltip += Uni.I18n.translate('intervalFlags.Flag', 'UNI', 'Flag') + ' ' + index + ': ' + value + '<br>';
             });
-            result += '<span class="icon-info-small" style="display: inline-block; width: 16px; height: 16px; float: left;" data-qtip="' + Ext.htmlEncode(tooltip) + '"></span>';
+            result += '<span class="uni-icon-info-small" style="display: inline-block; width: 16px; height: 16px; float: left;" data-qtip="' + Ext.htmlEncode(tooltip) + '"></span>';
         }
 
         return result || this.emptyText;

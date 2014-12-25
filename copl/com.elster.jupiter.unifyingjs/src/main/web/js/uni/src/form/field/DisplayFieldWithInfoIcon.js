@@ -27,7 +27,7 @@ Ext.define('Uni.form.field.DisplayFieldWithInfoIcon', {
             new Ext.button.Button({
                 renderTo: field.getEl().down('.x-form-display-field'),
                 tooltip: tooltip,
-                iconCls: 'icon-info-small',
+                iconCls: 'uni-icon-info-small',
                 cls: 'uni-btn-transparent',
                 style: {
                     display: 'inline-block',

@@ -6,7 +6,7 @@ Ext.define('Uni.view.user.Menu', {
     xtype: 'userMenu',
     scale: 'small',
     cls: 'user-menu',
-    iconCls: 'icon-user',
+    iconCls: 'uni-icon-user',
 
     menu: [
         /*{

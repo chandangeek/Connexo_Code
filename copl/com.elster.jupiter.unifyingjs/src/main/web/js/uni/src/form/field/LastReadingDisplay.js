@@ -17,7 +17,7 @@ Ext.define('Uni.form.field.LastReadingDisplay', {
             new Ext.button.Button({
                 renderTo: field.getEl().down('.x-form-display-field'),
                 tooltip: tooltip,
-                iconCls: 'icon-info-small',
+                iconCls: 'uni-icon-info-small',
                 cls: 'uni-btn-transparent',
                 style: {
                     display: 'inline-block',
@@ -30,7 +30,7 @@ Ext.define('Uni.form.field.LastReadingDisplay', {
     },
 
     renderer: function (value, field) {
-        var result = Uni.I18n.formatDate('lastReading.dateFormat', Ext.isDate(value) ? value : new Date(value), 'UNI', 'F d, Y H:i:s'),
+        var result = Uni.DateTime.formatDateTimeLong(Ext.isDate(value) ? value : new Date(value)),
             tooltip = Uni.I18n.translate('lastReading.tooltip', 'UNI', 'The moment when the data was read out for the last time');
 
         if (!value) {
