@@ -1,5 +1,8 @@
 package com.elster.jupiter.time;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.time.impl.MessageSeeds;
+
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.time.DayOfWeek;
@@ -15,7 +18,14 @@ import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.Calendar;
 
-import static com.elster.jupiter.time.TimeDuration.TimeUnit.*;
+import static com.elster.jupiter.time.TimeDuration.TimeUnit.DAYS;
+import static com.elster.jupiter.time.TimeDuration.TimeUnit.HOURS;
+import static com.elster.jupiter.time.TimeDuration.TimeUnit.MILLISECONDS;
+import static com.elster.jupiter.time.TimeDuration.TimeUnit.MINUTES;
+import static com.elster.jupiter.time.TimeDuration.TimeUnit.MONTHS;
+import static com.elster.jupiter.time.TimeDuration.TimeUnit.SECONDS;
+import static com.elster.jupiter.time.TimeDuration.TimeUnit.WEEKS;
+import static com.elster.jupiter.time.TimeDuration.TimeUnit.YEARS;
 
 /**
  * represents a relative period in time
@@ -296,7 +306,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
                 this.timeUnit = YEARS;
                 break;
             }
-//            default: throw new InvalidValueException("UnknownTimeUnit", "Unknown time unit", "timeUnit", timeUnitAsString);
+            default: throw new LocalizedFieldValidationException(MessageSeeds.UNKNOWN_TIME_UNIT, "timeUnit", timeUnitAsString);
         }
         timeUnitCode = timeUnit.getCode();
     }

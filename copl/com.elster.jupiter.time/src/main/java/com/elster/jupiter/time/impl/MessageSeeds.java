@@ -15,7 +15,9 @@ public enum MessageSeeds implements MessageSeed {
 
     NAME_MUST_BE_UNIQUE(7, Keys.NAME_MUST_BE_UNIQUE, "Relative period with such name already exists", Level.SEVERE),
     RELATIVE_PERIOD_IN_USE(8, Keys.RELATIVE_PERIOD_IN_USE, "{0} category(s) can't be deleted, relative period is in use.", Level.SEVERE),
-    CATEGORY_MUST_BE_UNIQUE(9, Keys.CATEGORY_MUST_BE_UNIQUE, "Category is not unique", Level.SEVERE);
+    CATEGORY_MUST_BE_UNIQUE(9, Keys.CATEGORY_MUST_BE_UNIQUE, "Category is not unique", Level.SEVERE),
+    UNKNOWN_TIME_UNIT (10, Keys.UNKNOWN_TIME_UNIT, "Unknown time unit '{0}'", Level.SEVERE),
+    ;
 
     private final int number;
     private final String key;
@@ -87,6 +89,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NAME_MUST_BE_UNIQUE = "NameMustBeUnique";
         public static final String RELATIVE_PERIOD_IN_USE = "RelativePeriodInUse";
         public static final String CATEGORY_MUST_BE_UNIQUE = "CategoryMustBeUnique";
+        public static final String UNKNOWN_TIME_UNIT = "UnknownTimeUnit";
     }
 
 }
