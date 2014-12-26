@@ -14,8 +14,7 @@ Ext.define('Dsh.view.widget.common.DateTimeField', {
         {
             xtype: 'datefield',
             name: 'date',
-            editable: false,
-            format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
+            editable: false
         },
         {
             xtype: 'fieldcontainer',
