@@ -223,7 +223,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         var deviceConnectionsStore = device.connections();
 
         deviceConnectionsStore.getProxy().setUrl(device.get('mRID'));
-        lastUpdateField.update('Last updated at ' + Ext.util.Format.date(new Date(), 'H:i'));
+        lastUpdateField.update('Last updated at ' + Uni.DateTime.formatTimeShort(new Date()));
         deviceConnectionsStore.load(function (records) {
             if (!widget.isDestroyed) {
                 widget.down('#connectionslist').setTitle(Ext.String.format(Uni.I18n.translate('device.connections.title', 'MDC', 'Connections ({0})'), records.length));
@@ -238,7 +238,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         var deviceCommunicationsStore = device.communications();
 
         deviceCommunicationsStore.getProxy().setUrl(device.get('mRID'));
-        lastUpdateField.update('Last updated at ' + Ext.util.Format.date(new Date(), 'H:i'));
+        lastUpdateField.update('Last updated at ' + Uni.DateTime.formatTimeShort(new Date()));
         deviceCommunicationsStore.load(function (records) {
             if (!widget.isDestroyed) {
                 widget.down('#communicationslist').setTitle(Ext.String.format(Uni.I18n.translate('device.communicationTasks.title', 'MDC', 'Communication tasks ({0})'), records.length));
