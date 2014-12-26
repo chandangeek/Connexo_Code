@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
             },
             {
                 xtype: 'obis-column',
-                dataIndex: 'obisCode'
+                dataIndex: 'overruledObisCode'
             },
             {
                 header: 'Interval',
