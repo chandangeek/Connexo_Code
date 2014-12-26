@@ -16,6 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -114,11 +115,7 @@ public class DeviceInfo {
     }
 
     public static List<DeviceInfo> from(List<Device> devices) {
-        List<DeviceInfo> deviceInfos = new ArrayList<>();
-        for (Device device : devices) {
-            deviceInfos.add(DeviceInfo.from(device));
-        }
-        return deviceInfos;
+        return devices.stream().map(DeviceInfo::from).collect(Collectors.toList());
     }
 
     private static Optional<AmrSystem> getMdcAmrSystem(MeteringService meteringService) {

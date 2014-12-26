@@ -59,9 +59,6 @@ import static com.elster.jupiter.util.streams.Functions.asStream;
 
 @Path("/devicegroups")
 public class DeviceGroupResource {
-
-    private static final Logger LOGGER = Logger.getLogger(DeviceGroupResource.class.getName());
-
     private final MeteringGroupsService meteringGroupsService;
     private final RestQueryService restQueryService;
     private final DeviceConfigurationService deviceConfigurationService;
@@ -83,11 +80,11 @@ public class DeviceGroupResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL})
-    public DeviceGroupInfo getDeviceGroup(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        return DeviceGroupInfo.from(fetchDeviceGroup(id, securityContext), deviceConfigurationService, deviceService);
+    public DeviceGroupInfo getDeviceGroup(@PathParam("id") long id) {
+        return DeviceGroupInfo.from(fetchDeviceGroup(id), deviceConfigurationService, deviceService);
     }
 
-    private EndDeviceGroup fetchDeviceGroup(long id, @Context SecurityContext securityContext) {
+    private EndDeviceGroup fetchDeviceGroup(long id) {
         return meteringGroupsService.findEndDeviceGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
@@ -95,22 +92,12 @@ public class DeviceGroupResource {
     @Path("/{id}/devices")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL})
-    public PagedInfoList getDevices(@BeanParam QueryParameters queryParameters, @PathParam("id") long deviceGroupId, @Context SecurityContext securityContext) {
-        EndDeviceGroup endDeviceGroup = fetchDeviceGroup(deviceGroupId, securityContext);
-        List<? extends EndDevice> allEndDevices = endDeviceGroup.getMembers(Instant.now());
+    public PagedInfoList getDevices(@BeanParam QueryParameters queryParameters, @PathParam("id") long deviceGroupId) {
+        EndDeviceGroup endDeviceGroup = fetchDeviceGroup(deviceGroupId);
         List<? extends EndDevice> endDevices =
-                ListPager.of(allEndDevices).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
-
-        List<Device> devices = new ArrayList<Device>();
-        for (EndDevice endDevice : endDevices) {
-            Device device = deviceService.findDeviceById(Long.parseLong(endDevice.getAmrId()));
-            if (device != null) {
-                devices.add(device);
-            }
-        }
-        //List<Device> subList = devices.subList(0, Math.min(queryParameters.getLimit() + 1, endDevices.size() + 1));
-        List<DeviceInfo> deviceInfos = DeviceInfo.from(devices);
-        return PagedInfoList.asJson("devices", deviceInfos, queryParameters);
+                ListPager.of(endDeviceGroup.getMembers(Instant.now())).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
+        Condition mdcMembers = where("id").in(endDevices.stream().map(EndDevice::getAmrId).collect(Collectors.toList()));
+        return PagedInfoList.asJson("devices", DeviceInfo.from(deviceService.findAllDevices(mdcMembers).sorted("mRID", true).find()), queryParameters);
     }
 
     @GET
