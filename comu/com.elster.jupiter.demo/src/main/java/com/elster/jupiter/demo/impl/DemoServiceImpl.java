@@ -51,10 +51,10 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -95,7 +95,7 @@ import java.util.stream.Collectors;
 @Component(name = "com.elster.jupiter.demo", service = {DemoService.class, DemoServiceImpl.class}, property = {"osgi.command.scope=demo", "osgi.command.function=createDemoData", "osgi.command.function=createDemoUsers", "osgi.command.function=createValidationRules"}, immediate = true)
 public class DemoServiceImpl implements DemoService {
     private final boolean rethrowExceptions;
-    private volatile EngineModelService engineModelService;
+    private volatile EngineConfigurationService engineConfigurationService;
     private volatile UserService userService;
     private volatile ValidationService validationService;
     private volatile TransactionService transactionService;
@@ -128,7 +128,7 @@ public class DemoServiceImpl implements DemoService {
     // For unit testing purposes
     @Inject
     public DemoServiceImpl(
-            EngineModelService engineModelService,
+            EngineConfigurationService engineConfigurationService,
             UserService userService,
             ValidationService validationService,
             TransactionService transactionService,
@@ -148,7 +148,7 @@ public class DemoServiceImpl implements DemoService {
             MeteringGroupsService meteringGroupsService,
             KpiService kpiService,
             IssueDataCollectionService issueDataCollectionService) {
-        setEngineModelService(engineModelService);
+        setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
         setValidationService(validationService);
         setTransactionService(transactionService);
@@ -180,7 +180,7 @@ public class DemoServiceImpl implements DemoService {
             @Override
             protected void configure() {
                 bind(Store.class).toInstance(store);
-                bind(EngineModelService.class).toInstance(engineModelService);
+                bind(EngineConfigurationService.class).toInstance(engineConfigurationService);
                 bind(UserService.class).toInstance(userService);
                 bind(ValidationService.class).toInstance(validationService);
                 bind(TransactionService.class).toInstance(transactionService);
@@ -281,11 +281,8 @@ public class DemoServiceImpl implements DemoService {
 
     private OutboundComPortPool createOutboundTcpComPortPool(String name, OutboundComPort... comPorts) {
         System.out.println("==> Creating Outbound TCP Port Pool '" + name + "'...");
-        OutboundComPortPool outboundComPortPool = engineModelService.newOutboundComPortPool();
+        OutboundComPortPool outboundComPortPool = engineConfigurationService.newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(0, TimeDuration.TimeUnit.SECONDS));
         outboundComPortPool.setActive(true);
-        outboundComPortPool.setComPortType(ComPortType.TCP);
-        outboundComPortPool.setName(name);
-        outboundComPortPool.setTaskExecutionTimeout(new TimeDuration(0, TimeDuration.TimeUnit.SECONDS));
         if (comPorts != null) {
             for (OutboundComPort comPort : comPorts) {
                 outboundComPortPool.addOutboundComPort(comPort);
@@ -795,8 +792,8 @@ public class DemoServiceImpl implements DemoService {
 
     @Reference
     @SuppressWarnings("unused")
-    public final void setEngineModelService(EngineModelService engineModelService) {
-        this.engineModelService = engineModelService;
+    public final void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
+        this.engineConfigurationService = engineConfigurationService;
     }
 
     @Reference

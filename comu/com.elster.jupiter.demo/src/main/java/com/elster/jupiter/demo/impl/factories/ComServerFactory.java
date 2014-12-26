@@ -3,18 +3,18 @@ package com.elster.jupiter.demo.impl.factories;
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.Store;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.OnlineComServer;
 
 import javax.inject.Inject;
 
 public class ComServerFactory extends NamedFactory<ComServerFactory, ComServer> {
-    private final EngineModelService engineModelService;
+    private final EngineConfigurationService engineModelService;
     private final Store store;
 
     @Inject
-    public ComServerFactory(EngineModelService engineModelService, Store store) {
+    public ComServerFactory(EngineConfigurationService engineModelService, Store store) {
         super(ComServerFactory.class);
         this.engineModelService = engineModelService;
         this.store = store;

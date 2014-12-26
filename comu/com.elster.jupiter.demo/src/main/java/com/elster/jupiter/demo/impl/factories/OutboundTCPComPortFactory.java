@@ -2,8 +2,8 @@ package com.elster.jupiter.demo.impl.factories;
 
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.Store;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 
 import javax.inject.Inject;

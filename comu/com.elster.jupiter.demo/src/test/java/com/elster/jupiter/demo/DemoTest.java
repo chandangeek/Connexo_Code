@@ -50,7 +50,7 @@ import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.impl.EngineModule;
-import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.io.impl.SerialIONoModemComponentServiceImpl;

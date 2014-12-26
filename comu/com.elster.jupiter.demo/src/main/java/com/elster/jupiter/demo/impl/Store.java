@@ -1,6 +1,6 @@
 package com.elster.jupiter.demo.impl;
 
-import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterGroup;
