@@ -15,7 +15,8 @@ Ext.define('Mdc.controller.setup.Devices', {
 
     stores: [
         'AvailableDeviceTypes',
-        'AvailableDeviceConfigurations'
+        'AvailableDeviceConfigurations',
+        'MasterDeviceCandidates'
     ],
 
     mixins: [

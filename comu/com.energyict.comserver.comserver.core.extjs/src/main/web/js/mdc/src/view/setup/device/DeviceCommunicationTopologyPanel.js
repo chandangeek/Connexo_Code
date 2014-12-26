@@ -1,23 +1,30 @@
 Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.deviceCommunicationTopologyPanel',
+    requires: [
+        'Mdc.store.MasterDeviceCandidates'
+    ],
     overflowY: 'auto',
     itemId: 'devicecommicationtopologypanel',
     mRID: null,
+    device: null,
     ui: 'tile',
 
     initComponent: function () {
         this.callParent(arguments);
     },
 
-    addItemToForm: function (container, html, link) {
+    addItemToForm: function (container, html, link, tag, style) {
         var me = this,
             element = {
-                tag: 'a',
+                tag: tag ? tag : 'a',
                 html: html
             };
         if (link) {
             element.href = link;
+        }
+        if (style) {
+            element.style = style;
         }
         container.add(
             {
@@ -31,11 +38,11 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
         var me = this,
             slavesStore = device.slaveDevices(),
             slavesCount = slavesStore.getCount(),
-            showFullTopologyLink,
-            slavesContainer,
-            masterContainer,
-            form,
-            grid;
+            showFullTopologyLink, slavesContainer,
+            masterContainer, form, grid;
+
+        me.device = device;
+        me.removeAll(true);
 
         if (device.get('gatewayType') === 'LAN') {
 
@@ -128,20 +135,210 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
             slavesContainer = me.down('#slaveDevicesContainer');
             masterContainer = me.down('#masterDeviceContainer');
 
-            if (device.get('masterDeviceId')) {
-                me.addItemToForm(masterContainer, device.get('masterDevicemRID'), me.router.getRoute('devices/device').buildUrl({mRID: device.get('masterDevicemRID')}));
+
+            if (!device.get('isDirectlyAddressed')) {
+                if (device.get('masterDeviceId')) {
+                    me.addItemToForm(masterContainer, device.get('masterDevicemRID'), me.router.getRoute('devices/device').buildUrl({mRID: device.get('masterDevicemRID')}));
+                    me.renderActionButtonsToMasterField(masterContainer, true, true, false, false);
+                } else {
+                    me.addItemToForm(masterContainer, Uni.I18n.translate('general.none', 'MDC', 'None'), null, 'span');
+                    me.renderActionButtonsToMasterField(masterContainer, true, false, false, false);
+                }
             } else {
-                me.addItemToForm(masterContainer, Uni.I18n.translate('general.none', 'MDC', 'None'));
-            }
-            if (slavesCount) {
-                slavesStore.each(function (slave) {
-                    me.addItemToForm(slavesContainer, slave.get('mRID'), me.router.getRoute('devices/device').buildUrl({mRID: slave.get('mRID')}));
-                });
-            } else {
-                me.addItemToForm(slavesContainer, Uni.I18n.translate('general.none', 'MDC', 'None'));
+                me.addItemToForm(masterContainer, Uni.I18n.translate('general.na', 'MDC', 'N/A'));
+                me.addItemToForm(masterContainer, Uni.I18n.translate('deviceCommunicationTopology.isDirectlyAddressed', 'MDC', 'The device is directly addressable.<br/>It is not possible to set master device.'), null, 'span',
+                    {
+                        top: '2em !important',
+                        fontStyle: 'italic',
+                        color: '#999'
+                    }
+                );
             }
 
+            if (device.get('isGateway')) {
+                if (slavesCount) {
+                    slavesStore.each(function (slave) {
+                        me.addItemToForm(slavesContainer, slave.get('mRID'), me.router.getRoute('devices/device').buildUrl({mRID: slave.get('mRID')}));
+                    });
+                } else {
+                    me.addItemToForm(masterContainer, Uni.I18n.translate('general.none', 'MDC', 'None'), null, 'span');
+                }
+            } else {
+                me.addItemToForm(slavesContainer, Uni.I18n.translate('general.na', 'MDC', 'N/A'));
+                me.addItemToForm(slavesContainer, Uni.I18n.translate('deviceCommunicationTopology.isNotGateway', 'MDC', 'The device is not a gateway.<br/>It has no slaves.'), null, 'span',
+                    {
+                        top: '2em !important',
+                        fontStyle: 'italic',
+                        color: '#999'
+                    }
+                );
+            }
         }
+    },
+
+    renderActionButtonsToMasterField: function (container, edit, clear, apply, cancel) {
+        var me = this;
+
+        Ext.each(container.el.query('.masterfield-btn'), function (elm) {
+            elm.parentNode.removeChild(elm);
+        });
+
+        Ext.defer(function () {
+            var btnsLeftOffset = container.el.down('.x-box-target').getWidth(),
+                btnsStyle = {
+                    display: 'inline-block',
+                    textDecoration: 'none !important',
+                    position: 'absolute',
+                    top: '5px'
+                },
+                btnsLeftOffsetListener = function (btn) {
+                    btn.el.dom.style.left = btnsLeftOffset + 'px';
+                };
+
+            // Edit button
+            if (edit) {
+                btnsLeftOffset += 20;
+                new Ext.button.Button({
+                    renderTo: container.el.down('.x-form-item-body'),
+                    icon: '../mdc/resources/images/pencil.png',
+                    cls: 'uni-btn-transparent masterfield-btn',
+                    style: btnsStyle,
+                    scope: me,
+                    handler: me.editMasterDevice,
+                    listeners: {
+                        afterrender: btnsLeftOffsetListener
+                    }
+                });
+            }
+
+            // Clear button
+            if (clear) {
+                btnsLeftOffset += 20;
+                new Ext.button.Button({
+                    renderTo: container.el.down('.x-form-item-body'),
+                    icon: '../mdc/resources/images/cancel.png',
+                    cls: 'uni-btn-transparent masterfield-btn',
+                    style: btnsStyle,
+                    scope: me,
+                    handler: me.clearMasterDevice,
+                    listeners: {
+                        afterrender: btnsLeftOffsetListener
+                    }
+                });
+            }
+
+            // Apply button
+            if (apply) {
+                btnsLeftOffset += 20;
+                new Ext.button.Button({
+                    renderTo: container.el.down('.x-form-item-body'),
+                    icon: '../mdc/resources/images/apply.png',
+                    cls: 'uni-btn-transparent masterfield-btn',
+                    style: btnsStyle,
+                    scope: me,
+                    handler: me.applyMasterDevice,
+                    listeners: {
+                        afterrender: btnsLeftOffsetListener
+                    }
+                });
+            }
+
+            // Cancel button
+            if (cancel) {
+                btnsLeftOffset += 20;
+                new Ext.button.Button({
+                    renderTo: container.el.down('.x-form-item-body'),
+                    icon: '../mdc/resources/images/remove.png',
+                    cls: 'uni-btn-transparent masterfield-btn',
+                    style: btnsStyle,
+                    scope: me,
+                    handler: me.cancelMasterDevice,
+                    listeners: {
+                        afterrender: btnsLeftOffsetListener
+                    }
+                });
+            }
+        }, 100);
+    },
+
+    editMasterDevice: function () {
+        var me = this, params = {},
+            masterContainer = me.down('#masterDeviceContainer');
+
+        masterContainer.removeAll(true);
+        masterContainer.add(
+            {
+                xtype: 'combobox',
+                itemId: 'masterCandidatesCombo',
+                store: 'MasterDeviceCandidates',
+                displayField: 'name',
+                valueField: 'id',
+                queryMode: 'local',
+                forceSelection: true,
+                width: 165
+            }
+        );
+
+        params.excludeDeviceMRID = me.device.get('mRID');
+
+        me.setLoading(true);
+
+        masterContainer.down('#masterCandidatesCombo').store.load({
+            params: params,
+            callback: function () {
+                if (me.device.get('masterDeviceId')) {
+                    masterContainer.down('#masterCandidatesCombo').setValue(me.device.get('masterDeviceId'));
+                }
+                me.setLoading(false);
+            }
+        });
+
+        me.renderActionButtonsToMasterField(masterContainer, false, false, true, true);
+    },
+
+    clearMasterDevice: function () {
+        var me = this;
+
+        me.device.data.masterDeviceId = null;
+        me.device.data.masterDevicemRID = null;
+
+        me.setLoading(true);
+
+        me.device.save({
+            callback: function (device) {
+                me.setRecord(device);
+                me.setLoading(false);
+            }
+        });
+    },
+
+    applyMasterDevice: function () {
+        var me = this,
+            masterCombo = me.down('#masterCandidatesCombo');
+
+        if (me.device && !Ext.isEmpty(masterCombo.getValue())) {
+            me.device.data.masterDeviceId = masterCombo.getValue();
+            me.device.data.masterDevicemRID = masterCombo.getRawValue();
+
+            me.setLoading(true);
+
+            me.device.save({
+                callback: function (device) {
+                    me.setRecord(device);
+                    me.setLoading(false);
+                }
+            });
+        }
+    },
+
+    cancelMasterDevice: function () {
+        var me = this;
+
+        me.setLoading(true);
+
+        Ext.defer(function () {
+            me.setRecord(me.device);
+            me.setLoading(false);
+        }, 10);
     }
 });
-

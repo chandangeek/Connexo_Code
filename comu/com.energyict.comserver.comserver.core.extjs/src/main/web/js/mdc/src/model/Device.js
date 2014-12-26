@@ -5,9 +5,17 @@ Ext.define('Mdc.model.Device', {
         'Mdc.model.DeviceConnection',
         'Mdc.model.DeviceCommunication'
     ],
+    idProperty: 'mRID',
     fields: [
         {name: 'id', type: 'number', useNull: true},
-        {name: 'mRID', type: 'string', useNull: true},
+        {
+            name: 'mRID',
+            type: 'string',
+            useNull: true,
+            convert: function (value) {
+                return value.replace('%20', ' ');
+            }
+        },
         {name: 'serialNumber', type: 'string', useNull: true},
         {name: 'deviceTypeId', type: 'number', useNull: true},
         {name: 'deviceTypeName', type: 'string', useNull: true},
@@ -20,6 +28,8 @@ Ext.define('Mdc.model.Device', {
         {name: 'nbrOfDataCollectionIssues', type: 'number', useNull: true},
         {name: 'gatewayType', type: 'string', useNull: true},
         {name: 'creationTime', dateFormat: 'time', type: 'date', useNull: true},
+        {name: 'isDirectlyAddressed', type: 'boolean'},
+        {name: 'isGateway', type: 'boolean'},
         {name: 'hasLoadProfiles', type: 'boolean'},
         {name: 'hasLogBooks', type: 'boolean'},
         {name: 'hasRegisters', type: 'boolean'},
