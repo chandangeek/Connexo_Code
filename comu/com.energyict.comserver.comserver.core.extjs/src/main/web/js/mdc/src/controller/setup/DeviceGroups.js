@@ -160,7 +160,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
             func = function (menuItem) {
                 if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup'])) {
                     menuItem.show();
-                } else if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroupDetail', 'privilege.administrate.deviceOfEnumeratedGroup'])) {
+                } else if (Uni.Auth.hasAnyPrivilege(['privilege.view.deviceGroupDetail', 'privilege.administrate.deviceOfEnumeratedGroup'])) {
                     menuItem.hide();
                 }
             };
