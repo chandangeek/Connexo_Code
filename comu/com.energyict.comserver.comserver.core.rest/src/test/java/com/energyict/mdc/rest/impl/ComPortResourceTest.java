@@ -26,6 +26,7 @@ import com.energyict.mdc.rest.impl.comserver.TcpOutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.UdpInboundComPortInfo;
 import org.assertj.core.data.MapEntry;
 import org.junit.Test;
+import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -75,6 +76,7 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
 
     @Test
     public void testGetNonExistingComPortReturns404() throws Exception {
+        doReturn(Optional.empty()).when(engineConfigurationService).findComPort(Matchers.anyLong());
         final Response response = target("/comports/3").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
