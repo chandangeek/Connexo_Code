@@ -2,7 +2,6 @@ package com.elster.jupiter.users.rest.impl;
 
 import java.util.List;
 
-import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -16,7 +15,6 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreference;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.UserInfo;
-import com.elster.jupiter.users.security.Privileges;
 
 @Path("/currentuser")
 public class CurrentUserResource {
@@ -30,7 +28,6 @@ public class CurrentUserResource {
     
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_USER_ROLE)
     public Response getCurrentUser(@Context SecurityContext securityContext) {
         User user = fetchUser((User) securityContext.getUserPrincipal());
         return Response.ok(new UserInfo(user)).build();
@@ -39,7 +36,6 @@ public class CurrentUserResource {
     @GET
     @Path("/preferences")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_USER_ROLE)
     public Response getUserPreferences(@Context SecurityContext securityContext) {
         User user = fetchUser((User) securityContext.getUserPrincipal());
         List<UserPreference> preferences = userService.getUserPreferencesService().getPreferences(user);
