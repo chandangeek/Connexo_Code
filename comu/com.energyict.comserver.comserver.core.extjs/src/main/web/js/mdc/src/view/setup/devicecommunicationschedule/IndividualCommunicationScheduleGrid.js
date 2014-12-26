@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.IndividualCommunicationSc
                     dataIndex: 'plannedDate',
                     renderer: function (value) {
                         if (value !== null) {
-                            return Uni.DateTime.formatDateTimeLong(new Date(value));
+                            return Uni.DateTime.formatDateTimeShort(new Date(value));
                         } else {
                             return '';
                         }
