@@ -60,6 +60,6 @@ Ext.define('Dsh.util.FilterHydrator', {
     },
 
     parseDate: function (date, hours, minutes) {
-        return Ext.Date.parse(date + ' ' + hours + ':' + minutes, 'd/m/Y H:i') || null;
+        return new Date(new Date(date).getTime() + hours * 3600000 + minutes * 60000) || null;
     }
 });
