@@ -87,9 +87,12 @@ Ext.define('Uni.view.menu.SideMenu', {
 
         me.callParent(arguments);
 
-        Ext.util.History.addListener('change', function (token) {
-            me.checkNavigation(token);
-        });
+//Removed in scope of http://jira.eict.vpdc/browse/JP-7767
+//todo: check why it was added and impact of the removal
+
+//        Ext.util.History.addListener('change', function (token) {
+//            me.checkNavigation(token);
+//        });
 
         if (Ext.isDefined(me.menuItems) && Ext.isArray(me.menuItems)) {
             me.buildMenuItems();
@@ -199,7 +202,6 @@ Ext.define('Uni.view.menu.SideMenu', {
             items = me.items.items;
 
         Ext.suspendLayouts();
-
         if (Ext.isDefined(items) && Ext.isArray(items)) {
             me.clearSelection(items);
             me.checkSelectedItems(items, token);
