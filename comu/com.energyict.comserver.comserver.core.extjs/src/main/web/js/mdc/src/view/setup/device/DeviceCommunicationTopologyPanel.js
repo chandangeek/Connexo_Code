@@ -161,7 +161,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                         me.addItemToForm(slavesContainer, slave.get('mRID'), me.router.getRoute('devices/device').buildUrl({mRID: slave.get('mRID')}));
                     });
                 } else {
-                    me.addItemToForm(masterContainer, Uni.I18n.translate('general.none', 'MDC', 'None'), null, 'span');
+                    me.addItemToForm(slavesContainer, Uni.I18n.translate('general.none', 'MDC', 'None'), null, 'span');
                 }
             } else {
                 me.addItemToForm(slavesContainer, Uni.I18n.translate('general.na', 'MDC', 'N/A'));
