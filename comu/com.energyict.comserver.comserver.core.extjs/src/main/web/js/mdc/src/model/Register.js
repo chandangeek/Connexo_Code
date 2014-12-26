@@ -13,7 +13,7 @@ Ext.define('Mdc.model.Register', {
                     }
                     if (record.data.type == 'numerical') {
                         if(!Ext.isEmpty(record.data.lastReading.value)) {
-                            return Uni.Number.formatNumber(record.data.lastReading.value, 0) + ' ' + record.data.lastReading.unitOfMeasure;
+                            return Uni.Number.formatNumber(record.data.lastReading.value, -1) + ' ' + record.data.lastReading.unitOfMeasure;
                         }
                         return Uni.I18n.translate('register.value.notspecified', 'MDC', '-')
 

@@ -7,7 +7,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'value', type: 'auto',
             convert: function (v) {
                 if(!Ext.isEmpty(v)) {
-                    return Uni.Number.formatNumber(v, 0);
+                    return Uni.Number.formatNumber(v, -1);
                 }
                 return Uni.I18n.translate('deviceregisterconfiguration.value.notspecified', 'MDC', '-')
             }
@@ -18,7 +18,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'collectedValue', type: 'auto',
             convert: function (v) {
                 if(!Ext.isEmpty(v)) {
-                    return Uni.Number.formatNumber(v, 0);
+                    return Uni.Number.formatNumber(v, -1);
                 }
                 return Uni.I18n.translate('deviceregisterconfiguration.value.notspecified', 'MDC', '-')
             }},

@@ -10,7 +10,7 @@ Ext.define('Mdc.model.RegisterData', {
          convert: function (v, record) {
               if (record.data.type == 'numerical') {
                    if(!Ext.isEmpty(record.data.rawValue)) {
-                        return Uni.Number.formatNumber(record.data.rawValue, 0);
+                        return Uni.Number.formatNumber(record.data.rawValue, -1);
                    }
                    return Uni.I18n.translate('registerdata.value.notspecified', 'MDC', '-')
               }
@@ -20,7 +20,7 @@ Ext.define('Mdc.model.RegisterData', {
             convert: function (v, record) {
                 if (record.data.type == 'numerical') {
                     if(!Ext.isEmpty(v)) {
-                        return Uni.Number.formatNumber(v, 0);
+                        return Uni.Number.formatNumber(v, -1);
                     }
                     return Uni.I18n.translate('registerdata.deltaValue.notspecified', 'MDC', '-')
                 }

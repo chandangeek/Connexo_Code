@@ -10,7 +10,7 @@ Ext.define('Mdc.model.LoadProfilesOfDeviceData', {
                 for(var key in v) {
                     if(v.hasOwnProperty(key)) {
                         if(!Ext.isEmpty((v[key]))) {
-                           v[key] = Uni.Number.formatNumber(v[key], 0);
+                           v[key] = Uni.Number.formatNumber(v[key], -1);
                         }
                     }
 
@@ -24,7 +24,7 @@ Ext.define('Mdc.model.LoadProfilesOfDeviceData', {
                 for(var key in v) {
                     if(v.hasOwnProperty(key)) {
                         if(!Ext.isEmpty((v[key]))) {
-                            v[key] = Uni.Number.formatNumber(v[key], 0);
+                            v[key] = Uni.Number.formatNumber(v[key], -1);
                         }
                     }
 
