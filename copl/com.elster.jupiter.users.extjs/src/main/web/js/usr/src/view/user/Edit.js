@@ -38,7 +38,7 @@ Ext.define('Usr.view.user.Edit', {
                                 xtype: 'uni-form-info-message',
                                 itemId: 'alertmessageuser',
                                 title: Uni.I18n.translate('user.cannot.edit.title', 'USR', 'This user cannot be changed.'),
-                                text:Uni.I18n.translate('user.cannot.edit.message', 'USR', 'Only the description is editable.'),
+                                text:Uni.I18n.translate('user.cannot.edit.message', 'USR', 'Only the description and the language are editable.'),
                                 hidden: true
 
                             },
@@ -53,6 +53,25 @@ Ext.define('Usr.view.user.Edit', {
                             {
                                 name: 'domain',
                                 fieldLabel: Uni.I18n.translate('user.domain', 'USR', 'Domain')
+                            },
+                            {
+                                xtype: 'combobox',
+                                name: 'language',
+                                fieldLabel: Uni.I18n.translate('user.language', 'USR', 'Language'),
+                                store: 'Usr.store.Locales',
+                                valueField: 'languageTag',
+                                displayField: 'displayValue',
+                                queryMode: 'local',
+                                forceSelection: true,
+                                listeners: {
+                                    change: {
+                                        fn: function(combo, newValue){
+                                            if (!newValue){
+                                                combo.reset();
+                                            }
+                                        }
+                                    }
+                                }
                             },
                             {
                                 xtype: 'checkboxstore',
