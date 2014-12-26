@@ -49,15 +49,15 @@ Ext.define('Dsh.controller.BaseController', {
         if (interval && (intervalFrom || intervalTo)) {
             if (intervalFrom && intervalTo) {
                 value += ' ' + between + ' ';
-                value += Ext.util.Format.date(intervalFrom, 'd/m/Y H:i');
+                value += Uni.DateTime.formatDateTimeShort(intervalFrom);
                 value += ' ' + and + ' ';
-                value += Ext.util.Format.date(intervalTo, 'd/m/Y H:i');
+                value += Uni.DateTime.formatDateTimeShort(intervalTo);
             }
             if (intervalFrom && !intervalTo) {
-                value += ' after ' + Ext.util.Format.date(intervalFrom, 'd/m/Y H:i');
+                value += Uni.DateTime.formatDateTimeShort(intervalFrom);
             }
             if (!intervalFrom && intervalTo) {
-                value += ' before ' + Ext.util.Format.date(intervalTo, 'd/m/Y H:i');
+                value += Uni.DateTime.formatDateTimeShort(intervalTo);
             }
             this.getFilterPanel().setFilter(propName, label, value);
         }
