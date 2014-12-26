@@ -118,7 +118,7 @@ public class DataPurgeResource {
     public Response getPurgeHistory(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<TaskOccurrence> sortedHistory = taskService.getOccurrences(lifeCycleService.getTask(), Range.all()).stream()
-                .sorted(Comparator.comparing(o -> o.getStartDate().orElse(null))).collect(Collectors.toList());
+                .sorted(Comparator.comparing(o -> o.getStartDate().orElse(Instant.EPOCH))).collect(Collectors.toList());
         Collections.reverse(sortedHistory);
         int start = queryParameters.getStart() < sortedHistory.size() ? queryParameters.getStart() : sortedHistory.size();
         int max = queryParameters.getLimit() + start + 1;
