@@ -60,10 +60,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             'deviceLoadProfileChannelData #deviceLoadProfileChannelDataGrid': {
                 select: this.showPreview
             },
-            '#deviceLoadProfileDataFilterApplyBtn': {
+            'deviceLoadProfileChannelDataSideFilter #deviceLoadProfileDataFilterApplyBtn': {
                 click: this.applyFilter
             },
-            '#deviceLoadProfileDataFilterResetBtn': {
+            'deviceLoadProfileChannelDataSideFilter #deviceLoadProfileDataFilterResetBtn': {
                 click: this.clearFilter
             },
             'deviceLoadProfileChannelData #deviceLoadProfileChannelGraphView': {

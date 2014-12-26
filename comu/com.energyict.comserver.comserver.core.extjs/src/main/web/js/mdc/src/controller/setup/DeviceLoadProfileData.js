@@ -57,10 +57,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             'deviceLoadProfilesData #deviceLoadProfilesDataGrid': {
                 select: this.showPreview
             },
-            '#deviceLoadProfileDataFilterApplyBtn': {
+            'deviceLoadProfileDataSideFilter #deviceLoadProfileDataFilterApplyBtn': {
                 click: this.applyFilter
             },
-            '#deviceLoadProfileDataFilterResetBtn': {
+            'deviceLoadProfileDataSideFilter #deviceLoadProfileDataFilterResetBtn': {
                 click: this.clearFilter
             },
             'deviceLoadProfilesData #deviceLoadProfilesGraphView': {
