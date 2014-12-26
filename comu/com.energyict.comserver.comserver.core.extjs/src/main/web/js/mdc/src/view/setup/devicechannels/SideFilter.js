@@ -29,7 +29,10 @@ Ext.define('Mdc.view.setup.devicechannels.SideFilter', {
                         name: 'intervalStart',
                         fieldLabel: Uni.I18n.translate('deviceloadprofiles.filter.from', 'MDC', 'From'),
                         labelAlign: 'top',
-                        labelStyle: 'font-weight: normal'
+                        labelStyle: 'font-weight: normal',
+                        dateConfig: {
+                            format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
+                        }
                     }
                 ]
             },

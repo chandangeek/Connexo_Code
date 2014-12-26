@@ -168,7 +168,8 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                 required: true,
                                 fieldLabel: Uni.I18n.translate('communicationschedule.startOn', 'MDC', 'Start on'),
                                 dateCfg: {
-                                    editable: false
+                                    editable: false,
+                                    format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                                 },
                                 hourCfg: {
                                     width: 60
