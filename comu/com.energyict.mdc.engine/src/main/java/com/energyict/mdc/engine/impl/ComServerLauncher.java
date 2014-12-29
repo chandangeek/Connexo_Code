@@ -6,6 +6,11 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.HostName;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.RemoteComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
@@ -14,18 +19,11 @@ import com.energyict.mdc.engine.impl.core.RunningRemoteComServerImpl;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.core.remote.RemoteComServerDAOImpl;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
-import com.energyict.mdc.engine.impl.meterdata.DefaultCollectedDataFactoryProvider;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.HostName;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.RemoteComServer;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -66,16 +64,11 @@ public final class ComServerLauncher {
 
     public void startComServer() {
         this.attemptLoadRemoteComServerProperties();
-        this.initializeProviders();
         if (this.shouldStartRemote()) {
             this.startRemoteComServer();
         } else {
             this.startOnlineComServer();
         }
-    }
-
-    private void initializeProviders() {
-        CollectedDataFactoryProvider.instance.set(new DefaultCollectedDataFactoryProvider());
     }
 
     public void stopComServer() {

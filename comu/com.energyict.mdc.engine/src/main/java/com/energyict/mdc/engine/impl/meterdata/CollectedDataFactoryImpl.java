@@ -1,9 +1,6 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedConfigurationInformation;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -17,12 +14,16 @@ import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.properties.PropertySpec;
+import org.osgi.service.component.annotations.Component;
 
 import java.util.List;
 
@@ -31,13 +32,9 @@ import java.util.List;
  * Date: 14/05/13
  * Time: 11:31
  */
+@Component(name = "com.energyict.mdc.engine.meterdata.collector", service = {CollectedDataFactory.class})
+@SuppressWarnings("unused")
 public class CollectedDataFactoryImpl implements CollectedDataFactory {
-
-    private final ServiceProvider serviceProvider;
-
-    public CollectedDataFactoryImpl(ServiceProvider serviceProvider) {
-        this.serviceProvider = serviceProvider;
-    }
 
     @Override
     public CollectedLoadProfile createCollectedLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
