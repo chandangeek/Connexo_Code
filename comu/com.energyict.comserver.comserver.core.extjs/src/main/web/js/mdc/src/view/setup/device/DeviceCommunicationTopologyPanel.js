@@ -297,37 +297,23 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
     },
 
     clearMasterDevice: function () {
-        var me = this;
-
-        me.device.data.masterDeviceId = null;
-        me.device.data.masterDevicemRID = null;
-
-        me.setLoading(true);
-
-        me.device.save({
-            callback: function (device) {
-                me.setRecord(device);
-                me.setLoading(false);
+        this.updateDevice(
+            {
+                masterDeviceId: null,
+                masterDevicemRID: null
             }
-        });
+        );
     },
 
     applyMasterDevice: function () {
-        var me = this,
-            masterCombo = me.down('#masterCandidatesCombo');
-
-        if (me.device && !Ext.isEmpty(masterCombo.getValue())) {
-            me.device.data.masterDeviceId = masterCombo.getValue();
-            me.device.data.masterDevicemRID = masterCombo.getRawValue();
-
-            me.setLoading(true);
-
-            me.device.save({
-                callback: function (device) {
-                    me.setRecord(device);
-                    me.setLoading(false);
+        var masterCombo = this.down('#masterCandidatesCombo');
+        if (this.device && !Ext.isEmpty(masterCombo.getValue())) {
+            this.updateDevice(
+                {
+                    masterDeviceId: masterCombo.getValue(),
+                    masterDevicemRID: masterCombo.getRawValue()
                 }
-            });
+            );
         }
     },
 
@@ -340,5 +326,33 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
             me.setRecord(me.device);
             me.setLoading(false);
         }, 10);
+    },
+
+    updateDevice: function (data) {
+        var me = this;
+
+        me.setLoading(true);
+
+        Ext.Ajax.request({
+            url: '/api/ddr/devices/' + me.device.get('mRID'),
+            method: 'PUT',
+            jsonData: data,
+            success: function (response) {
+                var deviceData = Ext.JSON.decode(response.responseText, true);
+                if (!Ext.isEmpty(deviceData)) {
+                    console.log(1, arguments, deviceData);
+                    Ext.ModelManager.getModel('Mdc.model.Device').load(deviceData.mRID, {
+                        success: function (device) {
+                            console.log(2, arguments);
+                            me.setRecord(device);
+                        },
+                        callback: function () {
+                            console.log(3, arguments);
+                            me.setLoading(false);
+                        }
+                    });
+                }
+            }
+        });
     }
 });
