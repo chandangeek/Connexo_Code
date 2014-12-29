@@ -189,7 +189,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                     display: 'inline-block',
                     textDecoration: 'none !important',
                     position: 'absolute',
-                    top: '5px'
+                    top: '15px'
                 },
                 btnsLeftOffsetListener = function (btn) {
                     btn.el.dom.style.left = btnsLeftOffset + 'px';
