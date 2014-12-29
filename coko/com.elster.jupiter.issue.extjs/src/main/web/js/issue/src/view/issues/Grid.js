@@ -11,6 +11,7 @@ Ext.define('Isu.view.issues.Grid', {
     ],
     alias: 'widget.issues-grid',
     router: null,
+    margin: '0 8 0 0',
 
     initComponent: function () {
         var me = this;
