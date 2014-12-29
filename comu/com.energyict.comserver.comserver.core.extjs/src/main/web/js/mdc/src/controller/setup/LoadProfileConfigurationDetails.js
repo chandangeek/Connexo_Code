@@ -20,7 +20,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
     ],
 
     stores: [
-        'Intervals',
+        'Mdc.store.Intervals',
         'Mdc.store.ReadingTypes',
         'Mdc.store.Phenomenas',
         'Mdc.store.LoadProfileConfigurationDetailChannels',
@@ -87,7 +87,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             }
         });
 
-        this.intervalStore = this.getStore('Intervals').load();
+        this.intervalStore = this.getStore('Mdc.store.Intervals').load();
         this.store = this.getStore('LoadProfileConfigurationDetailChannels');
         this.phenomenasStore = this.getStore('Phenomenas');
         this.availableMeasurementTypesStore = this.getStore('MeasurementTypesOnLoadProfileConfiguration');
