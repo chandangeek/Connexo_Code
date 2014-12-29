@@ -2,9 +2,13 @@ package com.energyict.mdc.scheduling.rest;
 
 import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
 import java.util.List;
+import java.util.function.Function;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -29,14 +33,23 @@ public class TemporalExpressionInfo {
         return info;
     }
 
+    /**
+     * This method wraps the passed time value in the REST info object {@link TemporalExpressionInfo}.
+     * @param temporalAmount time which will be wrapped, should have a single-unit value, i.e
+     * time value '1 day 30 min' will be converted to '1 day' (the biggest dimension will be used)
+     * @return the info wrapper which can be send to front-end
+     */
     public static TemporalExpressionInfo from(TemporalAmount temporalAmount) {
         TemporalExpressionInfo info = new TemporalExpressionInfo();
-        info.every=new TimeDurationInfo();
-        List<TemporalUnit> supportedUnits = temporalAmount.getUnits();
-        if (supportedUnits!=null && !supportedUnits.isEmpty()) {
-            TemporalUnit biggestUnit = supportedUnits.get(0);
-            info.every.count = temporalAmount.get(biggestUnit);
-            info.every.timeUnit = biggestUnit.toString().toLowerCase();
+        if (temporalAmount instanceof Duration){
+            /* Special case for Duration class, because it supports only two units: seconds and nanos */
+            info.every = new TimeDurationInfo();
+            Duration duration = (Duration) temporalAmount;
+            fromDuration(info.every, duration, Duration::toDays, ChronoUnit.DAYS);
+            fromDuration(info.every, duration, Duration::toHours, ChronoUnit.HOURS);
+            fromDuration(info.every, duration, Duration::toMinutes, ChronoUnit.MINUTES);
+        } else {
+            info.every = fromTemporalAmount(temporalAmount);
         }
         return info;
     }
