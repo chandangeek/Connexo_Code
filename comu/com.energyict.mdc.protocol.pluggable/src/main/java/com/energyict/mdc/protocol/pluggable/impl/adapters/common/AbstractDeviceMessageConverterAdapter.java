@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
@@ -42,9 +41,10 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     private static final int UPDATE_SENT_MASK = 0b0001;
     private static final int EXECUTE_PENDING_MASK = 0b0010;
 
-    private DataModel dataModel;
-    private ProtocolPluggableService protocolPluggableService;
+    private final DataModel dataModel;
+    private final ProtocolPluggableService protocolPluggableService;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
     private MessageProtocol messageProtocol;
     private String serialNumber = "";
 
@@ -72,11 +72,12 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
 
     private Map<MessageEntry, OfflineDeviceMessage> messageEntries = new HashMap<>();
 
-    protected AbstractDeviceMessageConverterAdapter(DataModel dataModel, ProtocolPluggableService protocolPluggableService, IssueService issueService) {
+    protected AbstractDeviceMessageConverterAdapter(DataModel dataModel, ProtocolPluggableService protocolPluggableService, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         super();
         this.dataModel = dataModel;
         this.protocolPluggableService = protocolPluggableService;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     /**
@@ -130,7 +131,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     }
 
     private CollectedMessageList delegateMessageEntriesToLegacyProtocol() {
-        CollectedDataFactory collectedDataFactory = this.getCollectedDataFactory();
+        CollectedDataFactory collectedDataFactory = this.collectedDataFactory;
         CollectedMessageList collectedMessageList = collectedDataFactory.createCollectedMessageList(new ArrayList<>(messageEntries.values()));
         boolean continueOnSendingPendingMessages = true;
         try {
@@ -153,14 +154,10 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
         return this.issueService.newProblem(source, description, arguments);
     }
 
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
-    }
-
     private CollectedMessage delegatePendingMessageToProtocol(MessageEntry messageEntry, OfflineDeviceMessage offlineDeviceMessage) {
         MessageResult messageResult;
         CollectedMessage collectedMessage;
-        collectedMessage = this.getCollectedDataFactory().createCollectedMessage(offlineDeviceMessage.getIdentifier());
+        collectedMessage = this.collectedDataFactory.createCollectedMessage(offlineDeviceMessage.getIdentifier());
         try {
             messageResult = this.messageProtocol.queryMessage(messageEntry);
             collectedMessage.setNewDeviceMessageStatus(getNewDeviceMessageStatus(messageResult));
@@ -191,7 +188,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     }
 
     protected CollectedMessageList getNoopCollectedMessageList() {
-        return this.getCollectedDataFactory().createEmptyCollectedMessageList();
+        return this.collectedDataFactory.createEmptyCollectedMessageList();
     }
 
     /**

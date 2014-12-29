@@ -1,12 +1,9 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
-import com.energyict.mdc.common.ApplicationContext;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Warning;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.Register;
@@ -68,10 +65,6 @@ public class SmartMeterProtocolRegisterAdapterTest {
     }
 
     @Mock
-    private Environment environment;
-    @Mock
-    private ApplicationContext applicationContext;
-    @Mock
     private CollectedDataFactory collectedDataFactory;
     @Mock
     private IssueService issueService;
@@ -79,54 +72,29 @@ public class SmartMeterProtocolRegisterAdapterTest {
     @Before
     public void initializeEnvironment() {
         when(this.collectedDataFactory.createCollectedRegisterForAdapter(any(RegisterIdentifier.class), any(ReadingType.class))).
-                thenAnswer(new Answer<CollectedRegister>() {
-                    @Override
-                    public CollectedRegister answer(InvocationOnMock invocationOnMock) throws Throwable {
-                        RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
-                        ReadingType readingType = (ReadingType) invocationOnMock.getArguments()[1];
+                thenAnswer(invocationOnMock -> {
+                    RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
+                    ReadingType readingType = (ReadingType) invocationOnMock.getArguments()[1];
 
-                        MockCollectedRegister collectedRegister = new MockCollectedRegister(registerIdentifier, readingType);
-                        collectedRegister.setResultType(ResultType.Supported);
-                        return collectedRegister;
-                    }
+                    MockCollectedRegister collectedRegister = new MockCollectedRegister(registerIdentifier, readingType);
+                    collectedRegister.setResultType(ResultType.Supported);
+                    return collectedRegister;
                 });
         when(this.collectedDataFactory.createDefaultCollectedRegister(any(RegisterIdentifier.class), any(ReadingType.class))).
-                thenAnswer(new Answer<CollectedRegister>() {
-                    @Override
-                    public CollectedRegister answer(InvocationOnMock invocationOnMock) throws Throwable {
-                        RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
-                        ReadingType readingType = (ReadingType) invocationOnMock.getArguments()[1];
-                        return new MockCollectedRegister(registerIdentifier, readingType);
-                    }
+                thenAnswer(invocationOnMock -> {
+                    RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
+                    ReadingType readingType = (ReadingType) invocationOnMock.getArguments()[1];
+                    return new MockCollectedRegister(registerIdentifier, readingType);
                 });
-        when(this.applicationContext.getModulesImplementing(CollectedDataFactory.class)).thenReturn(Arrays.asList(this.collectedDataFactory));
-        when(this.environment.getApplicationContext()).thenReturn(this.applicationContext);
-        Environment.DEFAULT.set(this.environment);
-        CollectedDataFactoryProvider collectedDataFactoryProvider = mock(CollectedDataFactoryProvider.class);
-        when(collectedDataFactoryProvider.getCollectedDataFactory()).thenReturn(this.collectedDataFactory);
-        CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
-    }
-
-    @After
-    public void cleanupEnvironment() {
-        Environment.DEFAULT.set(null);
-    }
-
-    @After
-    public void resetCollectedDataFactoryProvider() {
-        CollectedDataFactoryProvider.instance.set(null);
     }
 
     @Before
     public void initializeIssueService () {
-        when(this.issueService.newWarning(any(), anyString(), anyVararg())).thenAnswer(new Answer<Warning>() {
-            @Override
-            public Warning answer(InvocationOnMock invocationOnMock) throws Throwable {
-                Warning warning = mock(Warning.class);
-                when(warning.getSource()).thenReturn(invocationOnMock.getArguments()[0]);
-                when(warning.getDescription()).thenReturn((String) invocationOnMock.getArguments()[1]);
-                return warning;
-            }
+        when(this.issueService.newWarning(any(), anyString(), anyVararg())).thenAnswer(invocationOnMock -> {
+            Warning warning = mock(Warning.class);
+            when(warning.getSource()).thenReturn(invocationOnMock.getArguments()[0]);
+            when(warning.getDescription()).thenReturn((String) invocationOnMock.getArguments()[1]);
+            return warning;
         });
     }
 
@@ -145,18 +113,18 @@ public class SmartMeterProtocolRegisterAdapterTest {
 
     @Test
     public void getRegisterEmptyCallTest() {
-        SmartMeterProtocolRegisterAdapter smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(null, issueService);
+        SmartMeterProtocolRegisterAdapter smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(null, issueService, collectedDataFactory);
         assertThat(smartMeterProtocolRegisterAdapter.readRegisters(null)).isNotNull();
         assertThat(smartMeterProtocolRegisterAdapter.readRegisters(null)).isEmpty();
-        assertThat(smartMeterProtocolRegisterAdapter.readRegisters(new ArrayList<OfflineRegister>())).isNotNull();
-        assertThat(smartMeterProtocolRegisterAdapter.readRegisters(new ArrayList<OfflineRegister>())).isEmpty();
+        assertThat(smartMeterProtocolRegisterAdapter.readRegisters(new ArrayList<>())).isNotNull();
+        assertThat(smartMeterProtocolRegisterAdapter.readRegisters(new ArrayList<>())).isEmpty();
     }
 
     @Test
     public void deviceDoesNotSupportRegisterRequests() {
         OfflineRegister register = getMockedRegister();
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
-        SmartMeterProtocolRegisterAdapter smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol, issueService);
+        SmartMeterProtocolRegisterAdapter smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol, issueService, collectedDataFactory);
         final List<CollectedRegister> collectedRegisters = smartMeterProtocolRegisterAdapter.readRegisters(Arrays.asList(register));
 
         assertThat(collectedRegisters).hasSize(1);
@@ -175,7 +143,7 @@ public class SmartMeterProtocolRegisterAdapterTest {
             registerList.add(register);
         }
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
-        SmartMeterProtocolRegisterAdapter smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol, issueService);
+        SmartMeterProtocolRegisterAdapter smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol, issueService, collectedDataFactory);
         final List<CollectedRegister> collectedRegisters = smartMeterProtocolRegisterAdapter.readRegisters(registerList);
         assertThat(collectedRegisters.size()).isEqualTo(registerListSize);
     }
@@ -186,7 +154,7 @@ public class SmartMeterProtocolRegisterAdapterTest {
 
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
         when(smartMeterProtocol.readRegisters(Matchers.<List<Register>>any())).thenThrow(new IOException("Failure during the reading"));
-        SmartMeterProtocolRegisterAdapter smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol, issueService);
+        SmartMeterProtocolRegisterAdapter smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol, issueService, collectedDataFactory);
         smartMeterProtocolRegisterAdapter.readRegisters(Arrays.asList(register));
     }
 
@@ -198,7 +166,7 @@ public class SmartMeterProtocolRegisterAdapterTest {
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
         when(smartMeterProtocol.readRegisters(Matchers.<List<Register>>any())).thenReturn(Arrays.asList(registerValue));
 
-        SmartMeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol, issueService);
+        SmartMeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol, issueService, collectedDataFactory);
         final List<CollectedRegister> collectedRegisters = meterProtocolRegisterAdapter.readRegisters(Arrays.asList(register));
 
         assertThat(collectedRegisters.get(0).getFromTime()).isEqualTo(fromDate);
@@ -224,7 +192,7 @@ public class SmartMeterProtocolRegisterAdapterTest {
         when(smartMeterProtocol.readRegisters(Matchers.<List<Register>>any())).thenReturn(Arrays.asList(registerValue1, registerValue2));
 
 
-        SmartMeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol, issueService);
+        SmartMeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol, issueService, collectedDataFactory);
         final List<CollectedRegister> collectedRegisters = meterProtocolRegisterAdapter.readRegisters(Arrays.asList(register1, register2, register3));
 
         assertThat(collectedRegisters.size()).isEqualTo(3);

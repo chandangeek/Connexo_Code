@@ -4,7 +4,6 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
@@ -46,15 +45,17 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
      */
     private final MeterProtocol meterProtocol;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
 
     /**
      * The used <code>MeterProtocolClockAdapter</code> for the time handling of the {@link CollectedLoadProfile} interface
      */
     private final MeterProtocolClockAdapter meterProtocolClockAdapter;
 
-    public MeterProtocolLoadProfileAdapter(final MeterProtocol meterProtocol, IssueService issueService) {
+    public MeterProtocolLoadProfileAdapter(final MeterProtocol meterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.meterProtocol = meterProtocol;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
         this.meterProtocolClockAdapter = new MeterProtocolClockAdapter(meterProtocol);
     }
 
@@ -76,7 +77,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(final List<LoadProfileReader> loadProfilesToRead) {
         if (loadProfilesToRead != null) {
-            CollectedDataFactory collectedDataFactory = this.getCollectedDataFactory();
+            CollectedDataFactory collectedDataFactory = this.collectedDataFactory;
             List<CollectedLoadProfileConfiguration> loadProfileConfigurations = new ArrayList<>(loadProfilesToRead.size());
             CollectedLoadProfileConfiguration loadProfileConfiguration;
             for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
@@ -163,13 +164,13 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
      * @return a {@link CollectedLoadProfile} with proper failure information
      */
     private CollectedLoadProfile createUnSupportedCollectedLoadProfile(final LoadProfileReader loadProfileReader) {
-        CollectedLoadProfile deviceLoadProfile = this.getCollectedDataFactory().createCollectedLoadProfile(null);
+        CollectedLoadProfile deviceLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(null);
         deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getProblem(loadProfileReader.getProfileObisCode(), "loadProfileXnotsupported", loadProfileReader.getProfileObisCode()));
         return deviceLoadProfile;
     }
 
     private List<CollectedLogBook> createUnSupportedCollectedLogBooksForInvalidLogBookReaders(final List<LogBookReader> logBookReaders) {
-        CollectedDataFactory collectedDataFactory = this.getCollectedDataFactory();
+        CollectedDataFactory collectedDataFactory = this.collectedDataFactory;
         List<CollectedLogBook> collectedLogBookList = new ArrayList<>();
         for (LogBookReader reader : logBookReaders) {
             if (!reader.getLogBookObisCode().equals(LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE)) {
@@ -196,7 +197,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
         List<CollectedData> collectedDataList = new ArrayList<>(1);
 
         CollectedLoadProfile deviceLoadProfile =
-                this.getCollectedDataFactory().createCollectedLoadProfile(
+                this.collectedDataFactory.createCollectedLoadProfile(
                         loadProfileReader.getLoadProfileIdentifier());
         try {
             ProfileData profileData = this.meterProtocol.getProfileData(loadProfileReader.getStartReadingTime(), false);
@@ -223,7 +224,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
         List<CollectedData> collectedDataList = new ArrayList<>(2);
         Date combinedLastReadingTime = loadProfileReader.getStartReadingTime().before(logBookReader.getLastLogBook()) ? loadProfileReader.getStartReadingTime() : logBookReader.getLastLogBook();
 
-        CollectedDataFactory collectedDataFactory = this.getCollectedDataFactory();
+        CollectedDataFactory collectedDataFactory = this.collectedDataFactory;
         CollectedLoadProfile deviceLoadProfile =
                 collectedDataFactory.createCollectedLoadProfile(
                         loadProfileReader.getLoadProfileIdentifier());
@@ -247,7 +248,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
 
     protected List<CollectedData> getLogBookData(final LogBookReader logBookReader) {
         List<CollectedData> collectedDataList = new ArrayList<>(1);
-        CollectedLogBook deviceLogBook = this.getCollectedDataFactory().createCollectedLogBook(logBookReader.getLogBookIdentifier());
+        CollectedLogBook deviceLogBook = this.collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
         try {
             ProfileData profileData = this.meterProtocol.getProfileData(logBookReader.getLastLogBook(), true);
             deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(profileData.getMeterEvents()));
@@ -286,10 +287,6 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
         return this.meterProtocolClockAdapter.getTime();
     }
 
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
-    }
-
     private Issue getProblem(Object source, String description, Object... arguments) {
         return this.issueService.newProblem(source, description, arguments);
     }
@@ -297,4 +294,5 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
     private Issue getWarning(Object source, String description, Object... arguments) {
         return this.issueService.newWarning(source, description, arguments);
     }
+
 }

@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.common.services.WrappingFinder;
@@ -19,6 +20,25 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
+import com.energyict.mdc.protocol.api.device.data.CollectedConfigurationInformation;
+import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedDeviceCache;
+import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
@@ -47,6 +67,7 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -107,6 +128,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     private volatile List<DeviceProtocolSecurityService> deviceProtocolSecurityServices = new CopyOnWriteArrayList<>();
     private volatile List<LicensedProtocolService> licensedProtocolServices = new CopyOnWriteArrayList<>();
     private volatile List<DeviceCacheMarshallingService> deviceCacheMarshallingServices = new CopyOnWriteArrayList<>();
+    private volatile List<CollectedDataFactory> collectedDataFactories = new CopyOnWriteArrayList<>();
     private volatile IssueService issueService;
     private volatile LicenseService licenseService;
     private volatile TransactionService transactionService;
@@ -679,6 +701,16 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.deviceCacheMarshallingServices.remove(deviceCacheMarshallingService);
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addCollectedDataFactory(CollectedDataFactory collectedDataFactory) {
+        this.collectedDataFactories.add(collectedDataFactory);
+    }
+
+    @SuppressWarnings("unused")
+    public void removeCollectedDataFactory(CollectedDataFactory collectedDataFactory) {
+        this.collectedDataFactories.remove(collectedDataFactory);
+    }
+
     @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
@@ -794,11 +826,12 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 bind(PluggableService.class).toInstance(pluggableService);
                 bind(RelationService.class).toInstance(relationService);
                 bind(IssueService.class).toInstance(issueService);
-                bind(ProtocolPluggableService.class).toInstance(ProtocolPluggableServiceImpl.this);
-                bind(SecuritySupportAdapterMappingFactory.class).to(SecuritySupportAdapterMappingFactoryImpl.class);
                 bind(LicenseService.class).toInstance(licenseService);
                 bind(UserService.class).toInstance(userService);
                 bind(DataVaultService.class).toInstance(dataVaultService);
+                bind(CollectedDataFactory.class).toInstance(new CompositeCollectedDataFactory());
+                bind(SecuritySupportAdapterMappingFactory.class).to(SecuritySupportAdapterMappingFactoryImpl.class);
+                bind(ProtocolPluggableService.class).toInstance(ProtocolPluggableServiceImpl.this);
             }
         };
     }
@@ -876,6 +909,112 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Override
     public List<TranslationKey> getKeys() {
         return Arrays.asList(MessageSeeds.values());
+    }
+
+    private class CompositeCollectedDataFactory implements CollectedDataFactory {
+        private CollectedDataFactory getCollectedDataFactory() {
+            return collectedDataFactories.stream().findFirst().orElseThrow(() -> new IllegalStateException("No suitable CollectedDataFactory found"));
+        }
+
+        @Override
+        public CollectedLoadProfile createCollectedLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
+            return this.getCollectedDataFactory().createCollectedLoadProfile(loadProfileIdentifier);
+        }
+
+        @Override
+        public CollectedTopology createCollectedTopology(DeviceIdentifier deviceIdentifier) {
+            return this.getCollectedDataFactory().createCollectedTopology(deviceIdentifier);
+        }
+
+        @Override
+        public CollectedLogBook createCollectedLogBook(LogBookIdentifier logBookIdentifier) {
+            return this.getCollectedDataFactory().createCollectedLogBook(logBookIdentifier);
+        }
+
+        @Override
+        public CollectedRegister createMaximumDemandCollectedRegister(RegisterIdentifier registerIdentifier, ReadingType readingType) {
+            return this.getCollectedDataFactory().createMaximumDemandCollectedRegister(registerIdentifier, readingType);
+        }
+
+        @Override
+        public CollectedRegister createCollectedRegisterForAdapter(RegisterIdentifier registerIdentifier, ReadingType readingType) {
+            return this.getCollectedDataFactory().createCollectedRegisterForAdapter(registerIdentifier, readingType);
+        }
+
+        @Override
+        public CollectedRegister createBillingCollectedRegister(RegisterIdentifier registerIdentifier, ReadingType readingType) {
+            return this.getCollectedDataFactory().createBillingCollectedRegister(registerIdentifier, readingType);
+        }
+
+        @Override
+        public CollectedRegister createDefaultCollectedRegister(RegisterIdentifier registerIdentifier, ReadingType readingType) {
+            return this.getCollectedDataFactory().createDefaultCollectedRegister(registerIdentifier, readingType);
+        }
+
+        @Override
+        public CollectedLogBook createNoLogBookCollectedData(DeviceIdentifier deviceIdentifier) {
+            return this.getCollectedDataFactory().createNoLogBookCollectedData(deviceIdentifier);
+        }
+
+        @Override
+        public CollectedMessage createCollectedMessage(MessageIdentifier messageIdentifier) {
+            return this.getCollectedDataFactory().createCollectedMessage(messageIdentifier);
+        }
+
+        @Override
+        public CollectedMessage createCollectedMessageWithLoadProfileData(MessageIdentifier messageIdentifier, CollectedLoadProfile collectedLoadProfile) {
+            return this.getCollectedDataFactory().createCollectedMessageWithLoadProfileData(messageIdentifier, collectedLoadProfile);
+        }
+
+        @Override
+        public CollectedMessage createCollectedMessageWithRegisterData(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, List<CollectedRegister> collectedRegisters) {
+            return this.getCollectedDataFactory().createCollectedMessageWithRegisterData(deviceIdentifier, messageIdentifier, collectedRegisters);
+        }
+
+        @Override
+        public CollectedDeviceCache createCollectedDeviceCache(DeviceIdentifier deviceIdentifier) {
+            return this.getCollectedDataFactory().createCollectedDeviceCache(deviceIdentifier);
+        }
+
+        @Override
+        public CollectedMessageList createCollectedMessageList(List<OfflineDeviceMessage> offlineDeviceMessages) {
+            return this.getCollectedDataFactory().createCollectedMessageList(offlineDeviceMessages);
+        }
+
+        @Override
+        public CollectedMessageList createEmptyCollectedMessageList() {
+            return this.getCollectedDataFactory().createEmptyCollectedMessageList();
+        }
+
+        @Override
+        public CollectedRegisterList createCollectedRegisterList(DeviceIdentifier deviceIdentifier) {
+            return this.getCollectedDataFactory().createCollectedRegisterList(deviceIdentifier);
+        }
+
+        @Override
+        public CollectedLoadProfileConfiguration createCollectedLoadProfileConfiguration(ObisCode profileObisCode, DeviceIdentifier<?> deviceIdentifier) {
+            return this.getCollectedDataFactory().createCollectedLoadProfileConfiguration(profileObisCode, deviceIdentifier);
+        }
+
+        @Override
+        public CollectedLoadProfileConfiguration createCollectedLoadProfileConfiguration(ObisCode profileObisCode, DeviceIdentifier<?> deviceIdentifier, boolean supported) {
+            return this.getCollectedDataFactory().createCollectedLoadProfileConfiguration(profileObisCode, deviceIdentifier, supported);
+        }
+
+        @Override
+        public CollectedConfigurationInformation createCollectedConfigurationInformation(DeviceIdentifier deviceIdentifier, String fileExtension, byte[] contents) {
+            return this.getCollectedDataFactory().createCollectedConfigurationInformation(deviceIdentifier, fileExtension, contents);
+        }
+
+        @Override
+        public CollectedData createCollectedAddressProperties(DeviceIdentifier deviceIdentifier, String ipAddress, String ipAddressPropertyName) {
+            return this.getCollectedDataFactory().createCollectedAddressProperties(deviceIdentifier, ipAddress, ipAddressPropertyName);
+        }
+
+        @Override
+        public CollectedDeviceInfo createCollectedDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, PropertySpec propertySpec, Object propertyValue) {
+            return this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(deviceIdentifier, propertySpec, propertyValue);
+        }
     }
 
 }

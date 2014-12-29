@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.Register;
@@ -36,10 +35,12 @@ public class SmartMeterProtocolRegisterAdapter implements DeviceRegisterSupport 
      */
     private final SmartMeterProtocol smartMeterProtocol;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public SmartMeterProtocolRegisterAdapter(final SmartMeterProtocol smartMeterProtocol, IssueService issueService) {
+    public SmartMeterProtocolRegisterAdapter(SmartMeterProtocol smartMeterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.smartMeterProtocol = smartMeterProtocol;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     /**
@@ -56,7 +57,7 @@ public class SmartMeterProtocolRegisterAdapter implements DeviceRegisterSupport 
             List<CollectedRegister> collectedRegisters = new ArrayList<>();
             List<Register> convertedRegisters = convertOfflineRegistersToRegister(offlineRegisters);
             try {
-                CollectedDataFactory collectedDataFactory = this.getCollectedDataFactory();
+                CollectedDataFactory collectedDataFactory = this.collectedDataFactory;
                 final List<RegisterValue> registerValues = smartMeterProtocol.readRegisters(convertedRegisters);
                 for (OfflineRegister register : offlineRegisters) {
                     RegisterValue registerValue = findRegisterValue(register, registerValues);
@@ -106,10 +107,6 @@ public class SmartMeterProtocolRegisterAdapter implements DeviceRegisterSupport 
             }
         }
         return INVALID_REGISTER_VALUE;
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
 }

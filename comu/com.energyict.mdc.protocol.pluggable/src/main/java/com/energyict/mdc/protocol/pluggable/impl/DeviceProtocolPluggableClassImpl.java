@@ -9,6 +9,7 @@ import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
@@ -45,15 +46,16 @@ import java.util.List;
 @HasValidProperties(groups = { Save.Update.class, Save.Create.class })
 public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrapper<DeviceProtocol> implements DeviceProtocolPluggableClass {
 
-    private PropertySpecService propertySpecService;
-    private ProtocolPluggableService protocolPluggableService;
-    private SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
-    private RelationService relationService;
-    private DataModel dataModel;
-    private IssueService issueService;
+    private final PropertySpecService propertySpecService;
+    private final ProtocolPluggableService protocolPluggableService;
+    private final SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
+    private final RelationService relationService;
+    private final DataModel dataModel;
+    private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
 
     @Inject
-    public DeviceProtocolPluggableClassImpl(EventService eventService, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, RelationService relationService, DataModel dataModel, Thesaurus thesaurus, IssueService issueService) {
+    public DeviceProtocolPluggableClassImpl(EventService eventService, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, RelationService relationService, DataModel dataModel, Thesaurus thesaurus, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         super(eventService, thesaurus);
         this.propertySpecService = propertySpecService;
         this.protocolPluggableService = protocolPluggableService;
@@ -61,6 +63,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
         this.relationService = relationService;
         this.dataModel = dataModel;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     static DeviceProtocolPluggableClassImpl from (DataModel dataModel, PluggableClass pluggableClass) {
@@ -108,10 +111,10 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
      */
     private DeviceProtocol checkForProtocolWrappers(Object protocol) {
         if (protocol instanceof SmartMeterProtocol) {
-            return new SmartMeterProtocolAdapter((SmartMeterProtocol) protocol, this.propertySpecService, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel, issueService);
+            return new SmartMeterProtocolAdapter((SmartMeterProtocol) protocol, this.propertySpecService, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel, issueService, collectedDataFactory);
         }
         else if (protocol instanceof MeterProtocol) {
-            return new MeterProtocolAdapterImpl((MeterProtocol) protocol, this.propertySpecService, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel, issueService);
+            return new MeterProtocolAdapterImpl((MeterProtocol) protocol, this.propertySpecService, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel, issueService, collectedDataFactory);
         }
         else {
             throw new ProtocolCreationException(MessageSeeds.UNSUPPORTED_LEGACY_PROTOCOL_TYPE, protocol.getClass());

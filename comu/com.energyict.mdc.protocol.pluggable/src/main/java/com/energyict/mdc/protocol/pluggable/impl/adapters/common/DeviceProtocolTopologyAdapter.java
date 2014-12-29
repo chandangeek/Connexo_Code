@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -22,11 +21,13 @@ import com.energyict.mdc.protocol.api.tasks.support.DeviceTopologySupport;
 public class DeviceProtocolTopologyAdapter implements DeviceTopologySupport {
 
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
     private DeviceIdentifier deviceIdentifier;
 
-    public DeviceProtocolTopologyAdapter(IssueService issueService) {
+    public DeviceProtocolTopologyAdapter(IssueService issueService, CollectedDataFactory collectedDataFactory) {
         super();
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     /**
@@ -38,7 +39,7 @@ public class DeviceProtocolTopologyAdapter implements DeviceTopologySupport {
      */
     @Override
     public CollectedTopology getDeviceTopology() {
-        CollectedTopology deviceTopology = this.getCollectedDataFactory().createCollectedTopology(deviceIdentifier);
+        CollectedTopology deviceTopology = this.collectedDataFactory.createCollectedTopology(deviceIdentifier);
         deviceTopology.setFailureInformation(ResultType.NotSupported, getIssue(deviceIdentifier.findDevice(), "devicetopologynotsupported"));
         return deviceTopology;
     }
@@ -54,10 +55,6 @@ public class DeviceProtocolTopologyAdapter implements DeviceTopologySupport {
      */
     public void setDeviceIdentifier(DeviceIdentifier deviceIdentifier) {
         this.deviceIdentifier = deviceIdentifier;
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
 }

@@ -1,13 +1,9 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
-import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.ApplicationContext;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
@@ -18,19 +14,20 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.mocks.MockCollectedRegister;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.RegisterSupportedMeterProtocol;
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+
+import com.elster.jupiter.metering.ReadingType;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -59,8 +56,6 @@ public class MeterProtocolRegisterAdapterTest {
     @Mock
     private IssueService issueService;
     @Mock
-    private ApplicationContext applicationContext;
-    @Mock
     private CollectedDataFactory collectedDataFactory;
 
     @Before
@@ -71,34 +66,19 @@ public class MeterProtocolRegisterAdapterTest {
     @Before
     public void initializeMocksAndFactories() {
         when(this.collectedDataFactory.createCollectedRegisterForAdapter(any(RegisterIdentifier.class), any(ReadingType.class))).
-            thenAnswer(new Answer<CollectedRegister>() {
-                @Override
-                public CollectedRegister answer(InvocationOnMock invocationOnMock) throws Throwable {
-                    RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
-                    ReadingType readingType = (ReadingType) invocationOnMock.getArguments()[1];
-                    MockCollectedRegister collectedRegister = new MockCollectedRegister(registerIdentifier, readingType);
-                    collectedRegister.setResultType(ResultType.Supported);
-                    return collectedRegister;
-                }
+            thenAnswer(invocationOnMock -> {
+                RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
+                ReadingType readingType = (ReadingType) invocationOnMock.getArguments()[1];
+                MockCollectedRegister collectedRegister = new MockCollectedRegister(registerIdentifier, readingType);
+                collectedRegister.setResultType(ResultType.Supported);
+                return collectedRegister;
             });
         when(this.collectedDataFactory.createDefaultCollectedRegister(any(RegisterIdentifier.class), any(ReadingType.class))).
-            thenAnswer(new Answer<CollectedRegister>() {
-                @Override
-                public CollectedRegister answer(InvocationOnMock invocationOnMock) throws Throwable {
-                    RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
-                    ReadingType readingType = (ReadingType) invocationOnMock.getArguments()[1];
-                    return new MockCollectedRegister(registerIdentifier, readingType);
-                }
+            thenAnswer(invocationOnMock -> {
+                RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
+                ReadingType readingType = (ReadingType) invocationOnMock.getArguments()[1];
+                return new MockCollectedRegister(registerIdentifier, readingType);
             });
-        CollectedDataFactoryProvider collectedDataFactoryProvider = mock(CollectedDataFactoryProvider.class);
-        when(collectedDataFactoryProvider.getCollectedDataFactory()).thenReturn(this.collectedDataFactory);
-        CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
-        when(this.applicationContext.getModulesImplementing(CollectedDataFactory.class)).thenReturn(Arrays.asList(this.collectedDataFactory));
-    }
-
-    @After
-    public void resetCollectedDataFactoryProvider() {
-        CollectedDataFactoryProvider.instance.set(null);
     }
 
     private static OfflineRegister getMockedRegister() {
@@ -121,35 +101,32 @@ public class MeterProtocolRegisterAdapterTest {
 
     @Test
     public void getRegisterEmptyCallTest() {
-        MeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(null, issueService);
+        MeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(null, issueService, collectedDataFactory);
         assertThat(meterProtocolRegisterAdapter.readRegisters(null)).isNotNull();
         assertThat(meterProtocolRegisterAdapter.readRegisters(null)).isEmpty();
-        assertThat(meterProtocolRegisterAdapter.readRegisters(new ArrayList<OfflineRegister>())).isNotNull();
-        assertThat(meterProtocolRegisterAdapter.readRegisters(new ArrayList<OfflineRegister>())).isEmpty();
+        assertThat(meterProtocolRegisterAdapter.readRegisters(new ArrayList<>())).isNotNull();
+        assertThat(meterProtocolRegisterAdapter.readRegisters(new ArrayList<>())).isEmpty();
 
         RegisterSupportedMeterProtocol meterProtocol = mock(RegisterSupportedMeterProtocol.class);
-        meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(meterProtocol, issueService);
+        meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(meterProtocol, issueService, collectedDataFactory);
         assertThat(meterProtocolRegisterAdapter.readRegisters(null)).isNotNull();
         assertThat(meterProtocolRegisterAdapter.readRegisters(null)).isEmpty();
-        assertThat(meterProtocolRegisterAdapter.readRegisters(new ArrayList<OfflineRegister>())).isNotNull();
-        assertThat(meterProtocolRegisterAdapter.readRegisters(new ArrayList<OfflineRegister>())).isEmpty();
+        assertThat(meterProtocolRegisterAdapter.readRegisters(new ArrayList<>())).isNotNull();
+        assertThat(meterProtocolRegisterAdapter.readRegisters(new ArrayList<>())).isEmpty();
     }
 
     @Test
     public void deviceDoesNotSupportRegisterRequests() {
-        when(this.issueService.newProblem(any(ObisCode.class), eq("registerXnotsupported"), anyVararg())).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Problem registerXnotsupportedProblem = mock(Problem.class);
-                when(registerXnotsupportedProblem.getDescription()).thenReturn("registerXnotsupported");
-                when(registerXnotsupportedProblem.getSource()).thenReturn((invocation.getArguments()[0]));
-                return registerXnotsupportedProblem;
-            }
+        when(this.issueService.newProblem(any(ObisCode.class), eq("registerXnotsupported"), anyVararg())).thenAnswer(invocation -> {
+            Problem registerXnotsupportedProblem = mock(Problem.class);
+            when(registerXnotsupportedProblem.getDescription()).thenReturn("registerXnotsupported");
+            when(registerXnotsupportedProblem.getSource()).thenReturn((invocation.getArguments()[0]));
+            return registerXnotsupportedProblem;
         });
 
         OfflineRegister register = getMockedRegister();
 
-        MeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(null, issueService);
+        MeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(null, issueService, collectedDataFactory);
         final List<CollectedRegister> collectedRegisters = meterProtocolRegisterAdapter.readRegisters(Arrays.asList(register));
 
         assertThat(collectedRegisters).hasSize(1);
@@ -166,7 +143,7 @@ public class MeterProtocolRegisterAdapterTest {
         for(int i = 0; i < registerListSize; i++){
             registerList.add(register);
         }
-        MeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(null, issueService);
+        MeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(null, issueService, collectedDataFactory);
         final List<CollectedRegister> collectedRegisters = meterProtocolRegisterAdapter.readRegisters(registerList);
         assertThat(collectedRegisters.size()).isEqualTo(registerListSize);
     }
@@ -177,7 +154,7 @@ public class MeterProtocolRegisterAdapterTest {
 
         RegisterSupportedMeterProtocol meterProtocol = mock(RegisterSupportedMeterProtocol.class);
         when(meterProtocol.readRegister(Matchers.<ObisCode>any())).thenThrow(new IOException("Failure during the reading"));
-        MeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(meterProtocol, issueService);
+        MeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(meterProtocol, issueService, collectedDataFactory);
         meterProtocolRegisterAdapter.readRegisters(Arrays.asList(register));
     }
 
@@ -189,7 +166,7 @@ public class MeterProtocolRegisterAdapterTest {
         RegisterSupportedMeterProtocol meterProtocol = mock(RegisterSupportedMeterProtocol.class);
         when(meterProtocol.readRegister(Matchers.<ObisCode>any())).thenReturn(registerValue);
 
-        MeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(meterProtocol, issueService);
+        MeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(meterProtocol, issueService, collectedDataFactory);
         final List<CollectedRegister> collectedRegisters = meterProtocolRegisterAdapter.readRegisters(Arrays.asList(register));
 
         CollectedRegister collectedRegister = collectedRegisters.get(0);
@@ -212,7 +189,7 @@ public class MeterProtocolRegisterAdapterTest {
         when(meterProtocol.readRegister(Matchers.<ObisCode>any())).thenReturn(registerValue);
         when(meterProtocol.readRegister(register2.getObisCode())).thenThrow(new UnsupportedException("Register Not supported"));
 
-        MeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(meterProtocol, issueService);
+        MeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(meterProtocol, issueService, collectedDataFactory);
         final List<CollectedRegister> collectedRegisters = meterProtocolRegisterAdapter.readRegisters(Arrays.asList(register1, register2, register3));
 
         assertThat(collectedRegisters).hasSize(3);
@@ -220,4 +197,5 @@ public class MeterProtocolRegisterAdapterTest {
         assertThat(collectedRegisters.get(1).getResultType()).isEqualTo(ResultType.NotSupported);
         assertThat(collectedRegisters.get(2).getResultType()).isEqualTo(ResultType.Supported);
     }
+
 }

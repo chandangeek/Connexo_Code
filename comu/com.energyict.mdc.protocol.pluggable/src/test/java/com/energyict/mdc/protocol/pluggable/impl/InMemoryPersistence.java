@@ -1,5 +1,22 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.dynamic.relation.RelationService;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.pluggable.PluggableService;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -21,35 +38,16 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.energyict.mdc.common.ApplicationContext;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.Translator;
-import com.energyict.mdc.common.impl.MdcCommonModule;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.dynamic.relation.RelationService;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.issues.impl.IssuesModule;
-import com.energyict.mdc.pluggable.PluggableService;
-import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
-import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
-import java.security.Principal;
-import java.sql.SQLException;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import static org.mockito.Matchers.anyString;
+import java.security.Principal;
+import java.sql.SQLException;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -61,8 +59,6 @@ import static org.mockito.Mockito.when;
  * @since 2014-01-16 (09:57)
  */
 public class InMemoryPersistence {
-
-    public static final String JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME = "jupiter.bootstrap.module";
 
     private BundleContext bundleContext;
     private Principal principal;
@@ -83,7 +79,6 @@ public class InMemoryPersistence {
     private LicensedProtocolService licensedProtocolService;
     private IssueService issueService;
     private PropertySpecService propertySpecService;
-    private ApplicationContext applicationContext;
     private PluggableService pluggableService;
     private RelationService relationService;
     private DeviceCacheMarshallingService deviceCacheMarshallingService;
@@ -91,10 +86,11 @@ public class InMemoryPersistence {
     private LicenseService licenseService;
 
     private ProtocolPluggableServiceImpl protocolPluggableService;
+    private InMemoryBootstrapModule bootstrapModule;
 
     public void initializeDatabase (String testName, DataModelInitializer... dataModelInitializers) {
         this.initializeMocks(testName);
-        InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
+        this.bootstrapModule = new InMemoryBootstrapModule();
         Injector injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
@@ -129,9 +125,6 @@ public class InMemoryPersistence {
             }
             ctx.commit();
         }
-        Environment environment = injector.getInstance(Environment.class);
-        environment.put(InMemoryPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
-        environment.setApplicationContext(this.applicationContext);
     }
 
     public void run(DataModelInitializer... dataModelInitializers) {
@@ -158,14 +151,9 @@ public class InMemoryPersistence {
         this.connectionTypeService = mock(ConnectionTypeService.class);
         this.licensedProtocolService = mock(LicensedProtocolService.class);
         this.legacySecurityPropertyConverter = mock(LegacySecurityPropertyConverter.class);
-        this.applicationContext = mock(ApplicationContext.class);
         this.deviceCacheMarshallingService = mock(DeviceCacheMarshallingService.class);
         this.licenseService = mock(LicenseService.class);
         this.userService = mock(UserService.class);
-        Translator translator = mock(Translator.class);
-        when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
-        when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
-        when(this.applicationContext.getTranslator()).thenReturn(translator);
     }
 
     private DataModel createNewProtocolPluggableService() {
@@ -192,28 +180,11 @@ public class InMemoryPersistence {
     }
 
     public void cleanUpDataBase() throws SQLException {
-        Environment environment = Environment.DEFAULT.get();
-        if (environment != null) {
-            Object bootstrapModule = environment.get(JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME);
-            if (bootstrapModule != null) {
-                deactivate(bootstrapModule);
-            }
-        }
-    }
-
-    private void deactivate(Object bootstrapModule) {
-        if (bootstrapModule instanceof InMemoryBootstrapModule) {
-            InMemoryBootstrapModule inMemoryBootstrapModule = (InMemoryBootstrapModule) bootstrapModule;
-            inMemoryBootstrapModule.deactivate();
-        }
+        this.bootstrapModule.deactivate();
     }
 
     public ProtocolPluggableServiceImpl getProtocolPluggableService() {
         return protocolPluggableService;
-    }
-
-    public ApplicationContext getApplicationContext() {
-        return applicationContext;
     }
 
     public DeviceProtocolMessageService getDeviceProtocolMessageService() {
@@ -231,7 +202,6 @@ public class InMemoryPersistence {
     public DeviceProtocolSecurityService getDeviceProtocolSecurityService() {
         return deviceProtocolSecurityService;
     }
-
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;

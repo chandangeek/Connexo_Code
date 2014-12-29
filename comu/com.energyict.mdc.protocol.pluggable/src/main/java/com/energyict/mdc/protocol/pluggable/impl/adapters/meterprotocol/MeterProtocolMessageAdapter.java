@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AbstractDeviceMessageConverterAdapter;
@@ -18,8 +19,8 @@ import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
  */
 public class MeterProtocolMessageAdapter extends AbstractDeviceMessageConverterAdapter {
 
-    public MeterProtocolMessageAdapter(final MeterProtocol meterProtocol, DataModel dataModel, ProtocolPluggableService protocolPluggableService, IssueService issueService) {
-        super(dataModel, protocolPluggableService, issueService);
+    public MeterProtocolMessageAdapter(final MeterProtocol meterProtocol, DataModel dataModel, ProtocolPluggableService protocolPluggableService, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+        super(dataModel, protocolPluggableService, issueService, collectedDataFactory);
         if (MessageProtocol.class.isAssignableFrom(meterProtocol.getClass())) {
             setMessageProtocol((MessageProtocol) meterProtocol);
             Object messageConverter = createNewMessageConverterInstance(getDeviceMessageConverterMappingFor(meterProtocol.getClass().getName()));
