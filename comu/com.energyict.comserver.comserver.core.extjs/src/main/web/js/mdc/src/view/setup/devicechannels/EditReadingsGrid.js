@@ -30,6 +30,9 @@ Ext.define('Mdc.view.setup.devicechannels.EditReadingsGrid', {
             {
                 header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval'),
                 dataIndex: 'interval_end',
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                },
                 width: 200
             },
             {
