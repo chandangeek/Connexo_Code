@@ -2,6 +2,8 @@ package com.energyict.mdc.pluggable.rest.impl;
 
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -20,6 +22,10 @@ public class PluggableRestApplicationJerseyTest extends com.elster.jupiter.devto
     PropertySpecService propertySpecService;
     @Mock
     ProtocolPluggableService protocolPluggableService;
+    @Mock
+    CodeFactory codeFactory;
+    @Mock
+    UserFileFactory userFileFactory;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -34,6 +40,8 @@ public class PluggableRestApplicationJerseyTest extends com.elster.jupiter.devto
         application.setDeviceConfigurationService(deviceConfigurationService);
         application.setPropertySpecService(propertySpecService);
         application.setProtocolPluggableService(protocolPluggableService);
+        application.setCodeFactory(codeFactory);
+        application.setUserFileFactory(userFileFactory);
         return application;
     }
 }

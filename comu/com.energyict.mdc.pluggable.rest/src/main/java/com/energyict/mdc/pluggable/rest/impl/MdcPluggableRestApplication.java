@@ -4,6 +4,8 @@ import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.license.License;
@@ -34,6 +36,8 @@ public class MdcPluggableRestApplication extends Application implements Translat
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "PLR";
 
+    private volatile CodeFactory codeFactory;
+    private volatile UserFileFactory userFileFactory;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile PropertySpecService propertySpecService;
     private volatile TransactionService transactionService;
@@ -64,6 +68,16 @@ public class MdcPluggableRestApplication extends Application implements Translat
         hashSet.addAll(super.getSingletons());
         hashSet.add(new HK2Binder());
         return Collections.unmodifiableSet(hashSet);
+    }
+
+    @Reference
+    public void setCodeFactory(CodeFactory codeFactory) {
+        this.codeFactory = codeFactory;
+    }
+
+    @Reference
+    public void setUserFileFactory(UserFileFactory userFileFactory) {
+        this.userFileFactory = userFileFactory;
     }
 
     @Reference
@@ -116,6 +130,8 @@ public class MdcPluggableRestApplication extends Application implements Translat
 
         @Override
         protected void configure() {
+            bind(codeFactory).to(CodeFactory.class);
+            bind(userFileFactory).to(UserFileFactory.class);
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
             bind(propertySpecService).to(PropertySpecService.class);
             bind(transactionService).to(TransactionService.class);
