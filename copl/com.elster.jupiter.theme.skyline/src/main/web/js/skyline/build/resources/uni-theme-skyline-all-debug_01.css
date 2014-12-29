@@ -23370,8 +23370,8 @@ a.x-color-picker-item:hover {
 /* including package uni-theme-skyline */
 @font-face {
   font-family: 'icomoon';
-  src: url("resources/fonts/icomoon/fonts/icomoon.eot?-6g0ktj");
-  src: url("resources/fonts/icomoon/fonts/icomoon.eot?#iefix-6g0ktj") format("embedded-opentype"), url("resources/fonts/icomoon/fonts/icomoon.woff?-6g0ktj") format("woff"), url("resources/fonts/icomoon/fonts/icomoon.ttf?-6g0ktj") format("truetype"), url("resources/fonts/icomoon/fonts/icomoon.svg?-6g0ktj#icomoon") format("svg");
+  src: url("fonts/icomoon/fonts/icomoon.eot?-6g0ktj");
+  src: url("fonts/icomoon/fonts/icomoon.eot?#iefix-6g0ktj") format("embedded-opentype"), url("fonts/icomoon/fonts/icomoon.woff?-6g0ktj") format("woff"), url("fonts/icomoon/fonts/icomoon.ttf?-6g0ktj") format("truetype"), url("fonts/icomoon/fonts/icomoon.svg?-6g0ktj#icomoon") format("svg");
   font-weight: normal;
   font-style: normal;
 }
