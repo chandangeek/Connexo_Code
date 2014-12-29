@@ -32,6 +32,8 @@ public interface DataExportService {
 
     void setExportDirectory(AppServer appServer, Path path);
 
+    void removeExportDirectory(AppServer appServer);
+
     Optional<Path> getExportDirectory(AppServer appServer);
 
     Map<AppServer, Path> getAllExportDirecties();

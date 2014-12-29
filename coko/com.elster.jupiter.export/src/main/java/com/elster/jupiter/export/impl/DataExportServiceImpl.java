@@ -269,6 +269,12 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Override
+    public void removeExportDirectory(AppServer appServer) {
+        Optional<DirectoryForAppServer> appServerRef = dataModel.mapper(DirectoryForAppServer.class).getOptional(appServer.getName());
+        appServerRef.ifPresent(as -> dataModel.remove(as));
+    }
+
+    @Override
     public Optional<Path> getExportDirectory(AppServer appServer) {
         return dataModel.mapper(DirectoryForAppServer.class).getOptional(appServer.getName()).flatMap(DirectoryForAppServer::getPath);
     }

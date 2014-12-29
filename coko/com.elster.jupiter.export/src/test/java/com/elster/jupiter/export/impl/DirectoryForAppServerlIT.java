@@ -185,4 +185,20 @@ public class DirectoryForAppServerlIT {
         assertThat(dataExportService.getExportDirectory(appServer)).contains(path);
     }
 
+    @Test
+    public void testRemovePathForAppServer(){
+        Path path = Paths.get("/usr/export");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            dataExportService.setExportDirectory(appServer, path);
+            context.commit();
+        }
+
+        try (TransactionContext context = transactionService.getContext()) {
+            dataExportService.removeExportDirectory(appServer);
+            context.commit();
+        }
+
+        assertThat(dataExportService.getExportDirectory(appServer).isPresent()).isFalse();
+    }
 }
