@@ -28,21 +28,23 @@ Ext.define('Tme.controller.Main', {
     },
 
     initMenu: function () {
-        var relativePeriodItem = Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.relativePeriod', 'TME', 'Relative period'),
-                portal: 'administration',
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.relativePeriods', 'TME', 'Relative periods'),
-                        href: '#/administration/relativeperiods',
-                        route: 'relativeperiods'
-                    }
-                ]
-            });
+	    if (Uni.Auth.hasAnyPrivilege(['privilege.view.period', 'privilege.administrate.period'])) {
+            var relativePeriodItem = Ext.create('Uni.model.PortalItem', {
+                    title: Uni.I18n.translate('general.relativePeriod', 'TME', 'Relative period'),
+                    portal: 'administration',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('general.relativePeriods', 'TME', 'Relative periods'),
+                            href: '#/administration/relativeperiods',
+                            route: 'relativeperiods'
+                        }
+                    ]
+                });
 
-        Uni.store.PortalItems.add(
-            relativePeriodItem
-        );
+            Uni.store.PortalItems.add(
+                relativePeriodItem
+            );
+		}
     }
 });
 

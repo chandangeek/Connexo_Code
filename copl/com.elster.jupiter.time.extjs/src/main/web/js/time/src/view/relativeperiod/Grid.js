@@ -48,7 +48,7 @@ Ext.define('Tme.view.relativeperiod.Grid', {
                         xtype: 'button',
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.period'),
                         text: Uni.I18n.translate('relativeperiod.add', 'TME', 'Add relative period'),
-                        href: me.router.getRoute('administration/relativeperiods/add').buildUrl()
+                        href: me.router.getRoute('administration/relativeperiods').buildUrl() + '/add'
                     }
                 ]
             },
