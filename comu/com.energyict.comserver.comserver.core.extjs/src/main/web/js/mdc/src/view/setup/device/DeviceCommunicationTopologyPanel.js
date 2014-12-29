@@ -340,14 +340,11 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
             success: function (response) {
                 var deviceData = Ext.JSON.decode(response.responseText, true);
                 if (!Ext.isEmpty(deviceData)) {
-                    console.log(1, arguments, deviceData);
                     Ext.ModelManager.getModel('Mdc.model.Device').load(deviceData.mRID, {
                         success: function (device) {
-                            console.log(2, arguments);
                             me.setRecord(device);
                         },
                         callback: function () {
-                            console.log(3, arguments);
                             me.setLoading(false);
                         }
                     });
