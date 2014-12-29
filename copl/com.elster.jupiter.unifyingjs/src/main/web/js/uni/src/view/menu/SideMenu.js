@@ -87,12 +87,10 @@ Ext.define('Uni.view.menu.SideMenu', {
 
         me.callParent(arguments);
 
-//Removed in scope of http://jira.eict.vpdc/browse/JP-7767
-//todo: check why it was added and impact of the removal
-
-//        Ext.util.History.addListener('change', function (token) {
-//            me.checkNavigation(token);
-//        });
+        // Selects the correct item whenever the URL changes over time.
+        Ext.util.History.addListener('change', function (token) {
+            me.checkNavigation(token);
+        });
 
         if (Ext.isDefined(me.menuItems) && Ext.isArray(me.menuItems)) {
             me.buildMenuItems();
@@ -223,7 +221,7 @@ Ext.define('Uni.view.menu.SideMenu', {
      * Checks which item is best to be selected based on the currently selected URL.
      * @param items
      * @param token
-     * @param selectionFitness
+     * @param selection
      */
     getMostQualifiedItems: function (items, token, selection) {
         var me = this,
@@ -261,9 +259,9 @@ Ext.define('Uni.view.menu.SideMenu', {
     },
 
     pickBestSelection: function (a, b) {
-        if (a && !b) {
+        if (Ext.isDefined(a) && !Ext.isDefined(b)) {
             return a;
-        } else if (!a && b) {
+        } else if (!Ext.isDefined(a) && Ext.isDefined(b)) {
             return b
         }
 
