@@ -1,11 +1,9 @@
 package com.energyict.mdc.protocol.api.codetables;
 
-import com.energyict.mdc.common.ApplicationComponent;
-
 import java.util.List;
 
 /**
- * Defines the behavior of an {@link ApplicationComponent}
+ * Defines the behavior of a component
  * that is capable of finding {@link Code}s.
  *
  * @author Rudi Vankeirsbilck (rudi)

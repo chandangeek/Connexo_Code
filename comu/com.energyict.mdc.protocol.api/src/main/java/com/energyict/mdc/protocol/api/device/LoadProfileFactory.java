@@ -1,11 +1,9 @@
 package com.energyict.mdc.protocol.api.device;
 
-import com.energyict.mdc.common.ApplicationComponent;
-
 import java.util.List;
 
 /**
- * Defines the behavior of an {@link ApplicationComponent}
+ * Defines the behavior of a component
  * that is capable of finding {@link BaseLoadProfile}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -13,7 +11,8 @@ import java.util.List;
  */
 public interface LoadProfileFactory {
 
-    public List<BaseLoadProfile> findLoadProfilesByDevice(BaseDevice<BaseChannel,BaseLoadProfile<BaseChannel>, BaseRegister> device);
+    public List<BaseLoadProfile<BaseChannel>> findLoadProfilesByDevice(BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> device);
 
     public BaseLoadProfile findLoadProfileById(int loadProfileId);
+
 }

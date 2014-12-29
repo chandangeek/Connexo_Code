@@ -1,10 +1,9 @@
 package com.energyict.mdc.protocol.api.device;
 
-import com.energyict.mdc.common.ApplicationComponent;
 import com.energyict.mdc.common.ObisCode;
 
 /**
- * Defines the behavior of an {@link ApplicationComponent}
+ * Defines the behavior of a component
  * that is capable of finding {@link BaseLogBook}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
