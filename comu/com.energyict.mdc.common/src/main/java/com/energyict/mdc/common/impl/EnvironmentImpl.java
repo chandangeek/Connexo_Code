@@ -1,6 +1,5 @@
 package com.energyict.mdc.common.impl;
 
-import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -13,7 +12,6 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -21,12 +19,6 @@ import java.util.logging.Logger;
 public class EnvironmentImpl implements Environment {
 
     private static final Logger LOGGER = Logger.getLogger(EnvironmentImpl.class.getName());
-
-    /**
-     * The name of the key that will be used to find the {@link ApplicationContext}
-     * in the map that holds the (globally) registered objects.
-     */
-    private static final String APPLICATIONCONTEXT = "APPLICATIONCONTEXT";
 
     /**
      * The objects that are globally shared and made available by name.
@@ -115,16 +107,6 @@ public class EnvironmentImpl implements Environment {
     }
 
     @Override
-    public void close () {
-        if (this.localNamedObjectsHolder != null) {
-            this.localNamedObjectsHolder.remove();
-        }
-        if (this.globalNamedObjects != null) {
-            this.globalNamedObjects.clear();
-        }
-    }
-
-    @Override
     public String getProperty (String key, String defaultValue) {
         String value = this.getProperty(key);
         if (this.isEmpty(value)) {
@@ -142,28 +124,6 @@ public class EnvironmentImpl implements Environment {
     @Override
     public String getProperty (String key) {
         return this.context.getProperty(key);
-    }
-
-    @Override
-    public ApplicationContext getApplicationContext () {
-        return (ApplicationContext) get(APPLICATIONCONTEXT);
-    }
-
-    @Override
-    public void setApplicationContext (ApplicationContext context) {
-        put(APPLICATIONCONTEXT, context, context.isGlobal());
-    }
-
-    @Override
-    public Locale getLocale () {
-        ApplicationContext context = this.getApplicationContext();
-        if (context == null) {
-            return Locale.getDefault();
-        }
-        else {
-            return context.getLocale();
-        }
-
     }
 
     private interface NamedObjects {

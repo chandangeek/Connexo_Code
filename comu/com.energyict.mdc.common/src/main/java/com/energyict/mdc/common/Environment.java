@@ -1,8 +1,5 @@
 package com.energyict.mdc.common;
 
-import java.sql.SQLException;
-import java.text.DecimalFormatSymbols;
-import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -21,16 +18,8 @@ public interface Environment {
 
     public void put (String name, Object value, boolean global);
 
-    public void close ();
-
     public String getProperty (String key, String defaultValue);
 
     public String getProperty (String key);
-
-    public ApplicationContext getApplicationContext ();
-
-    public void setApplicationContext (ApplicationContext context);
-
-    public Locale getLocale ();
 
 }
