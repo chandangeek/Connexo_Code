@@ -13,7 +13,28 @@ Ext.define('Apr.controller.history.AppServer', {
                     title: Uni.I18n.translate('general.applicationServers', 'APR', 'Application servers'),
                     route: 'appservers',
                     controller: 'Apr.controller.AppServers',
-                    action: 'showAppServers'
+                    action: 'showAppServers',
+                    items: {
+                        add: {
+                            title: Uni.I18n.translate('general.addApplicationServer', 'APR', 'Add application server'),
+                            route: 'add',
+                            controller: 'Apr.controller.AppServers',
+                            action: 'showAddEditAppServer'
+                        },
+                        edit: {
+                            route: '{appServerName}/edit',
+                            title: Uni.I18n.translate('general.edit', 'APR', 'Edit'),
+                            controller: 'Apr.controller.AppServers',
+                            action: 'showAddEditAppServer',
+                            callback: function (route) {
+                                this.getApplication().on('appserverload', function (name) {
+                                    route.setTitle(Uni.I18n.translate('general.edit', 'APR', 'Edit') + " '" + name + "'");
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            }
+                        }
+                    }
                 }
             }
         }

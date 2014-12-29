@@ -1,0 +1,126 @@
+Ext.define('Apr.view.appservers.Add', {
+    extend: 'Uni.view.container.ContentContainer',
+    alias: 'widget.appservers-add',
+    requires: [
+        'Uni.util.FormErrorMessage',
+        'Apr.view.appservers.MessageServicesGrid'
+    ],
+    edit: false,
+    setEdit: function (edit) {
+        if (edit) {
+            this.edit = edit;
+            this.down('#add-edit-button').setText(Uni.I18n.translate('general.save', 'APR', 'Save'));
+            this.down('#add-edit-button').action = 'editAppServer';
+        } else {
+            this.edit = edit;
+            this.down('#add-edit-button').setText(Uni.I18n.translate('general.add', 'APR', 'Add'));
+            this.down('#add-edit-button').action = 'addAppServer';
+        }
+    },
+    initComponent: function () {
+        var me = this;
+        me.content = [
+            {
+                xtype: 'form',
+                title: Uni.I18n.translate('general.addApplicationServer', 'APR', 'Add application server'),
+                itemId: 'add-appserver-form',
+                ui: 'large',
+                width: '100%',
+                defaults: {
+                    labelWidth: 250
+                },
+                items: [
+                    {
+                        itemId: 'form-errors',
+                        xtype: 'uni-form-error-message',
+                        name: 'form-errors',
+                        margin: '0 0 10 0',
+                        hidden: true,
+                        width: 750
+                    },
+                    {
+                        xtype: 'textfield',
+                        name: 'name',
+                        itemId: 'appserver-name',
+                        width: 750,
+                        required: true,
+                        fieldLabel: Uni.I18n.translate('general.name', 'UNI', 'Name'),
+                        allowBlank: false,
+                        enforceMaxLength: true,
+                        maxLength: 80
+                    },
+                    {
+                        xtype: 'textfield',
+                        name: 'exportPath',
+                        itemId: 'appserver-path',
+                        width: 750,
+                        maskRe: /\S/,
+                        required: true,
+                        fieldLabel: Uni.I18n.translate('general.exportPath', 'APR', 'Export path'),
+                        allowBlank: false
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('general.messageServices', 'APR', 'Message services'),
+                        layout: 'hbox',
+                        items: [
+                            {
+                                xtype: 'message-services-grid',
+                                itemId: 'message-services-grid',
+                                store: me.store
+                            },
+                            {
+                                xtype: 'displayfield',
+                                itemId: 'empty-text-grid',
+                                hidden: true,
+                                value: Uni.I18n.translate('appServers.noMessageServices', 'UNI', "This application server doesn't have any message service")
+                            },
+                            {
+                                itemId: 'add-message-services-button',
+                                xtype: 'button',
+                                margin: '0 0 0 10',
+                                text: Uni.I18n.translate('general.addMessageServices', 'APR', 'Add message services'),
+                                menu: {
+                                    itemId: 'add-message-services-menu',
+                                    plain: true,
+                                    border: false,
+                                    shadow: false,
+                                    items: []
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        ui: 'actions',
+                        fieldLabel: '&nbsp',
+                        layout: 'hbox',
+                        items: [
+                            {
+                                xtype: 'button',
+                                itemId: 'add-edit-button',
+                                ui: 'action'
+                            },
+                            {
+                                xtype: 'button',
+                                itemId: 'cancel-link',
+                                text: Uni.I18n.translate('window.messabox.cancel', 'UNI', 'Cancel'),
+                                ui: 'link',
+                                href: '#/administration/appservers/'
+                            }
+                        ]
+                    }
+                ]
+            }
+        ];
+        me.callParent(arguments);
+        me.setEdit(me.edit);
+    },
+    recurrenceNumberFieldValidation: function (field) {
+        var value = field.getValue();
+
+        if (Ext.isEmpty(value) || value < field.minValue) {
+            field.setValue(field.minValue);
+        }
+    }
+});

@@ -1,14 +1,15 @@
-Ext.define('Apr.store.AppServers', {
+Ext.define('Apr.store.ExportPaths', {
     extend: 'Ext.data.Store',
-    model: 'Apr.model.AppServer',
+    model: 'Apr.model.ExportPath',
     autoLoad: false,
 
     proxy: {
         type: 'rest',
-        url: '/api/apr/appserver',
+        url: '/api/export/exportdirs',
         reader: {
             type: 'json',
-            root: 'appServers'
+            root: 'directories'
         }
     }
 });
+
