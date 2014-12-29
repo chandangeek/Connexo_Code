@@ -1,9 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.energyict.mdc.common.ApplicationContext;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -33,6 +29,7 @@ import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -228,14 +225,12 @@ public class DeviceImplDoSomethingWithEventsTest {
         private DeviceConfigurationService deviceConfigurationService;
         private MeteringService meteringService;
         private DataModel dataModel;
-        private ApplicationContext applicationContext;
         private ProtocolPluggableService protocolPluggableService;
         private MdcReadingTypeUtilService readingTypeUtilService;
         private DeviceDataModelService deviceDataModelService;
         private Clock clock = Clock.systemDefaultZone();
         private RelationService relationService;
         private EngineConfigurationService engineConfigurationService;
-        private Environment environment;
         private TaskService taskService;
         private SchedulingService schedulingService;
         private LicenseService licenseService;
@@ -278,8 +273,6 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new SchedulingModule(),
                     new DeviceDataModule());
             this.transactionService = injector.getInstance(TransactionService.class);
-            this.environment = injector.getInstance(Environment.class);
-            this.environment.setApplicationContext(this.applicationContext);
             try (TransactionContext ctx = this.transactionService.getContext()) {
                 this.ormService = injector.getInstance(OrmService.class);
                 this.transactionService = injector.getInstance(TransactionService.class);
@@ -308,11 +301,6 @@ public class DeviceImplDoSomethingWithEventsTest {
             this.principal = mock(Principal.class);
             when(this.principal.getName()).thenReturn(testName);
             this.protocolPluggableService = mock(ProtocolPluggableService.class);
-            this.applicationContext = mock(ApplicationContext.class);
-            Translator translator = mock(Translator.class);
-            when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
-            when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
-            when(this.applicationContext.getTranslator()).thenReturn(translator);
             this.licenseService = mock(LicenseService.class);
             when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
         }
@@ -339,10 +327,6 @@ public class DeviceImplDoSomethingWithEventsTest {
 
         public MdcReadingTypeUtilService getReadingTypeUtilService() {
             return readingTypeUtilService;
-        }
-
-        public ApplicationContext getApplicationContext() {
-            return applicationContext;
         }
 
         public ServerDeviceService getDeviceService() {
