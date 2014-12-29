@@ -87,7 +87,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             }
         });
 
-        this.intervalStore = this.getStore('Mdc.store.Intervals').load();
+        this.intervalStore = this.getStore('Mdc.store.Intervals');
         this.store = this.getStore('LoadProfileConfigurationDetailChannels');
         this.phenomenasStore = this.getStore('Phenomenas');
         this.availableMeasurementTypesStore = this.getStore('MeasurementTypesOnLoadProfileConfiguration');
@@ -407,6 +407,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         me.deviceConfigurationId = deviceConfigurationId;
         me.loadProfileConfigurationId = loadProfileConfigurationId;
         me.displayedItemId = null;
+		Uni.util.Common.loadNecessaryStores(['Mdc.store.Intervals']);
         me.store.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId, loadProfileConfiguration: loadProfileConfigurationId });
         me.store.getProxy().pageParam = false;
         me.store.getProxy().limitParam = false;
