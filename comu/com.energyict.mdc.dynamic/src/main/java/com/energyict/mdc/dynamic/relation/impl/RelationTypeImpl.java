@@ -8,6 +8,7 @@ import com.energyict.mdc.common.ShadowList;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.Constraint;
 import com.energyict.mdc.dynamic.relation.ConstraintShadow;
+import com.energyict.mdc.dynamic.relation.DefaultAttributeTypeDetective;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationAttributeTypeShadow;
@@ -51,6 +52,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 public class RelationTypeImpl extends PersistentNamedObject implements RelationType {
 
+    private final DefaultAttributeTypeDetective defaultAttributeTypeDetective;
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
     private final List<RelationAttributeType> attributeTypes = new ArrayList<>();
@@ -64,8 +66,9 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     private boolean system;
 
     @Inject
-    public RelationTypeImpl(DataModel dataModel, TransactionService transactionService,Thesaurus thesaurus) {
+    public RelationTypeImpl(DataModel dataModel, DefaultAttributeTypeDetective defaultAttributeTypeDetective, TransactionService transactionService, Thesaurus thesaurus) {
         super(dataModel);
+        this.defaultAttributeTypeDetective = defaultAttributeTypeDetective;
         this.transactionService = transactionService;
         this.thesaurus = thesaurus;
     }

@@ -1,18 +1,15 @@
 package com.energyict.mdc.dynamic.impl;
 
-import com.energyict.mdc.common.ApplicationContext;
-
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
 
+import java.util.List;
+
 import org.junit.*;
 import org.junit.runner.*;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -24,9 +21,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class PropertySpecBuilderTest {
-
-    @Mock
-    private ApplicationContext applicationContext;
 
     @Test
     public void testSimpleStringProperty () {

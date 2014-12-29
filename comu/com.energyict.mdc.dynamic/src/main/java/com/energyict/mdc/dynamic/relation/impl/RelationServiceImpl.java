@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.BusinessObject;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.relation.DefaultAttributeTypeDetective;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.dynamic.relation.RelationService;
@@ -24,10 +25,13 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Provides an implementation for the {@link RelationService}.
@@ -35,15 +39,15 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-17 (10:28)
  */
-@Component(name = "com.energyict.mdc.dynamic.relation", service = {RelationService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + RelationService.COMPONENT_NAME, immediate = true)
-public class RelationServiceImpl implements RelationService, ServiceLocator, InstallService, TranslationKeyProvider {
+@Component(name = "com.energyict.mdc.dynamic.relation", service = {RelationService.class, InstallService.class, TranslationKeyProvider.class, DefaultAttributeTypeDetective.class}, property = "name=" + RelationService.COMPONENT_NAME, immediate = true)
+public class RelationServiceImpl implements RelationService, ServiceLocator, InstallService, TranslationKeyProvider, DefaultAttributeTypeDetective {
 
     private volatile DataModel dataModel;
     private volatile OrmClient ormClient;
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
-
     private volatile PropertySpecService propertySpecService;
+    private volatile List<DefaultAttributeTypeDetective> detectives = new CopyOnWriteArrayList<>();
 
     public RelationServiceImpl() {
         super();
@@ -68,6 +72,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(DefaultAttributeTypeDetective.class).toInstance(RelationServiceImpl.this);
             }
         };
     }
@@ -94,6 +99,16 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addDeviceProtocolService(DefaultAttributeTypeDetective detective) {
+        this.detectives.add(detective);
+    }
+
+    @SuppressWarnings("unused")
+    public void removeDeviceProtocolService(DefaultAttributeTypeDetective detective) {
+        this.detectives.remove(detective);
     }
 
     @Activate
@@ -139,7 +154,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
 
     @Override
     public RelationType createRelationType(RelationTypeShadow shadow, PropertySpecService propertySpecService) {
-        RelationTypeImpl relationType = new RelationTypeImpl(this.dataModel, this.transactionService, this.thesaurus);
+        RelationTypeImpl relationType = new RelationTypeImpl(this.dataModel, this, this.transactionService, this.thesaurus);
         relationType.init(shadow, propertySpecService);
         return relationType;
     }
@@ -172,6 +187,15 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
     @Override
     public RelationAttributeType findRelationAttributeType(int id) {
         return this.ormClient.getRelationAttributeTypeFactory().getUnique("id", id).orElse(null);
+    }
+
+    @Override
+    public boolean isDefaultAttribute(RelationAttributeType attributeType) {
+        return this.detectives
+                .stream()
+                .filter(each -> each.isDefaultAttribute(attributeType))
+                .findFirst()
+                .isPresent();
     }
 
 }

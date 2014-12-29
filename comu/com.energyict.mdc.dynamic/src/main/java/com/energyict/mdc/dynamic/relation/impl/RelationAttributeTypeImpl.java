@@ -2,12 +2,10 @@ package com.energyict.mdc.dynamic.relation.impl;
 
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessObjectFactory;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.dynamic.JupiterReferenceFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.relation.CompositeAttributeTypeDetective;
 import com.energyict.mdc.dynamic.relation.DefaultAttributeTypeDetective;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
@@ -46,6 +44,7 @@ import java.util.List;
 public class RelationAttributeTypeImpl extends PersistentNamedObject implements RelationAttributeType {
 
     private Thesaurus thesaurus;
+    private DefaultAttributeTypeDetective defaultAttributeTypeDetective;
     private PropertySpecService propertySpecService;
     private String valueFactoryClassName;
     private ValueFactory valueFactory;
@@ -61,9 +60,10 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
     private Boolean isDefault = null;
 
     @Inject
-    RelationAttributeTypeImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    RelationAttributeTypeImpl(DataModel dataModel, Thesaurus thesaurus, DefaultAttributeTypeDetective defaultAttributeTypeDetective, PropertySpecService propertySpecService) {
         super(dataModel);
         this.thesaurus = thesaurus;
+        this.defaultAttributeTypeDetective = defaultAttributeTypeDetective;
         this.propertySpecService = propertySpecService;
     }
 
@@ -72,13 +72,6 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
         this.thesaurus = thesaurus;
         this.relationType.set(relationType);
         this.propertySpecService = propertySpecService;
-    }
-
-    public RelationAttributeTypeImpl(DataModel dataModel, RelationType relationType, Thesaurus thesaurus, String name, ValueFactory valueFactory) {
-        super(dataModel, name);
-        this.thesaurus = thesaurus;
-        this.relationType.set(relationType);
-        this.valueFactory = valueFactory;
     }
 
     @Override
@@ -345,9 +338,7 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
     }
 
     private boolean doGetDefault() {
-        List<DefaultAttributeTypeDetective> modules = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DefaultAttributeTypeDetective.class);
-        CompositeAttributeTypeDetective detective = new CompositeAttributeTypeDetective(modules);
-        return detective.isDefaultAttribute(this);
+        return this.defaultAttributeTypeDetective.isDefaultAttribute(this);
     }
 
     public synchronized RelationTypeImpl getRelationType() {
