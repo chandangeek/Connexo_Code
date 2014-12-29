@@ -1,9 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.energyict.mdc.common.ApplicationContext;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -44,6 +40,7 @@ import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -128,8 +125,6 @@ public class PartialInboundConnectiontaskCrudIT {
     private DeviceConfigurationServiceImpl deviceConfigurationService;
     private DataModel dataModel;
     private Injector injector;
-    @Mock
-    private ApplicationContext applicationContext;
     private ProtocolPluggableService protocolPluggableService;
     private EngineConfigurationService engineConfigurationService;
     private InMemoryBootstrapModule bootstrapModule;
@@ -206,9 +201,6 @@ public class PartialInboundConnectiontaskCrudIT {
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
         }
-        Environment environment = injector.getInstance(Environment.class);
-        environment.put(InMemoryPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
-        environment.setApplicationContext(applicationContext);
     }
 
     private void initializeMocks() {
@@ -222,10 +214,6 @@ public class PartialInboundConnectiontaskCrudIT {
     @Before
     public void setUp() {
         when(principal.getName()).thenReturn("test");
-        Translator translator = mock(Translator.class);
-        when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
-        when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
-        when(applicationContext.getTranslator()).thenReturn(translator);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Collections.<DeviceProtocolCapabilities>emptyList());
         when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
