@@ -4,9 +4,8 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.device.data.security.Privileges;
-
+import java.util.Optional;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -15,7 +14,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.Optional;
 
 /**
  * Created by bvn on 7/29/14.
@@ -23,14 +21,12 @@ import java.util.Optional;
 @Path("/communicationoverview")
 public class CommunicationOverviewResource {
 
-    private final DashboardService dashboardService;
     private final CommunicationOverviewInfoFactory communicationOverviewInfoFactory;
     private final MeteringGroupsService meteringGroupService;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public CommunicationOverviewResource(DashboardService dashboardService, CommunicationOverviewInfoFactory communicationOverviewInfoFactory, MeteringGroupsService meteringGroupService, ExceptionFactory exceptionFactory) {
-        this.dashboardService = dashboardService;
+    public CommunicationOverviewResource(CommunicationOverviewInfoFactory communicationOverviewInfoFactory, MeteringGroupsService meteringGroupService, ExceptionFactory exceptionFactory) {
         this.communicationOverviewInfoFactory = communicationOverviewInfoFactory;
         this.meteringGroupService = meteringGroupService;
         this.exceptionFactory = exceptionFactory;
