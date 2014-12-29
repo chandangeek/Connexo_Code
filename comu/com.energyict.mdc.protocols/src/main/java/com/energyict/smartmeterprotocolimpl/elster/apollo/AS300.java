@@ -2,7 +2,10 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
 import com.energyict.dialer.core.impl.IPDialer;
 import com.energyict.dialer.core.impl.SocketStreamConnection;
+
+import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
@@ -24,10 +27,6 @@ import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 
 import com.energyict.protocols.mdc.services.impl.OrmClient;
-import com.energyict.protocols.messaging.MessageBuilder;
-import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
-import com.energyict.protocols.messaging.TimeOfUseMessaging;
-import com.energyict.protocols.messaging.TimeOfUseMessagingConfig;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
@@ -55,10 +54,14 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     private RegisterReader registerReader;
     protected AS300LoadProfileBuilder loadProfileBuilder;
     protected AS300Messaging messageProtocol;
+    protected final CodeFactory codeFactory;
+    protected final UserFileFactory userFileFactory;
 
     @Inject
-    public AS300(OrmClient ormClient) {
+    public AS300(CodeFactory codeFactory, UserFileFactory userFileFactory, OrmClient ormClient) {
         super(ormClient);
+        this.codeFactory = codeFactory;
+        this.userFileFactory = userFileFactory;
     }
 
     @Override
@@ -88,6 +91,14 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
             loadProfileBuilder = new AS300LoadProfileBuilder(this);
         }
         return loadProfileBuilder;
+    }
+
+    protected CodeFactory getCodeFactory() {
+        return codeFactory;
+    }
+
+    protected UserFileFactory getUserFileFactory() {
+        return userFileFactory;
     }
 
     @Override
@@ -196,7 +207,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
 
     public AS300Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this));
+            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this, codeFactory, userFileFactory));
         }
         return messageProtocol;
     }

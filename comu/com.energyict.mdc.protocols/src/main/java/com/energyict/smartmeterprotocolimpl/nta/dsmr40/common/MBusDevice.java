@@ -4,6 +4,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
@@ -26,8 +27,8 @@ import java.util.Properties;
 public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.MBusDevice {
 
     @Inject
-    public MBusDevice(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, OrmClient ormClient) {
-        super(topologyService, readingTypeUtilService, ormClient);
+    public MBusDevice(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
+        super(topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
     }
 
     @Override
@@ -76,11 +77,11 @@ public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder(this.getTopologyService());
+        return new LegacyLoadProfileRegisterMessageBuilder(this.getTopologyService(), this.getLoadProfileFactory());
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder(this.getTopologyService());
+        return new LegacyPartialLoadProfileMessageBuilder(this.getTopologyService(), this.getLoadProfileFactory());
     }
 
 }

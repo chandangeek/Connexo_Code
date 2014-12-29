@@ -12,6 +12,8 @@ import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
@@ -74,8 +76,10 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     private final TopologyService topologyService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final IdentificationService identificationService;
+    private final CollectedDataFactory collectedDataFactory;
+    private final LoadProfileFactory loadProfileFactory;
 
-    protected AbstractDlmsProtocol(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService) {
+    protected AbstractDlmsProtocol(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
         this.serialComponentService = serialComponentService;
@@ -83,6 +87,8 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         this.topologyService = topologyService;
         this.readingTypeUtilService = readingTypeUtilService;
         this.identificationService = identificationService;
+        this.collectedDataFactory = collectedDataFactory;
+        this.loadProfileFactory = loadProfileFactory;
     }
 
     protected IssueService getIssueService() {
@@ -91,6 +97,10 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     protected MdcReadingTypeUtilService getReadingTypeUtilService() {
         return readingTypeUtilService;
+    }
+
+    protected CollectedDataFactory getCollectedDataFactory() {
+        return collectedDataFactory;
     }
 
     /**
@@ -183,35 +193,35 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     public Dsmr23LogBookFactory getDeviceLogBookFactory() {
         if (logBookFactory == null) {
-            logBookFactory = new Dsmr23LogBookFactory(this, issueService);
+            logBookFactory = new Dsmr23LogBookFactory(this, issueService, collectedDataFactory);
         }
         return logBookFactory;
     }
 
     protected Dsmr23Messaging getDsmr23Messaging() {
         if (dsmr23Messaging == null) {
-            dsmr23Messaging = new Dsmr23Messaging(new Dsmr23MessageExecutor(this, topologyService, this.issueService, this.readingTypeUtilService), topologyService);
+            dsmr23Messaging = new Dsmr23Messaging(new Dsmr23MessageExecutor(this, topologyService, this.issueService, this.readingTypeUtilService, this.collectedDataFactory, this.loadProfileFactory), topologyService);
         }
         return dsmr23Messaging;
     }
 
     public MeterTopology getMeterTopology() {
         if (this.meterTopology == null) {
-            this.meterTopology = new MeterTopology(this, issueService, identificationService);
+            this.meterTopology = new MeterTopology(this, issueService, identificationService, collectedDataFactory);
         }
         return meterTopology;
     }
 
     protected Dsmr23RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new Dsmr23RegisterFactory(this, this.issueService, this.readingTypeUtilService, getDlmsProperties().isBulkRequest());
+            this.registerFactory = new Dsmr23RegisterFactory(this, this.issueService, this.readingTypeUtilService, collectedDataFactory, getDlmsProperties().isBulkRequest());
         }
         return registerFactory;
     }
 
     protected LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this, this.issueService, readingTypeUtilService, getDlmsProperties().isBulkRequest());
+            this.loadProfileBuilder = new LoadProfileBuilder(this, this.issueService, readingTypeUtilService, collectedDataFactory, getDlmsProperties().isBulkRequest());
         }
         return loadProfileBuilder;
     }

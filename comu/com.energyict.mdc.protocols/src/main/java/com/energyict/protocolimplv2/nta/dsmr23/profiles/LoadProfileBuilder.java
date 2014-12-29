@@ -5,7 +5,6 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
@@ -80,6 +79,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     private final AbstractDlmsProtocol meterProtocol;
     private final IssueService issueService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
+    private final CollectedDataFactory collectedDataFactory;
 
     /**
      * Keeps track of the link between a {@link LoadProfileReader} and a {@link ComposedProfileConfig}
@@ -124,10 +124,11 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
 
     private final boolean supportsBulkRequests;
 
-    public LoadProfileBuilder(AbstractDlmsProtocol meterProtocol, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, boolean supportsBulkRequests) {
+    public LoadProfileBuilder(AbstractDlmsProtocol meterProtocol, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, CollectedDataFactory collectedDataFactory, boolean supportsBulkRequests) {
         this.meterProtocol = meterProtocol;
         this.issueService = issueService;
         this.readingTypeUtilService = readingTypeUtilService;
+        this.collectedDataFactory = collectedDataFactory;
         this.supportsBulkRequests = supportsBulkRequests;
     }
 
@@ -153,18 +154,18 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
 
             for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
 
-                CollectedLoadProfileConfiguration lpc = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getDeviceIdentifier());
+                CollectedLoadProfileConfiguration lpc = this.collectedDataFactory.createCollectedLoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getDeviceIdentifier());
                 if (!expectedLoadProfileReaders.contains(lpr)) {      //Invalid LP, mark as not supported and move on to the next LP
-                lpc.setSupportedByMeter(false);
-                continue;
-            }
+                    lpc.setSupportedByMeter(false);
+                    continue;
+                }
 
-            this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
+                this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
                 ComposedProfileConfig cpc = lpConfigMap.get(lpr);
                 if (cpc != null) {
                     try {
                         lpc.setProfileInterval(ccoLpConfigs.getAttribute(cpc.getLoadProfileInterval()).intValue());
-                    List<ChannelInfo> channelInfos = constructChannelInfos(capturedObjectRegisterListMap.get(lpr), ccoCapturedObjectRegisterUnits);
+                        List<ChannelInfo> channelInfos = constructChannelInfos(capturedObjectRegisterListMap.get(lpr), ccoCapturedObjectRegisterUnits);
                         int statusMask = constructStatusMask(capturedObjectRegisterListMap.get(lpr));
                         int channelMask = constructChannelMask(capturedObjectRegisterListMap.get(lpr));
                         lpc.setChannelInfos(channelInfos);
@@ -172,10 +173,10 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                         this.statusMasksMap.put(lpr, statusMask);
                         this.channelMaskMap.put(lpr, channelMask);
                     } catch (IOException e) {
-                    if (IOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSession())) {
-                        lpc.setSupportedByMeter(false);
+                        if (IOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSession())) {
+                            lpc.setSupportedByMeter(false);
+                        }
                     }
-                }
                 } else {
                     lpc.setSupportedByMeter(false);
                 }
@@ -459,7 +460,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         for (LoadProfileReader lpr : loadProfiles) {
             ObisCode lpObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
             CollectedLoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
-            CollectedLoadProfile collectedLoadProfile = this.getCollectedDataFactory().createCollectedLoadProfile(lpr.getLoadProfileIdentifier());
+            CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(lpr.getLoadProfileIdentifier());
 
             if (this.channelInfoMap.containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
                 this.meterProtocol.getLogger().log(Level.INFO, "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
@@ -520,10 +521,6 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
 
     protected AbstractDlmsProtocol getMeterProtocol() {
         return meterProtocol;
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
 }

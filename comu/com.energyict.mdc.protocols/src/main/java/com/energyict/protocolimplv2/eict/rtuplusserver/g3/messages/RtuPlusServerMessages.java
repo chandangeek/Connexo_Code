@@ -25,6 +25,7 @@ import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -60,6 +61,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     private final DlmsSession session;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
 
     private Set<DeviceMessageId> supportedMessages = EnumSet.of(
@@ -136,9 +138,10 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             DeviceMessageId.SECURITY_CHANGE_WEBPORTAL_PASSWORD2
     );
 
-    public RtuPlusServerMessages(DlmsSession session, IssueService issueService) {
+    public RtuPlusServerMessages(DlmsSession session, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.session = session;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     public Set<DeviceMessageId> getSupportedMessages() {
@@ -147,7 +150,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = this.collectedDataFactory.createCollectedMessageList(pendingMessages);
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
@@ -838,7 +841,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessage(message.getIdentifier());
+        return this.collectedDataFactory.createCollectedMessage(message.getIdentifier());
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, Exception e) {
@@ -862,7 +865,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
+        return this.collectedDataFactory.createEmptyCollectedMessageList();  //Nothing to do here
     }
 
     @Override

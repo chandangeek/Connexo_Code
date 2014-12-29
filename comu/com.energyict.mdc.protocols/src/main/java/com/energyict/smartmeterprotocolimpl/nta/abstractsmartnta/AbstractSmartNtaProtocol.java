@@ -3,6 +3,7 @@ package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.mdc.common.BusinessException;
@@ -56,11 +57,13 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
 
     private final TopologyService topologyService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
+    private final LoadProfileFactory loadProfileFactory;
 
-    protected AbstractSmartNtaProtocol(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, OrmClient ormClient) {
+    protected AbstractSmartNtaProtocol(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
         super(ormClient);
         this.topologyService = topologyService;
         this.readingTypeUtilService = readingTypeUtilService;
+        this.loadProfileFactory = loadProfileFactory;
     }
 
     protected MdcReadingTypeUtilService getReadingTypeUtilService() {
@@ -459,11 +462,11 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder(topologyService);
+        return new LegacyPartialLoadProfileMessageBuilder(topologyService, loadProfileFactory);
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService);
+        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService, loadProfileFactory);
     }
 
     /**

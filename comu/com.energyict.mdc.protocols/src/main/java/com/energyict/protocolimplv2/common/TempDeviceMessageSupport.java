@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.common;
 
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
@@ -25,6 +24,13 @@ import java.util.Set;
  */
 public class TempDeviceMessageSupport implements DeviceMessageSupport {
 
+    private final CollectedDataFactory collectedDataFactory;
+
+    public TempDeviceMessageSupport(CollectedDataFactory collectedDataFactory) {
+        super();
+        this.collectedDataFactory = collectedDataFactory;
+    }
+
     @Override
     public Set<DeviceMessageId> getSupportedMessages() {
         return EnumSet.noneOf(DeviceMessageId.class);
@@ -32,21 +38,17 @@ public class TempDeviceMessageSupport implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return this.getCollectedDataFactory().createEmptyCollectedMessageList();
+        return this.collectedDataFactory.createEmptyCollectedMessageList();
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return this.getCollectedDataFactory().createEmptyCollectedMessageList();
+        return this.collectedDataFactory.createEmptyCollectedMessageList();
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         return "";
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
 }

@@ -1,18 +1,16 @@
 package com.energyict.protocols.messaging;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Message builder class responsible of generating and parsing TimeOfUse messages.
@@ -56,12 +54,16 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
     private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private Code code;
+    private final CodeFactory codeFactory;
+
     private UserFile userFile;
+    private final UserFileFactory userFileFactory;
 
     /**
      * Indicates whether to inline the {@link UserFile} or not.
      */
     private boolean inlineUserFiles;
+
     /**
      * Indicates whether to inline the {@link Code} or not.
      */
@@ -71,20 +73,21 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      * Indicates whether to zip the inlined content or not
      */
     private boolean zipMessageContent;
-
     /**
      * Indicate whether the content needs to be Base64 encoded or not
      */
     private boolean encodeB64;
 
-    public TimeOfUseMessageBuilder() {
+    public TimeOfUseMessageBuilder(CodeFactory codeFactory, UserFileFactory userFileFactory) {
+        this.codeFactory = codeFactory;
+        this.userFileFactory = userFileFactory;
     }
 
     /**
      * Set the name for the time of use schedule
      * This name is optional, it should not be used, this depends on the protocol
      *
-     * @rparam name The name to be set
+     * @param name The name to be set
      */
     public void setName(String name) {
         this.name = name;
@@ -147,13 +150,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      */
     public Code getCode() {
         if (code == null) {
-            List<CodeFactory> codeFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CodeFactory.class);
-            for (CodeFactory codeFactory : codeFactories) {
-                Code code = codeFactory.findCode(codeId);
-                if (code != null) {
-                    this.code = code;
-                }
-            }
+            this.codeFactory.findCode(codeId);
         }
         return code;
     }
@@ -188,13 +185,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      */
     public UserFile getUserFile() {
         if (userFile == null) {
-            List<UserFileFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(UserFileFactory.class);
-            for (UserFileFactory codeFactory : factories) {
-                UserFile userFile = codeFactory.findUserFile(userFileId);
-                if (userFile != null) {
-                    this.userFile = userFile;
-                }
-            }
+            this.userFile = this.userFileFactory.findUserFile(this.userFileId);
         }
         return userFile;
     }
@@ -268,12 +259,6 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
 
     public AdvancedMessageHandler getMessageHandler(MessageBuilder builder) {
         return new TimeOfUseMessageHandler((TimeOfUseMessageBuilder) builder, getMessageNodeTag());
-    }
-
-    public static MessageBuilder fromXml(String xmlString) throws SAXException, IOException {
-        MessageBuilder builder = new TimeOfUseMessageBuilder();
-        builder.initFromXml(xmlString);
-        return builder;
     }
 
     public static class TimeOfUseMessageHandler extends AbstractMessageBuilder.AdvancedMessageHandler {
@@ -381,4 +366,5 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
     public void setEncodeB64(final boolean encodeB64) {
         this.encodeB64 = encodeB64;
     }
+
 }

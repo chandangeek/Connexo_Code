@@ -3,6 +3,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540;
@@ -19,8 +20,8 @@ import javax.inject.Inject;
 public class CX20009 extends AM540 {
 
     @Inject
-    public CX20009(TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService) {
-        super(topologyService, ormClient, readingTypeUtilService);
+    public CX20009(TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
+        super(topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
     }
 
     @Override

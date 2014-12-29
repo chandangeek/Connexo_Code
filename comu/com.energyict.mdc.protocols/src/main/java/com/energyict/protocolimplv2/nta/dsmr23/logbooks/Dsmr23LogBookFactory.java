@@ -5,6 +5,7 @@ import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -35,15 +36,17 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
 
     private final AbstractDlmsProtocol protocol;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
 
     /**
      * List of obiscodes of the supported log books
      */
     private List<ObisCode> supportedLogBooks;
 
-    public Dsmr23LogBookFactory(AbstractDlmsProtocol protocol, IssueService issueService) {
+    public Dsmr23LogBookFactory(AbstractDlmsProtocol protocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.protocol = protocol;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
         supportedLogBooks = new ArrayList<>();
         try {
             supportedLogBooks.add(getMeterConfig().getEventLogObject().getObisCode());
@@ -63,7 +66,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
         List<CollectedLogBook> result = new ArrayList<>();
         for (LogBookReader logBookReader : logBooks) {
-            CollectedLogBook collectedLogBook = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLogBook(logBookReader.getLogBookIdentifier());
+            CollectedLogBook collectedLogBook = this.collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
             if (isSupported(logBookReader)) {
                 ProfileGeneric profileGeneric;
                 try {

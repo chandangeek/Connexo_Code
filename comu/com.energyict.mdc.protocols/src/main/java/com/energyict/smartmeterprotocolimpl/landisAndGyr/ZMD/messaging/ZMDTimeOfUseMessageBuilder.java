@@ -8,9 +8,12 @@ package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
  */
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
+
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -21,6 +24,10 @@ import java.io.IOException;
 public class ZMDTimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
 
     public static final String RAW_CONTENT_TAG = "Activity_Calendar";
+
+    public ZMDTimeOfUseMessageBuilder(CodeFactory codeFactory, UserFileFactory userFileFactory) {
+        super(codeFactory, userFileFactory);
+    }
 
     /**
      * We override this because we can't convert the CodeTable content in a proper manner ...

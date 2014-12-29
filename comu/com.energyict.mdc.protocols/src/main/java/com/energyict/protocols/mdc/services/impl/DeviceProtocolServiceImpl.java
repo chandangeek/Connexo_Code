@@ -6,8 +6,13 @@ import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -16,7 +21,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -55,6 +59,10 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     private volatile SocketService socketService;
     private volatile SerialComponentService serialComponentService;
     private volatile IdentificationService identificationService;
+    private volatile CollectedDataFactory collectedDataFactory;
+    private volatile LoadProfileFactory loadProfileFactory;
+    private volatile CodeFactory codeFactory;
+    private volatile UserFileFactory userFileFactory;
 
     private Injector injector;
 
@@ -65,7 +73,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     // For testing purposes
     @Inject
-    public DeviceProtocolServiceImpl(IssueService issueService, Clock clock, OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, TransactionService transactionService) {
+    public DeviceProtocolServiceImpl(IssueService issueService, Clock clock, OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory, CodeFactory codeFactory, UserFileFactory userFileFactory, TransactionService transactionService) {
         this();
         this.setTransactionService(transactionService);
         this.setOrmService(ormService);
@@ -78,6 +86,10 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         this.setSerialComponentService(serialComponentService);
         this.setReadingTypeUtilService(readingTypeUtilService);
         this.setIdentificationService(identificationService);
+        this.setCollectedDataFactory(collectedDataFactory);
+        this.setLoadProfileFactory(loadProfileFactory);
+        this.setCodeFactory(codeFactory);
+        this.setUserFileFactory(userFileFactory);
         this.activate();
         this.install();
     }
@@ -104,6 +116,10 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
                 bind(TopologyService.class).toInstance(topologyService);
                 bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
                 bind(IdentificationService.class).toInstance(identificationService);
+                bind(CollectedDataFactory.class).toInstance(collectedDataFactory);
+                bind(LoadProfileFactory.class).toInstance(loadProfileFactory);
+                bind(CodeFactory.class).toInstance(codeFactory);
+                bind(UserFileFactory.class).toInstance(userFileFactory);
                 bind(DeviceProtocolService.class).toInstance(DeviceProtocolServiceImpl.this);
             }
         };
@@ -194,6 +210,26 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     @Reference
     public void setIdentificationService(IdentificationService identificationService) {
         this.identificationService = identificationService;
+    }
+
+    @Reference
+    public void setCollectedDataFactory(CollectedDataFactory collectedDataFactory) {
+        this.collectedDataFactory = collectedDataFactory;
+    }
+
+    @Reference
+    public void setLoadProfileFactory(LoadProfileFactory loadProfileFactory) {
+        this.loadProfileFactory = loadProfileFactory;
+    }
+
+    @Reference
+    public void setCodeFactory(CodeFactory codeFactory) {
+        this.codeFactory = codeFactory;
+    }
+
+    @Reference
+    public void setUserFileFactory(UserFileFactory userFileFactory) {
+        this.userFileFactory = userFileFactory;
     }
 
     @Override

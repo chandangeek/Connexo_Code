@@ -22,6 +22,8 @@ import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
@@ -33,20 +35,13 @@ import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.DemandResetProtocol;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
 
 import com.energyict.protocols.mdc.services.impl.OrmClient;
-import com.energyict.protocols.messaging.MessageBuilder;
 import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.events.LogBookReader;
 import com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging.ZMDMessages;
 
@@ -69,15 +64,6 @@ import java.util.logging.Logger;
  */
 public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtocol, MessageProtocol, ProtocolLink {
 
-    protected static final ObisCode[] SerialNumberSelectionObjects = {
-            // Identification numbers 1.1, 1.2, 1.3 and 1.4
-            ObisCode.fromString("1.0.0.0.0.255"), ObisCode.fromString("1.0.0.0.1.255"), ObisCode.fromString("1.0.0.0.2.255"), ObisCode.fromString("1.0.0.0.3.255"),
-            // Identification numbers 2.1 and 2.2
-            ObisCode.fromString("0.0.96.1.0.255"), ObisCode.fromString("0.0.96.1.1.255"),
-            // Connection ID, Parametrisation ID and Configuration ID
-            ObisCode.fromString("0.0.96.2.1.255"), ObisCode.fromString("0.1.96.2.5.255"), ObisCode.fromString("0.1.96.2.2.255")
-    };
-
     protected String firmwareVersion;
 
     private CosemObjectFactory cosemObjectFactory = null;
@@ -99,9 +85,9 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
     private final ZMDMessages messageProtocol;
 
     @Inject
-    public ZMD(OrmClient ormClient) {
+    public ZMD(OrmClient ormClient, CodeFactory codeFactory, UserFileFactory userFileFactory) {
         super(ormClient);
-        this.messageProtocol = new ZMDMessages(this);
+        this.messageProtocol = new ZMDMessages(this, codeFactory, userFileFactory);
     }
 
     /**
@@ -111,7 +97,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
      */
     @Override
     public ZMDProperties getProperties() {
-         if (properties == null) {
+        if (properties == null) {
             properties = new ZMDProperties();
         }
         return properties;
@@ -132,8 +118,8 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
             getDlmsSession().init();
         } catch (IOException e) {
             getLogger().warning("Failed while initializing the DLMS connection.");
-    }
-        HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
+        }
+        HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);                            //HDLC:         9600 baud, 8N1
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
@@ -309,8 +295,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
     }
 
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws IOException {
-        List<LoadProfileConfiguration> loadProfileConfigurations = getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfilesToRead);
-        return loadProfileConfigurations;
+        return getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfilesToRead);
     }
 
     /**

@@ -17,6 +17,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -66,11 +68,11 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
     private final int physicalAddress;
     private final TopologyService topologyService;
 
-    public AbstractNtaMbusDevice(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService) {
+    public AbstractNtaMbusDevice(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
         this.propertySpecService = propertySpecService;
         this.topologyService = topologyService;
         //TODO, what? wait! Is this even correct?
-        this.meterProtocol = new WebRTUKP(this.propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService);
+        this.meterProtocol = new WebRTUKP(this.propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, loadProfileFactory);
         this.serialNumber = "CurrentlyUnKnown";
         this.physicalAddress = -1;
     }

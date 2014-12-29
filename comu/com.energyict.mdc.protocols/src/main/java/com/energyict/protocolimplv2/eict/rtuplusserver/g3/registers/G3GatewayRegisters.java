@@ -6,7 +6,6 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
@@ -41,10 +40,12 @@ public class G3GatewayRegisters {
     private final CustomRegisterMapping[] customRegisterMappings;
     private final DlmsSession session;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public G3GatewayRegisters(DlmsSession dlmsSession, IssueService issueService) {
+    public G3GatewayRegisters(DlmsSession dlmsSession, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.session = dlmsSession;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
 
         this.customRegisterMappings = new CustomRegisterMapping[]{
                 new FirewallSetupCustomRegisterMapping(session.getCosemObjectFactory()),
@@ -114,15 +115,11 @@ public class G3GatewayRegisters {
     }
 
     private CollectedRegister createCollectedRegister(RegisterValue registerValue, OfflineRegister register) {
-        CollectedRegister collectedRegister = getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register),
+        CollectedRegister collectedRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(register),
                 register.getReadingType());
         collectedRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         collectedRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
         return collectedRegister;
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
     private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
@@ -130,7 +127,7 @@ public class G3GatewayRegisters {
     }
 
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
-        CollectedRegister collectedRegister = getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register),
+        CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register),
                 register.getReadingType());
         if (resultType == ResultType.InCompatible) {
             collectedRegister.setFailureInformation(ResultType.InCompatible, this.issueService.newWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
@@ -139,4 +136,5 @@ public class G3GatewayRegisters {
         }
         return collectedRegister;
     }
+
 }

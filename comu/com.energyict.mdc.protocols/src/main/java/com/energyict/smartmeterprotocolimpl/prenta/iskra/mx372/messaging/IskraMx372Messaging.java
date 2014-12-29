@@ -14,6 +14,7 @@ import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -83,6 +84,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     private final IskraMx372 protocol;
     private final TopologyService topologyService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
+    private final LoadProfileFactory loadProfileFactory;
     private BaseDevice rtu;
 
     private ObisCode llsSecretObisCode1 = ObisCode.fromString("0.0.128.100.1.255");
@@ -137,10 +139,11 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     private static final int maxNumbersManagedWhiteList = 8;
 
 
-    public IskraMx372Messaging(IskraMx372 protocol, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService) {
+    public IskraMx372Messaging(IskraMx372 protocol, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
         this.protocol = protocol;
         this.topologyService = topologyService;
         this.readingTypeUtilService = readingTypeUtilService;
+        this.loadProfileFactory = loadProfileFactory;
     }
 
     public List getMessageCategories() {
@@ -265,11 +268,11 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService);
+        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService, this.loadProfileFactory);
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder(this.topologyService);
+        return new LegacyPartialLoadProfileMessageBuilder(this.topologyService, this.loadProfileFactory);
     }
 
     /**
@@ -294,7 +297,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
 
         if (!this.protocol.getSerialNumber().equalsIgnoreCase(messageEntry.getSerialNumber())) {
-            IskraMx372MbusMessageExecutor mbusMessageExecutor = new IskraMx372MbusMessageExecutor(protocol, topologyService);
+            IskraMx372MbusMessageExecutor mbusMessageExecutor = new IskraMx372MbusMessageExecutor(protocol, topologyService, loadProfileFactory);
             return mbusMessageExecutor.queryMessage(messageEntry);
         } else {
             MessageResult msgResult = null;

@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.idis.events;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -29,20 +30,21 @@ import java.util.TimeZone;
  */
 public class IDISGatewayEvents {
 
-    public static final String NAME = "Standard event log";
     public static final ObisCode OBIS_CODE = ObisCode.fromString("0.0.99.98.0.255");
     private final DlmsSession dlmsSession;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public IDISGatewayEvents(DlmsSession dlmsSession, IssueService issueService) {
+    public IDISGatewayEvents(DlmsSession dlmsSession, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.dlmsSession = dlmsSession;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     public List<CollectedLogBook> readEvents(List<LogBookReader> logBooks) {
         List<CollectedLogBook> result = new ArrayList<>();
         for (LogBookReader logBook : logBooks) {
-            CollectedLogBook collectedLogBook = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
+            CollectedLogBook collectedLogBook = this.collectedDataFactory.createCollectedLogBook(logBook.getLogBookIdentifier());
             if (logBook.getLogBookObisCode().equals(OBIS_CODE)) {
                 try {
                     Array eventArray = getMainLogBookBuffer(logBook);
@@ -95,7 +97,7 @@ public class IDISGatewayEvents {
 
         private final TimeZone timeZone;
 
-        public BasicEvent(Structure eventStructure, TimeZone timeZone) throws IOException {
+        private BasicEvent(Structure eventStructure, TimeZone timeZone) throws IOException {
             super(eventStructure.getBEREncodedByteArray(), 0, 0);
             this.timeZone = timeZone;
         }

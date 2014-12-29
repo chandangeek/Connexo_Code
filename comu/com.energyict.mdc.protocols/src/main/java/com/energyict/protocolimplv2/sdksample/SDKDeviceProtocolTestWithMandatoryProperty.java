@@ -3,12 +3,11 @@ package com.energyict.protocolimplv2.sdksample;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.Environment;
+
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -36,7 +35,6 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocols.impl.channels.ConnectionTypeRule;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -84,12 +82,14 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     private TypedProperties typedProperties = TypedProperties.empty();
     private final PropertySpecService propertySpecService;
     private final IdentificationService identificationService;
+    private final CollectedDataFactory collectedDataFactory;
 
     @Inject
-    public SDKDeviceProtocolTestWithMandatoryProperty(PropertySpecService propertySpecService, IdentificationService identificationService) {
+    public SDKDeviceProtocolTestWithMandatoryProperty(PropertySpecService propertySpecService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         super();
         this.propertySpecService = propertySpecService;
         this.identificationService = identificationService;
+        this.collectedDataFactory = collectedDataFactory;
         this.deviceProtocolSecurityCapabilities = new DlmsSecuritySupport(propertySpecService);
     }
 
@@ -206,7 +206,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
 
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-        CollectedDataFactory collectedDataFactory = this.getCollectedDataFactory();
+        CollectedDataFactory collectedDataFactory = this.collectedDataFactory;
         List<CollectedLoadProfileConfiguration> loadProfileConfigurations = new ArrayList<>();
         // by default all loadProfileReaders are supported, only if the corresponding ObisCodeProperty matches, we mark it as not supported
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
@@ -327,7 +327,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        final CollectedTopology collectedTopology = this.getCollectedDataFactory().createCollectedTopology(this.offlineDevice.getDeviceIdentifier());
+        final CollectedTopology collectedTopology = this.collectedDataFactory.createCollectedTopology(this.offlineDevice.getDeviceIdentifier());
         if (!is(getSlaveOneSerialNumber()).empty()) {
             collectedTopology.addSlaveDevice(this.identificationService.createDeviceIdentifierBySerialNumber(getSlaveOneSerialNumber()));
         }
@@ -395,16 +395,6 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
             }
         }
         return connectionTypes;
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
-        if (factories.isEmpty()) {
-            throw new CommunicationException(MessageSeeds.MISSING_MODULE, CollectedDataFactory.class);
-        }
-        else {
-            return factories.get(0);
-        }
     }
 
 }

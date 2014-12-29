@@ -5,8 +5,8 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -84,11 +84,13 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     private final boolean supportsBulkRequests;
     protected final IssueService issueService;
     protected final MdcReadingTypeUtilService readingTypeUtilService;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public Dsmr23RegisterFactory(AbstractDlmsProtocol protocol, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, boolean supportsBulkRequests) {
+    public Dsmr23RegisterFactory(AbstractDlmsProtocol protocol, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, CollectedDataFactory collectedDataFactory, boolean supportsBulkRequests) {
         this.protocol = protocol;
         this.issueService = issueService;
         this.readingTypeUtilService = readingTypeUtilService;
+        this.collectedDataFactory = collectedDataFactory;
         this.supportsBulkRequests = supportsBulkRequests;
     }
 
@@ -131,8 +133,9 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                 }
 
                 if (rv != null) {
-                    CollectedRegister deviceRegister = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory()
-                            .createMaximumDemandCollectedRegister(getRegisterIdentifier(register),
+                    CollectedRegister deviceRegister =
+                            this.collectedDataFactory.createMaximumDemandCollectedRegister(
+                                    getRegisterIdentifier(register),
                                     this.readingTypeUtilService.getReadingTypeFrom(register.getAmrRegisterObisCode(), register.getUnit()));
                     deviceRegister.setCollectedData(rv.getQuantity(), rv.getText());
                     deviceRegister.setCollectedTimeStamps(rv.getReadTime(), rv.getFromTime(), rv.getToTime(), rv.getEventTime());
@@ -373,7 +376,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     }
 
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
-        CollectedRegister collectedRegister = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register),
+        CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register),
                 this.readingTypeUtilService.getReadingTypeFrom(register.getAmrRegisterObisCode(), register.getUnit()));
         if (resultType == ResultType.InCompatible) {
             collectedRegister.setFailureInformation(

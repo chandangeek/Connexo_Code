@@ -4,6 +4,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 import com.energyict.mdc.protocol.api.inbound.IdentificationFactory;
 
@@ -25,16 +26,19 @@ import javax.inject.Inject;
  */
 public class IframeDiscover extends AbstractDiscover {
 
+    private final CollectedDataFactory collectedDataFactory;
+
     @Inject
-    public IframeDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService) {
+    public IframeDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         super(propertySpecService, issueService, readingTypeUtilService, thesaurus, identificationService);
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
     public DiscoverResultType doDiscovery ()  {
         try {
             ComChannel comChannel = this.getComChannel();
-            this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), this.getIssueService(), this.getReadingTypeUtilService(), this.getThesaurus(), getIdentificationService()));
+            this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), this.getIssueService(), this.getReadingTypeUtilService(), this.collectedDataFactory, this.getThesaurus(), getIdentificationService()));
             String identificationFrame = getInboundConnection().sendIRequestAndReadResponse();
             IdentificationFactory identificationFactory = processIdentificationFactory();
             String meterProtocolClass = processMeterProtocolClass(identificationFrame, identificationFactory);

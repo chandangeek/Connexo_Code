@@ -7,7 +7,9 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
@@ -58,15 +60,19 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
     private ZigbeeGasEventProfiles zigbeeGasEventProfiles;
     private ZigbeeGasLoadProfile zigbeeGasLoadProfile;
     private ZigbeeGasRegisterFactory registerFactory;
+    protected final CodeFactory codeFactory;
+    protected final UserFileFactory userFileFactory;
 
     @Inject
-    public ZigbeeGas(OrmClient ormClient) {
+    public ZigbeeGas(OrmClient ormClient, CodeFactory codeFactory, UserFileFactory userFileFactory) {
         super(ormClient);
+        this.codeFactory = codeFactory;
+        this.userFileFactory = userFileFactory;
     }
 
     public ZigbeeGasMessaging getMessageProtocol() {
         if (zigbeeGasMessaging == null) {
-            this.zigbeeGasMessaging = new ZigbeeGasMessaging(new ZigbeeMessageExecutor(this));
+            this.zigbeeGasMessaging = new ZigbeeGasMessaging(new ZigbeeMessageExecutor(this, this.codeFactory, this.userFileFactory));
         }
         return this.zigbeeGasMessaging;
     }

@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.dlms;
 
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
@@ -21,8 +23,8 @@ public class DLMSZMD_EXT extends DLMSZMD{
 	private int profileInterval;
 
     @Inject
-    public DLMSZMD_EXT(OrmClient ormClient) {
-        super(ormClient);
+    public DLMSZMD_EXT(OrmClient ormClient, CodeFactory codeFactory, UserFileFactory userFileFactory) {
+        super(ormClient, codeFactory, userFileFactory);
     }
 
     public int getProfileInterval() {

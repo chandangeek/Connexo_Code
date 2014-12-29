@@ -4,6 +4,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
@@ -34,8 +35,8 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
     protected MessageProtocol messageProtocol;
 
     @Inject
-    public E350(TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService) {
-        super(topologyService, ormClient, readingTypeUtilService);
+    public E350(TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
+        super(topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
     }
 
     @Override

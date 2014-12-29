@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.nta.dsmr23.topology;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -42,6 +41,8 @@ public class MeterTopology {
     private final AbstractDlmsProtocol protocol;
     private final IssueService issueService;
     private final IdentificationService identificationService;
+    private final CollectedDataFactory collectedDataFactory;
+
     /**
      * The <CODE>ComposedCosemObject</CODE> for requesting all serialNumbers in 1 request
      */
@@ -62,10 +63,11 @@ public class MeterTopology {
      */
     private CollectedTopology deviceTopology;
 
-    public MeterTopology(final AbstractDlmsProtocol protocol, IssueService issueService, IdentificationService identificationService) {
+    public MeterTopology(final AbstractDlmsProtocol protocol, IssueService issueService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         this.protocol = protocol;
         this.issueService = issueService;
         this.identificationService = identificationService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     /**
@@ -124,7 +126,7 @@ public class MeterTopology {
     protected List<DeviceMapping> constructMbusMap() {
         String mbusSerial;
         mbusMap = new ArrayList<>();
-        deviceTopology = this.getCollectedDataFactory().createCollectedTopology(protocol.getOfflineDevice().getDeviceIdentifier());
+        deviceTopology = this.collectedDataFactory.createCollectedTopology(protocol.getOfflineDevice().getDeviceIdentifier());
         for (int i = 1; i <= MAX_MBUS_DEVICES; i++) {
             ObisCode serialObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBIS_CODE, OBIS_CODE_B_FIELD_INDEX, (byte) i);
             if (this.protocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
@@ -217,7 +219,7 @@ public class MeterTopology {
 
     public CollectedTopology getDeviceTopology() {
         if (deviceTopology == null) {
-            deviceTopology = getCollectedDataFactory().createCollectedTopology(protocol.getOfflineDevice().getDeviceIdentifier());
+            deviceTopology = this.collectedDataFactory.createCollectedTopology(protocol.getOfflineDevice().getDeviceIdentifier());
             deviceTopology.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(deviceTopology, "devicetopologynotsupported"));
         }
         return deviceTopology;
@@ -225,10 +227,6 @@ public class MeterTopology {
 
     private void log(Level level, String message) {
         this.protocol.getLogger().log(level, message);
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
 }

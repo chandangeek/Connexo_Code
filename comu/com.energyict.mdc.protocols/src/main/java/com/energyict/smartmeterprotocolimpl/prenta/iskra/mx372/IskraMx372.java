@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
@@ -68,16 +69,18 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     private IskraMx372Messaging messageProtocol;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final TopologyService topologyService;
+    private final LoadProfileFactory loadProfileFactory;
 
     public static ScalerUnit[] demandScalerUnits = {new ScalerUnit(0, 30), new ScalerUnit(0, 255), new ScalerUnit(0, 255), new ScalerUnit(0, 255), new ScalerUnit(0, 255)};
     private static final int ELECTRICITY = 0x00;
     private static final int MBUS = 0x01;
 
     @Inject
-    public IskraMx372(OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService) {
+    public IskraMx372(OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
         super(ormClient);
         this.readingTypeUtilService = readingTypeUtilService;
         this.topologyService = topologyService;
+        this.loadProfileFactory = loadProfileFactory;
     }
 
     /**
@@ -448,7 +451,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
 
     public IskraMx372Messaging getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new IskraMx372Messaging(this, this.topologyService, readingTypeUtilService);
+            messageProtocol = new IskraMx372Messaging(this, this.topologyService, readingTypeUtilService, loadProfileFactory);
         }
         return messageProtocol;
     }

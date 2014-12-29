@@ -5,7 +5,6 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -73,10 +72,12 @@ public class RegisterFactory implements DeviceRegisterSupport {
 
     private final GarnetConcentrator meterProtocol;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public RegisterFactory(GarnetConcentrator meterProtocol, IssueService issueService) {
+    public RegisterFactory(GarnetConcentrator meterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.meterProtocol = meterProtocol;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
@@ -313,14 +314,10 @@ public class RegisterFactory implements DeviceRegisterSupport {
     }
 
     private CollectedRegister createDeviceRegister(OfflineRegister register, Date eventTime) {
-        CollectedRegister deviceRegister = getCollectedDataFactory().createDefaultCollectedRegister(
+        CollectedRegister deviceRegister = this.collectedDataFactory.createDefaultCollectedRegister(
                 new RegisterDataIdentifierByObisCodeAndDevice(register.getObisCode(), register.getObisCode(), register.getDeviceIdentifier()), register.getReadingType());
         deviceRegister.setCollectedTimeStamps(new Date(), null, eventTime != null ? eventTime : new Date(), eventTime); // If eventTime != null, then it contains the billing timestamp
         return deviceRegister;
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
     private CollectedRegister createNotSupportedCollectedRegister(OfflineRegister register) {

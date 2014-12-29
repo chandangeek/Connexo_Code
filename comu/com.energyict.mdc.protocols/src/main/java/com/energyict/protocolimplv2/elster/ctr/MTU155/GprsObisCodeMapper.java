@@ -4,6 +4,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -24,8 +25,8 @@ import java.util.logging.Level;
  */
 public class GprsObisCodeMapper extends ObisCodeMapper {
 
-    public GprsObisCodeMapper(MTU155 protocol, MdcReadingTypeUtilService readingTypeUtilService, IssueService issueService) {
-        super(readingTypeUtilService, issueService);
+    public GprsObisCodeMapper(MTU155 protocol, MdcReadingTypeUtilService readingTypeUtilService, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+        super(readingTypeUtilService, issueService, collectedDataFactory);
         this.deviceIdentifier = protocol.getDeviceIdentifier();
         this.requestFactory = protocol.getRequestFactory();
         this.isEK155Protocol = false;
@@ -36,7 +37,7 @@ public class GprsObisCodeMapper extends ObisCodeMapper {
      * Read the registers from the device.
      *
      * @param rtuRegisters: the list of {@link OfflineRegister}s to read
-     * @return: a list containing all {@link CollectedRegister}s
+     * @return a list containing all {@link CollectedRegister}s
      */
     public List<CollectedRegister> readRegisters(List<OfflineRegister> rtuRegisters) {
         List<CollectedRegister> collectedRegisters = new ArrayList<>(rtuRegisters.size());

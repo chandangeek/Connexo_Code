@@ -13,6 +13,7 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
@@ -71,10 +72,16 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     private UkHubRegisterFactory registerFactory = null;
     private UkHubEventProfiles ukHubEventProfiles = null;
     private boolean reboot = false;
+    private final UserFileFactory userFileFactory;
 
     @Inject
-    public UkHub(OrmClient ormClient) {
+    public UkHub(OrmClient ormClient, UserFileFactory userFileFactory) {
         super(ormClient);
+        this.userFileFactory = userFileFactory;
+    }
+
+    protected UserFileFactory getUserFileFactory() {
+        return userFileFactory;
     }
 
     /**
@@ -84,7 +91,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      */
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new UkHubMessaging(new UkHubMessageExecutor(this));
+            messageProtocol = new UkHubMessaging(new UkHubMessageExecutor(this, this.userFileFactory));
         }
         return messageProtocol;
     }

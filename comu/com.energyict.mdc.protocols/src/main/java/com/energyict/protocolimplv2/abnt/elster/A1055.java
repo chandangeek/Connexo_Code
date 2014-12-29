@@ -7,7 +7,6 @@ import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
@@ -16,6 +15,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -78,14 +78,16 @@ public class A1055 extends AbstractAbntProtocol {
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final IssueService issueService;
     private final IdentificationService identificationService;
+    private final CollectedDataFactory collectedDataFactory;
 
     @Inject
-    public A1055(PropertySpecService propertySpecService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IssueService issueService, IdentificationService identificationService) {
+    public A1055(PropertySpecService propertySpecService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IssueService issueService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         this.propertySpecService = propertySpecService;
         this.serialComponentService = serialComponentService;
         this.readingTypeUtilService = readingTypeUtilService;
         this.issueService = issueService;
         this.identificationService = identificationService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
@@ -284,7 +286,7 @@ public class A1055 extends AbstractAbntProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedTopology(getOfflineDevice().getDeviceIdentifier());
+        return this.collectedDataFactory.createCollectedTopology(getOfflineDevice().getDeviceIdentifier());
     }
 
     public AbntProperties getProperties() {
@@ -317,28 +319,28 @@ public class A1055 extends AbstractAbntProtocol {
 
     public LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this, this.readingTypeUtilService, this.issueService);
+            this.loadProfileBuilder = new LoadProfileBuilder(this, this.readingTypeUtilService, this.issueService, collectedDataFactory);
         }
         return this.loadProfileBuilder;
     }
 
     public RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new RegisterFactory(this, issueService);
+            this.registerFactory = new RegisterFactory(this, issueService, collectedDataFactory);
         }
         return this.registerFactory;
     }
 
     public LogBookFactory getLogBookFactory() {
         if (this.logBookFactory == null) {
-            this.logBookFactory = new LogBookFactory(this, issueService);
+            this.logBookFactory = new LogBookFactory(this, issueService, collectedDataFactory);
         }
         return this.logBookFactory;
     }
 
     public MessageFactory getMessageFactory() {
         if (this.messageFactory == null) {
-            this.messageFactory = new MessageFactory(this, issueService);
+            this.messageFactory = new MessageFactory(this, issueService, collectedDataFactory);
         }
         return this.messageFactory;
     }

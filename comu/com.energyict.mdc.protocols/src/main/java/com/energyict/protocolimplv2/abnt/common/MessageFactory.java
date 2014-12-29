@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.abnt.common;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -15,6 +15,8 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribu
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
@@ -66,10 +68,12 @@ public class MessageFactory implements DeviceMessageSupport {
 
     private final AbstractAbntProtocol meterProtocol;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public MessageFactory(AbstractAbntProtocol meterProtocol, IssueService issueService) {
+    public MessageFactory(AbstractAbntProtocol meterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.meterProtocol = meterProtocol;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
@@ -79,7 +83,7 @@ public class MessageFactory implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList collectedMessages = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList collectedMessages = this.collectedDataFactory.createCollectedMessageList(pendingMessages);
 
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
@@ -204,7 +208,7 @@ public class MessageFactory implements DeviceMessageSupport {
     }
 
     private CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessage(message.getIdentifier());
+        return this.collectedDataFactory.createCollectedMessage(message.getIdentifier());
     }
 
     private void messageNotSupported(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
@@ -232,7 +236,7 @@ public class MessageFactory implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
+        return this.collectedDataFactory.createEmptyCollectedMessageList();  //Nothing to do here
     }
 
     /**

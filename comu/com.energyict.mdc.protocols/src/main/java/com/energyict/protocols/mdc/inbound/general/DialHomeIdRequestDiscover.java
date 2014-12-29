@@ -5,6 +5,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
@@ -23,8 +24,8 @@ import java.util.List;
 public class DialHomeIdRequestDiscover extends RequestDiscover {
 
     @Inject
-    public DialHomeIdRequestDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService) {
-        super(propertySpecService, issueService, readingTypeUtilService, thesaurus, identificationService);
+    public DialHomeIdRequestDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
+        super(propertySpecService, issueService, readingTypeUtilService, thesaurus, identificationService, collectedDataFactory);
     }
 
     @Override

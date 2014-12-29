@@ -17,7 +17,9 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -67,6 +69,8 @@ import java.util.logging.Logger;
 public class MTU155 implements DeviceProtocol {
 
     private final DeviceProtocolSecurityCapabilities securityCapabilities;
+    private final CollectedDataFactory collectedDataFactory;
+    private final LoadProfileFactory loadProfileFactory;
 
     /**
      * The offline rtu
@@ -105,7 +109,9 @@ public class MTU155 implements DeviceProtocol {
     private final TopologyService topologyService;
 
     @Inject
-    public MTU155(PropertySpecService propertySpecService, SerialComponentService serialComponentService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService) {
+    public MTU155(CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory, PropertySpecService propertySpecService, SerialComponentService serialComponentService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService) {
+        this.collectedDataFactory = collectedDataFactory;
+        this.loadProfileFactory = loadProfileFactory;
         this.readingTypeUtilService = readingTypeUtilService;
         this.topologyService = topologyService;
         this.securityCapabilities = new Mtu155SecuritySupport(propertySpecService);
@@ -252,28 +258,28 @@ public class MTU155 implements DeviceProtocol {
 
     protected GprsObisCodeMapper getObisCodeMapper() {
         if (obisCodeMapper == null) {
-            obisCodeMapper = new GprsObisCodeMapper(this, this.readingTypeUtilService, this.getIssueService());
+            obisCodeMapper = new GprsObisCodeMapper(this, this.readingTypeUtilService, this.getIssueService(), this.collectedDataFactory);
         }
         return obisCodeMapper;
     }
 
     private LoadProfileBuilder getLoadProfileBuilder() {
         if (loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this, issueService);
+            this.loadProfileBuilder = new LoadProfileBuilder(this, this.issueService, this.collectedDataFactory);
         }
         return loadProfileBuilder;
     }
 
     public Messaging getMessaging() {
         if (messaging == null) {
-            this.messaging = new Messaging(this, this.topologyService, issueService);
+            this.messaging = new Messaging(this, this.topologyService, this.issueService, this.collectedDataFactory, this.loadProfileFactory);
         }
         return messaging;
     }
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        final CollectedTopology deviceTopology = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
+        final CollectedTopology deviceTopology = this.collectedDataFactory.createCollectedTopology(getDeviceIdentifier());
         deviceTopology.setFailureInformation(ResultType.NotSupported, getIssueService().newWarning(getOfflineDevice(), "devicetopologynotsupported"));
         return deviceTopology;
     }
@@ -360,7 +366,7 @@ public class MTU155 implements DeviceProtocol {
         CollectedLogBook collectedLogBook;
 
         for (LogBookReader logBook : logBooks) {
-            collectedLogBook = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
+            collectedLogBook = this.collectedDataFactory.createCollectedLogBook(logBook.getLogBookIdentifier());
             if (logBook.getLogBookObisCode().equals(LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE)) {
                 try {
                     Date lastLogBookReading = logBook.getLastLogBook();

@@ -2,12 +2,12 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.UserFileShadow;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 
@@ -90,12 +90,16 @@ public class ZigbeeMessageExecutor extends MessageParser {
     private static final String RESUME = "resume";
 
     private final AbstractSmartDlmsProtocol protocol;
+    protected final CodeFactory codeFactory;
+    protected final UserFileFactory userFileFactory;
     private ActivityCalendarController activityCalendarController;
 
     private boolean success;
 
-    public ZigbeeMessageExecutor(final AbstractSmartDlmsProtocol protocol) {
+    public ZigbeeMessageExecutor(final AbstractSmartDlmsProtocol protocol, CodeFactory codeFactory, UserFileFactory userFileFactory) {
         this.protocol = protocol;
+        this.codeFactory = codeFactory;
+        this.userFileFactory = userFileFactory;
     }
 
     private CosemObjectFactory getCosemObjectFactory() {
@@ -558,7 +562,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
 
     private void updateTimeOfUse(final String content) throws IOException {
         log(Level.INFO, "Received update ActivityCalendar message.");
-        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder();
+        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.codeFactory, this.userFileFactory);
 
         try {
             builder.initFromXml(content);
@@ -840,22 +844,11 @@ public class ZigbeeMessageExecutor extends MessageParser {
 
 
     private UserFile findUserFile(int userFileID) {
-        List<UserFileFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(UserFileFactory.class);
-        for (UserFileFactory codeFactory : factories) {
-            UserFile userFile = codeFactory.findUserFile(userFileID);
-            if (userFile != null) {
-                return userFile;
-            }
-        }
-        return null;
+        return this.userFileFactory.findUserFile(userFileID);
     }
 
     private UserFile createUserFile(UserFileShadow shadow) throws SQLException, BusinessException {
-        List<UserFileFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(UserFileFactory.class);
-        for (UserFileFactory codeFactory : factories) {
-            return codeFactory.createUserFile(shadow);
-        }
-        throw new BusinessException("noModuleToCreateUserFile", "Failure to create UserFile because no module is available to do it");
+        return this.userFileFactory.createUserFile(shadow);
     }
 
 }
