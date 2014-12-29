@@ -288,9 +288,12 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         var me = this,
             previewPanel = me.getDeviceLoadProfileChannelDataPreview(),
             bulkValueField = previewPanel.down('displayfield[name=collectedValue]'),
-            form = previewPanel.down('form');
+            form = previewPanel.down('form'),
+            intervalEnd = record.get('interval_end');
 
-        previewPanel.setTitle(record.get('interval_end'));
+        previewPanel.setTitle(Uni.DateTime.formatDateLong(intervalEnd)
+            + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+            + Uni.DateTime.formatTimeLong(intervalEnd));
         bulkValueField.setVisible(record.get('isBulk'));
         form.loadRecord(record);
 
