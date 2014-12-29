@@ -1,5 +1,16 @@
 package com.energyict.mdc.scheduling.model.impl;
 
+import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -25,29 +36,16 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
-import com.energyict.mdc.common.ApplicationContext;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.Translator;
-import com.energyict.mdc.common.impl.MdcCommonModule;
-import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.impl.MasterDataModule;
-import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
-import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.scheduling.SchedulingModule;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.tasks.TaskService;
-import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
-import java.security.Principal;
-import java.sql.SQLException;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import static org.mockito.Matchers.anyString;
+import java.security.Principal;
+import java.sql.SQLException;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -60,20 +58,17 @@ import static org.mockito.Mockito.when;
  */
 public class InMemoryPersistence {
 
-    public static final String JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME = "jupiter.bootstrap.module";
-
     private BundleContext bundleContext;
     private Principal principal;
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
     private DataModel dataModel;
     private Injector injector;
-
-    private ApplicationContext applicationContext;
+    private InMemoryBootstrapModule bootstrapModule;
 
     public void initializeDatabase(String testName, boolean showSqlLogging) {
         this.initializeMocks(testName);
-        InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
+        this.bootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
@@ -113,9 +108,6 @@ public class InMemoryPersistence {
             injector.getInstance(SchedulingService.class);
             ctx.commit();
         }
-        Environment environment = injector.getInstance(Environment.class);
-        environment.put(InMemoryPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
-        environment.setApplicationContext(this.applicationContext);
     }
 
 
@@ -124,21 +116,10 @@ public class InMemoryPersistence {
         this.eventAdmin = mock(EventAdmin.class);
         this.principal = mock(Principal.class);
         when(this.principal.getName()).thenReturn(testName);
-        this.applicationContext = mock(ApplicationContext.class);
-        Translator translator = mock(Translator.class);
-        when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
-        when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
-        when(this.applicationContext.getTranslator()).thenReturn(translator);
     }
 
     public void cleanUpDataBase() throws SQLException {
-        Environment environment = Environment.DEFAULT.get();
-        if (environment != null) {
-            Object bootstrapModule = environment.get(JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME);
-            if (bootstrapModule != null) {
-                deactivate(bootstrapModule);
-            }
-        }
+        this.bootstrapModule.deactivate();
     }
 
     private void deactivate(Object bootstrapModule) {
@@ -150,10 +131,6 @@ public class InMemoryPersistence {
 
     public TransactionService getTransactionService() {
         return transactionService;
-    }
-
-    public ApplicationContext getApplicationContext() {
-        return applicationContext;
     }
 
     public Injector getInjector() {
