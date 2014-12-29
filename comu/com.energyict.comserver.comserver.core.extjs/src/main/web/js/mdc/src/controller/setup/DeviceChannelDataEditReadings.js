@@ -144,7 +144,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelDataEditReadings', {
                     page.setLoading(false);
                 },
                 success: function () {
-                    router.getRoute('devices/device/channels/channel/tableData').forward(router.arguments, router.queryParams);
+                    router.getRoute('devices/device/channels/channeltableData').forward(router.arguments, router.queryParams);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicechannels.successSavingMessage', 'MDC', 'Channel data have been saved'));
                 },
                 failure: function (response) {
