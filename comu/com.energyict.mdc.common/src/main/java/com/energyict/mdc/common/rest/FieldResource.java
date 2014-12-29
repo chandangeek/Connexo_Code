@@ -10,6 +10,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.lang.reflect.Method;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -287,6 +288,11 @@ public class FieldResource {
         @Override
         public Thesaurus join(Thesaurus thesaurus) {
             return this;
+        }
+
+        @Override
+        public DateTimeFormatter forLocale(DateTimeFormatter dateTimeFormatter) {
+            return dateTimeFormatter;
         }
     }
 
