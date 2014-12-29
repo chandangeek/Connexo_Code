@@ -4,24 +4,23 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
     fields: [
         {name: 'interval', type: 'auto'},
         {name: 'readingTime', dateFormat: 'time', type: 'date'},
-        {name: 'value', type: 'auto',
-            convert: function (v) {
-                if(!Ext.isEmpty(v)) {
-                    return Uni.Number.formatNumber(v, -1);
-                }
-                return Uni.I18n.translate('deviceregisterconfiguration.value.notspecified', 'MDC', '-')
-            }
+        {name: 'value', type: 'auto'
+//            convert: function (v) {
+//                if(!Ext.isEmpty(v)) {
+//                    return Uni.Number.formatNumber(v, -1);
+//                }
+//            }
         },
         {name: 'rawValue', type: 'auto'},
         {name: 'delta', type: 'auto'},
         {name: 'isBulk', type: 'boolean'},
-        {name: 'collectedValue', type: 'auto',
-            convert: function (v) {
-                if(!Ext.isEmpty(v)) {
-                    return Uni.Number.formatNumber(v, -1);
-                }
-                return Uni.I18n.translate('deviceregisterconfiguration.value.notspecified', 'MDC', '-')
-            }},
+        {name: 'collectedValue', type: 'auto'
+//            convert: function (v) {
+//                if(!Ext.isEmpty(v)) {
+//                    return Uni.Number.formatNumber(v, -1);
+//                }
+//            }
+        },
         {name: 'multiplier', type: 'int', useNull: true},
         {name: 'intervalFlags', type: 'auto'},
         {name: 'dataValidated', type: 'auto'},

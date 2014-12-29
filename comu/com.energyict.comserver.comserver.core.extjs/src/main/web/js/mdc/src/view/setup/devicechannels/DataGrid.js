@@ -45,8 +45,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dataIndex: 'value',
                 flex: 1,
                 align: 'right',
-                renderer: function (value) {
-                    return !Ext.isEmpty(value) ? value : '';
+                renderer: function (v) {
+                if(!Ext.isEmpty(v)) {
+                    var value = Uni.Number.formatNumber(v, -1);
+                    return !Ext.isEmpty(value)? value : '';
+                }
                 },
                 editor: {
                     xtype: 'textfield',
@@ -96,10 +99,13 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 flex: 1,
                 align: 'right',
                 hidden: Ext.isEmpty(calculatedReadingType),
-                renderer: function (value) {
-                    return !Ext.isEmpty(value) ? value : '';
-                }
-            },
+                renderer: function (v) {
+                    if(!Ext.isEmpty(v)) {
+                        var value = Uni.Number.formatNumber(v, -1);
+                        return !Ext.isEmpty(value)? value : '';
+                    }
+            }}
+            ,
             {
                 xtype: 'interval-flags-column',
                 dataIndex: 'intervalFlags',
