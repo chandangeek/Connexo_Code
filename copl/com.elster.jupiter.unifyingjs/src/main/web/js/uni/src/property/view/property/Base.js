@@ -275,8 +275,10 @@ Ext.define('Uni.property.view.property.Base', {
         me.callParent(arguments);
 
         // after init
-        me.setProperty(me.property);
-        me.initListeners();
+        me.on('afterrender', function () {
+            me.setProperty(me.property);
+            me.initListeners();
+        });
     },
 
     initListeners: function () {
