@@ -6,7 +6,8 @@ Ext.define('Uni.view.navigation.AppCenter', {
     xtype: 'uni-nav-appcenter',
 
     text: '',
-    iconCls: 'uni-icon-appcenter',
+    scale: 'medium',
+    iconCls: 'icon-menu3',
     cls: Uni.About.baseCssPrefix + 'nav-appcenter',
 
     menu: {
