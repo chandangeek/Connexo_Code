@@ -1,3 +1,20 @@
+/* line 363, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-default-top-bc {
+  height: 0;
+}
+
+/* line 374, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-default-top-tl,
+.x-window-header-default-top-bl,
+.x-window-header-default-top-tr,
+.x-window-header-default-top-br,
+.x-window-header-default-top-tc,
+.x-window-header-default-top-bc,
+.x-window-header-default-top-ml,
+.x-window-header-default-top-mr {
+  zoom: 1;
+}
+
 /* line 418, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-top-ml,
 .x-window-header-default-top-mr {

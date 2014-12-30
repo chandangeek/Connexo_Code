@@ -59,39 +59,38 @@
     .uni-nav-appcenter,
     .nav-toggler,
     .notifications-anchor,
-    .nav-help,
     .search-button,
+    .nav-help,
     .user-menu {
         @include transparent-button;
-
-        .uni-icon-user {
-            margin: 14px 16px;
-            width: 20px;
-            height: 20px;
-        }
-
-        .uni-icon-search {
-            margin: 13px 2px;
-            width: 22px;
-            height: 23px;
-        }
-
-        .uni-icon-help {
-            width: 24px;
-            height: 24px;
-            margin: 12px 6px;
-        }
-
-        .uni-icon-appcenter {
-            margin: 15px 8px;
-            width: 20px;
-            height: 18px;
-        }
 
         &:hover {
             @include highlight-header-background;
         }
-        padding: 0 4px;
+
+        .#{$prefix}btn-icon-el {
+            margin: {
+                top: 12px;
+                right: auto;
+                left: auto;
+            }
+        }
+
+        .#{$prefix}btn-arrow {
+            .#{$prefix}btn-icon-el {
+                margin-right: 0;
+            }
+        }
+    }
+
+    .uni-nav-appcenter {
+        padding: 0 1px;
+
+        .#{$prefix}btn-arrow {
+            .#{$prefix}btn-icon-el {
+                margin-right: auto;
+            }
+        }
     }
 
     .x-menu-active {
@@ -129,10 +128,6 @@
     .uni-nav-appcenter {
         border-right: 1px solid #597d9d;
         margin-right: 0 !important;
-
-        .x-btn-button {
-            padding-right: 8px;
-        }
 
         &.x-menu-active {
             background-color: $header-default-bg-gradient-start-color;
@@ -173,12 +168,7 @@
     }
 
     .search-button {
-        @include transparent-button;
         padding-left: 8px;
         margin-left: 4px;
-
-        &:hover {
-            @include highlight-header-background;
-        }
     }
 }
