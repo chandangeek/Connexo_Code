@@ -297,12 +297,21 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
     },
 
     clearMasterDevice: function () {
-        this.updateDevice(
-            {
-                masterDeviceId: null,
-                masterDevicemRID: null
+        var me = this;
+        Ext.create('Uni.view.window.Confirmation').show({
+            title: Ext.String.format(Uni.I18n.translate('comTopologyWidget.removeMasterConfirmation.title', 'MDC', 'Remove \'{0}\' as master device?'), me.device.get('masterDevicemRID')),
+            msg: Ext.String.format(Uni.I18n.translate('comTopologyWidget.removeMasterConfirmation.message', 'MDC', 'This device will no longer be the master of  \'{0}\''), me.device.get('mRID')),
+            fn: function (action) {
+                if (action === 'confirm') {
+                    me.updateDevice(
+                        {
+                            masterDeviceId: null,
+                            masterDevicemRID: null
+                        }
+                    );
+                }
             }
-        );
+        });
     },
 
     applyMasterDevice: function () {
