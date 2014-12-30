@@ -1,6 +1,5 @@
 package com.energyict.mdc.masterdata.impl;
 
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 
@@ -83,7 +82,6 @@ public class InMemoryPersistence {
                 new OrmModule(),
                 new MeteringModule(),
                 new MdcReadingTypeUtilServiceModule(),
-                new MdcCommonModule(),
                 new MasterDataModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
