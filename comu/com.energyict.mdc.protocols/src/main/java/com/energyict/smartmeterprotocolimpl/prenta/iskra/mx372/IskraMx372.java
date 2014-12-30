@@ -504,22 +504,9 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
         return getMessageProtocol().getPartialLoadProfileMessageBuilder();
     }
 
-    /**
-     * Executes the WakeUp call. The implementer should use and/or update the <code>Link</code> if a WakeUp succeeded. The communicationSchedulerId
-     * can be used to find the task which triggered this wakeUp or which Device is being waked up.
-     *
-     * @param communicationSchedulerId the ID of the <code>CommunicationScheduler</code> which started this task
-     * @param link                     Link created by the comserver, can be null if a NullDialer is configured
-     * @param logger                   Logger object - when using a level of warning or higher message will be stored in the communication session's database log,
-     *                                 messages with a level lower than warning will only be logged in the file log if active.
-     * @throws BusinessException if a business exception occurred
-     * @throws IOException if an io exception occurred
-     */
     public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws BusinessException, IOException {
         return getMessageProtocol().executeWakeUp(communicationSchedulerId, link, logger);
     }
-    /*** END OF MESSAGE PROTOCOL INTERFACE SECTION **/
-
 
     /**
      * Based on the serial number, find out the physical address of the slave Mbus meter.

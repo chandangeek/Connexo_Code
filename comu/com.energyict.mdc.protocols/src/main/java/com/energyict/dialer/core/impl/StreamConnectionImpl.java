@@ -1,18 +1,12 @@
-/*
- * StreamConnectionImpl.java
- *
- * Created on 13 april 2004, 10:37
- */
-
 package com.energyict.dialer.core.impl;
 
-
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.dialer.core.InputStreamObserver;
 import com.energyict.mdc.protocol.api.dialer.core.OutputStreamObserver;
 import com.energyict.mdc.protocol.api.dialer.core.StreamConnection;
 import com.energyict.mdc.protocol.api.dialer.serialserviceprovider.SerialPort;
+
+import com.energyict.protocols.mdc.services.impl.EnvironmentPropertyService;
 import com.energyict.protocols.util.MonitoredInputStream;
 import com.energyict.protocols.util.MonitoredOutputStream;
 
@@ -28,12 +22,31 @@ import java.util.logging.Logger;
 public abstract class StreamConnectionImpl implements StreamConnection {
 
     private static final Logger LOGGER = Logger.getLogger(StreamConnectionImpl.class.getName());
+    public static final String OPEN_SERIAL_AND_FLUSH_ENVIRONMENT_PROPERTY_NAME = "openSerialAndFlush";
+    public static final String SET_PARITY_AND_FLUSH_ENVIRONMENT_PROPERTY_NAME = "setParityAndFlush";
+    public static final String SET_PARAMS_AND_FLUSH_ENVIRONMENT_PROPERTY_NAME = "setParamsAndFlush";
+    public static final String SET_BAUDRATE_AND_FLUSH_ENVIRONMENT_PROPERTY_NAME = "setBaudrateAndFlush";
+    /**
+     * The name of the property that determines if the RS485 RTS is managed in software or hardware.
+     * This actually only matters on Linux, where we have the RTU+Server using Exar ports that have
+     * hardware driven RS485 (which is the default), but a development machine using a standard 8250 UART
+     * has to do software half duplex, so in that case this property has to be set to true.
+     */
+    public static final String RS485_SOFTWARE_DRIVEN_ENVIRONMENT_PROPERTY_NAME = "rs485SoftwareDriven";
+    public static final String IGNORE_DCD_COM_PORTS_ENVIRONMENT_PROPERTY_NAME = "ignoreDCDComPorts";
+    public static final String DATAGRAM_INPUTSTREAM_BUFFER_ENVIRONMENT_PROPERTY_NAME = "datagramInputStreamBufferSize";
 
-    //****************************************************************************************
-    // delegate SerialCommunicationChannel interface methods
-    //****************************************************************************************
-
-    protected abstract void doSetParams(int iBaudrate, int iDatabits, int iParity, int iStopbits) throws java.io.IOException;
+    /**
+     * doSetParams().
+     * Set the communication parameters for the open port.
+     *
+     * @param baudrate : 300,1200,2400,4800,9600,19200,...
+     * @param databits : SerialPort.DATABITS_x (x=8,7,6,5)
+     * @param parity   : SerialPort.PARITY_x (x=NONE (0),EVEN (2),ODD (1) ,MARK (3),SPACE (4))
+     * @param stopbits : SerialPort.STOPBITS_x (x=1 (1),2 (2),1_5 (3))
+     * @throws IOException
+     */
+    protected abstract void doSetParams(int baudrate, int databits, int parity, int stopbits) throws IOException;
 
     protected abstract void doSetComPort(String strComPort);
 
@@ -51,10 +64,6 @@ public abstract class StreamConnectionImpl implements StreamConnection {
 
     protected abstract SerialPort doGetSerialPort();
 
-    //****************************************************************************************
-    // delegate HalfDuplexController interface methods
-    //****************************************************************************************
-
     protected abstract void doRequest2Send(int nrOfBytes);
 
     protected abstract void doRequest2Receive(int nrOfBytes);
@@ -67,10 +76,6 @@ public abstract class StreamConnectionImpl implements StreamConnection {
 
     protected abstract void doRequest2ReceiveRS485(int nrOfBytes);
 
-    //****************************************************************************************
-    // delegate StreamConnection interface methods
-    //****************************************************************************************
-
     protected abstract void doOpen() throws NestedIOException;
 
     protected abstract void doServerOpen() throws NestedIOException;
@@ -81,8 +86,6 @@ public abstract class StreamConnectionImpl implements StreamConnection {
 
     //****************************************************************************************
     // Serial communication parameters, default 9600,8,N,1
-    // Used with SerialPortStreamConnection via Serial service provider objects
-    // Used with SocketStreamConnection via Escape sequences to set parameters remote
     String strComPort = null;
     int baudrate = 9600;
     int databits = 8;
@@ -106,10 +109,11 @@ public abstract class StreamConnectionImpl implements StreamConnection {
     InputStreamObserver inputStreamObserver = null;
     OutputStreamObserver outputStreamObserver = null;
 
-    /**
-     * Creates a new instance of StreamConnectionImpl
-     */
-    public StreamConnectionImpl() {
+    private final EnvironmentPropertyService propertyService;
+
+    public StreamConnectionImpl(EnvironmentPropertyService propertyService) {
+        super();
+        this.propertyService = propertyService;
         if ((System.getProperty("os.name").toLowerCase().contains("linux")) && (System.getProperty("os.arch").toLowerCase().contains("86"))) {
             setOsType(OS_LINUX_X86);
         } else if ((System.getProperty("os.name").toLowerCase().contains("linux")) && (System.getProperty("os.arch").toLowerCase().contains("arm"))) {
@@ -119,23 +123,22 @@ public abstract class StreamConnectionImpl implements StreamConnection {
         }
     }
 
+    protected EnvironmentPropertyService getPropertyService() {
+        return propertyService;
+    }
 
-    //****************************************************************************************
-    // Implementation of interface HalfDuplexController
-    //****************************************************************************************
-
+    @Override
     public void request2Send(int nrOfBytes) {
         doRequest2Send(nrOfBytes);
     }
 
+    @Override
     public void request2SendV25(int nrOfBytes) {
         doRequest2SendV25(nrOfBytes);
     }
 
     // one time extra initialization at first send!
-
     private void init() {
-
         if (!initDone) {
             if (isOsTypeLINUX_X86()) {
                 if ((halfDuplexTXDelay < 0) && (getComPort().contains("/dev/ttyXR"))) {
@@ -164,8 +167,9 @@ public abstract class StreamConnectionImpl implements StreamConnection {
             }
         }
         initDone = true;
-    } // private void init()
+    }
 
+    @Override
     public void request2SendRS485() {
         init();
         doRequest2SendRS485();
@@ -173,31 +177,26 @@ public abstract class StreamConnectionImpl implements StreamConnection {
 
     long halfDuplexTXDelay = 0;
 
+    @Override
     public void setDelay(long halfDuplexTXDelay) {
         this.halfDuplexTXDelay = halfDuplexTXDelay;
     }
 
+    @Override
     public void request2Receive(int nrOfBytes) {
         doRequest2Receive(nrOfBytes);
     }
 
+    @Override
     public void request2ReceiveV25(int nrOfBytes) {
         doRequest2ReceiveV25(nrOfBytes);
     }
 
+    @Override
     public void request2ReceiveRS485(int nrOfBytes) {
         init();
         doRequest2ReceiveRS485(nrOfBytes);
     }
-
-    //****************************************************************************************
-    // Implementation of interface SerialCommunicationChannel
-    //****************************************************************************************
-
-
-    final int SET_PARITY_AND_FLUSH = getIntProperty("setParityAndFlush", 500);
-    final int SET_PARAMS_AND_FLUSH = getIntProperty("setParamsAndFlush", 500);
-    final int SET_BAUDRATE_AND_FLUSH = getIntProperty("setBaudrateAndFlush", 500);
 
     /**
      * setParamsAndFlush, setParams.
@@ -208,11 +207,13 @@ public abstract class StreamConnectionImpl implements StreamConnection {
      * @param stopbits : SerialPort.STOPBITS_x (x=1,2,1_5)
      * @throws IOException
      */
+    @Override
     public void setParityAndFlush(int databits, int parity, int stopbits) throws IOException {
         setParity(databits, parity, stopbits);
-        flushInputStream(SET_PARITY_AND_FLUSH);
+        flushInputStream(this.propertyService.getSetParityAndFlush());
     }
 
+    @Override
     public void setParity(int databits, int parity, int stopbits) throws IOException {
         this.databits = databits;
         this.parity = parity;
@@ -220,11 +221,13 @@ public abstract class StreamConnectionImpl implements StreamConnection {
         doSetParams(baudrate, databits, parity, stopbits);
     }
 
+    @Override
     public void setParamsAndFlush(int baudrate, int databits, int parity, int stopbits) throws IOException {
         setParams(baudrate, databits, parity, stopbits);
-        flushInputStream(SET_PARAMS_AND_FLUSH);
+        flushInputStream(this.propertyService.getSetParamsAndFlush());
     }
 
+    @Override
     public void setParams(int baudrate, int databits, int parity, int stopbits) throws IOException {
         this.baudrate = baudrate;
         this.databits = databits;
@@ -233,53 +236,60 @@ public abstract class StreamConnectionImpl implements StreamConnection {
         doSetParams(baudrate, databits, parity, stopbits);
     }
 
+    @Override
     public void setBaudrateAndFlush(int baudrate) throws IOException {
         setBaudrate(baudrate);
-        flushInputStream(SET_BAUDRATE_AND_FLUSH);
+        flushInputStream(this.propertyService.getSetBaudrateAndFlush());
     }
 
+    @Override
     public void setBaudrate(int baudrate) throws IOException {
         this.baudrate = baudrate;
         doSetParams(baudrate, databits, parity, stopbits);
     }
 
+    @Override
     public String getComPort() {
         return strComPort;
     }
 
+    @Override
     public void setComPort(String strComPort) {
         this.strComPort = strComPort;
         doSetComPort(strComPort);
     }
 
+    @Override
     public boolean sigDSR() throws IOException {
         return doSigDSR();
     }
 
+    @Override
     public boolean sigRing() throws IOException {
         return doSigRing();
     }
 
+    @Override
     public boolean sigCD() throws IOException {
         return doSigCD();
     }
 
+    @Override
     public boolean sigCTS() throws IOException {
         return doSigCTS();
     }
 
+    @Override
     public void setDTR(boolean dtr) throws IOException {
         doSetDTR(dtr);
     }
 
+    @Override
     public void setRTS(boolean rts) throws IOException {
         doSetRTS(rts);
     }
 
-    //****************************************************************************************
-    // Implementation of interface StreamConnection
-    //****************************************************************************************
-
+    @Override
     public void flushInputStream(long delay) throws IOException {
         try {
             Thread.sleep(delay);
@@ -287,16 +297,19 @@ public abstract class StreamConnectionImpl implements StreamConnection {
         } catch (InterruptedException e) {
             throw new NestedIOException(e);
         }
-    } // public void flushInputStream(long delay)
+    }
 
+    @Override
     public InputStream getInputStream() {
         return inputStream;
     }
 
+    @Override
     public OutputStream getOutputStream() {
         return outputStream;
     }
 
+    @Override
     public void setStreams(InputStream is, OutputStream os) {
         if ((inputStreamObserver != null) && (outputStreamObserver != null)) {
             MonitoredInputStream monitoredInputStream = new MonitoredInputStream(is, inputStreamObserver);
@@ -307,8 +320,9 @@ public abstract class StreamConnectionImpl implements StreamConnection {
             outputStream = os;
             inputStream = is;
         }
-    } // protected void initStreams(InputStream is,OutputStream os)
+    }
 
+    @Override
     public void setStreamObservers(InputStreamObserver iso, OutputStreamObserver oso) {
         inputStreamObserver = iso;
         outputStreamObserver = oso;
@@ -322,35 +336,38 @@ public abstract class StreamConnectionImpl implements StreamConnection {
 
     }
 
+    @Override
     public boolean isOpen() {
         return boolOpen;
     }
 
+    @Override
     public void open() throws NestedIOException {
         doOpen();
     }
 
+    @Override
     public void serverOpen() throws NestedIOException {
         doServerOpen();
     }
 
+    @Override
     public void close() throws NestedIOException {
         doClose();
     }
 
+    @Override
     public void serverClose() throws NestedIOException {
         doServerClose();
     }
 
+    @Override
     public void accept() throws NestedIOException {
     }
 
+    @Override
     public void accept(final int timeOut) throws NestedIOException {
     }
-
-    //****************************************************************************************
-    // Private methods
-    //****************************************************************************************
 
     private void flushInputStream() throws IOException {
         while (inputStream.available() != 0) {
@@ -358,14 +375,12 @@ public abstract class StreamConnectionImpl implements StreamConnection {
         }
     }
 
-    //****************************************************************************************
-    // Protected methods
-    //****************************************************************************************
-
+    @Override
     public SerialPort getSerialPort() {
         return doGetSerialPort();
     }
 
+    @Override
     public void write(String strData, int iTimeout) throws IOException {
         if (isOpen()) {
             try {
@@ -379,8 +394,9 @@ public abstract class StreamConnectionImpl implements StreamConnection {
             throw new IOException("StreamConnectionImpl, Write, Port not open");
         }
 
-    } // public void write(String strData, int iTimeout)
+    }
 
+    @Override
     public void write(String strData) throws IOException {
         if (isOpen()) {
             outputStream.write(strData.getBytes());
@@ -388,23 +404,6 @@ public abstract class StreamConnectionImpl implements StreamConnection {
             throw new IOException("Writeerror : Port not open");
         }
 
-    } // protected void write(String strData)
-
-    protected int getIntProperty(String key, int defaultValue) {
-        String value = Environment.DEFAULT.get().getProperty(key, null);
-        if (value == null) {
-            return defaultValue;
-        }
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException ex) {
-            // silently ignore
-            return defaultValue;
-        }
-    }
-
-    public int getOsType() {
-        return osType;
     }
 
     public boolean isOsTypeLINUX() {
@@ -426,4 +425,5 @@ public abstract class StreamConnectionImpl implements StreamConnection {
     private void setOsType(int osType) {
         this.osType = osType;
     }
+
 }

@@ -422,42 +422,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
         return getMessageProtocol().writeValue(value);
     }
 
-    /**
-     * Executes the WakeUp call. The implementer should use and/or update the <code>Link</code> if a WakeUp succeeded. The communicationSchedulerId
-     * can be used to find the task which triggered this wakeUp or which Device is being waked up.
-     *
-     * @param communicationSchedulerId the ID of the <code>CommunicationScheduler</code> which started this task
-     * @param link                     Link created by the comserver, can be null if a NullDialer is configured
-     * @param logger                   Logger object - when using a level of warning or higher message will be stored in the communication session's database log,
-     *                                 messages with a level lower than warning will only be logged in the file log if active.
-     * @throws BusinessException
-     *                               if a business exception occurred
-     * @throws java.io.IOException   if an io exception occurred
-     */
     public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws BusinessException, IOException {
-//        if (getProperties().isWakeUp()) {
-//            String ipAddress = "";
-//            logger.info("In Wakeup");
-//            CommunicationScheduler cs = ProtocolTools.mw().getCommunicationSchedulerFactory().find(communicationSchedulerId);
-//            if(cs != null){
-//                SmsWakeup smsWakeup = new SmsWakeup(cs.getRtu(), logger);
-//                try {
-//                    smsWakeup.doWakeUp();
-//                } catch (SQLException e) {
-//                    logger.severe("WakeUp failed - " + e.getMessage());
-//                    ProtocolTools.closeConnection();
-//                    throw new ProcessingException("Failed during the WakeUp",e);
-//                }
-//
-//                ipAddress = ProtocolTools.checkIPAddressForPortNumber(smsWakeup.getIpAddress(), "4059");
-//
-//                link.setStreamConnection(new SocketStreamConnection(ipAddress));
-//                link.getStreamConnection().open();
-//                logger.log(Level.INFO, "Connected to " + ipAddress);
-//            } else {
-//                throw new BusinessException("Could not find the proper CommunicationScheduler during the WakeUp.");
-//            }
-//        }
         return true;
     }
 

@@ -1,6 +1,6 @@
 package com.energyict.dialer.core.impl;
 
-import com.energyict.mdc.common.Environment;
+import com.energyict.protocols.mdc.services.impl.EnvironmentPropertyService;
 
 import java.io.IOException;
 import java.io.PipedInputStream;
@@ -12,26 +12,17 @@ import java.io.PipedOutputStream;
  */
 public class DatagramInputStream extends PipedInputStream {
 
-    public static final String DataGramBufferInputStream = "DatagramInputStreamBufferSize";
+    private final PipedOutputStream pos;
 
-    PipedOutputStream pos = null;
-
-    public DatagramInputStream(PipedOutputStream pos) throws IOException {
+    public DatagramInputStream(PipedOutputStream pos, EnvironmentPropertyService propertyService) throws IOException {
         super(pos);
         this.pos = pos;
-        try {
-            String buffSize = Environment.DEFAULT.get().getProperty(DataGramBufferInputStream);
-            if (buffSize != null) {
-                this.buffer = new byte[Integer.valueOf(buffSize)];
-            } else {
-                this.buffer = new byte[PIPE_SIZE];
-            }
-        } catch (NumberFormatException e) {
-            this.buffer = new byte[PIPE_SIZE];
-        }
+        int bufferSize = propertyService.getDatagramInputStreamBufferSize();
+        this.buffer = new byte[bufferSize];
     }
 
     public void write(byte[] data, int off, int len) throws IOException {
         pos.write(data, off, len);
     }
+
 }

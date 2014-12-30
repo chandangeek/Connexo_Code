@@ -2,6 +2,8 @@ package com.energyict.dialer.core.impl;
 
 import com.energyict.mdc.protocol.api.dialer.core.UDPSession;
 
+import com.energyict.protocols.mdc.services.impl.EnvironmentPropertyService;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,13 +24,12 @@ public class UDPSessionImpl implements UDPSession {
     DatagramInputStream consumeInputStream = null;
     DatagramOutputStream consumeOutputStream = null;
 
-    public UDPSessionImpl(ServerDatagramConnection serverDatagramConnection, String signature) throws IOException {
+    public UDPSessionImpl(ServerDatagramConnection serverDatagramConnection, String signature, EnvironmentPropertyService propertyService) throws IOException {
         this.serverDatagramConnection = serverDatagramConnection;
         this.signature = signature;
-        consumeInputStream = new DatagramInputStream(new PipedOutputStream());
+        consumeInputStream = new DatagramInputStream(new PipedOutputStream(), propertyService);
         consumeOutputStream = new DatagramOutputStream(this);
     }
-
 
     @Override
     public void receive(DatagramPacket receivePacket) throws IOException {

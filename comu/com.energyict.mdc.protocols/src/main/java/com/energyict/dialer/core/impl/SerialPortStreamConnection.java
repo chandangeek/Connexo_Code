@@ -1,19 +1,14 @@
-/*
- * SerialPortStreamConnection.java
- *
- * Created on 13 april 2004, 10:41
- */
-
 package com.energyict.dialer.core.impl;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.dialer.core.UDPSession;
 import com.energyict.mdc.protocol.api.dialer.serialserviceprovider.SerialConfig;
 import com.energyict.mdc.protocol.api.dialer.serialserviceprovider.SerialPort;
+
 import com.energyict.protocols.mdc.dialer.serialserviceprovider.SerInputStream;
 import com.energyict.protocols.mdc.dialer.serialserviceprovider.SerOutputStream;
 import com.energyict.protocols.mdc.dialer.serialserviceprovider.SerialPortServiceProvider;
+import com.energyict.protocols.mdc.services.impl.EnvironmentPropertyService;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -28,74 +23,55 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
 
     private static final Logger LOGGER = Logger.getLogger(SerialPortStreamConnection.class.getName());
 
-    /**
-     * This is a property that can be set in eiserver.properties. True indicates that the RS485 RTS is managed in SW (as
-     * with a 8250 UART), false or missing means that the RTS is managed in HW (as with an RTU+Server, which uses an Exar chipset
-     * for doing this.
-     */
-    private static final String PROPERTY_RS485_SOFTWARE_DRIVEN = "dialer.serialport.rs485.softwaredriven";
-
     // Serial service provider objects for serial port communication
     private SerialConfig serialConfig = null;
     private SerialPort serialPort = null;
 
-    /**
-     * Indicates whether the RS485 is software driven or not. This only matters on Linux, where we have the RTU+Server using Exar
-     * ports that have hardware driven RS485 (which is the default), but a development machine using a standard 8250 UART has to do
-     * software half duplex, so in that case the eiserver.properties needs to contain {@link #PROPERTY_RS485_SOFTWARE_DRIVEN} and it
-     * has to be set to true, otherwise you will never receive any response from the device.
-     */
-    private final boolean rs485SoftwareDriven;
+    private final boolean rs485HardwareDriven;
 
-    /**
-     * Creates a new instance of SerialPortStreamConnection
-     */
-    public SerialPortStreamConnection(String strComPort) {
+    public SerialPortStreamConnection(String strComPort, EnvironmentPropertyService propertyService) {
+        super(propertyService);
         setComPort(strComPort);
-
         boolOpen = false;
-
-        this.rs485SoftwareDriven = Boolean.valueOf(Environment.DEFAULT.get().getProperty(PROPERTY_RS485_SOFTWARE_DRIVEN, "false"));
+        this.rs485HardwareDriven = !propertyService.isRs485SoftwareDriven();
     }
 
-    //****************************************************************************
-    // Delegate of implementation of interface SerialCommunicationChannel
-    //****************************************************************************
-
-    /**
-     * doSetParams().
-     * Set the communication parameters for the open port.
-     *
-     * @param baudrate : 300,1200,2400,4800,9600,19200,...
-     * @param databits : SerialPort.DATABITS_x (x=8,7,6,5)
-     * @param parity   : SerialPort.PARITY_x (x=NONE (0),EVEN (2),ODD (1) ,MARK (3),SPACE (4))
-     * @param stopbits : SerialPort.STOPBITS_x (x=1 (1),2 (2),1_5 (3))
-     * @throws IOException
-     */
+    @Override
     protected void doSetParams(int baudrate, int databits, int parity, int stopbits) throws IOException {
         int baudIndex;
-        if (baudrate == 300) {
-            baudIndex = 2;
-        } else if (baudrate == 600) {
-            baudIndex = 3;
-        } else if (baudrate == 1200) {
-            baudIndex = 4;
-        } else if (baudrate == 2400) {
-            baudIndex = 5;
-        } else if (baudrate == 4800) {
-            baudIndex = 6;
-        } else if (baudrate == 9600) {
-            baudIndex = 7;
-        } else if (baudrate == 19200) {
-            baudIndex = 8;
-        } else if (baudrate == 38400) {
-            baudIndex = 9;
-        } else if (baudrate == 57600) {
-            baudIndex = 10;
-        } else if (baudrate == 115200) {
-            baudIndex = 11;
-        } else {
-            throw new IOException("SerialPortConnection, doSetParams, invalid baudrate " + baudrate);
+        switch (baudrate) {
+            case 300:
+                baudIndex = 2;
+                break;
+            case 600:
+                baudIndex = 3;
+                break;
+            case 1200:
+                baudIndex = 4;
+                break;
+            case 2400:
+                baudIndex = 5;
+                break;
+            case 4800:
+                baudIndex = 6;
+                break;
+            case 9600:
+                baudIndex = 7;
+                break;
+            case 19200:
+                baudIndex = 8;
+                break;
+            case 38400:
+                baudIndex = 9;
+                break;
+            case 57600:
+                baudIndex = 10;
+                break;
+            case 115200:
+                baudIndex = 11;
+                break;
+            default:
+                throw new IOException("SerialPortConnection, doSetParams, invalid baudrate " + baudrate);
         }
 
         serialConfig.setBitRate(baudIndex); //SerialConfig.BR_19200);
@@ -106,60 +82,56 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
         if (serialPort != null) {
             serialPort.configure(serialConfig);
         }
-    } // protected void doSetParams(int baudrate,int databits, int parity, int stopbits) throws IOException
+    }
 
+    @Override
     protected void doSetComPort(String strComPort) {
         serialConfig = new SerialConfig(strComPort);
     }
 
     private boolean isIgnoreDCD() {
-        String ignoreDCDComPorts = Environment.DEFAULT.get().getProperty("ignoreDCDComPorts", null);
-        if (ignoreDCDComPorts == null) {
-            return false;
-        }
-        try {
-            StringTokenizer strTok = new StringTokenizer(ignoreDCDComPorts, ",");
-            while (strTok.hasMoreTokens()) {
-                if (getComPort().compareTo(strTok.nextToken()) == 0) {
-                    return true;
-                }
+        String ignoreDCDComPorts = this.getPropertyService().getDcdComPortsToIgnore();
+        StringTokenizer strTok = new StringTokenizer(ignoreDCDComPorts, ",");
+        while (strTok.hasMoreTokens()) {
+            if (getComPort().equals(strTok.nextToken())) {
+                return true;
             }
-            return false;
-        } catch (NumberFormatException ex) {
-            // silently ignore
-            return false;
         }
+        return false;
     }
 
+    @Override
     protected boolean doSigCD() throws IOException {
         return !isIgnoreDCD() && serialPort.sigCD();
     }
 
+    @Override
     protected boolean doSigCTS() throws IOException {
         return serialPort.sigCTS();
     }
 
+    @Override
     protected boolean doSigDSR() throws IOException {
         return serialPort.sigDSR();
     }
 
+    @Override
     protected boolean doSigRing() throws IOException {
         return serialPort.sigRing();
     }
 
+    @Override
     protected void doSetDTR(boolean dtr) throws IOException {
         serialPort.setDTR(dtr);
     }
 
+    @Override
     protected void doSetRTS(boolean rts) throws IOException {
         serialPort.setRTS(rts);
     }
 
 
-    //****************************************************************************************
-    // Delegate of implementation of interface HalfDuplexController
-    //****************************************************************************************
-
+    @Override
     protected void doRequest2Send(int nrOfBytes) {
         try {
             serialPort.setRTS(true);
@@ -178,9 +150,9 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
         }
     }
 
+    @Override
     protected void doRequest2Receive(int nrOfBytes) {
         try {
-
             // wait for tx buffer empty...
             long returnTime = System.currentTimeMillis() + 10000;
             while (serialPort.txBufCount() > 0) {
@@ -212,14 +184,9 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
         }
     }
 
-
-    //****************************************************************************************
-    // Delegate of implementation of interface HalfDuplexController
-    //****************************************************************************************
-
+    @Override
     protected void doRequest2SendV25(int nrOfBytes) {
         try {
-
             // wait for CD false
             long returnTime = System.currentTimeMillis() + 2000;
             while (true) {
@@ -251,9 +218,9 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
         }
     }
 
+    @Override
     protected void doRequest2ReceiveV25(int nrOfBytes) {
         try {
-
             // wait for tx buffer empty...
             long returnTime = System.currentTimeMillis() + 10000;
             while (serialPort.txBufCount() > 0) {
@@ -285,16 +252,12 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
         }
     }
 
-
-    //****************************************************************************************
-    // Delegate of implementation of interface HalfDuplexController
-    //****************************************************************************************
-
+    @Override
     protected void doRequest2SendRS485() {
         try {
             // if halfDuplexTXDelay>0, use software RST control
             if ((halfDuplexTXDelay > 0) || ((isOsTypeWINDOWS()) && (halfDuplexTXDelay != 0))) {
-                if (isOsTypeLINUX() && !this.rs485SoftwareDriven) {
+                if (isOsTypeLINUX() && this.rs485HardwareDriven) {
                     serialPort.setRTS(false);
                     try {
                         long delay = System.currentTimeMillis() + 1;
@@ -317,7 +280,7 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
         }
     }
 
-
+    @Override
     protected void doRequest2ReceiveRS485(int nrOfBytes) {
         try {
             // if halfDuplexTXDelay>0, use software RST control
@@ -348,7 +311,7 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
                 }
 
                 // drop rts
-                if (isOsTypeLINUX() && !this.rs485SoftwareDriven) {
+                if (isOsTypeLINUX() && this.rs485HardwareDriven) {
                     serialPort.setRTS(true);
                 } else {
                     serialPort.setRTS(false);
@@ -360,17 +323,12 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
         }
     }
 
-
-    final int OPEN_SERIAL_AND_FLUSH = getIntProperty("openSerialAndFlush", 500);
-
-    //****************************************************************************************
-    // Delegate of implementation of interface StreamConnection
-    //****************************************************************************************
-
+    @Override
     protected void doServerOpen() throws NestedIOException {
         doOpen();
     }
 
+    @Override
     protected void doOpen() throws NestedIOException {
         if (!boolOpen) {
             SerInputStream serInputStream;
@@ -392,7 +350,7 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
                 serInputStream.setRcvTimeout(10000);
                 setStreams(serInputStream, serOutputStream);
                 setParams(baudrate, databits, parity, stopbits);
-                flushInputStream(OPEN_SERIAL_AND_FLUSH);
+                flushInputStream(this.getPropertyService().getOpenSerialAndFlush());
                 boolOpen = true;
             } catch (NestedIOException e) {
                 try {
@@ -425,12 +383,14 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
             throw new NestedIOException(new IOException("Port already open"));
         }
 
-    } // private void doOpen()
+    }
 
+    @Override
     protected void doServerClose() throws NestedIOException {
         doClose();
     }
 
+    @Override
     protected void doClose() throws NestedIOException {
         if (boolOpen) {
             try {
@@ -447,14 +407,17 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
         }
     }
 
+    @Override
     protected SerialPort doGetSerialPort() {
         return serialPort;
     }
 
+    @Override
     public Socket getSocket() {
         return null;
     }
 
+    @Override
     public UDPSession getUdpSession() {
         return null;
     }

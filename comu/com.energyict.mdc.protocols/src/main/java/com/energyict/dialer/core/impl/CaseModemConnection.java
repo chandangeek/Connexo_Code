@@ -63,18 +63,18 @@ public class CaseModemConnection {
         return link.getStreamConnection();
     }
 
-    protected void dialModem(String strDialPrefix, String strPhoneNR, String selector, int iTimeout, int delayAfterconnectAndFlush) throws IOException, LinkException {
-        if ((strDialPrefix != null) && (strDialPrefix.trim().length() != 0)) {
+    protected void dialModem(String strDialPrefix, String strPhoneNR, String selector, int iTimeout, long delayAfterconnectAndFlush) throws IOException, LinkException {
+        if ((strDialPrefix != null) && (!strDialPrefix.trim().isEmpty())) {
             getStreamConnection().write("D" + strDialPrefix + strPhoneNR + "\r\n", 500);
         } else {
             getStreamConnection().write("D" + strPhoneNR + "\r\n", 500);
         }
 
-        if (expectCommPort(LINK_ESTABLISHED, iTimeout) == false) {
+        if (!expectCommPort(LINK_ESTABLISHED, iTimeout)) {
             throw new DialerTimeoutException("Timeout waiting for CONNECT to phone " + strPhoneNR);
         } else {
             getStreamConnection().flushInputStream(delayAfterconnectAndFlush);
-            if ((selector != null) && (selector.trim().length() != 0)) {
+            if ((selector != null) && (!selector.trim().isEmpty())) {
                 getStreamConnection().write(selector, 500);
             }
         }
@@ -82,7 +82,7 @@ public class CaseModemConnection {
     } // private void dialModem(String strPhoneNR,int iTimeout) throws DialerException
 
     private void sendInitString(String strInit, String expecting) throws IOException, LinkException {
-        if ((strInit != null) && (strInit.trim().length() != 0) && (expecting != null) && (expecting.trim().length() != 0)) {
+        if ((strInit != null) && (!strInit.trim().isEmpty()) && (expecting != null) && (!expecting.trim().isEmpty())) {
             int i;
             for (i = 0; i < 3; i++) {
                 getStreamConnection().write(strInit + "\r\n", 1000);
@@ -97,19 +97,12 @@ public class CaseModemConnection {
     }
 
     protected void initModem() throws IOException, LinkException {
-        int i;
         resetModem();
         sendInitString(ECHO_OFF_COMMAND, ECHO_OFF);
         sendInitString(DTR_NORMAL_COMMAND, DTR_NORMAL);
         sendInitString(ERROR_CORRECTING_MODE_COMMAND, ERROR_CORRECTING_MODE);
         sendInitString(link.getStrModemInitExtra(), "\r\n");
         sendInitString(link.getStrModemInitCommPort(), "\r\n");
-    } // private void initModem() throws IOException
-
-    // true  : expected string received
-    // false : timeout
-    protected boolean expectCommPort(String str) throws IOException, LinkException {
-        return expectCommPort(str, -1);
     }
 
     protected boolean expectCommPort(String str, int iTimeout) throws IOException, LinkException {
@@ -122,17 +115,15 @@ public class CaseModemConnection {
             lMSTimeout = System.currentTimeMillis() + iTimeout;
         }
         try {
-            while (boolAbort == false) {
+            while (!boolAbort) {
                 if (getStreamConnection().getInputStream().available() != 0) {
                     inewKar = getStreamConnection().getInputStream().read();
 
                     strToParse += (char) inewKar;
 
-                    if (strToParse.indexOf(str) != -1) {
-                        strToParse = "";
+                    if (strToParse.contains(str)) {
                         return true;
-                    } else if (strToParse.indexOf(CALL_ABORTED) != -1) {
-                        strToParse = "";
+                    } else if (strToParse.contains(CALL_ABORTED)) {
                         throw new DialerException("CALL ABORTED received");
                     }
                 } else {
@@ -140,21 +131,18 @@ public class CaseModemConnection {
                 }
 
                 if (iTimeout != -1) {
-                    if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+                    if (System.currentTimeMillis() - lMSTimeout > 0) {
                         return false;
                     }
                 }
-            } // while(boolAbort==false)
-
+            }
             return false;
         } catch (IOException e) {
             throw new LinkException(e);
         } catch (InterruptedException e) {
             throw new NestedIOException(e);
         }
-
-
-    } // private boolean Expect(String str,int iTimeout)  throws LinkException
+    }
 
     protected void hangupModem() throws IOException, LinkException {
         int i;
@@ -169,7 +157,7 @@ public class CaseModemConnection {
                 throw new LinkException("Hangup modem failed");
             }
         }
-    } // protected void hangupModem() throws LinkException
+    }
 
     protected void toggleDTR(int time) throws IOException {
         try {
@@ -186,7 +174,7 @@ public class CaseModemConnection {
     // We use this method before initModem en for throws hangupModem. Virtual com ports require
     // this resetModem otherwise we get no response from virtual com port after a successfull ATDTx.
     // Virtual comm ports do not see the DTR drop!
-    private void resetModem() throws IOException, LinkException {
+    private void resetModem() throws IOException {
         toggleDTR(1000);
     }
 

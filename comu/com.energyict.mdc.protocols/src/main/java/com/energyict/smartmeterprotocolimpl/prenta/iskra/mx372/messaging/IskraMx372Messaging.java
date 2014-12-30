@@ -397,64 +397,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
         }
     }
 
-    /**
-     * Executes the WakeUp call. The implementer should use and/or update the <code>Link</code> if a WakeUp succeeded. The communicationSchedulerId
-     * can be used to find the task which triggered this wakeUp or which Device is being waked up.
-     *
-     * @param communicationSchedulerId the ID of the <code>CommunicationScheduler</code> which started this task
-     * @param link                     Link created by the comserver, can be null if a NullDialer is configured
-     * @param logger                   Logger object - when using a level of warning or higher message will be stored in the communication session's database log,
-     *                                 messages with a level lower than warning will only be logged in the file log if active.
-     * @throws BusinessException
-     *                             if a business exception occurred
-     * @throws java.io.IOException if an io exception occurred
-     */
     public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws BusinessException, IOException {
-//        String ipAddress;
-//
-//        CommunicationScheduler scheduler = mw().getCommunicationSchedulerFactory().get(communicationSchedulerId);
-//        ProtocolTools.closeConnection();
-//        rtu = scheduler.getRtu();
-//
-//        // if it is a CSD scheduler, we just have to make a call
-//        if (scheduler.displayString().toLowerCase().indexOf("csd") > 0) {
-//            getProperties().setbCSDCall(true);
-//            if (!scheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer")) {
-//                throw new IOException("Only NoDialer is allowed as csd dialers.");
-//            }
-//
-//            if (getProperties().getCsdCall() != 0) {
-//                CSDCall call = new CSDCall(link);
-////                call.doCall(rtu.getPhoneNumber(), rtu.getPostDialCommand());
-//                infoLog("Made a successful call.");
-//            } else {
-//                throw new IOException("CSDCall can not be executed if the csdProperty is not enabled");
-//            }
-//        } else {
-//            protocol.setLogger(logger);
-//            if (getProperties().getCsdCall() != 0) {
-//                try {
-//                    CSDCaller caller = new CSDCaller(rtu);
-//                    ipAddress = caller.doWakeUp();
-//                    if (!ipAddress.equalsIgnoreCase("")) {
-////                        this.rtu.updateIpAddress(ipAddress);
-//                        ipAddress = ProtocolTools.checkIPAddressForPortNumber(ipAddress, Integer.toString(getProperties().getIpPortNumber()));
-//                        protocol.getLogger().log(Level.INFO, "IPAddress " + ipAddress + " found for meter with serialnumber " + getProperties().getSerialNumber());
-//
-//                        link.setStreamConnection(new SocketStreamConnection(ipAddress));
-//                        link.getStreamConnection().open();
-//                        infoLog("Connected to " + ipAddress);
-//                    } else {
-//                        throw new ConnectionException("CSD Wakeup call failed.");
-//                    }
-//                } catch (SQLException e) {
-//                    // e.printStackTrace();
-//                    // Absorb exception
-//                }
-//            } else if (scheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer")) {
-//                throw new IOException("NoDialer is only allowed for CSD calls (CsdCall property should be set to 1)");
-//            }
-//        }
         return true;
     }
 

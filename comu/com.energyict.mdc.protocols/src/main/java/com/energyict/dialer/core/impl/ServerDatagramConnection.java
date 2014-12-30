@@ -1,14 +1,9 @@
-/*
- * SocketStreamConnection
- *
- * Created on 8 april 2004, 14:08
- */
-
 package com.energyict.dialer.core.impl;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.dialer.core.UDPSession;
+
+import com.energyict.protocols.mdc.services.impl.EnvironmentPropertyService;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -30,18 +25,12 @@ public class ServerDatagramConnection extends StreamPortConnection {
     // socket for UDP communication
     private DatagramSocket serverSocket = null;
     DatagramConnection session = null;
-    Map<String, DatagramConnection> sessions = new HashMap<String, DatagramConnection>();
-    public static final String DataGramBufferInputStream = "DatagramInputStreamBufferSize";
+    Map<String, DatagramConnection> sessions = new HashMap<>();
+    private final EnvironmentPropertyService propertyService;
 
-    /**
-     * Creates a new instance of SocketStreamConnection
-     */
-    public ServerDatagramConnection(String ipPort) {
-        super(ipPort);
-    }
-
-    public DatagramConnection getAcceptedDatagramConnection() {
-        return session;
+    public ServerDatagramConnection(String ipPort, EnvironmentPropertyService propertyService) {
+        super(ipPort, propertyService);
+        this.propertyService = propertyService;
     }
 
     public synchronized void send(DatagramPacket sendPacket) throws IOException {
@@ -58,23 +47,12 @@ public class ServerDatagramConnection extends StreamPortConnection {
     public void accept() throws NestedIOException {
         while (true) {
             try {
-                int bufferSize = 1024;
-                try {
-                    String buffSizeString = Environment.DEFAULT.get().getProperty(DataGramBufferInputStream);
-                    if (buffSizeString != null) {
-                        bufferSize = Integer.valueOf(buffSizeString);
-                    }
-                } catch (NumberFormatException e) {
-                    bufferSize = 1024;
-                }
+                int bufferSize = this.propertyService.getDatagramInputStreamBufferSize();
                 byte[] receiveData = new byte[bufferSize];
                 DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
                 serverSocket.receive(receivePacket);
                 String signature = receivePacket.getAddress() + " " + receivePacket.getPort();
-
-
                 session = sessions.get(signature);
-
                 if (LOGGER.isLoggable(Level.FINE)) {
                     LOGGER.fine("nr of sessions: " + sessions.size());
                 }
@@ -82,14 +60,14 @@ public class ServerDatagramConnection extends StreamPortConnection {
                     if (LOGGER.isLoggable(Level.FINEST)) {
                         LOGGER.finest("Create UDPSession signature " + signature);
                     }
-                    udpSession = new UDPSessionImpl(this, signature);
-                    session = new DatagramConnection(udpSession);
+                    udpSession = new UDPSessionImpl(this, signature, this.getPropertyService());
+                    session = new DatagramConnection(udpSession, this.getPropertyService());
                     sessions.put(signature, session);
                     session.getUdpSession().receive(receivePacket);
                     return;
                 } else {
                     if (LOGGER.isLoggable(Level.FINEST)) {
-                        LOGGER.finest("UDPSession with signature " + signature + " exist");
+                        LOGGER.finest("UDPSession with signature " + signature + " exists");
                     }
                     session.getUdpSession().receive(receivePacket);
                 }
@@ -102,8 +80,8 @@ public class ServerDatagramConnection extends StreamPortConnection {
             } catch (IOException e) {
                 throw new NestedIOException(e, "IOException");
             }
-        } // while(true)
-    } // public Socket listen()
+        }
+    }
 
     /**
      * Wait and accept an incoming DatagramPacket.
@@ -125,15 +103,13 @@ public class ServerDatagramConnection extends StreamPortConnection {
         accept();
     }
 
-    //****************************************************************************************
-    // Delegate of implementation of interface StreamConnection
-    //****************************************************************************************
-
+    @Override
     protected void doOpen() throws NestedIOException {
         boolOpen = true;
         setComPort(ipPort.substring(0, ipPort.indexOf(":")));
-    } // protected void doOpen(String strPhoneNr) throws NestedIOException,StreamConnectionException
+    }
 
+    @Override
     protected void doServerOpen() throws NestedIOException {
         if (!boolOpen) {
             try {
@@ -175,8 +151,9 @@ public class ServerDatagramConnection extends StreamPortConnection {
         } else {
             throw new NestedIOException(new IOException("Port already open"));
         }
-    } // protected void doServerOpen(String strPhoneNr) throws NestedIOException,StreamConnectionException
+    }
 
+    @Override
     protected void doClose() throws NestedIOException {
         if (boolOpen) {
             try {
@@ -199,9 +176,9 @@ public class ServerDatagramConnection extends StreamPortConnection {
         } else {
             throw new NestedIOException(new IOException("IP port is not open"));
         }
-
     }
 
+    @Override
     protected void doServerClose() throws NestedIOException {
         if (boolOpen) {
             if (serverSocket != null) {
@@ -217,20 +194,12 @@ public class ServerDatagramConnection extends StreamPortConnection {
 
     }
 
-    //****************************************************************************************
-    // Private core methods
-    //****************************************************************************************
-    /*
-     *   e.g. strPhoneNr = TCP:9000
-     */
-
     private String getTCPPort(String strPhoneNr) throws IOException {
         String port = strPhoneNr.substring(strPhoneNr.indexOf(":") + 1);
-        if ((port == null) || ("".compareTo(port) == 0)) {
+        if (("".equals(port))) {
             throw new IOException("ServerDatagramConnection, getTCPPort, invalid IP connection string " + strPhoneNr);
         }
         return port;
     }
-
 
 }

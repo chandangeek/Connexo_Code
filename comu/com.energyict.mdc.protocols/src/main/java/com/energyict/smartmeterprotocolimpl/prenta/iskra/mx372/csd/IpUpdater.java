@@ -1,15 +1,18 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.csd;
 
-import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 
+import com.energyict.protocols.mdc.services.impl.RadiusEnvironmentPropertyService;
+
 import java.io.IOException;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
+import java.util.Properties;
 
 /**
  * Copyrights EnergyICT
@@ -20,176 +23,124 @@ import java.util.Date;
 
 public class IpUpdater {
 
-//	private static EntityManagerFactory factory;
-//
-//	static {
-//		Properties properties = getProperties();
-//		try {
-//			Ejb3Configuration ejbconf = new Ejb3Configuration();
-//			Ejb3Configuration newConfig = ejbconf.configure("IpUpdater", properties);
-//			factory = newConfig.buildEntityManagerFactory();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			throw new ApplicationException("Caught exception while initializing persistence factory", e);
-//		}
-//	};
-//	private static String request = "select FRAMED_IP_ADDRESS from RADIUSACCOUNTING where CALLING_STATION_ID like ? and ? < to_date(EVENT_TIMESTAMP, 'MM/DD/YY hh24:mi:ss')";
-	private static String request = "select FRAMED_IP_ADDRESS from RADIUSACCOUNTING where CALLING_STATION_ID like ? and ? < LOG_DATE";
+    public static final String RADIUS_IPFINDER_DRIVER_CLASS_ENVIRONMENT_PROPERTY_NAME = "driverClass";
+    public static final String RADIUS_IPFINDER_CONNECTION_URL_ENVIRONMENT_PROPERTY_NAME = "connectionUrl";
+    public static final String RADIUS_IPFINDER_DB_USER_NAME_ENVIRONMENT_PROPERTY_NAME = "dbUserName";
+    public static final String RADIUS_IPFINDER_DB_PASSWORD_ENVIRONMENT_PROPERTY_NAME = "dbPassword";
 
-	private static String IPADDRESS = "FRAMED_IP_ADDRESS";
+    private static final String request = "select FRAMED_IP_ADDRESS from RADIUSACCOUNTING where CALLING_STATION_ID like ? and ? < LOG_DATE";
+    private static final String IPADDRESS = "FRAMED_IP_ADDRESS";
 
-//	private Device rtu;
-	private int pollTimeout;
-	private int pollFreq;
+    private final RadiusEnvironmentPropertyService propertyService;
+    private int pollTimeout;
+    private int pollFreq;
 
-	private static Properties getProperties() {
-		Properties properties = new Properties();
-		properties.put("hibernate.connection.driver_class", Environment.DEFAULT.get().getProperty("radius.ipfinder.driver_class", "oracle.jdbc.OracleDriver"));
-		properties.put("hibernate.connection.url", Environment.DEFAULT.get().getProperty("radius.ipfinder.connection_url", "jdbc:oracle:thin:@localhost:1521:eiserver"));
-		properties.put("hibernate.connection.username", Environment.DEFAULT.get().getProperty("radius.ipfinder.user", "DEMO"));
-		properties.put("hibernate.connection.password", Environment.DEFAULT.get().getProperty("radius.ipfinder.password", "zorro"));
-		return properties;
-	}
+    public IpUpdater(RadiusEnvironmentPropertyService propertyService, int pollTimeOut, int pollFreq) {
+        this.propertyService = propertyService;
+        this.pollTimeout = pollTimeOut;
+        this.pollFreq = pollFreq;
+    }
 
-	/**
-	 * Constructor
-	 */
-	public IpUpdater(int pollTimeOut, int pollFreq) {
-		this.pollTimeout = pollTimeOut;
-		this.pollFreq = pollFreq;
-	}
+    private Properties getProperties() {
+        Properties properties = new Properties();
+        properties.put("hibernate.connection.driver_class", this.propertyService.getDriverClass());
+        properties.put("hibernate.connection.url", this.propertyService.getConnectionUrl());
+        properties.put("hibernate.connection.username", this.propertyService.getDatabaseUserName());
+        properties.put("hibernate.connection.password", this.propertyService.getDatabasePassword());
+        return properties;
+    }
 
 
-	/**
-	 * Poll the IP address in the radius server
-	 * @param date2
-	 * @throws InterruptedException
-	 * @throws BusinessException
-	 * @throws SQLException
-	 * @throws IOException
-	 */
-	public String poll(String phone, Date date2) throws InterruptedException, BusinessException, SQLException, IOException{
-		long protocolTimeout = System.currentTimeMillis() + this.pollTimeout;
-		String ipAddress = null;
-		Date lastDate = null;
-		while(ipAddress == null){
-			Connection connection = null;
-			PreparedStatement statement = null;
-			try {
+    /**
+     * Polls the IP address in the radius server.
+     *
+     * @param date2
+     * @throws InterruptedException
+     * @throws BusinessException
+     * @throws SQLException
+     * @throws IOException
+     */
+    public String poll(String phone, Date date2) throws InterruptedException, BusinessException, SQLException, IOException {
+        long protocolTimeout = System.currentTimeMillis() + this.pollTimeout;
+        String ipAddress = null;
+        Date lastDate = null;
+        while (ipAddress == null) {
+            Connection connection = null;
+            PreparedStatement statement = null;
+            try {
+                connection = getConnection();
+                SqlBuilder builder = new SqlBuilder(request);
+                builder.bindString(getSQLLikePhoneNumber(phone));
+                builder.bindTimestamp(date2);
+                statement = builder.getStatement(connection);
+                ResultSet rs = null;
+                try {
+                    rs = statement.executeQuery();
+                    while (rs.next()) {
+                        if (rs.isFirst()) {
+                            ipAddress = rs.getString(IPADDRESS);
+                        }
+                        else {
+                            if (ipAddress != null) {
+                                if (!ipAddress.equalsIgnoreCase(rs.getString(IPADDRESS))) {
+                                    throw new ConnectionException("Multiple records were found after CSD call, will not update ipaddress.");
+                                }
+                            }
+                        }
+                    }
+                }
+                finally {
+                    if (rs != null) {
+                        rs.close();
+                    }
+                }
+                if (ipAddress == null) {
+                    Thread.sleep(this.pollFreq);
+                }
 
-				connection = getConnection();
-
-				SqlBuilder builder = new SqlBuilder(request);
-				builder.bindString(getSQLLikePhoneNumber(phone));
-				builder.bindTimestamp(date2);
-
-				statement = builder.getStatement(connection);
-
-
-				ResultSet rs = null;
-				try {
-					rs = statement.executeQuery();
-
-					while(rs.next()){
-						if(rs.isFirst()){
-							ipAddress = rs.getString(IPADDRESS);
-						} else {
-							if(ipAddress != null){
-								if(!ipAddress.equalsIgnoreCase(rs.getString(IPADDRESS))){
-									throw new ConnectionException("Multiple records were found after CSD call, will not update ipaddress.");
-								}
-							}
-						}
-					}
-
-				} finally {
-					if(rs != null){
-						rs.close();
-					}
-				}
-
-				if(ipAddress == null){
-					Thread.sleep(this.pollFreq);
-				}
-
-			} catch (InterruptedException e) {
+            }
+            catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-            } catch (SQLException e) {
-				e.printStackTrace();
-				if(e.getMessage().indexOf("Connections could not be acquired from the underlying database!") > -1){
-					throw new BusinessException("Connections could not be acquired from the underlying database! It is possible that the radius properties are not correct.");
-				}
-			} finally {
-				if(connection != null){
-					connection.close();
-				}
-				if(statement != null){
-					statement.close();
-				}
-			}
+            }
+            catch (SQLException e) {
+                e.printStackTrace();
+                if (e.getMessage().contains("Connections could not be acquired from the underlying database!")) {
+                    throw new BusinessException("Connections could not be acquired from the underlying database! It is possible that the radius properties are not correct.");
+                }
+            }
+            finally {
+                if (connection != null) {
+                    connection.close();
+                }
+                if (statement != null) {
+                    statement.close();
+                }
+            }
 
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new BusinessException("Could not update the meters IP-address");
             }
-		}
-		return ipAddress;
-	}
+        }
+        return ipAddress;
+    }
 
-	/**
-	 * Get a connection from Hibernate, just hope he (or she) does this in a proper way
-	 *
-	 * @return a {@link Connection}
-	 */
-	private Connection getConnection(){
-		return null;
-	}
+    /**
+     * Get a connection from Hibernate, just hope he (or she) does this in a proper way
+     *
+     * @return a {@link Connection}
+     */
+    private Connection getConnection() {
+        return null;
+    }
 
-	private String getSQLLikePhoneNumber(String phoneNumber) {
-		StringBuffer strBuffer = new StringBuffer();
-		while(phoneNumber.startsWith("0") || phoneNumber.startsWith("+")){
-			phoneNumber = phoneNumber.substring(1);
-		}
-		strBuffer.append("%");	// if 00 or + is added to the phone ...
-		strBuffer.append(phoneNumber);
-		return strBuffer.toString();
-	}
-
-	private Date getLastDate(String date, String time) throws IOException{
-		if((date == null) || time == null){
-			return new Date(0);
-		}
-		Calendar cal;
-		try {
-			cal = Calendar.getInstance();
-			cal.set(Integer.parseInt(date.substring(date.lastIndexOf("/") + 1))&0xFFFF,
-					(Integer.parseInt(date.substring(0, date.indexOf("/")))&0xFF) -1,
-					Integer.parseInt(date.substring(date.indexOf("/") + 1, date.lastIndexOf("/")))&0xFF,
-					Integer.parseInt(time.substring(time.indexOf(" ") + 1, time.indexOf(":")))&0xFF,
-					Integer.parseInt(time.substring(time.indexOf(":") + 1, time.lastIndexOf(":")))&0xFF,
-					Integer.parseInt(time.substring(time.lastIndexOf(":") + 1, time.length()))&0xFF);
-			return cal.getTime();
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-			throw new IOException("Could not parse the received dateTime");
-		}
-	}
-
-	public static void main(String[] args){
-		try {
-			IpUpdater ipUpdater = new IpUpdater(900000,3000);
-			System.out.println(ipUpdater.poll("31610121147", new Date(System.currentTimeMillis())));
-		} catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } catch (BusinessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+    private String getSQLLikePhoneNumber(String phoneNumber) {
+        StringBuilder strBuffer = new StringBuilder();
+        while (phoneNumber.startsWith("0") || phoneNumber.startsWith("+")) {
+            phoneNumber = phoneNumber.substring(1);
+        }
+        strBuffer.append("%");    // if 00 or + is added to the phone ...
+        strBuffer.append(phoneNumber);
+        return strBuffer.toString();
+    }
 
 }
