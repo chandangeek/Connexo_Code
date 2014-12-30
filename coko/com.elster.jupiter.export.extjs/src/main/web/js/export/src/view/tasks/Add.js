@@ -296,7 +296,9 @@ Ext.define('Dxp.view.tasks.Add', {
                                 name: 'start-on',
                                 dateConfig: {
                                     allowBlank: true,
-                                    value: new Date()
+                                    value: new Date(),
+                                    editable: false,
+                                    format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                                 },
                                 hoursConfig: {
                                     fieldLabel: Uni.I18n.translate('general.at', 'DES', 'at'),

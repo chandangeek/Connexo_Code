@@ -386,6 +386,7 @@ Ext.define('Dxp.controller.Tasks', {
                 fileFormatterCombo.store.load(function () {
                     taskModel.load(taskId, {
                         success: function (record) {
+                            var schedule = record.get('schedule');
                             me.taskModel = record;
                             me.getApplication().fireEvent('dataexporttaskload', record);
                             taskForm.setTitle(Uni.I18n.translate('general.edit', 'DES', 'Edit') + ' ' + record.get('name'));
@@ -407,8 +408,8 @@ Ext.define('Dxp.controller.Tasks', {
                                 fileFormatterCombo.setValue(fileFormatterCombo.store.getById(record.data.dataProcessor.name));
                                 if (record.data.nextRun && (record.data.nextRun !== 0)) {
                                     view.down('#recurrence-trigger').setValue({recurrence: true});
-                                    view.down('#recurrence-number').setValue(record.get('schedule').count);
-                                    recurrenceTypeCombo.setValue(record.get('schedule').timeUnit);
+                                    view.down('#recurrence-number').setValue(schedule.count);
+                                    recurrenceTypeCombo.setValue(schedule.timeUnit);
                                     view.down('#start-on').setValue(record.data.nextRun);
                                 } else {
                                     recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
