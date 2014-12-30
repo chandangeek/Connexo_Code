@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.logging;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.engine.exceptions.CodingException;
 
 import org.joda.time.DateTime;
@@ -30,7 +29,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -119,17 +117,6 @@ public class LoggerFactoryTest {
     public static void initializeLoggingFrameworks () throws IOException {
         InputStream configStream = LoggerFactoryTest.class.getClassLoader().getResourceAsStream("logging.properties");
         LogManager.getLogManager().readConfiguration(configStream);
-    }
-
-    @Before
-    public void mockEnvironment () {
-        Environment environment = mock(Environment.class);
-        Environment.DEFAULT.set(environment);
-    }
-
-    @After
-    public void tearDownEnvironment () {
-        Environment.DEFAULT.set(null);
     }
 
     @Test
