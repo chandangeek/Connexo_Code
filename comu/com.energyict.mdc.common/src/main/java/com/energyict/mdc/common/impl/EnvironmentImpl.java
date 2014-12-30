@@ -2,72 +2,31 @@ package com.energyict.mdc.common.impl;
 
 import com.energyict.mdc.common.Environment;
 
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
 
 @Component(name="com.energyict.mdc.environment", service = Environment.class)
 public class EnvironmentImpl implements Environment {
 
     private static final Logger LOGGER = Logger.getLogger(EnvironmentImpl.class.getName());
-
-    /**
-     * The objects that are globally shared and made available by name.
-     */
-    private NamedObjects globalNamedObjects = new GlobalNamedObjects();
-
-    /**
-     * The objects that are shared within the currrent thread and made available by name.
-     */
-    private ThreadLocal<NamedObjects> localNamedObjectsHolder;
-
-    private volatile ThreadPrincipalService threadPrincipalService;
-    private volatile BundleContext context;
-
-    public EnvironmentImpl () {
-        this.localNamedObjectsHolder = new ThreadLocal<NamedObjects>() {
-            protected NamedObjects initialValue () {
-                return new LocalNamedObjects();
-            }
-        };
-    }
+    private BundleContext context;
 
     @Inject
-    public EnvironmentImpl(ThreadPrincipalService threadPrincipalService, BundleContext bundleContext) {
-        this();
-        this.threadPrincipalService = threadPrincipalService;
+    public EnvironmentImpl(BundleContext bundleContext) {
+        super();
         this.activate(bundleContext);
-    }
-
-    public ThreadPrincipalService getThreadPrincipalService () {
-        return threadPrincipalService;
-    }
-
-    @Reference
-    public void setThreadPrincipalService (ThreadPrincipalService threadPrincipalService) {
-        LOGGER.fine("Thread principle service is being injected into the MDC environment: " + threadPrincipalService);
-        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Activate
     public void activate (BundleContext context) {
-        try {
-            this.context = context;
-            Environment.DEFAULT.set(this);
-            LOGGER.fine("MDC environment is actived");
-        }
-        catch (Exception e) {
-            e.printStackTrace(System.err);
-        }
+        this.context = context;
+        Environment.DEFAULT.set(this);
+        LOGGER.fine("MDC environment is actived");
     }
 
     @Deactivate
@@ -78,106 +37,8 @@ public class EnvironmentImpl implements Environment {
     }
 
     @Override
-    public Object get (String name, boolean global) {
-        if (global) {
-            return this.globalNamedObjects.get(name);
-        }
-        else {
-            return this.localNamedObjectsHolder.get().get(name);
-        }
-    }
-
-    @Override
-    public Object get (String name) {
-        Object result = get(name, false);
-        if (result == null) {
-            result = get(name, true);
-        }
-        return result;
-    }
-
-    @Override
-    public void put (String name, Object value, boolean global) {
-        if (global) {
-            this.globalNamedObjects.put(name, value);
-        }
-        else {
-            this.localNamedObjectsHolder.get().put(name, value);
-        }
-    }
-
-    @Override
-    public String getProperty (String key, String defaultValue) {
-        String value = this.getProperty(key);
-        if (this.isEmpty(value)) {
-            return defaultValue;
-        }
-        else {
-            return value;
-        }
-    }
-
-    private boolean isEmpty (String value) {
-        return value == null || value.isEmpty();
-    }
-
-    @Override
     public String getProperty (String key) {
         return this.context.getProperty(key);
-    }
-
-    private interface NamedObjects {
-
-        public Object get (String key);
-
-        public void put (String key, Object value);
-
-        public Iterable<Object> values ();
-
-        public void clear ();
-
-    }
-
-    private abstract class NamedObjectsImpl implements NamedObjects {
-        private Map<String, Object> backingMap;
-
-        protected NamedObjectsImpl (Map<String, Object> backingMap) {
-            super();
-            this.backingMap = backingMap;
-        }
-
-        @Override
-        public Object get (String key) {
-            return this.backingMap.get(key);
-        }
-
-        @Override
-        public void put (String key, Object value) {
-            this.backingMap.put(key, value);
-        }
-
-        @Override
-        public Iterable<Object> values () {
-            return this.backingMap.values();
-        }
-
-        @Override
-        public void clear () {
-            this.backingMap.clear();
-        }
-
-    }
-
-    private class LocalNamedObjects extends NamedObjectsImpl {
-        protected LocalNamedObjects () {
-            super(new HashMap<>());
-        }
-    }
-
-    private class GlobalNamedObjects extends NamedObjectsImpl {
-        protected GlobalNamedObjects () {
-            super(Collections.synchronizedMap(new HashMap<>()));
-        }
     }
 
 }
