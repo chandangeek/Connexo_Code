@@ -178,7 +178,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     private CanFindByLongPrimaryKey<? extends HasId> finderFor(FactoryIds factoryId) {
         for (CanFindByLongPrimaryKey<? extends HasId> finder : finders.values()) {
-            if(factoryId.equals(finder.factoryId())){
+            if (factoryId.equals(finder.factoryId())) {
                 return finder;
             }
         }

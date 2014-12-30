@@ -4,7 +4,6 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.BusinessObject;
 import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.BusinessObjectProxy;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.dynamic.relation.DefaultRelationParticipant;
 import com.energyict.mdc.dynamic.relation.Relation;

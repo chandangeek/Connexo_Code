@@ -1,15 +1,15 @@
 package com.energyict.mdc.dynamic.relation.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.DatabaseException;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.coordinates.SpatialCoordinates;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.dynamic.relation.exceptions.RelationTypeDDLException;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.Checks;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
