@@ -635,7 +635,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
                 EnumSet.of(DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN);
 
         @Override
-        public List<PropertySpec> getSecurityProperties() {
+        public List<PropertySpec> getSecurityPropertySpecs() {
             return Collections.emptyList();
         }
 
