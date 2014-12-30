@@ -1,8 +1,6 @@
 package com.energyict.mdc.tasks;
 
 import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.energyict.mdc.common.impl.EnvironmentImpl;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -82,14 +80,12 @@ public class PersistenceTest {
                 new IdsModule(),
                 new DomainUtilModule(),
                 new MeteringModule(),
-                new MdcCommonModule(),
                 new MasterDataModule(),
                 new PluggableModule(),
                 new ProtocolApiModule(),
                 new TransactionModule(false),
                 new TasksModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
-        	injector.getInstance(EnvironmentImpl.class); // fake call to make sure component is initialized
             injector.getInstance(NlsService.class); // fake call to make sure component is initialized
             injector.getInstance(EventService.class); // fake call to make sure component is initialized
             injector.getInstance(MasterDataService.class); // fake call to make sure component is initialized
