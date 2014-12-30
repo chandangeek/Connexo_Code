@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.topology.impl;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
@@ -164,7 +163,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new MasterDataModule(),
                 new ValidationModule(),
                 new DeviceConfigurationModule(),
-                new MdcCommonModule(),
                 new MdcIOModule(),
                 new SchedulingModule(),
                 new DeviceDataModule(),

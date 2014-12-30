@@ -3,7 +3,6 @@ package com.energyict.mdc.device.topology.impl;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.SqlBuilder;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
@@ -188,7 +187,6 @@ public class InMemoryIntegrationPersistence {
                 new MasterDataModule(),
                 new ValidationModule(),
                 new DeviceConfigurationModule(),
-                new MdcCommonModule(),
                 new MdcIOModule(),
                 new BasicPropertiesModule(),
                 new ProtocolApiModule(),
