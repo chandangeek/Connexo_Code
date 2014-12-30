@@ -41,7 +41,6 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -133,8 +132,6 @@ public abstract class BaseTest {
                 new NlsModule(),
                 new UserModule(),
                 new IssueModule(),
-
-                new MdcCommonModule(),
                 new MdcIOModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new BasicPropertiesModule(),
