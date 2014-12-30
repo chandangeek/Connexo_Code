@@ -1,6 +1,5 @@
 package com.energyict.mdc.scheduling.model.impl;
 
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -89,7 +88,6 @@ public class InMemoryPersistence {
                 new OrmModule(),
                 new DataVaultModule(),
                 new MasterDataModule(),
-                new MdcCommonModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new ProtocolApiModule(),
