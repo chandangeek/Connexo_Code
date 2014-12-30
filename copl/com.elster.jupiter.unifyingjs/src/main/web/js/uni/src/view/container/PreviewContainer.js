@@ -82,6 +82,16 @@ Ext.define('Uni.view.container.PreviewContainer', {
         }
     ],
 
+    listeners: {
+        afterlayout: function () {
+            var me = this;
+
+            if (me.lastGridScrollPosition) {
+                me.grid.view.getEl().scrollTo('top', me.lastGridScrollPosition.top, false);
+            }
+        }
+    },
+
     initComponent: function () {
         var me = this,
             grid = me.grid,
@@ -120,6 +130,9 @@ Ext.define('Uni.view.container.PreviewContainer', {
 
         me.grid = me.getWrapperCt().items.items[0];
         me.previewComponent = me.getWrapperCt().items.items[1];
+        me.hasBufferedRendererPlugin = Ext.Array.findBy(me.grid.plugins, function (item) {
+            return item.ptype === 'bufferedrenderer';
+        })
 
         me.bindStore(me.grid.store || 'ext-empty-store', true);
         me.initChildPagingBottom();
@@ -184,6 +197,9 @@ Ext.define('Uni.view.container.PreviewContainer', {
             selection = me.grid.view.getSelectionModel().getSelection();
 
         if (me.rendered) {
+            if (!me.hasBufferedRendererPlugin) {
+                me.lastGridScrollPosition = me.grid.view.getEl().getScroll();
+            }
             Ext.suspendLayouts();
         }
 
