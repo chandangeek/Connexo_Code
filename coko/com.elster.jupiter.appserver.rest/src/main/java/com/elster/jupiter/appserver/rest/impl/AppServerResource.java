@@ -195,7 +195,7 @@ public class AppServerResource {
     private List<AppServer> queryAppServers(QueryParameters queryParameters) {
         Query<AppServer> query = appService.getAppServerQuery();
         RestQuery<AppServer> restQuery = queryService.wrap(query);
-        return restQuery.select(queryParameters, Order.ascending("name"));
+        return restQuery.select(queryParameters, Order.ascending("name").toUpperCase());
     }
 
 
