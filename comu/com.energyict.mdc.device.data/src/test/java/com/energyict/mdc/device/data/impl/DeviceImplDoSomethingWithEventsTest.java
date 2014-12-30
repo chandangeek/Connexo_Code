@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -263,7 +262,6 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new MasterDataModule(),
                     new ValidationModule(),
                     new DeviceConfigurationModule(),
-                    new MdcCommonModule(),
                     new MdcIOModule(),
                     new ProtocolApiModule(),
                     new KpiModule(),

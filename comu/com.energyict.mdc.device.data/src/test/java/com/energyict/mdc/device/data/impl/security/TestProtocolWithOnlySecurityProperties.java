@@ -182,7 +182,7 @@ public class TestProtocolWithOnlySecurityProperties implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
+    public List<PropertySpec> getSecurityPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(2);
         propertySpecs.add(this.propertySpecService.basicPropertySpec(USERNAME_PROPERTY_NAME, true, new StringFactory()));
         propertySpecs.add(this.propertySpecService.basicPropertySpec(PASSWORD_PROPERTY_NAME, true, new StringFactory()));

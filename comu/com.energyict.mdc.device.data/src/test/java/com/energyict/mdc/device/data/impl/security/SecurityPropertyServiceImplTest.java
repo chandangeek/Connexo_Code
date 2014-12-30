@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.impl.security;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -253,7 +252,6 @@ public class SecurityPropertyServiceImplTest {
                     new OrmModule(),
                     new DataVaultModule(),
                     new IssuesModule(),
-                    new MdcCommonModule(),
                     new BasicPropertiesModule(),
                     new MdcDynamicModule());
             this.transactionService = injector.getInstance(TransactionService.class);
