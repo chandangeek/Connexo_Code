@@ -5,38 +5,42 @@ import com.elster.jupiter.demo.impl.Store;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiBuilder;
 import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
 
-public class DynamicKpiFactory implements Factory<Kpi>{
+public class DynamicKpiFactory implements Factory<DataCollectionKpi>{
+    private final DataCollectionKpiService dataCollectionKpiService;
     private final KpiService kpiService;
     private final Store store;
 
-    private String name;
+    private EndDeviceGroup group;
 
     @Inject
-    public DynamicKpiFactory(KpiService kpiService, Store store) {
+    public DynamicKpiFactory(KpiService kpiService, DataCollectionKpiService dataCollectionKpiService, Store store) {
+        this.dataCollectionKpiService = dataCollectionKpiService;
         this.kpiService = kpiService;
         this.store = store;
     }
 
-    public DynamicKpiFactory withName(String name){
-        this.name = name;
+    public DynamicKpiFactory withGroup(EndDeviceGroup group){
+        this.group = group;
         return this;
     }
 
-    public Kpi get(){
+    public DataCollectionKpi get(){
         Log.write(this);
-        KpiBuilder builder = kpiService.newKpi();
-        builder.named(name);
-        builder.member().withTargetSetAt(new BigDecimal(80));
-        builder.interval(Duration.of(15, ChronoUnit.MINUTES));
-        final Kpi kpi = builder.build();
-        kpi.save();
-        store.add(Kpi.class, kpi);
+        DataCollectionKpiService.DataCollectionKpiBuilder kpiBuilder = dataCollectionKpiService.newDataCollectionKpi(group);
+        kpiBuilder.calculateComTaskExecutionKpi(Duration.ofMinutes(15)).expectingAsMinimum(new BigDecimal(80));
+        kpiBuilder.calculateConnectionSetupKpi(Duration.ofMinutes(15)).expectingAsMinimum(new BigDecimal(80));
+        DataCollectionKpi kpi = kpiBuilder.save();
+        store.add(DataCollectionKpi.class, kpi);
         return kpi;
     }
 }

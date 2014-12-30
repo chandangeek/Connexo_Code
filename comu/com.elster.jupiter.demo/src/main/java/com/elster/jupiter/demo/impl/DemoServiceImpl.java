@@ -17,6 +17,7 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -49,6 +50,7 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -115,6 +117,7 @@ public class DemoServiceImpl implements DemoService {
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile KpiService kpiService;
     private volatile IssueDataCollectionService issueDataCollectionService;
+    private volatile DataCollectionKpiService dataCollectionKpiService;
 
     private Store store;
     private Injector injector;
@@ -147,7 +150,8 @@ public class DemoServiceImpl implements DemoService {
             IssueCreationService issueCreationService,
             MeteringGroupsService meteringGroupsService,
             KpiService kpiService,
-            IssueDataCollectionService issueDataCollectionService) {
+            IssueDataCollectionService issueDataCollectionService,
+            DataCollectionKpiService dataCollectionKpiService) {
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
         setValidationService(validationService);
@@ -168,6 +172,7 @@ public class DemoServiceImpl implements DemoService {
         setMeteringGroupsService(meteringGroupsService);
         setKpiService(kpiService);
         setIssueDataCollectionService(issueDataCollectionService);
+        setDataCollectionKpiService(dataCollectionKpiService);
         rethrowExceptions = true;
 
         activate();
@@ -200,6 +205,7 @@ public class DemoServiceImpl implements DemoService {
                 bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(KpiService.class).toInstance(kpiService);
                 bind(IssueDataCollectionService.class).toInstance(issueDataCollectionService);
+                bind(DataCollectionKpiService.class).toInstance(dataCollectionKpiService);
             }
         });
     }
@@ -786,8 +792,7 @@ public class DemoServiceImpl implements DemoService {
     }
 
     public void createKpi(){
-        injector.getInstance(DynamicKpiFactory.class).withName(Constants.Kpi.CONNECTION).get();
-        injector.getInstance(DynamicKpiFactory.class).withName(Constants.Kpi.COMMUNICATION).get();
+        store.get(EndDeviceGroup.class).stream().forEach(g -> injector.getInstance(DynamicKpiFactory.class).withGroup(g).get());
     }
 
     @Reference
@@ -908,6 +913,12 @@ public class DemoServiceImpl implements DemoService {
     @SuppressWarnings("unused")
     public final void setIssueDataCollectionService(IssueDataCollectionService issueDataCollectionService) {
         this.issueDataCollectionService = issueDataCollectionService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public final void setDataCollectionKpiService(DataCollectionKpiService dataCollectionKpiService) {
+        this.dataCollectionKpiService = dataCollectionKpiService;
     }
 
     private <T> T executeTransaction(Transaction<T> transaction) {
