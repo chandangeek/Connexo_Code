@@ -21,7 +21,16 @@ Ext.define('Dxp.controller.history.Export', {
                             route: 'add',
                             controller: 'Dxp.controller.Tasks',
                             privileges: ['privilege.administrate.dataExportTask'],
-                            action: 'showAddExportTask'
+                            action: 'showAddExportTask',
+                            items: {
+                                readingtypes: {
+                                    title: 'Add reading types',
+                                    route: 'readingtypes',
+                                    controller: 'Dxp.controller.Tasks',
+                                    privileges: ['privilege.administrate.dataExportTask'],
+                                    action: 'addReadingTypes'
+                                }
+                            }
                         },
                         dataexporttask: {
                             title: Uni.I18n.translate('general.dataExportTask', 'DES', 'Data export task'),
@@ -41,7 +50,16 @@ Ext.define('Dxp.controller.history.Export', {
                                     route: 'edit',
                                     controller: 'Dxp.controller.Tasks',
                                     privileges: ['privilege.update.dataExportTask','privilege.update.schedule.dataExportTask'],
-                                    action: 'showEditExportTask'
+                                    action: 'showEditExportTask',
+                                    items: {
+                                        readingtypes: {
+                                            title: 'Add reading types',
+                                            route: 'readingtypes',
+                                            controller: 'Dxp.controller.Tasks',
+                                            privileges: ['privilege.update.dataExportTask','privilege.update.schedule.dataExportTask'],
+                                            action: 'addReadingTypes'
+                                        }
+                                    }
                                 },
                                 history: {
                                     title: Uni.I18n.translate('general.dataExportTaskHistory', 'DES', 'Data export task history'),

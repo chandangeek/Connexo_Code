@@ -6,8 +6,10 @@ Ext.define('Dxp.view.tasks.Add', {
         'Dxp.view.tasks.AddScheduleGrid',
         'Uni.property.form.Property',
         'Dxp.view.tasks.PropertyForm',
-        'Uni.util.FormErrorMessage'
+        'Uni.util.FormErrorMessage',
+        'Uni.grid.column.ReadingType'
     ],
+
     edit: false,
     returnLink: null,
     setEdit: function (edit) {
@@ -90,57 +92,115 @@ Ext.define('Dxp.view.tasks.Add', {
                             }
                         ]
                     },
+//                    {
+//                        xtype: 'container',
+//                        itemId: 'readingValuesTextFieldsContainer',
+//                        layout: {
+//                            type: 'vbox',
+//                            align: 'stretch'
+//                        },
+//                        items: [
+//                            {
+//                                xtype: 'container',
+//                                layout: {
+//                                    type: 'hbox'
+//                                },
+//                                items: [
+//                                    {
+//                                        xtype: 'textfield',
+//                                        fieldLabel: Uni.I18n.translate('general.readingTypes', 'DES', 'Reading type(s)'),
+//                                        labelAlign: 'right',
+//                                        itemId: 'readingType1',
+//                                        name: 'readingType1',
+//                                        msgTarget: 'under',
+//                                        labelWidth: 250,
+//                                        maskRe: /^($|\S.*$)/,
+//                                        required: true,
+//                                        allowBlank: false,
+//                                        validateOnChange: false,
+//                                        validateOnBlur: false,
+//                                        maxLength: 80,
+//                                        enforceMaxLength: true,
+//                                        width: 500,
+//                                        margin: '0 0 5 0'
+//                                    }
+//                                ]
+//                            }
+//                        ]
+//                    },
                     {
-                        xtype: 'container',
-                        itemId: 'readingValuesTextFieldsContainer',
-                        layout: {
-                            type: 'vbox',
-                            align: 'stretch'
-                        },
+                        xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('general.readingTypes', 'DES', 'Reading types'),
+                        itemId: 'readingTypesFieldContainer',
+                        required: true,
+                        msgTarget: 'under',
+                        width: 1200,
                         items: [
                             {
-                                xtype: 'container',
-                                layout: {
-                                    type: 'hbox'
-                                },
+                                xtype: 'panel',
+                                width: 800,
                                 items: [
                                     {
-                                        xtype: 'textfield',
-                                        fieldLabel: Uni.I18n.translate('general.readingTypes', 'DES', 'Reading type(s)'),
-                                        labelAlign: 'right',
-                                        itemId: 'readingType1',
-                                        name: 'readingType1',
-                                        msgTarget: 'under',
-                                        labelWidth: 250,
-                                        maskRe: /^($|\S.*$)/,
-                                        required: true,
-                                        allowBlank: false,
-                                        validateOnChange: false,
-                                        validateOnBlur: false,
-                                        maxLength: 80,
-                                        enforceMaxLength: true,
-                                        width: 500,
-                                        margin: '0 0 5 0'
+                                        xtype: 'gridpanel',
+                                        itemId: 'readingTypesGridPanel',
+                                        store: 'Dxp.store.ReadingTypesForTask',
+                                        hideHeaders: true,
+                                        padding: 0,
+                                        columns: [
+                                            {
+                                                xtype: 'reading-type-column',
+                                                dataIndex: 'readingType',
+                                                flex: 1
+                                            },
+                                            {
+                                                xtype: 'actioncolumn',
+                                                align: 'right',
+                                                items: [
+                                                    {
+                                                        iconCls: 'icon-delete',
+                                                        handler: function (grid, rowIndex) {
+                                                            grid.getStore().removeAt(rowIndex);
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        height: 220
+                                    }
+                                ],
+                                rbar: [
+                                    {
+                                        xtype: 'container',
+                                        items: [
+                                            {
+                                                xtype: 'button',
+                                                itemId: 'addReadingTypeButton',
+                                                text: Uni.I18n.translate('general.addReadngTypes', 'CFG', 'Add reading types'),
+                                                margin: '0 0 0 10'
+                                            }
+                                        ]
                                     }
                                 ]
                             }
                         ]
                     },
-                    {
-                        xtype: 'fieldcontainer',
-                        margin: '5 0 0 0',
-                        fieldLabel: '&nbsp',
-                        labelAlign: 'right',
-                        layout: 'hbox',
-                        items: [
-                            {
-                                text: '+ ' + Uni.I18n.translate('general.addAnother', 'DES', 'Add another'),
-                                xtype: 'button',
-                                action: 'addReadingTypeAction',
-                                itemId: 'addReadingTypeAction'
-                            }
-                        ]
-                    },
+
+//                    {
+//                        xtype: 'fieldcontainer',
+//                        margin: '5 0 0 0',
+//                        fieldLabel: '&nbsp',
+//                        labelAlign: 'right',
+//                        layout: 'hbox',
+//                        items: [
+//                            {
+//                                text: '+ ' + Uni.I18n.translate('general.addAnother', 'DES', 'Add another'),
+//                                xtype: 'button',
+//                                action: 'addReadingTypeAction',
+//                                itemId: 'addReadingTypeAction'
+//                            }
+//                        ]
+//                    },
+
                     {
                         title: Uni.I18n.translate('general.schedule', 'DES', 'Schedule'),
                         ui: 'medium'
