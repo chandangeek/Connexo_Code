@@ -283,7 +283,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
+    public List<PropertySpec> getSecurityPropertySpecs() {
         return Collections.emptyList();
     }
 
@@ -304,7 +304,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
 
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
-        return this.getSecurityProperties()
+        return this.getSecurityPropertySpecs()
                 .stream()
                 .filter(p -> p.getName().equals(name))
                 .findFirst()

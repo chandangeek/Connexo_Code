@@ -151,7 +151,7 @@ public class MeterProtocolSecuritySupportAdapterTest {
                 this.securitySupportAdapterMappingFactory);
 
         // business method
-        List<PropertySpec> securityProperties = meterProtocolSecuritySupportAdapter.getSecurityProperties();
+        List<PropertySpec> securityProperties = meterProtocolSecuritySupportAdapter.getSecurityPropertySpecs();
 
         // asserts
         assertThat(securityProperties).hasSize(3);

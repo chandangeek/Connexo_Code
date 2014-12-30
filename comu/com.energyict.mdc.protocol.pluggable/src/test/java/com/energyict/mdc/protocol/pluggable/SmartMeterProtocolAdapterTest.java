@@ -475,10 +475,10 @@ public class SmartMeterProtocolAdapterTest {
         SmartMeterProtocolAdapter adapter = new TestSmartMeterProtocolAdapter(adaptedProtocol, this.inMemoryPersistence.getPropertySpecService(), this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.collectedDataFactory);
 
         // Business method
-        List<PropertySpec> securityProperties = adapter.getSecurityProperties();
+        List<PropertySpec> securityProperties = adapter.getSecurityPropertySpecs();
 
         // Asserts
-        assertThat(securityProperties).isEqualTo(new SimpleTestDeviceSecuritySupport(inMemoryPersistence.getPropertySpecService()).getSecurityProperties());
+        assertThat(securityProperties).isEqualTo(new SimpleTestDeviceSecuritySupport(inMemoryPersistence.getPropertySpecService()).getSecurityPropertySpecs());
     }
 
     @Test
@@ -487,10 +487,10 @@ public class SmartMeterProtocolAdapterTest {
         SmartMeterProtocolAdapter adapter = newSmartMeterProtocolAdapter(adaptedProtocol);
 
         // Business method
-        adapter.getSecurityProperties();
+        adapter.getSecurityPropertySpecs();
 
         // Asserts
-        verify(adaptedProtocol).getSecurityProperties();
+        verify(adaptedProtocol).getSecurityPropertySpecs();
     }
 
     @Test

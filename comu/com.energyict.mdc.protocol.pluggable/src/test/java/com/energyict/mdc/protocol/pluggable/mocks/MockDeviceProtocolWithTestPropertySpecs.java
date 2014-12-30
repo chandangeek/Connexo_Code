@@ -178,7 +178,7 @@ public class MockDeviceProtocolWithTestPropertySpecs implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
+    public List<PropertySpec> getSecurityPropertySpecs() {
         return Collections.emptyList();
     }
 

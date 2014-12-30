@@ -6,7 +6,6 @@ import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
@@ -149,7 +148,6 @@ public class DeviceProtocolPluggableClassImplTest {
                 new UserModule(),
                 new IssuesModule(),
                 new PluggableModule(),
-                new MdcCommonModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new ProtocolPluggableModule());

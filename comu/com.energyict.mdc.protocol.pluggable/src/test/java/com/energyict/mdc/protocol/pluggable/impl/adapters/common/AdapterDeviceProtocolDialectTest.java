@@ -1,6 +1,5 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.io.impl.MdcIOModule;
@@ -104,7 +103,6 @@ public class AdapterDeviceProtocolDialectTest {
                 new UserModule(),
                 new IssuesModule(),
                 new PluggableModule(),
-                new MdcCommonModule(),
                 new MdcIOModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),

@@ -181,7 +181,7 @@ public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, 
     }
 
     @Override
-    public List<com.elster.jupiter.properties.PropertySpec> getSecurityProperties() {
+    public List<com.elster.jupiter.properties.PropertySpec> getSecurityPropertySpecs() {
         return Collections.emptyList();
     }
 

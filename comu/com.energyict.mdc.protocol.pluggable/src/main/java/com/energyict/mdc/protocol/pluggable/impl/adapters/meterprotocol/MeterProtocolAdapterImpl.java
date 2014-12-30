@@ -243,7 +243,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
 
     @Override
     public String getProtocolDescription() {
-        return "";
+        return this.meterProtocol.getClass().getName() + "" + this.meterProtocol.getProtocolVersion();
     }
 
     @Override
@@ -434,7 +434,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         List<DeviceProtocolDialect> dialects = new ArrayList<>(1);
-        dialects.add(new AdapterDeviceProtocolDialect(this.getPropertySpecService(), this.getProtocolPluggableService(), this.meterProtocol, getSecurityProperties()));
+        dialects.add(new AdapterDeviceProtocolDialect(this.getPropertySpecService(), this.getProtocolPluggableService(), this.meterProtocol, getSecurityPropertySpecs()));
         return dialects;
     }
 
@@ -459,12 +459,12 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
+    public List<PropertySpec> getSecurityPropertySpecs() {
         if (this.delegateSecurityToActualProtocol()) {
-            return getDeviceSecuritySupport().getSecurityProperties();
+            return getDeviceSecuritySupport().getSecurityPropertySpecs();
         }
         else {
-            return this.meterProtocolSecuritySupportAdapter.getSecurityProperties();
+            return this.meterProtocolSecuritySupportAdapter.getSecurityPropertySpecs();
         }
     }
 

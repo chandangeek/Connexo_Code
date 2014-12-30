@@ -46,7 +46,7 @@ public class SimpleTestDeviceSecuritySupport implements DeviceProtocolSecurityCa
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
+    public List<PropertySpec> getSecurityPropertySpecs() {
         return Arrays.asList(firstPropSpec, secondPropSpec, thirdPropSpec);
     }
 
@@ -67,7 +67,7 @@ public class SimpleTestDeviceSecuritySupport implements DeviceProtocolSecurityCa
 
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityProperties()) {
+        for (PropertySpec securityProperty : getSecurityPropertySpecs()) {
             if (securityProperty.getName().equals(name)) {
                 return securityProperty;
             }

@@ -520,10 +520,10 @@ public class MeterProtocolAdapterTest {
         MeterProtocolAdapterImpl adapter = new TestMeterProtocolAdapter(adaptedProtocol, this.inMemoryPersistence.getPropertySpecService(), this.protocolPluggableService, this.securitySupportAdapterMappingFactory);
 
         // Business method
-        List<PropertySpec> securityProperties = adapter.getSecurityProperties();
+        List<PropertySpec> securityProperties = adapter.getSecurityPropertySpecs();
 
         // Asserts
-        assertThat(securityProperties).isEqualTo(new SimpleTestDeviceSecuritySupport(inMemoryPersistence.getPropertySpecService()).getSecurityProperties());
+        assertThat(securityProperties).isEqualTo(new SimpleTestDeviceSecuritySupport(inMemoryPersistence.getPropertySpecService()).getSecurityPropertySpecs());
     }
 
     @Test
@@ -532,10 +532,10 @@ public class MeterProtocolAdapterTest {
         MeterProtocolAdapterImpl adapter = newMeterProtocolAdapter(adaptedProtocol);
 
         // Business method
-        adapter.getSecurityProperties();
+        adapter.getSecurityPropertySpecs();
 
         // Asserts
-        verify(adaptedProtocol).getSecurityProperties();
+        verify(adaptedProtocol).getSecurityPropertySpecs();
     }
 
     @Test
