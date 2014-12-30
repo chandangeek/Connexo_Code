@@ -143,16 +143,22 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
 
     @Override
     public void calculateComTaskExecutionKpi(BigDecimal staticTarget) {
-        KpiBuilder kpiBuilder = kpiService.newKpi().interval(this.connectionKpi.get().getIntervalLength()).member().withTargetSetAt(staticTarget).add();
+        KpiBuilder kpiBuilder = newKpi(this.communicationKpi.get().getIntervalLength(), staticTarget);
         this.communicationKpiBuilder(kpiBuilder);
         this.save();
     }
 
     @Override
     public void calculateConnectionKpi(BigDecimal staticTarget) {
-        KpiBuilder kpiBuilder = kpiService.newKpi().interval(this.communicationKpi.get().getIntervalLength()).member().withTargetSetAt(staticTarget).add();
+        KpiBuilder kpiBuilder = newKpi(this.communicationKpi.get().getIntervalLength(), staticTarget);
         this.connectionKpiBuilder(kpiBuilder);
         this.save();
+    }
+    
+    private KpiBuilder newKpi(TemporalAmount intervalLength, BigDecimal staticTarget) {
+        KpiBuilder builder = kpiService.newKpi();
+        new DataCollectionKpiServiceImpl.KpiTargetBuilderImpl(builder, intervalLength).expectingAsMaximum(staticTarget);
+        return builder;
     }
 
     Optional<Kpi> connectionKpi() {
