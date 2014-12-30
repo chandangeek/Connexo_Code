@@ -6,7 +6,6 @@ import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -196,7 +195,6 @@ public class PartialOutboundConnectiontaskCrudIT {
                 new ProtocolApiModule(),
                 new TasksModule(),
                 new DeviceConfigurationModule(),
-                new MdcCommonModule(),
                 new MdcIOModule(),
                 new EngineModelModule(),
                 new ProtocolPluggableModule(),

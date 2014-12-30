@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -174,7 +173,6 @@ public class PartialInboundConnectiontaskCrudIT {
                 new ProtocolApiModule(),
                 new TasksModule(),
                 new DeviceConfigurationModule(),
-                new MdcCommonModule(),
                 new MdcIOModule(),
                 new EngineModelModule(),
                 new ProtocolPluggableModule(),

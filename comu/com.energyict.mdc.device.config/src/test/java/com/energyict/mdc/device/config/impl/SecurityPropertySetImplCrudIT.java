@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -144,7 +143,6 @@ public class SecurityPropertySetImplCrudIT {
                 new TasksModule(),
                 new ValidationModule(),
                 new DeviceConfigurationModule(),
-                new MdcCommonModule(),
                 new MdcIOModule(),
                 new EngineModelModule(),
                 new IssuesModule(),

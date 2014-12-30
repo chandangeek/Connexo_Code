@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -194,7 +193,6 @@ public class InMemoryPersistence {
                 new TasksModule(),
                 new ValidationModule(),
                 new DeviceConfigurationModule(),
-                new MdcCommonModule(),
                 new MdcIOModule(),
                 new EngineModelModule(),
                 new PluggableModule(),
