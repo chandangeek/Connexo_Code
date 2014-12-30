@@ -19,8 +19,6 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.SqlBuilder;
-import com.energyict.mdc.common.impl.EnvironmentImpl;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
@@ -104,14 +102,12 @@ public class WebSocketQueryApiServiceTest {
                 new ThreadSecurityModule(),
                 new PubSubModule(),
                 new DomainUtilModule(),
-                new MdcCommonModule(),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new UserModule(),
                 new TransactionModule(false),
                 new EngineModelModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            injector.getInstance(EnvironmentImpl.class); // fake call to make sure component is initialized
             injector.getInstance(NlsService.class); // fake call to make sure component is initialized
             injector.getInstance(ProtocolPluggableService.class); // fake call to make sure component is initialized
             transactionService = injector.getInstance(TransactionService.class);

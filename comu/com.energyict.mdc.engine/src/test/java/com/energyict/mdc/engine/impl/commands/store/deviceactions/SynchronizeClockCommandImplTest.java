@@ -224,7 +224,6 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         assertThat(command.getIssues()).hasSize(1);
         assertThat(command.getWarnings()).hasSize(1);
         assertThat(command.getProblems()).isEmpty();
-        //assertThat(command.getIssues().get(0).getDescription()).isEqualTo(MessageFormat.format(Environment.DEFAULT.get().getTranslation("timediffXlargerthanmaxdefined").replaceAll("'", "''"), clockDiff.getMilliSeconds()));
         assertThat(command.getIssues().get(0).getDescription()).isNotEmpty();
     }
 
@@ -255,7 +254,6 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         command.execute(deviceProtocol, AbstractComCommandExecuteTest.newTestExecutionContext());
 
         assertThat(command.getIssues()).hasSize(1);
-        //assertThat(command.getIssues().get(0).getDescription()).isEqualTo(MessageFormat.format(Environment.DEFAULT.get().getTranslation("timediffXbelowthanmindefined").replaceAll("'", "''"), clockDiff.getMilliSeconds()));
         assertThat(command.getIssues().get(0).getDescription()).isNotEmpty();
         verify(deviceProtocol, never()).setTime(any(Date.class));
     }
