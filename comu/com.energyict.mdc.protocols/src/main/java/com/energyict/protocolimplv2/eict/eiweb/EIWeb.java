@@ -209,8 +209,8 @@ public class EIWeb implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
-        return this.securitySupport.getSecurityProperties();
+    public List<PropertySpec> getSecurityPropertySpecs() {
+        return this.securitySupport.getSecurityPropertySpecs();
     }
 
     @Override

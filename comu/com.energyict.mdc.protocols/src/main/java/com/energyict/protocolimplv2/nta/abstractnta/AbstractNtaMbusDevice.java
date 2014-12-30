@@ -44,6 +44,7 @@ import com.energyict.protocols.exception.UnsupportedMethodException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -174,8 +175,8 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
-        return getMeterProtocol().getSecurityProperties();
+    public List<PropertySpec> getSecurityPropertySpecs() {
+        return getMeterProtocol().getSecurityPropertySpecs();
     }
 
     @Override
@@ -252,7 +253,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
 
     @Override
     public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        throw new UnsupportedMethodException(this.getClass(), "addDeviceProtocolDialectProperties");
+        // Using NoParamsDeviceProtocolDialect so nothign to add here
     }
 
     @Override
@@ -313,7 +314,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

@@ -256,8 +256,8 @@ public class GarnetConcentrator implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
-        return getSecuritySupport().getSecurityProperties();
+    public List<PropertySpec> getSecurityPropertySpecs() {
+        return getSecuritySupport().getSecurityPropertySpecs();
     }
 
     @Override

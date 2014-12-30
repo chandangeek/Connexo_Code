@@ -1,10 +1,8 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.protocol.api.codetables.Code;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;

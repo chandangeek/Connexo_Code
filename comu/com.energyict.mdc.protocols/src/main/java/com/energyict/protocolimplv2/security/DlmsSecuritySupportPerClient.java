@@ -327,7 +327,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
+    public List<PropertySpec> getSecurityPropertySpecs() {
         return Arrays.<PropertySpec>asList(
                 getAuthenticationKeyDataPropertySpec(),
                 getAuthenticationKeyExtDataPropertySpec(),
@@ -423,7 +423,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityProperties()) {
+        for (PropertySpec securityProperty : getSecurityPropertySpecs()) {
             if (securityProperty.getName().equals(name)) {
                 return securityProperty;
             }

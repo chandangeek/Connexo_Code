@@ -269,8 +269,8 @@ public class RtuPlusServer implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
-        return getDlmsSecuritySupport().getSecurityProperties();
+    public List<PropertySpec> getSecurityPropertySpecs() {
+        return getDlmsSecuritySupport().getSecurityPropertySpecs();
     }
 
     @Override

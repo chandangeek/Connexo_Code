@@ -30,7 +30,7 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
+    public List<PropertySpec> getSecurityPropertySpecs() {
         return Arrays.asList(
                 DeviceSecurityProperty.PASSWORD.getPropertySpec(this.getPropertySpecService()),
                 DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(this.getPropertySpecService()),

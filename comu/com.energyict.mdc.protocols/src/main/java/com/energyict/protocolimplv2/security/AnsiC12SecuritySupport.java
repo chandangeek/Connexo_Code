@@ -41,7 +41,7 @@ public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilitie
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
+    public List<PropertySpec> getSecurityPropertySpecs() {
         return Arrays.asList(
                 DeviceSecurityProperty.PASSWORD.getPropertySpec(getPropertySpecService()),
                 DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(getPropertySpecService()),
@@ -70,7 +70,7 @@ public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilitie
 
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityProperties()) {
+        for (PropertySpec securityProperty : getSecurityPropertySpecs()) {
             if (securityProperty.getName().equals(name)) {
                 return securityProperty;
             }

@@ -42,7 +42,7 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
+    public List<PropertySpec> getSecurityPropertySpecs() {
         return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
     }
 
@@ -63,7 +63,7 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
 
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityProperties()) {
+        for (PropertySpec securityProperty : getSecurityPropertySpecs()) {
             if (securityProperty.getName().equals(name)) {
                 return securityProperty;
             }

@@ -33,6 +33,9 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilitie
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 
@@ -61,6 +64,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     private Logger logger = Logger.getLogger(SDKDeviceProtocol.class.getSimpleName());
 
+    private final ProtocolPluggableService protocolPluggableService;
     private final PropertySpecService propertySpecService;
     private final IdentificationService identificationService;
     private final CollectedDataFactory collectedDataFactory;
@@ -94,8 +98,9 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
 
     @Inject
-    public SDKDeviceProtocol(PropertySpecService propertySpecService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
+    public SDKDeviceProtocol(ProtocolPluggableService protocolPluggableService, PropertySpecService propertySpecService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         super();
+        this.protocolPluggableService = protocolPluggableService;
         this.propertySpecService = propertySpecService;
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
@@ -307,8 +312,8 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
-        return this.deviceProtocolSecurityCapabilities.getSecurityProperties();
+    public List<PropertySpec> getSecurityPropertySpecs() {
+        return this.deviceProtocolSecurityCapabilities.getSecurityPropertySpecs();
     }
 
     @Override
@@ -400,9 +405,9 @@ public class SDKDeviceProtocol implements DeviceProtocol {
         List<ConnectionType> connectionTypes = new ArrayList<>();
         for (ConnectionTypeRule connectionTypeRule : ConnectionTypeRule.values()) {
             try {
-                connectionTypes.add(connectionTypeRule.getProtocolTypeClass().newInstance());
+                connectionTypes.add(this.protocolPluggableService.createConnectionType(connectionTypeRule.getProtocolTypeClass().getName()));
             }
-            catch (InstantiationException | IllegalAccessException e) {
+            catch (UnableToCreateConnectionType e) {
                 e.printStackTrace(System.err);
             }
         }

@@ -8,11 +8,16 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
+import com.energyict.mdc.protocol.api.device.BaseChannel;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
+import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -30,11 +35,15 @@ import com.google.inject.ProvisionException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import java.time.Clock;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Provides an implementation for the {@link DeviceProtocolService} interface
@@ -53,6 +62,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     private volatile Thesaurus thesaurus;
     private volatile OrmClient ormClient;
     private volatile IssueService issueService;
+    private volatile ProtocolPluggableService protocolPluggableService;
     private volatile PropertySpecService propertySpecService;
     private volatile TopologyService topologyService;
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
@@ -60,7 +70,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     private volatile SerialComponentService serialComponentService;
     private volatile IdentificationService identificationService;
     private volatile CollectedDataFactory collectedDataFactory;
-    private volatile LoadProfileFactory loadProfileFactory;
+    private volatile List<LoadProfileFactory> loadProfileFactories = new CopyOnWriteArrayList<>();
     private volatile CodeFactory codeFactory;
     private volatile UserFileFactory userFileFactory;
 
@@ -73,7 +83,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     // For testing purposes
     @Inject
-    public DeviceProtocolServiceImpl(IssueService issueService, Clock clock, OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory, CodeFactory codeFactory, UserFileFactory userFileFactory, TransactionService transactionService) {
+    public DeviceProtocolServiceImpl(IssueService issueService, Clock clock, OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CodeFactory codeFactory, UserFileFactory userFileFactory, TransactionService transactionService, ProtocolPluggableService protocolPluggableService) {
         this();
         this.setTransactionService(transactionService);
         this.setOrmService(ormService);
@@ -87,9 +97,9 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         this.setReadingTypeUtilService(readingTypeUtilService);
         this.setIdentificationService(identificationService);
         this.setCollectedDataFactory(collectedDataFactory);
-        this.setLoadProfileFactory(loadProfileFactory);
         this.setCodeFactory(codeFactory);
         this.setUserFileFactory(userFileFactory);
+        this.setProtocolPluggableService(protocolPluggableService);
         this.activate();
         this.install();
     }
@@ -117,9 +127,10 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
                 bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
                 bind(IdentificationService.class).toInstance(identificationService);
                 bind(CollectedDataFactory.class).toInstance(collectedDataFactory);
-                bind(LoadProfileFactory.class).toInstance(loadProfileFactory);
+                bind(LoadProfileFactory.class).toInstance(new CompositeLoadProfileFactory());
                 bind(CodeFactory.class).toInstance(codeFactory);
                 bind(UserFileFactory.class).toInstance(userFileFactory);
+                bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(DeviceProtocolService.class).toInstance(DeviceProtocolServiceImpl.this);
             }
         };
@@ -218,8 +229,19 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     }
 
     @Reference
-    public void setLoadProfileFactory(LoadProfileFactory loadProfileFactory) {
-        this.loadProfileFactory = loadProfileFactory;
+    public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
+        this.protocolPluggableService = protocolPluggableService;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @SuppressWarnings("unused")
+    public void addLoadProfileFactory(LoadProfileFactory loadProfileFactory) {
+        this.loadProfileFactories.add(loadProfileFactory);
+    }
+
+    @SuppressWarnings("unused")
+    public void removeLoadProfileFactory(LoadProfileFactory loadProfileFactory) {
+        this.loadProfileFactories.remove(loadProfileFactory);
     }
 
     @Reference
@@ -240,6 +262,30 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList("ORM", "NLS");
+    }
+
+    private class CompositeLoadProfileFactory implements LoadProfileFactory {
+        @Override
+        public List<BaseLoadProfile<BaseChannel>> findLoadProfilesByDevice(BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> device) {
+            for (LoadProfileFactory loadProfileFactory : loadProfileFactories) {
+                List<BaseLoadProfile<BaseChannel>> loadProfiles = loadProfileFactory.findLoadProfilesByDevice(device);
+                if (!loadProfiles.isEmpty()) {
+                    return loadProfiles;
+                }
+            }
+            return Collections.emptyList();
+        }
+
+        @Override
+        public BaseLoadProfile findLoadProfileById(int loadProfileId) {
+            for (LoadProfileFactory loadProfileFactory : loadProfileFactories) {
+                BaseLoadProfile loadProfile = loadProfileFactory.findLoadProfileById(loadProfileId);
+                if (loadProfile != null) {
+                    return loadProfile;
+                }
+            }
+            return null;
+        }
     }
 
 }

@@ -389,8 +389,8 @@ public class MTU155 implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
-        return securityCapabilities.getSecurityProperties();
+    public List<PropertySpec> getSecurityPropertySpecs() {
+        return securityCapabilities.getSecurityPropertySpecs();
     }
 
     @Override
