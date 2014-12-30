@@ -17,7 +17,14 @@ Ext.define('Isu.view.issues.DetailTop', {
                 itemId: 'issue-detail-top-title',
                 title: '&nbsp;',
                 ui: 'large',
-                flex: 1
+                flex: 1,
+                items: [
+                    {
+                        itemId: 'issue-detail-title',
+                        title: 'Details',
+                        ui: 'medium'
+                    }
+                ]
             },
             {
                 xtype: 'button',
