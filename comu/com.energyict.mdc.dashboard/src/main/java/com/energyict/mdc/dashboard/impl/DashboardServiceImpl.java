@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.impl;
 
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComPortPoolHeatMap;
@@ -25,12 +26,6 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -41,6 +36,9 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.inject.Inject;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Provides an implementation for the {@link DashboardService} interface.
@@ -73,7 +71,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public TaskStatusOverview getConnectionTaskStatusOverview(QueryEndDeviceGroup deviceGroup) {
+    public TaskStatusOverview getConnectionTaskStatusOverview(EndDeviceGroup deviceGroup) {
         return this.getConnectionTaskStatusOverview(() -> this.connectionTaskService.getConnectionTaskStatusCount(deviceGroup));
     }
 
@@ -92,7 +90,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview(QueryEndDeviceGroup deviceGroup) {
+    public ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview(EndDeviceGroup deviceGroup) {
         return this.getComSessionSuccessIndicatorOverview(() -> this.connectionTaskService.getConnectionTaskLastComSessionSuccessIndicatorCount(deviceGroup));
     }
 
@@ -111,7 +109,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public ComPortPoolBreakdown getComPortPoolBreakdown(QueryEndDeviceGroup deviceGroup) {
+    public ComPortPoolBreakdown getComPortPoolBreakdown(EndDeviceGroup deviceGroup) {
         return this.getComPortPoolBreakdown(() -> this.connectionTaskService.getComPortPoolBreakdown(this.breakdownStatusses(), deviceGroup));
     }
 
@@ -136,7 +134,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public ConnectionTypeBreakdown getConnectionTypeBreakdown(QueryEndDeviceGroup deviceGroup) {
+    public ConnectionTypeBreakdown getConnectionTypeBreakdown(EndDeviceGroup deviceGroup) {
         return this.getConnectionTypeBreakdown(() -> this.connectionTaskService.getConnectionTypeBreakdown(this.breakdownStatusses(), deviceGroup));
     }
 
@@ -161,7 +159,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public DeviceTypeBreakdown getConnectionTasksDeviceTypeBreakdown(QueryEndDeviceGroup deviceGroup) {
+    public DeviceTypeBreakdown getConnectionTasksDeviceTypeBreakdown(EndDeviceGroup deviceGroup) {
         return this.getConnectionTasksDeviceTypeBreakdown(() -> this.connectionTaskService.getDeviceTypeBreakdown(this.breakdownStatusses(), deviceGroup));
     }
 
@@ -194,7 +192,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public ConnectionTypeHeatMap getConnectionTypeHeatMap(QueryEndDeviceGroup deviceGroup) {
+    public ConnectionTypeHeatMap getConnectionTypeHeatMap(EndDeviceGroup deviceGroup) {
         return this.getConnectionTypeHeatMap(() -> this.connectionTaskService.getConnectionTypeHeatMap(deviceGroup));
     }
 
@@ -216,7 +214,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public ConnectionTaskDeviceTypeHeatMap getConnectionsDeviceTypeHeatMap(QueryEndDeviceGroup deviceGroup) {
+    public ConnectionTaskDeviceTypeHeatMap getConnectionsDeviceTypeHeatMap(EndDeviceGroup deviceGroup) {
         return this.getConnectionsDeviceTypeHeatMap(() -> this.connectionTaskService.getConnectionsDeviceTypeHeatMap(deviceGroup));
     }
 
@@ -237,7 +235,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public ComPortPoolHeatMap getConnectionsComPortPoolHeatMap(QueryEndDeviceGroup deviceGroup) {
+    public ComPortPoolHeatMap getConnectionsComPortPoolHeatMap(EndDeviceGroup deviceGroup) {
         return this.getConnectionsComPortPoolHeatMap(() -> this.connectionTaskService.getConnectionsComPortPoolHeatMap(deviceGroup));
     }
 
@@ -267,7 +265,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public TaskStatusOverview getCommunicationTaskStatusOverview(QueryEndDeviceGroup deviceGroup) {
+    public TaskStatusOverview getCommunicationTaskStatusOverview(EndDeviceGroup deviceGroup) {
         return this.getCommunicationTaskStatusOverview(() -> this.communicationTaskService.getComTaskExecutionStatusCount(deviceGroup));
     }
 
@@ -286,7 +284,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public DeviceTypeBreakdown getCommunicationTasksDeviceTypeBreakdown(QueryEndDeviceGroup deviceGroup) {
+    public DeviceTypeBreakdown getCommunicationTasksDeviceTypeBreakdown(EndDeviceGroup deviceGroup) {
         return this.getCommunicationTasksDeviceTypeBreakdown(() -> this.communicationTaskService.getCommunicationTasksDeviceTypeBreakdown(this.breakdownStatusses(), deviceGroup));
     }
 
@@ -306,7 +304,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public ComScheduleBreakdown getCommunicationTasksComScheduleBreakdown(QueryEndDeviceGroup deviceGroup) {
+    public ComScheduleBreakdown getCommunicationTasksComScheduleBreakdown(EndDeviceGroup deviceGroup) {
         return this.getCommunicationTasksComScheduleBreakdown(() -> this.communicationTaskService.getCommunicationTasksComScheduleBreakdown(this.breakdownStatusses(), deviceGroup));
     }
 
@@ -326,15 +324,15 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public ComTaskBreakdown getCommunicationTasksBreakdown(QueryEndDeviceGroup deviceGroup) {
+    public ComTaskBreakdown getCommunicationTasksBreakdown(EndDeviceGroup deviceGroup) {
         return this.getCommunicationTasksBreakdown(() -> this.asSet(deviceGroup));
     }
 
-    private Set<QueryEndDeviceGroup> asSet(QueryEndDeviceGroup deviceGroup) {
+    private Set<EndDeviceGroup> asSet(EndDeviceGroup deviceGroup) {
         return Stream.of(deviceGroup).collect(Collectors.toSet());
     }
 
-    private ComTaskBreakdown getCommunicationTasksBreakdown(Supplier<Set<QueryEndDeviceGroup>> deviceGroupsSupplier) {
+    private ComTaskBreakdown getCommunicationTasksBreakdown(Supplier<Set<EndDeviceGroup>> deviceGroupsSupplier) {
         ComTaskBreakdownImpl breakdown = new ComTaskBreakdownImpl();
         for (ComTask comTask : this.availableComTasks()) {
             ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
@@ -353,7 +351,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public ComCommandCompletionCodeOverview getCommunicationTaskCompletionResultOverview(QueryEndDeviceGroup deviceGroup) {
+    public ComCommandCompletionCodeOverview getCommunicationTaskCompletionResultOverview(EndDeviceGroup deviceGroup) {
         return this.getCommunicationTaskCompletionResultOverview(() -> this.communicationTaskService.getComTaskLastComSessionHighestPriorityCompletionCodeCount(deviceGroup));
     }
 
@@ -372,7 +370,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public CommunicationTaskHeatMap getCommunicationTasksHeatMap(QueryEndDeviceGroup deviceGroup) {
+    public CommunicationTaskHeatMap getCommunicationTasksHeatMap(EndDeviceGroup deviceGroup) {
         return this.getCommunicationTasksHeatMap(() -> this.communicationTaskService.getComTasksDeviceTypeHeatMap(deviceGroup));
     }
 
