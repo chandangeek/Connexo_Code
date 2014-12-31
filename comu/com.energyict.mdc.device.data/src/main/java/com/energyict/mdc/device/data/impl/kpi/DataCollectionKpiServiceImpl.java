@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.impl.kpi;
 
 import com.elster.jupiter.kpi.KpiBuilder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
@@ -48,7 +47,7 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
     }
 
     @Override
-    public Optional<DataCollectionKpi> findDataCollectionKpi(QueryEndDeviceGroup group) {
+    public Optional<DataCollectionKpi> findDataCollectionKpi(EndDeviceGroup group) {
         return this.deviceDataModelService.dataModel().mapper(DataCollectionKpi.class).getUnique(DataCollectionKpiImpl.Fields.END_DEVICE_GROUP
                 .fieldName(), group);
     }

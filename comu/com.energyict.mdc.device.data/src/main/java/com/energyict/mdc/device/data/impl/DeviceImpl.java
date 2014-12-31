@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.ReadingQuality;
@@ -1515,6 +1516,14 @@ public class DeviceImpl implements Device, CanLock {
     @Override
     public DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId) {
         return new InternalDeviceMessageBuilder(deviceMessageId);
+    }
+
+    @Override
+    public void addToGroup(EnumeratedEndDeviceGroup enumeratedEndDeviceGroup, Range<Instant> range) {
+        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
+        if (amrSystem.isPresent()) {
+            enumeratedEndDeviceGroup.add(this.findOrCreateKoreMeter(amrSystem.get()), range);
+        }
     }
 
     private class InternalDeviceMessageBuilder implements DeviceMessageBuilder{

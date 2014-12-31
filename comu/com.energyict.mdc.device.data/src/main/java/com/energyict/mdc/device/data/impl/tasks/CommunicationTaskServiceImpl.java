@@ -1,5 +1,21 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -33,22 +49,8 @@ import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import com.google.common.collect.Range;
 import com.google.inject.Inject;
-import org.joda.time.DateTimeConstants;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -69,6 +71,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.joda.time.DateTimeConstants;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -83,11 +86,13 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     private static final Logger LOGGER = Logger.getLogger(CommunicationTaskServiceImpl.class.getName());
 
     private final DeviceDataModelService deviceDataModelService;
+    private final MeteringService meteringService;
 
     @Inject
-    public CommunicationTaskServiceImpl(DeviceDataModelService deviceDataModelService) {
+    public CommunicationTaskServiceImpl(DeviceDataModelService deviceDataModelService, MeteringService meteringService) {
         super();
         this.deviceDataModelService = deviceDataModelService;
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -167,14 +172,14 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
-    public Map<TaskStatus, Long> getComTaskExecutionStatusCount(QueryEndDeviceGroup deviceGroup) {
+    public Map<TaskStatus, Long> getComTaskExecutionStatusCount(EndDeviceGroup deviceGroup) {
         ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
         filter.taskStatuses = EnumSet.allOf(TaskStatus.class);
         filter.deviceGroups = this.asSet(deviceGroup);
         return this.getComTaskExecutionStatusCount(filter);
     }
 
-    private Set<QueryEndDeviceGroup> asSet(QueryEndDeviceGroup deviceGroup) {
+    private Set<EndDeviceGroup> asSet(EndDeviceGroup deviceGroup) {
         return Stream.of(deviceGroup).collect(Collectors.toSet());
     }
 
@@ -230,11 +235,11 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
-    public Map<ComSchedule, Map<TaskStatus, Long>> getCommunicationTasksComScheduleBreakdown(Set<TaskStatus> taskStatuses, QueryEndDeviceGroup deviceGroup) {
+    public Map<ComSchedule, Map<TaskStatus, Long>> getCommunicationTasksComScheduleBreakdown(Set<TaskStatus> taskStatuses, EndDeviceGroup deviceGroup) {
         return this.getCommunicationTasksComScheduleBreakdown(taskStatuses, this.asSet(deviceGroup));
     }
 
-    private Map<ComSchedule, Map<TaskStatus, Long>> getCommunicationTasksComScheduleBreakdown(Set<TaskStatus> taskStatuses, Set<QueryEndDeviceGroup> deviceGroups) {
+    private Map<ComSchedule, Map<TaskStatus, Long>> getCommunicationTasksComScheduleBreakdown(Set<TaskStatus> taskStatuses, Set<EndDeviceGroup> deviceGroups) {
         ClauseAwareSqlBuilder sqlBuilder = null;
         for (ServerComTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
             // Check first pass
@@ -250,7 +255,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         return this.injectComSchedulesAndAddMissing(this.deviceDataModelService.fetchTaskStatusBreakdown(sqlBuilder));
     }
 
-    private void countByComScheduleAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ServerComTaskStatus taskStatus, Set<QueryEndDeviceGroup> deviceGroups) {
+    private void countByComScheduleAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ServerComTaskStatus taskStatus, Set<EndDeviceGroup> deviceGroups) {
         ComTaskExecutionFilterSpecification filterSpecification = new ComTaskExecutionFilterSpecification();
         filterSpecification.deviceGroups = deviceGroups;
         ComTaskExecutionComScheduleCounterSqlBuilder countingFilter =
@@ -275,11 +280,11 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
-    public Map<DeviceType, Map<TaskStatus, Long>> getCommunicationTasksDeviceTypeBreakdown(Set<TaskStatus> taskStatuses, QueryEndDeviceGroup deviceGroup) {
+    public Map<DeviceType, Map<TaskStatus, Long>> getCommunicationTasksDeviceTypeBreakdown(Set<TaskStatus> taskStatuses, EndDeviceGroup deviceGroup) {
         return this.getCommunicationTasksDeviceTypeBreakdown(taskStatuses, this.asSet(deviceGroup));
     }
 
-    private Map<DeviceType, Map<TaskStatus, Long>> getCommunicationTasksDeviceTypeBreakdown(Set<TaskStatus> taskStatuses, Set<QueryEndDeviceGroup> deviceGroups) {
+    private Map<DeviceType, Map<TaskStatus, Long>> getCommunicationTasksDeviceTypeBreakdown(Set<TaskStatus> taskStatuses, Set<EndDeviceGroup> deviceGroups) {
         ComTaskExecutionFilterSpecification filterSpecification = new ComTaskExecutionFilterSpecification();
         filterSpecification.deviceGroups = deviceGroups;
         ClauseAwareSqlBuilder sqlBuilder = null;
@@ -309,7 +314,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     /**
      * Returns a QueryExecutor that supports building a subquery to match
-     * that the ConnectionTask's device is in a QueryEndDeviceGroup.
+     * that the ConnectionTask's device is in a EndDeviceGroup.
      *
      * @return The QueryExecutor
      */
@@ -834,7 +839,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
-    public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap(QueryEndDeviceGroup deviceGroup) {
+    public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap(EndDeviceGroup deviceGroup) {
         SqlBuilder sqlBuilder = new SqlBuilder("select dev.DEVICETYPE, cte.lastsess_highestpriocomplcode, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" cte join ");
@@ -936,7 +941,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
-    public Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount(QueryEndDeviceGroup deviceGroup) {
+    public Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount(EndDeviceGroup deviceGroup) {
         SqlBuilder sqlBuilder = new SqlBuilder("select cte.lastsess_highestpriocomplcode, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" cte where obsolete_date is null ");
@@ -945,11 +950,15 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         return this.addMissingCompletionCodeCounters(this.fetchCompletionCodeCounters(sqlBuilder));
     }
 
-    private void appendDeviceGroupConditions(QueryEndDeviceGroup deviceGroup, SqlBuilder sqlBuilder) {
+    private void appendDeviceGroupConditions(EndDeviceGroup deviceGroup, SqlBuilder sqlBuilder) {
         if (deviceGroup != null) {
             sqlBuilder.append(" and cte.device in (");
-            QueryExecutor<Device> queryExecutor = this.deviceFromDeviceGroupQueryExecutor();
-            sqlBuilder.add(queryExecutor.asFragment(deviceGroup.getCondition(), "id"));
+            if (deviceGroup instanceof QueryEndDeviceGroup) {
+                QueryExecutor<Device> queryExecutor = this.deviceFromDeviceGroupQueryExecutor();
+                sqlBuilder.add(queryExecutor.asFragment(((QueryEndDeviceGroup)deviceGroup).getCondition(), "id"));
+            } else {
+                sqlBuilder.add(((EnumeratedEndDeviceGroup) deviceGroup).getAmrIdSubQuery(getMdcAmrSystem().get()).toFragment());
+            }
             sqlBuilder.append(")");
         }
     }
@@ -1043,6 +1052,10 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             return Collections.emptyIterator();
         }
 
+    }
+
+    private Optional<AmrSystem> getMdcAmrSystem() {
+        return this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
     }
 
 }

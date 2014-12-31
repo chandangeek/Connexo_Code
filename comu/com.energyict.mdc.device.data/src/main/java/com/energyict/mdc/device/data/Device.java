@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
@@ -32,6 +33,7 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.util.HasName;
 
+import com.google.common.collect.Range;
 import java.time.Instant;
 import java.util.List;
 import java.util.TimeZone;
@@ -272,6 +274,13 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @param comSchedule The ComSchedule
      */
     public void removeComSchedule (ComSchedule comSchedule);
+
+    /**
+     * Adds the device to the mentioned EnumeratedEndDeviceGroup
+     * @param enumeratedEndDeviceGroup
+     * @param range
+     */
+    public void addToGroup(EnumeratedEndDeviceGroup enumeratedEndDeviceGroup, Range<Instant> range);
 
     DeviceValidation forValidation();
     GatewayType getConfigurationGatewayType();

@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.kpi;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.energyict.mdc.common.services.Finder;
 import java.math.BigDecimal;
 import java.time.temporal.TemporalAmount;
@@ -47,12 +46,12 @@ public interface DataCollectionKpiService {
     public Optional<DataCollectionKpi> findDataCollectionKpi(long id);
 
     /**
-     * Finds the {@link DataCollectionKpi} for the specified {@link QueryEndDeviceGroup}.
+     * Finds the {@link DataCollectionKpi} for the specified {@link EndDeviceGroup}.
      *
      * @param group The QueryEndDeviceGroup
      * @return The DataCollectionKpi
      */
-    public Optional<DataCollectionKpi> findDataCollectionKpi(QueryEndDeviceGroup group);
+    public Optional<DataCollectionKpi> findDataCollectionKpi(EndDeviceGroup group);
 
     /**
      * Models behavior to build a new {@link DataCollectionKpi}.

@@ -1,13 +1,11 @@
 package com.energyict.mdc.device.data.tasks;
 
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.util.time.Interval;
-
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -66,10 +64,10 @@ public class ComTaskExecutionFilterSpecification {
     public Interval lastSessionEnd = null;
 
     /**
-     * The {@link QueryEndDeviceGroup}s that contain the {@link com.energyict.mdc.device.data.Device}s
-     * to which the matching {@link ComTaskExecution}s should be linked
+     * The {@link com.elster.jupiter.metering.groups.EndDeviceGroup}s that contain the {@link com.energyict.mdc.device.data.Device}s
+     * to which the matching {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}s should be linked
      * or an empty set if the filter should not take this into account.
      */
-    public Set<QueryEndDeviceGroup> deviceGroups = new HashSet<>();
+    public Set<EndDeviceGroup> deviceGroups = new HashSet<>();
 
 }
