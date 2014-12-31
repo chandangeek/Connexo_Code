@@ -107,11 +107,11 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
         }
     }
 
-    private class KpiTargetBuilderImpl implements KpiTargetBuilder {
+    static class KpiTargetBuilderImpl implements KpiTargetBuilder {
         private final KpiBuilder kpiBuilder;
         private final List<KpiBuilder.KpiMemberBuilder> memberBuilders;
 
-        private KpiTargetBuilderImpl(KpiBuilder kpiBuilder, TemporalAmount intervalLength) {
+        KpiTargetBuilderImpl(KpiBuilder kpiBuilder, TemporalAmount intervalLength) {
             super();
             this.kpiBuilder = kpiBuilder;
             this.kpiBuilder.interval(intervalLength);

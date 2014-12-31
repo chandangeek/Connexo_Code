@@ -54,7 +54,6 @@ public enum KpiType {
 
     private static final Logger LOGGER = Logger.getLogger(DataCollectionKpiCalculatorHandler.class.getName());
 
-    private static final String PAYLOAD_MESSAGE_PATTERN = "{0}-{1}";
     private static final Pattern PAYLOAD_PARSE_PATTERN = Pattern.compile("(\\w*)-(\\d*)");
     public abstract String recurrentTaskNamePattern();
 
@@ -63,7 +62,7 @@ public enum KpiType {
     }
 
     public String recurrentPayload(DataCollectionKpiImpl dataCollectionKpi) {
-        return MessageFormat.format(PAYLOAD_MESSAGE_PATTERN, this.name(), dataCollectionKpi.getId());
+        return this.name() + '-' + dataCollectionKpi.getId();
     }
 
     protected abstract DataCollectionKpiCalculator newCalculator(DataCollectionKpiImpl dataCollectionKpi, TaskOccurrence taskOccurrence, ServiceProvider serviceProvider);
