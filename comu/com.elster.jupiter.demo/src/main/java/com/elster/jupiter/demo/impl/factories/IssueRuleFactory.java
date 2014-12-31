@@ -49,6 +49,7 @@ public class IssueRuleFactory extends NamedFactory<IssueRuleFactory, CreationRul
         rule.setDueInValue(1);
         rule.setContent(getCreationRuleTemplate().getContent());
         rule.addParameter("eventType", type);
+        rule.addParameter("autoResolution", "false");
         rule.validate();
         rule.save();
         store.add(CreationRule.class, rule);
