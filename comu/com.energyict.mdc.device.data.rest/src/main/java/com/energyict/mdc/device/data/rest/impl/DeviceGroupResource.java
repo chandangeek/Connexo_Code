@@ -21,17 +21,14 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.logging.Logger;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -51,7 +48,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -118,12 +114,6 @@ public class DeviceGroupResource {
         List<EndDeviceGroup> allDeviceGroups = restQuery.select(koreQueryParameters, Order.ascending("upper(name)"));
         List<DeviceGroupInfo> deviceGroupInfos = DeviceGroupInfo.from(allDeviceGroups, deviceConfigurationService, deviceService);
         return PagedInfoList.asJson("devicegroups", deviceGroupInfos, queryParameters);
-    }
-
-    private List<EndDeviceGroup> queryEndDeviceGroups(com.elster.jupiter.rest.util.QueryParameters queryParameters) {
-        Query<EndDeviceGroup> query = meteringGroupsService.getEndDeviceGroupQuery();
-        RestQuery<EndDeviceGroup> restQuery = restQueryService.wrap(query);
-        return restQuery.select(queryParameters, Order.ascending("upper(name)"));
     }
 
     @PUT
