@@ -1,6 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.energyict.mdc.dashboard.CommunicationTaskHeatMap;
 import com.energyict.mdc.dashboard.CommunicationTaskHeatMapRow;
@@ -44,8 +45,8 @@ public class CommunicationTaskHeatMapResourceTest extends DashboardApplicationJe
     public void testCommunicationHeatMapJsonBindingWithDeviceGroup() throws Exception {
         CommunicationTaskHeatMap heatMap = createHeatMap();
         QueryEndDeviceGroup endDeviceGroup = mock(QueryEndDeviceGroup.class);
-        Optional<QueryEndDeviceGroup> endDeviceGroupOptional = Optional.of(endDeviceGroup);
-        when(meteringGroupsService.findQueryEndDeviceGroup(19L)).thenReturn(endDeviceGroupOptional);
+        Optional<EndDeviceGroup> endDeviceGroupOptional = Optional.of(endDeviceGroup);
+        when(meteringGroupsService.findEndDeviceGroup(19L)).thenReturn(endDeviceGroupOptional);
         when(dashboardService.getCommunicationTasksHeatMap(endDeviceGroup)).thenReturn(heatMap);
 
         String response = target("/communicationheatmap").queryParam("filter", ExtjsFilter.filter("deviceGroup", 19L)).request().get(String.class);
@@ -59,7 +60,7 @@ public class CommunicationTaskHeatMapResourceTest extends DashboardApplicationJe
 
     @Test
     public void testCommunicationHeatMapJsonBindingWithUnknownDeviceGroup() throws Exception {
-        when(meteringGroupsService.findQueryEndDeviceGroup(anyInt())).thenReturn(Optional.<QueryEndDeviceGroup>empty());
+        when(meteringGroupsService.findEndDeviceGroup(anyInt())).thenReturn(Optional.<EndDeviceGroup>empty());
         Response response = target("/communicationheatmap").queryParam("filter", ExtjsFilter.filter("deviceGroup", -1L)).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }

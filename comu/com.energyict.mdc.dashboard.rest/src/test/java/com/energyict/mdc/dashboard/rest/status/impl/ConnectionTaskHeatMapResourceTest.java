@@ -1,6 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.energyict.mdc.dashboard.ComPortPoolHeatMap;
 import com.energyict.mdc.dashboard.ConnectionTaskDeviceTypeHeatMap;
@@ -50,8 +51,8 @@ public class ConnectionTaskHeatMapResourceTest extends DashboardApplicationJerse
     public void testConnectionHeatMapByDeviceTypeWithDeviceGroup() throws Exception {
         ConnectionTaskDeviceTypeHeatMap heatMap = createDeviceTypeHeatMap();
         QueryEndDeviceGroup endDeviceGroup = mockQueryEndDeviceGroup(11, "North region", "OIU-OOU7YQ-OPI001");
-        Optional<QueryEndDeviceGroup> endDeviceGroupOptional = Optional.of(endDeviceGroup);
-        when(meteringGroupsService.findQueryEndDeviceGroup(19L)).thenReturn(endDeviceGroupOptional);
+        Optional<EndDeviceGroup> endDeviceGroupOptional = Optional.of(endDeviceGroup);
+        when(meteringGroupsService.findEndDeviceGroup(19L)).thenReturn(endDeviceGroupOptional);
         when(dashboardService.getConnectionsDeviceTypeHeatMap(endDeviceGroup)).thenReturn(heatMap);
 
         String response = target("/connectionheatmap").queryParam("filter", ExtjsFilter.filter().property("breakdown", "deviceTypes").property("deviceGroup", 19L).create()).request().get(String.class);
@@ -64,7 +65,7 @@ public class ConnectionTaskHeatMapResourceTest extends DashboardApplicationJerse
 
     @Test
     public void testConnectionHeatMapByDeviceTypeWithUnknownDeviceGroup() throws Exception {
-        when(meteringGroupsService.findQueryEndDeviceGroup(anyInt())).thenReturn(Optional.<QueryEndDeviceGroup>empty());
+        when(meteringGroupsService.findEndDeviceGroup(anyInt())).thenReturn(Optional.<EndDeviceGroup>empty());
 
         Response response = target("/connectionheatmap").queryParam("filter", ExtjsFilter.filter().property("breakdown", "deviceTypes").property("deviceGroup", -1L).create()).request().get();
 

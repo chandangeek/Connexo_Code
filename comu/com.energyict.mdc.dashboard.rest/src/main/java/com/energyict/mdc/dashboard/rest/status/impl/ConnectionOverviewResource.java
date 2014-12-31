@@ -39,7 +39,7 @@ public class ConnectionOverviewResource {
 
         if (filter.hasProperty("deviceGroup")) {
             return meteringGroupService
-                    .findQueryEndDeviceGroup(filter.getLong("deviceGroup"))
+                    .findEndDeviceGroup(filter.getLong("deviceGroup"))
                     .map(connectionOverviewInfoFactory::asInfo)
                     .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_END_DEVICE_GROUP));
         } else {

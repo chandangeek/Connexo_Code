@@ -1,7 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -38,7 +38,7 @@ public class CommunicationOverviewResource {
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public CommunicationOverviewInfo getCommunicationOverview(@BeanParam JsonQueryFilter filter) throws Exception {
         if (filter.hasProperty("deviceGroup")) {
-            Optional<QueryEndDeviceGroup> optional = meteringGroupService.findQueryEndDeviceGroup(filter.getLong("deviceGroup"));
+            Optional<EndDeviceGroup> optional = meteringGroupService.findEndDeviceGroup(filter.getLong("deviceGroup"));
             if (!optional.isPresent()) {
                 throw exceptionFactory.newException(MessageSeeds.NO_SUCH_END_DEVICE_GROUP);
             }
