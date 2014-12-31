@@ -126,8 +126,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 me.getDeviceConfigurationsDetailLink().getEl().setHTML(deviceType.get('deviceConfigurationCount') + ' ' + Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceType.get('deviceConfigurationCount'), 'MDC', 'device configurations'));
                 widget.down('form').loadRecord(deviceType);
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
-
-                me.getDeviceTypePreviewTitle().update('<h1>' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>');
             }
         });
 
@@ -182,7 +180,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         });
         this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
-        var me = this;
 
         var when = new Uni.util.When();
         when.when([
