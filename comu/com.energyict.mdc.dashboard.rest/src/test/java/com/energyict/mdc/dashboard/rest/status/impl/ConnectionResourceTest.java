@@ -116,9 +116,9 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
     @Test
     public void testDeviceGroupsAddedToFilter() throws Exception {
         QueryEndDeviceGroup queryEndDeviceGroup1 = mock(QueryEndDeviceGroup.class);
-        when(meteringGroupsService.findQueryEndDeviceGroup(11)).thenReturn(Optional.of(queryEndDeviceGroup1));
+        when(meteringGroupsService.findEndDeviceGroup(11)).thenReturn(Optional.of(queryEndDeviceGroup1));
         QueryEndDeviceGroup queryEndDeviceGroup2 = mock(QueryEndDeviceGroup.class);
-        when(meteringGroupsService.findQueryEndDeviceGroup(12)).thenReturn(Optional.of(queryEndDeviceGroup2));
+        when(meteringGroupsService.findEndDeviceGroup(12)).thenReturn(Optional.of(queryEndDeviceGroup2));
 
         Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("deviceGroups", Arrays.asList(11L, 12L))).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
 

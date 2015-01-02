@@ -174,7 +174,7 @@ public class ConnectionResource {
 
         if (jsonQueryFilter.hasProperty(FilterOption.deviceGroups.name())) {
             filter.deviceGroups = new HashSet<>();
-            jsonQueryFilter.getLongList(FilterOption.deviceGroups.name()).stream().forEach(id -> filter.deviceGroups.add(meteringGroupsService.findQueryEndDeviceGroup(id).get()));
+            jsonQueryFilter.getLongList(FilterOption.deviceGroups.name()).stream().forEach(id -> filter.deviceGroups.add(meteringGroupsService.findEndDeviceGroup(id).get()));
         }
 
         if (jsonQueryFilter.hasProperty(FilterOption.finishIntervalFrom.name()) || jsonQueryFilter.hasProperty(FilterOption.finishIntervalTo.name())) {
