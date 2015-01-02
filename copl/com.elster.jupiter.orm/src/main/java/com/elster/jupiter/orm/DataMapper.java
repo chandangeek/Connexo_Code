@@ -41,16 +41,7 @@ public interface DataMapper<T> extends Finder<T> {
 	 * batch delete
 	 */
 	void remove(List<T> objects);
-	/**
-	 * create a query executor that can join with the tables served by the arguments
-	 * There must be a (direct or indirect) foreign key relationship between the receiver's type and the 
-	 * types mapped by the arguments.
-     *
-     * @deprecated use DataModel.query() instead
-	 */
-	@Deprecated
-	QueryExecutor<T> with(DataMapper<?> ... tupleHandlers);
-	
+
 	Optional<T> getEager(Object ... object);
 	// meta data access
 	Object getAttribute(Object target , String fieldName);

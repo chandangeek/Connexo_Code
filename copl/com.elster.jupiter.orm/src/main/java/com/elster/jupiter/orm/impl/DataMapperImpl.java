@@ -370,8 +370,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		}
 	}
 	
-	@Override
-	public QueryExecutorImpl<T> with(DataMapper<?>... dataMappers) {
+	QueryExecutorImpl<T> with(DataMapper<?>... dataMappers) {
 		QueryExecutorImpl <T> result = new QueryExecutorImpl<>(this);
 		for (DataMapper<?> each : dataMappers) {
 			DataMapperImpl<?> dataMapper = (DataMapperImpl<?>) each;
