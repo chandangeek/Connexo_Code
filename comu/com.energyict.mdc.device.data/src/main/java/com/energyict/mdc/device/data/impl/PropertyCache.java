@@ -1,10 +1,12 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.properties.HasDynamicProperties;
-import com.elster.jupiter.util.time.IntermittentInterval;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,7 +24,7 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
     /**
      * The TimePeriod during which all properties in this cache are active.
      */
-    private IntermittentInterval activePeriod;
+    private RangeSet<Instant> activePeriod;
     private Date activeDate;
     private Map<String, PT> properties = new HashMap<>();
     private boolean dirty = false;
@@ -60,7 +62,7 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
      * @return A flag that indicates if this cache contains properties that are active on the specified Date
      */
     public boolean isCached (Date date) {
-        return (this.activePeriod != null && this.activePeriod.toSpanningInterval().contains(date.toInstant(), Interval.EndpointBehavior.OPEN_CLOSED))
+        return (this.activePeriod != null && this.activePeriod.span().contains(date.toInstant()))
             || (this.activeDate != null && !this.activeDate.after(date));
     }
 
@@ -72,7 +74,7 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
      * @return A flag that indicates if this cache contains properties that are active in the specified TimePeriod
      */
     public boolean isCached (Interval period) {
-        return this.activePeriod != null && this.activePeriod.toSpanningInterval().includes(period);
+        return this.activePeriod != null && this.activePeriod.span().encloses(period.toRange(Interval.EndpointBehavior.OPEN_CLOSED));
     }
 
     /**
@@ -161,7 +163,8 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
 
     private void addAll (List<PT> properties, Interval cacheHitPeriod) {
         if (properties.isEmpty()) {
-            this.activePeriod = new IntermittentInterval(cacheHitPeriod);
+            this.activePeriod = TreeRangeSet.create();
+            activePeriod.add(cacheHitPeriod.toOpenClosedRange());
         }
         else {
             this.addAll(properties);
@@ -179,13 +182,14 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
             this.extendActivePeriodIfNecessary(property.getActivePeriod());
         }
         else {
-            this.activePeriod = new IntermittentInterval(property.getActivePeriod());
+            this.activePeriod = TreeRangeSet.create();
+            activePeriod.add(property.getActivePeriod().toOpenClosedRange());
         }
         this.properties.put(property.getName(), property);
     }
 
     private void extendActivePeriodIfNecessary (Interval propertyActivePeriod) {
-        this.activePeriod = this.activePeriod.addInterval(propertyActivePeriod);
+        this.activePeriod.add(propertyActivePeriod.toOpenClosedRange());
     }
 
 }
