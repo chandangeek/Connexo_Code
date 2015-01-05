@@ -26,7 +26,6 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -157,7 +156,6 @@ public class DeviceConfigValidationRuleSetUsageTest {
                 new ValidationModule(),
                 new SchedulingModule(),
                 new ProtocolPluggableModule(),
-                new MdcCommonModule(),
                 new EngineModelModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new PluggableModule(),

@@ -1,9 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.ApplicationContext;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.Translator;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -98,8 +94,6 @@ import static org.mockito.Mockito.withSettings;
  */
 public class InMemoryPersistence {
 
-    public static final String JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME = "jupiter.bootstrap.module";
-
     private BundleContext bundleContext;
     private Principal principal;
     private EventAdmin eventAdmin;
@@ -118,7 +112,6 @@ public class InMemoryPersistence {
     private Injector injector;
     private ValidationService validationService;
 
-    private ApplicationContext applicationContext;
     private boolean mockProtocolPluggableService;
     private PropertySpecService propertySpecService;
     private ProtocolPluggableService protocolPluggableService;
@@ -133,6 +126,7 @@ public class InMemoryPersistence {
     private LicenseService licenseService;
     private LicensedProtocolService licensedProtocolService;
     private ConnectionTypeService connectionTypeService;
+    private InMemoryBootstrapModule bootstrapModule;
 
     public void initializeDatabaseWithMockedProtocolPluggableService(String testName, boolean showSqlLogging) {
         this.initializeDatabase(testName, showSqlLogging, true);
@@ -144,7 +138,7 @@ public class InMemoryPersistence {
 
     private void initializeDatabase(String testName, boolean showSqlLogging, boolean mockedProtocolPluggableService) {
         this.initializeMocks(testName, mockedProtocolPluggableService);
-        InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
+        this.bootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(this.guiceModules(showSqlLogging, mockedProtocolPluggableService, bootstrapModule));
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
@@ -169,9 +163,6 @@ public class InMemoryPersistence {
             this.dataModel = this.createNewDeviceConfigurationService();
             ctx.commit();
         }
-        Environment environment = injector.getInstance(Environment.class);
-        environment.put(InMemoryPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
-        environment.setApplicationContext(this.applicationContext);
     }
 
     private Module[] guiceModules(boolean showSqlLogging, boolean mockedProtocolPluggableService, InMemoryBootstrapModule bootstrapModule) {
@@ -202,7 +193,6 @@ public class InMemoryPersistence {
                 new TasksModule(),
                 new ValidationModule(),
                 new DeviceConfigurationModule(),
-                new MdcCommonModule(),
                 new MdcIOModule(),
                 new EngineModelModule(),
                 new PluggableModule(),
@@ -247,11 +237,6 @@ public class InMemoryPersistence {
             this.protocolPluggableService = mock(ProtocolPluggableService.class);
             when(this.protocolPluggableService.findDeviceProtocolPluggableClass(anyLong())).thenReturn(Optional.empty());
         }
-        this.applicationContext = mock(ApplicationContext.class);
-        Translator translator = mock(Translator.class);
-        when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
-        when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
-        when(this.applicationContext.getTranslator()).thenReturn(translator);
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
         this.licensedProtocolService = mock(LicensedProtocolService.class);
@@ -261,13 +246,7 @@ public class InMemoryPersistence {
     }
 
     public void cleanUpDataBase() throws SQLException {
-        Environment environment = Environment.DEFAULT.get();
-        if (environment != null) {
-            Object bootstrapModule = environment.get(JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME);
-            if (bootstrapModule != null) {
-                deactivate(bootstrapModule);
-            }
-        }
+        this.bootstrapModule.deactivate();
     }
 
     private void deactivate(Object bootstrapModule) {
@@ -315,10 +294,6 @@ public class InMemoryPersistence {
 
     public MdcReadingTypeUtilService getReadingTypeUtilService() {
         return readingTypeUtilService;
-    }
-
-    public ApplicationContext getApplicationContext() {
-        return applicationContext;
     }
 
     public Injector getInjector() {

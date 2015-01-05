@@ -1,9 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.ApplicationContext;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -139,8 +137,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
     private EngineConfigurationService engineConfigurationService;
     private DeviceConfigurationServiceImpl deviceConfigurationService;
     @Mock
-    private ApplicationContext applicationContext;
-    @Mock
     private LicenseService licenseService;
     @Mock
     private LicensedProtocolService licensedProtocolService;
@@ -185,7 +181,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new ProtocolApiModule(),
                 new TasksModule(),
                 new DeviceConfigurationModule(),
-                new MdcCommonModule(),
                 new MdcIOModule(),
                 new EngineModelModule(),
                 new ProtocolPluggableModule(),
@@ -209,9 +204,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
         }
-        Environment environment = injector.getInstance(Environment.class);
-        environment.put(InMemoryPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
-        environment.setApplicationContext(applicationContext);
     }
 
 
@@ -346,7 +338,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         }
 
         @Override
-        public List<PropertySpec> getSecurityProperties() {
+        public List<PropertySpec> getSecurityPropertySpecs() {
             return Collections.emptyList();
         }
 
