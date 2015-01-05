@@ -71,7 +71,7 @@ public final class ValidationRuleImpl implements IValidationRule {
     private transient Validator templateValidator;
 
     private List<ValidationRuleProperties> properties = new ArrayList<>();
-    
+
     private final DataModel dataModel;
     private final ValidatorCreator validatorCreator;
     private final Thesaurus thesaurus;
@@ -92,7 +92,7 @@ public final class ValidationRuleImpl implements IValidationRule {
     ValidationRuleImpl init(ValidationRuleSet ruleSet, ValidationAction action, String implementation, String name) {
         this.ruleSet.set(ruleSet);
         this.action = action;
-        this.implementation = implementation;        
+        this.implementation = implementation;
         this.name = name.trim();
         this.active = false;
         return this;
@@ -263,7 +263,7 @@ public final class ValidationRuleImpl implements IValidationRule {
     }
 
     @Override
-    public ValidationRuleSet getRuleSet() {       
+    public ValidationRuleSet getRuleSet() {
         return ruleSet.get();
     }
 
@@ -282,7 +282,7 @@ public final class ValidationRuleImpl implements IValidationRule {
         return getValidator().getPropertySpecs();
     }
 
-    public PropertySpec<?> getPropertySpec(final String name) {
+    public PropertySpec getPropertySpec(final String name) {
         return getValidator().getPropertySpecs().stream()
                 .filter(p -> name.equals(p.getName()))
                 .findFirst()
@@ -408,10 +408,10 @@ public final class ValidationRuleImpl implements IValidationRule {
     public ReadingQualityType getReadingQualityType() {
         return getValidator().getReadingQualityTypeCode().orElse(ReadingQualityType.defaultCodeForRuleId(getId()));
     }
-    
+
     @Override
     public boolean appliesTo(Channel channel) {
     	return isActive() && getReadingTypes().stream().anyMatch(readingType -> channel.hasReadingType(readingType));
     }
-    
+
 }

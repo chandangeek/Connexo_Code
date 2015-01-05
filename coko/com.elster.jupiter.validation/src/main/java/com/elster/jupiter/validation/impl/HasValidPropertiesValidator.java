@@ -20,7 +20,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         // No need to keep track of the annotation for now
         this.valid = true;  // Optimistic approach
     }
-    
+
     @Override
     public boolean isValid(ValidationRuleImpl validationRule, ConstraintValidatorContext context) {
         try {
@@ -48,7 +48,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
             }
         }
     }
-    
+
     private void validateRequiredPropertiesArePresent(Map<String, Object> properties, List<PropertySpec> propertySpecs, ConstraintValidatorContext context) {
         for (PropertySpec propertySpec : propertySpecs) {
             if (propertySpec.isRequired() && !properties.containsKey(propertySpec.getName())) {
@@ -83,8 +83,8 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         }
     }
 
-    private PropertySpec<?> getPropertySpec(List<PropertySpec> propertySpecs, String name) {
-        for (PropertySpec<?> propertySpec : propertySpecs) {
+    private PropertySpec getPropertySpec(List<PropertySpec> propertySpecs, String name) {
+        for (PropertySpec propertySpec : propertySpecs) {
             if (name.equals(propertySpec.getName())) {
                 return propertySpec;
             }

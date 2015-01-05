@@ -19,7 +19,7 @@ public interface IValidationRule extends ValidationRule {
 
     void clearReadingTypes();
 
-    PropertySpec<?> getPropertySpec(String name);
+    PropertySpec getPropertySpec(String name);
 
     void rename(String name);
 
@@ -32,6 +32,6 @@ public interface IValidationRule extends ValidationRule {
     ReadingQualityType getReadingQualityType();
 
 	Validator createNewValidator();
-	
+
 	boolean appliesTo(Channel channel);
 }
