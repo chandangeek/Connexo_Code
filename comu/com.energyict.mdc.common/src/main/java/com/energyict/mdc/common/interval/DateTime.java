@@ -1,6 +1,5 @@
 package com.energyict.mdc.common.interval;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.SqlBuilder;
 
 import java.io.Serializable;

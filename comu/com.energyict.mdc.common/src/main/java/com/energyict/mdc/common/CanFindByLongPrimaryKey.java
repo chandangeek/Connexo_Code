@@ -12,8 +12,8 @@ import java.util.Optional;
 public interface CanFindByLongPrimaryKey<T extends HasId> {
 
     /**
-     * Returns the key that will be used to register
-     * this component in the {@link Environment}.
+     * Returns the key that will be used to identifiy
+     * this component to a ReferencePropertySpecFinderProvider.
      *
      * @return The registration key
      */
