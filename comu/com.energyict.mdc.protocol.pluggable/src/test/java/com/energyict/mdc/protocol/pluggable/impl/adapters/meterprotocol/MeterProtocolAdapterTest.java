@@ -115,11 +115,11 @@ public class MeterProtocolAdapterTest {
         when(capabilityAdapterMappingFactory.getCapabilitiesMappingForDeviceProtocol(MockDeviceProtocol.class.getCanonicalName())).thenReturn(6);  //6 = master and session capability
         PropertySpecService propertySpecService = inMemoryPersistence.getPropertySpecService();
         when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME, false, StringFactory.class))
-                .thenReturn(new BasicPropertySpec<>(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME, false, new StringFactory()));
+                .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME, false, new StringFactory()));
         when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecuritySupport.SECOND_PROPERTY_NAME, false, StringFactory.class))
-                .thenReturn(new BasicPropertySpec<>(SimpleTestDeviceSecuritySupport.SECOND_PROPERTY_NAME, false, new StringFactory()));
+                .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecuritySupport.SECOND_PROPERTY_NAME, false, new StringFactory()));
         when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME, false, StringFactory.class))
-                .thenReturn(new BasicPropertySpec<>(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME, false, new StringFactory()));
+                .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME, false, new StringFactory()));
 
         SimpleTestDeviceSecuritySupport securitySupport = new SimpleTestDeviceSecuritySupport(propertySpecService);
         DeviceProtocolSecurityService deviceProtocolSecurityService = this.inMemoryPersistence.getDeviceProtocolSecurityService();
@@ -300,11 +300,11 @@ public class MeterProtocolAdapterTest {
         optionalKeys.add(PropertySpecFactory.stringPropertySpec("o3"));
         when(meterProtocol.getOptionalProperties()).thenReturn(optionalKeys);
         PropertySpecService propertySpecService = this.inMemoryPersistence.getPropertySpecService();
-        doReturn(new BasicPropertySpec<>("o1", false, new StringFactory()))
+        doReturn(new BasicPropertySpec("o1", false, new StringFactory()))
             .when(propertySpecService).basicPropertySpec(eq("o1"), eq(false), any(ValueFactory.class));
-        doReturn(new BasicPropertySpec<>("o2", false, new StringFactory()))
+        doReturn(new BasicPropertySpec("o2", false, new StringFactory()))
             .when(propertySpecService).basicPropertySpec(eq("o2"), eq(false), any(ValueFactory.class));
-        doReturn(new BasicPropertySpec<>("o3", false, new StringFactory()))
+        doReturn(new BasicPropertySpec("o3", false, new StringFactory()))
             .when(propertySpecService).basicPropertySpec(eq("o3"), eq(false), any(ValueFactory.class));
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         MeterProtocolAdapterImpl meterProtocolAdapter = newMeterProtocolAdapter(meterProtocol);

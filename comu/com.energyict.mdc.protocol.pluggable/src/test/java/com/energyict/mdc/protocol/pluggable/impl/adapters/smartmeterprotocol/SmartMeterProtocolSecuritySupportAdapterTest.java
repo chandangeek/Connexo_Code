@@ -72,11 +72,11 @@ public class SmartMeterProtocolSecuritySupportAdapterTest {
     private void initializeMocks() {
         PropertySpecService propertySpecService = inMemoryPersistence.getPropertySpecService();
         when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME, false, StringFactory.class))
-                .thenReturn(new BasicPropertySpec<>(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME, false, new StringFactory()));
+                .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME, false, new StringFactory()));
         when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecuritySupport.SECOND_PROPERTY_NAME, false, StringFactory.class))
-                .thenReturn(new BasicPropertySpec<>(SimpleTestDeviceSecuritySupport.SECOND_PROPERTY_NAME, false, new StringFactory()));
+                .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecuritySupport.SECOND_PROPERTY_NAME, false, new StringFactory()));
         when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME, false, StringFactory.class))
-                .thenReturn(new BasicPropertySpec<>(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME, false, new StringFactory()));
+                .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME, false, new StringFactory()));
         DeviceProtocolSecurityService deviceProtocolSecurityService = this.inMemoryPersistence.getDeviceProtocolSecurityService();
         SimpleTestDeviceSecuritySupport securitySupport = new SimpleTestDeviceSecuritySupport(propertySpecService);
         when(deviceProtocolSecurityService.createDeviceProtocolSecurityFor(SimpleTestDeviceSecuritySupport.class.getCanonicalName())).thenReturn(securitySupport);

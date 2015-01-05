@@ -238,7 +238,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         boolean dirty = false;
         Set<String> unsupportedPropertyNames = properties.propertyNames();
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.newDeviceProtocolPluggableClass(name, className);
-        for (PropertySpec<?> propertySpec : deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs()) {
+        for (PropertySpec propertySpec : deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs()) {
             unsupportedPropertyNames.remove(propertySpec.getName());
             if (properties.hasValueFor(propertySpec.getName())) {
                 deviceProtocolPluggableClass.setProperty(propertySpec, properties.getProperty(propertySpec.getName()));
@@ -408,7 +408,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Override
     public InboundDeviceProtocolPluggableClass newInboundDeviceProtocolPluggableClass(String name, String javaClassName, TypedProperties properties) {
         InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass = this.newInboundDeviceProtocolPluggableClass(name, javaClassName);
-        for (PropertySpec<?> propertySpec : inboundDeviceProtocolPluggableClass.getInboundDeviceProtocol().getPropertySpecs()) {
+        for (PropertySpec propertySpec : inboundDeviceProtocolPluggableClass.getInboundDeviceProtocol().getPropertySpecs()) {
             if (properties.hasValueFor(propertySpec.getName())) {
                 inboundDeviceProtocolPluggableClass.setProperty(propertySpec, properties.getProperty(propertySpec.getName()));
             }
@@ -460,7 +460,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Override
     public ConnectionTypePluggableClass newConnectionTypePluggableClass(String name, String javaClassName, TypedProperties properties) {
         ConnectionTypePluggableClass connectionTypePluggableClass = this.newConnectionTypePluggableClass(name, javaClassName);
-        for (PropertySpec<?> propertySpec : connectionTypePluggableClass.getConnectionType().getPropertySpecs()) {
+        for (PropertySpec propertySpec : connectionTypePluggableClass.getConnectionType().getPropertySpecs()) {
             if (properties.hasValueFor(propertySpec.getName())) {
                 connectionTypePluggableClass.setProperty(propertySpec, properties.getProperty(propertySpec.getName()));
             }

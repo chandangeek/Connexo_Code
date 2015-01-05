@@ -357,7 +357,7 @@ public class DeviceProtocolPluggableClassImplTest {
     public void newInstanceSmartMeterProtocolIllegalPropertyTest() throws BusinessException, SQLException {
         transactionService.execute(() -> {
             DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass("SDKDeviceProtocolTestWithMandatoryProperty", SDK_DEVICE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY);
-            PropertySpec<?> deviceTimeZone = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpec("SDKObisCodeProperty");
+            PropertySpec deviceTimeZone = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpec("SDKObisCodeProperty");
             deviceProtocolPluggableClass.setProperty(deviceTimeZone, new ObisCode(1,1,1,1,1,1));
             deviceProtocolPluggableClass.save();
             return deviceProtocolPluggableClass;

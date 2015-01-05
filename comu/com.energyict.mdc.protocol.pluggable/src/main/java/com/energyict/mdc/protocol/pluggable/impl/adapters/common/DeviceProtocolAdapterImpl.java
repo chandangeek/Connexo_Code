@@ -207,19 +207,19 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
         return result;
     }
 
-    private PropertySpec<String> deviceTimeZonePropertySpec(boolean required) {
+    private PropertySpec deviceTimeZonePropertySpec(boolean required) {
         return this.propertySpecService.basicPropertySpec(DEVICE_TIMEZONE_PROPERTY_NAME, required, new StringFactory());
     }
 
-    private PropertySpec<String> nodeAddressPropertySpec(boolean required) {
+    private PropertySpec nodeAddressPropertySpec(boolean required) {
         return this.propertySpecService.basicPropertySpec(MeterProtocol.NODEID, required, new StringFactory());
     }
 
-    private PropertySpec<String> deviceIdPropertySpec(boolean required) {
+    private PropertySpec deviceIdPropertySpec(boolean required) {
         return this.propertySpecService.basicPropertySpec(MeterProtocol.ADDRESS, required, new StringFactory());
     }
 
-    private PropertySpec<String> callHomeIdPropertySpec(boolean required) {
+    private PropertySpec callHomeIdPropertySpec(boolean required) {
         return this.propertySpecService.basicPropertySpec(CALL_HOME_ID_PROPERTY_NAME, required, new StringFactory());
     }
 

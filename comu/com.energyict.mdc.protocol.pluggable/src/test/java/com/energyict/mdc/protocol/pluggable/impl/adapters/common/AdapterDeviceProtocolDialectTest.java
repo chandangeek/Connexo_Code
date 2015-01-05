@@ -208,22 +208,22 @@ public class AdapterDeviceProtocolDialectTest {
         return requiredProperties;
     }
 
-    private PropertySpec<String>[] getPropertySpecs () {
-        PropertySpec<String>[] allPropertySpecs = new PropertySpec[2];
+    private PropertySpec[] getPropertySpecs () {
+        PropertySpec[] allPropertySpecs = new PropertySpec[2];
         allPropertySpecs[0] = this.getRequiredPropertySpec();
         allPropertySpecs[1] = this.getOptionalPropertySpec();
         return allPropertySpecs;
     }
 
-    private PropertySpec<String> getRequiredPropertySpec () {
+    private PropertySpec getRequiredPropertySpec () {
         return new PropertySpecServiceImpl().basicPropertySpec(REQUIRED_PROPERTY_NAME, true, new StringFactory());
     }
 
-    private PropertySpec<String> getOptionalPropertySpec () {
+    private PropertySpec getOptionalPropertySpec () {
         return new PropertySpecServiceImpl().basicPropertySpec(OPTIONAL_PROPERTY_NAME, false, new StringFactory());
     }
 
-    private PropertySpec<String> getFirstRemovableProperty () {
+    private PropertySpec getFirstRemovableProperty () {
         return new PropertySpecServiceImpl().basicPropertySpec(REQUIRED_PROPERTY_NAME, true, new StringFactory());
     }
 

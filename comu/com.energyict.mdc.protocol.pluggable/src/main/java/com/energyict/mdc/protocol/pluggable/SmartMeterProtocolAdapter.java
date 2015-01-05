@@ -267,8 +267,8 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
     }
 
     @Override
-    public PropertySpec<?> getPropertySpec(String name) {
-        for (PropertySpec<?> propertySpec : this.getPropertySpecs()) {
+    public PropertySpec getPropertySpec(String name) {
+        for (PropertySpec propertySpec : this.getPropertySpecs()) {
             if (name.equals(propertySpec.getName())) {
                 return propertySpec;
             }

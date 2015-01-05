@@ -47,8 +47,8 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         }
     }
 
-    private PropertySpec<?> getPropertySpec(List<PropertySpec> propertySpecs, String name) {
-        for (PropertySpec<?> propertySpec : propertySpecs) {
+    private PropertySpec getPropertySpec(List<PropertySpec> propertySpecs, String name) {
+        for (PropertySpec propertySpec : propertySpecs) {
             if (name.equals(propertySpec.getName())) {
                 return propertySpec;
             }
