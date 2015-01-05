@@ -102,8 +102,8 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
 
     /**
      * Class constructor.
-     * @param inputStream InputStream for the active connection, e.g. established with ATDialer.
-     * @param outputStream OutputStream for the active connection, e.g. established with ATDialer.
+     * @param inputStream InputStream for the active connection
+     * @param outputStream OutputStream for the active connection
      * @param iTimeout Time in ms. for a request to wait for a response before returning an timeout error.
      * @param iMaxRetries nr of retries before fail in case of a timeout or recoverable failure
      * @param lForceDelay delay before send. Some protocols have troubles with fast send/receive

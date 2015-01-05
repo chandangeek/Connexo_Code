@@ -3,7 +3,6 @@ package com.energyict.protocols.mdc.inbound.general.frames;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
@@ -28,6 +27,7 @@ import java.util.List;
 public class RegisterFrame extends AbstractInboundFrame {
 
     private final MdcReadingTypeUtilService readingTypeUtilService;
+    private final CollectedDataFactory collectedDataFactory;
     private CollectedRegisterList collectedRegisterList;
 
     @Override
@@ -35,9 +35,10 @@ public class RegisterFrame extends AbstractInboundFrame {
         return FrameType.REGISTER;
     }
 
-    public RegisterFrame(String frame, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService) {
+    public RegisterFrame(String frame, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         super(frame, issueService, identificationService);
         this.readingTypeUtilService = readingTypeUtilService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
@@ -74,17 +75,17 @@ public class RegisterFrame extends AbstractInboundFrame {
     private CollectedRegister processRegister (RegisterValue register) {
         CollectedRegister deviceRegister;
         if (register.getObisCode().getF() != 255) {
-            deviceRegister = this.getCollectedDataFactory().createBillingCollectedRegister(getRegisterIdentifier(register.getObisCode()),
+            deviceRegister = this.collectedDataFactory.createBillingCollectedRegister(getRegisterIdentifier(register.getObisCode()),
                     this.readingTypeUtilService.getReadingTypeFrom(register.getObisCode(), register.getQuantity().getUnit()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
             deviceRegister.setCollectedTimeStamps(new Date(), null, getInboundParameters().getReadTime());
         } else if (register.getEventTime() != null) {
-            deviceRegister = this.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register.getObisCode()),
+            deviceRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(register.getObisCode()),
                     this.readingTypeUtilService.getReadingTypeFrom(register.getObisCode(), register.getQuantity().getUnit()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
             deviceRegister.setCollectedTimeStamps(new Date(), null, getInboundParameters().getReadTime(), register.getEventTime());
         } else {
-            deviceRegister = this.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register.getObisCode()),
+            deviceRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register.getObisCode()),
                     this.readingTypeUtilService.getReadingTypeFrom(register.getObisCode(), register.getQuantity().getUnit()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
             deviceRegister.setReadTime(getInboundParameters().getReadTime());
@@ -108,7 +109,7 @@ public class RegisterFrame extends AbstractInboundFrame {
 
     private CollectedRegisterList getCollectedRegisterList(){
         if(this.collectedRegisterList == null){
-            this.collectedRegisterList = this.getCollectedDataFactory().createCollectedRegisterList(getDeviceIdentifier());
+            this.collectedRegisterList = this.collectedDataFactory.createCollectedRegisterList(getDeviceIdentifier());
             getCollectedDatas().add(this.collectedRegisterList);
         }
         return this.collectedRegisterList;
@@ -116,10 +117,6 @@ public class RegisterFrame extends AbstractInboundFrame {
 
     private RegisterIdentifier getRegisterIdentifier(ObisCode registerObisCode){
         return new RegisterDataIdentifierByObisCodeAndDevice(registerObisCode, registerObisCode, getDeviceIdentifier());
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
 }

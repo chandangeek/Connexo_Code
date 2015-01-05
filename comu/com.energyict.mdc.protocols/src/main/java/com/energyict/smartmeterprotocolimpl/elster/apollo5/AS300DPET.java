@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
@@ -29,8 +31,8 @@ import java.util.List;
 public class AS300DPET extends AS300 {
 
     @Inject
-    public AS300DPET(OrmClient ormClient) {
-        super(ormClient);
+    public AS300DPET(CodeFactory codeFactory, UserFileFactory userFileFactory, OrmClient ormClient) {
+        super(codeFactory, userFileFactory, ormClient);
     }
 
     @Override
@@ -99,8 +101,9 @@ public class AS300DPET extends AS300 {
     @Override
     public AS300Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new AS300DPETMessaging(new AS300DPETMessageExecutor(this));
+            this.messageProtocol = new AS300DPETMessaging(new AS300DPETMessageExecutor(this, this.getCodeFactory(), this.getUserFileFactory()));
         }
         return messageProtocol;
     }
+
 }

@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.edp.logbooks;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
@@ -29,10 +30,12 @@ public class LogbookReader implements DeviceLogBookSupport {
     private final CX20009 protocol;
     private final List<AbstractLogbookParser> logBookParsers;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public LogbookReader(CX20009 protocol, IssueService issueService) {
+    public LogbookReader(CX20009 protocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.protocol = protocol;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
         logBookParsers = new ArrayList<>();
         logBookParsers.add(new StandardLogbookParser(protocol));
         logBookParsers.add(new ContractedPowerLogbookParser(protocol));
@@ -61,7 +64,7 @@ public class LogbookReader implements DeviceLogBookSupport {
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
         List<CollectedLogBook> result = new ArrayList<>();
         for (LogBookReader logBookReader : logBooks) {
-            CollectedLogBook collectedLogBook = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLogBook(logBookReader.getLogBookIdentifier());
+            CollectedLogBook collectedLogBook = this.collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
             AbstractLogbookParser logBookParser = getLogBookParser(logBookReader);
             if (logBookParser != null) {
                 ProfileGeneric profileGeneric;

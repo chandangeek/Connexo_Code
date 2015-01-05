@@ -34,10 +34,8 @@ public class RegisterFactory {
     Trimaran trimeran;
     List registers=null;
 
-    /** Creates a new instance of RegisterFactory */
     public RegisterFactory(Trimaran trimeran) {
         this.trimeran=trimeran;
-
     }
 
     public Register findRegister(ObisCode obc) throws IOException {

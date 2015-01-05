@@ -2,7 +2,6 @@ package com.energyict.protocols.mdc.inbound.general.frames;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -26,15 +25,17 @@ public class EventFrame extends AbstractInboundFrame {
     private static final String EVENT_TAG = "event";
 
     private final Thesaurus thesaurus;
+    private final CollectedDataFactory collectedDataFactory;
 
     @Override
     protected FrameType getType() {
         return FrameType.EVENT;
     }
 
-    public EventFrame(String frame, IssueService issueService, Thesaurus thesaurus, IdentificationService identificationService) {
+    public EventFrame(String frame, IssueService issueService, Thesaurus thesaurus, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         super(frame, issueService, identificationService);
         this.thesaurus = thesaurus;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
@@ -46,7 +47,7 @@ public class EventFrame extends AbstractInboundFrame {
         if (!device.getLogBooks().isEmpty()) {
             logBookIdentifier = getIdentificationService().createLogbookIdentifierByObisCodeAndDeviceIdentifier(LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE, getDeviceIdentifier());
         } else {
-            getCollectedDatas().add(this.getCollectedDataFactory().createNoLogBookCollectedData(getDeviceIdentifier()));
+            getCollectedDatas().add(this.collectedDataFactory.createNoLogBookCollectedData(getDeviceIdentifier()));
             return;
         }
 
@@ -61,14 +62,10 @@ public class EventFrame extends AbstractInboundFrame {
             }
         }
         if (!meterEvents.isEmpty()) {
-            CollectedLogBook deviceLogBook = this.getCollectedDataFactory().createCollectedLogBook(logBookIdentifier);
+            CollectedLogBook deviceLogBook = this.collectedDataFactory.createCollectedLogBook(logBookIdentifier);
             deviceLogBook.setMeterEvents(meterEvents);
             getCollectedDatas().add(deviceLogBook);
         }
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
 }

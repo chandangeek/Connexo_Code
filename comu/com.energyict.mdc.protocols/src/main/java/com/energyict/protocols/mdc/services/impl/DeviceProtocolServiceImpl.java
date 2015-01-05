@@ -6,8 +6,18 @@ import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
+import com.energyict.mdc.protocol.api.device.BaseChannel;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
+import com.energyict.mdc.protocol.api.device.BaseRegister;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -16,7 +26,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -26,11 +35,15 @@ import com.google.inject.ProvisionException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import java.time.Clock;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Provides an implementation for the {@link DeviceProtocolService} interface
@@ -49,12 +62,17 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     private volatile Thesaurus thesaurus;
     private volatile OrmClient ormClient;
     private volatile IssueService issueService;
+    private volatile ProtocolPluggableService protocolPluggableService;
     private volatile PropertySpecService propertySpecService;
     private volatile TopologyService topologyService;
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
     private volatile SocketService socketService;
     private volatile SerialComponentService serialComponentService;
     private volatile IdentificationService identificationService;
+    private volatile CollectedDataFactory collectedDataFactory;
+    private volatile List<LoadProfileFactory> loadProfileFactories = new CopyOnWriteArrayList<>();
+    private volatile CodeFactory codeFactory;
+    private volatile UserFileFactory userFileFactory;
 
     private Injector injector;
 
@@ -65,7 +83,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     // For testing purposes
     @Inject
-    public DeviceProtocolServiceImpl(IssueService issueService, Clock clock, OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, TransactionService transactionService) {
+    public DeviceProtocolServiceImpl(IssueService issueService, Clock clock, OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CodeFactory codeFactory, UserFileFactory userFileFactory, TransactionService transactionService, ProtocolPluggableService protocolPluggableService) {
         this();
         this.setTransactionService(transactionService);
         this.setOrmService(ormService);
@@ -78,6 +96,10 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         this.setSerialComponentService(serialComponentService);
         this.setReadingTypeUtilService(readingTypeUtilService);
         this.setIdentificationService(identificationService);
+        this.setCollectedDataFactory(collectedDataFactory);
+        this.setCodeFactory(codeFactory);
+        this.setUserFileFactory(userFileFactory);
+        this.setProtocolPluggableService(protocolPluggableService);
         this.activate();
         this.install();
     }
@@ -104,6 +126,11 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
                 bind(TopologyService.class).toInstance(topologyService);
                 bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
                 bind(IdentificationService.class).toInstance(identificationService);
+                bind(CollectedDataFactory.class).toInstance(collectedDataFactory);
+                bind(LoadProfileFactory.class).toInstance(new CompositeLoadProfileFactory());
+                bind(CodeFactory.class).toInstance(codeFactory);
+                bind(UserFileFactory.class).toInstance(userFileFactory);
+                bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(DeviceProtocolService.class).toInstance(DeviceProtocolServiceImpl.this);
             }
         };
@@ -196,6 +223,37 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         this.identificationService = identificationService;
     }
 
+    @Reference
+    public void setCollectedDataFactory(CollectedDataFactory collectedDataFactory) {
+        this.collectedDataFactory = collectedDataFactory;
+    }
+
+    @Reference
+    public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
+        this.protocolPluggableService = protocolPluggableService;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @SuppressWarnings("unused")
+    public void addLoadProfileFactory(LoadProfileFactory loadProfileFactory) {
+        this.loadProfileFactories.add(loadProfileFactory);
+    }
+
+    @SuppressWarnings("unused")
+    public void removeLoadProfileFactory(LoadProfileFactory loadProfileFactory) {
+        this.loadProfileFactories.remove(loadProfileFactory);
+    }
+
+    @Reference
+    public void setCodeFactory(CodeFactory codeFactory) {
+        this.codeFactory = codeFactory;
+    }
+
+    @Reference
+    public void setUserFileFactory(UserFileFactory userFileFactory) {
+        this.userFileFactory = userFileFactory;
+    }
+
     @Override
     public void install() {
         new Installer(this.dataModel, this.thesaurus).install(true);
@@ -204,6 +262,30 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList("ORM", "NLS");
+    }
+
+    private class CompositeLoadProfileFactory implements LoadProfileFactory {
+        @Override
+        public List<BaseLoadProfile<BaseChannel>> findLoadProfilesByDevice(BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> device) {
+            for (LoadProfileFactory loadProfileFactory : loadProfileFactories) {
+                List<BaseLoadProfile<BaseChannel>> loadProfiles = loadProfileFactory.findLoadProfilesByDevice(device);
+                if (!loadProfiles.isEmpty()) {
+                    return loadProfiles;
+                }
+            }
+            return Collections.emptyList();
+        }
+
+        @Override
+        public BaseLoadProfile findLoadProfileById(int loadProfileId) {
+            for (LoadProfileFactory loadProfileFactory : loadProfileFactories) {
+                BaseLoadProfile loadProfile = loadProfileFactory.findLoadProfileById(loadProfileId);
+                if (loadProfile != null) {
+                    return loadProfile;
+                }
+            }
+            return null;
+        }
     }
 
 }

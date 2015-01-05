@@ -56,7 +56,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
+    public List<PropertySpec> getSecurityPropertySpecs() {
         return Arrays.asList(
                 DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService),
                 getEncryptionKeyCPropertySpec(),
@@ -81,7 +81,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
 
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityProperties()) {
+        for (PropertySpec securityProperty : getSecurityPropertySpecs()) {
             if (securityProperty.getName().equals(name)) {
                 return securityProperty;
             }

@@ -10,8 +10,6 @@ package com.energyict.genericprotocolimpl.gatewayz3;
  * <u>NOTE:</u>
  * The communication to a slave should be started with a postDialCommand:
  * <b>&lt;ESC&gt;rfclient="rfclientid"&lt;/ESC&gt;</b>
- * Normally you should use an 'IPDialerSelector' for this, but because we use the
- * same link from the Z3, we should send it our selves
  * </p>
  *
  * @author gna

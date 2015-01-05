@@ -4,7 +4,7 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.common.ObisCode;
@@ -40,6 +40,7 @@ public abstract class ObisCodeMapper {
 
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
     protected Logger logger;
     protected DeviceIdentifier deviceIdentifier;
 
@@ -68,9 +69,10 @@ public abstract class ObisCodeMapper {
     public static final String OBIS_VOLUNTARY_PARAMETERS_PROFILE_0 = "0.1.25.9.0.255";
     public static final String OBIS_GASDAY_START_TIME = "7.0.0.9.3.255";
 
-    protected ObisCodeMapper(MdcReadingTypeUtilService readingTypeUtilService, IssueService issueService) {
+    protected ObisCodeMapper(MdcReadingTypeUtilService readingTypeUtilService, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.readingTypeUtilService = readingTypeUtilService;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     /**
@@ -348,7 +350,8 @@ public abstract class ObisCodeMapper {
     }
 
     private CollectedRegister createDeviceRegister(ObisCode obisCode, Unit unit) {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(obisCode, obisCode, getDeviceIdentifier()),
+        return this.collectedDataFactory.createDefaultCollectedRegister(
+                new RegisterDataIdentifierByObisCodeAndDevice(obisCode, obisCode, getDeviceIdentifier()),
                 this.readingTypeUtilService.getReadingTypeFrom(obisCode, unit));
     }
 

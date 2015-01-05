@@ -1,7 +1,6 @@
 package com.energyict.protocols.messaging;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -13,9 +12,9 @@ import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.Register;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifierType;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 
@@ -52,6 +51,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     private static final String RtuRegisterSerialNumber = "ID";
 
     private final TopologyService topologyService;
+    private final LoadProfileFactory loadProfileFactory;
     private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     /**
@@ -84,9 +84,10 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
      */
     private LoadProfile loadProfile;
 
-    public LegacyLoadProfileRegisterMessageBuilder(TopologyService topologyService) {
+    public LegacyLoadProfileRegisterMessageBuilder(TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
         super();
         this.topologyService = topologyService;
+        this.loadProfileFactory = loadProfileFactory;
     }
 
     public static String getMessageNodeTag() {
@@ -236,12 +237,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     }
 
     private LoadProfile findLoadProfile(int loadProfileId) {
-        List<LoadProfileFactory> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(LoadProfileFactory.class);
-        if (modulesImplementing.isEmpty()) {
-            return null;
-        } else {
-            return (LoadProfile) modulesImplementing.get(0).findLoadProfileById(loadProfileId);
-        }
+        return (LoadProfile) this.loadProfileFactory.findLoadProfileById(loadProfileId);
     }
 
     /**

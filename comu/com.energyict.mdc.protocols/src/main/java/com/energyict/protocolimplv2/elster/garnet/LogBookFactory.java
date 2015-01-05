@@ -3,9 +3,9 @@ package com.energyict.protocolimplv2.elster.garnet;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -31,16 +31,17 @@ public class LogBookFactory implements DeviceLogBookSupport {
 
     private final GarnetConcentrator deviceProtocol;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public LogBookFactory(GarnetConcentrator deviceProtocol, IssueService issueService) {
+    public LogBookFactory(GarnetConcentrator deviceProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.deviceProtocol = deviceProtocol;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
         List<CollectedLogBook> collectedLogBooks = new ArrayList<>(logBooks.size());
-
         for (LogBookReader logBookReader : logBooks) {
             if (!logBookReader.getLogBookObisCode().equals(LOGBOOK_TYPE_OBISCODE)) {
                 collectedLogBooks.add(createNotSupportedCollectedLogBook(logBookReader));
@@ -135,7 +136,7 @@ public class LogBookFactory implements DeviceLogBookSupport {
     }
 
     private CollectedLogBook createDeviceLogBook(LogBookReader logBookReader) {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLogBook(logBookReader.getLogBookIdentifier());
+        return this.collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
     }
 
     private CollectedLogBook createNotSupportedCollectedLogBook(LogBookReader logBookReader) {
@@ -147,4 +148,5 @@ public class LogBookFactory implements DeviceLogBookSupport {
     public GarnetConcentrator getDeviceProtocol() {
         return deviceProtocol;
     }
+
 }

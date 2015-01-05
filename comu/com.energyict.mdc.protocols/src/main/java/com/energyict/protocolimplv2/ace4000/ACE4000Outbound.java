@@ -7,7 +7,6 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -66,6 +65,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     private final IssueService issueService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final IdentificationService identificationService;
+    private final CollectedDataFactory collectedDataFactory;
     private OfflineDevice offlineDevice;
     private DeviceProtocolCache deviceCache;
     private Logger logger;
@@ -74,11 +74,12 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     private DeviceProtocolSecurityPropertySet securityProperties;
 
     @Inject
-    public ACE4000Outbound(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService) {
+    public ACE4000Outbound(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         super(propertySpecService, identificationService);
         this.issueService = issueService;
         this.readingTypeUtilService = readingTypeUtilService;
         this.identificationService = identificationService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
@@ -135,7 +136,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     private CollectedLoadProfileConfiguration newDeviceLoadProfileConfiguration(ObisCode profileObisCode, DeviceIdentifier<?> deviceIdentifier, boolean supported) {
-        return this.getCollectedDataFactory().createCollectedLoadProfileConfiguration(profileObisCode, deviceIdentifier, supported);
+        return this.collectedDataFactory.createCollectedLoadProfileConfiguration(profileObisCode, deviceIdentifier, supported);
     }
 
     @Override
@@ -159,11 +160,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     private CollectedLoadProfile createCollectedLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
-        return this.getCollectedDataFactory().createCollectedLoadProfile(loadProfileIdentifier);
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
+        return this.collectedDataFactory.createCollectedLoadProfile(loadProfileIdentifier);
     }
 
     public void setCachedMeterTimeDifference(Long cachedMeterTimeDifference) {
@@ -247,12 +244,12 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
         //Read MBus slave registers
         if (requestMBusRegisters) {
-            ReadMBusRegisters readMBusRegistersRequest = new ReadMBusRegisters(this, issueService);
+            ReadMBusRegisters readMBusRegistersRequest = new ReadMBusRegisters(this, issueService, collectedDataFactory);
             result.addAll(readMBusRegistersRequest.request(registers));
         }
 
         //Read master registers
-        ReadRegisters readRegistersRequest = new ReadRegisters(this, issueService);
+        ReadRegisters readRegistersRequest = new ReadRegisters(this, issueService, collectedDataFactory);
         result.addAll(readRegistersRequest.request(registers));
         return result;
     }
@@ -261,7 +258,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     public CollectedTopology getDeviceTopology() {
         if (!objectFactory.getAllSlaveSerialNumbers().isEmpty()) {
             //Requesting MBus registers to have an idea which MBus devices are connected :)
-            ReadMBusRegisters readMBusRegistersRequest = new ReadMBusRegisters(this, issueService);
+            ReadMBusRegisters readMBusRegistersRequest = new ReadMBusRegisters(this, issueService, collectedDataFactory);
             readMBusRegistersRequest.request(new ArrayList<>());
         }
 
@@ -273,12 +270,12 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     private CollectedTopology createCollectedTopology(DeviceIdentifier deviceIdentifier) {
-        return this.getCollectedDataFactory().createCollectedTopology(deviceIdentifier);
+        return this.collectedDataFactory.createCollectedTopology(deviceIdentifier);
     }
 
     public ObjectFactory getObjectFactory() {
         if (objectFactory == null) {
-            objectFactory = new ObjectFactory(this, this.readingTypeUtilService, identificationService);
+            objectFactory = new ObjectFactory(this, this.readingTypeUtilService, identificationService, collectedDataFactory);
             objectFactory.setInbound(false);
         }
         return objectFactory;
@@ -328,7 +325,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     private CollectedLogBook createCollectedLogBook(LogBookIdentifier logBookIdentifier) {
-        return this.getCollectedDataFactory().createCollectedLogBook(logBookIdentifier);
+        return this.collectedDataFactory.createCollectedLogBook(logBookIdentifier);
     }
 
     private boolean isMaster(DeviceIdentifier<?> deviceIdentifier) {

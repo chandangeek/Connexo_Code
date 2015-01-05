@@ -6,6 +6,8 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -58,11 +60,15 @@ public class Messaging implements DeviceMessageSupport {
     private final MTU155 protocol;
     private final TopologyService topologyService;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
+    private final LoadProfileFactory loadProfileFactory;
 
-    public Messaging(MTU155 protocol, TopologyService topologyService, IssueService issueService) {
+    public Messaging(MTU155 protocol, TopologyService topologyService, IssueService issueService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
         this.protocol = protocol;
         this.topologyService = topologyService;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
+        this.loadProfileFactory = loadProfileFactory;
     }
 
     @Override
@@ -72,8 +78,7 @@ public class Messaging implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessageList(pendingMessages);
-
+        CollectedMessageList result = this.collectedDataFactory.createCollectedMessageList(pendingMessages);
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             boolean messageNotFound = true;
             CollectedMessage collectedMessage = null;
@@ -98,12 +103,12 @@ public class Messaging implements DeviceMessageSupport {
     }
 
     private CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessage(message.getIdentifier());
+        return this.collectedDataFactory.createCollectedMessage(message.getIdentifier());
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here...
+        return this.collectedDataFactory.createEmptyCollectedMessageList();  //Nothing to do here...
     }
 
     @Override
@@ -131,37 +136,37 @@ public class Messaging implements DeviceMessageSupport {
     private AbstractMTU155Message[] getAllSupportedMTU155MessageExecutors() {
         return new AbstractMTU155Message[]{
                 // Device configuration group
-                new WriteConverterMasterDataMessage(this, this.issueService),
-                new WriteMeterMasterDataMessage(this, this.issueService),
-                new WriteGasParametersMessage(this, this.issueService),
-                new ChangeDSTMessage(this, this.issueService),
-                new WritePDRMessage(this, this.issueService),
+                new WriteConverterMasterDataMessage(this, this.issueService, this.collectedDataFactory),
+                new WriteMeterMasterDataMessage(this, this.issueService, this.collectedDataFactory),
+                new WriteGasParametersMessage(this, this.issueService, this.collectedDataFactory),
+                new ChangeDSTMessage(this, this.issueService, this.collectedDataFactory),
+                new WritePDRMessage(this, this.issueService, this.collectedDataFactory),
 
                 // Connectivity setup group
-                new DevicePhoneNumberSetupMessage(this, this.issueService),
-                new ApnSetupMessage(this, this.issueService),
-                new SMSCenterSetupMessage(this, this.issueService),
-                new IPSetupMessage(this, this.issueService),
-                new WakeUpFrequency(this, this.issueService),
+                new DevicePhoneNumberSetupMessage(this, this.issueService, this.collectedDataFactory),
+                new ApnSetupMessage(this, this.issueService, this.collectedDataFactory),
+                new SMSCenterSetupMessage(this, this.issueService, this.collectedDataFactory),
+                new IPSetupMessage(this, this.issueService, this.collectedDataFactory),
+                new WakeUpFrequency(this, this.issueService, this.collectedDataFactory),
 
                 // Key management
-                new ActivateTemporaryKeyMessage(this, this.issueService),
-                new ChangeExecutionKeyMessage(this, this.issueService),
-                new ChangeTemporaryKeyMessage(this, this.issueService),
+                new ActivateTemporaryKeyMessage(this, this.issueService, this.collectedDataFactory),
+                new ChangeExecutionKeyMessage(this, this.issueService, this.collectedDataFactory),
+                new ChangeTemporaryKeyMessage(this, this.issueService, this.collectedDataFactory),
 
                 // Seals management group
-                new TemporaryBreakSealMessage(this, this.issueService),
-                new ChangeSealStatusMessage(this, this.issueService),
+                new TemporaryBreakSealMessage(this, this.issueService, this.collectedDataFactory),
+                new ChangeSealStatusMessage(this, this.issueService, this.collectedDataFactory),
 
                 // Tariff management
-                new TariffUploadPassiveMessage(this, this.issueService),
-                new TariffDisablePassiveMessage(this, this.issueService),
+                new TariffUploadPassiveMessage(this, this.issueService, this.collectedDataFactory),
+                new TariffDisablePassiveMessage(this, this.issueService, this.collectedDataFactory),
 
                 // LoadProfile group
-                new ReadPartialProfileDataMessage(this, this.issueService, this.topologyService),
+                new ReadPartialProfileDataMessage(this, this.issueService, this.topologyService, this.collectedDataFactory, this.loadProfileFactory),
 
                 // Firmware Upgrade
-                new FirmwareUpgradeMessage(this, this.issueService)
+                new FirmwareUpgradeMessage(this, this.issueService, this.collectedDataFactory)
         };
     }
 

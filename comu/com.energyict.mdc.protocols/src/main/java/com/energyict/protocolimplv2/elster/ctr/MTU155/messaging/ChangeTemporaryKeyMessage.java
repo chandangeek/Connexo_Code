@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
@@ -19,8 +20,8 @@ public class ChangeTemporaryKeyMessage extends AbstractChangeKeyMessage {
 
     public static final String CHANGE_KEYT_OBJECT_ID = "11.0.E";
 
-    public ChangeTemporaryKeyMessage(Messaging messaging, IssueService issueService) {
-        super(messaging, issueService);
+    public ChangeTemporaryKeyMessage(Messaging messaging, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+        super(messaging, issueService, collectedDataFactory);
     }
 
     @Override

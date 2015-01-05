@@ -1,6 +1,18 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging;
 
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
+
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -8,18 +20,6 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
-import com.energyict.mdc.protocol.api.messaging.MessageSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
-import com.energyict.protocols.messaging.MessageBuilder;
-import com.energyict.protocols.messaging.TimeOfUseMessaging;
-import com.energyict.protocols.messaging.TimeOfUseMessagingConfig;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
 import com.energyict.protocolimpl.messages.ProtocolMessages;
@@ -51,9 +51,13 @@ public class Messages extends ProtocolMessages {
     public static ObisCode BILLING_RESET_OBIS = ObisCode.fromString("0.0.10.0.1.255");
 
     private final ActarisSl7000 protocol;
+    private final CodeFactory codeFactory;
+    private final UserFileFactory userFileFactory;
 
-    public Messages(final ActarisSl7000 protocol) {
+    public Messages(ActarisSl7000 protocol, CodeFactory codeFactory, UserFileFactory userFileFactory) {
         this.protocol = protocol;
+        this.codeFactory = codeFactory;
+        this.userFileFactory = userFileFactory;
     }
 
     /**
@@ -163,7 +167,7 @@ public class Messages extends ProtocolMessages {
         return msgSpec;
     }
 
-    private String getValueFromXMLAttribute(String tag, String content) throws IOException {
+    private String getValueFromXMLAttribute(String tag, String content) {
         int startIndex = content.indexOf(tag + "=\"");
         if (startIndex != -1) {
             int endIndex = content.indexOf("\"", startIndex + tag.length() + 2);
@@ -181,11 +185,6 @@ public class Messages extends ProtocolMessages {
         return content.substring(startIndex + tag.length() + 2, endIndex);
     }
 
-    /**
-     * Log the given message to the logger with the INFO level
-     *
-     * @param messageToLog
-     */
     private void infoLog(String messageToLog) {
         this.protocol.getLogger().info(messageToLog);
     }
@@ -195,7 +194,7 @@ public class Messages extends ProtocolMessages {
     }
 
     private void updateTimeOfUse(MessageEntry messageEntry) throws IOException, SAXException {
-        final TimeOfUseMessageBuilder builder = new TimeOfUseMessageBuilder();
+        final TimeOfUseMessageBuilder builder = new TimeOfUseMessageBuilder(this.codeFactory, this.userFileFactory);
         ActivityCalendarController activityCalendarController = new com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging.ActivityCalendarController(this.protocol);
         builder.initFromXml(messageEntry.getContent());
         if (builder.getCodeId() > 0) { // codeTable implementation

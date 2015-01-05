@@ -1,16 +1,12 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.device.RegisterFactory;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-
-import java.util.List;
 
 /**
  * Implementation of a {@link RegisterIdentifier} that uniquely identifies
@@ -38,7 +34,6 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
     @Override
     public BaseRegister findRegister () {
         if (this.register == null) {
-            List<RegisterFactory> registerFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(RegisterFactory.class);
             BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister> device = deviceIdentifier.findDevice();
             for (BaseRegister register : device.getRegisters()) {
                 // first need to check the DeviceObisCde

@@ -5,6 +5,7 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
@@ -27,13 +28,15 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
 
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final IdentificationService identificationService;
+    private final CollectedDataFactory collectedDataFactory;
     private InboundDiscoveryContext context;
 
     @Inject
-    public ACE4000Inbound(MdcReadingTypeUtilService readingTypeUtilService, PropertySpecService propertySpecService, IdentificationService identificationService) {
+    public ACE4000Inbound(MdcReadingTypeUtilService readingTypeUtilService, PropertySpecService propertySpecService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         super(propertySpecService, identificationService);
         this.readingTypeUtilService = readingTypeUtilService;
         this.identificationService = identificationService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
@@ -99,7 +102,7 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
 
     public ObjectFactory getObjectFactory() {
         if (objectFactory == null) {
-            objectFactory = new ObjectFactory(this, this.readingTypeUtilService, identificationService);
+            objectFactory = new ObjectFactory(this, this.readingTypeUtilService, this.identificationService, this.collectedDataFactory);
             objectFactory.setInbound(true);  //Important to store the parsed data in the list of collecteddatas
         }
         return objectFactory;
@@ -114,4 +117,5 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
     public void initComChannel(ComChannel comChannel) {
         setAce4000Connection(new ACE4000Connection(comChannel, this, true));
     }
+
 }

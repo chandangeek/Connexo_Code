@@ -1,7 +1,6 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -15,18 +14,21 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
  */
 public class DeployFrame extends AbstractInboundFrame {
 
+    private final CollectedDataFactory collectedDataFactory;
+
     @Override
     protected FrameType getType() {
         return FrameType.DEPLOY;
     }
 
-    public DeployFrame(String frame, IssueService issueService, IdentificationService identificationService) {
+    public DeployFrame(String frame, IssueService issueService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         super(frame, issueService, identificationService);
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
     public void doParse() {
-        CollectedTopology deviceTopology = this.getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
+        CollectedTopology deviceTopology = this.collectedDataFactory.createCollectedTopology(getDeviceIdentifier());
         String meterType = getInboundParameters().getMeterType();
         //TODO use info for topology
 
@@ -35,10 +37,6 @@ public class DeployFrame extends AbstractInboundFrame {
                 this.getIssueService().newIssueCollector()
                     .addWarning(deviceTopology, "protocol.deploynotsupported", getInboundParameters().getSerialNumber()));
         getCollectedDatas().add(deviceTopology);
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
 }

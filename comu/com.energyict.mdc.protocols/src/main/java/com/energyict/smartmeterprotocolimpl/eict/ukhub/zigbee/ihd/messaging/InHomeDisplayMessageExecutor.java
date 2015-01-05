@@ -8,25 +8,22 @@ import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.io.CommunicationException;
+
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.InHomeDisplay;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,10 +36,12 @@ public class InHomeDisplayMessageExecutor extends MessageParser {
     public static ObisCode IMAGE_TRANSFER_OBIS = ObisCode.fromString("0.2.44.0.0.255");
     public static ObisCode IMAGE_ACTIVATION_SCHEDULER = ObisCode.fromString("0.0.15.0.2.255");
 
-    private AbstractSmartDlmsProtocol protocol;
+    private final AbstractSmartDlmsProtocol protocol;
+    private final UserFileFactory userFileFactory;
 
-    public InHomeDisplayMessageExecutor(AbstractSmartDlmsProtocol protocol) {
+    public InHomeDisplayMessageExecutor(AbstractSmartDlmsProtocol protocol, UserFileFactory userFileFactory) {
         this.protocol = protocol;
+        this.userFileFactory = userFileFactory;
     }
 
     /**
@@ -126,7 +125,7 @@ public class InHomeDisplayMessageExecutor extends MessageParser {
     }
 
     private UserFile findUserFile(int userFileId) {
-        return this.getUserFileFactory().findUserFile(userFileId);
+        return this.userFileFactory.findUserFile(userFileId);
     }
 
     private void log(final Level level, final String msg) {
@@ -134,22 +133,12 @@ public class InHomeDisplayMessageExecutor extends MessageParser {
     }
 
     private Logger getLogger() {
-        return ((InHomeDisplay) protocol).getDlmsSession().getLogger();
+        return protocol.getDlmsSession().getLogger();
     }
 
     @Override
     protected TimeZone getTimeZone() {
-        return ((InHomeDisplay) this.protocol).getTimeZone();
-    }
-
-    private UserFileFactory getUserFileFactory() {
-        List<UserFileFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(UserFileFactory.class);
-        if (factories.isEmpty()) {
-            throw new CommunicationException(MessageSeeds.MISSING_MODULE, UserFileFactory.class);
-        }
-        else {
-            return factories.get(0);
-        }
+        return this.protocol.getTimeZone();
     }
 
 }

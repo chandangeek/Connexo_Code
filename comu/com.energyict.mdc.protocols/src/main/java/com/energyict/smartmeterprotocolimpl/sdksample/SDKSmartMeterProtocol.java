@@ -6,6 +6,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -52,6 +53,8 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
     private static final String MeterSerialNumber = "Master";
 
     private final TopologyService topologyService;
+    private final LoadProfileFactory loadProfileFactory;
+
     /**
      * The used <CODE>Connection</CODE> class
      */
@@ -66,9 +69,10 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
     private SDKSmartMeterRegisterFactory registerFactory;
 
     @Inject
-    public SDKSmartMeterProtocol(TopologyService topologyService) {
+    public SDKSmartMeterProtocol(TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
         super();
         this.topologyService = topologyService;
+        this.loadProfileFactory = loadProfileFactory;
     }
 
     /**
@@ -340,7 +344,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder(topologyService);
+        return new LegacyPartialLoadProfileMessageBuilder(topologyService, loadProfileFactory);
     }
 
     /**
@@ -462,7 +466,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService);
+        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService, loadProfileFactory);
     }
 
 }

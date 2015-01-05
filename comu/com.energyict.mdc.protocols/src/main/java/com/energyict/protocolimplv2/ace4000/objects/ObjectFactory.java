@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.ace4000.objects;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -50,6 +49,7 @@ public class ObjectFactory {
     private final ACE4000 ace4000;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final IdentificationService identificationService;
+    private final CollectedDataFactory collectedDataFactory;
     private Acknowledge acknowledge = null;
     private boolean sendAck = false;      //Indicates whether or not the parsed message must be ACK'ed.
     private int requestAttemptNumber = 0;
@@ -95,10 +95,11 @@ public class ObjectFactory {
     private Map<Tracker, RequestState> requestStates = new HashMap<>();
     private Map<Tracker, String> reasonDescriptions = new HashMap<>();
 
-    public ObjectFactory(ACE4000 ace4000, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService) {
+    public ObjectFactory(ACE4000 ace4000, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         this.ace4000 = ace4000;
         this.readingTypeUtilService = readingTypeUtilService;
         this.identificationService = identificationService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     /**
@@ -931,7 +932,7 @@ public class ObjectFactory {
     private CollectedRegister createCommonRegister(RegisterValue registerValue, DeviceIdentifier<?> deviceIdentifier) {
         //TODO should this be max demand register?
         CollectedRegister deviceRegister =
-                this.getCollectedDataFactory().
+                this.collectedDataFactory.
                         createMaximumDemandCollectedRegister(
                                 new RegisterDataIdentifierByObisCodeAndDevice(
                                         registerValue.getObisCode(),
@@ -944,7 +945,7 @@ public class ObjectFactory {
 
     private CollectedRegister createBillingRegister(RegisterValue registerValue) {
         CollectedRegister deviceRegister =
-                this.getCollectedDataFactory().
+                this.collectedDataFactory.
                         createBillingCollectedRegister(
                                 new RegisterDataIdentifierByObisCodeAndDevice(
                                         registerValue.getObisCode(),
@@ -962,7 +963,7 @@ public class ObjectFactory {
     public List<CollectedLoadProfile> createCollectedLoadProfiles(ObisCode obisCode) {
         List<CollectedLoadProfile> collectedLoadProfiles = new ArrayList<>();
         CollectedLoadProfile collectedLoadProfile =
-                this.getCollectedDataFactory().
+                this.collectedDataFactory.
                         createCollectedLoadProfile(
                                 this.identificationService.createLoadProfileIdentifierByObisCodeAndDeviceIdentifier(
                                         obisCode,
@@ -1054,7 +1055,7 @@ public class ObjectFactory {
     }
 
     public CollectedLogBook getDeviceLogBook(LogBookIdentifier identifier) {
-        CollectedLogBook deviceLogBook = this.getCollectedDataFactory().createCollectedLogBook(identifier);
+        CollectedLogBook deviceLogBook = this.collectedDataFactory.createCollectedLogBook(identifier);
         deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(getAllMeterEvents()));
         return deviceLogBook;
     }
@@ -1073,10 +1074,6 @@ public class ObjectFactory {
             allEvents.add(announceEvent);
         }
         return allEvents;
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
 }

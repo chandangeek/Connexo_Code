@@ -122,8 +122,8 @@ public abstract class AbstractMbusDevice implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
-        return getMeterProtocol().getSecurityProperties();
+    public List<PropertySpec> getSecurityPropertySpecs() {
+        return getMeterProtocol().getSecurityPropertySpecs();
     }
 
     @Override

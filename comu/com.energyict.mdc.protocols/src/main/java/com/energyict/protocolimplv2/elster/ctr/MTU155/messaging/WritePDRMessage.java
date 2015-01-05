@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -25,8 +26,8 @@ import java.util.Date;
  */
 public class WritePDRMessage extends AbstractMTU155Message {
 
-    public WritePDRMessage(Messaging messaging, IssueService issueService) {
-        super(messaging, issueService);
+    public WritePDRMessage(Messaging messaging, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+        super(messaging, issueService, collectedDataFactory);
     }
 
     @Override

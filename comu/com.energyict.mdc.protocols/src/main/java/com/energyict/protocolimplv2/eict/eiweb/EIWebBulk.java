@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.elster.jupiter.properties.PropertySpec;
+
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
@@ -32,6 +34,7 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
 
     private final Clock clock;
     private final IdentificationService identificationService;
+    private final CollectedDataFactory collectedDataFactory;
     private HttpServletRequest request;
     private HttpServletResponse response;
     private InboundDiscoveryContext context;
@@ -39,10 +42,11 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
     private ResponseWriter responseWriter;
 
     @Inject
-    public EIWebBulk(Clock clock, IdentificationService identificationService) {
+    public EIWebBulk(Clock clock, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         super();
         this.clock = clock;
         this.identificationService = identificationService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
@@ -87,7 +91,7 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
         this.response.setContentType("text/html");
         try {
             this.responseWriter = new ResponseWriter(this.response);
-            this.protocolHandler = new ProtocolHandler(this.responseWriter, this.context, this.context.getCryptographer(), this.clock, this.identificationService );
+            this.protocolHandler = new ProtocolHandler(this.responseWriter, this.context, this.context.getCryptographer(), this.clock, this.identificationService, collectedDataFactory);
             try {
                 this.protocolHandler.handle(this.request, this.context.getLogger());
             }

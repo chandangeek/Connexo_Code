@@ -3,6 +3,7 @@ package com.energyict.protocols.mdc.services.impl;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
@@ -28,6 +29,7 @@ import javax.inject.Inject;
 public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageService {
 
     private volatile TopologyService topologyService;
+    private volatile IdentificationService identificationService;
 
     private Injector injector;
 
@@ -38,7 +40,7 @@ public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageSe
 
     // For testing purposes
     @Inject
-    public DeviceProtocolMessageServiceImpl(TopologyService topologyService) {
+    public DeviceProtocolMessageServiceImpl(TopologyService topologyService, IdentificationService identificationService) {
         this();
         this.setTopologyService(topologyService);
         this.activate();
@@ -55,6 +57,7 @@ public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageSe
             @Override
             public void configure() {
                 bind(TopologyService.class).toInstance(topologyService);
+                bind(IdentificationService.class).toInstance(identificationService);
                 bind(DeviceProtocolMessageService.class).toInstance(DeviceProtocolMessageServiceImpl.this);
             }
         };
@@ -63,6 +66,11 @@ public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageSe
     @Reference
     public void setTopologyService(TopologyService topologyService) {
         this.topologyService = topologyService;
+    }
+
+    @Reference
+    public void setIdentificationService(IdentificationService identificationService) {
+        this.identificationService = identificationService;
     }
 
     @Override

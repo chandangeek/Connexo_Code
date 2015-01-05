@@ -16,6 +16,7 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleValueMessageEntry;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -33,10 +34,7 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
     private static final ObisCode PUBLIC_KEYS_OBISCODE = ObisCode.fromString("0.128.0.2.0.2");
     private final IdentificationService identificationService;
 
-    /**
-     * Default constructor for at-runtime instantiation
-     * @param identificationService
-     */
+    @Inject
     public AS300DPETMessageConverter(IdentificationService identificationService) {
         super();
         this.identificationService = identificationService;

@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.elster.garnet;
 
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
@@ -37,11 +36,13 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
 
     private final GarnetConcentrator deviceProtocol;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
     private ErrorCode errorCode;
 
-    public ConcentratorMessaging(GarnetConcentrator deviceProtocol, IssueService issueService) {
+    public ConcentratorMessaging(GarnetConcentrator deviceProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.deviceProtocol = deviceProtocol;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
@@ -56,7 +57,7 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = this.collectedDataFactory.createCollectedMessageList(pendingMessages);
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = null;
 
@@ -76,10 +77,6 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
             result.addCollectedMessages(collectedMessage);
         }
         return result;
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
     private boolean isMessageForEMeterSlave(OfflineDeviceMessage pendingMessage) {
@@ -187,11 +184,11 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
+        return this.collectedDataFactory.createEmptyCollectedMessageList();  //Nothing to do here
     }
 
     private CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return getCollectedDataFactory().createCollectedMessage(message.getIdentifier());
+        return this.collectedDataFactory.createCollectedMessage(message.getIdentifier());
     }
 
     protected Issue createUnsupportedWarning(OfflineDeviceMessage pendingMessage) {

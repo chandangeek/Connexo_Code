@@ -4,6 +4,7 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.common.ComServerExecutionException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -37,6 +38,7 @@ public class InboundConnection {
 
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
     private final Thesaurus thesaurus;
     private IdentificationService identificationService;
     private ComChannel comChannel;
@@ -48,12 +50,13 @@ public class InboundConnection {
      */
     private List<AbstractInboundFrame> framesToAck;
 
-    public InboundConnection(ComChannel comChannel, int timeout, int retries, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService) {
+    public InboundConnection(ComChannel comChannel, int timeout, int retries, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, CollectedDataFactory collectedDataFactory, Thesaurus thesaurus, IdentificationService identificationService) {
         this.comChannel = comChannel;
         this.timeout = timeout;
         this.retries = retries;
         this.issueService = issueService;
         this.readingTypeUtilService = readingTypeUtilService;
+        this.collectedDataFactory = collectedDataFactory;
         this.thesaurus = thesaurus;
         this.identificationService = identificationService;
     }
@@ -153,16 +156,16 @@ public class InboundConnection {
             return new RequestFrame(frame, issueService, identificationService);
         }
         if (frame.contains(EVENT_TAG)) {
-            return new EventFrame(frame, issueService, thesaurus, identificationService);
+            return new EventFrame(frame, issueService, thesaurus, identificationService, collectedDataFactory);
         }
         if (frame.contains(EVENTPO_TAG)) {
-            return new EventPOFrame(frame, issueService, identificationService);
+            return new EventPOFrame(frame, issueService, identificationService, collectedDataFactory);
         }
         if (frame.contains(DEPLOY_TAG)) {
-            return new DeployFrame(frame, issueService, identificationService);
+            return new DeployFrame(frame, issueService, identificationService, collectedDataFactory);
         }
         if (frame.contains(REGISTER_TAG)) {
-            return new RegisterFrame(frame, issueService, readingTypeUtilService, identificationService);
+            return new RegisterFrame(frame, issueService, readingTypeUtilService, identificationService, collectedDataFactory);
         }
         throw new InboundFrameException(MessageSeeds.INBOUND_UNEXPECTED_FRAME, frame, "Unexpected frame type: '" + getFrameTag(frame) + "'. Expected REQUEST, DEPLOY, EVENT, EVENTPO or REGISTER");
     }

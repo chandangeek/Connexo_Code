@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
@@ -32,11 +33,13 @@ public class IDISGatewayRegisters {
 
     private final DlmsSession session;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
     private final RegisterMapping[] registerMappings;
 
-    public IDISGatewayRegisters(DlmsSession session, IssueService issueService) {
+    public IDISGatewayRegisters(DlmsSession session, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.session = session;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
 
         this.registerMappings = new RegisterMapping[]{
                 new GprsModemSetupMapping(session.getLogger(), session.getCosemObjectFactory()),
@@ -71,14 +74,14 @@ public class IDISGatewayRegisters {
     }
 
     private CollectedRegister createCollectedRegister(RegisterValue registerValue, OfflineRegister register) {
-        CollectedRegister collectedRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register), register.getReadingType());
+        CollectedRegister collectedRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(register), register.getReadingType());
         collectedRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         collectedRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
         return collectedRegister;
     }
 
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
-        CollectedRegister collectedRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register), register.getReadingType());
+        CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register), register.getReadingType());
         if (resultType == ResultType.InCompatible) {
             collectedRegister.setFailureInformation(ResultType.InCompatible, this.issueService.newWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
         } else {
@@ -90,4 +93,5 @@ public class IDISGatewayRegisters {
     private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
         return new RegisterDataIdentifierByObisCodeAndDevice(offlineRtuRegister.getObisCode(), offlineRtuRegister.getAmrRegisterObisCode(), offlineRtuRegister.getDeviceIdentifier());
     }
+
 }

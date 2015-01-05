@@ -11,7 +11,6 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -42,11 +41,13 @@ public abstract class AbstractMessageExecutor {
     private final AbstractDlmsProtocol protocol;
     private final IssueService issueService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public AbstractMessageExecutor(AbstractDlmsProtocol protocol, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService) {
+    public AbstractMessageExecutor(AbstractDlmsProtocol protocol, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, CollectedDataFactory collectedDataFactory) {
         this.protocol = protocol;
         this.issueService = issueService;
         this.readingTypeUtilService = readingTypeUtilService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     protected IssueService getIssueService() {
@@ -190,6 +191,7 @@ public abstract class AbstractMessageExecutor {
     }
 
     protected CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
+        return this.collectedDataFactory;
     }
+
 }

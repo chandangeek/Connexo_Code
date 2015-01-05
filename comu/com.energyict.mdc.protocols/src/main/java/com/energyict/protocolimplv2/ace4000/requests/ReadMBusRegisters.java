@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.ace4000.requests;
 import com.energyict.mdc.common.ComServerExecutionException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -23,11 +22,13 @@ import java.util.List;
  */
 public class ReadMBusRegisters extends AbstractRequest<List<OfflineRegister>, List<CollectedRegister>> {
 
+    private final CollectedDataFactory collectedDataFactory;
     private boolean mustReceiveMBusBilling = false;
     private boolean mustReceiveMBusCurrent = false;
 
-    public ReadMBusRegisters(ACE4000Outbound ace4000, IssueService issueService) {
+    public ReadMBusRegisters(ACE4000Outbound ace4000, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         super(ace4000, issueService);
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     protected void doBefore() {
@@ -106,20 +107,16 @@ public class ReadMBusRegisters extends AbstractRequest<List<OfflineRegister>, Li
             }
             if (!receivedRegister) {
                 CollectedRegister defaultDeviceRegister =
-                        this.getCollectedDataFactory().createDefaultCollectedRegister(
-                            new RegisterDataIdentifierByObisCodeAndDevice(
-                                    rtuRegister.getObisCode(),
-                                    rtuRegister.getObisCode(),
-                                    getAce4000().getDeviceIdentifier()), rtuRegister.getReadingType());
+                        this.collectedDataFactory.createDefaultCollectedRegister(
+                                new RegisterDataIdentifierByObisCodeAndDevice(
+                                        rtuRegister.getObisCode(),
+                                        rtuRegister.getObisCode(),
+                                        getAce4000().getDeviceIdentifier()), rtuRegister.getReadingType());
                 defaultDeviceRegister.setFailureInformation(ResultType.DataIncomplete, this.getIssueService().newIssueCollector().addProblem(rtuRegister.getObisCode(), msg, rtuRegister.getObisCode()));
                 result.add(defaultDeviceRegister);
             }
         }
         setResult(result);
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
 }

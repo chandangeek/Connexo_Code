@@ -8,6 +8,9 @@ package com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging;
  */
 
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
+
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -23,6 +26,10 @@ import java.io.IOException;
 public class TimeOfUseMessageBuilder extends com.energyict.protocols.messaging.TimeOfUseMessageBuilder {
 
       public static final String RAW_CONTENT_TAG = "Activity_Calendar";
+
+    public TimeOfUseMessageBuilder(CodeFactory codeFactory, UserFileFactory userFileFactory) {
+        super(codeFactory, userFileFactory);
+    }
 
     /**
      * We override this because we can't convert the CodeTable content in a proper manner ...

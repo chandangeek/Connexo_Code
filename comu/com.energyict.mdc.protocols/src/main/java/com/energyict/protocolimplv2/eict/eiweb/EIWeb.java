@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.eict.eiweb;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -57,16 +56,18 @@ public class EIWeb implements DeviceProtocol {
     private final Clock clock;
     private final PropertySpecService propertySpecService;
     private final IdentificationService identificationService;
+    private final CollectedDataFactory collectedDataFactory;
     private SimplePasswordSecuritySupport securitySupport;
     private OfflineDevice offlineDevice;
     private LegacyMessageConverter messageConverter;
 
     @Inject
-    public EIWeb(Clock clock, PropertySpecService propertySpecService, IdentificationService identificationService) {
+    public EIWeb(Clock clock, PropertySpecService propertySpecService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         super();
         this.clock = clock;
         this.propertySpecService = propertySpecService;
         this.identificationService = identificationService;
+        this.collectedDataFactory = collectedDataFactory;
         this.securitySupport = new SimplePasswordSecuritySupport(propertySpecService);
     }
 
@@ -173,12 +174,12 @@ public class EIWeb implements DeviceProtocol {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return this.getCollectedDataFactory().createEmptyCollectedMessageList();     //Messages are executed in ProtocolHandler, not here
+        return this.collectedDataFactory.createEmptyCollectedMessageList();     //Messages are executed in ProtocolHandler, not here
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return this.getCollectedDataFactory().createEmptyCollectedMessageList();     //Messages are executed in ProtocolHandler, not here
+        return this.collectedDataFactory.createEmptyCollectedMessageList();     //Messages are executed in ProtocolHandler, not here
     }
 
     @Override
@@ -208,8 +209,8 @@ public class EIWeb implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
-        return this.securitySupport.getSecurityProperties();
+    public List<PropertySpec> getSecurityPropertySpecs() {
+        return this.securitySupport.getSecurityPropertySpecs();
     }
 
     @Override
@@ -265,10 +266,6 @@ public class EIWeb implements DeviceProtocol {
     @Override
     public void copyProperties(TypedProperties properties) {
         // nothing much to do
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
 }

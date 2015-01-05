@@ -4,6 +4,8 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.PrivacyEnhancingDataAggregation;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
@@ -24,8 +26,8 @@ public class AS300DPETMessageExecutor extends AS300MessageExecutor {
 
     private static final ObisCode PET_SETUP = ObisCode.fromString("0.128.0.2.0.255");
 
-    public AS300DPETMessageExecutor(final AbstractSmartDlmsProtocol protocol) {
-        super(protocol);
+    public AS300DPETMessageExecutor(AbstractSmartDlmsProtocol protocol, CodeFactory codeFactory, UserFileFactory userFileFactory) {
+        super(protocol, codeFactory, userFileFactory);
     }
 
     @Override

@@ -8,7 +8,6 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -34,6 +33,9 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilitie
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 
@@ -62,8 +64,10 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     private Logger logger = Logger.getLogger(SDKDeviceProtocol.class.getSimpleName());
 
+    private final ProtocolPluggableService protocolPluggableService;
     private final PropertySpecService propertySpecService;
     private final IdentificationService identificationService;
+    private final CollectedDataFactory collectedDataFactory;
 
     /**
      * The {@link OfflineDevice} that holds all <i>necessary</i> information to perform the relevant ComTasks for this <i>session</i>
@@ -94,10 +98,12 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
 
     @Inject
-    public SDKDeviceProtocol(PropertySpecService propertySpecService, IdentificationService identificationService) {
+    public SDKDeviceProtocol(ProtocolPluggableService protocolPluggableService, PropertySpecService propertySpecService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         super();
+        this.protocolPluggableService = protocolPluggableService;
         this.propertySpecService = propertySpecService;
         this.identificationService = identificationService;
+        this.collectedDataFactory = collectedDataFactory;
         this.deviceProtocolSecurityCapabilities = new DlmsSecuritySupport(propertySpecService);
     }
 
@@ -221,7 +227,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
         // by default all loadProfileReaders are supported, only if the corresponding ObisCodeProperty matches, we mark it as not supported
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
             this.logger.log(Level.INFO, "Fetching loadProfile configuration for loadProfile with ObisCode " + loadProfileReader.getProfileObisCode());
-            CollectedLoadProfileConfiguration loadProfileConfiguration = this.getCollectedDataFactory().createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getDeviceIdentifier());
+            CollectedLoadProfileConfiguration loadProfileConfiguration = this.collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getDeviceIdentifier());
             if (!loadProfileReader.getProfileObisCode().equals(getIgnoredObisCode())) {
                 loadProfileConfiguration.setChannelInfos(loadProfileReader.getChannelInfos());
             } else {
@@ -306,8 +312,8 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
-        return this.deviceProtocolSecurityCapabilities.getSecurityProperties();
+    public List<PropertySpec> getSecurityPropertySpecs() {
+        return this.deviceProtocolSecurityCapabilities.getSecurityPropertySpecs();
     }
 
     @Override
@@ -338,7 +344,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        final CollectedTopology collectedTopology = this.getCollectedDataFactory().createCollectedTopology(this.offlineDevice.getDeviceIdentifier());
+        final CollectedTopology collectedTopology = this.collectedDataFactory.createCollectedTopology(this.offlineDevice.getDeviceIdentifier());
         if (!"".equals(getSlaveOneSerialNumber())) {
             collectedTopology.addSlaveDevice(this.identificationService.createDeviceIdentifierBySerialNumber(getSlaveOneSerialNumber()));
         }
@@ -399,17 +405,13 @@ public class SDKDeviceProtocol implements DeviceProtocol {
         List<ConnectionType> connectionTypes = new ArrayList<>();
         for (ConnectionTypeRule connectionTypeRule : ConnectionTypeRule.values()) {
             try {
-                connectionTypes.add(connectionTypeRule.getProtocolTypeClass().newInstance());
+                connectionTypes.add(this.protocolPluggableService.createConnectionType(connectionTypeRule.getProtocolTypeClass().getName()));
             }
-            catch (InstantiationException | IllegalAccessException e) {
+            catch (UnableToCreateConnectionType e) {
                 e.printStackTrace(System.err);
             }
         }
         return connectionTypes;
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
 }

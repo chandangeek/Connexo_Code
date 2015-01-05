@@ -16,7 +16,6 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -46,7 +45,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilitie
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.protocolimpl.dlms.g3.G3Properties;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents;
@@ -95,14 +94,16 @@ public class RtuPlusServer implements DeviceProtocol {
     private final SocketService socketService;
     private final IssueService issueService;
     private final IdentificationService identificationService;
+    private final CollectedDataFactory collectedDataFactory;
 
     @Inject
-    public RtuPlusServer(PropertySpecService propertySpecService, SocketService socketService, IssueService issueService, IdentificationService identificationService) {
+    public RtuPlusServer(PropertySpecService propertySpecService, SocketService socketService, IssueService issueService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         super();
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
         this.issueService = issueService;
         this.identificationService = identificationService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
@@ -242,14 +243,14 @@ public class RtuPlusServer implements DeviceProtocol {
 
     private G3GatewayRegisters getG3GatewayRegisters() {
         if (g3GatewayRegisters == null) {
-            g3GatewayRegisters = new G3GatewayRegisters(getDlmsSession(), this.issueService);
+            g3GatewayRegisters = new G3GatewayRegisters(getDlmsSession(), this.issueService, collectedDataFactory);
         }
         return g3GatewayRegisters;
     }
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        CollectedTopology deviceTopology = this.getCollectedDataFactory().createCollectedTopology(offlineDevice.getDeviceIdentifier());
+        CollectedTopology deviceTopology = this.collectedDataFactory.createCollectedTopology(offlineDevice.getDeviceIdentifier());
 
         collectAndUpdateMacAddresses(deviceTopology);
 
@@ -297,7 +298,7 @@ public class RtuPlusServer implements DeviceProtocol {
                 if (abstractDataType != null && abstractDataType instanceof Structure) {
                     DeviceIdentifier nodeIdentifier = getSlaveMacAddressPropertyIdentifier(ProtocolTools.getHexStringFromBytes(((Structure) abstractDataType).getDataType(0).getOctetString().getOctetStr()));
                     deviceTopology.addAdditionalCollectedDeviceInfo(
-                            this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                            this.collectedDataFactory.createCollectedDeviceProtocolProperty(
                                     nodeIdentifier,
                                     getSlaveShortAddressPropertySpec(),
                                     getSlaveShortAddressPropertySpec().getValueFactory().fromStringValue(String.valueOf(((Structure) abstractDataType).getDataType(2).getInteger32().intValue()))));
@@ -323,13 +324,13 @@ public class RtuPlusServer implements DeviceProtocol {
                 DeviceIdentifier slaveDeviceIdentifier = getSlaveMacAddressPropertyIdentifier(sapAssignmentItem.getLogicalDeviceName());
                 deviceTopology.addSlaveDevice(slaveDeviceIdentifier);
                 deviceTopology.addAdditionalCollectedDeviceInfo(
-                        this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                        this.collectedDataFactory.createCollectedDeviceProtocolProperty(
                                 slaveDeviceIdentifier,
                                 getSlaveLogicalDeviceIdPropertySpec(),
                                 getSlaveLogicalDeviceIdPropertySpec().getValueFactory().fromStringValue(String.valueOf(sapAssignmentItem.getSap()))));
             } else {
                 deviceTopology.addAdditionalCollectedDeviceInfo(
-                        this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                        this.collectedDataFactory.createCollectedDeviceProtocolProperty(
                                 offlineDevice.getDeviceIdentifier(),
                                 getDynamicProperties().getLogicalDeviceIdPropertySpec(),
                                 BigDecimal.valueOf(sapAssignmentItem.getSap())));
@@ -366,14 +367,14 @@ public class RtuPlusServer implements DeviceProtocol {
 
     private G3GatewayEvents getG3GatewayEvents() {
         if (g3GatewayEvents == null) {
-            g3GatewayEvents = new G3GatewayEvents(getDlmsSession(), issueService);
+            g3GatewayEvents = new G3GatewayEvents(getDlmsSession(), issueService, collectedDataFactory);
         }
         return g3GatewayEvents;
     }
 
     private RtuPlusServerMessages getRtuPlusServerMessages() {
         if (rtuPlusServerMessages == null) {
-            rtuPlusServerMessages = new RtuPlusServerMessages(this.getDlmsSession(), issueService);
+            rtuPlusServerMessages = new RtuPlusServerMessages(this.getDlmsSession(), issueService, collectedDataFactory);
         }
         return rtuPlusServerMessages;
     }
@@ -432,8 +433,8 @@ public class RtuPlusServer implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
-        return getSecuritySupport().getSecurityProperties();
+    public List<PropertySpec> getSecurityPropertySpecs() {
+        return getSecuritySupport().getSecurityPropertySpecs();
     }
 
     @Override
@@ -519,10 +520,6 @@ public class RtuPlusServer implements DeviceProtocol {
         } catch (IOException e) {
             throw IOExceptionHandler.handle(e, getDlmsSession());
         }
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
     @Override

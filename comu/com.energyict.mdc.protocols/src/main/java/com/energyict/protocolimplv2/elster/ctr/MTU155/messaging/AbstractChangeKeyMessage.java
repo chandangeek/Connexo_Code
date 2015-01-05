@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -12,8 +13,8 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
  */
 public abstract class AbstractChangeKeyMessage extends AbstractMTU155Message {
 
-    public AbstractChangeKeyMessage(Messaging messaging, IssueService issueService) {
-        super(messaging, issueService);
+    public AbstractChangeKeyMessage(Messaging messaging, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+        super(messaging, issueService, collectedDataFactory);
     }
 
     protected abstract void writeKey(String formattedKey) throws CTRException;

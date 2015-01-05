@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.kenda.meteor;
 
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.dialer.core.impl.DialerCarrierException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
@@ -249,9 +248,6 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
             } catch (Exception e) {
                 except = e;
                 ack = false;
-                if (e instanceof DialerCarrierException) {
-                    throw new IOException("NO CARRIER received");
-                }
             }
         }
         if (!ack) {

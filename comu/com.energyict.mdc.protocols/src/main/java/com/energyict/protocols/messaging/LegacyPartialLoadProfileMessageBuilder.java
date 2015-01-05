@@ -1,22 +1,22 @@
 package com.energyict.protocols.messaging;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifierType;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -48,12 +48,14 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
     private static final String ChannelUnitTag = "Unit";
 
     private final TopologyService topologyService;
-    private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-DD-mm HH:mm:ss");
+    private final LoadProfileFactory loadProfileFactory;
 
+    private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-DD-mm HH:mm:ss");
     /**
      * Holds the <CODE>ObisCode</CODE> from the <CODE>LoadProfile</CODE> to read
      */
     private ObisCode profileObisCode;
+
     /**
      * Holds the serialNumber of the meter for this LoadProfile
      */
@@ -79,15 +81,15 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
      * Contains a <CODE>List</CODE> of <b>necessary</b> channels to read from the meter.
      */
     private List<ChannelInfo> channelInfos;
-
     /**
      * The LoadProfile to read
      */
     private LoadProfile loadProfile;
 
-    public LegacyPartialLoadProfileMessageBuilder(TopologyService topologyService) {
+    public LegacyPartialLoadProfileMessageBuilder(TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
         super();
         this.topologyService = topologyService;
+        this.loadProfileFactory = loadProfileFactory;
     }
 
     public static String getMessageNodeTag() {
@@ -229,12 +231,7 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
     }
 
     private LoadProfile findLoadProfile(int loadProfileId) {
-        List<LoadProfileFactory> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(LoadProfileFactory.class);
-        if(modulesImplementing.isEmpty()){
-            return null;
-        } else {
-            return (LoadProfile) modulesImplementing.get(0).findLoadProfileById(loadProfileId);
-        }
+        return (LoadProfile) this.loadProfileFactory.findLoadProfileById(loadProfileId);
     }
 
     /**

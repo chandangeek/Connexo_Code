@@ -13,6 +13,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -63,12 +64,14 @@ public class RtuServer implements DeviceProtocol {
     private OfflineDevice offlineDevice;
     private LegacyMessageConverter messageConverter;
 
+    private final CollectedDataFactory collectedDataFactory;
     private final PropertySpecService propertySpecService;
     private final NoOrPasswordSecuritySupport securitySupport;
     private final Clock clock;
 
     @Inject
-    public RtuServer(PropertySpecService propertySpecService, Clock clock) {
+    public RtuServer(CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, Clock clock) {
+        this.collectedDataFactory = collectedDataFactory;
         this.propertySpecService = propertySpecService;
         this.clock = clock;
         this.securitySupport = new NoOrPasswordSecuritySupport(propertySpecService);
@@ -171,12 +174,12 @@ public class RtuServer implements DeviceProtocol {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createEmptyCollectedMessageList();     //Messages are executed in ProtocolHandler, not here
+        return this.collectedDataFactory.createEmptyCollectedMessageList();     //Messages are executed in ProtocolHandler, not here
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createEmptyCollectedMessageList();     //Messages are executed in ProtocolHandler, not here
+        return this.collectedDataFactory.createEmptyCollectedMessageList();     //Messages are executed in ProtocolHandler, not here
     }
 
     @Override
@@ -207,8 +210,8 @@ public class RtuServer implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
-        return this.securitySupport.getSecurityProperties();
+    public List<PropertySpec> getSecurityPropertySpecs() {
+        return this.securitySupport.getSecurityPropertySpecs();
     }
 
     @Override
