@@ -19,6 +19,7 @@ Ext.define('Uni.property.form.PropertyHydrator', {
         if (typeof record === 'undefined' || !record.properties()) {
             return false;
         }
+        record.beginEdit();
         record.properties().each(function (property) {
             var value,
                 propertyValue;
@@ -44,5 +45,6 @@ Ext.define('Uni.property.form.PropertyHydrator', {
             }
 
         });
+        record.endEdit();
     }
 });

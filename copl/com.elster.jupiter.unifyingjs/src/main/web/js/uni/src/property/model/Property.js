@@ -77,12 +77,13 @@ Ext.define('Uni.property.model.Property', {
                 hasValue = propertyValue.get('propertyHasValue');
             }
         }
-
+        me.beginEdit();
         me.set('isInheritedOrDefaultValue', isInheritedValue);
         me.set('value', value);
         me.set('default', restoreValue);
         me.set('hasDefaultValue', hasDefaultValue);
         me.set('hasValue', hasValue);
+        me.endEdit();
     },
 
     initInheritedValues: function() {
