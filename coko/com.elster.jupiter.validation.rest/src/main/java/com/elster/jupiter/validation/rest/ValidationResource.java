@@ -177,7 +177,7 @@ public class ValidationResource {
                     rule.addReadingType(readingTypeInfo.mRID);
                 }
                 PropertyUtils propertyUtils = new PropertyUtils();
-                for (PropertySpec<?> propertySpec : rule.getPropertySpecs()) {
+                for (PropertySpec propertySpec : rule.getPropertySpecs()) {
                     Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
                     rule.addProperty(propertySpec.getName(), value);
                 }

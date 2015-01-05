@@ -14,7 +14,6 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo.ReadingTypeNames;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
@@ -42,7 +41,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.util.measurement.Measurement;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -259,13 +257,13 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         info.name = "MyRule";
         info.implementation = "com.blablabla.Validator";
         info.properties = createPropertyInfos();
-        
+
         Entity<ValidationRuleInfo> entity = Entity.json(info);
-        
+
         ValidationRuleSet ruleSet = mockValidationRuleSet(13, false);
         ValidationRule rule = mockValidationRuleInRuleSet(ruleSet);
         when(ruleSet.addRule(Matchers.eq(ValidationAction.FAIL), Matchers.eq(info.implementation), Matchers.eq(info.name))).thenReturn(rule);
-        
+
         Response response = target("/validation/rules/13").request().post(entity);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -273,7 +271,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         assertThat(resultInfos.total).isEqualTo(1);
         assertThat(resultInfos.rules).hasSize(1);
         assertThat(resultInfos.rules.get(0).name).isEqualTo("MyRule");
-        
+
         verify(rule).addProperty("number", BigDecimal.valueOf(10.0));
         verify(rule).addProperty("nullableboolean", false);
         verify(rule).addProperty("boolean", true);
@@ -288,7 +286,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         info.name = "MyRuleUpdated";
         info.implementation = "com.blablabla.Validator";
         info.properties = new ArrayList<>();
-        
+
         ValidationRuleSet ruleSet = mockValidationRuleSet(13, true);
         ValidationRule rule = ruleSet.getRules().get(0);
         when(rule.getName()).thenReturn("MyRuleUpdated");
@@ -296,15 +294,15 @@ public class ValidationResourceTest extends BaseValidationRestTest {
                 Matchers.eq(1L),
                 Matchers.eq("MyRuleUpdated"),
                 Matchers.eq(false),
-                Matchers.eq(new ArrayList<String>()),
-                Matchers.eq(new HashMap<String, Object>()))).
+                Matchers.eq(new ArrayList<>()),
+                Matchers.eq(new HashMap<>()))).
                 thenReturn(rule);
-        
+
         Entity<ValidationRuleInfo> entity = Entity.json(info);
         Response response = target("/validation/rules/13").request().put(entity);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        
+
         ValidationRuleInfos resultInfos = response.readEntity(ValidationRuleInfos.class);
         assertThat(resultInfos.total).isEqualTo(1);
         assertThat(resultInfos.rules).hasSize(1);
@@ -318,21 +316,21 @@ public class ValidationResourceTest extends BaseValidationRestTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
     }
-    
+
     @Test
     public void testDeleteValidationRuleNoRuleSet() {
         when(validationService.getValidationRuleSet(13)).thenReturn(Optional.empty());
-        
+
         Response response = target("/validation/rules/13").queryParam("id", "1").request().delete();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
-    
+
     @Test
     public void testDeleteValidationRuleNoRule() {
         mockValidationRuleSet(13, false);
         when(validationService.getValidationRule(1)).thenReturn(Optional.empty());
-        
+
         Response response = target("/validation/rules/13").queryParam("id", "1").request().delete();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
@@ -398,7 +396,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         when(validationService.getValidationRule(1)).thenReturn(Optional.of(rule));
         return rule;
     }
-    
+
     private ReadingType mockReadingType() {
     	ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMRID()).thenReturn("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
@@ -410,24 +408,24 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     	when(readingType.getCommodity()).thenReturn(Commodity.NOTAPPLICABLE);
     	when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.NOTAPPLICABLE);
     	when(readingType.getInterharmonic()).thenReturn(RationalNumber.NOTAPPLICABLE);
-    	when(readingType.getArgument()).thenReturn(RationalNumber.NOTAPPLICABLE);    	    	    	
+    	when(readingType.getArgument()).thenReturn(RationalNumber.NOTAPPLICABLE);
     	when(readingType.getPhases()).thenReturn(Phase.NOTAPPLICABLE);
     	when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
     	when(readingType.getUnit()).thenReturn(ReadingTypeUnit.NOTAPPLICABLE);
     	when(readingType.getCurrency()).thenReturn(Currency.getInstance("XXX"));
     	return readingType;
     }
-    
+
     private List<PropertyInfo> createPropertyInfos() {
         List<PropertyInfo> infos = new ArrayList<>();
-        PropertyInfo numberInfo = new PropertyInfo("number", new PropertyValueInfo<Double>(Double.valueOf(10), null), null, true);
-        PropertyInfo nullableInfo = new PropertyInfo("nullableboolean", new PropertyValueInfo<Boolean>(false, null), null, true);
-        PropertyInfo booleanInfo = new PropertyInfo("boolean", new PropertyValueInfo<Boolean>(true, null), null, true);
-        PropertyInfo textInfo = new PropertyInfo("text", new PropertyValueInfo<String>("string", null), null, true);
+        PropertyInfo numberInfo = new PropertyInfo("number", new PropertyValueInfo<>(Double.valueOf(10), null), null, true);
+        PropertyInfo nullableInfo = new PropertyInfo("nullableboolean", new PropertyValueInfo<>(false, null), null, true);
+        PropertyInfo booleanInfo = new PropertyInfo("boolean", new PropertyValueInfo<>(true, null), null, true);
+        PropertyInfo textInfo = new PropertyInfo("text", new PropertyValueInfo<>("string", null), null, true);
         PropertyInfo listValueInfo = new PropertyInfo();
         listValueInfo.key = "listvalue";
-        listValueInfo.propertyValueInfo = new PropertyValueInfo<String[]>(new String[]{"1", "2"}, null);
-        
+        listValueInfo.propertyValueInfo = new PropertyValueInfo<>(new String[]{"1", "2"}, null);
+
         infos.add(numberInfo);
         infos.add(nullableInfo);
         infos.add(booleanInfo);
@@ -440,16 +438,16 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         PropertySpec propertySpec = null;
         switch (propertyType) {
         case NUMBER:
-            propertySpec = new BasicPropertySpec<>(name, isRequired, new BigDecimalFactory());
+            propertySpec = new BasicPropertySpec(name, isRequired, new BigDecimalFactory());
             break;
         case NULLABLE_BOOLEAN:
-            propertySpec = new BasicPropertySpec<>(name, isRequired, new ThreeStateFactory());
+            propertySpec = new BasicPropertySpec(name, isRequired, new ThreeStateFactory());
             break;
         case BOOLEAN:
-            propertySpec = new BasicPropertySpec<>(name, isRequired, new BooleanFactory());
+            propertySpec = new BasicPropertySpec(name, isRequired, new BooleanFactory());
             break;
         case TEXT:
-            propertySpec = new BasicPropertySpec<>(name, isRequired, new StringFactory());
+            propertySpec = new BasicPropertySpec(name, isRequired, new StringFactory());
             break;
         case LISTVALUE:
             propertySpec = new ListValuePropertySpec<>(name, isRequired, new Finder(), Finder.bean1, Finder.bean2);
@@ -475,7 +473,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         private String id;
         private String name;
 
-        public ListValueBean(String id, String name) {
+        private ListValueBean(String id, String name) {
             this.id = id;
             this.name = name;
         }
