@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.topology.impl;
 
 import com.energyict.mdc.common.Translator;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -170,7 +169,6 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
                 new KpiModule(),
                 new TaskModule(),
                 new TasksModule(),
-                new MdcCommonModule(),
                 new MdcIOModule(),
                 new EngineModelModule(),
                 new ProtocolPluggableModule(),
