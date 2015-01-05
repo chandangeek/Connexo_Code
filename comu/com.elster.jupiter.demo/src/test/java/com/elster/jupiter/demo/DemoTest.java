@@ -37,7 +37,6 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 import com.elster.jupiter.validators.impl.DefaultValidatorFactory;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
@@ -75,9 +74,6 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
-import com.energyict.protocols.mdc.services.impl.DeviceProtocolServiceImpl;
-import com.energyict.protocols.mdc.services.impl.InboundDeviceProtocolServiceImpl;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
 import com.google.inject.AbstractModule;
@@ -176,7 +172,6 @@ public class DemoTest {
                 new com.elster.jupiter.issue.impl.module.IssueModule(),
 
                 new MdcIOModule(),
-                new MdcCommonModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),

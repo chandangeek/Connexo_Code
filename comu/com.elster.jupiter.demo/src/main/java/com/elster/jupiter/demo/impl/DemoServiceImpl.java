@@ -625,7 +625,7 @@ public class DemoServiceImpl implements DemoService {
 
     private void addConnectionMethodToDeviceConfiguration(Store store, DeviceConfiguration configuration) {
         ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIp").get();
-        configuration.getCommunicationConfiguration()
+        configuration
                 .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(60, TimeDuration.TimeUnit.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .comPortPool(store.getOutboundComPortPools().get(Constants.OutboundComPortPool.OUTBOUND_TCP_POOL))
                 .addProperty("host", store.getProperty("host"))
@@ -665,7 +665,7 @@ public class DemoServiceImpl implements DemoService {
     }
 
     private void addConnectionMethodToDevice(Store store, DeviceConfiguration configuration, Device device) {
-        PartialScheduledConnectionTask connectionTask = configuration.getCommunicationConfiguration().getPartialOutboundConnectionTasks().get(0);
+        PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
         int portNumber = 4059;
         // We want two failing devices for 'Actaris SL7000' device type
         if (Constants.DeviceType.Actaris_SL7000.getName().equals(configuration.getDeviceType().getName()) && device.getmRID().endsWith("8")){
