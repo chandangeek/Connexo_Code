@@ -173,7 +173,7 @@ public class ConnectionMethodResource {
      */
     private void updateProperties(ConnectionMethodInfo<PartialConnectionTask> connectionMethodInfo, PartialConnectionTask partialConnectionTask) {
         if (connectionMethodInfo.properties != null) {
-            for (PropertySpec<?> propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
+            for (PropertySpec propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
                 Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, connectionMethodInfo.properties);
                 if (propertyValue != null) {
                     partialConnectionTask.setProperty(propertySpec.getName(), propertyValue);

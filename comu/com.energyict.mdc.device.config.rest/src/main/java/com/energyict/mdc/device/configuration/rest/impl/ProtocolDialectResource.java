@@ -97,7 +97,7 @@ public class ProtocolDialectResource {
      */
     private void updateProperties(ProtocolDialectInfo protocolDialectInfo, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
         if (protocolDialectInfo.properties != null) {
-            for (PropertySpec<?> propertySpec : protocolDialectConfigurationProperties.getPropertySpecs()) {
+            for (PropertySpec propertySpec : protocolDialectConfigurationProperties.getPropertySpecs()) {
                 Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, protocolDialectInfo.properties);
                 if (propertyValue != null) {
                     protocolDialectConfigurationProperties.setProperty(propertySpec.getName(), propertyValue);

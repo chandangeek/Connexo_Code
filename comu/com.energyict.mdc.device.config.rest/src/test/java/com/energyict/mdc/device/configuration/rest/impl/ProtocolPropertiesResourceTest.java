@@ -58,7 +58,7 @@ public class ProtocolPropertiesResourceTest extends BaseLoadProfileTest {
     }
 
     private DeviceConfiguration mockDeviceConfiguration(DeviceProtocolConfigurationProperties properties) {
-        BasicPropertySpec<String> propertySpec = new BasicPropertySpec<>("callHomeId", new StringFactory());
+        BasicPropertySpec propertySpec = new BasicPropertySpec("callHomeId", new StringFactory());
         DeviceType deviceType = mockDeviceType("device", 11, Arrays.asList(propertySpec));
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration("config", 12);
         when(properties.getDeviceConfiguration()).thenReturn(deviceConfiguration);
