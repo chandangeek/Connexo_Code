@@ -71,7 +71,7 @@ Ext.define('Isu.controller.CreationRules', {
         var router = this.getController('Uni.controller.history.Router');
 
         switch (action) {
-            case 'delete':
+            case 'remove':
                 this.showDeleteConfirmation(menu.record);
                 break;
             case 'edit':
@@ -90,7 +90,7 @@ Ext.define('Isu.controller.CreationRules', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('administration.issueCreationRules.deleteConfirmation.msg', 'ISU', 'This issue creation rule will disappear from the list.<br>Issues will not be created automatically by this rule.'),
-            title: Ext.String.format(Uni.I18n.translate('administration.issueCreationRules.deleteConfirmation.title', 'ISU', 'Delete rule "{0}"?'), rule.get('name')),
+            title: Ext.String.format(Uni.I18n.translate('administration.issueCreationRules.deleteConfirmation.title', 'ISU', 'Remove rule "{0}"?'), rule.get('name')),
             config: {
                 me: me,
                 rule: rule
@@ -122,7 +122,7 @@ Ext.define('Isu.controller.CreationRules', {
                 if (operation.response.status == 204) {
                     page.down('#creation-rules-list pagingtoolbartop').totalCount = 0;
                     store.loadPage(1);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('administration.issueCreationRules.deleteSuccess.msg', 'ISU', 'Issue creation rule deleted'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('administration.issueCreationRules.deleteSuccess.msg', 'ISU', 'Issue creation rule removed'));
                 }
             }
         });

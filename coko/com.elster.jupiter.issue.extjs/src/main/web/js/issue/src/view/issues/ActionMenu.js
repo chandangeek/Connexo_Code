@@ -80,7 +80,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
                     isHidden = Uni.Auth.hasNoPrivilege('privilege.close.issue');
                     break;
                 case 'Retry now':
-                    isHidden = Uni.Auth.hasNoPrivilege('privilege.view.scheduleDevice');
+                    isHidden = Uni.Auth.hasNoPrivilege('privilege.operate.deviceCommunication');
                     break;
                 case 'Send someone to inspect':
                     isHidden = Uni.Auth.hasNoPrivilege('privilege.action.issue');
@@ -117,7 +117,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
         }
 
         // add specific actions
-        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.device','privilege.view.device'])) {
+        if (Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'])) {
             deviceMRID = me.record.get('deviceMRID');
             if (deviceMRID) {
                 comTaskId = me.record.get('comTaskId');
