@@ -68,8 +68,8 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
     }
 
     @Override
-    public List<PropertySpec<?>> getProperties() {
-        List<PropertySpec<?>> propertySpecs = new ArrayList<>();
+    public List<PropertySpec> getProperties() {
+        List<PropertySpec> propertySpecs = new ArrayList<>();
         propertySpecs.add(propertySpecService.stringPropertySpec(FormatterProperties.FILENAME_PREFIX.getKey(), true, null));
         propertySpecs.add(propertySpecService.stringPropertySpec(FormatterProperties.FILE_EXTENSION.getKey(), false, "csv"));
         propertySpecs.add(propertySpecService.stringPropertySpecWithValues(FormatterProperties.SEPARATOR.getKey(), true, "comma", "semicolon"));

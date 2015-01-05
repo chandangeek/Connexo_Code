@@ -17,11 +17,11 @@ public class StandardCsvDataProcessorFactoryTest {
         StandardCsvDataProcessorFactory factory = new StandardCsvDataProcessorFactory();
         factory.setPropertySpecService(new PropertySpecServiceImpl());
 
-        List<PropertySpec<?>> properties = factory.getProperties();
+        List<PropertySpec> properties = factory.getProperties();
         assertThat(properties).hasSize(4);
 
         // Order IS important
-        PropertySpec<?> property = properties.get(0);
+        PropertySpec property = properties.get(0);
         assertThat(property.getName()).isEqualTo("fileFormat.filenamePrefix");
         assertThat(property.isRequired()).isTrue();
         assertThat(property.getValueFactory()).isInstanceOf(StringFactory.class);
