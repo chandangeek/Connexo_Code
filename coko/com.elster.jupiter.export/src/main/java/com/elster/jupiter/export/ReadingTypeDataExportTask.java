@@ -51,7 +51,7 @@ public interface ReadingTypeDataExportTask extends HasName {
 
     String getDataFormatter();
 
-    List<PropertySpec<?>> getPropertySpecs();
+    List<PropertySpec> getPropertySpecs();
 
     ScheduleExpression getScheduleExpression();
 

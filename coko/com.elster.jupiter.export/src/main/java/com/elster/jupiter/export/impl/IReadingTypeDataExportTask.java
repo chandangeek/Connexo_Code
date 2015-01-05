@@ -7,13 +7,11 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
 
-import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 interface IReadingTypeDataExportTask extends ReadingTypeDataExportTask {
 
-    PropertySpec<?> getPropertySpec(String name);
+    PropertySpec getPropertySpec(String name);
 
     String getDisplayName(String name);
 

@@ -110,7 +110,7 @@ public class DataExportServiceImplTest {
     @Mock
     private RelativePeriod relativePeriod;
     @Mock
-    private PropertySpec<?> propertySpec1, propertySpec2, propertySpec3;
+    private PropertySpec propertySpec1, propertySpec2, propertySpec3;
 
 
     @Mock

@@ -8,7 +8,7 @@ import java.util.Map;
 
 public interface DataProcessorFactory extends HasName {
 
-    List<PropertySpec<?>> getProperties();
+    List<PropertySpec> getProperties();
 
     DataProcessor createDataFormatter(Map<String, Object> properties);
 

@@ -22,7 +22,7 @@ public interface DataExportService {
 
     Query<? extends ReadingTypeDataExportTask> getReadingTypeDataExportTaskQuery();
 
-    List<PropertySpec<?>> getPropertiesSpecsForProcessor(String name);
+    List<PropertySpec> getPropertiesSpecsForProcessor(String name);
 
     List<DataProcessorFactory> getAvailableProcessors();
 

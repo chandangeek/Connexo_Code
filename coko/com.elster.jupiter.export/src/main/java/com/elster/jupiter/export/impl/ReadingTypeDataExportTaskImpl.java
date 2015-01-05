@@ -250,7 +250,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     @Override
-    public List<PropertySpec<?>> getPropertySpecs() {
+    public List<PropertySpec> getPropertySpecs() {
         return dataExportService.getDataProcessorFactory(dataProcessor).orElseThrow(IllegalArgumentException::new).getProperties();
     }
 
@@ -330,7 +330,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         this.updatePeriod.set(updatePeriod);
     }
 
-    public PropertySpec<?> getPropertySpec(String name) {
+    public PropertySpec getPropertySpec(String name) {
         return getPropertySpecs().stream()
                 .filter(p -> name.equals(p.getName()))
                 .findFirst()
@@ -451,8 +451,9 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     private class CannotDeleteWhileBusy extends CannotDeleteWhileBusyException {
-        public CannotDeleteWhileBusy() {
+        CannotDeleteWhileBusy() {
             super(ReadingTypeDataExportTaskImpl.this.thesaurus, MessageSeeds.CANNOT_DELETE_WHILE_RUNNING, ReadingTypeDataExportTaskImpl.this);
         }
     }
+
 }

@@ -118,7 +118,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Override
-    public List<PropertySpec<?>> getPropertiesSpecsForProcessor(String name) {
+    public List<PropertySpec> getPropertiesSpecsForProcessor(String name) {
         return getDataProcessorFactory(name)
                 .map(DataProcessorFactory::getProperties)
                 .orElse(Collections.emptyList());
