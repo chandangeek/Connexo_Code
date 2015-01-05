@@ -119,11 +119,12 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
         var router = this.getController('Uni.controller.history.Router'),
             record = router.filter,
             filterForm = this.getSideFilterForm();
-
+        record.beginEdit();
         record.set('mRID', null);
         record.set('serialNumber', null);
         record.set('deviceTypes', null);
         record.set('deviceConfigurations', null);
+        record.endEdit();
         record.save();
 
         filterForm.loadRecord(record);

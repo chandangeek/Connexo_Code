@@ -359,6 +359,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     updateRecord: function (record, values, isNewRecord) {
         var me = this;
         if (record) {
+            record.beginEdit();
             record.set(values);
             if (values.connectionStrategy === 'asSoonAsPossible') {
                 record.set('nextExecutionSpecs', null);
@@ -367,11 +368,13 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                 record.set('comWindowStart', 0);
                 record.set('comWindowEnd', 0);
             }
+            record.endEdit();
             var propertyForm = me.getDeviceConnectionMethodEditView().down('property-form');
             if (propertyForm) {
                 propertyForm.updateRecord(record);
                 record.propertiesStore = propertyForm.getRecord().properties();
             }
+
             this.saveRecord(record, isNewRecord);
 
         }

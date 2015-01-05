@@ -144,12 +144,14 @@ Ext.define('Mdc.controller.setup.DeviceEvents', {
     removeFilterItem: function (key) {
         var router = this.getController('Uni.controller.history.Router'),
             record = router.filter;
+        record.beginEdit();
         if (key === 'eventDate') {
             record.set('intervalStart', null);
             record.set('intervalEnd', null);
         } else {
             record.set(key, null);
         }
+        record.endEdit();
         record.save();
     },
 

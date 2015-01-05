@@ -269,10 +269,11 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             selectedMessagesStore.each(function (record) {
                 messages.push({id: record.get('id')});
             });
-
+            record.beginEdit();
             record.set('name', nameField.getValue());
             record.set('commands', self.commands);
             record.set('messages', messages);
+            record.endEdit();
             formErrorsPanel.hide();
             protocolTasksErrorMessage.removeAll();
             protocolTasksErrorMessage.hide();

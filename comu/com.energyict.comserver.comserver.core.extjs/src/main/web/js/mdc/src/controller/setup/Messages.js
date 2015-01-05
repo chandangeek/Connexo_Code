@@ -356,8 +356,10 @@ Ext.define('Mdc.controller.setup.Messages', {
         var model = Ext.create('Mdc.model.MessageActivate');
         model.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
         model.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
+        model.beginEdit();
         model.set('messageIds', inactiveEnablements);
         model.set('privileges', privileges);
+        model.endEdit();
         model.save();
         this.showMessagesOverview(router.arguments.deviceTypeId, router.arguments.deviceConfigurationId);
     },

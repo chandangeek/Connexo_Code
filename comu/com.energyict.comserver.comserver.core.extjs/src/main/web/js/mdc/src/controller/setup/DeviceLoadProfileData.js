@@ -347,10 +347,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             router = me.getController('Uni.controller.history.Router'),
             all = dataIntervalAndZoomLevels.get('all'),
             intervalStart = dataIntervalAndZoomLevels.getIntervalStart((me.loadProfileModel.get('lastReading') || new Date().getTime()));
+        router.filter.beginEdit();
         router.filter.set('intervalStart', intervalStart);
         router.filter.set('duration', all.count + all.timeUnit);
         router.filter.set('onlySuspect', viewOnlySuspects);
         router.filter.set('onlyNonSuspect', false);
+        router.filter.endEdit();
         me.getSideFilter().down('#suspect').setValue(viewOnlySuspects);
     },
 

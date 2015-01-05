@@ -291,6 +291,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         var me = this;
         var propertyForm = me.getConnectionMethodEditView().down('property-form');
         if (record) {
+            record.beginEdit();
             record.set(values);
             if (values.connectionStrategy === 'asSoonAsPossible') {
                 record.set('temporalExpression', null);
@@ -303,6 +304,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             if (typeof propertyForm.getRecord() !== 'undefined') {
                 record.propertiesStore = propertyForm.getRecord().properties();
             }
+            record.endEdit();
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
             record.save({
                 success: function (record) {

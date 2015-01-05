@@ -359,10 +359,12 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             if (!Ext.isEmpty(record.get('id'))) {
                 messageSpecification = {id: record.get('id')}
             }
+            record.beginEdit();
             record.set('id', '');
             releaseDate && record.set('releaseDate', releaseDate);
             messageSpecification && record.set('messageSpecification', messageSpecification);
             record.set('status', null);
+            record.endEdit();
             record.save({
                 url: '/api/ddr/devices/' + btn.mRID + '/devicemessages',
                 method: 'POST',
