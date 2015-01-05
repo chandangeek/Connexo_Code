@@ -6,7 +6,7 @@ Ext.define('Usr.model.User', {
         'description',
         'version',
         'domain',
-        'language',
+        {name: 'language', type: 'auto', defaultValue: {}},
         'createdOn',
         'modifiedOn'
     ],

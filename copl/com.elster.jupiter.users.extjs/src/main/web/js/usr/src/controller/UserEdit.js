@@ -7,7 +7,8 @@ Ext.define('Usr.controller.UserEdit', {
     stores: [
         'Usr.store.Groups',
         'Usr.store.Users',
-        'Usr.store.UserDirectories'
+        'Usr.store.UserDirectories',
+        'Usr.store.Locales'
     ],
 
     models: [
@@ -44,20 +45,24 @@ Ext.define('Usr.controller.UserEdit', {
      * @param userId
      */
     showEditOverview: function (userId) {
-        var widget = Ext.widget('userEdit'),
-            panel = widget.getCenterContainer().items.getAt(0);
+        var me = this,
+            widget = Ext.widget('userEdit'),
+            panel = widget.getCenterContainer().items.getAt(0),
+            locales = this.getStore('Usr.store.Locales');
 
         this.backUrl = this.getApplication().getController('Usr.controller.history.UserManagement').tokenizePreviousTokens();
 
         this.getApplication().getController('Usr.controller.Main').showContent(widget);
 
+        locales.load();
+
         widget.hide();
         widget.setLoading(true);
 
-        var me = this;
         Ext.ModelManager.getModel('Usr.model.User').load(userId, {
             success: function (user) {
-                var title = Uni.I18n.translate('user.edit', 'USR', 'Edit');
+                var title = Uni.I18n.translate('user.edit', 'USR', 'Edit'),
+                    language = user.get('language');
                 panel.setTitle(title + ' \'' + user.get('authenticationName') + '\'');
                 if (user.get('authenticationName') == "admin") {
                     panel.down('[itemId=alertmessageuser]').show();
@@ -68,6 +73,15 @@ Ext.define('Usr.controller.UserEdit', {
 
                 Ext.StoreManager.get('Usr.store.Groups').load(function () {
                     panel.down('form').loadRecord(user);
+                    if (language) {
+                        if (locales.getCount()) {
+                            panel.down('form [name=language]').setValue(language.languageTag);
+                        } else {
+                            locales.on('load', function () {
+                                panel.down('form [name=language]').setValue(language.languageTag);
+                            }, me, {single: true});
+                        }
+                    }
 
                     Ext.ModelManager.getModel('Usr.model.UserDirectory').load(user.get('domain'), {
                         callback: function (domain) {
@@ -85,11 +99,16 @@ Ext.define('Usr.controller.UserEdit', {
     },
 
     updateUser: function (button) {
-        var me = this;
-        var form = button.up('form');
+        var me = this,
+            form = button.up('form'),
+            record = form.getRecord(),
+            language = me.getStore('Usr.store.Locales').getById(form.down('[name=language]').getValue());
 
-        form.updateRecord();
-        form.getRecord().save({
+        form.updateRecord(record);
+        if (language) {
+            record.set('language', language.getData());
+        }
+        record.save({
             success: function (record) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translatePlural('user.saved', record.get('authenticationName'), 'USR', 'User \'{0}\' saved.'));
                 location.href = '#/administration/users';
