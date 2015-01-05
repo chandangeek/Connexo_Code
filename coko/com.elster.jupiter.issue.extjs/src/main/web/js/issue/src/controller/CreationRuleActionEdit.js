@@ -139,7 +139,7 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
             actionField = form.down('[name=actionType]'),
             action = actionStore.getById(actionField.getValue()),
             parameters = {};
-
+        model.beginEdit();
         model.set('type', action.getData());
         delete model.get('type').parameters;
         model.set('phase', {
@@ -151,7 +151,7 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
             }
         });
         model.set('parameters', parameters);
-
+        model.endEdit();
         return model;
     },
 

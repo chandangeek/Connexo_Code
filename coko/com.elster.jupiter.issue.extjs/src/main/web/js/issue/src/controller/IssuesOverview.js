@@ -13,11 +13,13 @@ Ext.define('Isu.controller.IssuesOverview', {
         if (router.queryParams.myopenissues) {
             delete router.queryParams.myopenissues;
             me.getStore('Isu.store.IssueAssignees').load({params: {me: true}, callback: function (records) {
+                router.filter.beginEdit();
                 router.filter.set('assignee', records[0].getId());
                 router.filter.set('status', 'status.open');
                 router.filter.set('sorting', [
                     {type: 'dueDate', value: Uni.component.sort.model.Sort.ASC}
                 ]);
+                router.filter.endEdit();
                 router.filter.save();
             }});
         } else if (!router.queryParams.filter) {
