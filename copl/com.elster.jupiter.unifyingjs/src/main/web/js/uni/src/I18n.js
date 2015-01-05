@@ -106,7 +106,10 @@ Ext.define('Uni.I18n', {
     singleton: true,
 
     requires: [
-        'Ldr.store.Translations'
+        'Ldr.store.Translations',
+        'Uni.util.String',
+        'Uni.DateTime',
+        'Uni.Number'
     ],
 
     /**
@@ -120,13 +123,13 @@ Ext.define('Uni.I18n', {
      *
      * @property {String} [decimalSeparatorKey='decimalSeparator']
      */
-    decimalSeparatorKey: 'decimalSeparator',
+    decimalSeparatorKey: 'format.number.decimalseparator',
     /**
      * Default thousands separator format key to perform translation look-ups with.
      *
      * @property {String} [thousandsSeparatorKey='thousandsSeparator']
      */
-    thousandsSeparatorKey: 'thousandsSeparator',
+    thousandsSeparatorKey: 'format.number.thousandsseparator',
 
     //<debug>
     // Used to only show missing translation messages once.
@@ -186,19 +189,6 @@ Ext.define('Uni.I18n', {
     },
 
     /**
-     * Uses a regular expression to find and replace all instances of a translation parameter.
-     *
-     * @param {String} translation Translation to find and replace the index parameters
-     * @param {Number} searchIndex Index value to replace with the value
-     * @param {String} replaceValue Value to replace search results with
-     * @returns {String} Replaced translation
-     */
-    replaceAll: function (translation, searchIndex, replaceValue) {
-        var lookup = '\{[' + searchIndex + ']\}';
-        return translation.replace(new RegExp(lookup, 'g'), replaceValue);
-    },
-
-    /**
      * Returns the text translation of the key, looking for the key in a certain .
      *
      * @param {String} key Translation key to look up
@@ -223,7 +213,7 @@ Ext.define('Uni.I18n', {
         if (typeof translation !== 'undefined' && translation !== null
             && typeof values !== 'undefined') {
             for (var i = 0; i < values.length; i++) {
-                translation = this.replaceAll(translation, i, values[i]);
+                translation = Uni.util.String.replaceAll(translation, i, values[i]);
             }
         }
 
@@ -250,13 +240,15 @@ Ext.define('Uni.I18n', {
         }
 
         if (typeof amount !== 'undefined') {
-            translation = this.replaceAll(translation, 0, amount);
+            translation = Uni.util.String.replaceAll(translation, 0, amount);
         }
 
         return translation;
     },
 
     /**
+     * @deprecated Use {Uni.DateTime) instead!
+     *
      * Formats a date based on a translation key. If no date has been given, the current date is used.
      *
      * The used parse syntax is that of ExtJS which can be found at the {Ext.Date} documentation.
@@ -276,32 +268,8 @@ Ext.define('Uni.I18n', {
     },
 
     /**
-     * Formats a number based on parameters for the number of trailing decimal places, what decimal
-     * separator should be used, and what the thousands separator is. If the number of trailing
-     * decimals is not specified, 2 decimals are used. By default the decimal separator is '.' and
-     * the thousands separator is ','.
+     * @deprecated Use {Uni.Number} instead!
      *
-     * Adapted from: [http://stackoverflow.com/a/149099/682311](http://stackoverflow.com/a/149099/682311)
-     *
-     * @param {Number} number Number to format
-     * @param {Number} [decimals=2] Number of required decimal places
-     * @param {String} [decimalSeparator=.] Required decimal separator
-     * @param {String} [thousandsSeparator=,] Required thousand separator
-     * @returns {String} Formatted number
-     */
-    formatNumberWithSeparators: function (number, decimals, decimalSeparator, thousandsSeparator) {
-        var n = parseFloat(number),
-            c = isNaN(decimals) ? 2 : Math.abs(decimals),
-            d = decimalSeparator || '.',
-            t = (typeof thousandsSeparator === 'undefined') ? ',' : thousandsSeparator,
-            sign = (n < 0) ? '-' : '',
-            i = parseInt(n = Math.abs(n).toFixed(c)) + '',
-            j = ((j = i.length) > 3) ? j % 3 : 0;
-
-        return sign + (j ? i.substr(0, j) + t : '') + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : '');
-    },
-
-    /**
      * Internationalizes a number based on the number of trailing decimals, decimal separator, and thousands
      * separator for the currently active locale. If the number of trailing decimals is not specified,
      * 2 decimals are used. The translation lookup key for the decimal separator is 'decimalSeparator,

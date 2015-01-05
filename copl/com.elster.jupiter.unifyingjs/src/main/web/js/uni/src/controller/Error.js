@@ -141,13 +141,22 @@ Ext.define('Uni.controller.Error', {
                     'UNI',
                     'Please contact your system administrator.'
                 );
-                this.showError(title, message);
+                options.method !== 'HEAD' && this.showError(title, message);
                 break;
             case 401: // Unauthorized.
                 this.getApplication().fireEvent('sessionexpired');
                 break;
             case 403: // Forbidden.
-            // Fallthrough.
+                title = Uni.I18n.translate(
+                    'error.requestFailed',
+                    'UNI',
+                    'Request failed'
+                );
+                message = Uni.I18n.translate(
+                    'error.notFoundErrorMessage',
+                    'UNI',
+                    'Please contact your system administrator.'
+                );
             case 418: // I'm a teapot.
             // Fallthrough.
             default:

@@ -508,6 +508,296 @@ Ext.define('Uni.override.FormOverride', {
 });
 
 /**
+ * @class Uni.util.String
+ *
+ * Utility class for commonly used string functions.
+ */
+Ext.define('Uni.util.String', {
+    singleton: true,
+
+    /**
+     * Formats a duration in milliseconds to a human readable format.
+     *
+     * @param millis
+     * @returns {string}
+     */
+    formatDuration: function (millis, shortFormat) {
+        var duration = moment.duration(millis),
+            format = '',
+            hours,
+            minutes,
+            seconds;
+
+        if (duration.asHours() > 1) {
+            hours = Math.floor(duration.asHours()); // Avoids rounding errors.
+            format += shortFormat ?
+                Uni.I18n.translatePlural('general.time.hours_short', hours, 'UNI', '{0}h') :
+                Uni.I18n.translatePlural('general.time.hours', hours, 'UNI', '{0} hours');
+            format += ' ';
+        }
+
+        if (duration.asMinutes() > 1) {
+            minutes = duration.minutes();
+            format += shortFormat ?
+                Uni.I18n.translatePlural('general.time.minutes_short', minutes, 'UNI', '{0}m') :
+                Uni.I18n.translatePlural('general.time.minutes', minutes, 'UNI', '{0} minutes');
+            format += ' ';
+        }
+
+        seconds = duration.seconds() + Math.round(duration.milliseconds() / 1000);
+
+        // If less than 1 full second, round up; milliseconds get ignored in this case.
+        if (duration.asSeconds() < 1 && duration.asSeconds() !== 0) {
+            seconds = 1;
+        }
+
+        format += shortFormat ?
+            Uni.I18n.translatePlural('general.time.seconds_short', seconds, 'UNI', '{0}s') :
+            Uni.I18n.translatePlural('general.time.seconds', seconds, 'UNI', '{0} seconds');
+
+        if (duration.asHours() === 1 && duration.asMinutes() === 60 && duration.asSeconds() === 3600) {
+            format = shortFormat ?
+                Uni.I18n.translatePlural('general.time.hours_short', 1, 'UNI', '{0}h') :
+                Uni.I18n.translatePlural('general.time.hours', 1, 'UNI', '{0} hours');
+        } else if (duration.asHours() < 1 && duration.asMinutes() === 1 && duration.asSeconds() === 60) {
+            format = shortFormat ?
+                Uni.I18n.translatePlural('general.time.minutes_short', 1, 'UNI', '{0}m') :
+                Uni.I18n.translatePlural('general.time.minutes', 1, 'UNI', '{0} minutes');
+        }
+
+        return format;
+    },
+
+    /**
+     * Uses a regular expression to find and replace all instances of a parameter.
+     *
+     * @param {String} param Parameter to find and replace the index parameters in
+     * @param {Number} searchIndex Index value to replace with the value
+     * @param {String} replaceValue Value to replace search results with
+     * @returns {String} Replaced parameter
+     */
+    replaceAll: function (param, searchIndex, replaceValue) {
+        var lookup = '\{[' + searchIndex + ']\}';
+        return param.replace(new RegExp(lookup, 'g'), replaceValue);
+    }
+});
+
+/**
+ * @class Uni.util.Preferences
+ *
+ */
+Ext.define('Uni.util.Preferences', {
+    singleton: true,
+
+    requires: [
+        'Ldr.store.Preferences'
+    ],
+
+    // Used to only show missing preferences messages once.
+    blacklist: [],
+
+    doLookup: function (key) {
+        var me = this,
+            preference = Ldr.store.Preferences.getById(key);
+
+        if (typeof preference !== 'undefined' && preference !== null) {
+            preference = preference.data.value;
+        } else {
+            if (!me.blacklist[key]) {
+                me.blacklist[key] = true;
+                console.warn('Missing preference for key \'' + key + '\'.');
+            }
+        }
+
+        return preference;
+    },
+
+    /**
+     * Looks up a preference based on a key.
+     *
+     * @param key
+     * @param fallback
+     * @returns {String/Number}
+     */
+    lookup: function (key, fallback) {
+        var preference = this.doLookup(key);
+
+        if ((typeof preference === 'undefined' || preference === null)
+            && typeof fallback === 'undefined' && fallback === null) {
+            preference = key;
+        }
+
+        if ((typeof preference === 'undefined' || preference === null)
+            && typeof fallback !== 'undefined' && fallback !== null) {
+            preference = fallback;
+        }
+
+        return preference;
+    }
+});
+
+/**
+ * @class Uni.DateTime
+ */
+Ext.define('Uni.DateTime', {
+    singleton: true,
+
+    requires: [
+        'Uni.util.Preferences'
+    ],
+
+    dateShortKey: 'format.date.short',
+    dateLongKey: 'format.date.long',
+
+    timeShortKey: 'format.time.short',
+    timeLongKey: 'format.time.long',
+
+    dateTimeShortKey: 'format.datetime.short',
+    dateTimeLongKey: 'format.datetime.long',
+
+    dateShortDefault: 'd M \'y',
+    dateLongDefault: 'D d M \'y',
+
+    timeShortDefault: 'H:i',
+    timeLongDefault: 'H:i:s',
+
+    dateTimeShortDefault: 'H:i d M \'y',
+    dateTimeLongDefault: 'H:i:s D d M \'y',
+
+    formatDateShort: function (date) {
+        date = date || new Date();
+
+        var me = this,
+            format = Uni.util.Preferences.lookup(me.dateShortKey, me.dateShortDefault);
+
+        return Ext.Date.format(date, format);
+    },
+
+    formatDateLong: function (date) {
+        date = date || new Date();
+
+        var me = this,
+            format = Uni.util.Preferences.lookup(me.dateLongKey, me.dateLongDefault);
+
+        return Ext.Date.format(date, format);
+    },
+
+    formatTimeShort: function (date) {
+        date = date || new Date();
+
+        var me = this,
+            format = Uni.util.Preferences.lookup(me.timeShortKey, me.timeShortDefault);
+
+        return Ext.Date.format(date, format);
+    },
+
+    formatTimeLong: function (date) {
+        date = date || new Date();
+
+        var me = this,
+            format = Uni.util.Preferences.lookup(me.timeLongKey, me.timeLongDefault);
+
+        return Ext.Date.format(date, format);
+    },
+
+    formatDateTimeShort: function (date) {
+        date = date || new Date();
+
+        var me = this,
+            format = Uni.util.Preferences.lookup(me.dateTimeShortKey, me.dateTimeShortDefault);
+
+        return Ext.Date.format(date, format);
+    },
+
+    formatDateTimeLong: function (date) {
+        date = date || new Date();
+
+        var me = this,
+            format = Uni.util.Preferences.lookup(me.dateTimeLongKey, me.dateTimeLongDefault);
+
+        return Ext.Date.format(date, format);
+    }
+});
+
+/**
+ * @class Uni.Number
+ */
+Ext.define('Uni.Number', {
+    singleton: true,
+
+    requires: [
+        'Uni.util.Preferences',
+        'Uni.util.String'
+    ],
+
+    decimalPrecisionKey: 'format.number.decimalprecision',
+    decimalSeparatorKey: 'format.number.decimalseparator',
+    thousandsSeparatorKey: 'format.number.thousandsseparator',
+
+    currencyKey: 'format.number.currency',
+
+    decimalPrecisionDefault: 2,
+    decimalSeparatorDefault: '.',
+    thousandsSeparatorDefault: ',',
+
+    currencyDefault: '£ {0}',
+
+    doFormatNumber: function (number, decimalPrecision, decimalSeparator, thousandsSeparator) {
+        var me = this,
+            n = parseFloat(number),
+            c = isNaN(decimalPrecision) ? me.decimalPrecisionDefault : Math.abs(decimalPrecision),
+            d = decimalSeparator || me.decimalSeparatorDefault,
+            t = (typeof thousandsSeparator === 'undefined') ? me.thousandsSeparatorDefault : thousandsSeparator,
+            sign = (n < 0) ? '-' : '',
+            i = parseInt(n = Math.abs(n).toFixed(c)) + '',
+            j = ((j = i.length) > 3) ? j % 3 : 0;
+
+        return sign + (j ? i.substr(0, j) + t : '') + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (parseInt(decimalPrecision) < 0 ? number.split('.')[1] ? d + number.split('.')[1] : '' : (c ? d + Math.abs(n - i).toFixed(c).slice(2) : ''));
+    },
+
+    /**
+     * Internationalizes a number based on the number of trailing decimals, decimal separator, and thousands
+     * separator for the currently active locale.
+     *
+     * @param {Number} number Number to format
+     * @param {Number} [decimalPrecision] Number of required decimal places
+     * @param {String} [decimalSeparator] Decimal separator
+     * @param {String} [thousandsSeparator] Thousand separator
+     * @returns {String} Formatted number
+     */
+    formatNumber: function (number, decimalPrecision, decimalSeparator, thousandsSeparator) {
+        var me = this;
+
+        if (!decimalPrecision && decimalPrecision !== 0) {
+            decimalPrecision = Uni.util.Preferences.lookup(me.decimalPrecisionKey, me.decimalPrecisionDefault);
+        }
+        decimalSeparator = decimalSeparator || Uni.util.Preferences.lookup(me.decimalSeparatorKey, me.decimalSeparatorDefault);
+        thousandsSeparator = thousandsSeparator || Uni.util.Preferences.lookup(me.thousandsSeparatorKey, me.thousandsSeparatorDefault);
+
+        return me.doFormatNumber(number, decimalPrecision, decimalSeparator, thousandsSeparator);
+    },
+
+    /**
+     * Formats a number into a currency based on the parameters, most of which are optional.
+     *
+     * @param {Number} number Number to format
+     * @param {String} [currency] Currency to use
+     * @param {Number} [decimalPrecision] Number of required decimal places
+     * @param {String} [decimalSeparator] Decimal separator
+     * @param {String} [thousandsSeparator] Thousand separator
+     * @returns {String} Formatted number
+     */
+    formatCurrency: function (number, currency, decimalPrecision, decimalSeparator, thousandsSeparator) {
+        var me = this,
+            result = me.formatNumber(number, decimalPrecision, decimalSeparator, thousandsSeparator);
+
+        currency = currency || Uni.util.Preferences.lookup(me.currencyKey, me.currencyDefault);
+
+        return Uni.util.String.replaceAll(currency, 0, result);
+    }
+});
+
+/**
  * @class Uni.I18n
  *
  * Internationalization (I18N) class that can be used to retrieve translations from the translations
@@ -615,7 +905,10 @@ Ext.define('Uni.I18n', {
     singleton: true,
 
     requires: [
-        'Ldr.store.Translations'
+        'Ldr.store.Translations',
+        'Uni.util.String',
+        'Uni.DateTime',
+        'Uni.Number'
     ],
 
     /**
@@ -629,13 +922,13 @@ Ext.define('Uni.I18n', {
      *
      * @property {String} [decimalSeparatorKey='decimalSeparator']
      */
-    decimalSeparatorKey: 'decimalSeparator',
+    decimalSeparatorKey: 'format.number.decimalseparator',
     /**
      * Default thousands separator format key to perform translation look-ups with.
      *
      * @property {String} [thousandsSeparatorKey='thousandsSeparator']
      */
-    thousandsSeparatorKey: 'thousandsSeparator',
+    thousandsSeparatorKey: 'format.number.thousandsseparator',
 
     // Used to only show missing translation messages once.
     blacklist: [],
@@ -691,19 +984,6 @@ Ext.define('Uni.I18n', {
     },
 
     /**
-     * Uses a regular expression to find and replace all instances of a translation parameter.
-     *
-     * @param {String} translation Translation to find and replace the index parameters
-     * @param {Number} searchIndex Index value to replace with the value
-     * @param {String} replaceValue Value to replace search results with
-     * @returns {String} Replaced translation
-     */
-    replaceAll: function (translation, searchIndex, replaceValue) {
-        var lookup = '\{[' + searchIndex + ']\}';
-        return translation.replace(new RegExp(lookup, 'g'), replaceValue);
-    },
-
-    /**
      * Returns the text translation of the key, looking for the key in a certain .
      *
      * @param {String} key Translation key to look up
@@ -728,7 +1008,7 @@ Ext.define('Uni.I18n', {
         if (typeof translation !== 'undefined' && translation !== null
             && typeof values !== 'undefined') {
             for (var i = 0; i < values.length; i++) {
-                translation = this.replaceAll(translation, i, values[i]);
+                translation = Uni.util.String.replaceAll(translation, i, values[i]);
             }
         }
 
@@ -755,13 +1035,15 @@ Ext.define('Uni.I18n', {
         }
 
         if (typeof amount !== 'undefined') {
-            translation = this.replaceAll(translation, 0, amount);
+            translation = Uni.util.String.replaceAll(translation, 0, amount);
         }
 
         return translation;
     },
 
     /**
+     * @deprecated Use {Uni.DateTime) instead!
+     *
      * Formats a date based on a translation key. If no date has been given, the current date is used.
      *
      * The used parse syntax is that of ExtJS which can be found at the {Ext.Date} documentation.
@@ -781,32 +1063,8 @@ Ext.define('Uni.I18n', {
     },
 
     /**
-     * Formats a number based on parameters for the number of trailing decimal places, what decimal
-     * separator should be used, and what the thousands separator is. If the number of trailing
-     * decimals is not specified, 2 decimals are used. By default the decimal separator is '.' and
-     * the thousands separator is ','.
+     * @deprecated Use {Uni.Number} instead!
      *
-     * Adapted from: [http://stackoverflow.com/a/149099/682311](http://stackoverflow.com/a/149099/682311)
-     *
-     * @param {Number} number Number to format
-     * @param {Number} [decimals=2] Number of required decimal places
-     * @param {String} [decimalSeparator=.] Required decimal separator
-     * @param {String} [thousandsSeparator=,] Required thousand separator
-     * @returns {String} Formatted number
-     */
-    formatNumberWithSeparators: function (number, decimals, decimalSeparator, thousandsSeparator) {
-        var n = parseFloat(number),
-            c = isNaN(decimals) ? 2 : Math.abs(decimals),
-            d = decimalSeparator || '.',
-            t = (typeof thousandsSeparator === 'undefined') ? ',' : thousandsSeparator,
-            sign = (n < 0) ? '-' : '',
-            i = parseInt(n = Math.abs(n).toFixed(c)) + '',
-            j = ((j = i.length) > 3) ? j % 3 : 0;
-
-        return sign + (j ? i.substr(0, j) + t : '') + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : '');
-    },
-
-    /**
      * Internationalizes a number based on the number of trailing decimals, decimal separator, and thousands
      * separator for the currently active locale. If the number of trailing decimals is not specified,
      * 2 decimals are used. The translation lookup key for the decimal separator is 'decimalSeparator,
@@ -1200,12 +1458,13 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
                 Ext.Array.each(grid.getEl().query('.x-grid-cell-headerId-' + (column.itemId || column.id)), function (item) {
                     var cell = Ext.get(item),
                         inner = cell.down('.x-grid-cell-inner'),
-                        text = inner ? Ext.util.Format.stripTags(inner.getHTML()) : false;
+                        text = inner ? Ext.util.Format.stripTags(inner.getHTML()) : false,
+                        tooltip = cell.getAttribute('data-qtip');
 
                     if (text && (cell.getWidth(true) < cell.getTextWidth())) {
-                        cell.set({'data-qtip': text});
+                        cell.set({'data-qtip': tooltip || text});
                     } else {
-                        cell.set({'data-qtip': undefined});
+                        cell.set({'data-qtip': (tooltip !== text ? tooltip : null) || undefined});
                     }
                 });
             }
@@ -2345,6 +2604,7 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
             if (typeof stepItems[0].privileges === 'undefined' || Uni.Auth.hasAnyPrivilege(stepItems[0].privileges)) {
                 wrapper.add({
                     xtype: 'component',
+                    itemId: 'no-items-found-panel-steps-label',
                     html: '<span class="steps-text">' + me.stepsText + '</span>'
                 });
 
@@ -2640,13 +2900,22 @@ Ext.define('Uni.controller.Error', {
                     'UNI',
                     'Please contact your system administrator.'
                 );
-                this.showError(title, message);
+                options.method !== 'HEAD' && this.showError(title, message);
                 break;
             case 401: // Unauthorized.
                 this.getApplication().fireEvent('sessionexpired');
                 break;
             case 403: // Forbidden.
-            // Fallthrough.
+                title = Uni.I18n.translate(
+                    'error.requestFailed',
+                    'UNI',
+                    'Request failed'
+                );
+                message = Uni.I18n.translate(
+                    'error.notFoundErrorMessage',
+                    'UNI',
+                    'Please contact your system administrator.'
+                );
             case 418: // I'm a teapot.
             // Fallthrough.
             default:
@@ -3272,12 +3541,17 @@ Ext.define('Uni.controller.Navigation', {
         {
             ref: 'searchButton',
             selector: 'navigationHeader #globalSearch'
+        },
+        {
+            ref: 'onlineHelpButton',
+            selector: 'navigationHeader #global-online-help'
         }
     ],
 
     applicationTitle: 'Connexo Multi Sense',
     applicationTitleSeparator: '-',
-    searchEnabled: Uni.Auth.hasAnyPrivilege(['privilege.administrate.device', 'privilege.view.device']),
+    searchEnabled: Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+    onlineHelpEnabled: false,
 
     init: function () {
         var me = this;
@@ -3298,6 +3572,9 @@ Ext.define('Uni.controller.Navigation', {
             },
             'navigationHeader #globalSearch': {
                 afterrender: me.initSearch
+            },
+            'navigationHeader #global-online-help': {
+                afterrender: me.initOnlineHelp
             }
         });
 
@@ -3364,6 +3641,40 @@ Ext.define('Uni.controller.Navigation', {
     initSearch: function () {
         var me = this;
         me.getSearchButton().setVisible(me.searchEnabled);
+    },
+
+    initOnlineHelp: function () {
+        var me = this,
+            helpBtn = me.getOnlineHelpButton();
+
+        if (me.onlineHelpEnabled) {
+            Ext.Ajax.request({
+                url: '/api/usr/currentuser',
+                success: function(response){
+                    var currentUser = Ext.decode(response.responseText, true),
+                        url;
+                    if (currentUser && currentUser.language && currentUser.language.languageTag) {
+                        url = 'help/' + currentUser.language.languageTag + '/index.html';
+                        Ext.Ajax.request({
+                            url: url,
+                            method: 'HEAD',
+                            success: function(response){
+                                helpBtn.setHref(url);
+                            },
+                            callback: function () {
+                                helpBtn.show();
+                            },
+                        });
+                    } else {
+                        helpBtn.show();
+                    }
+                }, failure: function () {
+                    helpBtn.show();
+                }
+            });
+        } else {
+            helpBtn.hide();
+        }
     },
 
     onAfterRenderNavigationMenu: function () {
@@ -3685,7 +3996,8 @@ Ext.define('Uni.model.PortalItem', {
         'title',
         'portal',
         'index',
-        'items'
+        'items',
+        'itemId'
     ],
     proxy: {
         type: 'memory'
@@ -3763,8 +4075,10 @@ Ext.define('Uni.view.container.PortalContainer', {
         var me = this,
             title = model.get('title'),
             items = model.get('items'),
+            itemId = model.get('itemId'),
             widget;
 
+        itemId = (Ext.isString(itemId) && itemId.length) ? itemId : undefined;
         if (typeof items === 'undefined') {
             return widget;
         }
@@ -3772,6 +4086,7 @@ Ext.define('Uni.view.container.PortalContainer', {
         widget = Ext.create('Ext.panel.Panel', {
             title: title,
             ui: 'tile',
+            itemId:itemId,
             columnWidth: 1 / me.columnCount,
             height: 256,
             items: [
@@ -3781,7 +4096,13 @@ Ext.define('Uni.view.container.PortalContainer', {
                     floating: false,
                     items: items
                 }
-            ]
+            ],
+            refresh : function (items) {
+                var me = this;
+                var menu = me.down('menu');
+                menu.removeAll();
+                menu.add(items);
+            }
         });
 
         return widget;
@@ -4440,7 +4761,7 @@ Ext.define('Uni.form.field.ReadingTypeCombo', {
                 renderTo: me.el.down('.x-form-item-body'),
                 tooltip: Uni.I18n.translate('readingType.tooltip', 'UNI', 'Reading type info'),
                 hidden: true,
-                iconCls: 'icon-info-small',
+                iconCls: 'uni-icon-info-small',
                 cls: 'uni-btn-transparent',
                 style: {
                     display: 'inline-block',
@@ -4601,6 +4922,8 @@ Ext.define('Uni.Loader', {
 
         'Uni.About',
         'Uni.I18n',
+        'Uni.DateTime',
+        'Uni.Number',
         'Uni.Auth',
 
         'Uni.controller.Acknowledgements',
@@ -5315,6 +5638,13 @@ Ext.define('Uni.controller.AppController', {
     searchEnabled: true,
 
     /**
+     * @cfg {Boolean} [onlineHelpEnabled=false]
+     *
+     * Whether the help button shows or not in the application header.
+     */
+    onlineHelpEnabled: false,
+
+    /**
      * @cfg {String[]} privileges
      * The privileges that allow user to access application.
      * Empty by default.
@@ -5336,6 +5666,7 @@ Ext.define('Uni.controller.AppController', {
 
         me.getController('Uni.controller.Navigation').applicationTitle = me.applicationTitle;
         me.getController('Uni.controller.Navigation').searchEnabled = me.searchEnabled;
+        me.getController('Uni.controller.Navigation').onlineHelpEnabled = me.onlineHelpEnabled;
         me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
         me.getApplication().on('changecontentevent', me.showContent, me);
         me.getApplication().on('sessionexpired', me.redirectToLogin, me);
@@ -5878,7 +6209,7 @@ Ext.define('Uni.form.field.StartPeriod', {
                     name: 'frequency',
                     hideLabel: true,
                     value: 1,
-                    minValue: 1,
+                    minValue: 0,
                     editable: false,
                     allowBlank: false,
                     width: 64,
@@ -5887,6 +6218,7 @@ Ext.define('Uni.form.field.StartPeriod', {
                 {
                     xtype: 'combobox',
                     name: 'period-interval',
+                    itemId: 'period-interval',
                     displayField: 'name',
                     valueField: 'value',
                     queryMode: 'local',
@@ -5894,18 +6226,34 @@ Ext.define('Uni.form.field.StartPeriod', {
                     hideLabel: true,
                     value: 'months',
                     width: 200,
-                    margin: '0 6 0 0',
+                    margin: '0 6 0 6',
                     store: Ext.create('Uni.store.Periods'),
                     allowBlank: false,
                     forceSelection: true
                 },
                 {
-                    xtype: 'label',
-                    text: Uni.I18n.translate('form.field.startPeriod.optionAgo.label', 'UNI', 'ago'),
-                    cls: Ext.baseCSSPrefix + 'form-item-label',
-                    style: {
-                        fontWeight: 'normal'
-                    }
+                    xtype: 'combobox',
+                    name: 'period-edge',
+                    itemId: 'period-edge',
+                    displayField: 'name',
+                    valueField: 'value',
+                    queryMode: 'local',
+                    editable: false,
+                    hideLabel: true,
+                    value: 'ago',
+                    width: 110,
+                    margin: '0 6 0 6',
+                    store: new Ext.data.Store({
+                        fields: ['name', 'value'],
+                        data: (function () {
+                            return [
+                                {name: Uni.I18n.translate('general.period.ago', 'UNI', 'ago'), value: 'ago'},
+                                {name: Uni.I18n.translate('general.period.ahead', 'UNI', 'ahead'), value: 'ahead'}
+                            ];
+                        })()
+                    }),
+                    allowBlank: false,
+                    forceSelection: true
                 }
             ]
         });
@@ -5959,7 +6307,11 @@ Ext.define('Uni.form.field.StartPeriod', {
             me.lastTask.delay(256);
         }, me);
 
-        me.getOptionAgoContainer().down('combobox').on('change', function () {
+        me.getOptionAgoContainer().down('#period-interval').on('change', function () {
+            me.selectOptionAgo();
+        }, me);
+
+        me.getOptionAgoContainer().down('#period-edge').on('change', function () {
             me.selectOptionAgo();
         }, me);
 
@@ -6037,7 +6389,8 @@ Ext.define('Uni.form.field.StartPeriod', {
         var me = this,
             selectedValue = me.selectedValue,
             amountAgoValue = me.getOptionAgoContainer().down('numberfield').getValue(),
-            freqAgoValue = me.getOptionAgoContainer().down('combobox').getValue();
+            freqAgoValue = me.getOptionAgoContainer().down('#period-interval').getValue(),
+            timeMode = me.getOptionAgoContainer().down('#period-edge').getValue();
 
         var result = {
             startNow: selectedValue === 'now'
@@ -6055,7 +6408,8 @@ Ext.define('Uni.form.field.StartPeriod', {
         } else if (selectedValue === 'ago') {
             var shiftDate = {
                 startAmountAgo: amountAgoValue,
-                startPeriodAgo: freqAgoValue
+                startPeriodAgo: freqAgoValue,
+                startTimeMode: timeMode
             };
             Ext.apply(result, shiftDate);
         }
@@ -6181,6 +6535,7 @@ Ext.define('Uni.form.field.OnPeriod', {
                     },
                     {
                         xtype: 'combobox',
+                        itemId: 'option-dow-combo',
                         name: 'period-interval',
                         displayField: 'name',
                         valueField: 'value',
@@ -6333,6 +6688,10 @@ Ext.define('Uni.form.field.OnPeriod', {
         radio.setDisabled(disabled);
         combo.setDisabled(disabled);
 
+        if(Ext.ComponentQuery.query('#period-interval')[0].getValue() === 'weeks') {
+            me.selectedValue = 'dayofweek';
+            me.fireEvent('periodchange', me.getOnValue());
+        }
         me.selectAvailableOption();
     },
 
@@ -6849,7 +7208,12 @@ Ext.define('Uni.form.field.DateTime', {
         container.items = [dateTimeSeparator, hoursField, separator, minutesField];
         me.items = [dateField, container];
 
+
         me.callParent(arguments);
+
+        if(me.value){
+            me.setValue(me.value);
+        }
     },
 
     formatDisplayOfTime: function (value) {
@@ -6909,8 +7273,11 @@ Ext.define('Uni.form.field.DateTime', {
             if (minutes) date += minutes * 60000;
         }
         if (me.getRawValue) return date;
-        date = new Date(date);
-        return me.submitFormat ? Ext.Date.format(date, me.submitFormat) : date;
+        if(date){
+            date = new Date(date);
+            return me.submitFormat ? Ext.Date.format(date, me.submitFormat) : date;
+        }
+        return null;
     },
 
     markInvalid: function (fields) {
@@ -6989,16 +7356,6 @@ Ext.define('Uni.form.RelativePeriodPreview', {
 
         me.items = [
             {
-                xtype: 'component',
-                itemId: 'preview-label',
-                html: me.noPreviewDateErrorMsg,
-                cls: Ext.baseCSSPrefix + 'form-item-label',
-                style: {
-                    fontWeight: 'normal'
-                },
-                margin: '8 0 8 0'
-            },
-            {
                 xtype: 'container',
                 layout: {
                     type: 'hbox',
@@ -7007,7 +7364,7 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                 items: [
                     {
                         xtype: 'label',
-                        text: 'The relative period is defined using',
+                        text: Uni.I18n.translate('period.preview.base', 'UNI','Preview based on date:'),
                         cls: Ext.baseCSSPrefix + 'form-item-label',
                         style: {
                             fontWeight: 'normal'
@@ -7019,7 +7376,8 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                         editable: false,
                         value: new Date(),
                         width: 128,
-                        margin: '0 6 0 6'
+                        margin: '0 6 0 6',
+                        format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                     },
                     {
                         xtype: 'label',
@@ -7062,17 +7420,9 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                         margin: '0 6 0 6'
                     },
                     {
-                        xtype: 'label',
-                        text: 'as reference',
-                        cls: Ext.baseCSSPrefix + 'form-item-label',
-                        style: {
-                            fontWeight: 'normal'
-                        }
-                    },
-                    {
                         xtype: 'button',
-                        tooltip: Uni.I18n.translate('relativeperiod.form.referencedete.tooltip', 'TME', 'You can change the reference to define another relative period'),
-                        iconCls: 'icon-info-small',
+                        tooltip: Uni.I18n.translate('relativeperiod.form.referencedate.tooltip', 'TME', 'Select a reference date to evaluate the relative period.'),
+                        iconCls: 'uni-icon-info-small',
                         ui: 'blank',
                         itemId: 'latestReadingHelp',
                         shadow: false,
@@ -7080,6 +7430,16 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                         width: 16
                     }
                 ]
+            },
+            {
+                xtype: 'component',
+                itemId: 'preview-label',
+                html: me.noPreviewDateErrorMsg,
+                cls: Ext.baseCSSPrefix + 'form-item-label',
+                style: {
+                    fontWeight: 'normal'
+                },
+                margin: '15 0 3 0'
             }
         ];
     },
@@ -7151,8 +7511,12 @@ Ext.define('Uni.form.RelativePeriodPreview', {
 
     updatePreviewLabel: function (startDate, endDate) {
         var me = this,
-            startDateString = Uni.I18n.formatDate('datetime.longdate', startDate, 'UNI', 'l F j, Y \\a\\t H:i a'),
-            endDateString = Uni.I18n.formatDate('datetime.longdate', endDate, 'UNI', 'l F j, Y \\a\\t H:i a'),
+            startDateString = Uni.DateTime.formatDateLong(startDate)
+                + ' ' + Uni.I18n.translate('general.at', 'UNI', 'At').toLowerCase() + ' '
+                + Uni.DateTime.formatTimeLong(startDate),
+            endDateString = Uni.DateTime.formatDateLong(endDate)
+                + ' ' + Uni.I18n.translate('general.at', 'UNI', 'At').toLowerCase() + ' '
+                + Uni.DateTime.formatTimeLong(endDate),
             dateString = me.formatPreviewTextFn(startDateString, endDateString);
 
         if (typeof startDate !== 'undefined' && typeof endDate !== 'undefined') {
@@ -7264,7 +7628,7 @@ Ext.define('Uni.form.field.DisplayFieldWithInfoIcon', {
             new Ext.button.Button({
                 renderTo: field.getEl().down('.x-form-display-field'),
                 tooltip: tooltip,
-                iconCls: 'icon-info-small',
+                iconCls: 'uni-icon-info-small',
                 cls: 'uni-btn-transparent',
                 style: {
                     display: 'inline-block',
@@ -7289,58 +7653,6 @@ Ext.define('Uni.form.field.DisplayFieldWithInfoIcon', {
 
         me.infoTooltip && Ext.defer(this.deferredRenderer, 1, this, [value, field, me.infoTooltip]);
         return '<span style="display: inline-block; float: left; margin-right: 10px;">' + value + '</span>';
-    }
-});
-
-/**
- * @class Uni.util.String
- *
- * Utility class for commonly used string functions.
- */
-Ext.define('Uni.util.String', {
-    singleton: true,
-
-    /**
-     * Formats a duration in milliseconds to a human readable format.
-     *
-     * @param millis
-     * @returns {string}
-     */
-    formatDuration: function (millis, shortFormat) {
-        var duration = moment.duration(millis),
-            format = '',
-            hours,
-            minutes,
-            seconds;
-
-        if (duration.asHours() > 1) {
-            hours = Math.floor(duration.asHours()); // Avoids rounding errors.
-            format += shortFormat ?
-                Uni.I18n.translatePlural('general.time.hours_short', hours, 'UNI', '{0}h') :
-                Uni.I18n.translatePlural('general.time.hours', hours, 'UNI', '{0} hours');
-            format += ' ';
-        }
-
-        if (duration.asMinutes() > 1) {
-            minutes = duration.minutes();
-            format += shortFormat ?
-                Uni.I18n.translatePlural('general.time.minutes_short', minutes, 'UNI', '{0}m') :
-                Uni.I18n.translatePlural('general.time.minutes', minutes, 'UNI', '{0} minutes');
-            format += ' ';
-        }
-
-        seconds = duration.seconds() + Math.round(duration.milliseconds() / 1000);
-
-        // If less than 1 full second, round up; milliseconds get ignored in this case.
-        if (duration.asSeconds() < 1 && duration.asSeconds() !== 0) {
-            seconds = 1;
-        }
-
-        format += shortFormat ?
-            Uni.I18n.translatePlural('general.time.seconds_short', seconds, 'UNI', '{0}s') :
-            Uni.I18n.translatePlural('general.time.seconds', seconds, 'UNI', '{0} seconds');
-
-        return format;
     }
 });
 
@@ -7400,16 +7712,25 @@ Ext.define('Uni.form.field.EditedDisplay', {
             date = Ext.isDate(value.date) ? value.date : new Date(value.date);
             switch (value.flag) {
                 case 'ADDED':
-                    iconClass = 'icon-edit';
-                    tooltipText = Uni.I18n.formatDate('addedDate.format', date, 'MDC', '\\A\\d\\d\\e\\d \\o\\n F d, Y \\a\\t H:i');
+                    iconClass = 'uni-icon-edit';
+                    tooltipText = Uni.I18n.translate('general.addedOn', 'UNI', 'Added on') + ' '
+                        + Uni.DateTime.formatDateLong(date)
+                        + ' ' + Uni.I18n.translate('general.at', 'UNI', 'At').toLowerCase() + ' '
+                        + Uni.DateTime.formatTimeLong(date);
                     break;
                 case 'EDITED':
-                    iconClass = 'icon-edit';
-                    tooltipText = Uni.I18n.formatDate('editedDate.format', date, 'MDC', '\\E\\d\\i\\t\\e\\d \\o\\n F d, Y \\a\\t H:i');
+                    iconClass = 'uni-icon-edit';
+                    tooltipText = Uni.I18n.translate('general.editedOn', 'UNI', 'Edited on') + ' '
+                        + Uni.DateTime.formatDateLong(date)
+                        + ' ' + Uni.I18n.translate('general.at', 'UNI', 'At').toLowerCase() + ' '
+                        + Uni.DateTime.formatTimeLong(date);
                     break;
                 case 'REMOVED':
-                    iconClass = 'icon-remove';
-                    tooltipText = Uni.I18n.formatDate('removedDate.format', date, 'MDC', '\\R\\e\\m\\o\\v\\e\\d \\o\\n F d, Y \\a\\t H:i');
+                    iconClass = 'uni-icon-remove';
+                    tooltipText = Uni.I18n.translate('general.removedOn', 'UNI', 'Removed on') + ' '
+                        + Uni.DateTime.formatDateLong(date)
+                        + ' ' + Uni.I18n.translate('general.at', 'UNI', 'At').toLowerCase() + ' '
+                        + Uni.DateTime.formatTimeLong(date);
                     break;
             }
             if (iconClass && tooltipText) {
@@ -7461,7 +7782,7 @@ Ext.define('Uni.form.field.FilterDisplay', {
                 itemId: 'filter-display-button',
                 filterBy: me.name,
                 cls: 'uni-btn-transparent',
-                iconCls: 'icon-filter',
+                iconCls: 'uni-icon-filter',
                 ui: 'blank',
                 shadow: false,
                 hidden: true,
@@ -7523,7 +7844,7 @@ Ext.define('Uni.form.field.IntervalFlagsDisplay', {
                 index++;
                 tooltip += Uni.I18n.translate('intervalFlags.Flag', 'UNI', 'Flag') + ' ' + index + ': ' + value + '<br>';
             });
-            result += '<span class="icon-info-small" style="display: inline-block; width: 16px; height: 16px; float: left;" data-qtip="' + Ext.htmlEncode(tooltip) + '"></span>';
+            result += '<span class="uni-icon-info-small" style="display: inline-block; width: 16px; height: 16px; float: left;" data-qtip="' + Ext.htmlEncode(tooltip) + '"></span>';
         }
 
         return result || this.emptyText;
@@ -7549,7 +7870,7 @@ Ext.define('Uni.form.field.LastEventDateDisplay', {
             new Ext.button.Button({
                 renderTo: field.getEl().down('.x-form-display-field'),
                 tooltip: tooltip,
-                iconCls: 'icon-info-small',
+                iconCls: 'uni-icon-info-small',
                 cls: 'uni-btn-transparent',
                 style: {
                     display: 'inline-block',
@@ -7562,7 +7883,7 @@ Ext.define('Uni.form.field.LastEventDateDisplay', {
     },
 
     renderer: function (value, field) {
-        var result = Uni.I18n.formatDate('lastEventDate.dateFormat', Ext.isDate(value) ? value : new Date(value), 'UNI', 'F d, Y H:i:s'),
+        var result = Uni.DateTime.formatDateTimeLong(Ext.isDate(value) ? value : new Date(value)),
             tooltip = Uni.I18n.translate('lastEventDate.tooltip', 'UNI', 'Date and time of last received event');
 
         if (!value) {
@@ -7629,9 +7950,7 @@ Ext.define('Uni.form.field.LastEventTypeDisplay', {
         });
 
         tooltip += '</table>';
-
-        Ext.defer(this.deferredRenderer, 1, this, [result, field, tooltip]);
-        return '<span style="display: inline-block; width: 115px; float: left;">' + result + '</span>';
+        return '<span style="display: inline-block; width: 115px; float: left;" >' + result + '</span><span style="display: inline-block; width: 16px; height: 16px;" class="uni-icon-info-small" data-qtip="' + Ext.htmlEncode(tooltip) + '"></span>';
     }
 });
 
@@ -7654,7 +7973,7 @@ Ext.define('Uni.form.field.LastReadingDisplay', {
             new Ext.button.Button({
                 renderTo: field.getEl().down('.x-form-display-field'),
                 tooltip: tooltip,
-                iconCls: 'icon-info-small',
+                iconCls: 'uni-icon-info-small',
                 cls: 'uni-btn-transparent',
                 style: {
                     display: 'inline-block',
@@ -7667,7 +7986,7 @@ Ext.define('Uni.form.field.LastReadingDisplay', {
     },
 
     renderer: function (value, field) {
-        var result = Uni.I18n.formatDate('lastReading.dateFormat', Ext.isDate(value) ? value : new Date(value), 'UNI', 'F d, Y H:i:s'),
+        var result = Uni.DateTime.formatDateTimeLong(Ext.isDate(value) ? value : new Date(value)),
             tooltip = Uni.I18n.translate('lastReading.tooltip', 'UNI', 'The moment when the data was read out for the last time');
 
         if (!value) {
@@ -7949,7 +8268,7 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
 
         var me = this,
             assembledName = value.aliasName ? (' ' + value.aliasName) : '',
-            icon = '<span class="icon-info-small" style="cursor: pointer; display: inline-block; width: 16px; height: 16px; float: left;" data-qtip="' + Uni.I18n.translate('readingType.tooltip', 'UNI', 'Reading type info') + '"></span>';
+            icon = '<span class="uni-icon-info-small" style="cursor: pointer; display: inline-block; width: 16px; height: 16px; float: left;" data-qtip="' + Uni.I18n.translate('readingType.tooltip', 'UNI', 'Reading type info') + '"></span>';
 
         if (value.names && Ext.isObject(value.names)) {
             assembledName += (value.names.timeOfUse ? (' ' + value.names.timeOfUse) : '')
@@ -7958,7 +8277,7 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
         }
 
         setTimeout(function () {
-            var icon = (view && record) ? view.getCell(record, me).down('.icon-info-small') : field.getEl().down('.icon-info-small');
+            var icon = (view && record) ? view.getCell(record, me).down('.uni-icon-info-small') : field.getEl().down('.uni-icon-info-small');
 
             icon.clearListeners();
             icon.on('click', function () {
@@ -8216,12 +8535,12 @@ Ext.define('Uni.grid.column.Icon', {
         if (Ext.isDefined(value.editedTime)) {
             var time = Ext.isDate(value.editedTime) ? value.editedTime : new Date(value.editedTime);
             res.value = time;
-            res.iconCls = 'icon-edit';
+            res.iconCls = 'uni-icon-edit';
             res.tipString = Uni.I18n.formatDate('editedDate.format', time, 'MDC', '\\E\\d\\i\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
         }
         if (Ext.isDefined(value.deletedTime)) {
             res.value = value.deletedTime;
-            res.iconCls = 'icon-deleted';
+            res.iconCls = 'uni-icon-deleted';
             res.tipString = Uni.I18n.formatDate('deletedDate.format', value.deletedTime, 'MDC', '\\D\\e\\l\\e\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
         }
         Ext.defer(me.deferredRenderer, 1, me, [res, record, view]);
@@ -8262,22 +8581,10 @@ Ext.define('Uni.grid.column.LastEventType', {
         'Uni.form.field.LastEventTypeDisplay'
     ],
 
-    deferredRenderer: function (value, record, view) {
+    renderer: function (value, metaData, record, rowIndex, colIndex) {
         var me = this;
-        var cmp = view.getCell(record, me).down('.x-grid-cell-inner');
-        var field = new Uni.form.field.LastEventTypeDisplay({
-            fieldLabel: false
-        });
-        cmp.setHTML('');
-        field.setValue(value);
-        field.render(cmp);
 
-        Ext.defer(view.updateLayout, 10, view);
-    },
-
-    renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {
-        var me = metaData.column;
-        Ext.defer(me.deferredRenderer, 1, me, [value, record, view]);
+        return new Uni.form.field.LastEventTypeDisplay().renderer.apply(me, arguments);
     }
 });
 
@@ -8330,7 +8637,7 @@ Ext.define('Uni.grid.column.ReadingType', {
                 return item.$className === 'Uni.grid.column.ReadingType';
             }),
             field = new Uni.form.field.ReadingTypeDisplay();
-
+        me.link = me.makeLink(record);
         return field.renderer.apply(me, [value, field, view, record]);
     },
 
@@ -8349,13 +8656,13 @@ Ext.define('Uni.grid.column.ValidationFlag', {
     renderer: function (value, metaData, record) {
         switch (record.get('validationResult')) {
             case 'validationStatus.notValidated':
-                return '<span class="validation-column-align"><span class="icon-validation icon-validation-black"></span>';
+                return '<span class="validation-column-align"><span class="uni-icon-validation uni-icon-validation-black"></span>';
                 break;
             case 'validationStatus.ok':
-                return '<span class="validation-column-align"><span class="icon-validation"></span>';
+                return '<span class="validation-column-align"><span class="uni-icon-validation"></span>';
                 break;
             case 'validationStatus.suspect':
-                return '<span class="validation-column-align"><span class="icon-validation icon-validation-red"></span>';
+                return '<span class="validation-column-align"><span class="uni-icon-validation uni-icon-validation-red"></span>';
                 break;
             default:
                 return '';
@@ -8443,7 +8750,8 @@ Ext.define('Uni.property.view.DefaultButton', {
     xtype: 'uni-default-button',
 
     border: 0,
-    icon: '../sky/build/resources/images/form/restore.png',
+//    icon: '../sky/build/resources/images/form/restore.png',
+    html: '<img style="margin-left: -2px" src="../sky/build/resources/images/form/restore.png">',
     height: 28,
     width: 28,
     scale: 'small',
@@ -8577,7 +8885,7 @@ Ext.define('Uni.property.view.property.Base', {
 
             button.setVisible(!this.getProperty().get('isInheritedOrDefaultValue'));
         }
-        this.fireEvent('enableRestoreAll', this);
+        this.fireEvent('checkRestoreAll', this);
     },
 
     /**
@@ -8750,12 +9058,13 @@ Ext.define('Uni.property.view.property.Base', {
                 if (field.getValue() !== '' && !me.getProperty().get('isInheritedOrDefaultValue') && field.getValue() === me.getProperty().get('default')) {
                     me.showPopupEnteredValueEqualsInheritedValue(field, me.getProperty());
                 }
+                if (field.getValue() === ''  && field.getValue() === me.getProperty().get('default')) {
+                    me.getProperty().set('isInheritedOrDefaultValue', true);
+                    me.updateResetButton();
+                }
 
             })
         }
-        this.on('afterrender', function () {
-            me.fireEvent('enableRestoreAll', this);
-        });
         this.getResetButton().setHandler(this.restoreDefault, this);
     },
 
@@ -8769,9 +9078,6 @@ Ext.define('Uni.property.view.property.Base', {
         property.set('propertyHasValue', false);
         this.setValue(restoreValue);
         property.set('isInheritedOrDefaultValue', true);
-
-
-
         this.updateResetButton();
     },
 
@@ -10438,6 +10744,8 @@ Ext.define('Uni.property.form.Property', {
         var me = this;
         var registry = Uni.property.controller.Registry;
 
+        Ext.suspendLayouts();
+
         me.removeAll();
         properties.each(function (property) {
             if (!(property instanceof Uni.property.model.Property)) {
@@ -10462,10 +10770,15 @@ Ext.define('Uni.property.form.Property', {
                     userHasEditPrivilege: me.userHasEditPrivilege,
                     userHasViewPrivilege: me.userHasViewPrivilege
                 }));
-
                 me.add(field);
+                field.on('checkRestoreAll', function() {
+                    me.fireEvent('showRestoreAllBtn', me.checkAllIsDefault());
+                });
             }
+            me.fireEvent('showRestoreAllBtn', me.checkAllIsDefault());
         });
+
+        Ext.resumeLayouts();
 
         this.initialised = true;
     },
@@ -10531,6 +10844,19 @@ Ext.define('Uni.property.form.Property', {
         this.items.each(function (item) {
             item.restoreDefault();
         })
+    },
+
+
+    checkAllIsDefault: function () {
+        var me = this,
+            isDefault = true;
+
+        me.items.each(function (item) {
+            if (!item.getProperty().get('isInheritedOrDefaultValue')) {
+                isDefault = false;
+            };
+        });
+        return isDefault;
     },
 
     showValues: function () {
@@ -10816,6 +11142,7 @@ Ext.define('Uni.store.Periods', {
     ],
 
     fields: ['name', 'value']
+
 });
 
 /**
@@ -11340,7 +11667,7 @@ Ext.define('Uni.view.navigation.AppCenter', {
     xtype: 'uni-nav-appcenter',
 
     text: '',
-    iconCls: 'icon-appcenter',
+    iconCls: 'uni-icon-appcenter',
     cls: Uni.About.baseCssPrefix + 'nav-appcenter',
 
     menu: {
@@ -11362,7 +11689,7 @@ Ext.define('Uni.view.navigation.AppCenter', {
                     '<div class="app-item',
                     '<tpl if="isActive"> x-pressed</tpl>',
                     '">',
-                    '<div class="icon icon-{icon}">&nbsp;</div>',
+                    '<div class="icon uni-icon-{icon}">&nbsp;</div>',
                     '<span class="name">{name}</span>',
                     '</div>',
                     '</a>',
@@ -11436,14 +11763,11 @@ Ext.define('Uni.view.search.Basic', {
 Ext.define('Uni.view.navigation.Help', {
     extend: 'Ext.button.Button',
     alias: 'widget.navigationHelp',
-    action: 'help',
-    glyph: 'xe009@icomoon',
     scale: 'small',
     cls: 'nav-help',
-
-    initComponent: function () {
-        this.callParent(arguments);
-    }
+    iconCls: 'uni-icon-help',
+    href: 'help/index.html',
+    hrefTarget: '_blank'
 });
 
 /**
@@ -11454,7 +11778,7 @@ Ext.define('Uni.view.user.Menu', {
     xtype: 'userMenu',
     scale: 'small',
     cls: 'user-menu',
-    iconCls: 'icon-user',
+    iconCls: 'uni-icon-user',
 
     menu: [
         /*{
@@ -11530,18 +11854,20 @@ Ext.define('Uni.view.navigation.Header', {
 //        {
 //            xtype: 'notificationsAnchor'
 //        },
-//        {
-//            xtype: 'navigationHelp'
-//        },
         {
             xtype: 'button',
             itemId: 'globalSearch',
             text: Uni.I18n.translate('navigation.header.search', 'UNI', 'Search'),
             cls: 'search-button',
-            iconCls: 'icon-search',
+            iconCls: 'uni-icon-search',
             scale: 'small',
             action: 'search',
             href: '#/search',
+            hidden: true
+        },
+        {
+            xtype: 'navigationHelp',
+            itemId: 'global-online-help',
             hidden: true
         },
         {
@@ -11851,18 +12177,23 @@ Ext.define('Uni.view.breadcrumb.Trail', {
     },
 
     addBreadcrumbItem: function (item, baseHref) {
+        var me = this,
+            isGrandParent = false,
+            child,
+            href = item.data.href,
+            link = Ext.create('Uni.view.breadcrumb.Link', {
+                text: item.data.text
+            });
+
         // TODO Append '#/' when necessary.
-        baseHref = baseHref || '';
+        if (!baseHref) {
+            isGrandParent = true;
+            baseHref = baseHref || '';
+        }
 
         if (item.data.relative && baseHref.length > 0) {
             baseHref += Uni.controller.history.Settings.tokenDelimiter;
         }
-
-        var child,
-            href = item.data.href,
-            link = Ext.widget('breadcrumbLink', {
-                text: item.data.text
-            });
 
         try {
             child = item.getChild();
@@ -11876,7 +12207,8 @@ Ext.define('Uni.view.breadcrumb.Trail', {
             link.href = baseHref + href;
         }
 
-        this.addBreadcrumbComponent(link);
+        me.addBreadcrumbComponent(link);
+        me[me.items.length > 1 ? 'show' : 'hide']();
 
         // Recursively add the children.
         if (typeof child !== 'undefined' && child !== null) {
@@ -11884,7 +12216,7 @@ Ext.define('Uni.view.breadcrumb.Trail', {
                 baseHref += href;
             }
 
-            this.addBreadcrumbItem(child, baseHref);
+            me.addBreadcrumbItem(child, baseHref);
         }
     },
 
@@ -11922,22 +12254,6 @@ Ext.define('Uni.view.Viewport', {
             weight: 30
         },
         {
-            region: 'north',
-            xtype: 'container',
-            itemId: 'northContainer',
-            cls: 'north',
-            layout: 'hbox',
-            ui: 'breadcrumbtrailcontainer',
-            height: 48,
-            items: [
-                {
-                    xtype: 'breadcrumbTrail',
-                    itemId: 'breadcrumbTrail'
-                }
-            ],
-            weight: 20
-        },
-        {
             xtype: 'container',
             ui: 'navigationwrapper',
             region: 'west',
@@ -11946,13 +12262,26 @@ Ext.define('Uni.view.Viewport', {
                 {
                     xtype: 'navigationMenu'
                 }
-            ]
+            ],
+            weight: 25
+        },
+        {
+            region: 'north',
+            cls: 'north',
+            xtype: 'breadcrumbTrail',
+            itemId: 'breadcrumbTrail',
+            weight: 20
         },
         {
             xtype: 'container',
             region: 'center',
             itemId: 'contentPanel',
-            layout: 'fit'
+            layout: 'fit',
+            overflowX: 'auto',
+            overflowY: 'hidden',
+            defaults: {
+                minWidth: 1160
+            }
         }
     ]
 });
@@ -12698,9 +13027,13 @@ Ext.define('Uni.view.grid.SelectionGrid', {
 Ext.define('Uni.view.grid.BulkSelection', {
     extend: 'Uni.view.grid.SelectionGrid',
     xtype: 'bulk-selection-grid',
-
+    plugins: 'bufferedrenderer',
+    loadMask: true,
+    autoScroll: true,
     maxHeight: 600,
-
+    requires: [
+        'Ext.grid.plugin.BufferedRenderer'
+    ],
     /**
      * @cfg allLabel
      *
@@ -13378,6 +13711,281 @@ Ext.define('Uni.view.menu.NavigationMenu', {
 
     movePrevStep: function () {
         this.moveToStep(this.activeStep - 1);
+    }
+});
+
+/**
+ * @class Uni.view.menu.SideMenu
+ *
+ * Common side menu that supports adding buttons and toggling.
+ *
+ * Styling will also be applied automatically to anything that is in the component.
+ *
+ * How and where content is shown after clicking a button in the side menu is free to choose.
+ * Switching between panels can easily be done using a card layout.
+ * Toggling is done automatically: when the url changes, the button with the current href is selected.
+ *
+ *
+ * # Example menu configuration
+ *
+ *     @example
+ *       me.menuItems = {
+ *             text: mRID,
+ *             itemId: 'deviceOverviewLink',
+ *             href: '#/devices/' + mRID
+ *       },
+ *       {
+ *             title: 'Data sources',
+ *             xtype: 'menu',
+ *             items: [
+ *               {
+ *                   text: Uni.I18n.translate('devicemenu.loadProfiles', 'MDC', 'Load profiles'),
+ *                   itemId: 'loadProfilesLink',
+ *                   href: '#/devices/' + mRID + '/loadprofiles',
+ *                   showCondition: me.device.get('hasLoadProfiles')
+ *               },
+ *               {
+ *                   text: Uni.I18n.translate('devicemenu.channels', 'MDC', 'Channels'),
+ *                   itemId: 'channelsLink',
+ *                   href: '#/devices/' + mRID + '/channels',
+ *                   showCondition: me.device.get('hasLoadProfiles')
+ *               }
+ *           ]
+ *       };
+ *
+ *
+ * # Example usage of the menu in a component
+ *
+ *     @example
+ *       side: [
+ *          {
+ *            xtype: 'navigationSubMenu',
+ *            itemId: 'myMenu'
+ *          }
+ *        ],
+ */
+Ext.define('Uni.view.menu.SideMenu', {
+    extend: 'Ext.menu.Menu',
+    xtype: 'uni-view-menu-side',
+    floating: false,
+    ui: 'menu-side',
+    plain: true,
+    width: 256,
+
+    defaults: {
+        xtype: 'menuitem',
+        hrefTarget: '_self',
+        defaults: {
+            xtype: 'menuitem',
+            hrefTarget: '_self'
+        }
+    },
+
+    layout: {
+        type: 'vbox',
+        align: 'stretch'
+    },
+
+    activeItemCls: 'item-active',
+
+    /**
+     * @cfg menuItems
+     */
+    menuItems: [],
+
+    /**
+     * @cfg showCondition
+     */
+    showCondition: 'showCondition',
+
+    initComponent: function () {
+        var me = this;
+
+        me.callParent(arguments);
+
+        // Selects the correct item whenever the URL changes over time.
+        Ext.util.History.addListener('change', function (token) {
+            me.checkNavigation(token);
+        });
+
+        if (Ext.isDefined(me.menuItems) && Ext.isArray(me.menuItems)) {
+            me.buildMenuItems();
+        }
+
+        me.checkNavigation(Ext.util.History.getToken());
+    },
+
+    buildMenuItems: function () {
+        var me = this;
+
+        Ext.suspendLayouts();
+        me.addMenuItems(me.menuItems);
+        Ext.resumeLayouts();
+    },
+
+    addMenuItems: function (menuItems) {
+        var me = this;
+
+        for (var i = 0; i < menuItems.length; i++) {
+            var item = menuItems[i],
+                subItems = item.items,
+                condition = item[me.showCondition];
+
+            if ((typeof item.xtype === 'undefined' || item.xtype === 'menu')
+                && Ext.isDefined(subItems) && Ext.isArray(subItems)) {
+                me.applyMenuDefaults(item);
+                me.addSubMenuItems(item);
+
+                // Do not bother adding the menu if there are no items in it.
+                if (item.items.length === 0) {
+                    continue;
+                }
+            }
+
+            if (typeof condition !== 'undefined') {
+                if (Ext.isFunction(condition) && condition() || condition) {
+                    me.add(item);
+                }
+
+                // Do not add the item if the condition is not valid.
+                continue;
+            }
+
+            me.add(item);
+        }
+    },
+
+    applyMenuDefaults: function (config) {
+        Ext.applyIf(config, {
+            xtype: 'menu',
+            floating: false,
+            plain: true,
+            ui: 'menu-side-sub',
+
+            // TODO Make the menus collapsible.
+
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            }
+        });
+    },
+
+    addSubMenuItems: function (menu) {
+        var me = this,
+            subItems = menu.items;
+
+        // Reset menu items.
+        menu.items = [];
+
+        for (var i = 0; i < subItems.length; i++) {
+            var item = subItems[i],
+                condition = item[me.showCondition];
+
+            if (typeof condition !== 'undefined') {
+                if (Ext.isFunction(condition) && condition() || condition) {
+                    menu.items.push(item);
+                }
+
+                // Do not add the item if the condition is not valid.
+                continue;
+            }
+
+            menu.items.push(item);
+        }
+    },
+
+    clearSelection: function (items) {
+        var me = this,
+            subItems;
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+
+            subItems = item.items;
+
+            item.removeCls(me.activeItemCls);
+
+            if (Ext.isDefined(subItems) && Ext.isArray(subItems)) {
+                me.clearSelection(subItems);
+            }
+        }
+    },
+
+    checkNavigation: function (token) {
+        var me = this,
+            items = me.items.items;
+
+        Ext.suspendLayouts();
+        if (Ext.isDefined(items) && Ext.isArray(items)) {
+            me.clearSelection(items);
+            me.checkSelectedItems(items, token);
+        }
+
+        Ext.resumeLayouts();
+    },
+
+    checkSelectedItems: function (items, token) {
+        var me = this,
+            selection = me.getMostQualifiedItems(items, token);
+
+        if (typeof selection !== 'undefined') {
+            selection.item.addCls(me.activeItemCls);
+        }
+    },
+
+    /**
+     * Checks which item is best to be selected based on the currently selected URL.
+     * @param items
+     * @param token
+     * @param selection
+     */
+    getMostQualifiedItems: function (items, token, selection) {
+        var me = this,
+            fullToken = '#' + token,
+            href,
+            subItems,
+            item,
+            currentFitness;
+
+        for (var i = 0; i < items.length; i++) {
+            item = items[i];
+            href = item.href;
+            subItems = item.items ? item.items.items : undefined;
+
+            if (Ext.isDefined(href) && href !== null && Ext.String.startsWith(fullToken, href)) {
+                // How many characters are different from the full token length.
+                currentFitness = fullToken.length - href.length;
+
+                selection = me.pickBestSelection(selection, {
+                    item: item,
+                    fitness: currentFitness
+                });
+            }
+
+            // Recursively check the items.
+            if (Ext.isDefined(subItems) && Ext.isArray(subItems)) {
+                selection = me.pickBestSelection(
+                    selection,
+                    me.getMostQualifiedItems(subItems, token, selection)
+                );
+            }
+        }
+
+        return selection;
+    },
+
+    pickBestSelection: function (a, b) {
+        if (Ext.isDefined(a) && !Ext.isDefined(b)) {
+            return a;
+        } else if (!Ext.isDefined(a) && Ext.isDefined(b)) {
+            return b
+        }
+
+        if (a.fitness <= b.fitness) {
+            return a
+        } else if (a.fitness > b.fitness) {
+            return b
+        }
     }
 });
 
@@ -14299,13 +14907,18 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
      */
     itemsName: Uni.I18n.translate('general.items', 'UNI', 'Items').toLowerCase(),
 
+    /**
+     * @cfg {String} [totalProperty="total"]
+     * Name of url query parameter for storing total records amount.
+     */
+    totalProperty: 'total',
+
     initComponent: function () {
         var me = this,
             store = Ext.getStore(me.store);
 
         me.callParent(arguments);
-
-        if (me.router && me.routerIdArgument && store && store.getCount() > 1) {
+        if (me.router && me.routerIdArgument && store) {
             me.initToolbar(store);
         } else {
             me.hide();
@@ -14328,43 +14941,84 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
             prevBtn = {
                 itemId: 'previous-next-navigation-toolbar-previous-link',
                 ui: 'plain',
-                iconCls: 'icon-arrow-up',
-                iconAlign: 'left',
+                iconCls: 'uni-icon-arrow-up',
                 style: 'margin-right: 0 !important;'
             },
             nextBtn = {
                 itemId: 'previous-next-navigation-toolbar-next-link',
                 ui: 'plain',
-                iconCls: 'icon-arrow-down',
-                iconAlign: 'right'
+                iconCls: 'uni-icon-arrow-down'
             },
-            separator = {
-                xtype: 'tbtext',
-                text: '|'
+            itemsCounter = {
+                xtype: 'component',
+                cls: ' previous-next-navigation-items-counter'
             },
-            currentIndex = store.indexOfId(me.router.arguments[me.routerIdArgument]),
-            itemsCounter;
+            arguments = Ext.clone(me.router.arguments),
+            queryParams = Ext.clone(me.router.queryParams),
+            currentIndex = store.indexOfId(arguments[me.routerIdArgument]),
+            storeCurrentPage = store.lastOptions?store.lastOptions.page:1,
+            storePageSize = store.pageSize,
+            storeTotal = store.getTotalCount();
 
         if (currentIndex === -1) {
-            currentIndex = store.indexOfId(parseInt(me.router.arguments[me.routerIdArgument]));
+            currentIndex = store.indexOfId(parseInt(arguments[me.routerIdArgument]));
         }
 
-        itemsCounter = {
-            xtype: 'component',
-            cls: ' previous-next-navigation-items-counter',
-            html: Ext.String.format(Uni.I18n.translate('previousNextNavigation.itemsCount', 'UNI', '{0} of {1}'), currentIndex + 1, store.getCount()) + ' ' + me.itemsName
-        };
+        if (!queryParams[me.totalProperty] || Math.abs(queryParams[me.totalProperty]) < storeTotal) {
+            queryParams[me.totalProperty] = storePageSize * storeCurrentPage > storeTotal ? storeTotal : -(storeTotal - 1);
+        }
+
+        if(store.getCount()<=1){
+            itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgItems', 'UNI', '{0} of {1}'), 1, 1 + ' ' + me.itemsName);
+        }
+        else if (queryParams[me.totalProperty] < 0) {
+            itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgMoreItems', 'UNI', '{0} of more than {1}'), storePageSize * (storeCurrentPage - 1) + currentIndex + 1, -queryParams[me.totalProperty]) + ' ' + me.itemsName;
+        } else {
+            itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgItems', 'UNI', '{0} of {1}'), storePageSize * (storeCurrentPage - 1) + currentIndex + 1, queryParams[me.totalProperty]) + ' ' + me.itemsName;
+        }
 
         if (currentIndex - 1 >= 0) {
-            me.router.arguments[me.routerIdArgument] = store.getAt(currentIndex - 1).getId();
-            prevBtn.href = me.router.getRoute(me.router.currentRoute).buildUrl(me.router.arguments, me.router.queryParams);
+            arguments[me.routerIdArgument] = store.getAt(currentIndex - 1).getId();
+            prevBtn.href = me.router.getRoute(me.router.currentRoute).buildUrl(arguments, queryParams);
+        } else if (storeCurrentPage > 1) {
+            prevBtn.handler = function () {
+                me.up('#contentPanel').setLoading(true);
+                store.loadPage(storeCurrentPage - 1, {
+                    scope: me,
+                    callback: function (records) {
+                        me.up('#contentPanel').setLoading(false);
+                        if (records.length) {
+                            arguments[me.routerIdArgument] = store.getAt(records.length - 1).getId();
+                            me.router.getRoute(me.router.currentRoute).forward(arguments, queryParams);
+                        } else {
+                            prevBtn.disable();
+                        }
+                    }
+                });
+            }
         } else {
             prevBtn.disabled = true;
         }
 
         if (currentIndex + 1 < store.getCount()) {
-            me.router.arguments[me.routerIdArgument] = store.getAt(currentIndex + 1).getId();
-            nextBtn.href = me.router.getRoute(me.router.currentRoute).buildUrl(me.router.arguments, me.router.queryParams);
+            arguments[me.routerIdArgument] = store.getAt(currentIndex + 1).getId();
+            nextBtn.href = me.router.getRoute(me.router.currentRoute).buildUrl(arguments, queryParams);
+        } else if (storeTotal > storePageSize * storeCurrentPage) {
+            nextBtn.handler = function () {
+                me.up('#contentPanel').setLoading(true);
+                store.loadPage(storeCurrentPage + 1, {
+                    scope: me,
+                    callback: function (records) {
+                        me.up('#contentPanel').setLoading(false);
+                        if (records.length) {
+                            arguments[me.routerIdArgument] = store.getAt(0).getId();
+                            me.router.getRoute(me.router.currentRoute).forward(arguments, queryParams);
+                        } else {
+                            nextBtn.disable();
+                        }
+                    }
+                });
+            }
         } else {
             nextBtn.disabled = true;
         }

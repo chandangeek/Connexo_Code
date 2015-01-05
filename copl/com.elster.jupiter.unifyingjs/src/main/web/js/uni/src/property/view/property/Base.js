@@ -123,7 +123,7 @@ Ext.define('Uni.property.view.property.Base', {
 
             button.setVisible(!this.getProperty().get('isInheritedOrDefaultValue'));
         }
-        this.fireEvent('enableRestoreAll', this);
+        this.fireEvent('checkRestoreAll', this);
     },
 
     /**
@@ -275,8 +275,10 @@ Ext.define('Uni.property.view.property.Base', {
         me.callParent(arguments);
 
         // after init
-        me.setProperty(me.property);
-        me.initListeners();
+        me.on('afterrender', function () {
+            me.setProperty(me.property);
+            me.initListeners();
+        });
     },
 
     initListeners: function () {
@@ -296,12 +298,13 @@ Ext.define('Uni.property.view.property.Base', {
                 if (field.getValue() !== '' && !me.getProperty().get('isInheritedOrDefaultValue') && field.getValue() === me.getProperty().get('default')) {
                     me.showPopupEnteredValueEqualsInheritedValue(field, me.getProperty());
                 }
+                if (field.getValue() === ''  && field.getValue() === me.getProperty().get('default')) {
+                    me.getProperty().set('isInheritedOrDefaultValue', true);
+                    me.updateResetButton();
+                }
 
             })
         }
-        this.on('afterrender', function () {
-            me.fireEvent('enableRestoreAll', this);
-        });
         this.getResetButton().setHandler(this.restoreDefault, this);
     },
 
@@ -315,9 +318,6 @@ Ext.define('Uni.property.view.property.Base', {
         property.set('propertyHasValue', false);
         this.setValue(restoreValue);
         property.set('isInheritedOrDefaultValue', true);
-
-
-
         this.updateResetButton();
     },
 

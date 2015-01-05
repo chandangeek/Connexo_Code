@@ -5,11 +5,13 @@ Ext.define('Uni.view.search.Quick', {
     extend: 'Ext.container.Container',
     alias: 'widget.searchQuick',
     cls: 'search-quick',
+
     layout: {
         type: 'hbox',
         align: 'stretch',
         pack: 'end'
     },
+
     items: [
         {
             xtype: 'container',
@@ -33,8 +35,5 @@ Ext.define('Uni.view.search.Quick', {
             glyph: 'xe021@icomoon',
             scale: 'small'
         }
-    ],
-    initComponent: function () {
-        this.callParent(arguments);
-    }
+    ]
 });

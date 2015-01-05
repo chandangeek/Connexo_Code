@@ -70,8 +70,7 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
             store = Ext.getStore(me.store);
 
         me.callParent(arguments);
-
-        if (me.router && me.routerIdArgument && store && store.getCount() > 1) {
+        if (me.router && me.routerIdArgument && store) {
             me.initToolbar(store);
         } else {
             me.hide();
@@ -96,13 +95,13 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
             prevBtn = {
                 itemId: 'previous-next-navigation-toolbar-previous-link',
                 ui: 'plain',
-                iconCls: 'icon-arrow-up',
+                iconCls: 'uni-icon-arrow-up',
                 style: 'margin-right: 0 !important;'
             },
             nextBtn = {
                 itemId: 'previous-next-navigation-toolbar-next-link',
                 ui: 'plain',
-                iconCls: 'icon-arrow-down'
+                iconCls: 'uni-icon-arrow-down'
             },
             itemsCounter = {
                 xtype: 'component',
@@ -111,7 +110,7 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
             arguments = Ext.clone(me.router.arguments),
             queryParams = Ext.clone(me.router.queryParams),
             currentIndex = store.indexOfId(arguments[me.routerIdArgument]),
-            storeCurrentPage = store.lastOptions.page,
+            storeCurrentPage = store.lastOptions?store.lastOptions.page:1,
             storePageSize = store.pageSize,
             storeTotal = store.getTotalCount();
 
@@ -123,7 +122,10 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
             queryParams[me.totalProperty] = storePageSize * storeCurrentPage > storeTotal ? storeTotal : -(storeTotal - 1);
         }
 
-        if (queryParams[me.totalProperty] < 0) {
+        if(store.getCount()<=1){
+            itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgItems', 'UNI', '{0} of {1}'), 1, 1 + ' ' + me.itemsName);
+        }
+        else if (queryParams[me.totalProperty] < 0) {
             itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgMoreItems', 'UNI', '{0} of more than {1}'), storePageSize * (storeCurrentPage - 1) + currentIndex + 1, -queryParams[me.totalProperty]) + ' ' + me.itemsName;
         } else {
             itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgItems', 'UNI', '{0} of {1}'), storePageSize * (storeCurrentPage - 1) + currentIndex + 1, queryParams[me.totalProperty]) + ' ' + me.itemsName;

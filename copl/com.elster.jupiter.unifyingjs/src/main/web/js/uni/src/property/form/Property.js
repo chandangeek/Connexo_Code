@@ -100,9 +100,12 @@ Ext.define('Uni.property.form.Property', {
                     userHasEditPrivilege: me.userHasEditPrivilege,
                     userHasViewPrivilege: me.userHasViewPrivilege
                 }));
-
                 me.add(field);
+                field.on('checkRestoreAll', function() {
+                    me.fireEvent('showRestoreAllBtn', me.checkAllIsDefault());
+                });
             }
+            me.fireEvent('showRestoreAllBtn', me.checkAllIsDefault());
         });
 
         Ext.resumeLayouts();
@@ -171,6 +174,19 @@ Ext.define('Uni.property.form.Property', {
         this.items.each(function (item) {
             item.restoreDefault();
         })
+    },
+
+
+    checkAllIsDefault: function () {
+        var me = this,
+            isDefault = true;
+
+        me.items.each(function (item) {
+            if (!item.getProperty().get('isInheritedOrDefaultValue')) {
+                isDefault = false;
+            };
+        });
+        return isDefault;
     },
 
     showValues: function () {

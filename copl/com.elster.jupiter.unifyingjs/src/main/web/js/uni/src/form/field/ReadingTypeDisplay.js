@@ -133,7 +133,7 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
 
         var me = this,
             assembledName = value.aliasName ? (' ' + value.aliasName) : '',
-            icon = '<span class="icon-info-small" style="cursor: pointer; display: inline-block; width: 16px; height: 16px; float: left;" data-qtip="' + Uni.I18n.translate('readingType.tooltip', 'UNI', 'Reading type info') + '"></span>';
+            icon = '<span class="uni-icon-info-small" style="cursor: pointer; display: inline-block; width: 16px; height: 16px; float: left;" data-qtip="' + Uni.I18n.translate('readingType.tooltip', 'UNI', 'Reading type info') + '"></span>';
 
         if (value.names && Ext.isObject(value.names)) {
             assembledName += (value.names.timeOfUse ? (' ' + value.names.timeOfUse) : '')
@@ -142,7 +142,7 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
         }
 
         setTimeout(function () {
-            var icon = (view && record) ? view.getCell(record, me).down('.icon-info-small') : field.getEl().down('.icon-info-small');
+            var icon = (view && record) ? view.getCell(record, me).down('.uni-icon-info-small') : field.getEl().down('.uni-icon-info-small');
 
             icon.clearListeners();
             icon.on('click', function () {
