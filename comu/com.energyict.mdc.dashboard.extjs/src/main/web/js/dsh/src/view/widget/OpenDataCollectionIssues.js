@@ -21,11 +21,15 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
             store = assigned.topMyIssues(),
             issuesCount = store.getCount();
 
-        if(this.rendered) Ext.suspendLayouts();
+        if(this.rendered) {
+            Ext.suspendLayouts();
+        }
         if( issuesCount > 0 ) {
             grid.reconfigure(store);
         }
-        if(!this.rendered) Ext.suspendLayouts();
+        if(!this.rendered) {
+            Ext.suspendLayouts();
+        }
         issuesCount = grid.getStore().getCount();
         countContainer.removeAll();
         dockedLinksContainer.removeAll();
