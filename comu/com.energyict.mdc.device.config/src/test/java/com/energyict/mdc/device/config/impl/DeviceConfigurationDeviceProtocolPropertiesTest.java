@@ -35,9 +35,9 @@ public class DeviceConfigurationDeviceProtocolPropertiesTest extends DeviceTypeP
 
     @Before
     public void initializeProtocolProperties() {
-        PropertySpec<BigDecimal> bigDecimalPropertySpec = inMemoryPersistence.getPropertySpecService().basicPropertySpec(NUMERIC_PROPERTY_SPEC_NAME, true, new BigDecimalFactory());
-        PropertySpec<String> stringPropertySpec = inMemoryPersistence.getPropertySpecService().basicPropertySpec(STRING_PROPERTY_SPEC_NAME, true, new StringFactory());
-        PropertySpec<String> defaultPropertySpec = inMemoryPersistence.getPropertySpecService().stringPropertySpec(DEFAULT_PROPERTY_SPEC_NAME, true, DEFAULT_VALUE);
+        PropertySpec bigDecimalPropertySpec = inMemoryPersistence.getPropertySpecService().basicPropertySpec(NUMERIC_PROPERTY_SPEC_NAME, true, new BigDecimalFactory());
+        PropertySpec stringPropertySpec = inMemoryPersistence.getPropertySpecService().basicPropertySpec(STRING_PROPERTY_SPEC_NAME, true, new StringFactory());
+        PropertySpec defaultPropertySpec = inMemoryPersistence.getPropertySpecService().stringPropertySpec(DEFAULT_PROPERTY_SPEC_NAME, true, DEFAULT_VALUE);
         when(deviceProtocol.getPropertySpecs()).thenReturn(Arrays.asList(bigDecimalPropertySpec, stringPropertySpec, defaultPropertySpec));
     }
 
