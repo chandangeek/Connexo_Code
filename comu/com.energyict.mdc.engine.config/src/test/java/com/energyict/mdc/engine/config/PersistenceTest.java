@@ -18,8 +18,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.ExpectedErrorRule;
-import com.energyict.mdc.common.impl.EnvironmentImpl;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -65,7 +63,6 @@ public class PersistenceTest {
                 new NlsModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
-                new MdcCommonModule(),
                 new InMemoryMessagingModule(),
                 new DomainUtilModule(),
                 new EventsModule(),
@@ -73,7 +70,6 @@ public class PersistenceTest {
                 new UserModule(),
                 new EngineModelModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
-        	injector.getInstance(EnvironmentImpl.class); // fake call to make sure component is initialized
             injector.getInstance(NlsService.class); // fake call to make sure component is initialized
             injector.getInstance(ProtocolPluggableService.class); // fake call to make sure component is initialized
             injector.getInstance(UserService.class); // fake call to make sure component is initialized
