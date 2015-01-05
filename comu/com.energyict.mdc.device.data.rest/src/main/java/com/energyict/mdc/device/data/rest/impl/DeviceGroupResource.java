@@ -21,17 +21,14 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.logging.Logger;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -51,7 +48,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -59,9 +55,6 @@ import static com.elster.jupiter.util.streams.Functions.asStream;
 
 @Path("/devicegroups")
 public class DeviceGroupResource {
-
-    private static final Logger LOGGER = Logger.getLogger(DeviceGroupResource.class.getName());
-
     private final MeteringGroupsService meteringGroupsService;
     private final RestQueryService restQueryService;
     private final DeviceConfigurationService deviceConfigurationService;
@@ -83,11 +76,11 @@ public class DeviceGroupResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL})
-    public DeviceGroupInfo getDeviceGroup(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        return DeviceGroupInfo.from(fetchDeviceGroup(id, securityContext), deviceConfigurationService, deviceService);
+    public DeviceGroupInfo getDeviceGroup(@PathParam("id") long id) {
+        return DeviceGroupInfo.from(fetchDeviceGroup(id), deviceConfigurationService, deviceService);
     }
 
-    private EndDeviceGroup fetchDeviceGroup(long id, @Context SecurityContext securityContext) {
+    private EndDeviceGroup fetchDeviceGroup(long id) {
         return meteringGroupsService.findEndDeviceGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
@@ -95,22 +88,12 @@ public class DeviceGroupResource {
     @Path("/{id}/devices")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL})
-    public PagedInfoList getDevices(@BeanParam QueryParameters queryParameters, @PathParam("id") long deviceGroupId, @Context SecurityContext securityContext) {
-        EndDeviceGroup endDeviceGroup = fetchDeviceGroup(deviceGroupId, securityContext);
-        List<? extends EndDevice> allEndDevices = endDeviceGroup.getMembers(Instant.now());
+    public PagedInfoList getDevices(@BeanParam QueryParameters queryParameters, @PathParam("id") long deviceGroupId) {
+        EndDeviceGroup endDeviceGroup = fetchDeviceGroup(deviceGroupId);
         List<? extends EndDevice> endDevices =
-                ListPager.of(allEndDevices).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
-
-        List<Device> devices = new ArrayList<Device>();
-        for (EndDevice endDevice : endDevices) {
-            Device device = deviceService.findDeviceById(Long.parseLong(endDevice.getAmrId()));
-            if (device != null) {
-                devices.add(device);
-            }
-        }
-        //List<Device> subList = devices.subList(0, Math.min(queryParameters.getLimit() + 1, endDevices.size() + 1));
-        List<DeviceInfo> deviceInfos = DeviceInfo.from(devices);
-        return PagedInfoList.asJson("devices", deviceInfos, queryParameters);
+                ListPager.of(endDeviceGroup.getMembers(Instant.now())).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
+        Condition mdcMembers = where("id").in(endDevices.stream().map(EndDevice::getAmrId).collect(Collectors.toList()));
+        return PagedInfoList.asJson("devices", DeviceInfo.from(deviceService.findAllDevices(mdcMembers).sorted("mRID", true).find()), queryParameters);
     }
 
     @GET
@@ -131,12 +114,6 @@ public class DeviceGroupResource {
         List<EndDeviceGroup> allDeviceGroups = restQuery.select(koreQueryParameters, Order.ascending("upper(name)"));
         List<DeviceGroupInfo> deviceGroupInfos = DeviceGroupInfo.from(allDeviceGroups, deviceConfigurationService, deviceService);
         return PagedInfoList.asJson("devicegroups", deviceGroupInfos, queryParameters);
-    }
-
-    private List<EndDeviceGroup> queryEndDeviceGroups(com.elster.jupiter.rest.util.QueryParameters queryParameters) {
-        Query<EndDeviceGroup> query = meteringGroupsService.getEndDeviceGroupQuery();
-        RestQuery<EndDeviceGroup> restQuery = restQueryService.wrap(query);
-        return restQuery.select(queryParameters, Order.ascending("upper(name)"));
     }
 
     @PUT

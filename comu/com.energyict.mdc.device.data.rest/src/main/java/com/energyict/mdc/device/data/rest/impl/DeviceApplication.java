@@ -1,25 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.common.rest.ExceptionLogger;
-import com.energyict.mdc.common.rest.TransactionWrapper;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
-import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfoFactory;
-import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
-import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.favorites.FavoritesService;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.tasks.TaskService;
-
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
@@ -44,6 +25,27 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.ExceptionLogger;
+import com.energyict.mdc.common.rest.TransactionWrapper;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfoFactory;
+import com.energyict.mdc.device.data.kpi.rest.KpiResource;
+import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfoFactory;
+import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.favorites.FavoritesService;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -92,6 +94,7 @@ public class DeviceApplication extends Application implements InstallService, Tr
     private volatile Clock clock;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile FavoritesService favoritesService;
+    private volatile DataCollectionKpiService dataCollectionKpiService;
     private volatile License license;
 
     @Override
@@ -121,11 +124,11 @@ public class DeviceApplication extends Application implements InstallService, Tr
                 ConnectionMethodResource.class,
                 ComSessionResource.class,
                 DeviceMessageResource.class,
-                DeviceProtocolPropertyResource.class,
                 DeviceLabelResource.class,
                 ConnectionResource.class,
                 CommunicationResource.class,
-                DeviceProtocolPropertyResource.class
+                DeviceProtocolPropertyResource.class,
+                KpiResource.class
         );
     }
 
@@ -277,9 +280,14 @@ public class DeviceApplication extends Application implements InstallService, Tr
         this.favoritesService = favoritesService;
     }
 
-    @Reference(target="(com.elster.jupiter.license.rest.key=" + APP_KEY  + ")")
+    @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
     public void setLicense(License license) {
         this.license = license;
+    }
+
+    @Reference
+    public void setDataCollectionKpiService(DataCollectionKpiService dataCollectionKpiService) {
+        this.dataCollectionKpiService = dataCollectionKpiService;
     }
 
     @Override
@@ -345,6 +353,8 @@ public class DeviceApplication extends Application implements InstallService, Tr
             bind(topologyService).to(TopologyService.class);
             bind(DeviceConnectionTaskInfoFactory.class).to(DeviceConnectionTaskInfoFactory.class);
             bind(DeviceComTaskExecutionInfoFactory.class).to(DeviceComTaskExecutionInfoFactory.class);
+            bind(DataCollectionKpiInfoFactory.class).to(DataCollectionKpiInfoFactory.class);
+            bind(dataCollectionKpiService).to(DataCollectionKpiService.class);
         }
     }
 

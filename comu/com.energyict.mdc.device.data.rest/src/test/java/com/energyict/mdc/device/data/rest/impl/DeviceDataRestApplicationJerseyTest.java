@@ -25,6 +25,7 @@ import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -92,6 +93,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     PropertySpecService propertySpecService;
     @Mock
     FavoritesService favoritesService;
+    @Mock
+    DataCollectionKpiService dataCollectionKpiService;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -123,6 +126,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setCommunicationTaskService(communicationTaskService);
         application.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         application.setFavoritesService(favoritesService);
+        application.setDataCollectionKpiService(dataCollectionKpiService);
         return application;
     }
 

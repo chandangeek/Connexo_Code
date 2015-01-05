@@ -1,6 +1,2 @@
 -classpath: target/classes
 -dsannotations: *
-Private-Package:  \
-	com.energyict.mdc.device.data.rest.impl
-Export-Package:  \
-	com.energyict.mdc.device.data.rest
