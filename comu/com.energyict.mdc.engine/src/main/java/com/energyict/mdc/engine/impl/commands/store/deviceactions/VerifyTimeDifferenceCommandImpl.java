@@ -55,7 +55,6 @@ public class VerifyTimeDifferenceCommandImpl extends SimpleComCommand implements
             addIssue(getIssueService().newProblem(
                     getCommandType(),
 // Todo: Add to MessageSeeds
-// Environment.DEFAULT.get().getTranslation("CSC-CONF-134").replaceAll("'", "''"),
                     "Time difference exceeds the configured maximum\\: The time difference ({0}) is larger than the configured allowed maximum ({1})",
                     this.timeDifference,
                     this.maximumClockDifference),

@@ -1,14 +1,12 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.impl.EngineModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
+import com.energyict.mdc.engine.impl.EngineModule;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
@@ -22,7 +20,9 @@ import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
@@ -52,23 +52,20 @@ import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
-
-import java.time.Clock;
-
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 import java.security.Principal;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Date;
 import java.util.TimeZone;
 
-import java.time.Instant;
 import org.junit.*;
 import org.junit.rules.*;
 import org.junit.runner.*;
@@ -127,7 +124,6 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new MeteringGroupsModule(),
                 new OrmModule(),
                 new DataVaultModule(),
-                new MdcCommonModule(),
                 new MdcIOModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),

@@ -1,5 +1,23 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.engine.DeviceCreator;
+import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
+import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
+import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
+import com.energyict.mdc.engine.impl.meterdata.identifiers.RegisterDataIdentifier;
+import com.energyict.mdc.metering.impl.ObisCodeToReadingTypeFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -9,41 +27,24 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.ApplicationContext;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.engine.DeviceCreator;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
-import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
-import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
-import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
-import com.energyict.mdc.engine.impl.meterdata.identifiers.RegisterDataIdentifier;
-import com.energyict.mdc.metering.impl.ObisCodeToReadingTypeFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import java.util.Optional;
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -72,14 +73,6 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
                 getInjector().getInstance(DeviceConfigurationService.class),
                 getInjector().getInstance(DeviceService.class)
         );
-        initializeEnvironment();
-    }
-
-    private static void initializeEnvironment() {
-        Environment mockedEnvironment = mock(Environment.class);
-        ApplicationContext applicationContext = mock(ApplicationContext.class);
-        when(mockedEnvironment.getApplicationContext()).thenReturn(applicationContext);
-        Environment.DEFAULT.set(mockedEnvironment);
     }
 
     @Test
