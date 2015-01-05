@@ -15,8 +15,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.StringFactory;
 
-import javax.inject.Inject;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -64,7 +62,7 @@ public abstract class SerialIOComponentServiceImpl extends AbstractSerialCompone
      *
      * @return the property spec for the SerialIO baudrate property
      */
-    protected PropertySpec<BigDecimal> baudRatePropertySpec() {
+    protected PropertySpec baudRatePropertySpec() {
         return
             this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory())
                 .name(SerialPortConfiguration.BAUDRATE_NAME)
@@ -87,7 +85,7 @@ public abstract class SerialIOComponentServiceImpl extends AbstractSerialCompone
                 .finish();
     }
 
-    protected PropertySpec<String> parityPropertySpec () {
+    protected PropertySpec parityPropertySpec () {
         return this.getPropertySpecService().newPropertySpecBuilder(new StringFactory())
             .name(SerialPortConfiguration.PARITY_NAME)
             .markExhaustive()
@@ -97,8 +95,8 @@ public abstract class SerialIOComponentServiceImpl extends AbstractSerialCompone
             .finish();
     }
 
-    protected PropertySpec<BigDecimal> nrOfStopBitsPropertySpec() {
-        PropertySpecBuilder<BigDecimal> builder =
+    protected PropertySpec nrOfStopBitsPropertySpec() {
+        PropertySpecBuilder builder =
                 this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory()).
                         name(SerialPortConfiguration.NR_OF_STOP_BITS_NAME).
                         markRequired().
@@ -110,7 +108,7 @@ public abstract class SerialIOComponentServiceImpl extends AbstractSerialCompone
         return builder.finish();
     }
 
-    protected PropertySpec<BigDecimal> nrOfDataBitsPropertySpec () {
+    protected PropertySpec nrOfDataBitsPropertySpec () {
         return this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory())
             .name(SerialPortConfiguration.NR_OF_DATA_BITS_NAME)
             .markExhaustive()
@@ -120,7 +118,7 @@ public abstract class SerialIOComponentServiceImpl extends AbstractSerialCompone
             .finish();
     }
 
-    protected PropertySpec<String> flowControlPropertySpec () {
+    protected PropertySpec flowControlPropertySpec () {
         return this.getPropertySpecService().newPropertySpecBuilder(new StringFactory())
             .name(SerialPortConfiguration.FLOW_CONTROL_NAME)
             .markExhaustive()

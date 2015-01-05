@@ -15,9 +15,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.StringFactory;
 
-import javax.inject.Inject;
-import java.math.BigDecimal;
-
 /**
  * Provides an implementation for the {@link SerialComponentService} interface
  * that uses the RxTx library.
@@ -42,7 +39,7 @@ public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialCompo
         return new RxTxSerialPort(configuration);
     }
 
-    protected PropertySpec<String> flowControlPropertySpec() {
+    protected PropertySpec flowControlPropertySpec() {
         return this.getPropertySpecService().newPropertySpecBuilder(new StringFactory())
                 .name(SerialPortConfiguration.FLOW_CONTROL_NAME)
                 .markExhaustive()
@@ -51,8 +48,8 @@ public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialCompo
                 .finish();
     }
 
-    protected final PropertySpec<BigDecimal> nrOfDataBitsPropertySpec(boolean required) {
-        PropertySpecBuilder<BigDecimal> builder = this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory());
+    protected final PropertySpec nrOfDataBitsPropertySpec(boolean required) {
+        PropertySpecBuilder builder = this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory());
         builder.
                 name(SerialPortConfiguration.NR_OF_DATA_BITS_NAME).
                 markExhaustive().
@@ -64,8 +61,8 @@ public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialCompo
         return builder.finish();
     }
 
-    protected final PropertySpec<BigDecimal> nrOfStopBitsPropertySpec(boolean required) {
-        PropertySpecBuilder<BigDecimal> builder = this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory());
+    protected final PropertySpec nrOfStopBitsPropertySpec(boolean required) {
+        PropertySpecBuilder builder = this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory());
         builder.
                 name(SerialPortConfiguration.NR_OF_STOP_BITS_NAME).
                 markExhaustive().
@@ -77,8 +74,8 @@ public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialCompo
         return builder.finish();
     }
 
-    protected final PropertySpec<String> parityPropertySpec(boolean required) {
-        PropertySpecBuilder<String> builder = this.getPropertySpecService().newPropertySpecBuilder(new StringFactory());
+    protected final PropertySpec parityPropertySpec(boolean required) {
+        PropertySpecBuilder builder = this.getPropertySpecService().newPropertySpecBuilder(new StringFactory());
         builder.
                 name(SerialPortConfiguration.PARITY_NAME).
                 markExhaustive().
@@ -90,8 +87,8 @@ public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialCompo
         return  builder.finish();
     }
 
-    protected final PropertySpec<BigDecimal> baudRatePropertySpec(boolean required) {
-        PropertySpecBuilder<BigDecimal> builder = this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory());
+    protected final PropertySpec baudRatePropertySpec(boolean required) {
+        PropertySpecBuilder builder = this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory());
         builder.
                 name(SerialPortConfiguration.BAUDRATE_NAME).
                 markExhaustive().
