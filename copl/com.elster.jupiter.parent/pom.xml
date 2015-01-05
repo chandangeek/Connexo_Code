@@ -543,7 +543,6 @@
                 <module>../com.elster.jupiter.yellowfin.rest</module>
                 <module>../com.elster.jupiter.yellowfin.app</module>
                 <module>../com.elster.jupiter.yellowfin.extjs</module>
-                <module>../com.elster.jupiter.validators</module>
             </modules>
         </profile>
         <profile>
