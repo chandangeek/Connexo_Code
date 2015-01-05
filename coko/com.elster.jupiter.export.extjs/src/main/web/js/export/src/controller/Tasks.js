@@ -697,7 +697,7 @@ Ext.define('Dxp.controller.Tasks', {
                 readingTypesStore = page.down('#readingTypesGridPanel').getStore(),
                 arrReadingTypes = [];
 
-
+            record.beginEdit();
             if (!formErrorsPanel.isHidden()) {
                 formErrorsPanel.hide();
             }
@@ -793,6 +793,7 @@ Ext.define('Dxp.controller.Tasks', {
             record.set('dataProcessor', {
                 name: form.down('#file-formatter-combo').getValue()
             });
+            record.endEdit();
             record.save({
                 success: function () {
                     if (button.action === 'editTask' && me.fromDetails) {
