@@ -54,9 +54,9 @@ Ext.define('Tme.controller.RelativePeriods', {
 
         var record = Ext.create('Tme.model.RelativePeriod');
         var categories = this.getCategoriesTextFields();
-
         if (form.isValid()) {
             formErrorsPanel.hide();
+            record.beginEdit();
             record.set('name', nameFieldValue);
 
             Ext.Array.each(categories.getValue(), function (item) {
@@ -74,7 +74,7 @@ Ext.define('Tme.controller.RelativePeriods', {
                 endDateModel = me.createModelFromRelativePeriodValue(endPeriodValue);
 
             record.set('to', endDateModel.data);
-
+            record.endEdit();
             record.save({
                 success: function (record, operation) {
                     var messageText;
@@ -108,7 +108,7 @@ Ext.define('Tme.controller.RelativePeriods', {
 
     createModelFromRelativePeriodValue: function (value) {
         var model = Ext.create(Tme.model.RelativeDate);
-
+        model.beginEdit();
         model.set('startPeriodAgo', value.startPeriodAgo);
         model.set('startAmountAgo', value.startAmountAgo);
         model.set('startTimeMode', value.startTimeMode);
@@ -121,7 +121,7 @@ Ext.define('Tme.controller.RelativePeriods', {
         model.set('onDayOfWeek', value.onDayOfWeek);
         model.set('atHour', value.atHour);
         model.set('atMinute', value.atMinute);
-
+        model.endEdit();
         return model;
     },
 
