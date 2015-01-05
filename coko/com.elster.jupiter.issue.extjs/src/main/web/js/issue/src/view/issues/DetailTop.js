@@ -17,14 +17,21 @@ Ext.define('Isu.view.issues.DetailTop', {
                 itemId: 'issue-detail-top-title',
                 title: '&nbsp;',
                 ui: 'large',
-                flex: 1
+                flex: 1,
+                items: [
+                    {
+                        itemId: 'issue-detail-title',
+                        title: 'Details',
+                        ui: 'medium'
+                    }
+                ]
             },
             {
                 xtype: 'button',
                 itemId: 'issue-detail-top-actions-button',
                 text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
                 hidden: !Uni.Auth.hasAnyPrivilege(['privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue',
-                    'privilege.administrate.device','privilege.view.device','privilege.view.scheduleDevice']),
+                    'privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
                 iconCls: 'x-uni-action-iconD',
                 menu: {
                     xtype: 'issues-action-menu',

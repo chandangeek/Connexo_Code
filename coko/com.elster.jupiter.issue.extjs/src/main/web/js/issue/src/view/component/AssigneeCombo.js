@@ -1,5 +1,5 @@
 Ext.define('Isu.view.component.AssigneeCombo', {
-    extend: 'Ext.ux.Rixo.form.field.GridPicker',
+    extend: 'Uni.form.field.GridPicker',
 
     alias: 'widget.issues-assignee-combo',
     store: 'Isu.store.IssueAssignees',

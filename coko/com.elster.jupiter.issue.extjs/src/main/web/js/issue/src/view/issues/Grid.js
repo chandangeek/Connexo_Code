@@ -11,6 +11,7 @@ Ext.define('Isu.view.issues.Grid', {
     ],
     alias: 'widget.issues-grid',
     router: null,
+    margin: '0 8 0 0',
 
     initComponent: function () {
         var me = this;
@@ -31,8 +32,9 @@ Ext.define('Isu.view.issues.Grid', {
                 itemId: 'issues-grid-due-date',
                 header: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
                 dataIndex: 'dueDate',
-                xtype: 'datecolumn',
-                format: 'M d Y',
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateShort(value) : '';
+                },
                 width: 140
             },
             {
@@ -52,7 +54,7 @@ Ext.define('Isu.view.issues.Grid', {
                 itemId: 'action',
                 xtype: 'uni-actioncolumn',
                 hidden: !Uni.Auth.hasAnyPrivilege(['privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue',
-                    'privilege.administrate.device','privilege.view.device','privilege.view.scheduleDevice']),
+                    'privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
                 menu: {
                     xtype: 'issues-action-menu',
                     itemId: 'issues-overview-action-menu',

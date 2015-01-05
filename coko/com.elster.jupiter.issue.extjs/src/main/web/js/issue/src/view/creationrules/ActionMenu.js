@@ -7,13 +7,13 @@ Ext.define('Isu.view.creationrules.ActionMenu', {
     items: [
         {
             itemId: 'edit',
-            text: 'Edit',
+            text: Uni.I18n.translate('general.edit', 'ISU', 'Edit'),
             action: 'edit'
         },
         {
-            itemId: 'delete',
-            text: 'Delete',
-            action: 'delete'
+            itemId: 'remove',
+            text:  Uni.I18n.translate('general.remove', 'ISU', 'Remove'),
+            action: 'remove'
         }
     ]
 });

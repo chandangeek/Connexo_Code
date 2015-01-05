@@ -32,7 +32,7 @@ Ext.define('Isu.view.issues.CommentsList', {
                 {
                     formatCreationDate: function (date) {
                         date = Ext.isDate(date) ? date : new Date(date);
-                        return Ext.Date.format(date, 'M d, Y (H:i)');
+                        return Uni.DateTime.formatDateTimeLong(date);
                     }
                 }
             ),
