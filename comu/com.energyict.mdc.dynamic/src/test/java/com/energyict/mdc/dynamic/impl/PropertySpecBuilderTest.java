@@ -27,7 +27,7 @@ public class PropertySpecBuilderTest {
         String specName = "exampleStringProperty";
 
         // Business methods
-        PropertySpec<String> propertySpec =
+        PropertySpec propertySpec =
                 PropertySpecBuilderImpl.
                         forClass(new StringFactory()).
                         name(specName).
@@ -45,7 +45,7 @@ public class PropertySpecBuilderTest {
         String defaultValue = "DEFAULT";
 
         // Business methods
-        PropertySpec<String> propertySpec =
+        PropertySpec propertySpec =
                 PropertySpecBuilderImpl.
                         forClass(new StringFactory()).
                         name(specName).
@@ -55,7 +55,7 @@ public class PropertySpecBuilderTest {
         // Asserts
         assertThat(propertySpec).isNotNull();
         assertThat(propertySpec.getName()).isEqualTo(specName);
-        PropertySpecPossibleValues<String> possibleValues = propertySpec.getPossibleValues();
+        PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.getDefault()).isEqualTo(defaultValue);
         assertThat(possibleValues.getAllValues()).isEmpty();
@@ -67,19 +67,19 @@ public class PropertySpecBuilderTest {
         String specName = "exampleStringProperty";
         String initialDefaultValue = "INITIAL-DEFAULT";
         String newDefaultValue = "NEW-DEFAULT";
-        PropertySpecBuilder<String> builder = PropertySpecBuilderImpl.forClass(new StringFactory());
+        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new StringFactory());
         builder.
                 name(specName).
                 setDefaultValue(initialDefaultValue);
 
         // Business methods
         builder.setDefaultValue(newDefaultValue);
-        PropertySpec<String> propertySpec = builder.finish();
+        PropertySpec propertySpec = builder.finish();
 
         // Asserts
         assertThat(propertySpec).isNotNull();
         assertThat(propertySpec.getName()).isEqualTo(specName);
-        PropertySpecPossibleValues<String> possibleValues = propertySpec.getPossibleValues();
+        PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.getDefault()).isEqualTo(newDefaultValue);
         // assertThat(possibleValues.getAllValues()).containsOnly(initialDefaultValue, newDefaultValue);
@@ -94,7 +94,7 @@ public class PropertySpecBuilderTest {
         String otherValue2 = "OTHER2";
 
         // Business methods
-        PropertySpec<String> propertySpec =
+        PropertySpec propertySpec =
                 PropertySpecBuilderImpl.
                         forClass(new StringFactory()).
                         name(specName).
@@ -105,7 +105,7 @@ public class PropertySpecBuilderTest {
         // Asserts
         assertThat(propertySpec).isNotNull();
         assertThat(propertySpec.getName()).isEqualTo(specName);
-        PropertySpecPossibleValues<String> possibleValues = propertySpec.getPossibleValues();
+        PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.getDefault()).isEqualTo(defaultValue);
         assertThat((List<String>) possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
@@ -119,7 +119,7 @@ public class PropertySpecBuilderTest {
         String otherValue2 = "OTHER2";
 
         // Business methods
-        PropertySpec<String> propertySpec =
+        PropertySpec propertySpec =
                 PropertySpecBuilderImpl.
                         forClass(new StringFactory()).
                         name(specName).
@@ -129,7 +129,7 @@ public class PropertySpecBuilderTest {
         // Asserts
         assertThat(propertySpec).isNotNull();
         assertThat(propertySpec.getName()).isEqualTo(specName);
-        PropertySpecPossibleValues<String> possibleValues = propertySpec.getPossibleValues();
+        PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.getDefault()).isNull();
         assertThat((List<String>) possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
@@ -143,7 +143,7 @@ public class PropertySpecBuilderTest {
         String otherValue2 = "OTHER2";
 
         // Business methods
-        PropertySpec<String> propertySpec =
+        PropertySpec propertySpec =
                 PropertySpecBuilderImpl.
                         forClass(new StringFactory()).
                         name(specName).
@@ -154,7 +154,7 @@ public class PropertySpecBuilderTest {
         // Asserts
         assertThat(propertySpec).isNotNull();
         assertThat(propertySpec.getName()).isEqualTo(specName);
-        PropertySpecPossibleValues<String> possibleValues = propertySpec.getPossibleValues();
+        PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.getDefault()).isNull();
         assertThat((List<String>) possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
@@ -169,7 +169,7 @@ public class PropertySpecBuilderTest {
         String otherValue2 = "OTHER2";
 
         // Business methods
-        PropertySpec<String> propertySpec =
+        PropertySpec propertySpec =
                 PropertySpecBuilderImpl.
                         forClass(new StringFactory()).
                         name(specName).
@@ -181,7 +181,7 @@ public class PropertySpecBuilderTest {
         // Asserts
         assertThat(propertySpec).isNotNull();
         assertThat(propertySpec.getName()).isEqualTo(specName);
-        PropertySpecPossibleValues<String> possibleValues = propertySpec.getPossibleValues();
+        PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.getDefault()).isEqualTo(defaultValue);
         assertThat((List<String>) possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
@@ -196,7 +196,7 @@ public class PropertySpecBuilderTest {
         String otherValue2 = "OTHER2";
 
         // Business methods
-        PropertySpec<String> propertySpec =
+        PropertySpec propertySpec =
                 PropertySpecBuilderImpl.
                         forClass(new StringFactory()).
                         name(specName).
@@ -208,7 +208,7 @@ public class PropertySpecBuilderTest {
         // Asserts
         assertThat(propertySpec).isNotNull();
         assertThat(propertySpec.getName()).isEqualTo(specName);
-        PropertySpecPossibleValues<String> possibleValues = propertySpec.getPossibleValues();
+        PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.getDefault()).isEqualTo(defaultValue);
         assertThat((List<String>) possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
@@ -218,12 +218,12 @@ public class PropertySpecBuilderTest {
     @Test
     public void testFinishAgainReturnsTheSamePropertySpec () {
         String specName = "exampleStringProperty";
-        PropertySpecBuilder<String> builder = PropertySpecBuilderImpl.forClass(new StringFactory());
+        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new StringFactory());
         builder.name(specName);
-        PropertySpec<String> propertySpec1 = builder.finish();
+        PropertySpec propertySpec1 = builder.finish();
 
         // Business methods
-        PropertySpec<String> propertySpec2 = builder.finish();
+        PropertySpec propertySpec2 = builder.finish();
 
         // Asserts
         assertThat(propertySpec1).isSameAs(propertySpec2);
@@ -232,7 +232,7 @@ public class PropertySpecBuilderTest {
     @Test(expected = IllegalStateException.class)
     public void testCannotSetNameAfterFinish () {
         String specName = "exampleStringProperty";
-        PropertySpecBuilder<String> builder = PropertySpecBuilderImpl.forClass(new StringFactory());
+        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new StringFactory());
         builder.finish();
 
         // Business methods
@@ -245,7 +245,7 @@ public class PropertySpecBuilderTest {
     public void testCannotSetDefaultAfterFinish () {
         String specName = "exampleStringProperty";
         String defaultValue = "DEFAULT";
-        PropertySpecBuilder<String> builder = PropertySpecBuilderImpl.forClass(new StringFactory());
+        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new StringFactory());
         builder.name(specName).finish();
 
         // Business methods
@@ -259,7 +259,7 @@ public class PropertySpecBuilderTest {
         String specName = "exampleStringProperty";
         String otherValue1 = "OTHER1";
         String otherValue2 = "OTHER2";
-        PropertySpecBuilder<String> builder = PropertySpecBuilderImpl.forClass(new StringFactory());
+        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new StringFactory());
         builder.name(specName).finish();
 
         // Business methods
@@ -271,7 +271,7 @@ public class PropertySpecBuilderTest {
     @Test(expected = IllegalStateException.class)
     public void testCannotMarkExhaustiveAfterFinish () {
         String specName = "exampleStringProperty";
-        PropertySpecBuilder<String> builder = PropertySpecBuilderImpl.forClass(new StringFactory());
+        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new StringFactory());
         builder.name(specName).finish();
 
         // Business methods

@@ -15,7 +15,7 @@ import com.energyict.mdc.dynamic.PropertySpecFactory;
  */
 public abstract class PropertySpecFactoryImpl implements PropertySpecFactory {
 
-    protected <T> PropertySpec<T> simpleRequiredPropertySpec(String name, ValueFactory<T> valueFactory) {
+    protected PropertySpec simpleRequiredPropertySpec(String name, ValueFactory valueFactory) {
         return PropertySpecBuilderImpl.
                 forClass(valueFactory).
                 name(name).

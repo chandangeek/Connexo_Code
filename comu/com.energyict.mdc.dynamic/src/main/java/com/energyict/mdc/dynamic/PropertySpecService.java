@@ -1,7 +1,6 @@
 package com.energyict.mdc.dynamic;
 
 import java.util.TimeZone;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.elster.jupiter.properties.AbstractValueFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -28,9 +27,9 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
      * @param valueFactoryClass The class for which the DataModel (injector) will provide an instance
      * @return The PropertySpec
      */
-    public <T> PropertySpec<T> basicPropertySpec (String name, boolean required, Class<? extends ValueFactory<T>> valueFactoryClass);
+    public PropertySpec basicPropertySpec (String name, boolean required, Class<? extends ValueFactory> valueFactoryClass);
 
-    public PropertySpec<TimeDuration> timeDurationPropertySpec(String name, boolean required, TimeDuration defaultValue);
+    public PropertySpec timeDurationPropertySpec(String name, boolean required, TimeDuration defaultValue);
 
     /**
      * Creates a {@link PropertySpec} for an {@link ObisCode} value which only allows the given values.
@@ -40,9 +39,9 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
      * @param values The allowed values for the PropertySpec
      * @return The PropertySpec
      */
-    public PropertySpec<ObisCode> obisCodePropertySpecWithValues(String name, boolean required, ObisCode... values);
+    public PropertySpec obisCodePropertySpecWithValues(String name, boolean required, ObisCode... values);
 
-    public PropertySpec<ObisCode> obisCodePropertySpecWithValuesExhaustive(String name, boolean required, ObisCode... values);
+    public PropertySpec obisCodePropertySpecWithValuesExhaustive(String name, boolean required, ObisCode... values);
 
     /**
      * Creates a {@link PropertySpec} that references objects provided by the
@@ -57,7 +56,7 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
 
     public void addFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider);
 
-    public PropertySpec<Boolean> booleanPropertySpec(String name, boolean required, Boolean defaultValue);
+    public PropertySpec booleanPropertySpec(String name, boolean required, Boolean defaultValue);
 
     /**
      * Creates a PropertySPec that references a TimeZone object.
@@ -84,10 +83,10 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
      * injection on the ValueFactory in casu
      *
      * @param valueFactoryClass Injector will create a instance of this ValueFactory-class
-     * @param <T> The Type of values for the PropertySpec
      * @return The PropertySpecBuilder
      */
-    public <T> PropertySpecBuilder<T> newPropertySpecBuilder(Class<? extends ValueFactory<T>> valueFactoryClass);
+    public PropertySpecBuilder newPropertySpecBuilder(Class<? extends ValueFactory> valueFactoryClass);
 
-    public <T> ValueFactory<T> getValueFactory(Class<? extends ValueFactory<T>> valueFactoryClassName);
+    public ValueFactory getValueFactory(Class<? extends ValueFactory> valueFactoryClassName);
+
 }

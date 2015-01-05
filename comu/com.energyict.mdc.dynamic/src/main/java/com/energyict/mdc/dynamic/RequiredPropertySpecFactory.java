@@ -6,13 +6,10 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeOfDay;
 import com.energyict.mdc.dynamic.impl.PropertySpecBuilderImpl;
 import com.energyict.mdc.dynamic.impl.PropertySpecFactoryImpl;
 import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * Provides factory services for required {@link PropertySpec}s.
@@ -28,12 +25,12 @@ public class RequiredPropertySpecFactory extends PropertySpecFactoryImpl {
     }
 
     @Override
-    public PropertySpec<String> stringPropertySpec(String name) {
+    public PropertySpec stringPropertySpec(String name) {
         return simpleRequiredPropertySpec(name, new StringFactory());
     }
 
     @Override
-    public PropertySpec<String> stringPropertySpec (String name, String defaultValue) {
+    public PropertySpec stringPropertySpec (String name, String defaultValue) {
         return PropertySpecBuilderImpl.
                 forClass(new StringFactory()).
                 name(name).
@@ -43,7 +40,7 @@ public class RequiredPropertySpecFactory extends PropertySpecFactoryImpl {
     }
 
     @Override
-    public PropertySpec<String> stringPropertySpecWithValues (String name, String... values) {
+    public PropertySpec stringPropertySpecWithValues (String name, String... values) {
         return PropertySpecBuilderImpl.
                 forClass(new StringFactory()).
                 name(name).
@@ -54,22 +51,22 @@ public class RequiredPropertySpecFactory extends PropertySpecFactoryImpl {
     }
 
     @Override
-    public PropertySpec<String> largeStringPropertySpec(String name) {
+    public PropertySpec largeStringPropertySpec(String name) {
         return simpleRequiredPropertySpec(name, new LargeStringFactory());
     }
 
     @Override
-    public PropertySpec<HexString> hexStringPropertySpec(String name) {
+    public PropertySpec hexStringPropertySpec(String name) {
         return simpleRequiredPropertySpec(name, new HexStringFactory());
     }
 
     @Override
-    public PropertySpec<BigDecimal> bigDecimalPropertySpec(String name) {
+    public PropertySpec bigDecimalPropertySpec(String name) {
         return simpleRequiredPropertySpec(name, new BigDecimalFactory());
     }
 
     @Override
-    public PropertySpec<BigDecimal> bigDecimalPropertySpec(String name, BigDecimal defaultValue) {
+    public PropertySpec bigDecimalPropertySpec(String name, BigDecimal defaultValue) {
         return PropertySpecBuilderImpl.
                 forClass(new BigDecimalFactory()).
                 name(name).
@@ -79,7 +76,7 @@ public class RequiredPropertySpecFactory extends PropertySpecFactoryImpl {
     }
 
     @Override
-    public PropertySpec<BigDecimal> bigDecimalPropertySpecWithValues (String name, BigDecimal... values) {
+    public PropertySpec bigDecimalPropertySpecWithValues (String name, BigDecimal... values) {
         return PropertySpecBuilderImpl.
                 forClass(new BigDecimalFactory()).
                 name(name).
@@ -90,37 +87,37 @@ public class RequiredPropertySpecFactory extends PropertySpecFactoryImpl {
     }
 
     @Override
-    public PropertySpec<Boolean> booleanPropertySpec(String name) {
+    public PropertySpec booleanPropertySpec(String name) {
         return simpleRequiredPropertySpec(name, new ThreeStateFactory());
     }
 
     @Override
-    public PropertySpec<Boolean> notNullableBooleanPropertySpec (String name) {
+    public PropertySpec notNullableBooleanPropertySpec (String name) {
         return simpleRequiredPropertySpec(name, new BooleanFactory());
     }
 
     @Override
-    public PropertySpec<Date> datePropertySpec(String name) {
+    public PropertySpec datePropertySpec(String name) {
         return simpleRequiredPropertySpec(name, new DateFactory());
     }
 
     @Override
-    public PropertySpec<TimeOfDay> timeOfDayPropertySpec(String name) {
+    public PropertySpec timeOfDayPropertySpec(String name) {
         return simpleRequiredPropertySpec(name, new TimeOfDayFactory());
     }
 
     @Override
-    public PropertySpec<Date> dateTimePropertySpec(String name) {
+    public PropertySpec dateTimePropertySpec(String name) {
         return simpleRequiredPropertySpec(name, new DateAndTimeFactory());
     }
 
     @Override
-    public PropertySpec<TimeDuration> timeDurationPropertySpec(String name) {
+    public PropertySpec timeDurationPropertySpec(String name) {
         return simpleRequiredPropertySpec(name, new TimeDurationValueFactory());
     }
 
     @Override
-    public PropertySpec<TimeDuration> timeDurationPropertySpec (String name, TimeDuration defaultValue) {
+    public PropertySpec timeDurationPropertySpec (String name, TimeDuration defaultValue) {
         return PropertySpecBuilderImpl.
                 forClass(new TimeDurationValueFactory()).
                 name(name).
@@ -130,12 +127,12 @@ public class RequiredPropertySpecFactory extends PropertySpecFactoryImpl {
     }
 
     @Override
-    public PropertySpec<ObisCode> obisCodePropertySpec(String name) {
+    public PropertySpec obisCodePropertySpec(String name) {
         return simpleRequiredPropertySpec(name, new ObisCodeValueFactory());
     }
 
     @Override
-    public PropertySpec<ObisCode> obisCodePropertySpecWithValuesExhaustive(String name, ObisCode... values) {
+    public PropertySpec obisCodePropertySpecWithValuesExhaustive(String name, ObisCode... values) {
         return PropertySpecBuilderImpl.
                 forClass(new ObisCodeValueFactory()).
                 name(name).

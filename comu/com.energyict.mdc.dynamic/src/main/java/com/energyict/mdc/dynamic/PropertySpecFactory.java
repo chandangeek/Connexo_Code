@@ -6,7 +6,6 @@ import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeOfDay;
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -24,7 +23,7 @@ public interface PropertySpecFactory {
      * @param name The name of the PropertySpec
      * @return The PropertySpec
      */
-    public PropertySpec<String> stringPropertySpec (String name);
+    public PropertySpec stringPropertySpec (String name);
 
     /**
      * Creates a {@link PropertySpec} for a String value with a default value.
@@ -33,7 +32,7 @@ public interface PropertySpecFactory {
      * @param defaultValue The default value in case the property is not specified
      * @return The PropertySpec
      */
-    public PropertySpec<String> stringPropertySpec (String name, String defaultValue);
+    public PropertySpec stringPropertySpec (String name, String defaultValue);
 
     /**
      * Creates a {@link PropertySpec} for a String value which only allows the given values.
@@ -42,7 +41,7 @@ public interface PropertySpecFactory {
      * @param values The allowed values for the PropertySpec
      * @return The PropertySpec
      */
-    public PropertySpec<String> stringPropertySpecWithValues (String name, String... values);
+    public PropertySpec stringPropertySpecWithValues (String name, String... values);
 
     /**
      * Creates a {@link PropertySpec} for a "large" String value.
@@ -50,7 +49,7 @@ public interface PropertySpecFactory {
      * @param name The name of the PropertySpec
      * @return The PropertySpec
      */
-    public PropertySpec<String> largeStringPropertySpec (String name);
+    public PropertySpec largeStringPropertySpec (String name);
 
     /**
      * Creates a {@link PropertySpec} for a {@link HexString} value.
@@ -58,7 +57,7 @@ public interface PropertySpecFactory {
      * @param name The name of the PropertySpec
      * @return The PropertySpec
      */
-    public PropertySpec<HexString> hexStringPropertySpec (String name);
+    public PropertySpec hexStringPropertySpec (String name);
 
     /**
      * Creates a {@link PropertySpec} for a BigDecimal value.
@@ -66,7 +65,7 @@ public interface PropertySpecFactory {
      * @param name The name of the PropertySpec
      * @return The PropertySpec
      */
-    public PropertySpec<BigDecimal> bigDecimalPropertySpec (String name);
+    public PropertySpec bigDecimalPropertySpec (String name);
 
     /**
      * Creates a {@link PropertySpec} for a BigDecimal value with a default value.
@@ -75,7 +74,7 @@ public interface PropertySpecFactory {
      * @param defaultValue The default value in case the property is not specified
      * @return The PropertySpec
      */
-    public PropertySpec<BigDecimal> bigDecimalPropertySpec (String name, BigDecimal defaultValue);
+    public PropertySpec bigDecimalPropertySpec (String name, BigDecimal defaultValue);
 
     /**
      * Creates a {@link PropertySpec} for a BigDecimal value which only allows the given values.
@@ -84,7 +83,7 @@ public interface PropertySpecFactory {
      * @param values The allowed values for the PropertySpec
      * @return the PropertySpec
      */
-    public PropertySpec<BigDecimal> bigDecimalPropertySpecWithValues (String name, BigDecimal... values);
+    public PropertySpec bigDecimalPropertySpecWithValues (String name, BigDecimal... values);
 
     /**
      * Creates a {@link PropertySpec} for a Boolean value.
@@ -101,7 +100,7 @@ public interface PropertySpecFactory {
      * @param name The name of the PropertySpec
      * @return The PropertySpec
      */
-    public PropertySpec<Boolean> booleanPropertySpec (String name);
+    public PropertySpec booleanPropertySpec (String name);
 
     /**
      * Creates a {@link PropertySpec} for a Boolean value <b>which cannot be set to null</b>.
@@ -114,7 +113,7 @@ public interface PropertySpecFactory {
      * @param name The name of the PropertySpec
      * @return The PropertySpec
      */
-    public PropertySpec<Boolean> notNullableBooleanPropertySpec (String name);
+    public PropertySpec notNullableBooleanPropertySpec (String name);
 
     /**
      * Creates a {@link PropertySpec} for a Date value.
@@ -122,7 +121,7 @@ public interface PropertySpecFactory {
      * @param name The name of the PropertySpec
      * @return The PropertySpec
      */
-    public PropertySpec<Date> datePropertySpec(String name);
+    public PropertySpec datePropertySpec(String name);
 
     /**
      * Creates a {@link PropertySpec} for a {@link TimeOfDay} value.
@@ -130,7 +129,7 @@ public interface PropertySpecFactory {
      * @param name The name of the PropertySpec
      * @return The PropertySpec
      */
-    public PropertySpec<TimeOfDay> timeOfDayPropertySpec(String name);
+    public PropertySpec timeOfDayPropertySpec(String name);
 
     /**
      * Creates a {@link PropertySpec} for a Date value with time resolution.
@@ -138,7 +137,7 @@ public interface PropertySpecFactory {
      * @param name The name of the PropertySpec
      * @return The PropertySpec
      */
-    public PropertySpec<Date> dateTimePropertySpec (String name);
+    public PropertySpec dateTimePropertySpec (String name);
 
     /**
      * Creates a {@link PropertySpec} for a {@link TimeDuration} value.
@@ -146,7 +145,7 @@ public interface PropertySpecFactory {
      * @param name The name of the PropertySpec
      * @return The PropertySpec
      */
-    public PropertySpec<TimeDuration> timeDurationPropertySpec (String name);
+    public PropertySpec timeDurationPropertySpec (String name);
 
     /**
      * Creates a {@link PropertySpec} for a {@link TimeDuration} value with a default value.
@@ -155,7 +154,7 @@ public interface PropertySpecFactory {
      * @param defaultValue The default value in case the property is not specified
      * @return The PropertySpec
      */
-    public PropertySpec<TimeDuration> timeDurationPropertySpec (String name, TimeDuration defaultValue);
+    public PropertySpec timeDurationPropertySpec (String name, TimeDuration defaultValue);
 
     /**
      * Creates a {@link PropertySpec} for an {@link ObisCode} value.
@@ -163,7 +162,7 @@ public interface PropertySpecFactory {
      * @param name The name of the PropertySpec
      * @return The PropertySpec
      */
-    public PropertySpec<ObisCode> obisCodePropertySpec(String name);
+    public PropertySpec obisCodePropertySpec(String name);
 
     /**
      * Converts a list with string keys to the new List<PropertySpec> format.
@@ -173,6 +172,6 @@ public interface PropertySpecFactory {
      */
     public List<PropertySpec> toPropertySpecs(List<String> keys);
 
-    public PropertySpec<ObisCode> obisCodePropertySpecWithValuesExhaustive(String name, ObisCode... values);
+    public PropertySpec obisCodePropertySpecWithValuesExhaustive(String name, ObisCode... values);
 
 }

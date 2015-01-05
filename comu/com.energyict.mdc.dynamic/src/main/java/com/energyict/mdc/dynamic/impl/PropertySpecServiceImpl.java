@@ -96,53 +96,52 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     private volatile com.elster.jupiter.properties.PropertySpecService basicPropertySpecService;
 
     @Override
-    public <T> PropertySpec<T> basicPropertySpec(String name, boolean required, ValueFactory<T> valueFactory) {
+    public PropertySpec basicPropertySpec(String name, boolean required, ValueFactory valueFactory) {
         return basicPropertySpecService.basicPropertySpec(name, required, valueFactory);
     }
 
     @Override
-    public <T> PropertySpec<T> basicPropertySpec(String name, boolean required, Class<? extends ValueFactory<T>> valueFactoryClass) {
-        return new com.elster.jupiter.properties.BasicPropertySpec<>(name, required, getValueFactory(valueFactoryClass));
+    public PropertySpec basicPropertySpec(String name, boolean required, Class<? extends ValueFactory> valueFactoryClass) {
+        return new com.elster.jupiter.properties.BasicPropertySpec(name, required, getValueFactory(valueFactoryClass));
     }
 
-
     @Override
-    public PropertySpec<String> stringPropertySpecWithValues(String name, boolean required, String... values) {
+    public PropertySpec stringPropertySpecWithValues(String name, boolean required, String... values) {
         return basicPropertySpecService.stringPropertySpecWithValues(name, required, values);
     }
 
     @Override
-    public PropertySpec<String> stringPropertySpec(String name, boolean required, String defaultValue) {
+    public PropertySpec stringPropertySpec(String name, boolean required, String defaultValue) {
         return basicPropertySpecService.stringPropertySpec(name, required, defaultValue);
     }
 
     @Override
-    public PropertySpec<String> stringPropertySpecWithValuesAndDefaultValue(String name, boolean required, String defaultValue, String... values) {
+    public PropertySpec stringPropertySpecWithValuesAndDefaultValue(String name, boolean required, String defaultValue, String... values) {
         return basicPropertySpecService.stringPropertySpecWithValuesAndDefaultValue(name, required, defaultValue, values);
     }
 
     @Override
-    public PropertySpec<BigDecimal> bigDecimalPropertySpecWithValues(String name, boolean required, BigDecimal... values) {
+    public PropertySpec bigDecimalPropertySpecWithValues(String name, boolean required, BigDecimal... values) {
         return basicPropertySpecService.bigDecimalPropertySpecWithValues(name, required, values);
     }
 
     @Override
-    public PropertySpec<BigDecimal> bigDecimalPropertySpec(String name, boolean required, BigDecimal defaultValue) {
+    public PropertySpec bigDecimalPropertySpec(String name, boolean required, BigDecimal defaultValue) {
         return basicPropertySpecService.bigDecimalPropertySpec(name, required, defaultValue);
     }
 
     @Override
-    public PropertySpec<BigDecimal> positiveDecimalPropertySpec(String name, boolean required) {
+    public PropertySpec positiveDecimalPropertySpec(String name, boolean required) {
         return basicPropertySpecService.positiveDecimalPropertySpec(name, required);
     }
 
     @Override
-    public PropertySpec<BigDecimal> boundedDecimalPropertySpec(String name, boolean required, BigDecimal lowerLimit, BigDecimal upperLimit) {
+    public PropertySpec boundedDecimalPropertySpec(String name, boolean required, BigDecimal lowerLimit, BigDecimal upperLimit) {
         return basicPropertySpecService.boundedDecimalPropertySpec(name, required, lowerLimit, upperLimit);
     }
 
     @Override
-    public PropertySpec<TimeDuration> timeDurationPropertySpec(String name, boolean required, TimeDuration defaultValue) {
+    public PropertySpec timeDurationPropertySpec(String name, boolean required, TimeDuration defaultValue) {
         return PropertySpecBuilderImpl.
                 forClass(new TimeDurationValueFactory()).
                 name(name).
@@ -151,17 +150,17 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public PropertySpec<ObisCode> obisCodePropertySpecWithValues(String name, boolean required, ObisCode... values) {
+    public PropertySpec obisCodePropertySpecWithValues(String name, boolean required, ObisCode... values) {
         return this.obisCodePropertySpecWithValues(name, required, false, values);
     }
 
     @Override
-    public PropertySpec<ObisCode> obisCodePropertySpecWithValuesExhaustive(String name, boolean required, ObisCode... values) {
+    public PropertySpec obisCodePropertySpecWithValuesExhaustive(String name, boolean required, ObisCode... values) {
         return this.obisCodePropertySpecWithValues(name, required, true, values);
     }
 
-    private PropertySpec<ObisCode> obisCodePropertySpecWithValues(String name, boolean required, boolean exhaustive, ObisCode... values) {
-        PropertySpecBuilder<ObisCode> builder = PropertySpecBuilderImpl.forClass(new ObisCodeValueFactory());
+    private PropertySpec obisCodePropertySpecWithValues(String name, boolean required, boolean exhaustive, ObisCode... values) {
+        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new ObisCodeValueFactory());
         if (required) {
             builder.markRequired();
         }
@@ -173,7 +172,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     @Override
     public PropertySpec referencePropertySpec(String name, boolean required, FactoryIds factoryId) {
-        return new JupiterReferencePropertySpec<>(name, required, this.finderFor(factoryId));
+        return new JupiterReferencePropertySpec(name, required, this.finderFor(factoryId));
     }
 
     private CanFindByLongPrimaryKey<? extends HasId> finderFor(FactoryIds factoryId) {
@@ -186,7 +185,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public <T> PropertySpecBuilder<T> newPropertySpecBuilder(ValueFactory<T> valueFactory) {
+    public PropertySpecBuilder newPropertySpecBuilder(ValueFactory valueFactory) {
         return PropertySpecBuilderImpl.forClass(valueFactory);
     }
 
@@ -210,22 +209,22 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public <T extends ListValueEntry> PropertySpec<ListValue<T>> listValuePropertySpec(String name, boolean required, FindById<T> finder, T... values) {
+    public <T extends ListValueEntry> PropertySpec listValuePropertySpec(String name, boolean required, FindById<T> finder, T... values) {
         return basicPropertySpecService.listValuePropertySpec(name, required, finder, values);
     }
 
     @Override
-    public <T> PropertySpecBuilder<T> newPropertySpecBuilder(Class<? extends ValueFactory<T>> valueFactoryClass) {
+    public PropertySpecBuilder newPropertySpecBuilder(Class<? extends ValueFactory> valueFactoryClass) {
         return PropertySpecBuilderImpl.forClass(getValueFactory(valueFactoryClass));
     }
 
     @Override
-    public <T> ValueFactory<T> getValueFactory(Class<? extends ValueFactory<T>> valueFactoryClass) {
+    public ValueFactory getValueFactory(Class<? extends ValueFactory> valueFactoryClass) {
         return dataModel.getInstance(valueFactoryClass);
     }
     @Override
-    public PropertySpec<Boolean> booleanPropertySpec(String name, boolean required, Boolean defaultValue) {
-        PropertySpecBuilder<Boolean> booleanPropertySpecBuilder = PropertySpecBuilderImpl.
+    public PropertySpec booleanPropertySpec(String name, boolean required, Boolean defaultValue) {
+        PropertySpecBuilder booleanPropertySpecBuilder = PropertySpecBuilderImpl.
                 forClass(new BooleanFactory()).
                 name(name).
                 setDefaultValue(defaultValue);
@@ -236,13 +235,13 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public PropertySpec<TimeZone> timeZonePropertySpec(String name, boolean required, TimeZone defaultValue) {
+    public PropertySpec timeZonePropertySpec(String name, boolean required, TimeZone defaultValue) {
         TimeZone[] possibleValues = {
                 TimeZone.getTimeZone("GMT"),
                 TimeZone.getTimeZone("Europe/Brussels"),
                 TimeZone.getTimeZone("EST"),
                 TimeZone.getTimeZone("Europe/Moscow")};
-        PropertySpecBuilder<TimeZone> timeZonePropertySpecBuilder = PropertySpecBuilderImpl
+        PropertySpecBuilder timeZonePropertySpecBuilder = PropertySpecBuilderImpl
                 .forClass(new TimeZoneFactory()).name(name).setDefaultValue(defaultValue).markExhaustive().addValues(possibleValues);
         if (required) {
             timeZonePropertySpecBuilder.markRequired();

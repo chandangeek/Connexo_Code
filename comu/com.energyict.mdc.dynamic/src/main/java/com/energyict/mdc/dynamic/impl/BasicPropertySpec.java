@@ -13,27 +13,27 @@ import com.energyict.mdc.common.Password;
  * Date: 7/05/12
  * Time: 10:22
  */
-public class BasicPropertySpec<T> extends com.elster.jupiter.properties.BasicPropertySpec<T> {
+public class BasicPropertySpec extends com.elster.jupiter.properties.BasicPropertySpec {
 
-    public BasicPropertySpec(String name, ValueFactory<T> valueFactory) {
+    public BasicPropertySpec(String name, ValueFactory valueFactory) {
         this(name, false, valueFactory);
     }
 
-    public BasicPropertySpec(String name, boolean required, ValueFactory<T> valueFactory) {
+    public BasicPropertySpec(String name, boolean required, ValueFactory valueFactory) {
         super(name, required, valueFactory);
     }
-    
+
     @Override
-    public boolean validateValue (T value) throws InvalidValueException {
+    public boolean validateValue (Object value) throws InvalidValueException {
         return this.validateValue(value, this.required);
     }
 
     @Override
-    public boolean validateValueIgnoreRequired(T value) throws InvalidValueException {
+    public boolean validateValueIgnoreRequired(Object value) throws InvalidValueException {
         return this.validateValue(value, false);
     }
 
-    private boolean validateValue (T value, boolean required) throws InvalidValueException {
+    private boolean validateValue (Object value, boolean required) throws InvalidValueException {
         if (required && this.isNull(value)) {
             throw new ValueRequiredException("XisARequiredAttribute", "\"{0}\" is a required message attribute", this.getName());
         }
@@ -56,7 +56,7 @@ public class BasicPropertySpec<T> extends com.elster.jupiter.properties.BasicPro
             }
             if (possibleValues!=null && possibleValues.isExhaustive()) {
                 boolean found = false;
-                for (T o : possibleValues.getAllValues()) {
+                for (Object o : possibleValues.getAllValues()) {
                     if (o.equals(value)) {
                         found=true;
                     }
@@ -69,13 +69,13 @@ public class BasicPropertySpec<T> extends com.elster.jupiter.properties.BasicPro
         return true;
     }
 
-    private boolean isNull (T value) {
+    private boolean isNull (Object value) {
         return value == null
             || this.isNullString(value)
             || this.isNullPassword(value);
     }
 
-    private boolean isNullString (T value) {
+    private boolean isNullString (Object value) {
         return value instanceof String && this.isNullString((String) value);
     }
 
@@ -83,7 +83,7 @@ public class BasicPropertySpec<T> extends com.elster.jupiter.properties.BasicPro
         return stringValue == null || stringValue.isEmpty();
     }
 
-    private boolean isNullPassword (T value) {
+    private boolean isNullPassword (Object value) {
         if (value instanceof Password) {
             Password passwordValue = (Password) value;
             return this.isNullString(passwordValue.getValue());
