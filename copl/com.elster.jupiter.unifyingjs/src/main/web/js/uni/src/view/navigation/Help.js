@@ -4,12 +4,9 @@
 Ext.define('Uni.view.navigation.Help', {
     extend: 'Ext.button.Button',
     alias: 'widget.navigationHelp',
-    action: 'help',
-    glyph: 'xe009@icomoon',
-    scale: 'small',
+    scale: 'medium',
     cls: 'nav-help',
-
-    initComponent: function () {
-        this.callParent(arguments);
-    }
+    iconCls: 'icon-question3',
+    href: 'help/index.html',
+    hrefTarget: '_blank'
 });

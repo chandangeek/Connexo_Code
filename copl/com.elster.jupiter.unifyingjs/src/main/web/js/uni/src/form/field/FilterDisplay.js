@@ -38,7 +38,7 @@ Ext.define('Uni.form.field.FilterDisplay', {
                 itemId: 'filter-display-button',
                 filterBy: me.name,
                 cls: 'uni-btn-transparent',
-                iconCls: 'icon-filter',
+                iconCls: 'uni-icon-filter',
                 ui: 'blank',
                 shadow: false,
                 hidden: true,

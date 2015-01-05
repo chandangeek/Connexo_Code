@@ -33,18 +33,23 @@ Ext.define('Uni.view.breadcrumb.Trail', {
     },
 
     addBreadcrumbItem: function (item, baseHref) {
+        var me = this,
+            isGrandParent = false,
+            child,
+            href = item.data.href,
+            link = Ext.create('Uni.view.breadcrumb.Link', {
+                text: item.data.text
+            });
+
         // TODO Append '#/' when necessary.
-        baseHref = baseHref || '';
+        if (!baseHref) {
+            isGrandParent = true;
+            baseHref = baseHref || '';
+        }
 
         if (item.data.relative && baseHref.length > 0) {
             baseHref += Uni.controller.history.Settings.tokenDelimiter;
         }
-
-        var child,
-            href = item.data.href,
-            link = Ext.widget('breadcrumbLink', {
-                text: item.data.text
-            });
 
         try {
             child = item.getChild();
@@ -58,7 +63,8 @@ Ext.define('Uni.view.breadcrumb.Trail', {
             link.href = baseHref + href;
         }
 
-        this.addBreadcrumbComponent(link);
+        me.addBreadcrumbComponent(link);
+        me[me.items.length > 1 ? 'show' : 'hide']();
 
         // Recursively add the children.
         if (typeof child !== 'undefined' && child !== null) {
@@ -66,7 +72,7 @@ Ext.define('Uni.view.breadcrumb.Trail', {
                 baseHref += href;
             }
 
-            this.addBreadcrumbItem(child, baseHref);
+            me.addBreadcrumbItem(child, baseHref);
         }
     },
 

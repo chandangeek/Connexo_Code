@@ -32,12 +32,17 @@ Ext.define('Uni.controller.Navigation', {
         {
             ref: 'searchButton',
             selector: 'navigationHeader #globalSearch'
+        },
+        {
+            ref: 'onlineHelpButton',
+            selector: 'navigationHeader #global-online-help'
         }
     ],
 
     applicationTitle: 'Connexo Multi Sense',
     applicationTitleSeparator: '-',
-    searchEnabled: Uni.Auth.hasAnyPrivilege(['privilege.administrate.device', 'privilege.view.device']),
+    searchEnabled: Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+    onlineHelpEnabled: false,
 
     init: function () {
         var me = this;
@@ -58,6 +63,9 @@ Ext.define('Uni.controller.Navigation', {
             },
             'navigationHeader #globalSearch': {
                 afterrender: me.initSearch
+            },
+            'navigationHeader #global-online-help': {
+                afterrender: me.initOnlineHelp
             }
         });
 
@@ -124,6 +132,40 @@ Ext.define('Uni.controller.Navigation', {
     initSearch: function () {
         var me = this;
         me.getSearchButton().setVisible(me.searchEnabled);
+    },
+
+    initOnlineHelp: function () {
+        var me = this,
+            helpBtn = me.getOnlineHelpButton();
+
+        if (me.onlineHelpEnabled) {
+            Ext.Ajax.request({
+                url: '/api/usr/currentuser',
+                success: function(response){
+                    var currentUser = Ext.decode(response.responseText, true),
+                        url;
+                    if (currentUser && currentUser.language && currentUser.language.languageTag) {
+                        url = 'help/' + currentUser.language.languageTag + '/index.html';
+                        Ext.Ajax.request({
+                            url: url,
+                            method: 'HEAD',
+                            success: function(response){
+                                helpBtn.setHref(url);
+                            },
+                            callback: function () {
+                                helpBtn.show();
+                            },
+                        });
+                    } else {
+                        helpBtn.show();
+                    }
+                }, failure: function () {
+                    helpBtn.show();
+                }
+            });
+        } else {
+            helpBtn.hide();
+        }
     },
 
     onAfterRenderNavigationMenu: function () {

@@ -59,13 +59,18 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
      */
     itemsName: Uni.I18n.translate('general.items', 'UNI', 'Items').toLowerCase(),
 
+    /**
+     * @cfg {String} [totalProperty="total"]
+     * Name of url query parameter for storing total records amount.
+     */
+    totalProperty: 'total',
+
     initComponent: function () {
         var me = this,
             store = Ext.getStore(me.store);
 
         me.callParent(arguments);
-
-        if (me.router && me.routerIdArgument && store && store.getCount() > 1) {
+        if (me.router && me.routerIdArgument && store) {
             me.initToolbar(store);
         } else {
             me.hide();
@@ -90,43 +95,84 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
             prevBtn = {
                 itemId: 'previous-next-navigation-toolbar-previous-link',
                 ui: 'plain',
-                iconCls: 'icon-arrow-up',
-                iconAlign: 'left',
+                iconCls: 'uni-icon-arrow-up',
                 style: 'margin-right: 0 !important;'
             },
             nextBtn = {
                 itemId: 'previous-next-navigation-toolbar-next-link',
                 ui: 'plain',
-                iconCls: 'icon-arrow-down',
-                iconAlign: 'right'
+                iconCls: 'uni-icon-arrow-down'
             },
-            separator = {
-                xtype: 'tbtext',
-                text: '|'
+            itemsCounter = {
+                xtype: 'component',
+                cls: ' previous-next-navigation-items-counter'
             },
-            currentIndex = store.indexOfId(me.router.arguments[me.routerIdArgument]),
-            itemsCounter;
+            arguments = Ext.clone(me.router.arguments),
+            queryParams = Ext.clone(me.router.queryParams),
+            currentIndex = store.indexOfId(arguments[me.routerIdArgument]),
+            storeCurrentPage = store.lastOptions?store.lastOptions.page:1,
+            storePageSize = store.pageSize,
+            storeTotal = store.getTotalCount();
 
         if (currentIndex === -1) {
-            currentIndex = store.indexOfId(parseInt(me.router.arguments[me.routerIdArgument]));
+            currentIndex = store.indexOfId(parseInt(arguments[me.routerIdArgument]));
         }
 
-        itemsCounter = {
-            xtype: 'component',
-            cls: ' previous-next-navigation-items-counter',
-            html: Ext.String.format(Uni.I18n.translate('previousNextNavigation.itemsCount', 'UNI', '{0} of {1}'), currentIndex + 1, store.getCount()) + ' ' + me.itemsName
-        };
+        if (!queryParams[me.totalProperty] || Math.abs(queryParams[me.totalProperty]) < storeTotal) {
+            queryParams[me.totalProperty] = storePageSize * storeCurrentPage > storeTotal ? storeTotal : -(storeTotal - 1);
+        }
+
+        if(store.getCount()<=1){
+            itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgItems', 'UNI', '{0} of {1}'), 1, 1 + ' ' + me.itemsName);
+        }
+        else if (queryParams[me.totalProperty] < 0) {
+            itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgMoreItems', 'UNI', '{0} of more than {1}'), storePageSize * (storeCurrentPage - 1) + currentIndex + 1, -queryParams[me.totalProperty]) + ' ' + me.itemsName;
+        } else {
+            itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgItems', 'UNI', '{0} of {1}'), storePageSize * (storeCurrentPage - 1) + currentIndex + 1, queryParams[me.totalProperty]) + ' ' + me.itemsName;
+        }
 
         if (currentIndex - 1 >= 0) {
-            me.router.arguments[me.routerIdArgument] = store.getAt(currentIndex - 1).getId();
-            prevBtn.href = me.router.getRoute(me.router.currentRoute).buildUrl(me.router.arguments, me.router.queryParams);
+            arguments[me.routerIdArgument] = store.getAt(currentIndex - 1).getId();
+            prevBtn.href = me.router.getRoute(me.router.currentRoute).buildUrl(arguments, queryParams);
+        } else if (storeCurrentPage > 1) {
+            prevBtn.handler = function () {
+                me.up('#contentPanel').setLoading(true);
+                store.loadPage(storeCurrentPage - 1, {
+                    scope: me,
+                    callback: function (records) {
+                        me.up('#contentPanel').setLoading(false);
+                        if (records.length) {
+                            arguments[me.routerIdArgument] = store.getAt(records.length - 1).getId();
+                            me.router.getRoute(me.router.currentRoute).forward(arguments, queryParams);
+                        } else {
+                            prevBtn.disable();
+                        }
+                    }
+                });
+            }
         } else {
             prevBtn.disabled = true;
         }
 
         if (currentIndex + 1 < store.getCount()) {
-            me.router.arguments[me.routerIdArgument] = store.getAt(currentIndex + 1).getId();
-            nextBtn.href = me.router.getRoute(me.router.currentRoute).buildUrl(me.router.arguments, me.router.queryParams);
+            arguments[me.routerIdArgument] = store.getAt(currentIndex + 1).getId();
+            nextBtn.href = me.router.getRoute(me.router.currentRoute).buildUrl(arguments, queryParams);
+        } else if (storeTotal > storePageSize * storeCurrentPage) {
+            nextBtn.handler = function () {
+                me.up('#contentPanel').setLoading(true);
+                store.loadPage(storeCurrentPage + 1, {
+                    scope: me,
+                    callback: function (records) {
+                        me.up('#contentPanel').setLoading(false);
+                        if (records.length) {
+                            arguments[me.routerIdArgument] = store.getAt(0).getId();
+                            me.router.getRoute(me.router.currentRoute).forward(arguments, queryParams);
+                        } else {
+                            nextBtn.disable();
+                        }
+                    }
+                });
+            }
         } else {
             nextBtn.disabled = true;
         }

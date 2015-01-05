@@ -49,18 +49,20 @@ Ext.define('Uni.view.navigation.Header', {
 //        {
 //            xtype: 'notificationsAnchor'
 //        },
-//        {
-//            xtype: 'navigationHelp'
-//        },
         {
             xtype: 'button',
             itemId: 'globalSearch',
             text: Uni.I18n.translate('navigation.header.search', 'UNI', 'Search'),
             cls: 'search-button',
-            iconCls: 'icon-search',
-            scale: 'small',
+            iconCls: 'icon-search3',
+            scale: 'medium',
             action: 'search',
             href: '#/search',
+            hidden: true
+        },
+        {
+            xtype: 'navigationHelp',
+            itemId: 'global-online-help',
             hidden: true
         },
         {

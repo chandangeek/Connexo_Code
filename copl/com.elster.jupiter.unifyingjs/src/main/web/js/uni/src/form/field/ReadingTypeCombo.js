@@ -68,7 +68,7 @@ Ext.define('Uni.form.field.ReadingTypeCombo', {
                 renderTo: me.el.down('.x-form-item-body'),
                 tooltip: Uni.I18n.translate('readingType.tooltip', 'UNI', 'Reading type info'),
                 hidden: true,
-                iconCls: 'icon-info-small',
+                iconCls: 'uni-icon-info-small',
                 cls: 'uni-btn-transparent',
                 style: {
                     display: 'inline-block',

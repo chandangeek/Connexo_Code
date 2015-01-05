@@ -57,5 +57,18 @@ Ext.define('Uni.util.String', {
         }
 
         return format;
+    },
+
+    /**
+     * Uses a regular expression to find and replace all instances of a parameter.
+     *
+     * @param {String} param Parameter to find and replace the index parameters in
+     * @param {Number} searchIndex Index value to replace with the value
+     * @param {String} replaceValue Value to replace search results with
+     * @returns {String} Replaced parameter
+     */
+    replaceAll: function (param, searchIndex, replaceValue) {
+        var lookup = '\{[' + searchIndex + ']\}';
+        return param.replace(new RegExp(lookup, 'g'), replaceValue);
     }
 });
