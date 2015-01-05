@@ -98,17 +98,11 @@ Ext.define('Login.view.Viewport', {
             maxWidth: 500,
             items: [
                 {
-                    itemId: 'documentation',
-                    ui: 'link',
-                    href: '/apps/login/documentation.html',
-                    text: 'Documentation'
-                },
-                {
                     itemId: 'contactsupport',
                     ui: 'link',
                     text: 'Contact Support',
                     handler:function(){
-                        window.location.href = "mailto:support@elster.com";
+                        window.location.href = "mailto:support.energyict@elster.com";
                     }
                 },
                 {
