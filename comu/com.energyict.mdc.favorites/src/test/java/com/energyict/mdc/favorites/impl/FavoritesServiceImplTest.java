@@ -37,7 +37,6 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -179,7 +178,6 @@ public class FavoritesServiceImplTest {
                 new MasterDataModule(),
                 new ValidationModule(),
                 new DeviceConfigurationModule(),
-                new MdcCommonModule(),
                 new MdcIOModule(),
                 new BasicPropertiesModule(),
                 new ProtocolApiModule(),
