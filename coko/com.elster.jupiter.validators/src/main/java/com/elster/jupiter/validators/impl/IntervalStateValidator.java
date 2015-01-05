@@ -25,23 +25,23 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 class IntervalStateValidator extends AbstractValidator {
-    
+
     static final String INTERVAL_FLAGS = "intervalFlags";
 
     private PossibleIntervalFlags possibleIntervalFlags = new PossibleIntervalFlags();
     private Set<Flag> selectedFlags;
-    
+
     IntervalStateValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
     }
-    
+
     IntervalStateValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
     }
@@ -52,12 +52,10 @@ class IntervalStateValidator extends AbstractValidator {
         initParameters(properties);
     }
 
+    @SuppressWarnings("unchecked")
     private void initParameters(Map<String, Object> properties) {
-        selectedFlags = new HashSet<>();
         ListValue<IntervalFlag> property = (ListValue<IntervalFlag>) properties.get(INTERVAL_FLAGS);
-        for (IntervalFlag parameter : property.getValues() ) {
-            selectedFlags.add(parameter.getFlag());
-        }
+        selectedFlags = property.getValues().stream().map(IntervalFlag::getFlag).collect(Collectors.toSet());
     }
 
     @Override
@@ -73,7 +71,7 @@ class IntervalStateValidator extends AbstractValidator {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        PropertySpec<ListValue<IntervalFlag>> property = getPropertySpecService().listValuePropertySpec(INTERVAL_FLAGS, true, possibleIntervalFlags, possibleIntervalFlags.flags);
+        PropertySpec property = getPropertySpecService().listValuePropertySpec(INTERVAL_FLAGS, true, possibleIntervalFlags, possibleIntervalFlags.flags);
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
         return builder.add(property).build();
     }
@@ -92,7 +90,7 @@ class IntervalStateValidator extends AbstractValidator {
                 return null;
         }
     }
-    
+
     @Override
     public List<Pair<? extends NlsKey, String>> getExtraTranslations() {
         List<Pair<? extends NlsKey, String>> pairs = new ArrayList<>();
@@ -103,19 +101,19 @@ class IntervalStateValidator extends AbstractValidator {
 
         return pairs;
     }
-    
+
     @Override
     public List<String> getRequiredProperties() {
         return Arrays.asList(INTERVAL_FLAGS);
     }
-    
+
     class IntervalFlag implements ListValueEntry {
-        
+
         private Flag flag;
         private String id;
         private String name;
 
-        public IntervalFlag(Flag flag, String id, String name) {
+        IntervalFlag(Flag flag, String id, String name) {
             this.flag = flag;
             this.id = id;
             this.name = name;
@@ -124,7 +122,7 @@ class IntervalStateValidator extends AbstractValidator {
         public Flag getFlag() {
             return flag;
         }
-        
+
         @Override
         public String getId() {
             return id;
@@ -138,9 +136,9 @@ class IntervalStateValidator extends AbstractValidator {
             return getBaseKey() + "." + id;
         }
     }
-    
+
     private class PossibleIntervalFlags implements FindById<IntervalFlag> {
-        
+
         private final IntervalFlag[] flags = {
             new IntervalFlag(Flag.BADTIME, "badTime", "Bad time"),
             new IntervalFlag(Flag.BATTERY_LOW, "batteryLow", "Battery low"),
@@ -156,7 +154,7 @@ class IntervalStateValidator extends AbstractValidator {
             new IntervalFlag(Flag.WATCHDOGRESET, "watchdogReset", "Watchdog reset"),
             new IntervalFlag(Flag.TEST, "test", "Test")
         };
-        
+
         @Override
         public Optional<IntervalFlag> findById(String id) {
             for (IntervalFlag flagParameter : flags) {
@@ -166,7 +164,7 @@ class IntervalStateValidator extends AbstractValidator {
             }
             return Optional.empty();
         }
-        
+
         public IntervalFlag[] getFlags() {
             return flags;
         }

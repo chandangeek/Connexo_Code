@@ -1,15 +1,12 @@
 package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validators.MessageSeeds;
@@ -35,10 +32,10 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
 
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
-    
+
     public DefaultValidatorFactory() {
 	}
-    
+
     @Inject
     public DefaultValidatorFactory(NlsService nlsService, PropertySpecService propertySpecService) {
     	setNlsService(nlsService);
@@ -62,12 +59,14 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
             IValidator validator = validatorDefinition.createTemplate(thesaurus, propertySpecService);
             Translation translation = SimpleTranslation.translation(validator.getNlsKey(), Locale.ENGLISH, validator.getDefaultFormat());
             translations.add(translation);
-            for (PropertySpec<?> key : validator.getPropertySpecs()) {
-                translations.add(SimpleTranslation.translation(validator.getPropertyNlsKey(key.getName()), Locale.ENGLISH, validator.getPropertyDefaultFormat(key.getName())));
-            }
-            for (Pair<? extends NlsKey, String> extraTranslation : validator.getExtraTranslations()) {
-                translations.add(SimpleTranslation.translation(extraTranslation.getFirst(), Locale.ENGLISH, extraTranslation.getLast()));
-            }
+            validator.getPropertySpecs()
+                    .stream()
+                    .map(key -> SimpleTranslation.translation(validator.getPropertyNlsKey(key.getName()), Locale.ENGLISH, validator.getPropertyDefaultFormat(key.getName())))
+                    .forEach(translations::add);
+            validator.getExtraTranslations()
+                    .stream()
+                    .map(extraTranslation -> SimpleTranslation.translation(extraTranslation.getFirst(), Locale.ENGLISH, extraTranslation.getLast()))
+                    .forEach(translations::add);
         }
         thesaurus.addTranslations(translations);
     }
