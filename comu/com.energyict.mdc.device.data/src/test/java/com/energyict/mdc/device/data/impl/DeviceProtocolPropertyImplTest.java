@@ -35,7 +35,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     private void setupStringPropertyWithName(String name) {
-        PropertySpec<String> stringPropertySpec = new PropertySpecServiceImpl().basicPropertySpec(name, false, new StringFactory());
+        PropertySpec stringPropertySpec = new PropertySpecServiceImpl().basicPropertySpec(name, false, new StringFactory());
         List<PropertySpec> propertySpecs = deviceProtocol.getPropertySpecs();
         if (propertySpecs == null) {
             propertySpecs = new ArrayList<>();

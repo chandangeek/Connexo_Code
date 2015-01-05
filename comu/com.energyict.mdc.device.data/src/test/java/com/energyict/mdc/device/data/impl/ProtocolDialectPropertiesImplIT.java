@@ -11,7 +11,6 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceUsageType;
@@ -19,7 +18,6 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
@@ -103,7 +101,6 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     private static DeviceType deviceType;
     private static DeviceConfiguration deviceConfiguration;
     private static ProtocolDialectConfigurationProperties protocolDialect1ConfigurationProperties;
-    private static ProtocolDialectConfigurationProperties protocolDialect2ConfigurationProperties;
 
     @Mock
     private DeviceProtocol deviceProtocol;
@@ -124,7 +121,6 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
                 deviceConfiguration.activate();
 
                 protocolDialect1ConfigurationProperties = deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
-                protocolDialect2ConfigurationProperties = deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(1);
             }
         });
     }
@@ -157,7 +153,6 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
                                     .findDeviceConfiguration(deviceConfiguration.getId())
                                     .orElseThrow(() -> new RuntimeException("Failure to reload device configuration before running next test"));
         protocolDialect1ConfigurationProperties = this.getProtocolDialectConfigurationPropertiesFromConfiguration(deviceConfiguration, DIALECT_1_NAME);
-        protocolDialect2ConfigurationProperties = this.getProtocolDialectConfigurationPropertiesFromConfiguration(deviceConfiguration, DIALECT_2_NAME);
     }
 
     private ProtocolDialectConfigurationProperties getProtocolDialectConfigurationPropertiesFromConfiguration(DeviceConfiguration deviceConfiguration, String dialectName) {
@@ -757,15 +752,15 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
             }
         }
 
-        private PropertySpec<String> requiredPropertySpec() {
+        private PropertySpec requiredPropertySpec() {
             return new PropertySpecServiceImpl().basicPropertySpec(REQUIRED_PROPERTY_NAME_D1, true, new StringFactory());
         }
 
-        private PropertySpec<String> optionalPropertySpec() {
+        private PropertySpec optionalPropertySpec() {
             return new PropertySpecServiceImpl().stringPropertySpec(OPTIONAL_PROPERTY_NAME_D1, false, OPTIONAL_PROPERTY_VALUE);
         }
 
-        private PropertySpec<String> optionalWithLongNamePropertySpec() {
+        private PropertySpec optionalWithLongNamePropertySpec() {
             return new PropertySpecServiceImpl().basicPropertySpec(OPTIONAL_PROPERTY_WITH_LONG_NAME_D1, false, new StringFactory());
         }
 
@@ -806,11 +801,11 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
             }
         }
 
-        private PropertySpec<String> requiredPropertySpec() {
+        private PropertySpec requiredPropertySpec() {
             return RequiredPropertySpecFactory.newInstance().stringPropertySpec(REQUIRED_PROPERTY_NAME_D2);
         }
 
-        private PropertySpec<String> optionalPropertySpec() {
+        private PropertySpec optionalPropertySpec() {
             return new PropertySpecServiceImpl().basicPropertySpec(OPTIONAL_PROPERTY_NAME_D2, false, new StringFactory());
         }
 

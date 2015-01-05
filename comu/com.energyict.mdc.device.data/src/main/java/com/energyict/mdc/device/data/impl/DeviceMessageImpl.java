@@ -210,8 +210,8 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         this.deviceMessageStatus = DeviceMessageStatus.REVOKED;
     }
 
-    public <T> void addProperty(String key, T value) {
-        DeviceMessageAttributeImpl<T> deviceMessageAttribute = this.getDataModel().getInstance(DeviceMessageAttributeImpl.class).initialize(this, key);
+    void addProperty(String key, Object value) {
+        DeviceMessageAttributeImpl deviceMessageAttribute = this.getDataModel().getInstance(DeviceMessageAttributeImpl.class).initialize(this, key);
         deviceMessageAttribute.setValue(value);
         deviceMessageAttributes.add(deviceMessageAttribute);
     }

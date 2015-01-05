@@ -22,13 +22,13 @@ import java.time.Instant;
  * Date: 10/29/14
  * Time: 2:59 PM
  */
-public class DeviceMessageAttributeImpl<T> extends PersistentIdObject<DeviceMessageAttribute> implements DeviceMessageAttribute<T> {
+public class DeviceMessageAttributeImpl extends PersistentIdObject<DeviceMessageAttribute> implements DeviceMessageAttribute {
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_IS_REQUIRED + "}")
     private Reference<DeviceMessage<Device>> deviceMessage = ValueReference.absent();
-    private PropertySpec<T> propertySpec;
+    private PropertySpec propertySpec;
     private String name;
-    private T value;
+    private Object value;
     private String stringValue = ""; // the string representation of the value
     private String userName;
     private long version;
@@ -40,15 +40,15 @@ public class DeviceMessageAttributeImpl<T> extends PersistentIdObject<DeviceMess
         super(DeviceMessageAttribute.class, dataModel, eventService, thesaurus);
     }
 
-    public DeviceMessageAttributeImpl<T> initialize(DeviceMessage<Device> deviceMessage, String name) {
+    public DeviceMessageAttributeImpl initialize(DeviceMessage<Device> deviceMessage, String name) {
         this.deviceMessage.set(deviceMessage);
         this.name = name;
         return this;
     }
 
     @Override
-    public PropertySpec<T> getSpecification() {
-        if(this.propertySpec == null){
+    public PropertySpec getSpecification() {
+        if (this.propertySpec == null) {
             this.propertySpec = deviceMessage.get().getSpecification().getPropertySpec(name);
         }
         return propertySpec;
@@ -65,17 +65,17 @@ public class DeviceMessageAttributeImpl<T> extends PersistentIdObject<DeviceMess
     }
 
     @Override
-    public T getValue() {
-        if(this.value == null){
+    public Object getValue() {
+        if (this.value == null) {
             this.value = getSpecification().getValueFactory().fromStringValue(stringValue);
         }
         return value;
     }
 
-    public void setValue(T value) {
+    public void setValue(Object value) {
         this.value = value;
         try {
-            if(getSpecification() != null && getSpecification().validateValue(value)){  // we do the validation later on ...
+            if (getSpecification() != null && getSpecification().validateValue(value)) {  // we do the validation later on ...
                 stringValue = getSpecification().getValueFactory().toStringValue(this.value);
             }
         } catch (InvalidValueException e) {
