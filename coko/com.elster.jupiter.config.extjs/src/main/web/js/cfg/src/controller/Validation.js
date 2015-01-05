@@ -171,7 +171,7 @@ Ext.define('Cfg.controller.Validation', {
             propertyForm.updateRecord();
             record.propertiesStore = propertyForm.getRecord().properties();
         }
-
+        record.beginEdit();
         record.set('implementation', form.down('#validatorCombo').getValue());
         record.set('name', form.down('#addRuleName').getValue());
 
@@ -180,7 +180,7 @@ Ext.define('Cfg.controller.Validation', {
         });
 
         record.set('readingTypes', readingTypes);
-
+        record.endEdit();
         return record;
     },
 
