@@ -1,13 +1,8 @@
 package com.energyict.mdc.device.data.impl.security;
 
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -35,6 +30,7 @@ import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -208,8 +204,6 @@ public class SecurityPropertyServiceImplTest {
         private NlsService nlsService;
         private RelationService relationService;
         private InMemoryBootstrapModule bootstrapModule;
-        private Environment environment;
-        private ApplicationContext applicationContext;
         private PropertySpecService propertySpecService;
         private LicenseService licenseService;
         private DeviceConfigurationService deviceConfigurationService;
@@ -258,12 +252,9 @@ public class SecurityPropertyServiceImplTest {
                     new OrmModule(),
                     new DataVaultModule(),
                     new IssuesModule(),
-                    new MdcCommonModule(),
                     new BasicPropertiesModule(),
                     new MdcDynamicModule());
             this.transactionService = injector.getInstance(TransactionService.class);
-            this.environment = injector.getInstance(Environment.class);
-            this.environment.setApplicationContext(this.applicationContext);
             try (TransactionContext ctx = this.transactionService.getContext()) {
                 this.ormService = injector.getInstance(OrmService.class);
                 this.transactionService = injector.getInstance(TransactionService.class);
@@ -290,11 +281,6 @@ public class SecurityPropertyServiceImplTest {
         }
 
         private void initializeMocks() {
-            this.applicationContext = mock(ApplicationContext.class);
-            Translator translator = mock(Translator.class);
-            when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
-            when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
-            when(this.applicationContext.getTranslator()).thenReturn(translator);
             this.bundleContext = mock(BundleContext.class);
             this.eventAdmin = mock(EventAdmin.class);
             this.principal = mock(Principal.class);

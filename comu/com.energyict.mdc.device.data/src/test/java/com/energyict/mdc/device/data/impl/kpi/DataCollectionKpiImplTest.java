@@ -41,7 +41,6 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
@@ -198,7 +197,6 @@ public class DataCollectionKpiImplTest {
                 new ValidationModule(),
                 new SchedulingModule(),
                 new ProtocolPluggableModule(),
-                new MdcCommonModule(),
                 new EngineModelModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new PluggableModule(),

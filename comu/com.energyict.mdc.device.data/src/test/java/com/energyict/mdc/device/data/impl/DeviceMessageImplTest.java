@@ -696,7 +696,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         }
 
         @Override
-        public List<PropertySpec> getSecurityProperties() {
+        public List<PropertySpec> getSecurityPropertySpecs() {
             return Collections.emptyList();
         }
 
