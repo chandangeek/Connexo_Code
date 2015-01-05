@@ -59,6 +59,6 @@ public interface DeviceMessageSpec {
      * @return The PropertySpec or <code>null</code>
      *         if no such PropertySpec exists
      */
-    public <T> PropertySpec<T> getPropertySpec(String name);
+    public PropertySpec getPropertySpec(String name);
 
 }

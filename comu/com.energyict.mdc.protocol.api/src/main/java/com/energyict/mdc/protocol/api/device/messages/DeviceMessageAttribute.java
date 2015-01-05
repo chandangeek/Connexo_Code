@@ -10,7 +10,7 @@ import com.energyict.mdc.protocol.api.legacy.dynamic.ValueFactory;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-05-15 (17:14)
  */
-public interface DeviceMessageAttribute<T> {
+public interface DeviceMessageAttribute {
 
     /**
      * Gets the {@link PropertySpec specification}
@@ -18,7 +18,7 @@ public interface DeviceMessageAttribute<T> {
      *
      * @return The DeviceMessageAttributeSpec
      */
-    public PropertySpec<T> getSpecification ();
+    public PropertySpec getSpecification ();
 
     /**
      * Gets the owning {@link DeviceMessage}.
@@ -47,6 +47,6 @@ public interface DeviceMessageAttribute<T> {
      *
      * @return The value of this attribute
      */
-    public T getValue ();
+    public Object getValue ();
 
 }
