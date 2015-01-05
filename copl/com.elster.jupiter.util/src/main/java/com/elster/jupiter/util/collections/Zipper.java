@@ -24,7 +24,7 @@ public class Zipper<A, B> {
         LeftOvers leftOvers = new LeftOvers(second);
 
         List<Pair<A, B>> pairs = first.stream()
-                .map(a -> Pair.of(a, leftOvers.pickFor(a)))
+                .map(a -> Pair.of((A) a, leftOvers.pickFor(a)))
                 .collect(Collectors.toCollection(ArrayList::new));
         
         leftOvers.getLeftOvers().stream()
