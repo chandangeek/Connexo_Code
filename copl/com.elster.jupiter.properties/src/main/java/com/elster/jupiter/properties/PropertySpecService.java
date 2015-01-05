@@ -10,7 +10,7 @@ import java.math.BigDecimal;
  */
 public interface PropertySpecService {
 
-    public <T> PropertySpec<T> basicPropertySpec (String name, boolean required, ValueFactory<T> valueFactory);
+    public PropertySpec basicPropertySpec (String name, boolean required, ValueFactory valueFactory);
 
     /**
      * Creates a {@link PropertySpec} for a String value which only allows the given values.
@@ -20,7 +20,7 @@ public interface PropertySpecService {
      * @param values The allowed values for the PropertySpec
      * @return The PropertySpec
      */
-    public PropertySpec<String> stringPropertySpecWithValues (String name, boolean required, String... values);
+    public PropertySpec stringPropertySpecWithValues (String name, boolean required, String... values);
 
     /**
      * Creates a {@link PropertySpec} for a String value with a default value.
@@ -30,7 +30,7 @@ public interface PropertySpecService {
      * @param defaultValue The default value in case the property is not specified
      * @return The PropertySpec
      */
-    public PropertySpec<String> stringPropertySpec (String name, boolean required, String defaultValue);
+    public PropertySpec stringPropertySpec (String name, boolean required, String defaultValue);
 
     /**
      * Creates a {@link PropertySpec} for a String value which only allows the given values.
@@ -41,7 +41,7 @@ public interface PropertySpecService {
      * @param values The allowed values for the PropertySpec
      * @return The PropertySpec
      */
-    public PropertySpec<String> stringPropertySpecWithValuesAndDefaultValue (String name, boolean required, String defaultValue, String... values);
+    public PropertySpec stringPropertySpecWithValuesAndDefaultValue (String name, boolean required, String defaultValue, String... values);
 
     /**
      * Creates a {@link PropertySpec} for a BigDecimal value which only allows the given values.
@@ -51,7 +51,7 @@ public interface PropertySpecService {
      * @param values The allowed values for the PropertySpec
      * @return the PropertySpec
      */
-    public PropertySpec<BigDecimal> bigDecimalPropertySpecWithValues (String name, boolean required, BigDecimal... values);
+    public PropertySpec bigDecimalPropertySpecWithValues (String name, boolean required, BigDecimal... values);
 
     /**
      * Creates a {@link PropertySpec} for a BigDecimal value with a default value.
@@ -61,7 +61,7 @@ public interface PropertySpecService {
      * @param defaultValue The default value in case the property is not specified
      * @return The PropertySpec
      */
-    public PropertySpec<BigDecimal> bigDecimalPropertySpec (String name, boolean required, BigDecimal defaultValue);
+    public PropertySpec bigDecimalPropertySpec (String name, boolean required, BigDecimal defaultValue);
 
     /**
      * Creates a {@link PropertySpec} for positive BigDecimal values.
@@ -70,7 +70,7 @@ public interface PropertySpecService {
      * @param required A flag that indicates if the PropertySpec should be required or not
      * @return The PropertySpec
      */
-    public PropertySpec<BigDecimal> positiveDecimalPropertySpec (String name, boolean required);
+    public PropertySpec positiveDecimalPropertySpec (String name, boolean required);
 
     /**
      * Creates a {@link PropertySpec} for BigDecimal values that are limited between the lowerLimit and the upperLimit (inclusive).
@@ -81,27 +81,26 @@ public interface PropertySpecService {
      * @param upperLimit The largest value allowed
      * @return The PropertySpec
      */
-    public PropertySpec<BigDecimal> boundedDecimalPropertySpec (String name, boolean required, BigDecimal lowerLimit, BigDecimal upperLimit);
+    public PropertySpec boundedDecimalPropertySpec (String name, boolean required, BigDecimal lowerLimit, BigDecimal upperLimit);
 
     /**
-     * Creates a {@link PropertySpec} for ListValue values that can have single or multiple values at the same time. 
+     * Creates a {@link PropertySpec} for ListValue values that can have single or multiple values at the same time.
      * @param name The name of the PropertySpec
      * @param required The flag that indicates if the PropertySpec should be required or not
      * @param finder The finder values by key
      * @param values The list of possible values
      * @return The PropertySpec
      */
-    public <T extends ListValueEntry> PropertySpec<ListValue<T>> listValuePropertySpec(String name, boolean required, FindById<T> finder, T... values);
-    
+    public <T extends ListValueEntry> PropertySpec listValuePropertySpec(String name, boolean required, FindById<T> finder, T... values);
+
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
      * {@link PropertySpec} of values that are managed by the
      * specified {@link ValueFactory}.
      *
      * @param valueFactory The ValueFactory
-     * @param <T> The Type of values for the PropertySpec
      * @return The PropertySpecBuilder
      */
-    public <T> PropertySpecBuilder<T> newPropertySpecBuilder (ValueFactory<T> valueFactory);
+    public PropertySpecBuilder newPropertySpecBuilder (ValueFactory valueFactory);
 
 }

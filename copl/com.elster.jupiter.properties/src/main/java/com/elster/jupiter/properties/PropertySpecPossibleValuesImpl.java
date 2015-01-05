@@ -14,26 +14,27 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-19 (16:15)
  */
-public class PropertySpecPossibleValuesImpl<T> implements PropertySpecPossibleValues<T>, Serializable {
+public class PropertySpecPossibleValuesImpl implements PropertySpecPossibleValues, Serializable {
 
-    private List<T> allValues = new ArrayList<>();
-    private T defaultValue;
+    private List allValues = new ArrayList<>();
+    private Object defaultValue;
     private boolean exhaustive = false;
 
     public PropertySpecPossibleValuesImpl () {
         super();
     }
 
-    public PropertySpecPossibleValuesImpl (boolean exhaustive, Collection<T> allValues) {
+    public PropertySpecPossibleValuesImpl (boolean exhaustive, Collection allValues) {
         this.defaultValue = null;
         this.exhaustive = exhaustive;
         this.allValues = this.copyUniqueWithRespectForOrder(allValues, allValues.size());
     }
 
-    private List<T> copyUniqueWithRespectForOrder (Iterable<T> allValues, int numberOfValues) {
-        List<T> copied = new ArrayList<>(numberOfValues);   // At worst, the values are all unique and we need an ArrayList of the same size
-        Set<T> uniqueValues = new HashSet<>();
-        for (T value : allValues) {
+    @SuppressWarnings("unchecked")
+    private List copyUniqueWithRespectForOrder (Iterable allValues, int numberOfValues) {
+        List copied = new ArrayList(numberOfValues);   // At worst, the values are all unique and we need an ArrayList of the same size
+        Set uniqueValues = new HashSet();
+        for (Object value : allValues) {
             if (uniqueValues.add(value)) {
                 // Not in set yet
                 copied.add(value);
@@ -42,12 +43,12 @@ public class PropertySpecPossibleValuesImpl<T> implements PropertySpecPossibleVa
         return copied;
     }
 
-    @SafeVarargs
-    public PropertySpecPossibleValuesImpl (T defaultValue, boolean exhaustive, T... otherValues) {
+    public PropertySpecPossibleValuesImpl (Object defaultValue, boolean exhaustive, Object... otherValues) {
         this(defaultValue, exhaustive, Arrays.asList(otherValues));
     }
 
-    public PropertySpecPossibleValuesImpl (T defaultValue, boolean exhaustive, Collection<T> otherValues) {
+    @SuppressWarnings("unchecked")
+    public PropertySpecPossibleValuesImpl (Object defaultValue, boolean exhaustive, Collection otherValues) {
         this();
         this.defaultValue = defaultValue;
         this.exhaustive = exhaustive;
@@ -55,8 +56,9 @@ public class PropertySpecPossibleValuesImpl<T> implements PropertySpecPossibleVa
     }
 
     @Override
-    public List<? extends T> getAllValues () {
-        return new ArrayList<>(this.allValues);
+    @SuppressWarnings("unchecked")
+    public List getAllValues () {
+        return new ArrayList(this.allValues);
     }
 
     @Override
@@ -70,16 +72,17 @@ public class PropertySpecPossibleValuesImpl<T> implements PropertySpecPossibleVa
     }
 
     @Override
-    public T getDefault () {
+    public Object getDefault () {
         return this.defaultValue;
     }
 
     // Allow friendly builder components to overrule the default
-    public void setDefault (T defaultValue) {
+    public void setDefault (Object defaultValue) {
         this.defaultValue = defaultValue;
     }
 
-    public void add (T... values) {
+    @SuppressWarnings("unchecked")
+    public void add (Object... values) {
         this.allValues.addAll(this.copyUniqueWithRespectForOrder(Arrays.asList(values), values.length));
     }
 

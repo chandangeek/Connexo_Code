@@ -4,7 +4,6 @@ import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BoundedBigDecimalPropertySpecImpl;
 import com.elster.jupiter.properties.FindById;
-import com.elster.jupiter.properties.ListValue;
 import com.elster.jupiter.properties.ListValueEntry;
 import com.elster.jupiter.properties.ListValuePropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
@@ -12,8 +11,9 @@ import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
-import java.math.BigDecimal;
 import org.osgi.service.component.annotations.Component;
+
+import java.math.BigDecimal;
 
 /**
  * Provides an implementation for the {@link PropertySpecService} interface
@@ -26,13 +26,13 @@ import org.osgi.service.component.annotations.Component;
 public class PropertySpecServiceImpl implements PropertySpecService {
 
     @Override
-    public <T> PropertySpec<T> basicPropertySpec(String name, boolean required, ValueFactory<T> valueFactory) {
-        return new BasicPropertySpec<>(name, required, valueFactory);
+    public PropertySpec basicPropertySpec(String name, boolean required, ValueFactory valueFactory) {
+        return new BasicPropertySpec(name, required, valueFactory);
     }
 
     @Override
-    public PropertySpec<String> stringPropertySpecWithValues(String name, boolean required, String... values) {
-        PropertySpecBuilder<String> builder = PropertySpecBuilderImpl.forClass(new StringFactory());
+    public PropertySpec stringPropertySpecWithValues(String name, boolean required, String... values) {
+        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new StringFactory());
         if (required) {
             builder.markRequired();
         }
@@ -40,8 +40,8 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public PropertySpec<String> stringPropertySpec(String name, boolean required, String defaultValue) {
-        PropertySpecBuilder<String> builder = PropertySpecBuilderImpl.forClass(new StringFactory());
+    public PropertySpec stringPropertySpec(String name, boolean required, String defaultValue) {
+        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new StringFactory());
         if (required) {
             builder.markRequired();
         }
@@ -49,8 +49,8 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public PropertySpec<String> stringPropertySpecWithValuesAndDefaultValue(String name, boolean required, String defaultValue, String... values) {
-        PropertySpecBuilder<String> builder = PropertySpecBuilderImpl.forClass(new StringFactory());
+    public PropertySpec stringPropertySpecWithValuesAndDefaultValue(String name, boolean required, String defaultValue, String... values) {
+        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new StringFactory());
         if (required) {
             builder.markRequired();
         }
@@ -58,8 +58,8 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public PropertySpec<BigDecimal> bigDecimalPropertySpecWithValues(String name, boolean required, BigDecimal... values) {
-        PropertySpecBuilder<BigDecimal> builder = PropertySpecBuilderImpl.forClass(new BigDecimalFactory());
+    public PropertySpec bigDecimalPropertySpecWithValues(String name, boolean required, BigDecimal... values) {
+        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new BigDecimalFactory());
         if (required) {
             builder.markRequired();
         }
@@ -67,8 +67,8 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public PropertySpec<BigDecimal> bigDecimalPropertySpec(String name, boolean required, BigDecimal defaultValue) {
-        PropertySpecBuilder<BigDecimal> builder = PropertySpecBuilderImpl.forClass(new BigDecimalFactory());
+    public PropertySpec bigDecimalPropertySpec(String name, boolean required, BigDecimal defaultValue) {
+        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new BigDecimalFactory());
         if (required) {
             builder.markRequired();
         }
@@ -76,26 +76,26 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public PropertySpec<BigDecimal> positiveDecimalPropertySpec(String name, boolean required) {
+    public PropertySpec positiveDecimalPropertySpec(String name, boolean required) {
         BoundedBigDecimalPropertySpecImpl propertySpec = new BoundedBigDecimalPropertySpecImpl(name, BigDecimal.ZERO, null);
         propertySpec.setRequired(required);
         return propertySpec;
     }
 
     @Override
-    public PropertySpec<BigDecimal> boundedDecimalPropertySpec(String name, boolean required, BigDecimal lowerLimit, BigDecimal upperLimit) {
+    public PropertySpec boundedDecimalPropertySpec(String name, boolean required, BigDecimal lowerLimit, BigDecimal upperLimit) {
         BoundedBigDecimalPropertySpecImpl propertySpec = new BoundedBigDecimalPropertySpecImpl(name, lowerLimit, upperLimit);
         propertySpec.setRequired(required);
         return propertySpec;
     }
 
     @Override
-    public <T extends ListValueEntry> PropertySpec<ListValue<T>> listValuePropertySpec(String name, boolean required, FindById<T> finder, T... values) {
+    public <T extends ListValueEntry> PropertySpec listValuePropertySpec(String name, boolean required, FindById<T> finder, T... values) {
         return new ListValuePropertySpec<>(name, required, finder, values);
     }
 
     @Override
-    public <T> PropertySpecBuilder<T> newPropertySpecBuilder(ValueFactory<T> valueFactory) {
+    public PropertySpecBuilder newPropertySpecBuilder(ValueFactory valueFactory) {
         return PropertySpecBuilderImpl.forClass(valueFactory);
     }
 }

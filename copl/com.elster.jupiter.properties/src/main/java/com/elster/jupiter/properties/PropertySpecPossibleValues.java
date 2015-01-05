@@ -8,14 +8,14 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-19 (15:41)
  */
-public interface PropertySpecPossibleValues<T> {
+public interface PropertySpecPossibleValues {
 
     /**
      * Gets the possible values.
      *
      * @return The possible values
      */
-    public List<? extends T> getAllValues ();
+    public List getAllValues ();
 
     /**
      * Returns <code>true</code> if the possible values are an
@@ -33,6 +33,6 @@ public interface PropertySpecPossibleValues<T> {
      *
      * @return The default value
      */
-    public T getDefault ();
+    public Object getDefault ();
 
 }

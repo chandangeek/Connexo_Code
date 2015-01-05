@@ -11,7 +11,10 @@ import com.elster.jupiter.properties.PropertySpec;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-17 (13:07)
  */
-public interface BoundedBigDecimalPropertySpec extends PropertySpec<BigDecimal> {
+public interface BoundedBigDecimalPropertySpec extends PropertySpec {
+
+    @Override
+    public ValueFactory<BigDecimal> getValueFactory();
 
     public BigDecimal getLowerLimit ();
 

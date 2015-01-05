@@ -11,7 +11,7 @@ package com.elster.jupiter.properties;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-17 (13:13)
  */
-public interface PropertySpecBuilder<T> {
+public interface PropertySpecBuilder {
 
     /**
      * Sets the name of the {@link PropertySpec} that is being constructed.
@@ -19,7 +19,7 @@ public interface PropertySpecBuilder<T> {
      * @param specName The name of the PropertySpec
      * @return This PropertySpecBuilder to support method chaining while constructing
      */
-    public PropertySpecBuilder<T> name(String specName);
+    public PropertySpecBuilder name(String specName);
 
     /**
      * Sets a default value for the {@link PropertySpec} under construction.
@@ -32,7 +32,7 @@ public interface PropertySpecBuilder<T> {
      * @param defaultValue The default value
      * @return This PropertySpecBuilder to support method chaining while constructing
      */
-    public PropertySpecBuilder<T> setDefaultValue (T defaultValue);
+    public PropertySpecBuilder setDefaultValue (Object defaultValue);
 
     /**
      * Marks the list of possible values of the {@link PropertySpec}
@@ -40,7 +40,7 @@ public interface PropertySpecBuilder<T> {
      *
      * @return This PropertySpecBuilder to support method chaining while constructing
      */
-    public PropertySpecBuilder<T> markExhaustive();
+    public PropertySpecBuilder markExhaustive();
 
     /**
      * Marks the {@link PropertySpec} that is under construction as required.
@@ -49,7 +49,7 @@ public interface PropertySpecBuilder<T> {
      *
      * @return This PropertySpecBuilder to support method chaining while constructing
      */
-    public PropertySpecBuilder<T> markRequired();
+    public PropertySpecBuilder markRequired();
 
     /**
      * Adds the specified values to the PropertySpec under construction.
@@ -57,7 +57,7 @@ public interface PropertySpecBuilder<T> {
      * @param values The possible values
      * @return This PropertySpecBuilder to support method chaining while constructing
      */
-    public PropertySpecBuilder<T> addValues (T... values);
+    public PropertySpecBuilder addValues (Object... values);
 
     /**
      * Finishes the building process and returns the
@@ -68,40 +68,40 @@ public interface PropertySpecBuilder<T> {
      *
      * @return The PropertySpec
      */
-    public PropertySpec<T> finish();
+    public PropertySpec finish();
 
-    
-    interface PropertySpecAccessor<T> {
 
-        public PropertySpec<T> getPropertySpec ();
+    interface PropertySpecAccessor {
+
+        public PropertySpec getPropertySpec ();
 
         public void setName (String name);
 
-        public void setDefaultValue (T defaultValue);
+        public void setDefaultValue (Object defaultValue);
 
-        public void addValues (T... values);
+        public void addValues (Object... values);
 
         public void markRequired ();
 
         public void markExhaustive ();
     }
-    
+
     /**
      * Provides an implementation for the {@link PropertySpecAccessor} interface
      * that will be used once the building process is complete
      * and will throw {@link IllegalStateException} on every attempt to change
      * the {@link PropertySpec} that was built in previous steps.
      */
-    static class BuildingProcessComplete<T> implements PropertySpecAccessor<T> {
-        private PropertySpec<T> propertySpec;
+    static class BuildingProcessComplete implements PropertySpecAccessor {
+        private PropertySpec propertySpec;
 
-        public BuildingProcessComplete (PropertySpec<T> propertySpec) {
+        public BuildingProcessComplete (PropertySpec propertySpec) {
             super();
             this.propertySpec = propertySpec;
         }
 
         @Override
-        public PropertySpec<T> getPropertySpec () {
+        public PropertySpec getPropertySpec () {
             return this.propertySpec;
         }
 
@@ -111,12 +111,12 @@ public interface PropertySpecBuilder<T> {
         }
 
         @Override
-        public void setDefaultValue (T defaultValue) {
+        public void setDefaultValue (Object defaultValue) {
             this.notifyBuildingProcessComplete();
         }
 
         @Override
-        public void addValues (T... values) {
+        public void addValues (Object... values) {
             this.notifyBuildingProcessComplete();
         }
 
@@ -134,4 +134,5 @@ public interface PropertySpecBuilder<T> {
             throw new IllegalStateException("PropertySpec building process is complete, use another builder if you want to construct another PropertySpec!");
         }
     }
+
 }

@@ -33,7 +33,7 @@ import com.elster.jupiter.properties.ValueFactory;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-20 (09:06)
  */
-public class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
+public class PropertySpecBuilderImpl implements PropertySpecBuilder {
 
     /**
      * The initial name that is used for a {@link PropertySpec}
@@ -42,7 +42,7 @@ public class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
      */
     private static final String INITIAL_SPEC_NAME = "UnderConstruction";
 
-    private PropertySpecAccessor<T> propertySpecAccessor;
+    private PropertySpecAccessor propertySpecAccessor;
 
     /**
      * Creates a new PropertySpecBuilder for values of the specified
@@ -52,62 +52,62 @@ public class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
      * @param valueFactory The ValueFactory
      * @return The PropertySpecBuilder
      */
-    public static <D> PropertySpecBuilder<D> forClass(ValueFactory<D> valueFactory) {
-        return new PropertySpecBuilderImpl<D>(valueFactory);
+    public static PropertySpecBuilder forClass(ValueFactory valueFactory) {
+        return new PropertySpecBuilderImpl(valueFactory);
     }
 
     @Override
-    public PropertySpecBuilder<T> name(String specName) {
+    public PropertySpecBuilder name(String specName) {
         this.propertySpecAccessor.setName(specName);
         return this;
     }
 
     @Override
-    public PropertySpecBuilder<T> setDefaultValue(T defaultValue) {
+    public PropertySpecBuilder setDefaultValue(Object defaultValue) {
         this.propertySpecAccessor.setDefaultValue(defaultValue);
         return this;
     }
 
     @Override
-    public PropertySpecBuilder<T> markExhaustive() {
+    public PropertySpecBuilder markExhaustive() {
         this.propertySpecAccessor.markExhaustive();
         return this;
     }
 
     @Override
-    public PropertySpecBuilder<T> markRequired() {
+    public PropertySpecBuilder markRequired() {
         this.propertySpecAccessor.markRequired();
         return this;
     }
 
     @Override
-    public PropertySpecBuilder<T> addValues(T... values) {
+    public PropertySpecBuilder addValues(Object... values) {
         this.propertySpecAccessor.addValues(values);
         return this;
     }
 
     @Override
-    public PropertySpec<T> finish() {
-        PropertySpec<T> finished = this.propertySpecAccessor.getPropertySpec();
-        this.propertySpecAccessor = new BuildingProcessComplete<>(finished);
+    public PropertySpec finish() {
+        PropertySpec finished = this.propertySpecAccessor.getPropertySpec();
+        this.propertySpecAccessor = new BuildingProcessComplete(finished);
         return finished;
     }
 
-    private PropertySpecBuilderImpl(ValueFactory<T> valueFactory) {
+    private PropertySpecBuilderImpl(ValueFactory valueFactory) {
         super();
-        this.propertySpecAccessor = new BasicPropertySpecAccessor<>(new BasicPropertySpec<>(INITIAL_SPEC_NAME, valueFactory));
+        this.propertySpecAccessor = new BasicPropertySpecAccessor(new BasicPropertySpec(INITIAL_SPEC_NAME, valueFactory));
     }
 
-    private class BasicPropertySpecAccessor<T> implements PropertySpecAccessor<T> {
-        private BasicPropertySpec<T> propertySpec;
+    private class BasicPropertySpecAccessor implements PropertySpecAccessor {
+        private BasicPropertySpec propertySpec;
 
-        private BasicPropertySpecAccessor (BasicPropertySpec<T> propertySpec) {
+        private BasicPropertySpecAccessor (BasicPropertySpec propertySpec) {
             super();
             this.propertySpec = propertySpec;
         }
 
         @Override
-        public PropertySpec<T> getPropertySpec () {
+        public PropertySpec getPropertySpec () {
             return this.propertySpec;
         }
 
@@ -117,27 +117,27 @@ public class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
         }
 
         @Override
-        public void setDefaultValue (T defaultValue) {
-            PropertySpecPossibleValues<T> xPossibleValues = this.propertySpec.getPossibleValues();
+        public void setDefaultValue (Object defaultValue) {
+            PropertySpecPossibleValues xPossibleValues = this.propertySpec.getPossibleValues();
             if (xPossibleValues == null) {
-                PropertySpecPossibleValuesImpl<T> possibleValues = new PropertySpecPossibleValuesImpl<T>(defaultValue, false);
+                PropertySpecPossibleValuesImpl possibleValues = new PropertySpecPossibleValuesImpl(defaultValue, false);
                 this.propertySpec.setPossibleValues(possibleValues);
             }
             else {
-                PropertySpecPossibleValuesImpl<T> possibleValues = (PropertySpecPossibleValuesImpl<T>) xPossibleValues;
+                PropertySpecPossibleValuesImpl possibleValues = (PropertySpecPossibleValuesImpl) xPossibleValues;
                 possibleValues.setDefault(defaultValue);
             }
         }
 
         @Override
-        public void addValues (T... values) {
-            PropertySpecPossibleValues<T> xPossibleValues = this.propertySpec.getPossibleValues();
+        public void addValues (Object... values) {
+            PropertySpecPossibleValues xPossibleValues = this.propertySpec.getPossibleValues();
             if (xPossibleValues == null) {
-                PropertySpecPossibleValuesImpl<T> possibleValues = new PropertySpecPossibleValuesImpl<>(false, Arrays.asList(values));
+                PropertySpecPossibleValuesImpl possibleValues = new PropertySpecPossibleValuesImpl(false, Arrays.asList(values));
                 this.propertySpec.setPossibleValues(possibleValues);
             }
             else {
-                PropertySpecPossibleValuesImpl<T> possibleValues = (PropertySpecPossibleValuesImpl<T>) xPossibleValues;
+                PropertySpecPossibleValuesImpl possibleValues = (PropertySpecPossibleValuesImpl) xPossibleValues;
                 possibleValues.add(values);
             }
         }
@@ -149,15 +149,16 @@ public class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
 
         @Override
         public void markExhaustive () {
-            PropertySpecPossibleValues<T> xPossibleValues = this.propertySpec.getPossibleValues();
+            PropertySpecPossibleValues xPossibleValues = this.propertySpec.getPossibleValues();
             if (xPossibleValues == null) {
-                PropertySpecPossibleValuesImpl<T> possibleValues = new PropertySpecPossibleValuesImpl<>(true, new ArrayList<T>());
+                PropertySpecPossibleValuesImpl possibleValues = new PropertySpecPossibleValuesImpl(true, new ArrayList<>());
                 this.propertySpec.setPossibleValues(possibleValues);
             }
             else {
-                PropertySpecPossibleValuesImpl<T> possibleValues = (PropertySpecPossibleValuesImpl<T>) xPossibleValues;
+                PropertySpecPossibleValuesImpl possibleValues = (PropertySpecPossibleValuesImpl) xPossibleValues;
                 possibleValues.setExhaustive(true);
             }
         }
     }
+
 }

@@ -2,18 +2,18 @@ package com.elster.jupiter.properties;
 
 import java.io.Serializable;
 
-public class BasicPropertySpec<T> implements PropertySpec<T>, Serializable {
+public class BasicPropertySpec implements PropertySpec, Serializable {
 
     protected String name;
     protected boolean required;
-    protected ValueFactory<T> valueFactory;
-    protected PropertySpecPossibleValues<T> possibleValues;
+    protected ValueFactory valueFactory;
+    protected PropertySpecPossibleValues possibleValues;
 
-    public BasicPropertySpec(String name, ValueFactory<T> valueFactory) {
+    public BasicPropertySpec(String name, ValueFactory valueFactory) {
         this(name, false, valueFactory);
     }
 
-    public BasicPropertySpec(String name, boolean required, ValueFactory<T> valueFactory) {
+    public BasicPropertySpec(String name, boolean required, ValueFactory valueFactory) {
         super();
         this.name = name;
         this.required = required;
@@ -45,7 +45,7 @@ public class BasicPropertySpec<T> implements PropertySpec<T>, Serializable {
     }
 
     @Override
-    public ValueFactory<T> getValueFactory() {
+    public ValueFactory getValueFactory() {
         return valueFactory;
     }
 
@@ -63,16 +63,17 @@ public class BasicPropertySpec<T> implements PropertySpec<T>, Serializable {
     }
 
     @Override
-    public boolean validateValue(T value) throws InvalidValueException {
+    public boolean validateValue(Object value) throws InvalidValueException {
         return this.validateValue(value, this.required);
     }
 
     @Override
-    public boolean validateValueIgnoreRequired(T value) throws InvalidValueException {
+    public boolean validateValueIgnoreRequired(Object value) throws InvalidValueException {
         return this.validateValue(value, false);
     }
 
-    private boolean validateValue(T value, boolean required) throws InvalidValueException {
+    @SuppressWarnings("unchecked")
+    private boolean validateValue(Object value, boolean required) throws InvalidValueException {
         if (required && this.isNull(value)) {
             throw new ValueRequiredException("XisARequiredAttribute", "\"{0}\" is a required message attribute", this.getName());
         } else if (value == null) {
@@ -89,16 +90,16 @@ public class BasicPropertySpec<T> implements PropertySpec<T>, Serializable {
         }
         return true;
     }
-    
-    protected boolean isValuePossible(T value) {
+
+    protected boolean isValuePossible(Object value) {
         return possibleValues.getAllValues().contains(value);
     }
 
-    private boolean isNull(T value) {
+    private boolean isNull(Object value) {
         return value == null || this.isNullString(value);
     }
 
-    private boolean isNullString(T value) {
+    private boolean isNullString(Object value) {
         return value instanceof String && this.isNullString((String) value);
     }
 
@@ -107,12 +108,12 @@ public class BasicPropertySpec<T> implements PropertySpec<T>, Serializable {
     }
 
     @Override
-    public PropertySpecPossibleValues<T> getPossibleValues() {
+    public PropertySpecPossibleValues getPossibleValues() {
         return this.possibleValues;
     }
 
     // Allow subclasses or friendly builders to specify possible values
-    public void setPossibleValues(PropertySpecPossibleValues<T> possibleValues) {
+    public void setPossibleValues(PropertySpecPossibleValues possibleValues) {
         this.possibleValues = possibleValues;
     }
 
@@ -130,4 +131,5 @@ public class BasicPropertySpec<T> implements PropertySpec<T>, Serializable {
             append(')');
         return builder.toString();
     }
+
 }

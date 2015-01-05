@@ -9,8 +9,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.elster.jupiter.properties.PropertySpecPossibleValuesImpl;
-
 @RunWith(MockitoJUnitRunner.class)
 public class PropertySpecPossibleValuesImplTest {
 
@@ -31,7 +29,7 @@ public class PropertySpecPossibleValuesImplTest {
         String otherValue2 = "OTHER2";
 
         // Business method
-        PropertySpecPossibleValuesImpl<String> possibleValues = new PropertySpecPossibleValuesImpl<>(false, Arrays.asList(otherValue1, otherValue2));
+        PropertySpecPossibleValuesImpl possibleValues = new PropertySpecPossibleValuesImpl(false, Arrays.asList(otherValue1, otherValue2));
 
         // Asserts
         assertThat(possibleValues.isExhaustive()).isFalse();
@@ -44,7 +42,7 @@ public class PropertySpecPossibleValuesImplTest {
         String otherValue1 = "OTHER1";
         String otherValue2 = "OTHER2";
         String defaultValue = "DEFAULT";
-        PropertySpecPossibleValuesImpl<String> possibleValues = new PropertySpecPossibleValuesImpl<>(false, Arrays.asList(otherValue1, otherValue2));
+        PropertySpecPossibleValuesImpl possibleValues = new PropertySpecPossibleValuesImpl(false, Arrays.asList(otherValue1, otherValue2));
 
         // Business method
         possibleValues.setDefault(defaultValue);
@@ -60,7 +58,7 @@ public class PropertySpecPossibleValuesImplTest {
         String otherValue1 = "OTHER1";
         String otherValue2 = "OTHER2";
         String initialDefaultValue = "INITIAL-DEFAULT";
-        PropertySpecPossibleValuesImpl<String> possibleValues = new PropertySpecPossibleValuesImpl<>(initialDefaultValue, false, Arrays.asList(otherValue1, otherValue2));
+        PropertySpecPossibleValuesImpl possibleValues = new PropertySpecPossibleValuesImpl(initialDefaultValue, false, Arrays.asList(otherValue1, otherValue2));
         String newDefaultValue = "NEW-DEFAULT";
 
         // Business method
@@ -77,8 +75,8 @@ public class PropertySpecPossibleValuesImplTest {
         String defaultValue = "DEFAULT";
 
         // Business method
-        PropertySpecPossibleValuesImpl<String> possibleValues =
-                new PropertySpecPossibleValuesImpl<>(defaultValue, false);
+        PropertySpecPossibleValuesImpl possibleValues =
+                new PropertySpecPossibleValuesImpl(defaultValue, false);
 
         // Asserts
         assertThat(possibleValues.isExhaustive()).isFalse();
@@ -91,8 +89,8 @@ public class PropertySpecPossibleValuesImplTest {
         String defaultValue = "DEFAULT";
         String otherValue1 = "OTHER1";
         String otherValue2 = "OTHER2";
-        PropertySpecPossibleValuesImpl<String> possibleValues =
-                new PropertySpecPossibleValuesImpl<>(defaultValue, false);
+        PropertySpecPossibleValuesImpl possibleValues =
+                new PropertySpecPossibleValuesImpl(defaultValue, false);
 
         // Business method
         possibleValues.add(otherValue1, otherValue2);
@@ -108,8 +106,8 @@ public class PropertySpecPossibleValuesImplTest {
         String defaultValue = "DEFAULT";
         String otherValue1 = "OTHER1";
         String otherValue2 = "OTHER2";
-        PropertySpecPossibleValuesImpl<String> possibleValues =
-                new PropertySpecPossibleValuesImpl<>(defaultValue, false, Arrays.asList(otherValue1, otherValue2));
+        PropertySpecPossibleValuesImpl possibleValues =
+                new PropertySpecPossibleValuesImpl(defaultValue, false, Arrays.asList(otherValue1, otherValue2));
 
         // Business method
         possibleValues.setExhaustive(true);
@@ -126,8 +124,8 @@ public class PropertySpecPossibleValuesImplTest {
         String defaultValue = "DEFAULT";
         String otherValue1 = "OTHER1";
         String otherValue2 = "OTHER2";
-        PropertySpecPossibleValuesImpl<String> possibleValues =
-                new PropertySpecPossibleValuesImpl<>(defaultValue, false, otherValue1, otherValue2);
+        PropertySpecPossibleValuesImpl possibleValues =
+                new PropertySpecPossibleValuesImpl(defaultValue, false, otherValue1, otherValue2);
 
         // Asserts
         assertThat(possibleValues.isExhaustive()).isFalse();
@@ -141,8 +139,8 @@ public class PropertySpecPossibleValuesImplTest {
         String defaultValue = "DEFAULT";
         String otherValue1 = "OTHER1";
         String otherValue2 = "OTHER2";
-        PropertySpecPossibleValuesImpl<String> possibleValues =
-                new PropertySpecPossibleValuesImpl<>(defaultValue, true, otherValue1, otherValue2);
+        PropertySpecPossibleValuesImpl possibleValues =
+                new PropertySpecPossibleValuesImpl(defaultValue, true, otherValue1, otherValue2);
 
         // Asserts
         assertThat(possibleValues.isExhaustive()).isTrue();

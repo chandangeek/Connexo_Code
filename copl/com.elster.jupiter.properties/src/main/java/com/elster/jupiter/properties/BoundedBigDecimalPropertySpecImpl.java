@@ -8,7 +8,7 @@ import java.math.BigDecimal;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-29 (17:22)
  */
-public class BoundedBigDecimalPropertySpecImpl extends BasicPropertySpec<BigDecimal> implements BoundedBigDecimalPropertySpec {
+public class BoundedBigDecimalPropertySpecImpl extends BasicPropertySpec implements BoundedBigDecimalPropertySpec {
 
     private BigDecimal lowerLimit;
     private BigDecimal upperLimit;
@@ -35,14 +35,21 @@ public class BoundedBigDecimalPropertySpecImpl extends BasicPropertySpec<BigDeci
     }
 
     @Override
-    public boolean validateValue(BigDecimal value) throws InvalidValueException {
-        boolean valid = super.validateValue(value);
-        if (lowerLimit!=null && value!=null && value.compareTo(lowerLimit)<0) {
-            throw new InvalidValueException("XisTooLow", "The value is too small", this.getName(), lowerLimit, upperLimit);
+    public boolean validateValue(Object objectValue) throws InvalidValueException {
+        if (objectValue instanceof BigDecimal) {
+            BigDecimal value = (BigDecimal) objectValue;
+            boolean valid = super.validateValue(value);
+            if (lowerLimit != null && value.compareTo(lowerLimit)<0) {
+                throw new InvalidValueException("XisTooLow", "The objectValue is too small", this.getName(), lowerLimit, upperLimit);
+            }
+            if (upperLimit != null && value.compareTo(upperLimit)>0) {
+                throw new InvalidValueException("XisTooHigh", "The objectValue is too high", this.getName(), lowerLimit, upperLimit);
+            }
+            return valid;
         }
-        if (upperLimit!=null && value!=null && value.compareTo(upperLimit)>0) {
-            throw new InvalidValueException("XisTooHigh", "The value is too high", this.getName(), lowerLimit, upperLimit);
+        else {
+            return false;
         }
-        return valid;
     }
+
 }

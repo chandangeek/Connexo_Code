@@ -1,6 +1,6 @@
 package com.elster.jupiter.properties;
 
-public class InvalidValueException extends java.lang.Exception {
+public class InvalidValueException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
@@ -41,4 +41,5 @@ public class InvalidValueException extends java.lang.Exception {
     public String getDefaultPattern() {
         return defaultPattern;
     }
+
 }

@@ -7,12 +7,10 @@ package com.elster.jupiter.properties;
  * a {@link ValueFactory} which will support persistency of property values.
  * When a PropertySpec is "required", a value will need to be provided.
  *
- * @param <T> The type of the property that is modelled by this PropertySpec
- *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-27 (13:50)
  */
-public interface PropertySpec<T> {
+public interface PropertySpec {
 
     /**
      * Gets the name of this PropertySpec.
@@ -26,7 +24,7 @@ public interface PropertySpec<T> {
      *
      * @return The ValueFactory
      */
-    public ValueFactory<T> getValueFactory ();
+    public ValueFactory getValueFactory ();
 
     /**
      * Tests if a value will be required for this PropertySpec.
@@ -37,9 +35,9 @@ public interface PropertySpec<T> {
 
     /**
      * Tests if a value for this PropertySpec is actually
-     * a reference to {@link com.energyict.mdc.common.BusinessObject}.
+     * a reference to a persistent business object.
      *
-     * @return true iff values of this PropertySpec are BusinessObjects
+     * @return true iff values of this PropertySpec are persistent business objects
      */
     public boolean isReference ();
 
@@ -54,10 +52,10 @@ public interface PropertySpec<T> {
      * @param value The value that needs validation
      * @return <code>true</code> iff the value is valid, all other cases will throw an InvalidValueException
      * @throws InvalidValueException Thrown if the value is not valid for this attribute specification.
-     * Note that {@link com.elster.jupiter.properties.common.ValueRequiredException} will be thrown for <code>null</code>
+     * Note that {@link ValueRequiredException} will be thrown for <code>null</code>
      * and required attributes.
      */
-    public boolean validateValue (T value) throws InvalidValueException;
+    public boolean validateValue (Object value) throws InvalidValueException;
 
     /**
      * Validates the specified value against this PropertySpec,
@@ -71,7 +69,7 @@ public interface PropertySpec<T> {
      * @return <code>true</code> iff the value is valid, all other cases will throw an InvalidValueException
      * @throws InvalidValueException Thrown if the value is not valid for this attribute specification.
      */
-    public boolean validateValueIgnoreRequired (T value) throws InvalidValueException;
+    public boolean validateValueIgnoreRequired (Object value) throws InvalidValueException;
 
     /**
      * Get the {@link PropertySpecPossibleValues possible values}
@@ -80,6 +78,6 @@ public interface PropertySpec<T> {
      *
      * @return The PropertySpecPossibleValues
      */
-    public PropertySpecPossibleValues<T> getPossibleValues ();
+    public PropertySpecPossibleValues getPossibleValues ();
 
 }
