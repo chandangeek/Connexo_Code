@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.sql.SqlFragment;
@@ -9,14 +11,13 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
-import org.joda.time.DateTimeConstants;
-
 import java.time.Clock;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import org.joda.time.DateTimeConstants;
 
 /**
  * Provides code reuse opportunities to builds SQL queries that will
@@ -145,16 +146,20 @@ public abstract class AbstractTaskFilterSqlBuilder {
         }
     }
 
-    protected void appendDeviceInGroupSql(List<QueryEndDeviceGroup> deviceGroups, QueryExecutor<Device> queryExecutor, String baseEntityAliasName) {
+    protected void appendDeviceInGroupSql(List<EndDeviceGroup> deviceGroups, QueryExecutor<Device> queryExecutor, String baseEntityAliasName) {
         if (!deviceGroups.isEmpty()) {
             this.appendWhereOrAnd();
             this.append("(");
-            Iterator<QueryEndDeviceGroup> iterator = deviceGroups.iterator();
+            Iterator<EndDeviceGroup> iterator = deviceGroups.iterator();
             while (iterator.hasNext()) {
-                QueryEndDeviceGroup deviceGroup = iterator.next();
+                EndDeviceGroup deviceGroup = iterator.next();
                 this.append(baseEntityAliasName);
                 this.append(".device in (");
-                this.append(queryExecutor.asFragment(deviceGroup.getCondition(), "id"));
+                if (deviceGroup instanceof QueryEndDeviceGroup) {
+                    this.append(queryExecutor.asFragment(((QueryEndDeviceGroup)deviceGroup).getCondition(), "id"));
+                } else {
+                    this.append(((EnumeratedEndDeviceGroup)deviceGroup).getAmrIdSubQuery().toFragment());
+                }
                 this.append(")");
                 if (iterator.hasNext()) {
                     this.append(" or ");

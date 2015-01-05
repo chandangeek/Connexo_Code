@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.data.kpi;
 
-import com.energyict.mdc.common.HasId;
-
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
-
+import com.energyict.mdc.common.HasId;
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +36,20 @@ public interface DataCollectionKpi extends HasId {
      * @return A flag that indicates if this DataCollectionKpi calculates the connection setup KPI.
      */
     public Optional<TemporalAmount> connectionSetupKpiCalculationIntervalLength();
+
+    /**
+     * @return  Returns the static target for the connection kpi, if present.
+     *    Optional will be empty if this Kpi does not support connection Kpis or
+     *    if no entries have been registered for the Kpi so far
+     */
+    public Optional<BigDecimal> getStaticConnectionKpiTarget();
+
+    /**
+     * @return  Returns the static target for the communication kpi, if present.
+     *    Optional will be empty if this Kpi does not support communication Kpis or
+     *    if no entries have been registered for the Kpi so far
+     */
+    public Optional<BigDecimal> getStaticCommunicationKpiTarget();
 
     /**
      * Gets the available {@link DataCollectionKpiScore}s that relate to
@@ -77,8 +90,26 @@ public interface DataCollectionKpi extends HasId {
      *
      * @return The EndDeviceGroup
      */
-    public QueryEndDeviceGroup getDeviceGroup();
+    public EndDeviceGroup getDeviceGroup();
 
     public void delete();
+
+    /**
+     *
+     * @return the most recent Instant either a connection task or communication task KPI was calculated by a recurrent task
+     */
+    public Optional<Instant> getLatestCalculation();
+
+    /**
+     * Add a communication task KPI to this data collection KPI with the given frequency and static target
+     * @param staticTarget target
+     */
+    public void calculateComTaskExecutionKpi(BigDecimal staticTarget);
+
+    /**
+     * Add a communication task KPI to this data collection KPI with the given frequency and static target
+     * @param staticTarget target
+     */
+    public void calculateConnectionKpi(BigDecimal staticTarget);
 
 }

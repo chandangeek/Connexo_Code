@@ -1,12 +1,8 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.SqlBuilder;
-import com.energyict.mdc.common.Translator;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
@@ -131,14 +127,12 @@ public class InMemoryIntegrationPersistence {
     private NlsService nlsService;
     private Clock clock;
     private JsonService jsonService;
-    private Environment environment;
     private RelationService relationService;
     private EngineConfigurationService engineConfigurationService;
     private MasterDataService masterDataService;
     private DeviceConfigurationService deviceConfigurationService;
     private MeteringService meteringService;
     private DataModel dataModel;
-    private ApplicationContext applicationContext;
     private ProtocolPluggableServiceImpl protocolPluggableService;
     private MdcReadingTypeUtilService readingTypeUtilService;
     private TaskService taskService;
@@ -155,6 +149,7 @@ public class InMemoryIntegrationPersistence {
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private UserService userService;
     private ThreadPrincipalService threadPrincipalService;
+    private MeteringGroupsService meteringGroupsService;
 
     public InMemoryIntegrationPersistence(Clock clock) {
         super();
@@ -208,7 +203,6 @@ public class InMemoryIntegrationPersistence {
                 new MasterDataModule(),
                 new ValidationModule(),
                 new DeviceConfigurationModule(),
-                new MdcCommonModule(),
                 new MdcIOModule(),
                 new BasicPropertiesModule(),
                 new ProtocolApiModule(),
@@ -218,8 +212,6 @@ public class InMemoryIntegrationPersistence {
                 new DeviceDataModule(),
                 new SchedulingModule());
         this.transactionService = injector.getInstance(TransactionService.class);
-        this.environment = injector.getInstance(Environment.class);
-        this.environment.setApplicationContext(this.applicationContext);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
             this.ormService = injector.getInstance(OrmService.class);
@@ -227,7 +219,7 @@ public class InMemoryIntegrationPersistence {
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
-            injector.getInstance(MeteringGroupsService.class);
+            meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.masterDataService = injector.getInstance(MasterDataService.class);
             this.taskService = injector.getInstance(TaskService.class);
@@ -288,11 +280,6 @@ public class InMemoryIntegrationPersistence {
         this.eventAdmin = mock(EventAdmin.class);
         this.principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
         when(this.principal.getName()).thenReturn(testName);
-        this.applicationContext = mock(ApplicationContext.class);
-        Translator translator = mock(Translator.class);
-        when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
-        when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
-        when(this.applicationContext.getTranslator()).thenReturn(translator);
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
     }
@@ -337,10 +324,6 @@ public class InMemoryIntegrationPersistence {
         return readingTypeUtilService;
     }
 
-    public ApplicationContext getApplicationContext() {
-        return applicationContext;
-    }
-
     public ServerConnectionTaskService getConnectionTaskService() {
         return this.deviceDataModelService.connectionTaskService();
     }
@@ -379,6 +362,10 @@ public class InMemoryIntegrationPersistence {
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
+    }
+
+    public MeteringGroupsService getMeteringGroupsService() {
+        return meteringGroupsService;
     }
 
     public int update(SqlBuilder sqlBuilder) throws SQLException {

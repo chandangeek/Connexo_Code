@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.gogo;
 
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
@@ -16,6 +17,7 @@ import org.osgi.service.component.annotations.Reference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Provides useful gogo commands that will support device related operations
@@ -34,7 +36,10 @@ import java.util.List;
  * @since 2014-06-06 (13:44)
  */
 @Component(name = "com.energyict.mdc.device.data.gogo", service = DeviceDataGoGoCommands.class,
-        property = {"osgi.command.scope=" + DeviceDataServices.COMPONENT_NAME, "osgi.command.function=enableOutboundCommunication"}, immediate = true)
+        property = {"osgi.command.scope=" + DeviceDataServices.COMPONENT_NAME,
+                "osgi.command.function=enableOutboundCommunication",
+                "osgi.command.function=devices"
+        }, immediate = true)
 public class DeviceDataGoGoCommands {
 
     private volatile TransactionService transactionService;
@@ -71,6 +76,16 @@ public class DeviceDataGoGoCommands {
     public void enableOutboundCommunication(String scheduleFrequency, String scheduleOption, String... deviceMRIDs) {
         try {
             ScheduleFrequency.fromString(scheduleFrequency).enableOutboundCommunication(this.transactionService, this.deviceService, scheduleOption, this.findDevices(deviceMRIDs));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void devices() {
+        try {
+            System.out.println(deviceService.findAllDevices(Condition.TRUE).stream()
+                    .map(device -> device.getId() + " " + device.getName())
+                    .collect(Collectors.joining("\n")));
         } catch (Exception ex) {
             ex.printStackTrace();
         }

@@ -1,13 +1,12 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +27,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
     private final Set<ComTask> comTasks;
     private final Set<ComSchedule> comSchedules;
     private final QueryExecutor<Device> queryExecutor;
-    private final List<QueryEndDeviceGroup> deviceGroups;
+    private final List<EndDeviceGroup> deviceGroups;
 
     public AbstractComTaskExecutionFilterSqlBuilder(Clock clock, QueryExecutor<Device> queryExecutor) {
         super(clock);

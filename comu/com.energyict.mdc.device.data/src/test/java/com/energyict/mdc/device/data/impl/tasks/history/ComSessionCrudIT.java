@@ -31,7 +31,6 @@ import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Translator;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -229,7 +228,6 @@ public class ComSessionCrudIT {
                 new ProtocolApiModule(),
                 new KpiModule(),
                 new TasksModule(),
-                new MdcCommonModule(),
                 new MdcIOModule(),
                 new EngineModelModule(),
                 new ProtocolPluggableModule(),

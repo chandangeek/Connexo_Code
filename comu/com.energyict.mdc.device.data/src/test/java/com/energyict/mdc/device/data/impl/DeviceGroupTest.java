@@ -40,7 +40,6 @@ import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -204,7 +203,6 @@ public class DeviceGroupTest {
                 new ValidationModule(),
                 new SchedulingModule(),
                 new ProtocolPluggableModule(),
-                new MdcCommonModule(),
                 new EngineModelModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new PluggableModule(),

@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -9,7 +9,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -28,11 +27,11 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
     private final Set<ConnectionTypePluggableClass> connectionTypes;
     private final Set<ComPortPool> comPortPools;
     private final Set<DeviceType> deviceTypes;
-    private final List<QueryEndDeviceGroup> deviceGroups;
+    private final List<EndDeviceGroup> deviceGroups;
     private final QueryExecutor<Device> queryExecutor;
     private boolean appendLastComSessionJoinClause;
 
-    public AbstractConnectionTaskFilterSqlBuilder(Clock clock, List<QueryEndDeviceGroup> deviceGroups, QueryExecutor<Device> queryExecutor) {
+    public AbstractConnectionTaskFilterSqlBuilder(Clock clock, List<EndDeviceGroup> deviceGroups, QueryExecutor<Device> queryExecutor) {
         super(clock);
         this.connectionTypes = new HashSet<>();
         this.comPortPools = new HashSet<>();

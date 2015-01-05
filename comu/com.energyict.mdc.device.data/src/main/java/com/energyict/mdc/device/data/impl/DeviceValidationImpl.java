@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
-import com.elster.jupiter.util.time.IntermittentInterval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
@@ -237,7 +236,22 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     private Comparator<MeterActivation> byInterval() {
-        return (m1, m2) -> IntermittentInterval.IntervalComparators.FROM_COMPARATOR.compare(m1.getInterval(), m2.getInterval());
+        return Comparator.comparing(MeterActivation::getRange, byStart());
+    }
+
+    private Comparator<? super Range<Instant>> byStart() {
+        return new Comparator<Range<Instant>>() {
+            @Override
+            public int compare(Range<Instant> o1, Range<Instant> o2) {
+                if (!o1.hasLowerBound()) {
+                    return !o2.hasLowerBound() ? -1 : 0;
+                }
+                if (!o2.hasLowerBound()) {
+                    return 1;
+                }
+                return o1.lowerEndpoint().compareTo(o2.lowerEndpoint());
+            }
+        };
     }
 
     private Range<Instant> interval(List<? extends BaseReading> readings) {

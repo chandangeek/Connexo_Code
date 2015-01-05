@@ -1,16 +1,11 @@
 package com.energyict.mdc.device.data.kpi;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-
+import com.energyict.mdc.common.services.Finder;
 import java.math.BigDecimal;
 import java.time.temporal.TemporalAmount;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Provides services to define and calculate key performance
@@ -25,7 +20,7 @@ import java.util.Set;
  */
 public interface DataCollectionKpiService {
 
-    public DataCollectionKpiBuilder newDataCollectionKpi(QueryEndDeviceGroup group);
+    public DataCollectionKpiBuilder newDataCollectionKpi(EndDeviceGroup group);
 
     /**
      * Finds all {@link DataCollectionKpi} that are defined in the system.
@@ -33,6 +28,14 @@ public interface DataCollectionKpiService {
      * @return The List of DataCollectionKpi
      */
     public List<DataCollectionKpi> findAllDataCollectionKpis();
+
+    /**
+     * Finds all {@link DataCollectionKpi} that are defined in the system through a Finder
+     * implementation, allowing paged searching and sorting
+     *
+     * @return Finder for DataCollectionKpi
+     */
+    public Finder<DataCollectionKpi> dataCollectionKpiFinder();
 
     /**
      * Finds the {@link DataCollectionKpi} with the specified id.
@@ -43,12 +46,12 @@ public interface DataCollectionKpiService {
     public Optional<DataCollectionKpi> findDataCollectionKpi(long id);
 
     /**
-     * Finds the {@link DataCollectionKpi} for the specified {@link QueryEndDeviceGroup}.
+     * Finds the {@link DataCollectionKpi} for the specified {@link EndDeviceGroup}.
      *
      * @param group The QueryEndDeviceGroup
      * @return The DataCollectionKpi
      */
-    public Optional<DataCollectionKpi> findDataCollectionKpi(QueryEndDeviceGroup group);
+    public Optional<DataCollectionKpi> findDataCollectionKpi(EndDeviceGroup group);
 
     /**
      * Models behavior to build a new {@link DataCollectionKpi}.

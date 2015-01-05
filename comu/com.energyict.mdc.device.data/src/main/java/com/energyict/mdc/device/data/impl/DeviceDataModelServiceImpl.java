@@ -359,6 +359,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(LogBookService.class).toInstance(logBookService);
 //                bind(IdentificationService.class).toInstance(identificationService);
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
+                bind(DataCollectionKpiService.class).toInstance(dataCollectionKpiService);
             }
         };
     }
@@ -371,8 +372,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     private void createRealServices() {
-        this.connectionTaskService = new ConnectionTaskServiceImpl(this, eventService);
-        this.communicationTaskService = new CommunicationTaskServiceImpl(this);
+        this.connectionTaskService = new ConnectionTaskServiceImpl(this, eventService, meteringService);
+        this.communicationTaskService = new CommunicationTaskServiceImpl(this, meteringService);
         this.deviceService = new DeviceServiceImpl(this);
         this.loadProfileService = new LoadProfileServiceImpl(this);
         this.logBookService = new LogBookServiceImpl(this);

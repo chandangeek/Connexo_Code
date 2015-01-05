@@ -1,14 +1,13 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.QueryExecutor;
-import java.time.Clock;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-
+import java.time.Clock;
 import java.util.List;
 
 /**
@@ -23,7 +22,7 @@ public class ConnectionTaskConnectionTypeStatusCountSqlBuilder extends AbstractC
 
     private ServerConnectionTaskStatus taskStatus;
 
-    public ConnectionTaskConnectionTypeStatusCountSqlBuilder(ServerConnectionTaskStatus taskStatus, Clock clock, List<QueryEndDeviceGroup> deviceGroups, QueryExecutor<Device> deviceQueryExecutor) {
+    public ConnectionTaskConnectionTypeStatusCountSqlBuilder(ServerConnectionTaskStatus taskStatus, Clock clock, List<EndDeviceGroup> deviceGroups, QueryExecutor<Device> deviceQueryExecutor) {
         super(clock, deviceGroups, deviceQueryExecutor);
         this.taskStatus = taskStatus;
     }

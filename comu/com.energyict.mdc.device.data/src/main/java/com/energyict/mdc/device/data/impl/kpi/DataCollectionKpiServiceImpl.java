@@ -1,13 +1,13 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
+import com.elster.jupiter.kpi.KpiBuilder;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.energyict.mdc.common.services.DefaultFinder;
+import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-
-import com.elster.jupiter.kpi.KpiBuilder;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.google.inject.Inject;
-
 import java.math.BigDecimal;
 import java.time.temporal.TemporalAmount;
 import java.util.List;
@@ -37,18 +37,23 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
     }
 
     @Override
+    public Finder<DataCollectionKpi> dataCollectionKpiFinder() {
+        return DefaultFinder.of(DataCollectionKpi.class, this.deviceDataModelService.dataModel(), EndDeviceGroup.class);
+    }
+
+    @Override
     public Optional<DataCollectionKpi> findDataCollectionKpi(long id) {
         return this.deviceDataModelService.dataModel().mapper(DataCollectionKpi.class).getOptional(id);
     }
 
     @Override
-    public Optional<DataCollectionKpi> findDataCollectionKpi(QueryEndDeviceGroup group) {
+    public Optional<DataCollectionKpi> findDataCollectionKpi(EndDeviceGroup group) {
         return this.deviceDataModelService.dataModel().mapper(DataCollectionKpi.class).getUnique(DataCollectionKpiImpl.Fields.END_DEVICE_GROUP
                 .fieldName(), group);
     }
 
     @Override
-    public DataCollectionKpiBuilder newDataCollectionKpi(QueryEndDeviceGroup group) {
+    public DataCollectionKpiBuilder newDataCollectionKpi(EndDeviceGroup group) {
         return new DataCollectionKpiBuilderImpl(group);
     }
 
@@ -79,7 +84,7 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
         private KpiBuilder communicationKpiBuilder;
         private DataCollectionKpiBuilderState state = DataCollectionKpiBuilderState.INCOMPLETE;
 
-        private DataCollectionKpiBuilderImpl(QueryEndDeviceGroup group) {
+        private DataCollectionKpiBuilderImpl(EndDeviceGroup group) {
             this.underConstruction = deviceDataModelService.dataModel().getInstance(DataCollectionKpiImpl.class).initialize(group);
         }
 
@@ -102,11 +107,11 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
         }
     }
 
-    private class KpiTargetBuilderImpl implements KpiTargetBuilder {
+    static class KpiTargetBuilderImpl implements KpiTargetBuilder {
         private final KpiBuilder kpiBuilder;
         private final List<KpiBuilder.KpiMemberBuilder> memberBuilders;
 
-        private KpiTargetBuilderImpl(KpiBuilder kpiBuilder, TemporalAmount intervalLength) {
+        KpiTargetBuilderImpl(KpiBuilder kpiBuilder, TemporalAmount intervalLength) {
             super();
             this.kpiBuilder = kpiBuilder;
             this.kpiBuilder.interval(intervalLength);

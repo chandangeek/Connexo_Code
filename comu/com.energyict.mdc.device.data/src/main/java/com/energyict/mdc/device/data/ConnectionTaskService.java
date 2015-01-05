@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -16,9 +17,6 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -118,12 +116,12 @@ public interface ConnectionTaskService {
     /**
      * Counts all {@link ConnectionTask}s that relate to
      * {@link com.energyict.mdc.device.data.Device}s
-     * that are part of the specified {@link QueryEndDeviceGroup},
+     * that are part of the specified {@link EndDeviceGroup},
      * grouping them by their respective {@link TaskStatus}.
      *
      * @return The numbers, broken down by TaskStatus
      */
-    public Map<TaskStatus, Long> getConnectionTaskStatusCount(QueryEndDeviceGroup deviceGroup);
+    public Map<TaskStatus, Long> getConnectionTaskStatusCount(EndDeviceGroup deviceGroup);
 
     /**
      * Counts all {@link ConnectionTask}s whose current status is
@@ -138,14 +136,14 @@ public interface ConnectionTaskService {
     /**
      * Counts all {@link ConnectionTask}s that relate to
      * {@link com.energyict.mdc.device.data.Device}s
-     * that are part of the specified {@link QueryEndDeviceGroup}
+     * that are part of the specified {@link EndDeviceGroup}
      * and whose current status is in the Set of {@link TaskStatus}
      * grouping them by {@link com.energyict.mdc.engine.config.ComPortPool}.
      *
      * @param taskStatuses The Set of TaskStatus
      * @return The numbers, broken down by ComPortPool and TaskStatus
      */
-    public Map<ComPortPool, Map<TaskStatus, Long>> getComPortPoolBreakdown(Set<TaskStatus> taskStatuses, QueryEndDeviceGroup deviceGroup);
+    public Map<ComPortPool, Map<TaskStatus, Long>> getComPortPoolBreakdown(Set<TaskStatus> taskStatuses, EndDeviceGroup deviceGroup);
 
     /**
      * Counts all {@link ConnectionTask}s whose current status is
@@ -160,14 +158,14 @@ public interface ConnectionTaskService {
     /**
      * Counts all {@link ConnectionTask}s that relate to
      * {@link com.energyict.mdc.device.data.Device}s
-     * that are part of the specified {@link QueryEndDeviceGroup}
+     * that are part of the specified {@link EndDeviceGroup}
      * and whose current status is in the Set of {@link TaskStatus}
      * grouping them by {@link com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass}.
      *
      * @param taskStatuses The Set of TaskStatus
      * @return The numbers, broken down by DeviceType and TaskStatus
      */
-    public Map<DeviceType, Map<TaskStatus, Long>> getDeviceTypeBreakdown(Set<TaskStatus> taskStatuses, QueryEndDeviceGroup deviceGroup);
+    public Map<DeviceType, Map<TaskStatus, Long>> getDeviceTypeBreakdown(Set<TaskStatus> taskStatuses, EndDeviceGroup deviceGroup);
 
     /**
      * Counts all {@link ConnectionTask}s whose current status is
@@ -182,14 +180,14 @@ public interface ConnectionTaskService {
     /**
      * Counts all {@link ConnectionTask}s that relate to
      * {@link com.energyict.mdc.device.data.Device}s
-     * that are part of the specified {@link QueryEndDeviceGroup}
+     * that are part of the specified {@link EndDeviceGroup}
      * and whose current status is in the Set of {@link TaskStatus}
      * grouping them by {@link com.energyict.mdc.device.config.DeviceType}.
      *
      * @param taskStatuses The Set of TaskStatus
      * @return The numbers, broken down by DeviceType and TaskStatus
      */
-    public Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> getConnectionTypeBreakdown(Set<TaskStatus> taskStatuses, QueryEndDeviceGroup deviceGroup);
+    public Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> getConnectionTypeBreakdown(Set<TaskStatus> taskStatuses, EndDeviceGroup deviceGroup);
 
     /**
      * Finds all {@link ConnectionTask}s that match the specified filter.
@@ -302,13 +300,13 @@ public interface ConnectionTaskService {
 
     /**
      * Counts the last {@link ComSession} of all {@link ConnectionTask}s
-     * that relate to device of the specified {@link QueryEndDeviceGroup},
+     * that relate to device of the specified {@link EndDeviceGroup},
      * grouping them by their respective {@link ConnectionTask.SuccessIndicator}.
      *
      * @param deviceGroup The QueryEndDeviceGroup
      * @return The numbers, broken down by SuccessIndicator
      */
-    public Map<ComSession.SuccessIndicator, Long> getConnectionTaskLastComSessionSuccessIndicatorCount(QueryEndDeviceGroup deviceGroup);
+    public Map<ComSession.SuccessIndicator, Long> getConnectionTaskLastComSessionSuccessIndicatorCount(EndDeviceGroup deviceGroup);
 
     /**
      * Counts all {@link ConnectionTask}s grouping them by their
@@ -328,7 +326,7 @@ public interface ConnectionTaskService {
 
     /**
      * Counts all {@link ConnectionTask}s that relate to {@link Device}s
-     * in the specified {@link QueryEndDeviceGroup}, grouping them by their
+     * in the specified {@link EndDeviceGroup}, grouping them by their
      * respective {@link ConnectionTypePluggableClass} and the {@link ComSession.SuccessIndicator}
      * of the last {@link ComSession}.
      * The counters are returned in the following order:
@@ -339,10 +337,10 @@ public interface ConnectionTaskService {
      * <li>Broken</li>
      * </ol>
      *
-     * @param deviceGroup The QueryEndDeviceGroup
+     * @param deviceGroup The EndDeviceGroup
      * @return The counters
      */
-    public Map<ConnectionTypePluggableClass, List<Long>> getConnectionTypeHeatMap(QueryEndDeviceGroup deviceGroup);
+    public Map<ConnectionTypePluggableClass, List<Long>> getConnectionTypeHeatMap(EndDeviceGroup deviceGroup);
 
     /**
      * Counts all {@link ConnectionTask}s grouping them by their
@@ -362,7 +360,7 @@ public interface ConnectionTaskService {
 
     /**
      * Counts all {@link ConnectionTask}s that relate to {@link Device}s
-     * in the specified {@link QueryEndDeviceGroup}, grouping them by their
+     * in the specified {@link EndDeviceGroup}, grouping them by their
      * respective {@link DeviceType} and the {@link ComSession.SuccessIndicator}
      * of the last {@link ComSession}.
      * The counters are returned in the following order:
@@ -376,7 +374,7 @@ public interface ConnectionTaskService {
      * @param deviceGroup The QueryEndDeviceGroup
      * @return The counters
      */
-    public Map<DeviceType, List<Long>> getConnectionsDeviceTypeHeatMap(QueryEndDeviceGroup deviceGroup);
+    public Map<DeviceType, List<Long>> getConnectionsDeviceTypeHeatMap(EndDeviceGroup deviceGroup);
 
     /**
      * Counts all {@link ConnectionTask}s grouping them by their
@@ -396,7 +394,7 @@ public interface ConnectionTaskService {
 
     /**
      * Counts all {@link ConnectionTask}s that relate to the {@link Device}s
-     * in the specified {@link QueryEndDeviceGroup}, grouping them by their
+     * in the specified {@link EndDeviceGroup}, grouping them by their
      * respective {@link ComPortPool} and the {@link ComSession.SuccessIndicator}
      * of the last {@link ComSession}.
      * The counters are returned in the following order:
@@ -410,6 +408,6 @@ public interface ConnectionTaskService {
      * @param deviceGroup The QueryEndDeviceGroup
      * @return The counters
      */
-    public Map<ComPortPool, List<Long>> getConnectionsComPortPoolHeatMap(QueryEndDeviceGroup deviceGroup);
+    public Map<ComPortPool, List<Long>> getConnectionsComPortPoolHeatMap(EndDeviceGroup deviceGroup);
 
 }

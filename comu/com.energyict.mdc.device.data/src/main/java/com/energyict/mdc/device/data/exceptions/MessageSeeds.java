@@ -80,7 +80,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION(2047, Keys.COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION, "A mismatch between device configuration and the communication schedule (one or more communication tasks defined in the communication schedule is not available on the device configuration of the device)", SEVERE),
     COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2048, Keys.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not remove communication schedule {0} because it is not owned by device", Level.SEVERE),
     DEVICE_GROUP_IS_REQUIRED(2049, Keys.DEVICE_GROUP_IS_REQUIRED, "You must specify the devices that are part of the data collection device group", Level.SEVERE),
-    EMPTY_DATA_COLLECTION_KPI(2050, Keys.EMPTY_DATA_COLLECTION_KPI, "You must specify either connection setup or communication task execution", Level.SEVERE),
+    EMPTY_DATA_COLLECTION_KPI(2050, Keys.EMPTY_DATA_COLLECTION_KPI, "At least one KPI has to be selected", Level.SEVERE),
     UNKNOWN_DEVICE_MESSAGE_ID_FOR_DEVICE(2051, Keys.UNKNOWN_DEVICE_MESSAGE_ID_FOR_DEVICE, "The deviceMessageId {1} is not known for a device like {0}", Level.SEVERE),
     DEVICE_MESSAGE_ID_NOT_SUPPORTED(2054, Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED, "The command is not supported for the device", Level.SEVERE),
     DEVICE_MESSAGE_IS_REQUIRED(2055, Keys.DEVICE_MESSAGE_IS_REQUIRED, "The command is required for a device message attribute", Level.SEVERE),
@@ -98,8 +98,10 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER(2067, Keys.CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER, "Could not find a loadprofile for identifier '{0}'", Level.SEVERE),
     CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER(2068, Keys.CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER, "Could not find a logbook for identifier '{0}'", Level.SEVERE),
     CAN_NOT_FIND_FOR_MESSAGE_IDENTIFIER(2069, Keys.CAN_NOT_FIND_FOR_MESSAGE_IDENTIFIER, "Could not find a message for identifier '{0}'", Level.SEVERE),
-
+    CAN_NOT_REPLACE_EXISTING_KPI(2070, Keys.CAN_NOT_REPLACE_EXISTING_KPI, "An existing KPI can not be replaced", Level.SEVERE ),
     ;
+
+
 
     private final int number;
     private final String key;
@@ -225,6 +227,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER = "loadprofileIdentifier.not.found";
         public static final String CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER = "logbookIdentifier.not.found";
         public static final String CAN_NOT_FIND_FOR_MESSAGE_IDENTIFIER = "messageIdentifier.not.found";
+        public static final String CAN_NOT_REPLACE_EXISTING_KPI = "dataCollectionKpi.canNotReplaceExistingKpi";
     }
-
 }
