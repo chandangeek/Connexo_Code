@@ -31,9 +31,9 @@ Ext.define('Mdc.view.setup.devicelogbooks.SideFilter', {
                     xtype: 'datefield',
                     labelAlign: 'top',
                     invalidText: Uni.I18n.translate('devicelogbooks.sideFilter.datefield.invalidText', 'MDC', 'Invalid date format. Please enter the date in the format \'dd/mm/yyyy\''),
-                    emptyText: '        /        /',
                     maxValue: new Date(),
-                    anchor: '100%'
+                    anchor: '100%',
+                    format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                 },
                 items: [
                     {

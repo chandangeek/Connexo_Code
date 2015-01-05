@@ -12,7 +12,11 @@ Ext.define('Mdc.model.Register', {
                         return record.data.lastReading.value + ' ' + record.data.lastReading.unitOfMeasure;
                     }
                     if (record.data.type == 'numerical') {
-                        return record.data.lastReading.value + ' ' + record.data.lastReading.unitOfMeasure;
+                        if(!Ext.isEmpty(record.data.lastReading.value)) {
+                            return Uni.Number.formatNumber(record.data.lastReading.value, -1) + ' ' + record.data.lastReading.unitOfMeasure;
+                        }
+                        return Uni.I18n.translate('register.value.notspecified', 'MDC', '-')
+
                     }
                     if (record.data.type == 'text') {
                         return record.data.lastReading.value;
@@ -25,6 +29,7 @@ Ext.define('Mdc.model.Register', {
                 return '-';
             }
         },
+        {name: 'isCumulative', type: 'boolean'},
         {name: 'timeStamp', mapping: 'lastReading.timeStamp', useNull: true},
         {name: 'reportedDateTime', mapping: 'lastReading.reportedDateTime', useNull: true},
         {name: 'interval', mapping: 'lastReading.interval', useNull: true},
@@ -51,7 +56,7 @@ Ext.define('Mdc.model.Register', {
             persist: false,
             mapping: function (data) {
                 return (data.detailedValidationInfo && data.detailedValidationInfo.lastChecked) ?
-                    Uni.I18n.formatDate('deviceloadprofiles.dateFormat', new Date(data.detailedValidationInfo.lastChecked), 'MDC', 'M d, Y H:i') : '';
+                    Uni.DateTime.formatDateTimeLong(new Date(data.detailedValidationInfo.lastChecked)) : '';
             }
         }
     ],

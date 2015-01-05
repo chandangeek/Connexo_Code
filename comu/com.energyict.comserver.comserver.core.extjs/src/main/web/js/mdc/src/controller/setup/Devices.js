@@ -15,7 +15,8 @@ Ext.define('Mdc.controller.setup.Devices', {
 
     stores: [
         'AvailableDeviceTypes',
-        'AvailableDeviceConfigurations'
+        'AvailableDeviceConfigurations',
+        'MasterDeviceCandidates'
     ],
 
     mixins: [
@@ -26,6 +27,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         {ref: 'deviceGeneralInformationForm', selector: '#deviceGeneralInformationForm'},
         {ref: 'deviceCommunicationTopologyPanel', selector: '#devicecommicationtopologypanel'},
         {ref: 'deviceOpenIssuesPanel', selector: '#deviceopenissuespanel'},
+        {ref: 'deviceSetup', selector: '#deviceSetup'},
         {ref: 'deviceSetupPanel', selector: '#deviceSetupPanel'},
         {ref: 'deviceGeneralInformationDeviceTypeLink', selector: '#deviceGeneralInformationDeviceTypeLink'},
         {ref: 'deviceGeneralInformationDeviceConfigurationLink', selector: '#deviceGeneralInformationDeviceConfigurationLink'},
@@ -49,12 +51,123 @@ Ext.define('Mdc.controller.setup.Devices', {
             },
             'deviceSetup #deactivate': {
                 click: this.onDeactivate
+            },
+            'deviceSetup device-connections-list uni-actioncolumn': {
+                run: this.connectionRun,
+                toggleActivation: this.connectionToggle
+            },
+            'deviceSetup device-communications-list uni-actioncolumn': {
+                run: this.communicationRun,
+                runNow: this.communicationRunNow,
+                toggleActivation: this.communicationToggle
+            },
+            'deviceSetup #device-communications-panel #activate-all': {
+                click: this.communicationActivateAll
+            },
+            'deviceSetup #device-communications-panel #deactivate-all': {
+                click: this.communicationDeactivateAll
+            },
+            'deviceSetup #deviceSetupPanel #refresh-btn': {
+                click: this.doRefresh
             }
         });
     },
 
     back: function () {
         location.href = "#/devices";
+    },
+
+    connectionRun: function (record) {
+        var me = this;
+        record.run(function () {
+            me.getApplication().fireEvent('acknowledge',
+                Uni.I18n.translate('device.connection.run.now', 'MDC', 'Connection will run immediately')
+            );
+            record.set('nextExecution', new Date());
+        });
+    },
+
+    connectionToggle: function (record) {
+        var me = this;
+        var connectionMethod = record.get('connectionMethod');
+        connectionMethod.status = connectionMethod.status == 'active' ? 'inactive' : 'active';
+        record.set('connectionMethod', connectionMethod);
+        record.save({
+            callback: function (record, operation, success) {
+                if (success) {
+                    me.getApplication().fireEvent('acknowledge',
+                        Uni.I18n.translate('device.connection.toggle.' + connectionMethod.status, 'MDC', 'Connection status changed to: ' + connectionMethod.status)
+                    );
+                }
+            }
+        });
+    },
+
+    communicationToggle: function (record) {
+        var me = this;
+        var status = !record.get('isOnHold');
+        record.set('isOnHold', status);
+        record.save({
+            callback: function (record, operation, success) {
+                if (success) {
+                    me.getApplication().fireEvent('acknowledge',
+                        Uni.I18n.translate('device.communication.toggle.' + status, 'MDC', 'Communication status changed to: ' + status)
+                    );
+                }
+            }
+        });
+    },
+
+    communicationActivateAll: function() {
+        var me = this,
+            router = this.getController('Uni.controller.history.Router');
+
+        Ext.Ajax.request({
+            method: 'PUT',
+            url: '/api/ddr/devices/{mRID}/communications/activate'.replace('{mRID}', router.arguments.mRID),
+            success: function() {
+                me.refreshCommunications();
+                me.getApplication().fireEvent('acknowledge',
+                    Uni.I18n.translate('device.communication.activateAll', 'MDC', 'Communication tasks activated')
+                );
+            }
+        });
+    },
+
+    communicationDeactivateAll: function() {
+        var me = this,
+            router = this.getController('Uni.controller.history.Router');
+
+        Ext.Ajax.request({
+            method: 'PUT',
+            url: '/api/ddr/devices/{mRID}/communications/deactivate'.replace('{mRID}', router.arguments.mRID),
+            success: function() {
+                me.refreshCommunications();
+                me.getApplication().fireEvent('acknowledge',
+                    Uni.I18n.translate('device.communication.deactivateAll', 'MDC', 'Communication tasks deactivated')
+                );
+            }
+        });
+    },
+
+    communicationRun: function (record) {
+        var me = this;
+        record.run(function () {
+            me.getApplication().fireEvent('acknowledge',
+                Uni.I18n.translate('device.communication.run.wait', 'MDC', 'Communication task will wait')
+            );
+            record.set('plannedDate', new Date());
+        });
+    },
+
+    communicationRunNow: function (record) {
+        var me = this;
+        record.run(function () {
+            me.getApplication().fireEvent('acknowledge',
+                Uni.I18n.translate('device.communication.run.now', 'MDC', 'Communication task will run immediately')
+            );
+            record.set('plannedDate', new Date());
+        });
     },
 
     showDeviceDetailsView: function (mRID) {
@@ -75,29 +188,60 @@ Ext.define('Mdc.controller.setup.Devices', {
                     widget.renderFlag(deviceLabelsStore);
                 });
 
-                var deviceConnectionsStore = device.connections();
-                deviceConnectionsStore.getProxy().setUrl(mRID);
-                deviceConnectionsStore.load(function() {
-                    widget.down('device-connections-list').reconfigure(deviceConnectionsStore);
-                });
-
                 me.getApplication().fireEvent('changecontentevent', widget);
+                me.doRefresh();
+
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().set({href: '#/administration/devicetypes/' + device.get('deviceTypeId')});
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().setHTML(device.get('deviceTypeName'));
                 me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().set({href: '#/administration/devicetypes/' + device.get('deviceTypeId') + '/deviceconfigurations/' + device.get('deviceConfigurationId')});
-                me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().setHTML(device.get('deviceConfigurationName')),
+                me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().setHTML(device.get('deviceConfigurationName'));
                 me.getDeviceCommunicationTopologyPanel().setRecord(device);
                 me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device.get('nbrOfDataCollectionIssues'));
                 me.getDeviceGeneralInformationForm().loadRecord(device);
 
                 if ((device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters'))
-                    && (Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration']))) {
+                    && (Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDevice']))) {
                     me.updateDataValidationStatusSection(mRID, widget);
                 } else {
                     widget.down('device-data-validation-panel').hide();
                 }
                 viewport.setLoading(false);
 
+            }
+        });
+    },
+
+    doRefresh: function () {
+        this.refreshConnections();
+        this.refreshCommunications();
+    },
+
+    refreshConnections: function() {
+        var widget = this.getDeviceSetup();
+        var device = widget.device;
+        var lastUpdateField = widget.down('#deviceSetupPanel #last-updated-field');
+        var deviceConnectionsStore = device.connections();
+
+        deviceConnectionsStore.getProxy().setUrl(device.get('mRID'));
+        lastUpdateField.update('Last updated at ' + Uni.DateTime.formatTimeShort(new Date()));
+        deviceConnectionsStore.load(function (records) {
+            if (!widget.isDestroyed) {
+                widget.down('#connectionslist').setTitle(Ext.String.format(Uni.I18n.translate('device.connections.title', 'MDC', 'Connections ({0})'), records.length));
+            }
+        });
+    },
+
+    refreshCommunications: function() {
+        var widget = this.getDeviceSetup();
+        var device = widget.device;
+        var lastUpdateField = widget.down('#deviceSetupPanel #last-updated-field');
+        var deviceCommunicationsStore = device.communications();
+
+        deviceCommunicationsStore.getProxy().setUrl(device.get('mRID'));
+        lastUpdateField.update('Last updated at ' + Uni.DateTime.formatTimeShort(new Date()));
+        deviceCommunicationsStore.load(function (records) {
+            if (!widget.isDestroyed) {
+                widget.down('#communicationslist').setTitle(Ext.String.format(Uni.I18n.translate('device.communicationTasks.title', 'MDC', 'Communication tasks ({0})'), records.length));
             }
         });
     },
@@ -118,7 +262,7 @@ Ext.define('Mdc.controller.setup.Devices', {
             success: function (record) {
                 me.getApplication().fireEvent('acknowledge',
                     Uni.I18n.translatePlural('deviceAdd.added', record.get('mRID'), 'USM', 'Device \'{0}\' added.'));
-                location.href = "#devices/" + record.get('mRID');
+                location.href = "#/devices/" + record.get('mRID');
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText);

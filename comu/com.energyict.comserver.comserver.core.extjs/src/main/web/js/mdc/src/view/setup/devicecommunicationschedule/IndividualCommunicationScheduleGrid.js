@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.IndividualCommunicationSc
                     dataIndex: 'plannedDate',
                     renderer: function (value) {
                         if (value !== null) {
-                            return new Date(value).toLocaleString();
+                            return Uni.DateTime.formatDateTimeShort(new Date(value));
                         } else {
                             return '';
                         }
@@ -66,12 +66,14 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.IndividualCommunicationSc
                         items: [
                             {
                                 text: Uni.I18n.translate('deviceCommunicationSchedules.changeFrequency', 'MDC', 'Change frequency'),
+                                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceCommunication'),
                                 itemId: 'changeCommunicationSchedule',
                                 action: 'changeCommunicationSchedule'
 
                             },
                             {
                                 text: Uni.I18n.translate('deviceCommunicationSchedules.removeFrequency', 'MDC', 'Remove frequency'),
+                                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceCommunication'),
                                 itemId: 'removeCommunicationSchedule',
                                 action: 'removeCommunicationSchedule'
 

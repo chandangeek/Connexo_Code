@@ -58,13 +58,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.startedOn', 'MDC', 'Started on'),
                                     itemId: 'startedOn',
                                     renderer: function (value) {
-                                        if (value !== '') {
-                                            return new Date(value).toLocaleString();
-                                        } else {
-                                            return '';
-                                        }
+                                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
                                     }
-
                                 },
                                 {
                                     xtype: 'displayfield',
@@ -72,13 +67,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.finishedOn', 'MDC', 'Finished on'),
                                     itemId: 'finishedOn',
                                     renderer: function (value) {
-                                        if (value !== '') {
-                                            return new Date(value).toLocaleString();
-                                        } else {
-                                            return '';
-                                        }
+                                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
                                     }
-
                                 },
                                 {
                                     xtype: 'uni-form-field-duration',

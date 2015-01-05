@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceConfiguration'),
+                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.masterData'),
                 items: 'Mdc.view.setup.logbooktype.LogbookTypeActionMenu'
             }
         ];
@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeGrid', {
                     '->',
                     {
                         text: Uni.I18n.translate('logbooktype.add', 'MDC', 'Add logbook type'),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceConfiguration'),
+                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.masterData'),
                         itemId: 'createLogbookType',
                         xtype: 'button',
                         action: 'createLogbookType'

@@ -168,7 +168,8 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                 required: true,
                                 fieldLabel: Uni.I18n.translate('communicationschedule.startOn', 'MDC', 'Start on'),
                                 dateCfg: {
-                                    editable: false
+                                    editable: false,
+                                    format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                                 },
                                 hourCfg: {
                                     width: 60
@@ -211,7 +212,11 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                             dataIndex: 'date',
                                             flex: 1,
                                             renderer: function (value) {
-                                                return Uni.I18n.formatDate('communicationschedule.previewDateFormat', value, 'MDC', 'l F d, Y \\a\\t H:i:s')
+                                                return value
+                                                    ? Uni.DateTime.formatDateLong(value)
+                                                    + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                                                    + Uni.DateTime.formatTimeLong(value)
+                                                    : ''
                                             }
                                         }
                                     ]

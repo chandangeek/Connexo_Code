@@ -69,8 +69,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                 text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                                 xtype: 'button',
                                 ui: 'link',
-                                itemId: 'cancelLink',
-                                href: '#/administration/devicetypes/'
+                                itemId: 'cancelLink'
                             }
                         ]
                     }
@@ -86,7 +85,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             this.down('#createEditButton').action = 'createDeviceType';
         }
-        this.down('#cancelLink').href = this.returnLink;
     }
 
 });

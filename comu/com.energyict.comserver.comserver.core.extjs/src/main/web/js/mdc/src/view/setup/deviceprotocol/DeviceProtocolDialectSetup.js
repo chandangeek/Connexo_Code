@@ -17,7 +17,6 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectSetup', {
         this.side = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('deviceregisterconfiguration.devices', 'MDC', 'Devices'),
                 ui: 'medium',
                 items: [
                     {

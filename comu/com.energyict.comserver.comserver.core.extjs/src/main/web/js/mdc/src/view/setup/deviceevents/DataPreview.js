@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataPreview', {
                             }
                         })
                     }
-                    value.isModel ? res = '<a href="{url}">{logbookName}</a>'.replace('{url}', me.router.getRoute('devices/device/logbooks/logbook/overview').buildUrl({logbookId: value.get('id')})).replace('{logbookName}', value.get('name')) : null;
+                    value.isModel ? res = '<a href="{url}">{logbookName}</a>'.replace('{url}', me.router.getRoute('devices/device/logbooks/logbookdata').buildUrl({logbookId: value.get('id')})).replace('{logbookName}', value.get('name')) : null;
                     return res
                 }
             })
@@ -60,7 +60,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataPreview', {
                                 fieldLabel: Uni.I18n.translate('deviceevents.eventDate', 'MDC', 'Event date'),
                                 name: 'eventDate',
                                 renderer: function (value) {
-                                    return value ? Uni.I18n.formatDate('deviceevents.eventDate.dateFormat', value, 'MDC', 'M d, Y H:i:s') : '';
+                                    return value ? Uni.DateTime.formatDateTimeLong(value) : '';
                                 }
                             },
                             {
@@ -111,7 +111,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataPreview', {
                                 fieldLabel: Uni.I18n.translate('deviceevents.readingDate', 'MDC', 'Reading date'),
                                 name: 'readingDate',
                                 renderer: function (value) {
-                                    return value ? Uni.I18n.formatDate('deviceevents.readingDate.dateFormat', value, 'MDC', 'M d, Y H:i:s') : '';
+                                    return value ? Uni.DateTime.formatDateTimeLong(value) : '';
                                 }
                             }
                         ]

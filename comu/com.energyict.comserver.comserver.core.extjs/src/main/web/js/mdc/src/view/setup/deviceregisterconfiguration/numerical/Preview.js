@@ -43,16 +43,17 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Preview', {
                             },
                             {
                                 xtype: 'fieldcontainer',
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestReading', 'MDC', 'Latest reading'),
+                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.lastReading', 'MDC', 'Last reading'),
                                 layout: 'hbox',
                                 items: [
                                     {
                                         xtype: 'displayfield',
                                         name: 'reportedDateTime',
-                                        format: 'M j, Y \\a\\t G:i',
                                         renderer: function (value) {
                                             if (!Ext.isEmpty(value)) {
-                                                return Ext.util.Format.date(new Date(value), this.format);
+                                                return Uni.DateTime.formatDateLong(new Date(value))
+                                                    + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                                                    + Uni.DateTime.formatTimeLong(new Date(value));
                                             }
 
                                             return Uni.I18n.translate('deviceregisterconfiguration.latestReading.notspecified', 'MDC', '-')
@@ -72,7 +73,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Preview', {
 
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestValue', 'MDC', 'Latest value'),
+                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.lastValue', 'MDC', 'Last value'),
                                 name: 'value'
                             },
                             {

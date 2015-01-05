@@ -5,7 +5,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelTab', {
     models: [
     ],
     views: [
-        'Mdc.view.setup.deviceloadprofilechannels.TabbedDeviceChannelsView'
+        'Mdc.view.setup.devicechannels.TabbedDeviceChannelsView'
     ],
     refs: [
         {ref: 'channelTabPanel', selector: '#channelTabPanel'}
@@ -30,7 +30,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelTab', {
         console.log('overview');
         this.mrId = mrId;
         this.channelId = channelId;
-        var c = this.getController('Mdc.controller.setup.DeviceLoadProfileChannelOverview');
+        var c = this.getController('Mdc.controller.setup.DeviceChannelOverview');
         c.showOverview(mrId,channelId,this);
         this.veto = true;
     },
@@ -39,7 +39,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelTab', {
         console.log('table');
         this.mrId = mrId;
         this.channelId = channelId;
-        var c = this.getController('Mdc.controller.setup.DeviceLoadProfileChannelData');
+        var c = this.getController('Mdc.controller.setup.DeviceChannelData');
         c.showTableOverview(mrId,channelId,this);
         this.veto = true;
     },
@@ -48,7 +48,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelTab', {
         console.log('graph');
         this.mrId = mrId;
         this.channelId = channelId;
-        var c = this.getController('Mdc.controller.setup.DeviceLoadProfileChannelData');
+        var c = this.getController('Mdc.controller.setup.DeviceChannelData');
         c.showGraphOverview(mrId,channelId,this);
         this.veto = true;
     },
@@ -62,7 +62,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelTab', {
             if (tab.itemId === 'channel-data') {
                 routeParams.channelId = this.channelId;
                 filterParams.onlySuspect = false;
-                route = 'devices/device/channels/channel/data';
+                route = 'devices/device/channels/channeldata';
                 route && (route = router.getRoute(route));
                 route && route.forward(routeParams, filterParams);
             } else if (tab.itemId === 'channel-specifications') {

@@ -21,10 +21,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogGrid', {
                 text: Uni.I18n.translate('deviceconnectionhistory.timeStamp', 'MDC', 'Timestamp'),
                 dataIndex: 'timestamp',
                 flex: 1,
-                renderer: function (value, metadata) {
-                    if (value) {
-                        return new Date(value).toLocaleString();
-                    }
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
                 }
             },
             {

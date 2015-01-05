@@ -18,11 +18,11 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.TabbedDeviceRegisterView'
                 itemId: 'registerTabPanel',
                 items: [
                     {
-                        title: 'Specifications',
+                        title: Uni.I18n.translate('deviceregisterconfiguration.specifications', 'MDC', 'Specifications'),
                         itemId: 'register-specifications'
                     },
                     {
-                        title: 'Data',
+                        title: Uni.I18n.translate('deviceregisterconfiguration.readings', 'MDC', 'Readings'),
                         itemId: 'register-data'
                     }],
                 listeners: {

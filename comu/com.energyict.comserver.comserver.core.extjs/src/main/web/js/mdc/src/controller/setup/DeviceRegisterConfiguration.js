@@ -51,16 +51,12 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         routeParams.registerId = menu.record.getId();
 
         switch (item.action) {
-            case 'viewdata':
-                filterParams.onlySuspect = false;
-                route = 'devices/device/registers/register/data';
-                break;
             case 'validate':
                 me.showValidateNowMessage(menu.record);
                 break;
             case 'viewSuspects':
                 filterParams.onlySuspect = true;
-                route = 'devices/device/registers/register/data';
+                route = 'devices/device/registers/registerdata';
                 break;
         }
 

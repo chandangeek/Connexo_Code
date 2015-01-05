@@ -28,6 +28,20 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectEdit', {
 
     initComponent: function () {
         var me = this;
+        this.side = [
+            {
+                xtype: 'panel',
+                ui: 'medium',
+                items: [
+                    {
+                        xtype: 'deviceMenu',
+                        itemId: 'stepsMenu',
+                        device: me.device,
+                        toggleId: 'protocolLink'
+                    }
+                ]
+            }
+        ];
         this.content = [
             {
                 xtype: 'panel',
@@ -102,12 +116,11 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectEdit', {
                                         itemId: 'addEditButton'
                                     },
                                     {
-                                        text: Uni.I18n.translate('general.restoreAll', 'MDC', 'Restore to defaults'),
                                         xtype: 'button',
+                                        text: Uni.I18n.translate('general.restoreToDefaultSettings', 'MDC', 'Restore to default settings'),
+                                        icon: '../sky/build/resources/images/form/restore.png',
                                         itemId: 'restoreAllButton',
-                                        action: 'restoreAll',
-                                        margin: '0 0 0 10',
-                                        disabled: true
+                                        action: 'restoreAll'
                                     },
                                     {
                                         text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),

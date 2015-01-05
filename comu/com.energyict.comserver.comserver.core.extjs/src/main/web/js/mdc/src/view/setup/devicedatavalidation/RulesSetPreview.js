@@ -24,12 +24,12 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetPreview', {
                     xtype: 'no-items-found-panel',
                     title: Uni.I18n.translate('validation.empty.title', 'MDC', 'No validation rules found'),
                     reasons: [
-                        Uni.I18n.translate('validation.empty.list.item1', 'MDC', 'No validation rules have been defined yet.'),
+                        Uni.I18n.translate('validation.empty.list.item1', 'MDC', 'No validation rules have been defined yet.')
                     ],
                     stepItems: [
                         {
                             text: Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'),
-                            privileges:['privilege.administrate.deviceConfiguration'],
+                            privileges:['privilege.view.fineTuneValidationConfiguration.onDevice'],
                             ui: 'action',
                             href: '#/administration/validation/rulesets/' + me.rulesSetId + '/rules/add'
                         }

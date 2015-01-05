@@ -43,17 +43,13 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
                 header: Uni.I18n.translate('communicationschedule.plannedDate', 'MDC', 'Planned date'),
                 dataIndex: 'plannedDate',
                 renderer: function (value) {
-                    if (value !== null) {
-                        return new Date(value).toLocaleString();
-                    } else {
-                        return '';
-                    }
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
                 },
                 flex: 0.4
             },
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.schedule'),
+                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.sharedCommunicationSchedule'),
                 items: 'Mdc.view.setup.communicationschedule.CommunicationScheduleActionMenu'
             }
 
@@ -74,7 +70,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
                     },
                     {
                         text: Uni.I18n.translate('communicationschedule.addCommunicationSchedule', 'MDC', 'Add shared communication schedule'),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.schedule'),
+                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.sharedCommunicationSchedule'),
                         itemId: 'createCommunicationSchedule',
                         xtype: 'button',
                         action: 'createCommunicationSchedule'

@@ -28,20 +28,22 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
                     {
                         fieldLabel: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
                         name: 'timeStamp',
-                        format: 'M j, Y \\a\\t G:i',
                         renderer: function (value) {
-                            if(!Ext.isEmpty(value)) {
-                                return Ext.util.Format.date(new Date(value), this.format);
+                            if (!Ext.isEmpty(value)) {
+                                return Uni.DateTime.formatDateLong(new Date(value))
+                                    + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                                    + Uni.DateTime.formatTimeLong(new Date(value));
                             }
                         }
                     },
                     {
                         fieldLabel: Uni.I18n.translate('device.registerData.readingTime', 'MDC', 'Reading time'),
                         name: 'reportedDateTime',
-                        format: 'M j, Y \\a\\t G:i',
                         renderer: function (value) {
-                            if(!Ext.isEmpty(value)) {
-                                return Ext.util.Format.date(value, this.format);
+                            if (!Ext.isEmpty(value)) {
+                                return Uni.DateTime.formatDateLong(value)
+                                    + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                                    + Uni.DateTime.formatTimeLong(value);
                             }
                         }
                     },
@@ -50,11 +52,16 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
                         labelWidth: 200,
                         name: 'interval',
                         renderer: function (value) {
-                            if(!Ext.isEmpty(value)) {
+                            if (!Ext.isEmpty(value)) {
                                 var startDate = new Date(value.start),
-                                    endDate = new Date(value.end),
-                                    format = 'M j, Y \\a\\t G:i';
-                                return Ext.util.Format.date(startDate, format) + ' - ' + Ext.util.Format.date(endDate, format);
+                                    endDate = new Date(value.end);
+                                return Uni.DateTime.formatDateLong(startDate)
+                                    + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                                    + Uni.DateTime.formatTimeLong(startDate)
+                                    + ' - '
+                                    + Uni.DateTime.formatDateLong(endDate)
+                                    + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                                    + Uni.DateTime.formatTimeLong(endDate);
                             }
                         }
                     },
@@ -85,6 +92,19 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
                                 name: 'modificationState'
                             }
                         ]
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value'),
+                        name: 'deltaValue',
+                        renderer: function (value) {
+                            var form = this.up('form'),
+                                record = form.getRecord();
+                            if (record && value) {
+                                return value + ' ' + record.get('unitOfMeasure');
+                            } else {
+                                return null
+                            }
+                        }
                     },
                     {
                         fieldLabel: Uni.I18n.translate('device.registerData.multiplier', 'MDC', 'Multiplier'),

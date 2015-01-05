@@ -11,12 +11,12 @@ Ext.define('Mdc.view.setup.deviceregisterdata.flags.Grid', {
             {
                 header: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
                 dataIndex: 'timeStamp',
-                xtype: 'datecolumn',
-                format: 'M j, Y \\a\\t G:i',
-                defaultRenderer: function (value) {
-                    if (!Ext.isEmpty(value)) {
-                        return Ext.util.Format.date(new Date(value), this.format);
-                    }
+                renderer: function (value) {
+                    return value
+                        ? Uni.DateTime.formatDateShort(new Date(value))
+                        + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                        + Uni.DateTime.formatTimeShort(new Date(value))
+                        : '';
                 },
                 flex: 1
             },
@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.flags.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.device'),
+                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceData'),
                 menu: {
                     xtype: 'deviceregisterdataactionmenu'
                 }

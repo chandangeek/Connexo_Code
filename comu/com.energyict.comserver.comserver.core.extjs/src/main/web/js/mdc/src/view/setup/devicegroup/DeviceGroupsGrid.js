@@ -20,7 +20,17 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupsGrid', {
                 header: Uni.I18n.translate('devicegroup.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 renderer: function (value, b, record) {
-                    return '<a href="#/devices/devicegroups/' + record.get('id') + '">' + value + '</a>';
+                    if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup','privilege.view.deviceGroupDetail'])) {
+                        return '<a href="#/devices/devicegroups/' + record.get('id') + '">' + value + '</a>';
+                    } else if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceOfEnumeratedGroup'])) {
+                        if (record.get('dynamic')) {
+                            return value;
+                        } else {
+                            return '<a href="#/devices/devicegroups/' + record.get('id') + '">' + value + '</a>';
+                        }
+                    } else {
+                            return value;
+                    }
                 },
                 flex: 0.4
             },
@@ -38,10 +48,10 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupsGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceGroup'),
-                items: 'Mdc.view.setup.devicegroup.DeviceGroupActionMenu'
+                menu: {
+                    xtype: 'device-group-action-menu'
+                }
             }
-
         ];
         this.dockedItems = [
             {

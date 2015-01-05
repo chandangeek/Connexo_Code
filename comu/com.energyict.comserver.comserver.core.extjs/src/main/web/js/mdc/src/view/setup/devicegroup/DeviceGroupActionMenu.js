@@ -8,13 +8,13 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupActionMenu', {
     items: [
         {
             text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceGroup'),
+            itemId: 'remove-device-group',
             action: 'deleteDeviceGroup'
         },
         {
             text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceGroup'),
-            action: 'editDeviceGroup'
+            action: 'editDeviceGroup',
+            itemId: 'edit-device-group'
         }
     ]
 });

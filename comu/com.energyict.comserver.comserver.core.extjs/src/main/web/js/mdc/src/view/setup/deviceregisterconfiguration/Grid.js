@@ -21,38 +21,34 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                 header: Uni.I18n.translate('deviceregisterconfiguration.register', 'MDC', 'Register'),
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
-                    return '<a href="#/devices/' + me.mRID + '/registers/' + record.get('id') + '">' + value + '</a>';
+                    return '<a href="#/devices/' + me.mRID + '/registers/' + record.get('id') + '/data">' + value + '</a>';
                 },
                 flex: 3
             },
             {
-                header: Uni.I18n.translate('deviceregisterconfiguration.latestMeasurement', 'MDC', 'Latest measurement'),
-                xtype: 'datecolumn',
-                format: 'M j, Y \\a\\t G:i',
+                header: Uni.I18n.translate('deviceregisterconfiguration.timestampLastValue', 'MDC', 'Timestamp last value'),
                 dataIndex: 'timeStamp',
-                defaultRenderer: function(value){
+                renderer: function(value){
                     if(!Ext.isEmpty(value)) {
-                        return Ext.util.Format.date(new Date(value), this.format);
+                        return Uni.DateTime.formatDateTimeShort(new Date(value));
                     }
                     return Uni.I18n.translate('deviceregisterconfiguration.latestMeasurement.notspecified', 'MDC', '-');
                 },
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('deviceregisterconfiguration.latestReading', 'MDC', 'Latest reading'),
-                xtype: 'datecolumn',
-                format: 'M j, Y \\a\\t G:i',
+                header: Uni.I18n.translate('deviceregisterconfiguration.lastReading', 'MDC', 'Last reading'),
                 dataIndex: 'reportedDateTime',
-                defaultRenderer: function(value){
+                renderer: function(value){
                     if(!Ext.isEmpty(value)) {
-                        return Ext.util.Format.date(new Date(value), this.format);
+                        return Uni.DateTime.formatDateTimeShort(new Date(value));
                     }
                     return Uni.I18n.translate('deviceregisterconfiguration.latestReading.notspecified', 'MDC', '-');
                 },
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('deviceregisterconfiguration.latestValue', 'MDC', 'Latest value'),
+                header: Uni.I18n.translate('deviceregisterconfiguration.lastValue', 'MDC', 'Last value'),
                 dataIndex: 'value',
                 flex: 1
             },

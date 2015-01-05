@@ -127,7 +127,7 @@ Ext.define('Mdc.controller.setup.DeviceEvents', {
 
     showPreview: function (selectionModel, record) {
         var preview = this.getPage().down('#deviceLogbookDataPreview');
-        preview.setTitle(Uni.I18n.formatDate('deviceevents.eventDate.dateFormat', record.get('eventDate'), 'MDC', 'M d, Y H:i:s'));
+        preview.setTitle(Uni.DateTime.formatDateTimeLong(record.get('eventDate')));
         preview.down('#deviceLogbookDataPreviewForm').loadRecord(record);
     },
 
@@ -175,11 +175,11 @@ Ext.define('Mdc.controller.setup.DeviceEvents', {
         if (intervalStart || intervalEnd) {
             if (intervalStart) {
                 eventDateText += intervalStartField.getFieldLabel() + ' '
-                    + Uni.I18n.formatDate('devicelogbooks.topFilter.tagButton.dateFormat', intervalStart, 'MDC', 'd/m/Y') + ' ';
+                    + Uni.DateTime.formatDateShort(intervalStart) + ' ';
             }
             if (intervalEnd) {
                 eventDateText += (intervalStart ? intervalEndField.getFieldLabel().toLowerCase() : intervalEndField.getFieldLabel()) + ' '
-                    + Uni.I18n.formatDate('devicelogbooks.topFilter.tagButton.dateFormat', intervalEnd, 'MDC', 'd/m/Y');
+                    + Uni.DateTime.formatDateShort(intervalEnd);
             }
             filterView.setFilter('eventDate', filterForm.down('#event-date-container').getFieldLabel(), eventDateText);
         }

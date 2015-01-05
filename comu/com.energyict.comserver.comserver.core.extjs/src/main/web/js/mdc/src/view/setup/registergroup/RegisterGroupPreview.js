@@ -61,7 +61,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                                 {
                                     itemId: 'editEmptyPreviewButton',
                                     text: Uni.I18n.translate('registerGroup.edit', 'MDC', 'Edit register group'),
-                                    privileges: ['privilege.administrate.deviceConfiguration'],
+                                    privileges: ['privilege.administrate.masterData'],
                                     action: 'editRegisterGroup'
                                 }
                             ]

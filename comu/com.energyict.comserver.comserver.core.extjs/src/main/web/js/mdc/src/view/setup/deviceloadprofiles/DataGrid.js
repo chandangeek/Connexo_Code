@@ -27,6 +27,13 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
             {
                 header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval'),
                 dataIndex: 'interval_end',
+                renderer: function (value) {
+                    return value
+                        ? Uni.DateTime.formatDateShort(value)
+                        + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                        + Uni.DateTime.formatTimeShort(value)
+                        : '';
+                },
                 width: 200
             }
         ];
@@ -59,7 +66,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                     if (Ext.isEmpty(data[channel.id]) && !Ext.isEmpty(validationFlag)) {
                         return validationFlag;
                     } else if (!Ext.isEmpty(data[channel.id])) {
-                        return '<span class="validation-column-align">' + data[channel.id] + ' ' + channel.unitOfMeasure.unit + ' ' + validationFlag + '</span>';
+                        return '<span class="validation-column-align">' + data[channel.id] + ' ' + validationFlag + '</span>';
                     } else {
                         return '<span class="icon-validation icon-validation-black"></span>';
                     }

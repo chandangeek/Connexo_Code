@@ -114,7 +114,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                     fieldLabel: Uni.I18n.translate('devicecommunicationTask.nextCommunication', 'MDC', 'Next communication'),
                                     renderer: function (value) {
                                         if (value) {
-                                            return new Date(value).toLocaleString();
+                                            return Uni.DateTime.formatDateTimeLong(new Date(value));
                                         } else {
                                             return '-';
                                         }
@@ -127,7 +127,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                     fieldLabel: Uni.I18n.translate('devicecommunicationTask.lastCommunicationStart', 'MDC', 'Last communication start'),
                                     renderer: function (value) {
                                         if (value) {
-                                            return new Date(value).toLocaleString();
+                                            return Uni.DateTime.formatDateTimeLong(new Date(value));
                                         } else {
                                             return '-';
                                         }
@@ -198,7 +198,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                     fieldLabel: Uni.I18n.translate('devicecommunicationTask.plannedDate', 'MDC', 'Planned date'),
                                     renderer: function (value) {
                                         if (value) {
-                                            return new Date(value).toLocaleString();
+                                            return Uni.DateTime.formatDateTimeLong(new Date(value));
                                         } else {
                                             return '-';
                                         }

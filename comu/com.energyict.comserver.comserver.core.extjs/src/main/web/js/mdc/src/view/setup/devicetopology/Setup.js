@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
 
     requires: [
         'Mdc.view.setup.devicetopology.Grid',
-        'Mdc.view.setup.devicetopology.SideFilter'
+        'Mdc.view.setup.devicetopology.SideFilter',
+        'Mdc.view.setup.device.DeviceMenu'
     ],
 
     stores: [
@@ -20,7 +21,6 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
         me.side = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('deviceregisterconfiguration.devices', 'MDC', 'Devices'),
                 ui: 'medium',
                 items: [
                     {

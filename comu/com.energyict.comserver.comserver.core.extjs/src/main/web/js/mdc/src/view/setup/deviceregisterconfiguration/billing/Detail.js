@@ -26,30 +26,13 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Detail', {
                             align: 'stretch'
                         },
                         width: '100%',
-                        tbar: [
-                            {
-                                xtype: 'component',
-                                flex: 1
-                            },
-                            '->',
-                            {
-                                xtype: 'button',
-                                text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
-                                iconCls: 'x-uni-action-iconD',
-                                itemId: 'detailActionMenu',
-                                menu: {
-                                    xtype: 'deviceRegisterConfigurationActionMenu'
-                                }
-                            }
-                        ],
-
                         items: [
                             {
                                 xtype: 'container',
                                 layout: {
-                                    type: 'column',
-                                    align: 'stretch'
+                                    type: 'hbox'
                                 },
+                                flex: 1,
                                 items: [
                                     {
                                         xtype:'fieldcontainer',
@@ -74,12 +57,13 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Detail', {
                                                 name: 'readingType'
                                             },
                                             {
-                                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestMeasurement', 'MDC', 'Latest measurement'),
+                                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.timestampLastValue', 'MDC', 'Timestamp last value'),
                                                 name: 'timeStamp',
-                                                format: 'M j, Y \\a\\t G:i',
                                                 renderer: function (value) {
                                                     if (!Ext.isEmpty(value)) {
-                                                        return Ext.util.Format.date(new Date(value), this.format);
+                                                        return Uni.DateTime.formatDateLong(new Date(value))
+                                                            + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                                                            + Uni.DateTime.formatTimeLong(new Date(value));
                                                     }
 
                                                     return Uni.I18n.translate('deviceregisterconfiguration.latestMeasurement.notspecified', 'MDC', '-')
@@ -87,16 +71,17 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Detail', {
                                             },
                                             {
                                                 xtype: 'fieldcontainer',
-                                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestReading', 'MDC', 'Latest reading'),
+                                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.lastReading', 'MDC', 'Last reading'),
                                                 layout: 'hbox',
                                                 items: [
                                                     {
                                                         xtype: 'displayfield',
                                                         name: 'reportedDateTime',
-                                                        format: 'M j, Y \\a\\t G:i',
                                                         renderer: function (value) {
                                                             if (!Ext.isEmpty(value)) {
-                                                                return Ext.util.Format.date(new Date(value), this.format);
+                                                                return Uni.DateTime.formatDateLong(new Date(value))
+                                                                    + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                                                                    + Uni.DateTime.formatTimeLong(new Date(value));
                                                             }
                                                             return Uni.I18n.translate('deviceregisterconfiguration.latestReading.notspecified', 'MDC', '-')
                                                         }
@@ -115,7 +100,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Detail', {
 
                                             },
                                             {
-                                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestValue', 'MDC', 'Latest value'),
+                                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.lastValue', 'MDC', 'Last value'),
                                                 name: 'value'
                                             },
                                             {
@@ -155,6 +140,15 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Detail', {
                                                 router: me.router
                                             }
                                         ]
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+                                        iconCls: 'x-uni-action-iconD',
+                                        itemId: 'detailActionMenu',
+                                        menu: {
+                                            xtype: 'deviceRegisterConfigurationActionMenu'
+                                        }
                                     }
                                 ]
                             }

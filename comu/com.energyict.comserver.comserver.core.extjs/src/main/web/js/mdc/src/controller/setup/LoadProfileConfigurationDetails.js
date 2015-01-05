@@ -20,7 +20,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
     ],
 
     stores: [
-        'Intervals',
+        'Mdc.store.Intervals',
         'Mdc.store.ReadingTypes',
         'Mdc.store.Phenomenas',
         'Mdc.store.LoadProfileConfigurationDetailChannels',
@@ -53,7 +53,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                 itemclick: this.loadGridItemDetail
             },
             'loadProfileConfigurationDetailForm reading-type-combo': {
-                change: this.changeDisplayedObisCodeAndUnitOfMeasure
+                change: this.onReadingTypeChange
             },
             'loadProfileConfigurationDetailForm button[name=loadprofilechannelaction]': {
                 click: this.onSubmit
@@ -87,7 +87,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             }
         });
 
-        this.intervalStore = this.getStore('Intervals').load();
+        this.intervalStore = this.getStore('Mdc.store.Intervals');
         this.store = this.getStore('LoadProfileConfigurationDetailChannels');
         this.phenomenasStore = this.getStore('Phenomenas');
         this.availableMeasurementTypesStore = this.getStore('MeasurementTypesOnLoadProfileConfiguration');
@@ -158,10 +158,41 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         return associatedMeasurementType;
     },
 
-    changeDisplayedObisCodeAndUnitOfMeasure: function (combo) {
-        if (combo.valueModels[0]) {
+    onReadingTypeChange: function (combo) {
+        var readingType = combo.valueModels[0];
+        if (readingType) {
             var form = this.getChannelForm(),
-                measurementType = this.getAssociatedMeasurementType(combo.valueModels[0]);
+                measurementType = this.getAssociatedMeasurementType(readingType);
+
+            Ext.Ajax.request({
+                url: '/api/mtr/readingtypes/' + readingType.get('mRID') + '/calculated',
+                method: 'GET',
+                success: function (response) {
+                    var resp = Ext.JSON.decode(response.responseText);
+                    if (!Ext.isEmpty(resp.readingTypes)) {
+                        var calculatedReadingType = resp.readingTypes[0],
+                            calculatedReadingTypeDisplayField = form.down('reading-type-displayfield[name=calculatedReadingType]'),
+                            calculatedReadingTypeDisplayFieldEl = calculatedReadingTypeDisplayField.el.down('[role=textbox]');
+
+                        calculatedReadingTypeDisplayField.setValue(calculatedReadingType);
+                        calculatedReadingTypeDisplayField.show();
+
+                        Ext.DomHelper.append(calculatedReadingTypeDisplayFieldEl, {
+                            tag: 'span',
+                            html: Uni.I18n.translate('channelConfig.bulkQuantityReadingTypeDescription', 'MDC', 'Selected reading type is bulk quantity reading type. Calculated reading type will hold a delta between two neighbour interval readings.'),
+                            style: {
+                                position: 'absolute',
+                                top: '2em',
+                                left: '0',
+                                width: '1000px',
+                                lineHeight: '1em',
+                                color: '#999'
+                            }
+                        });
+                    }
+                }
+            });
+
             if (measurementType) {
                 form.down('[name=obiscode]').setValue(measurementType.get('obisCode'));
                 form.down('[name=unitOfMeasure]').setValue(measurementType.get('phenomenon').id);
@@ -317,6 +348,15 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             this.displayedItemId = recordData.id;
             this.getLoadProfileDetailChannelPreview().setTitle(recordData.name);
             form.loadRecord(channelConfig);
+
+            if (channelConfig.get('calculatedReadingType')) {
+                var readingTypeField = me.getPage().down('reading-type-displayfield[name=readingType]'),
+                    calculatedReadingTypeField = me.getPage().down('reading-type-displayfield[name=calculatedReadingType]');
+                readingTypeField.labelEl.update(Uni.I18n.translate('deviceloadprofiles.channels.readingTypeForBulk', 'MDC', 'Collected reading type'));
+                calculatedReadingTypeField.labelEl.update(Uni.I18n.translate('deviceloadprofiles.channels.calculatedReadingType', 'MDC', 'Calculated reading type'));
+                calculatedReadingTypeField.setVisible(true)
+            }
+
             this.getPage().down('#rulesForChannelConfig').setTitle(channelConfig.get('name') + ' validation rules');
             if (me.getPage().down('#rulesForChannelPreviewContainer')) {
                 me.getPage().down('#rulesForChannelPreviewContainer').destroy();
@@ -327,7 +367,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                     itemId: 'rulesForChannelPreviewContainer',
                     grid: {
                         xtype: 'load-profile-configuration-detail-rules-grid',
-                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration']),
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration']),
                         deviceTypeId: me.deviceTypeId,
                         deviceConfigId: me.deviceConfigurationId,
                         channelConfigId: channelId
@@ -336,7 +376,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                         xtype: 'no-items-found-panel',
                         title: Uni.I18n.translate('validation.empty.rules.title', 'CFG', 'No validation rules found'),
                         reasons: [
-                            Uni.I18n.translate('channelConfig.validationRules.empty.list.item1', 'MDC', 'No validation rules are applied on the channel configuration.'),
+                            Uni.I18n.translate('channelConfig.validationRules.empty.list.item1', 'MDC', 'No validation rules are applied on the channel configuration.')
                         ]
                     },
                     previewComponent: {
@@ -367,6 +407,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         me.deviceConfigurationId = deviceConfigurationId;
         me.loadProfileConfigurationId = loadProfileConfigurationId;
         me.displayedItemId = null;
+		Uni.util.Common.loadNecessaryStores(['Mdc.store.Intervals']);
         me.store.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId, loadProfileConfiguration: loadProfileConfigurationId });
         me.store.getProxy().pageParam = false;
         me.store.getProxy().limitParam = false;
@@ -388,7 +429,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                     widget = Ext.widget('loadProfileConfigurationDetailSetup', {intervalStore: me.intervalStore, deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigurationId, loadProfileConfigurationId: loadProfileConfigurationId});
                                 me.getApplication().fireEvent('loadLoadProfile', loadProfileConfiguration);
                                 widget.down('#loadProfileConfigurationDetailTitle').html = '<h1>' + loadProfileConfiguration.name + '</h1>';
-                                widget.down('#loadProfileConfigurationDetailChannelConfigurationTitle').html = '<h3>' + Uni.I18n.translate('loadprofileconfiguration.loadprofilechannelconfiguation', 'MDC', 'Channel configurations') + '</h3>';
+                                widget.down('#loadProfileConfigurationDetailChannelConfigurationTitle').html = '<h3>' + Uni.I18n.translate('loadprofileconfiguration.loadprofilechannelconfiguations', 'MDC', 'Channel configurations') + '</h3>';
                                 me.deviceTypeName = deviceType.get('name');
                                 me.deviceConfigName = deviceConfig.get('name');
                                 me.getApplication().fireEvent('changecontentevent', widget);
@@ -512,7 +553,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                             overruledObisField = widget.down('textfield[name=overruledObisCode]'),
                                             overflowValueField = widget.down('textfield[name=overflowValue]'),
                                             multiplierField = widget.down('textfield[name=multiplier]');
-                                            readingTypeDisplayField = widget.down('reading-type-displayfield');
+                                        readingTypeDisplayField = widget.down('reading-type-displayfield[name=readingType]');
 
                                         me.getApplication().fireEvent('changecontentevent', widget);
                                         preloader.show();

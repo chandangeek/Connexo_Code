@@ -9,12 +9,14 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
         {name: 'interval', type: 'auto'},
         {name: 'unitOfMeasure', type: 'auto'},
         {name: 'readingType', type: 'auto'},
+        {name: 'calculatedReadingType', type: 'auto'},
         {name: 'obisCode', type: 'string'},
         {name: 'multiplier', type: 'int'},
         {name: 'overflowValue', type: 'int'},
         {name: 'nbrOfFractionDigits', type: 'int'},
         {name: 'flowUnit', type: 'string'},
         {name: 'lastReading', dateFormat: 'time', type: 'date'},
+        {name: 'lastValueTimestamp', dateFormat: 'time', type: 'date'},
         {name: 'lastChecked', dateFormat: 'time', type: 'date'},
         {name: 'validationInfo', type: 'auto'},
         {name: 'loadProfileId', type: 'auto'},
@@ -37,7 +39,9 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
             name: 'lastChecked_formatted',
             persist: false,
             mapping: function (data) {
-                return (data.validationInfo && data.validationInfo.lastChecked) ? Uni.I18n.formatDate('deviceloadprofiles.dateFormat', new Date(data.validationInfo.lastChecked), 'MDC', 'M d, Y H:i') : '';
+                return (data.validationInfo && data.validationInfo.lastChecked)
+                    ? Uni.DateTime.formatDateTimeLong(new Date(data.validationInfo.lastChecked))
+                    : '';
             }
         },
         {
@@ -72,6 +76,15 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
             persist: false,
             mapping: function (data) {
                 return data.lastReading ? Uni.I18n.formatDate('deviceloadprofiles.dateFormat', new Date(data.lastReading), 'MDC', 'M d, Y H:i') : '';
+            }
+        },
+        {
+            name: 'lastValueTimestamp_formatted',
+            persist: false,
+            mapping: function (data) {
+                return data.lastReading && data.lastValueTimestamp
+                    ? Uni.DateTime.formatDateTimeLong(new Date(data.lastValueTimestamp))
+                    : '';
             }
         }
     ],

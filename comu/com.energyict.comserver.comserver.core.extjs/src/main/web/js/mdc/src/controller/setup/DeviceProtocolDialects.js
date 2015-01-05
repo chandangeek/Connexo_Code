@@ -47,10 +47,7 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
                 click: this.restoreAllDefaults
             },
             '#deviceProtocolDialectEdit property-form': {
-                dirtychange: this.enableRestoreAllButton
-            },
-            '#deviceProtocolDialectEdit property-form component': {
-                enableRestoreAll: this.enableRestoreAllButton
+                showRestoreAllBtn: this.showRestoreAllBtn
             }
         });
     },
@@ -120,12 +117,7 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
             returnlink = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
         }
 
-        var widget = Ext.widget('deviceProtocolDialectEdit', {
-            edit: true,
-            returnLink: returnlink
-        });
 
-        widget.setLoading(true);
         var model = Ext.ModelManager.getModel('Mdc.model.DeviceProtocolDialect');
         model.getProxy().extraParams = ({mRID: mRID});
         model.load(protocolDialectId, {
@@ -133,6 +125,13 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
                 me.getApplication().fireEvent('loadDeviceProtocolDialect', protocolDialect);
                 Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
                     success: function (device) {
+                        var widget = Ext.widget('deviceProtocolDialectEdit', {
+                            edit: true,
+                            returnLink: returnlink,
+                            device: device
+                        });
+
+                        widget.setLoading(true);
                         me.getApplication().fireEvent('loadDevice', device);
                         widget.down('form').loadRecord(protocolDialect);
                         widget.down('property-form').loadRecord(protocolDialect);
@@ -171,23 +170,17 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
         }
     },
 
-    enableRestoreAllButton: function (form, dirty) {
-        var me = this;
-        if (typeof(me.getRestoreAllButton()) !== 'undefined') {
-            me.getRestoreAllButton().disable();
-            /*if (dirty) {
-                me.getRestoreAllButton().enable();
-            }*/
-            var restoreAllButtons = Ext.ComponentQuery.query('defaultButton');
-            if (restoreAllButtons != null) {
-                restoreAllButtons.forEach(function (restoreButton) {
-                    if (!restoreButton.isHidden()) {
-                        me.getRestoreAllButton().enable();
-                    }
-                })
+    showRestoreAllBtn: function(value) {
+        var restoreBtn = this.getRestoreAllButton();
+        if (restoreBtn) {
+            if (value) {
+                restoreBtn.disable();
+            } else {
+                restoreBtn.enable();
             }
         }
     },
+
 
     restoreAllDefaults: function () {
         var me = this;

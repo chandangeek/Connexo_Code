@@ -77,11 +77,14 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
         });
     },
 
-    loadGridItemDetail: function (rowmodel, record, index) {
+    loadGridItemDetail: function (rowmodel, record) {
         var me = this,
             previewPanel = me.getDeviceregisterreportpreview(),
             form = previewPanel.down('form');
         previewPanel.setTitle(Ext.util.Format.date(new Date(record.get('timeStamp')), 'M j, Y \\a\\t G:i'));
+        if (previewPanel.down('displayfield[name=deltaValue]')) {
+            previewPanel.down('displayfield[name=deltaValue]').setVisible(!Ext.isEmpty(record.get('deltaValue')));
+        }
         form.loadRecord(record);
     },
 
@@ -102,17 +105,22 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                             dataStore = me.getStore(type.charAt(0).toUpperCase() + type.substring(1) + 'RegisterData'),
                             router = me.getController('Uni.controller.history.Router');
 
-                        var widget = Ext.widget('tabbedDeviceRegisterView',{device: device, router: me.getController('Uni.controller.history.Router')});
+                        var widget = Ext.widget('tabbedDeviceRegisterView', {device: device, router: me.getController('Uni.controller.history.Router')});
                         widget.down('#registerTabPanel').setTitle(register.get('name'));
 
 
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
                         me.getApplication().fireEvent('changecontentevent', widget);
 
-
-
                         var dataReport = Ext.widget('deviceregisterreportsetup-' + type, {mRID: mRID, registerId: registerId});
                         me.getRegisterFilter().setTitle(register.get('name'));
+
+                        widget.down('#register-data').add(dataReport);
+                        dataStore.load();
+
+                        var valueColumn = widget.down('grid').down('[dataIndex=value]');
+                        valueColumn.setText(Uni.I18n.translate('device.registerData.value', 'MDC', 'Value') + ' (' + register.get('lastReading')['unitOfMeasure'] + ')');
+
                         if (type === 'billing' || type === 'numerical') {
                             me.getRegisterFilter().show();
                             if (Ext.isEmpty(router.filter.data.onlyNonSuspect)) {
@@ -125,9 +133,13 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                             dataStore.setFilterModel(router.filter);
                             me.getSideFilterForm().loadRecord(router.filter);
                             me.setFilterView();
+
+                            var deltaValueColumn = widget.down('grid').down('[dataIndex=deltaValue]');
+                            deltaValueColumn.setText(Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value') + ' (' + register.get('lastReading')['unitOfMeasure'] + ')');
+                            deltaValueColumn.setVisible(register.get('isCumulative'));
                         }
-                        widget.down('#register-data').add(dataReport);
-                        dataStore.load();
+
+
                     },
 
                     callback: function () {
@@ -173,5 +185,6 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             filterView.setFilter('onlyNonSuspect', filterForm.down('#suspectContainer').getFieldLabel(), nonSuspect);
         }
     }
-});
+})
+;
 

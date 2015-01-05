@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Grid', {
                 header: Uni.I18n.translate('deviceloadprofiles.loadProfile', 'MDC', 'Load profile'),
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute('devices/device/loadprofiles/loadprofile/data').buildUrl({mRID: me.mRID, loadProfileId: record.get('id')});
+                    var url = me.router.getRoute('devices/device/loadprofiles/loadprofiledata').buildUrl({mRID: me.mRID, loadProfileId: record.get('id')});
                     return '<a href="' + url + '">' + value + '</a>';
                 },
                 flex: 1
@@ -36,7 +36,10 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Grid', {
             },
             {
                 header: Uni.I18n.translate('deviceloadprofiles.lastReading', 'MDC', 'Last reading'),
-                dataIndex: 'lastReading_formatted',
+                dataIndex: 'lastReading',
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                },
                 flex: 1
             },
             {

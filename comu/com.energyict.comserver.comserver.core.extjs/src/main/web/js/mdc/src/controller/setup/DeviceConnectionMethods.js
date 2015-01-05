@@ -205,18 +205,20 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         var connectionMethodsStore = Ext.StoreManager.get('ConnectionMethodsOfDeviceConfiguration');
         this.comPortPoolStore = Ext.StoreManager.get('ComPortPools');
         var connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
-        var widget = Ext.widget('deviceConnectionMethodEdit', {
-            edit: false,
-            returnLink: '#/devices/' + this.mrid + '/connectionmethods',
-            connectionMethods: connectionMethodsStore,
-            comPortPools: this.comPortPoolStore,
-            connectionStrategies: connectionStrategiesStore,
-            direction: direction
-        });
-        me.getApplication().fireEvent('changecontentevent', widget);
-        widget.setLoading(true);
+
         deviceModel.load(mrid, {
             success: function (device) {
+                var widget = Ext.widget('deviceConnectionMethodEdit', {
+                    edit: false,
+                    returnLink: '#/devices/' + this.mrid + '/connectionmethods',
+                    connectionMethods: connectionMethodsStore,
+                    comPortPools: this.comPortPoolStore,
+                    connectionStrategies: connectionStrategiesStore,
+                    direction: direction,
+                    device: device
+                });
+                me.getApplication().fireEvent('changecontentevent', widget);
+                widget.setLoading(true);
                 me.getApplication().fireEvent('loadDevice', device);
                 connectionMethodsStore.getProxy().extraParams = ({deviceType: device.get('deviceTypeId'), deviceConfig: device.get('deviceConfigurationId')});
                 connectionMethodsStore.getProxy().setExtraParam('available', true);
@@ -484,7 +486,8 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                             connectionMethods: connectionMethodsStore,
                             comPortPools: me.comPortPoolStore,
                             connectionStrategies: connectionStrategiesStore,
-                            direction: connectionMethod.get('direction')
+                            direction: connectionMethod.get('direction'),
+                            device: device
                         });
                         me.getApplication().fireEvent('changecontentevent', widget);
                         widget.setLoading(true);

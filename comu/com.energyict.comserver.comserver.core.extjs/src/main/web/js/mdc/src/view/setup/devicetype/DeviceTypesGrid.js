@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceConfiguration'),
+                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
                 items: 'Mdc.view.setup.devicetype.DeviceTypeActionMenu'
             }
         ];
@@ -46,7 +46,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                     '->',
                     {
                         text: Uni.I18n.translate('devicetype.createDeviceType', 'MDC', 'Add device type'),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceConfiguration'),
+                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
                         itemId: 'createDeviceType',
                         xtype: 'button',
                         action: 'createDeviceType'

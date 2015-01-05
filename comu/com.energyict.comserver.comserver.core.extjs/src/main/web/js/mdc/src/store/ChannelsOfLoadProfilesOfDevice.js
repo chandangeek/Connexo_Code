@@ -8,7 +8,8 @@ Ext.define('Mdc.store.ChannelsOfLoadProfilesOfDevice', {
         urlTpl: '/api/ddr/devices/{mRID}/channels',
         reader: {
             type: 'json',
-            root: 'channels'
+            root: 'channels',
+            totalProperty: 'total'
         },
         timeout: 300000,
         pageParam: false,

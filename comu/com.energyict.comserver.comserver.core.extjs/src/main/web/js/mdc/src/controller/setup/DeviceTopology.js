@@ -119,7 +119,6 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
 
 
         widget.setLoading();
-
         if (router.filter.get('type') && !Ext.isEmpty(router.filter.get('type')[0])) {
             typeCombo.getStore().load({
                 callback: function () {

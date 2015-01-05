@@ -63,8 +63,13 @@ Ext.define('Mdc.view.setup.comservercomports.AddComPortPoolsGrid', {
             });
     },
 
-    updateCancelHref: function (comServerId) {
-        var href = '#/administration/comservers/' + comServerId + '/comports/add/outbound';
+    updateCancelHref: function (comServerId, comportId) {
+        var href = '#/administration/comservers/' + comServerId + '/comports/';
+        if (comportId !== undefined) {
+            href += 'outbound/' + comportId + '/edit';
+        } else {
+            href += 'add/outbound';
+        }
 
         if (this.rendered) {
             this.getCancelButton().setHref(href);

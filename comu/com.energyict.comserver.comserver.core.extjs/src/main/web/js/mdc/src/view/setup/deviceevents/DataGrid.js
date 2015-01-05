@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataGrid', {
             header: Uni.I18n.translate('deviceevents.eventDate', 'MDC', 'Event date'),
             dataIndex: 'eventDate',
             renderer: function (value) {
-                return value ? Uni.I18n.formatDate('deviceevents.eventDate.dateFormat', value, 'MDC', 'M d, Y H:i:s') : '';
+                return value ? Uni.DateTime.formatDateTimeShort(value) : '';
             },
             flex: 1
         },

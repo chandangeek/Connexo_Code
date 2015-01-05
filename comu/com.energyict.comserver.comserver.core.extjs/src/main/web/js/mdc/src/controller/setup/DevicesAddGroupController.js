@@ -7,7 +7,8 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
         'Mdc.view.setup.devicesearch.SearchItems',
         'Uni.form.filter.FilterCombobox',
         'Mdc.view.setup.devicegroup.Step2',
-        'Mdc.view.setup.devicegroup.Browse'
+        'Mdc.view.setup.devicegroup.Browse',
+        'Mdc.view.setup.devicegroup.Edit'
     ],
 
     models: [
@@ -41,11 +42,19 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
         {
             ref: 'staticGrid',
             selector: 'mdc-search-results #static-grid'
+        },
+        {
+            ref: 'editPage',
+            selector: 'device-group-edit'
         }
     ],
 
     getCriteriaPanel: function () {
-        return this.getDevicesSearchFilterPanel();
+        if (this.getDevicesSearchFilterPanel()) {
+            return this.getDevicesSearchFilterPanel();
+        } else {
+            return this.getEditPage().down('filter-top-panel');
+        }
     },
 
     getSideFilterForm: function () {
@@ -53,7 +62,13 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
     },
 
     initFilterModel: function () {
-        var router = this.getController('Uni.controller.history.Router');
+        var router;
+
+        if (this.getEditPage()) {
+            router = this.getApplication().getController('Mdc.controller.setup.AddDeviceGroupAction').router;
+        } else {
+            router = this.getController('Uni.controller.history.Router');
+        }
         this.getSideFilterForm().loadRecord(router.filter);
         this.setFilterView();
     },
@@ -66,10 +81,14 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
         filterForm.getRecord().save();
 
         var store;
-        if (this.getDynamicRadioButton().checked) {
-            store = this.getDynamicGrid().getStore();
+        if (this.getDynamicRadioButton()) {
+            if (this.getDynamicRadioButton().checked) {
+                store = this.getDynamicGrid().getStore();
+            } else {
+                store = this.getStaticGrid().getStore();
+            }
         } else {
-            store = this.getStaticGrid().getStore();
+            store = this.isDynamic ? this.getDynamicGrid().getStore() : this.getStaticGrid().getStore();
         }
         var router = this.getController('Uni.controller.history.Router');
         router.filter = filterForm.getRecord();
@@ -112,7 +131,11 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
     },
 
     initAddDeviceGroupActionController: function() {
-        this.getApplication().getController('Mdc.controller.setup.AddDeviceGroupAction').disableCreateWidget();
+        if (this.getEditPage()) {
+            this.isDynamic = this.getApplication().getController('Mdc.controller.setup.AddDeviceGroupAction').dynamic;
+        } else {
+            this.getApplication().getController('Mdc.controller.setup.AddDeviceGroupAction').disableCreateWidget();
+        }
     },
 
     setFilterView: function () {

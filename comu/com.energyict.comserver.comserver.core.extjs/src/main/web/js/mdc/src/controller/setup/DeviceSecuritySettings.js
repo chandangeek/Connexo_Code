@@ -52,10 +52,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                 click: this.restoreAllDefaults
             },
             '#deviceSecuritySettingEdit property-form': {
-                dirtychange: this.enableRestoreAllButton
-            },
-            '#deviceSecuritySettingEdit property-form component': {
-                enableRestoreAll: this.enableRestoreAllButton
+                showRestoreAllBtn: this.showRestoreAllBtn
             },
             '#deviceSecuritySettingPreview menuitem[action=showValueDeviceSecuritySetting]': {
                 click: this.showValues
@@ -223,13 +220,14 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                         me.getApplication().fireEvent('loadDeviceSecuritySetting', deviceSecuritySetting);
                         var widget = Ext.widget('deviceSecuritySettingEdit', {
                             edit: true,
-                            returnLink: '#/devices/' + me.mrid + '/securitysettings'
+                            returnLink: '#/devices/' + me.mrid + '/securitysettings',
+                            device: device
                         });
                         me.getApplication().fireEvent('changecontentevent', widget);
                         widget.setLoading(true);
 
                         var title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + deviceSecuritySetting.get('name') + '\'';
-                        widget.down('#deviceSecuritySettingEditAddTitle').update('<h1>' + title + '</h1>');
+                        widget.down('#deviceSecuritySettingEditAddTitle').setTitle(title);
                         var generalForm = widget.down('#deviceSecuritySettingEditForm');
                         generalForm.loadRecord(deviceSecuritySetting);
                         var form = widget.down('property-form');
@@ -282,17 +280,13 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
         });
     },
 
-    enableRestoreAllButton: function (form, dirty) {
-        var me = this;
-        if (typeof(me.getRestoreAllButton()) !== 'undefined') {
-            me.getRestoreAllButton().disable();
-            var restoreAllButtons = Ext.ComponentQuery.query('uni-default-button');
-            if (restoreAllButtons != null) {
-                restoreAllButtons.forEach(function (restoreButton) {
-                    if (!restoreButton.isHidden()) {
-                        me.getRestoreAllButton().enable();
-                    }
-                })
+    showRestoreAllBtn: function(value) {
+        var restoreBtn = this.getRestoreAllButton();
+        if (restoreBtn) {
+            if (value) {
+                restoreBtn.disable();
+            } else {
+                restoreBtn.enable();
             }
         }
     },

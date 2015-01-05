@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', 
         {
             xtype: 'button',
             text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.schedule'),
+            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.sharedCommunicationSchedule'),
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'communication-schedule-action-menu'
@@ -100,12 +100,8 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', 
                                     xtype: 'displayfield',
                                     name: 'plannedDate',
                                     fieldLabel: Uni.I18n.translate('communicationschedule.plannedDate', 'MDC', 'Planned date'),
-                                    renderer: function(value){
-                                        if(value!==null){
-                                            return new Date(value).toLocaleString();
-                                        } else {
-                                            return '';
-                                        }
+                                    renderer: function (value) {
+                                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
                                     }
                                 }
 

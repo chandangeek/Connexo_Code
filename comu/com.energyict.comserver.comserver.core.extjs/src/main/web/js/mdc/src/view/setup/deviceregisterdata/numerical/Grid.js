@@ -11,17 +11,16 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
             {
                 header: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
                 dataIndex: 'timeStamp',
-                xtype: 'datecolumn',
-                format: 'M j, Y \\a\\t G:i',
-                defaultRenderer: function (value) {
-                    if (!Ext.isEmpty(value)) {
-                        return Ext.util.Format.date(new Date(value), this.format);
-                    }
+                renderer: function (value) {
+                    return value
+                        ? Uni.DateTime.formatDateShort(new Date(value))
+                        + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                        + Uni.DateTime.formatTimeShort(new Date(value))
+                        : '';
                 },
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
                 dataIndex: 'value',
                 align: 'right',
                 minWidth: 150,
@@ -43,7 +42,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                             break;
                     }
                     return !Ext.isEmpty(data)
-                        ? '<span class="validation-column-align">' + data + ' ' + record.get('unitOfMeasure') + ' ' + validationFlag + '</span>'
+                        ? '<span class="validation-column-align">' + data + ' ' + validationFlag + '</span>'
                         : '<span class="icon-validation icon-validation-black"></span>';
                 }
             },
@@ -54,8 +53,15 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 width: 30
             },
             {
+                dataIndex: 'deltaValue',
+                align: 'right',
+                minWidth: 150,
+                hidden: true,
+                flex: 1
+            },
+            {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.device'),
+                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceData'),
                 menu: {
                     xtype: 'deviceregisterdataactionmenu'
                 }
