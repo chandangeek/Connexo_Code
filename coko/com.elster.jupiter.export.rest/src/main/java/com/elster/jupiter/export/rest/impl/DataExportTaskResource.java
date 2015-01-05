@@ -8,7 +8,6 @@ import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.security.Privileges;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -61,17 +60,15 @@ public class DataExportTaskResource {
     private final DataExportService dataExportService;
     private final RestQueryService queryService;
     private final TimeService timeService;
-    private final MeteringService meteringService;
     private final MeteringGroupsService meteringGroupsService;
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
 
     @Inject
-    public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService, TimeService timeService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus, TransactionService transactionService) {
+    public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService, TimeService timeService, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus, TransactionService transactionService) {
         this.queryService = queryService;
         this.dataExportService = dataExportService;
         this.timeService = timeService;
-        this.meteringService = meteringService;
         this.meteringGroupsService = meteringGroupsService;
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
@@ -101,7 +98,7 @@ public class DataExportTaskResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
     public DataExportTaskInfo getDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        return new DataExportTaskInfo(fetchDataExportTask(id, securityContext), thesaurus, timeService);
+        return new DataExportTaskInfo(fetchDataExportTask(id), thesaurus, timeService);
     }
 
     @POST
@@ -109,7 +106,7 @@ public class DataExportTaskResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
     public Response triggerDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        transactionService.execute(VoidTransaction.of(() -> fetchDataExportTask(id, securityContext).triggerNow()));
+        transactionService.execute(VoidTransaction.of(() -> fetchDataExportTask(id).triggerNow()));
         return Response.status(Response.Status.OK).build();
     }
 
@@ -130,7 +127,7 @@ public class DataExportTaskResource {
                 .exportContinuousData(info.exportContinuousData)
                 .exportUpdate(info.exportUpdate);
 
-        List<PropertySpec<?>> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor.name);
+        List<PropertySpec> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor.name);
         PropertyUtils propertyUtils = new PropertyUtils();
 
         propertiesSpecs.stream()
@@ -156,7 +153,7 @@ public class DataExportTaskResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DATA_EXPORT_TASK)
     public Response removeDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
+        ReadingTypeDataExportTask task = fetchDataExportTask(id);
 
         if (!task.canBeDeleted()) {
             throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_STATUS_BUSY, "status");
@@ -206,7 +203,7 @@ public class DataExportTaskResource {
     public DataExportTaskHistoryInfos getDataExportTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
                                                                @BeanParam JsonQueryFilter filter, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
+        ReadingTypeDataExportTask task = fetchDataExportTask(id);
         DataExportOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
                 .setStart(queryParameters.getStart())
                 .setLimit(queryParameters.getLimit());
@@ -238,7 +235,7 @@ public class DataExportTaskResource {
     @Path("/{id}/datasources")
     @Produces(MediaType.APPLICATION_JSON)
     public DataSourceInfos getDataSources(@PathParam("id") long id, @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
-        ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
+        ReadingTypeDataExportTask task = fetchDataExportTask(id);
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<? extends ReadingTypeDataExportItem> exportItems = ListPager.of(task.getExportItems()).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
         DataSourceInfos dataSourceInfos = new DataSourceInfos(exportItems.subList(0, Math.min(queryParameters.getLimit(), exportItems.size())));
@@ -254,8 +251,8 @@ public class DataExportTaskResource {
     public DataExportOccurrenceLogInfos getDataExportTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
                                                                  @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
-        DataExportOccurrence occurrence = fetchDataExportOccurrence(occurrenceId, task, securityContext);
+        ReadingTypeDataExportTask task = fetchDataExportTask(id);
+        DataExportOccurrence occurrence = fetchDataExportOccurrence(occurrenceId, task);
         LogEntryFinder finder = occurrence.getLogsFinder()
                 .setStart(queryParameters.getStart())
                 .setLimit(queryParameters.getLimit());
@@ -282,7 +279,7 @@ public class DataExportTaskResource {
     }
 
     private void updateProperties(DataExportTaskInfo info, ReadingTypeDataExportTask task) {
-        List<PropertySpec<?>> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor.name);
+        List<PropertySpec> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor.name);
         PropertyUtils propertyUtils = new PropertyUtils();
         propertiesSpecs.stream()
                 .forEach(spec -> {
@@ -307,11 +304,11 @@ public class DataExportTaskResource {
         return timeService.findRelativePeriod(relativePeriodInfo.id).orElse(null);
     }
 
-    private ReadingTypeDataExportTask fetchDataExportTask(long id, SecurityContext securityContext) {
+    private ReadingTypeDataExportTask fetchDataExportTask(long id) {
         return dataExportService.findExportTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
-    private DataExportOccurrence fetchDataExportOccurrence(long id, ReadingTypeDataExportTask task, SecurityContext securityContext) {
+    private DataExportOccurrence fetchDataExportOccurrence(long id, ReadingTypeDataExportTask task) {
         return task.getOccurrence(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
