@@ -46,7 +46,7 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        BasicPropertySpec<String> propertySpec = new BasicPropertySpec<>("callHomeId", new StringFactory());
+        BasicPropertySpec propertySpec = new BasicPropertySpec("callHomeId", new StringFactory());
         when(deviceType.getId()).thenReturn(11L);
         when(deviceType.getName()).thenReturn("device");
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);

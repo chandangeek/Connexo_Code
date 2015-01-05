@@ -137,12 +137,12 @@ public class SecurityPropertySetResource {
         return securityPropertySetOptional.get();
     }
 
-    private boolean propertyHasValue(PropertySpec<?> propertySpec, Collection<PropertyInfo> propertyInfos) {
+    private boolean propertyHasValue(PropertySpec propertySpec, Collection<PropertyInfo> propertyInfos) {
         return propertyHasValue(propertySpec, propertyInfos.toArray(new PropertyInfo[propertyInfos.size()]));
     }
 
     //find propertyValue in info
-    public boolean propertyHasValue(PropertySpec<?> propertySpec, PropertyInfo[] propertyInfos) {
+    public boolean propertyHasValue(PropertySpec propertySpec, PropertyInfo[] propertyInfos) {
         for (PropertyInfo propertyInfo : propertyInfos) {
             if (propertyInfo.key.equals(propertySpec.getName())) {
                 if (propertyInfo.getPropertyValueInfo() != null && propertyInfo.getPropertyValueInfo().propertyHasValue!=null) {

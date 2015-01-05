@@ -78,7 +78,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
 
         //--- adding properties
         if (this.properties != null) {
-            for (PropertySpec<?> propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
+            for (PropertySpec propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
                 Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
                 if (propertyValue != null) {
                     scheduledConnectionTaskBuilder.setProperty(propertySpec.getName(), propertyValue);

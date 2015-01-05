@@ -92,7 +92,7 @@ public class ProtocolDialectResource {
      */
     private void updateProperties(ProtocolDialectInfo protocolDialectInfo, ProtocolDialectConfigurationProperties protocolDialectProperties, Device device) {
         if (protocolDialectInfo.properties != null) {
-            for (PropertySpec<?> propertySpec : protocolDialectProperties.getPropertySpecs()) {
+            for (PropertySpec propertySpec : protocolDialectProperties.getPropertySpecs()) {
                 Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, protocolDialectInfo.properties);
                 if (propertyValue != null) {
                     device.setProtocolDialectProperty(protocolDialectProperties.getDeviceProtocolDialectName(), propertySpec.getName(), propertyValue);

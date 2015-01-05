@@ -67,7 +67,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
 
     protected void writeTo(T connectionTask, PartialConnectionTask partialConnectionTask, EngineConfigurationService engineConfigurationService, MdcPropertyUtils mdcPropertyUtils) {
         if (this.properties != null) {
-            for (PropertySpec<?> propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
+            for (PropertySpec propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
                 Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
                 if (propertyValue != null) {
                     connectionTask.setProperty(propertySpec.getName(), propertyValue);

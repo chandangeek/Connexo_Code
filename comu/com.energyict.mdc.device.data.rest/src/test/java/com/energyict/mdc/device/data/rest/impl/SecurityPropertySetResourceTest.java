@@ -239,7 +239,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         when(securityProperty.getValue()).thenReturn(value);
         when(securityProperty.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
         when(securityProperty.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
-        PropertySpec<T> propertySpec1 = mock(PropertySpec.class);
+        PropertySpec propertySpec1 = mock(PropertySpec.class);
         when(propertySpec1.getName()).thenReturn(name);
         when(propertySpec1.isRequired()).thenReturn(true);
         when(propertySpec1.getValueFactory()).thenReturn(valueFactory);
