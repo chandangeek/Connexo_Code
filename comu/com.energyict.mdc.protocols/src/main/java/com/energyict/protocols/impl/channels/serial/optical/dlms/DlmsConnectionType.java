@@ -55,7 +55,7 @@ public abstract class DlmsConnectionType extends ConnectionTypeImpl {
     abstract PropertySpec getAddressingModePropertySpec();
 
     final PropertySpec getAddressingModePropertySpec(boolean required) {
-        PropertySpecBuilder<BigDecimal> builder = this.propertySpecService.newPropertySpecBuilder(new BigDecimalFactory());
+        PropertySpecBuilder builder = this.propertySpecService.newPropertySpecBuilder(new BigDecimalFactory());
         builder.
             name(PROPERTY_NAME_ADDRESSING_MODE).
             markExhaustive().

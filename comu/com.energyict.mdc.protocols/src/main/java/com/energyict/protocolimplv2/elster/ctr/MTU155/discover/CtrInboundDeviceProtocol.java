@@ -109,7 +109,7 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
         return propertySpecs;
     }
 
-    private PropertySpec<String> getDeviceTypePropertySpec() {
+    private PropertySpec getDeviceTypePropertySpec() {
         return getPropertySpecService().stringPropertySpecWithValuesAndDefaultValue(DEVICE_TYPE_KEY, true, MTU155_DEVICE_TYPE, MTU155_DEVICE_TYPE, EK155_DEVICE_TYPE);
     }
 
