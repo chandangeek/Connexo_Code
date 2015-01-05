@@ -1,8 +1,9 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
+
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
@@ -60,8 +61,8 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
      * @param date The Date
      * @return A flag that indicates if this cache contains properties that are active on the specified Date
      */
-    public boolean isCached (Date date) {
-        return (this.activePeriod != null && this.activePeriod.span().contains(date.toInstant()))
+    public boolean isCached (Instant date) {
+        return (this.activePeriod != null && this.activePeriod.span().contains(date))
                 || (this.activeDate != null && !this.activeDate.isAfter(date));
     }
 
