@@ -10,7 +10,6 @@ import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import java.time.Clock;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -39,7 +38,7 @@ public class SecurityPropertySetRelationSupport extends AbstractSecurityProperty
      */
     public boolean hasValues () {
         if (this.deviceProtocolHasSecurityProperties()) {
-            List<Relation> relations = this.getDefaultAttributeType().getRelations(this.securityPropertySet, Date.from(this.clock.instant()), false, 0, 1);
+            List<Relation> relations = this.getDefaultAttributeType().getRelations(this.securityPropertySet, this.clock.instant(), false, 0, 1);
             return !relations.isEmpty();
         }
         else {

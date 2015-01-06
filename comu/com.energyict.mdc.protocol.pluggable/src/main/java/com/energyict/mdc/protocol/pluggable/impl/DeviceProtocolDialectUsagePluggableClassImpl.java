@@ -22,12 +22,11 @@ import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableC
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import static com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectPropertyRelationAttributeTypeNames.DEVICE_PROTOCOL_DIALECT_ATTRIBUTE_NAME;
@@ -219,7 +218,7 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
     }
 
     @Override
-    public Relation getRelation(RelationParticipant relationParticipant, Date date) {
+    public Relation getRelation(RelationParticipant relationParticipant, Instant date) {
         if (!this.deviceProtocolDialectHasProperties()) {
             return null;
         } else {
@@ -239,7 +238,7 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
     }
 
     @Override
-    public List<Relation> getRelations(RelationParticipant relationParticipant, Interval period) {
+    public List<Relation> getRelations(RelationParticipant relationParticipant, Range<Instant> period) {
         if (this.deviceProtocolDialectHasProperties()) {
             return relationParticipant.getRelations(this.findRelationType().getAttributeType(DEVICE_PROTOCOL_DIALECT_ATTRIBUTE_NAME), period, false);
         }

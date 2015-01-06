@@ -25,12 +25,12 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelationAttributeTypeNames.CONNECTION_TASK_ATTRIBUTE_NAME;
@@ -137,7 +137,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
-    public Relation getRelation (RelationParticipant relationParticipant, Date date) {
+    public Relation getRelation (RelationParticipant relationParticipant, Instant date) {
         if (!this.connectionTypeHasProperties()) {
             return null;
         }
@@ -156,7 +156,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
-    public List<Relation> getRelations (RelationParticipant relationParticipant, Interval period) {
+    public List<Relation> getRelations (RelationParticipant relationParticipant, Range<Instant> period) {
         if (!this.connectionTypeHasProperties()) {
             return new ArrayList<>(0);
         }
