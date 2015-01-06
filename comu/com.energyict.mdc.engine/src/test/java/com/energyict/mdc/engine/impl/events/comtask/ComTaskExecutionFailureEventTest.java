@@ -14,8 +14,10 @@ import java.time.Clock;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Calendar;
-import java.util.Date;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -65,8 +67,8 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testOccurrenceTimestamp () {
-        Date now = new DateTime(2012, Calendar.NOVEMBER, 6, 15, 50, 44, 0).toDate();  // Random pick
-        when(this.clock.instant()).thenReturn(now.toInstant());
+        Instant now = LocalDateTime.of(2012, Calendar.NOVEMBER, 6, 15, 50, 44, 0).toInstant(ZoneOffset.UTC);  // Random pick
+        when(this.clock.instant()).thenReturn(now);
 
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ComPort comPort = mock(ComPort.class);
@@ -74,7 +76,7 @@ public class ComTaskExecutionFailureEventTest {
         ComTaskExecutionFailureEvent event = this.newEvent(comTaskExecution, comPort, connectionTask);
 
         // Business method
-        Date timestamp = event.getOccurrenceTimestamp();
+        Instant timestamp = event.getOccurrenceTimestamp();
 
         // Asserts
         assertThat(timestamp).isEqualTo(now);

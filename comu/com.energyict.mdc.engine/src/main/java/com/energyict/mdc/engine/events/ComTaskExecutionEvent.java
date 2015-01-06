@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.events;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Models an event that relates to the execution of a {@link com.energyict.mdc.tasks.ComTask},
@@ -25,7 +25,7 @@ public interface ComTaskExecutionEvent extends ComServerEvent, ComTaskExecutionR
      *
      * @return The timestamp on which the execution started
      */
-    public Date getExecutionStartedTimestamp ();
+    public Instant getExecutionStartedTimestamp ();
 
     /**
      * Returns <code>true</code> iff this event indicates

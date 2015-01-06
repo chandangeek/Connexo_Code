@@ -14,7 +14,7 @@ import com.energyict.mdc.engine.config.InboundComPort;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Provides code reuse opportunities for components
@@ -47,7 +47,7 @@ public abstract class AbstractComTaskExecutionEventImpl extends AbstractComServe
     }
 
     @Override
-    public Date getExecutionStartedTimestamp () {
+    public Instant getExecutionStartedTimestamp() {
         return null;
     }
 

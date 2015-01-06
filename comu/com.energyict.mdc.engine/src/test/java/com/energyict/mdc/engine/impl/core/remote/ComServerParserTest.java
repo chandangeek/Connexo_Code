@@ -3,8 +3,6 @@ package com.energyict.mdc.engine.impl.core.remote;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.impl.EnvironmentImpl;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OnlineComServer;
@@ -71,14 +69,12 @@ public class ComServerParserTest {
                 new ThreadSecurityModule(),
                 new PubSubModule(),
                 new DomainUtilModule(),
-                new MdcCommonModule(),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new TransactionModule(false),
                 new UserModule(),
                 new EngineModelModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
-            injector.getInstance(EnvironmentImpl.class);
             injector.getInstance(NlsService.class);
             injector.getInstance(ProtocolPluggableService.class);
             engineConfigurationService = injector.getInstance(EngineConfigurationService.class);

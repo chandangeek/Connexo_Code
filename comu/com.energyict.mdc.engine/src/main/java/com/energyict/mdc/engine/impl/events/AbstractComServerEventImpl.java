@@ -2,14 +2,14 @@ package com.energyict.mdc.engine.impl.events;
 
 import com.energyict.mdc.engine.events.ComServerEvent;
 
-import java.time.Clock;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONException;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
 
-import java.util.Date;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Provides code reuse opportunities for components
@@ -23,7 +23,7 @@ public abstract class AbstractComServerEventImpl implements ComServerEvent {
     private static final DateTimeFormatter OCCURRENCE_TIMESTAMP_FORMAT;
 
     static {
-        OCCURRENCE_TIMESTAMP_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss:SSS (Z)").withZoneUTC();
+        OCCURRENCE_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS (Z)");
     }
 
     public interface ServiceProvider {
@@ -32,12 +32,12 @@ public abstract class AbstractComServerEventImpl implements ComServerEvent {
 
     }
 
-    private Date occurrenceTimestamp;
+    private Instant occurrenceTimestamp;
     private final ServiceProvider serviceProvider;
 
     protected AbstractComServerEventImpl(ServiceProvider serviceProvider) {
         this.serviceProvider = serviceProvider;
-        this.occurrenceTimestamp = Date.from(serviceProvider.clock().instant());
+        this.occurrenceTimestamp = serviceProvider.clock().instant();
     }
 
     private ServiceProvider getServiceProvider () {
@@ -49,7 +49,7 @@ public abstract class AbstractComServerEventImpl implements ComServerEvent {
     }
 
     @Override
-    public Date getOccurrenceTimestamp () {
+    public Instant getOccurrenceTimestamp() {
         return this.occurrenceTimestamp;
     }
 
@@ -57,9 +57,9 @@ public abstract class AbstractComServerEventImpl implements ComServerEvent {
         return this.formatOccurrenceTimeStamp(this.getOccurrenceTimestamp());
     }
 
-    protected String formatOccurrenceTimeStamp (Date occurrenceTimestamp) {
+    protected String formatOccurrenceTimeStamp (Instant occurrenceTimestamp) {
         if (occurrenceTimestamp != null) {
-            return OCCURRENCE_TIMESTAMP_FORMAT.print(occurrenceTimestamp.getTime());
+            return OCCURRENCE_TIMESTAMP_FORMAT.format(occurrenceTimestamp.atOffset(ZoneOffset.UTC));
         }
         else {
             return "null";

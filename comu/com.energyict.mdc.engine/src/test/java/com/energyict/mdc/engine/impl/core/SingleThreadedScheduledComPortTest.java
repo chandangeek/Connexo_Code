@@ -4,7 +4,6 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -122,7 +121,6 @@ public class SingleThreadedScheduledComPortTest {
      * the scheduled comport has been shutdown.
      */
     private static final int SHUTDOWN_MILLIS = 50;
-    private static final String LOG4J_PROPERTIES_FILE_NAME = "log4j.properties";
 
     @Mock
     private ConnectionType simultaneousConnectionType;
@@ -146,8 +144,6 @@ public class SingleThreadedScheduledComPortTest {
     private Device device;
     @Mock
     private DeviceConfiguration deviceConfiguration;
-    @Mock
-    private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     @Mock
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
@@ -265,7 +261,6 @@ public class SingleThreadedScheduledComPortTest {
         when(this.deviceProtocolPluggableClass.getJavaClassName()).thenReturn(SingleThreadedScheduledComPortTest.class.getName());
         when(this.device.getDeviceType()).thenReturn(this.deviceType);
         when(this.device.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);
-        when(this.deviceConfiguration.getCommunicationConfiguration()).thenReturn(this.deviceCommunicationConfiguration);
         when(this.device.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
         when(this.device.getId()).thenReturn(DEVICE_ID);
         when(this.deviceCommandExecutor.getLogLevel()).thenReturn(ComServer.LogLevel.ERROR);

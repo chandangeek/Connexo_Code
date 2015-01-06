@@ -15,8 +15,10 @@ import java.time.Clock;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Calendar;
-import java.util.Date;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -67,13 +69,13 @@ public class ComCommandLoggingEventTest {
 
     @Test
     public void testOccurrenceTimestamp () {
-        Date now = new DateTime(2012, Calendar.NOVEMBER, 22, 16, 23, 12, 0).toDate();  // Random pick
-        when(this.clock.instant()).thenReturn(now.toInstant());
+        Instant now = LocalDateTime.of(2012, Calendar.NOVEMBER, 22, 16, 23, 12, 0).toInstant(ZoneOffset.UTC);  // Random pick
+        when(this.clock.instant()).thenReturn(now);
 
         ComCommandLoggingEvent event = new ComCommandLoggingEvent(this.serviceProvider, null, null, null, LogLevel.INFO, "testOccurrenceTimestamp");
 
         // Business method
-        Date timestamp = event.getOccurrenceTimestamp();
+        Instant timestamp = event.getOccurrenceTimestamp();
 
         // Asserts
         assertThat(timestamp).isEqualTo(now);

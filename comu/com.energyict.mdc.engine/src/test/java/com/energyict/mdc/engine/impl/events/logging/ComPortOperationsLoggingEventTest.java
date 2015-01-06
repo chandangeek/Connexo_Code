@@ -12,8 +12,10 @@ import java.time.Clock;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Calendar;
-import java.util.Date;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -59,13 +61,13 @@ public class ComPortOperationsLoggingEventTest {
 
     @Test
     public void testOccurrenceTimestampForDefaultConstructor () {
-        Date now = new DateTime(2012, Calendar.NOVEMBER, 15, 14, 10, 01, 0).toDate();  // Random pick
-        when(this.clock.instant()).thenReturn(now.toInstant());
+        Instant now = LocalDateTime.of(2012, Calendar.NOVEMBER, 15, 14, 10, 01, 0).toInstant(ZoneOffset.UTC);  // Random pick
+        when(this.clock.instant()).thenReturn(now);
 
         ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(this.serviceProvider, mock(ComPort.class), LogLevel.DEBUG, "testOccurrenceTimestampForDefaultConstructor");
 
         // Business method
-        Date timestamp = event.getOccurrenceTimestamp();
+        Instant timestamp = event.getOccurrenceTimestamp();
 
         // Asserts
         assertThat(timestamp).isEqualTo(now);
@@ -73,13 +75,13 @@ public class ComPortOperationsLoggingEventTest {
 
     @Test
     public void testOccurrenceTimestamp () {
-        Date now = new DateTime(2012, Calendar.NOVEMBER, 15, 14, 10, 01, 0).toDate();  // Random pick
-        when(this.clock.instant()).thenReturn(now.toInstant());
+        Instant now = LocalDateTime.of(2012, Calendar.NOVEMBER, 15, 14, 10, 01, 0).toInstant(ZoneOffset.UTC);  // Random pick
+        when(this.clock.instant()).thenReturn(now);
 
         ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(this.serviceProvider, null, LogLevel.INFO, "testOccurrenceTimestamp");
 
         // Business method
-        Date timestamp = event.getOccurrenceTimestamp();
+        Instant timestamp = event.getOccurrenceTimestamp();
 
         // Asserts
         assertThat(timestamp).isEqualTo(now);

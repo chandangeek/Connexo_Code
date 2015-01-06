@@ -10,12 +10,12 @@ import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPort;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.time.ZoneId;
 
 import org.joda.time.DateTime;
 
 import java.io.IOException;
-import java.util.Date;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -63,7 +63,7 @@ public class EstablishConnectionEventTest {
     @Test
     public void testOccurrenceTimestamp () {
         Clock frozenClock = Clock.fixed(new DateTime(2012, 11, 6, 13, 45, 17, 0).toDate().toInstant(), ZoneId.systemDefault());  // Random pick
-        Date now = Date.from(frozenClock.instant());
+        Instant now = frozenClock.instant();
         when(this.clock.instant()).thenReturn(frozenClock.instant());
 
         ComPort comPort = mock(ComPort.class);
@@ -71,7 +71,7 @@ public class EstablishConnectionEventTest {
         EstablishConnectionEvent event = new EstablishConnectionEvent(this.serviceProvider, comPort, connectionTask);
 
         // Business method
-        Date timestamp = event.getOccurrenceTimestamp();
+        Instant timestamp = event.getOccurrenceTimestamp();
 
         // Asserts
         assertThat(timestamp).isEqualTo(now);

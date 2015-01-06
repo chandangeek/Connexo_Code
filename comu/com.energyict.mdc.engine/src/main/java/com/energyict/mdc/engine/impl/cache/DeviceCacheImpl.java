@@ -1,24 +1,21 @@
 package com.energyict.mdc.engine.impl.cache;
 
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
-import java.time.Clock;
-import java.time.Instant;
-
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
 import javax.inject.Inject;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
@@ -37,18 +34,18 @@ public class DeviceCacheImpl implements DeviceCache {
     private final Logger logger = Logger.getLogger(DeviceCacheImpl.class.getName());
 
     private final DataModel dataModel;
-    private final Clock clock;
     private final ProtocolPluggableService protocolPluggableService;
     private byte[] simpleCache;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_IS_REQUIRED_FOR_CACHE + "}")
     private Reference<Device> device = ValueReference.absent();
-
-    private Instant modificationDate;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Inject
-    public DeviceCacheImpl(DataModel dataModel, Clock clock, ProtocolPluggableService protocolPluggableService) {
+    public DeviceCacheImpl(DataModel dataModel, ProtocolPluggableService protocolPluggableService) {
         this.dataModel = dataModel;
-        this.clock = clock;
         this.protocolPluggableService = protocolPluggableService;
     }
 
@@ -60,13 +57,11 @@ public class DeviceCacheImpl implements DeviceCache {
 
     @Override
     public void save() {
-        this.modificationDate = this.clock.instant();
         Save.CREATE.save(dataModel, this);
     }
 
     @Override
     public void update() {
-        this.modificationDate = this.clock.instant();
         Save.UPDATE.save(dataModel, this);
     }
 

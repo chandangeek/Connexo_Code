@@ -7,7 +7,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Represents a {@link com.energyict.mdc.engine.events.ComTaskExecutionEvent}
@@ -18,13 +18,13 @@ import java.util.Date;
  */
 public class ComTaskExecutionStartedEvent extends AbstractComTaskExecutionEventImpl {
 
-    private Date executionStartedTimestamp;
+    private Instant executionStartedTimestamp;
 
     public ComTaskExecutionStartedEvent(ServiceProvider serviceProvider, ComTaskExecution comTaskExecution, ComPort comPort, ConnectionTask connectionTask) {
         this(serviceProvider, comTaskExecution, comTaskExecution.getExecutionStartedTimestamp(), comPort, connectionTask);
     }
 
-    public ComTaskExecutionStartedEvent(ServiceProvider serviceProvider, ComTaskExecution comTask, Date executionStartedTimestamp, ComPort comPort, ConnectionTask connectionTask) {
+    public ComTaskExecutionStartedEvent(ServiceProvider serviceProvider, ComTaskExecution comTask, Instant executionStartedTimestamp, ComPort comPort, ConnectionTask connectionTask) {
         super(serviceProvider, comTask, comPort, connectionTask);
         this.executionStartedTimestamp = executionStartedTimestamp;
     }
@@ -35,7 +35,7 @@ public class ComTaskExecutionStartedEvent extends AbstractComTaskExecutionEventI
     }
 
     @Override
-    public Date getExecutionStartedTimestamp () {
+    public Instant getExecutionStartedTimestamp() {
         return executionStartedTimestamp;
     }
 

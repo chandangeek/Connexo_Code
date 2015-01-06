@@ -10,8 +10,10 @@ import java.time.Clock;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Calendar;
-import java.util.Date;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -58,8 +60,8 @@ public class ReadEventTest {
 
     @Test
     public void testConstructor () {
-        Date occurrenceTimestamp = new DateTime(2012, Calendar.NOVEMBER, 7, 17, 22, 01, 0).toDate();  // Random pick
-        when(this.clock.instant()).thenReturn(occurrenceTimestamp.toInstant());
+        Instant occurrenceTimestamp = LocalDateTime.of(2012, Calendar.NOVEMBER, 7, 17, 22, 01, 0).toInstant(ZoneOffset.UTC);  // Random pick
+        when(this.clock.instant()).thenReturn(occurrenceTimestamp);
         byte[] bytes = "testConstructor".getBytes();
         ComPort comPort = mock(ComPort.class);
 
@@ -166,8 +168,8 @@ public class ReadEventTest {
 
     @Test
     public void testToStringDoesNotFail () throws IOException {
-        Date occurrenceTimestamp = new DateTime(2012, Calendar.NOVEMBER, 7, 17, 22, 01, 0).toDate();  // Random pick
-        when(this.clock.instant()).thenReturn(occurrenceTimestamp.toInstant());
+        Instant occurrenceTimestamp = LocalDateTime.of(2012, Calendar.NOVEMBER, 7, 17, 22, 01, 0).toInstant(ZoneOffset.UTC);  // Random pick
+        when(this.clock.instant()).thenReturn(occurrenceTimestamp);
         byte[] bytes = "testToStringDoesNotFail".getBytes();
         ComPort comPort = mock(ComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);

@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.events;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Models an event as in something that happened or took place
@@ -36,7 +36,7 @@ public interface ComServerEvent {
      *
      * @return The timestamp on which this event occurred
      */
-    public Date getOccurrenceTimestamp ();
+    public Instant getOccurrenceTimestamp ();
 
     /**
      * Gets the {@link Category} to which this event belongs.

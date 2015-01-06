@@ -12,7 +12,6 @@ import java.time.ZoneId;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
-import java.util.Date;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -67,10 +66,10 @@ public class UndiscoveredEstablishConnectionEventTest {
         UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(this.serviceProvider, comPort);
 
         // Business method
-        Date timestamp = event.getOccurrenceTimestamp();
+        Instant timestamp = event.getOccurrenceTimestamp();
 
         // Asserts
-        assertThat(timestamp.toInstant()).isEqualTo(now);
+        assertThat(timestamp).isEqualTo(now);
     }
 
     @Test

@@ -2,7 +2,6 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -126,8 +125,6 @@ public class JobExecutionTest {
     private DeviceType deviceType;
     @Mock
     private DeviceConfiguration deviceConfiguration;
-    @Mock
-    private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     @Mock
     private GenericDeviceProtocol genericDeviceProtocol;
     @Mock
@@ -253,7 +250,6 @@ public class JobExecutionTest {
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(genericDeviceProtocol);
         createMockedComTaskWithGivenProtocolTasks();
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        when(deviceConfiguration.getCommunicationConfiguration()).thenReturn(deviceCommunicationConfiguration);
         DeviceProtocolPluggableClass serverDeviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(serverDeviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
         when(this.offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(serverDeviceProtocolPluggableClass);
@@ -275,7 +271,6 @@ public class JobExecutionTest {
         when(preparedComTaskExecution.getDeviceProtocol()).thenReturn(deviceProtocol);
         createMockedComTaskWithGivenProtocolTasks();
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        when(deviceConfiguration.getCommunicationConfiguration()).thenReturn(deviceCommunicationConfiguration);
         DeviceProtocolPluggableClass serverDeviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(serverDeviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
         when(this.offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(serverDeviceProtocolPluggableClass);
@@ -467,7 +462,6 @@ public class JobExecutionTest {
 
     private ScheduledComTaskExecutionGroup getJobExecutionForBasicCheckInFrontTests() {
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        when(deviceConfiguration.getCommunicationConfiguration()).thenReturn(deviceCommunicationConfiguration);
         OutboundComPort outboundComPort = mock(OutboundComPort.class);
         when(outboundComPort.getComServer()).thenReturn(this.comServer);
         return new ScheduledComTaskExecutionGroup(outboundComPort, this.comServerDAO, this.deviceCommandExecutor, connectionTask, this.serviceProvider);
