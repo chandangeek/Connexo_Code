@@ -94,7 +94,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PartialInboundConnectionTaskCrudIT {
+public class PartialInboundConnectionTaskCrudITWithCapitalT {
 
     @Rule
     public final TestRule transactional = new TransactionalRule(transactionService);
@@ -135,7 +135,7 @@ public class PartialInboundConnectionTaskCrudIT {
     public static void initializeDatabase() {
         initializeStaticMocks();
         Principal principal = mock(Principal.class);
-        when(principal.getName()).thenReturn(PartialInboundConnectionTaskCrudIT.class.getSimpleName());
+        when(principal.getName()).thenReturn(PartialInboundConnectionTaskCrudITWithCapitalT.class.getSimpleName());
         Injector injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
