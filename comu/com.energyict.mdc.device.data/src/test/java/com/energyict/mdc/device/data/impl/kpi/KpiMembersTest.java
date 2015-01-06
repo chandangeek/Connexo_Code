@@ -2,8 +2,10 @@ package com.energyict.mdc.device.data.impl.kpi;
 
 import com.elster.jupiter.kpi.KpiEntry;
 import com.elster.jupiter.kpi.KpiMember;
-import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.Ranges;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
+
+import com.google.common.collect.Range;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.junit.Test;
@@ -89,8 +91,8 @@ public class KpiMembersTest {
         assertThat(third.getFailed()).isEqualTo(BigDecimal.TEN);
     }
 
-    private Interval testInterval() {
-        return Interval.of(Instant.ofEpochMilli(INTERVAL_START_MILLIS), Instant.ofEpochMilli(INTERVAL_END_MILLIS));
+    private Range<Instant> testInterval() {
+        return Ranges.closed(Instant.ofEpochMilli(INTERVAL_START_MILLIS), Instant.ofEpochMilli(INTERVAL_END_MILLIS));
     }
 
     private KpiMember mockedKpiMember(MonitoredTaskStatus taskStatus, BigDecimal... scores) {
@@ -108,7 +110,7 @@ public class KpiMembersTest {
                     return kpiEntry;
                 }).
                 collect(Collectors.toList());
-        doReturn(kpiEntries).when(kpiMember).getScores(this.testInterval().toClosedRange());
+        doReturn(kpiEntries).when(kpiMember).getScores(this.testInterval());
         return kpiMember;
     }
 

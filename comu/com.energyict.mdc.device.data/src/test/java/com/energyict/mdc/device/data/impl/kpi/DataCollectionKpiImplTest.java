@@ -32,6 +32,7 @@ import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.conditions.Condition;
@@ -39,7 +40,6 @@ import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.DeviceService;
@@ -78,6 +78,7 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.Period;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -558,7 +559,7 @@ public class DataCollectionKpiImplTest {
         DataCollectionKpi kpi = builder.save();
 
         // Business method
-        List<DataCollectionKpiScore> scores = kpi.getConnectionSetupKpiScores(Interval.sinceEpoch());
+        List<DataCollectionKpiScore> scores = kpi.getConnectionSetupKpiScores(Ranges.closed(Instant.EPOCH, Instant.now()));
 
         // Asserts
         assertThat(scores).isEmpty();
@@ -572,7 +573,7 @@ public class DataCollectionKpiImplTest {
         DataCollectionKpi kpi = builder.save();
 
         // Business method
-        List<DataCollectionKpiScore> scores = kpi.getComTaskExecutionKpiScores(Interval.sinceEpoch());
+        List<DataCollectionKpiScore> scores = kpi.getConnectionSetupKpiScores(Ranges.closed(Instant.EPOCH, Instant.now()));
 
         // Asserts
         assertThat(scores).isEmpty();

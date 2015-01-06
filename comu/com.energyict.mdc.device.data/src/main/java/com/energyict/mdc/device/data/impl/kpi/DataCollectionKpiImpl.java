@@ -21,8 +21,9 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.streams.Functions;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.device.data.exceptions.CannotReplaceExistingKPI;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
@@ -158,7 +159,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         this.connectionKpiBuilder(kpiBuilder);
         this.save();
     }
-    
+
     private KpiBuilder newKpi(TemporalAmount intervalLength, BigDecimal staticTarget) {
         KpiBuilder builder = kpiService.newKpi();
         new DataCollectionKpiServiceImpl.KpiTargetBuilderImpl(builder, intervalLength).expectingAsMaximum(staticTarget);
@@ -201,7 +202,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     @Override
-    public List<DataCollectionKpiScore> getConnectionSetupKpiScores(Interval interval) {
+    public List<DataCollectionKpiScore> getConnectionSetupKpiScores(Range<Instant> interval) {
         if (this.connectionKpi.isPresent()) {
             return new KpiMembers(this.connectionKpi.get().getMembers()).getScores(interval);
         }
@@ -243,7 +244,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     @Override
-    public List<DataCollectionKpiScore> getComTaskExecutionKpiScores(Interval interval) {
+    public List<DataCollectionKpiScore> getComTaskExecutionKpiScores(Range<Instant> interval) {
         if (this.communicationKpi.isPresent()) {
             return new KpiMembers(this.communicationKpi.get().getMembers()).getScores(interval);
         }

@@ -1,7 +1,8 @@
 package com.energyict.mdc.device.data.kpi;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.common.HasId;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -53,12 +54,12 @@ public interface DataCollectionKpi extends HasId {
 
     /**
      * Gets the available {@link DataCollectionKpiScore}s that relate to
-     * setting up connections for the specified {@link Interval}.
+     * setting up connections for the specified interval.
      *
      * @param interval The Interval
      * @return The List of DataCollectionKpiScore or an empty List if the connection setup KPI is not calculated
      */
-    public List<DataCollectionKpiScore> getConnectionSetupKpiScores(Interval interval);
+    public List<DataCollectionKpiScore> getConnectionSetupKpiScores(Range<Instant> interval);
 
     /**
      * Tests if this DataCollectionKpi calculates the communication task execution KPI.
@@ -78,12 +79,12 @@ public interface DataCollectionKpi extends HasId {
     /**
      * Gets the available {@link DataCollectionKpiScore}s that relate to
      * the execution of {@link com.energyict.mdc.tasks.ComTask}s
-     * for the specified {@link Interval}.
+     * for the specified interval.
      *
      * @param interval The Interval
      * @return The List of DataCollectionKpiScore or an empty List if the communication task execution KPI is not calculated
      */
-    public List<DataCollectionKpiScore> getComTaskExecutionKpiScores(Interval interval);
+    public List<DataCollectionKpiScore> getComTaskExecutionKpiScores(Range<Instant> interval);
 
     /**
      * Gets the group of devices against which this DataCollectionKpi is calculated.
