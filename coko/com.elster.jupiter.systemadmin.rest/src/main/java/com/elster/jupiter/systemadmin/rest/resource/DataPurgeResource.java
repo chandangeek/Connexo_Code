@@ -3,7 +3,7 @@ package com.elster.jupiter.systemadmin.rest.resource;
 import com.elster.jupiter.data.lifecycle.LifeCycleCategory;
 import com.elster.jupiter.data.lifecycle.LifeCycleCategoryKind;
 import com.elster.jupiter.data.lifecycle.LifeCycleService;
-import com.elster.jupiter.license.security.Privileges;
+import com.elster.jupiter.data.lifecycle.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.systemadmin.rest.response.LifeCycleCategoryInfo;
