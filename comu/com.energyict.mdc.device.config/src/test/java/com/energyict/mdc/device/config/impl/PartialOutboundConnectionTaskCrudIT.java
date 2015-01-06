@@ -107,7 +107,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PartialOutboundConnectionTaskCrudITWithCapitalT {
+public class PartialOutboundConnectionTaskCrudIT {
 
     private static final ComWindow COM_WINDOW = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR, DateTimeConstants.SECONDS_PER_HOUR * 2);
     private static final TimeDuration SIXTY_SECONDS = TimeDuration.seconds(DateTimeConstants.SECONDS_PER_MINUTE);   // In other words: 1 minute
@@ -162,7 +162,7 @@ public class PartialOutboundConnectionTaskCrudITWithCapitalT {
     public static void initializeDatabase() throws SQLException {
         initializeStaticMocks();
         Principal principal = mock(Principal.class);
-        when(principal.getName()).thenReturn(PartialOutboundConnectionTaskCrudITWithCapitalT.class.getSimpleName());
+        when(principal.getName()).thenReturn(PartialOutboundConnectionTaskCrudIT.class.getSimpleName());
         Injector injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
