@@ -410,7 +410,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
 
     public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading);
 
-    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook);
+    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Instant lastLogBook);
 
     public void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegments);
 

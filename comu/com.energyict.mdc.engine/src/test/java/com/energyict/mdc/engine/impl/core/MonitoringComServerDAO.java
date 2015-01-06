@@ -251,7 +251,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook) {
+    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Instant lastLogBook) {
         this.actual.updateLastLogBook(logBookIdentifier, lastLogBook);
     }
 
@@ -324,7 +324,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook) {
+        public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Instant lastLogBook) {
 
         }
 

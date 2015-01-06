@@ -40,7 +40,7 @@ public class MeterDataStoreCommand extends DeviceCommandImpl {
         }
 
         for (Map.Entry<LogBookIdentifier, Date> logBookDateEntry : lastLogBooks.entrySet()) {
-            comServerDAO.updateLastLogBook(logBookDateEntry.getKey(), logBookDateEntry.getValue());
+            comServerDAO.updateLastLogBook(logBookDateEntry.getKey(), logBookDateEntry.getValue().toInstant());
         }
     }
 

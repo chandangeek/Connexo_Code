@@ -664,11 +664,11 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook) {
+    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Instant lastLogBook) {
         LogBook logBook = (LogBook) logBookIdentifier.getLogBook();
         LogBook.LogBookUpdater logBookUpdater = logBook.getDevice().getLogBookUpdaterFor(logBook);
         logBookUpdater.setLastLogBookIfLater(lastLogBook);
-        logBookUpdater.setLastReadingIfLater(Date.from(getClock().instant())); // We assume the event will be persisted with a time difference of only a few milliseconds
+        logBookUpdater.setLastReadingIfLater(getClock().instant()); // We assume the event will be persisted with a time difference of only a few milliseconds
         logBookUpdater.update();
     }
 

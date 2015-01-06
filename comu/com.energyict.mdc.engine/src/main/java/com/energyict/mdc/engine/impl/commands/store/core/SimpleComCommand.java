@@ -27,6 +27,7 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -412,4 +413,9 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     public IssueService getIssueService() {
         return getCommandRoot().getServiceProvider().issueService();
     }
+
+    public Clock getClock() {
+        return getCommandRoot().getServiceProvider().clock();
+    }
+
 }

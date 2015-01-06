@@ -467,7 +467,7 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook) {
+    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Instant lastLogBook) {
 
     }
 
