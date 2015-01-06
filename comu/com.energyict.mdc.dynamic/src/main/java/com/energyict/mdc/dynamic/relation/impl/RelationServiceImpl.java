@@ -29,6 +29,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -46,6 +47,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
     private volatile OrmClient ormClient;
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
+    private volatile Clock clock;
     private volatile PropertySpecService propertySpecService;
     private volatile List<DefaultAttributeTypeDetective> detectives = new CopyOnWriteArrayList<>();
 
@@ -54,9 +56,10 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
     }
 
     @Inject
-    public RelationServiceImpl(TransactionService transactionService, OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService) {
+    public RelationServiceImpl(TransactionService transactionService, Clock clock, OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService) {
         this();
         this.setTransactionService(transactionService);
+        this.setClock(clock);
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
         this.setPropertySpecService(propertySpecService);
@@ -80,6 +83,16 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Override
+    public Clock clock() {
+        return this.clock;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @Reference

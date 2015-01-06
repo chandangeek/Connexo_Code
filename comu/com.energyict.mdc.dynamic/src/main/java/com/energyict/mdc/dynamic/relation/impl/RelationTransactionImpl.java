@@ -13,11 +13,11 @@ import com.energyict.mdc.dynamic.relation.RelationTransaction;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.dynamic.relation.impl.legacy.PersistentIdObject;
 
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +25,8 @@ import java.util.Map;
 public class RelationTransactionImpl implements RelationTransaction, DynamicAttributeOwner {
 
     private RelationTypeImpl relationType;
-    private Date from;
-    private Date to;
+    private Instant from;
+    private Instant to;
     private Map<RelationAttributeType, Object> dynamicAttributes = new HashMap<>();
     private int flags;
     private boolean forcedClose = false;
@@ -54,6 +54,7 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
         this.flags = transaction.getFlags();
     }
 
+    @Override
     public Relation execute() throws BusinessException, SQLException {
         try {
             return this.perform();
@@ -134,9 +135,7 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
         Relation result = null;
         boolean extended = false;
         // Fix for mantis 6199, round from and to to second resolution, because we will compare with database times that are also rounded to second resolution
-        from = round(from);
-        to = round(to);
-        Interval interval = new Interval(from, to);
+        Range<Instant> interval = this.rangeWithSecondPrecision(from, to);
         List affectedItems = relationType.getAffectedRelations(this);
         if (forcedClose) {  // used when a new relation with open todate is offered to the transaction,
             // the todate will be set to the first from date of an affected relation having a fromdate
@@ -144,7 +143,7 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
             List newAffectedItems = new ArrayList();
             for (Object affectedItem : affectedItems) {
                 Relation relation = (Relation) affectedItem;
-                if (relation.getFrom().after(this.getFrom())) {
+                if (relation.getFrom().isAfter(this.getFrom())) {
                     this.to = relation.getFrom();
                     break;
                 } else {
@@ -181,10 +180,9 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
                     }
                 }
             } else { // we have an overlap
-                Interval intersect = relation.getPeriod().intersection(interval);
+                Range<Instant> intersect = relation.getPeriod().intersection(interval);
                 if (intersect != null && !intersect.isEmpty()) {
-                    if (intersect.equals(relation.getPeriod())) // Affected relation is entirely covered by new one, make affected obsolete
-                    {
+                    if (intersect.equals(relation.getPeriod())) { // Affected relation is entirely covered by new one, make affected obsolete
                         relation.makeObsolete();
                     } else {                                      // Affected relation is partly covered and may need to be split in two parts
                         if (!extended && intersect.equals(this.getPeriod())) {   // receiver is completely covered within the affected item
@@ -196,7 +194,7 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
                             }
                         }
                         boolean keepRelation = false;
-                        Date relationTo = relation.getTo();
+                        Instant relationTo = relation.getTo();
                         if (before(relation.getFrom(), from)) {
                             relation.close(from);
                             keepRelation = true;
@@ -222,42 +220,52 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
         return new RelationFactory(this.relationType).create(transaction);
     }
 
-    public Date getFrom() {
+    @Override
+    public Instant getFrom() {
         return from;
     }
 
-    public void setFrom(Date from) {
+    @Override
+    public void setFrom(Instant from) {
         this.from = from;
     }
 
+    @Override
     public int getFlags() {
         return flags;
     }
 
+    @Override
     public void setFlags(int flags) {
         this.flags = flags;
     }
 
+    @Override
     public RelationType getRelationType() {
         return relationType;
     }
 
-    public Date getTo() {
+    @Override
+    public Instant getTo() {
         return to;
     }
 
-    public void setTo(Date to) {
+    @Override
+    public void setTo(Instant to) {
         this.to = to;
     }
 
+    @Override
     public Map<RelationAttributeType, Object> getAttributeMap() {
         return dynamicAttributes;
     }
 
+    @Override
     public void set(RelationAttributeType attrib, Object value) {
         dynamicAttributes.put(attrib, value);
     }
 
+    @Override
     public void set(String attribKey, Object value) {
         RelationAttributeType attrib = relationType.getAttributeType(attribKey);
         if (attrib == null) {
@@ -266,19 +274,38 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
         set(attrib, value);
     }
 
+    @Override
     public Object get(RelationAttributeType attrib) {
         return dynamicAttributes.get(attrib);
     }
 
+    @Override
     public Object get(String attribKey) {
         RelationAttributeType attrib = relationType.getAttributeType(attribKey);
         return get(attrib);
     }
 
-    public Interval getPeriod() {
-        return new Interval(from, to);
+    @Override
+    public Range<Instant> getPeriod() {
+        if (from == null) {
+            if (to == null) {
+                return Range.all();
+            }
+            else {
+                return Range.lessThan(to);
+            }
+        }
+        else {
+            if (to == null) {
+                return Range.atLeast(from);
+            }
+            else {
+                return Range.closedOpen(from, to);
+            }
+        }
     }
 
+    @Override
     public boolean isEmpty() {
         for (Object val : dynamicAttributes.values()) {
             if (val != null) {
@@ -288,25 +315,44 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
         return true;
     }
 
-    private boolean before(Date date1, Date date2) {
+    private boolean before(Instant date1, Instant date2) {
         if (date1 == null) {
             return false;
         }
         if (date2 == null) {
             return true;
         } else {
-            return date1.before(date2);
+            return date1.isBefore(date2);
         }
     }
 
-    private boolean after(Date date1, Date date2) {
+    private boolean after(Instant date1, Instant date2) {
         if (date2 == null) {
             return false;
         }
         if (date1 == null) {
             return true;
         } else {
-            return date1.after(date2);
+            return date1.isAfter(date2);
+        }
+    }
+
+    private Range<Instant> rangeWithSecondPrecision(Instant from, Instant to) {
+        if (from == null) {
+            if (to == null) {
+                return Range.all();
+            }
+            else {
+                return Range.lessThan(instantWithSecondPrecision(to));
+            }
+        }
+        else {
+            if (to == null) {
+                return Range.atLeast(instantWithSecondPrecision(from));
+            }
+            else {
+                return Range.closedOpen(instantWithSecondPrecision(from), instantWithSecondPrecision(to));
+            }
         }
     }
 
@@ -316,12 +362,8 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
      * @param date The date to floor to its seconds
      * @return the floored date
      */
-    private Date round(Date date) {
-        if (date != null) {
-            return new Date(date.getTime() / 1000 * 1000);
-        } else {
-            return null;
-        }
+    private Instant instantWithSecondPrecision(Instant date) {
+        return Instant.ofEpochSecond(date.getEpochSecond());
     }
 
     private class LocalSQLException extends RuntimeException {

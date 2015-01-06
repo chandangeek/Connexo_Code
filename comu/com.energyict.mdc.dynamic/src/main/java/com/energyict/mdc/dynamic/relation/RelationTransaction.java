@@ -1,12 +1,13 @@
 package com.energyict.mdc.dynamic.relation;
 
 import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.dynamic.VersionedDynamicAttributeOwner;
 
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.Instant;
 import java.util.Map;
 
 /**
@@ -24,15 +25,15 @@ public interface RelationTransaction extends Transaction<Relation>, VersionedDyn
 
     public int getFlags();
 
-    public Date getFrom();
+    public Instant getFrom();
 
-    public void setFrom(Date from);
+    public void setFrom(Instant from);
 
-    public Date getTo();
+    public Instant getTo();
 
-    public void setTo(Date from);
+    public void setTo(Instant from);
 
-    public Interval getPeriod();
+    public Range<Instant> getPeriod();
 
     public Map<RelationAttributeType, Object> getAttributeMap();
 

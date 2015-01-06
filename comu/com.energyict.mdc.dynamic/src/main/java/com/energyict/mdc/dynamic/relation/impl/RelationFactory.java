@@ -4,7 +4,6 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.DatabaseException;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.IdBusinessObject;
-import com.energyict.mdc.common.PrimaryKeyExternalRepresentationConvertor;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.dynamic.relation.Constraint;
 import com.energyict.mdc.dynamic.relation.Relation;
@@ -16,7 +15,6 @@ import com.energyict.mdc.dynamic.relation.RelationType;
 
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
-import org.joda.time.DateTimeConstants;
 
 import java.io.Serializable;
 import java.sql.Connection;
@@ -24,10 +22,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -188,40 +186,22 @@ public final class RelationFactory {
         }
     }
 
-    private void appendPeriodDateForInsert(com.elster.jupiter.util.sql.SqlBuilder builder, Date date) {
+    private void appendPeriodDateForInsert(com.elster.jupiter.util.sql.SqlBuilder builder, Instant date) {
         if (!this.relationType.hasTimeResolution()) {
-            builder.addDate(asDate(date));
+            builder.addDate(date);
         }
         else {
             if (date == null) {
                 builder.addNull(Types.BIGINT);
             }
             else {
-                builder.addLong(asSeconds(date));
+                builder.addLong(date.getEpochSecond());
             }
         }
     }
 
-    private java.sql.Date asDate(java.util.Date in) {
-        if (in == null) {
-            return null;
-        }
-        else {
-            return new java.sql.Date(in.getTime());
-        }
-    }
-
-    private long asSeconds(Date date) {
-        if (date == null) {
-            return 0;
-        }
-        else {
-            return date.getTime() / DateTimeConstants.MILLIS_PER_SECOND;
-        }
-    }
-
     public void updateTo(Relation relation) throws SQLException {
-        Date newTo = relation.getTo();
+        Instant newTo = relation.getTo();
         try (PreparedStatement statement = this.getUpdateToSqlBuilder(relation).getStatement(this.getConnection())) {
             int rows = statement.executeUpdate();
             if (rows != 1) {
@@ -234,7 +214,7 @@ public final class RelationFactory {
     }
 
     public SqlBuilder getUpdateToSqlBuilder(Relation relation) {
-        Date newTo = relation.getTo();
+        Instant newTo = relation.getTo();
         SqlBuilder sqlBuilder = new SqlBuilder("update ");
         sqlBuilder.append(this.getTableName());
         sqlBuilder.append(" set todate = ? , mod_date = sysdate, moduserid = 0 where id = ?");
@@ -243,11 +223,11 @@ public final class RelationFactory {
                 sqlBuilder.bindLongToNull();
             }
             else {
-                sqlBuilder.bindLong(asSeconds(newTo));
+                sqlBuilder.bindLong(newTo.getEpochSecond());
             }
         }
         else {
-            sqlBuilder.bindDate(asDate(newTo));
+            sqlBuilder.bindDate(newTo);
         }
         sqlBuilder.bindInt(relation.getId());
         return sqlBuilder;
@@ -349,11 +329,7 @@ public final class RelationFactory {
         return this.find(((Integer) key).intValue());
     }
 
-    public Relation findByHandle(byte[] handle) {
-        return this.find(PrimaryKeyExternalRepresentationConvertor.intFromBytes(handle));
-    }
-
-    public List<Relation> findModifiedSince(Date since) {
+    public List<Relation> findModifiedSince(Instant since) {
         SqlBuilder builder = new SqlBuilder();
         builder.append(selectClause());
         builder.appendWhereOrAnd();
@@ -409,14 +385,14 @@ public final class RelationFactory {
         return this.findByParticipantAndAttributeType(participant, attribType, includeObsolete, null);
     }
 
-    public List<Relation> findByParticipantAndAttributeType(RelationParticipant participant, RelationAttributeType attribType, boolean includeObsolete, Date date) {
+    public List<Relation> findByParticipantAndAttributeType(RelationParticipant participant, RelationAttributeType attribType, boolean includeObsolete, Instant date) {
         return this.findByParticipantAndAttributeType(participant, attribType, date, includeObsolete, 0, 0);
     }
 
-    public List<Relation> findByParticipantAndAttributeType(RelationParticipant participant, RelationAttributeType attribType, Date date, boolean includeObsolete, int fromRow, int toRow) {
+    public List<Relation> findByParticipantAndAttributeType(RelationParticipant participant, RelationAttributeType attribType, Instant when, boolean includeObsolete, int fromRow, int toRow) {
         List<Relation> result = new ArrayList<>();
         if (this.relationType.isActive()) {
-            SqlBuilder builder = this.findByParticipantAndAttributeTypeSqlBuilder(includeObsolete, participant, attribType, date);
+            SqlBuilder builder = this.findByParticipantAndAttributeTypeSqlBuilder(includeObsolete, participant, attribType, when);
             result = this.fetch(builder.asPageSqlBuilder(fromRow, toRow));
             for (Relation aResult : result) {
                 RelationImpl each = (RelationImpl) aResult;
@@ -426,7 +402,7 @@ public final class RelationFactory {
         return result;
     }
 
-    private SqlBuilder findByParticipantAndAttributeTypeSqlBuilder(boolean includeObsolete, RelationParticipant participant, RelationAttributeType attribType, Date date) {
+    private SqlBuilder findByParticipantAndAttributeTypeSqlBuilder(boolean includeObsolete, RelationParticipant participant, RelationAttributeType attribType, Instant when) {
         SqlBuilder builder;
         if (includeObsolete) {
             builder = new SqlBuilder(this.selectUnionClause());
@@ -438,15 +414,15 @@ public final class RelationFactory {
         builder.append(attribType.getName());
         builder.append(" = ? ");
         this.bindParticipantIdentifier(participant, builder);
-        if (date != null) {
+        if (when != null) {
             builder.append(" and fromdate <= ? and (todate is null or todate > ?) ");
             if (this.relationType.hasTimeResolution()) {
-                builder.bindUtc(date);
-                builder.bindUtc(date);
+                builder.bindUtc(when);
+                builder.bindUtc(when);
             }
             else {
-                builder.bindTimestamp(date);
-                builder.bindTimestamp(date);
+                builder.bindTimestamp(when);
+                builder.bindTimestamp(when);
             }
         }
         return builder;

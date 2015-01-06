@@ -1,13 +1,14 @@
 package com.energyict.mdc.dynamic.relation;
 
 import com.elster.jupiter.orm.associations.Effectivity;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.dynamic.ReadOnlyDynamicAttributeOwner;
 
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.Instant;
 import java.util.Map;
 
 /**
@@ -28,28 +29,28 @@ public interface Relation extends IdBusinessObject, ReadOnlyDynamicAttributeOwne
      *
      * @return the start date
      */
-    public Date getFrom();
+    public Instant getFrom();
 
     /**
      * returns the version end date
      *
      * @return the version end date or null
      */
-    public Date getTo();
+    public Instant getTo();
 
     /**
      * Returns the time interval.
      *
      * @return the Interval
      */
-    public Interval getPeriod();
+    public Range<Instant> getPeriod();
 
     /**
      * return the relation's creation date
      *
      * @return the creation date
      */
-    public Date getCreDate();
+    public Instant getCreDate();
 
     /**
      * returns the <code>RelationType</code> of the receiver
@@ -94,7 +95,7 @@ public interface Relation extends IdBusinessObject, ReadOnlyDynamicAttributeOwne
      *
      * @return the Date
      */
-    public Date getObsoleteDate();
+    public Instant getObsoleteDate();
 
     /**
      * test if the version attributes are equal to the argument
@@ -112,7 +113,7 @@ public interface Relation extends IdBusinessObject, ReadOnlyDynamicAttributeOwne
      * @return true if the argument is in the receiver's validity period.
      *         false otherwise
      */
-    public boolean includes(Date date);
+    public boolean includes(Instant date);
 
     /**
      * tests if the relation starts before the argument
@@ -120,7 +121,7 @@ public interface Relation extends IdBusinessObject, ReadOnlyDynamicAttributeOwne
      * @param testDate the test date
      * @return true if version starts before the test date.
      */
-    public boolean startsBefore(Date testDate);
+    public boolean startsBefore(Instant testDate);
 
     /**
      * tests if the relation starts after the argument
@@ -128,7 +129,7 @@ public interface Relation extends IdBusinessObject, ReadOnlyDynamicAttributeOwne
      * @param testDate the test date
      * @return true if version starts after the test date.
      */
-    public boolean startsAfter(Date testDate);
+    public boolean startsAfter(Instant testDate);
 
     /**
      * tests if the relation ends before the given date
@@ -136,7 +137,7 @@ public interface Relation extends IdBusinessObject, ReadOnlyDynamicAttributeOwne
      * @param testDate the test date
      * @return true if version ends before the test date.
      */
-    public boolean endsBefore(Date testDate);
+    public boolean endsBefore(Instant testDate);
 
     /**
      * tests if the version ends after the argument
@@ -144,7 +145,7 @@ public interface Relation extends IdBusinessObject, ReadOnlyDynamicAttributeOwne
      * @param testDate the test date
      * @return true if version ends after the test date.
      */
-    public boolean endsAfter(Date testDate);
+    public boolean endsAfter(Instant testDate);
 
     /**
      * extends this version
@@ -164,7 +165,7 @@ public interface Relation extends IdBusinessObject, ReadOnlyDynamicAttributeOwne
      * @throws SQLException      if a database error occurred
      * @throws BusinessException if a business exception occurred
      */
-    public void close(Date toDate) throws SQLException, BusinessException;
+    public void close(Instant toDate) throws SQLException, BusinessException;
 
     /**
      * makes this relation obsolete.
@@ -204,7 +205,7 @@ public interface Relation extends IdBusinessObject, ReadOnlyDynamicAttributeOwne
      *
      * @return the last modification date
      */
-    public Date getModDate();
+    public Instant getModDate();
 
     /**
      * return the Object corresponding to the given attribute

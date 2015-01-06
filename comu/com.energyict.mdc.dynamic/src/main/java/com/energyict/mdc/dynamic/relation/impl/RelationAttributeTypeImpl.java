@@ -31,14 +31,15 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.Ranges;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class RelationAttributeTypeImpl extends PersistentNamedObject implements RelationAttributeType {
@@ -353,15 +354,15 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
         return new RelationFactory(this.getRelationType()).findByParticipantAndAttributeType(participant, this, includeObsolete);
     }
 
-    public List<Relation> getRelations(RelationParticipant participant, Date date, boolean includeObsolete, int from, int to) {
-        return new RelationFactory(this.getRelationType()).findByParticipantAndAttributeType(participant, this, date, includeObsolete, from, to);
+    public List<Relation> getRelations(RelationParticipant participant, Instant when, boolean includeObsolete, int from, int to) {
+        return new RelationFactory(this.getRelationType()).findByParticipantAndAttributeType(participant, this, when, includeObsolete, from, to);
     }
 
-    public List<Relation> getRelations(RelationParticipant participant, Interval period, boolean includeObsolete) {
+    public List<Relation> getRelations(RelationParticipant participant, Range<Instant> period, boolean includeObsolete) {
         List<Relation> result = new ArrayList<>();
         List<Relation> all = getRelations(participant, includeObsolete);
         for (Relation relation : all) {
-            if (period.overlaps(relation.getPeriod())) {
+            if (Ranges.does(period).overlap(relation.getPeriod())) {
                 result.add(relation);
             }
         }

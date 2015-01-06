@@ -14,16 +14,16 @@ import com.energyict.mdc.dynamic.relation.RelationType;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Interval;
-import org.joda.time.DateTimeConstants;
+import com.google.common.collect.Range;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Instant;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -45,9 +45,9 @@ public class RelationImpl implements Relation {
     private int creationUserId = 0;
     private int modificationUserId = 0;
     private Interval period;
-    private Date obsoleteDate;
-    private Date creationDate;
-    private Date modificationDate;
+    private Instant obsoleteDate;
+    private Instant creationDate;
+    private Instant modificationDate;
 
     private Map<RelationAttributeType, Object> dynamicAttributes = null;
 
@@ -71,18 +71,22 @@ public class RelationImpl implements Relation {
         return this.id;
     }
 
+    @Override
     public int getRelationTypeId() {
         return relationTypeId;
     }
 
-    public Interval getPeriod() {
-        return period;
+    @Override
+    public Range<Instant> getPeriod() {
+        return period.toClosedOpenRange();
     }
 
+    @Override
     public int getFlags() {
         return flags;
     }
 
+    @Override
     public RelationType getRelationType() {
         return relationType;
     }
@@ -108,12 +112,14 @@ public class RelationImpl implements Relation {
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public Map<RelationAttributeType, Object> getAttributeMap() {
         HashMap<RelationAttributeType, Object> baseMap = (HashMap<RelationAttributeType, Object>) basicGetAttributeMap();
         unproxyMap(baseMap);
         return (Map<RelationAttributeType, Object>) baseMap.clone();
     }
 
+    @Override
     public Map<RelationAttributeType, Object> basicGetAttributeMap() {
         if (dynamicAttributes == null) {
             dynamicAttributes = doGetAttributeMap();
@@ -123,7 +129,7 @@ public class RelationImpl implements Relation {
 
     protected Map<RelationAttributeType, Object> doGetAttributeMap() {
         RelationType relationType = getRelationType();
-        return relationType == null ? new HashMap<RelationAttributeType, Object>() : relationType.getAttributes(this);
+        return relationType == null ? new HashMap<>() : relationType.getAttributes(this);
     }
 
     public void init(RelationTransaction transaction) throws SQLException, BusinessException {
@@ -132,7 +138,7 @@ public class RelationImpl implements Relation {
     }
 
     protected void copy(RelationTransaction transaction) {
-        period = new Interval(transaction.getFrom(), transaction.getTo());
+        period = Interval.of(transaction.getFrom(), transaction.getTo());
         flags = transaction.getFlags();
         Map<RelationAttributeType, Object> map = transaction.getAttributeMap();
         dynamicAttributes = new HashMap<>();
@@ -142,10 +148,6 @@ public class RelationImpl implements Relation {
     }
 
     protected void copyNew(RelationTransaction transaction) {
-        copy(transaction);
-    }
-
-    protected void copyUpdate(RelationTransaction transaction) {
         copy(transaction);
     }
 
@@ -169,37 +171,32 @@ public class RelationImpl implements Relation {
         }
     }
 
-    public Date getFrom() {
-        return period.getStart() == null ? null : Date.from(period.getStart());
+    @Override
+    public Instant getFrom() {
+        return period.getStart();
     }
 
-    public Date getTo() {
-        return period.getEnd() == null ? null : Date.from(period.getEnd());
+    @Override
+    public Instant getTo() {
+        return period.getEnd();
     }
 
-    public Date getCreDate() {
+    @Override
+    public Instant getCreDate() {
         return creationDate;
     }
 
-    public Date getModDate() {
+    @Override
+    public Instant getModDate() {
         return modificationDate;
     }
 
-    private java.sql.Date asDate(java.util.Date in) {
-        if (in == null) {
-            return null;
-        }
-        else {
-            return new java.sql.Date(in.getTime());
-        }
-    }
-
-    private Date asDate(long seconds) {
+    private Instant asInstant(long seconds) {
         if (seconds == 0) {
             return null;
         }
         else {
-            return new Date(seconds * DateTimeConstants.MILLIS_PER_SECOND);
+            return Instant.ofEpochSecond(seconds);
         }
     }
 
@@ -210,14 +207,14 @@ public class RelationImpl implements Relation {
             period = new Interval(resultSet.getDate(offset++), resultSet.getDate(offset++));
         }
         else {
-            period = new Interval(
-                    asDate(resultSet.getLong(offset++)),
-                    asDate(resultSet.getLong(offset++)));
+            period = Interval.of(
+                    asInstant(resultSet.getLong(offset++)),
+                    asInstant(resultSet.getLong(offset++)));
         }
-        obsoleteDate = resultSet.getTimestamp(offset++);
+        obsoleteDate = this.toInstant(resultSet.getTimestamp(offset++));
         flags = resultSet.getInt(offset++);
-        creationDate = resultSet.getTimestamp(offset++);
-        modificationDate = resultSet.getTimestamp(offset++);
+        creationDate = this.toInstant(resultSet.getTimestamp(offset++));
+        modificationDate = this.toInstant(resultSet.getTimestamp(offset++));
         BigDecimal uidObject = resultSet.getBigDecimal(offset++);
         if (uidObject == null) {
             creationUserId = -1;
@@ -238,10 +235,16 @@ public class RelationImpl implements Relation {
         }
     }
 
-    List<RelationAttributeType> getAttributeTypes() {
-        return getRelationType().getAttributeTypes();
+    private Instant toInstant(Timestamp timestamp) {
+        if (timestamp == null) {
+            return null;
+        }
+        else {
+            return Instant.ofEpochMilli(timestamp.getTime());
+        }
     }
 
+    @Override
     public Object get(String key) {
         switch (key) {
             case FROM_ATTRIBUTE:
@@ -263,6 +266,7 @@ public class RelationImpl implements Relation {
         return get(attrType);
     }
 
+    @Override
     public Object get(RelationAttributeType attrType) {
         Object result = basicGetAttributeMap().get(attrType);
         if (result != null) {
@@ -275,30 +279,31 @@ public class RelationImpl implements Relation {
         return result;
     }
 
-    protected String getDynamicAttributeTableName() {
-        return getRelationType().getDynamicAttributeTableName();
-    }
-
+    @Override
     public boolean isObsolete() {
         return obsoleteDate != null;
     }
 
-    public Date getObsoleteDate() {
+    @Override
+    public Instant getObsoleteDate() {
         return obsoleteDate;
     }
 
-    public void close(Date newTo) throws SQLException, BusinessException {
+    @Override
+    public void close(Instant newTo) throws SQLException, BusinessException {
         updateTo(newTo);
     }
 
+    @Override
     public void makeObsolete() throws BusinessException, SQLException {
         if (isObsolete()) {
             throw new BusinessException("relationIsAlreadyObsolete", "This relation is already obsolete");
         }
-        this.obsoleteDate = new Date();
+        this.obsoleteDate = Bus.getServiceLocator().clock().instant();
         this.factory.makeObsolete(this);
     }
 
+    @Override
     public boolean matchAttributes(Map testMap) {
         // looks like hashMap.equals() does not
         // behave as expected, so we have to test for equality on our own
@@ -352,15 +357,15 @@ public class RelationImpl implements Relation {
 
 
     @Override
-    public boolean includes(Date date) {
-        return isEffectiveAt(Objects.requireNonNull(date).toInstant());
+    public boolean includes(Instant date) {
+        return isEffectiveAt(Objects.requireNonNull(date));
     }
 
-    private void updateTo(Date newTo) throws BusinessException, SQLException {
+    private void updateTo(Instant newTo) throws BusinessException, SQLException {
         if (isObsolete()) {
             throw new BusinessException("relationIsObsolete", "This relation is obsolete");
         }
-        if (newTo != null && !newTo.after(getFrom())) {
+        if (newTo != null && !newTo.isAfter(getFrom())) {
             SimpleDateFormat dateFormatter;
             if (getRelationType().hasTimeResolution()) {
                 dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -370,33 +375,37 @@ public class RelationImpl implements Relation {
             }
             throw new BusinessException("invalidToDateX", "Invalid 'To date' {0}", dateFormatter.format(newTo));
         }
-        this.period = new Interval(getFrom(), newTo);
+        this.period = Interval.of(getFrom(), newTo);
         this.factory.updateTo(this);
     }
 
+    @Override
     public void extendBy(RelationTransaction transaction) throws BusinessException, SQLException {
         if (getTo() != null) {
             if (transaction.getTo() == null) {
                 updateTo(null);
             }
             else {
-                if (transaction.getTo().after(getTo())) {
+                if (transaction.getTo().isAfter(getTo())) {
                     updateTo(transaction.getTo());
                 }
             }
         }
     }
 
+    @Override
     public void clearFlag(int bitPos) throws SQLException {
         flags = flags & (~(1 << bitPos));
         this.factory.updateFlags(this, flags);
     }
 
+    @Override
     public void setFlag(int bitPos) throws SQLException {
         flags = flags | (1 << bitPos);
         this.factory.updateFlags(this, flags);
     }
 
+    @Override
     public void updateFlags(int flags) throws SQLException {
         this.flags = flags;
         this.factory.updateFlags(this, flags);
@@ -407,26 +416,31 @@ public class RelationImpl implements Relation {
         this.factory.delete(this);
     }
 
-    public boolean startsBefore(Date testDate) {
-        return period.startsBefore(Objects.requireNonNull(testDate).toInstant());
+    @Override
+    public boolean startsBefore(Instant testDate) {
+        return period.startsBefore(Objects.requireNonNull(testDate));
     }
 
-    public boolean startsAfter(Date testDate) {
-        return period.startsAfter(Objects.requireNonNull(testDate).toInstant());
+    @Override
+    public boolean startsAfter(Instant testDate) {
+        return period.startsAfter(Objects.requireNonNull(testDate));
     }
 
-    public boolean endsBefore(Date testDate) {
-        return period.endsBefore(Objects.requireNonNull(testDate).toInstant());
+    @Override
+    public boolean endsBefore(Instant testDate) {
+        return period.endsBefore(Objects.requireNonNull(testDate));
     }
 
-    public boolean endsAfter(Date testDate) {
-        return period.endsAfter(Objects.requireNonNull(testDate).toInstant());
+    @Override
+    public boolean endsAfter(Instant testDate) {
+        return period.endsAfter(Objects.requireNonNull(testDate));
     }
 
     protected void doSetRelationType(RelationType type) {
         this.relationType = type;
     }
 
+    @Override
     public RelationTransaction getTransaction() {
         return new RelationTransactionImpl(this);
     }
@@ -436,6 +450,7 @@ public class RelationImpl implements Relation {
         return this.equals(obj);
     }
 
+    @Override
     public boolean equals(Object o) {
         if (o == null) {
             return false;
@@ -449,6 +464,7 @@ public class RelationImpl implements Relation {
         }
     }
 
+    @Override
     public int hashCode() {
         return getId() ^ getRelationTypeId();
     }
@@ -458,6 +474,7 @@ public class RelationImpl implements Relation {
         return this.toString();
     }
 
+    @Override
     public boolean isDefaultRelationFor(DefaultRelationParticipant participant) {
         RelationAttributeType attType = participant.getDefaultAttributeType();
         if (attType == null) {

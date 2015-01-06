@@ -1,6 +1,6 @@
 package com.energyict.mdc.dynamic.relation;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Marker Interface for objects like <code>Device</code>, <code>VirtualMeter</code> who are participants
@@ -21,7 +21,7 @@ public interface DefaultRelationParticipant extends RelationParticipant {
      * @param date the date
      * @return the Relation object
      */
-    public Relation getDefaultRelation(Date date);
+    public Relation getDefaultRelation(Instant date);
 
     /**
      * returns the attached default relation attribute type for this object
@@ -44,7 +44,7 @@ public interface DefaultRelationParticipant extends RelationParticipant {
      * @param date          the date
      * @return the attribute's value
      */
-    public Object get(String attributeName, Date date);
+    public Object get(String attributeName, Instant date);
 
     /**
      * returns the value for the attribute with the given name valid on this very moment
@@ -61,7 +61,7 @@ public interface DefaultRelationParticipant extends RelationParticipant {
      * @param date
      * @return the attribute's value
      */
-    public Object get(RelationAttributeType attributeType, Date date);
+    public Object get(RelationAttributeType attributeType, Instant date);
 
     /**
      * returns the value for the specified attribute on this very moment

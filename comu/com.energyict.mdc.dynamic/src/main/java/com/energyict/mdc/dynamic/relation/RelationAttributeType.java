@@ -1,20 +1,19 @@
 package com.energyict.mdc.dynamic.relation;
 
 import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NamedBusinessObject;
 
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 /**
  * RelationAttributeType describes a dynamic attribute of a <code>Relation</code>
  */
 public interface RelationAttributeType extends NamedBusinessObject {
-
-    public String getValueFactoryClassName();
 
     public ValueFactory getValueFactory();
 
@@ -23,8 +22,6 @@ public interface RelationAttributeType extends NamedBusinessObject {
     public Object valueToDb(Object object);
 
     public int getJdbcType();
-
-    public String getStructType();
 
     public String getDbType();
 
@@ -103,44 +100,49 @@ public interface RelationAttributeType extends NamedBusinessObject {
     public int getRelationTypeId();
 
     /**
-     * returns all relations (including obsoletes) for the given participant
+     * Gets all {@link Relation}s (including obsoletes) for the given participant.
      *
-     * @param participant
+     * @param participant The participant
      * @return the result list with Relation objects
      */
     public List<Relation> getAllRelations(RelationParticipant participant);
 
     /**
-     * returns all the relations for the given participant, including obsoletes if specified
+     * Gets all the {@link Relation}s for the given participant,
+     * including obsoletes if specified.
      *
-     * @param participant
-     * @param includeObsolete
+     * @param participant The participant
+     * @param includeObsolete The flag that indicates if obsolete Relations are desired
      * @return the resulting list with Relation objects
+     * @see Relation#isObsolete()
      */
     public List<Relation> getRelations(RelationParticipant participant, boolean includeObsolete);
 
     /**
-     * returns the relations between the specified from-to row interval, valid on the given date for the participant,
+     * Gets the {@link Relation}s between the specified from-to row interval,
+     * valid on the given timestamp for the participant,
      * including obsoletes if specified.
      *
-     * @param participant
-     * @param date
-     * @param includeObsolete
+     * @param participant The participant
+     * @param when
+     * @param includeObsolete The flag that indicates if obsolete Relations are desired
      * @param from
      * @param to
      * @return the resulting list with Relation objects
+     * @see Relation#isObsolete()
      */
-    public List<Relation> getRelations(RelationParticipant participant, Date date, boolean includeObsolete, int from, int to);
+    public List<Relation> getRelations(RelationParticipant participant, Instant when, boolean includeObsolete, int from, int to);
 
     /**
-     * returns all relations (including obsoletes) for the given participant
+     * Gets all {@link Relation}s (including obsoletes) for the given participant.
      *
-     * @param participant
+     * @param participant The participant
      * @param period
-     * @param includeObsolete
+     * @param includeObsolete The flag that indicates if obsolete Relations are desired
      * @return the result list with Relation objects
+     * @see Relation#isObsolete()
      */
-    public List<Relation> getRelations(RelationParticipant participant, Interval period, boolean includeObsolete);
+    public List<Relation> getRelations(RelationParticipant participant, Range<Instant> period, boolean includeObsolete);
 
     /**
      * returns true if this attribute is navigatable
@@ -148,8 +150,6 @@ public interface RelationAttributeType extends NamedBusinessObject {
      * @return the resulting boolean value
      */
     public boolean isNavigatable();
-
-    public boolean getNavigatable();
 
     /**
      * returns the role name of the receiver

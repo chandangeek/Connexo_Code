@@ -1,15 +1,15 @@
 package com.energyict.mdc.dynamic;
 
-import java.util.Date;
+import java.time.Instant;
 
 public interface VersionedDynamicAttributeOwner extends DynamicAttributeOwner {
 
-    public Date getFrom();
+    public Instant getFrom();
 
-    public Date getTo();
+    public Instant getTo();
 
-    public void setFrom(Date date);
+    public void setFrom(Instant date);
 
-    public void setTo(Date date);
+    public void setTo(Instant date);
 
 }

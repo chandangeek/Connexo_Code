@@ -1,5 +1,7 @@
 package com.energyict.mdc.dynamic.relation.impl;
 
+import java.time.Clock;
+
 /**
  * Insert your comments here.
  *
@@ -9,5 +11,7 @@ package com.energyict.mdc.dynamic.relation.impl;
 public interface ServiceLocator {
 
     public OrmClient getOrmClient();
+
+    public Clock clock();
 
 }

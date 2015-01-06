@@ -1,8 +1,8 @@
 package com.energyict.mdc.dynamic.relation;
 
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -12,36 +12,29 @@ import java.util.List;
 public interface RelationParticipant {
 
     /**
-     * returns a list of relation types where this object can play the role of participant
-     *
-     * @return the relation id
-     */
-    public List<RelationType> getAvailableRelationTypes();
-
-    /**
-     * returns a list of relations for the given attribute type valid on the given date
+     * Gets the {@link Relation}s for the given attribute type valid on the given timestamp.
      *
      * @param attrib          the relation attribute type
-     * @param date            the date when the relation should be valid
+     * @param when            the when when the relation should be valid
      * @param includeObsolete boolean indicating whether obsolete versions should be returned
      * @return the list of Relation objects
      */
-    public List<Relation> getRelations(RelationAttributeType attrib, Date date, boolean includeObsolete);
+    public List<Relation> getRelations(RelationAttributeType attrib, Instant when, boolean includeObsolete);
 
     /**
-     * returns a list of relations for the given attribute type valid on the given date
+     * Gets the {@link Relation}s for the given attribute type valid on the given timestamp.
      *
      * @param attrib          the relation attribute type
-     * @param date            the date when the relation should be valid
+     * @param when            the when when the relation should be valid
      * @param includeObsolete boolean indicating whether obsolete versions should be returned
      * @param fromRow         start row to be returned
      * @param toRow           end row to be returned
      * @return the list of Relation objects
      */
-    public List<Relation> getRelations(RelationAttributeType attrib, Date date, boolean includeObsolete, int fromRow, int toRow);
+    public List<Relation> getRelations(RelationAttributeType attrib, Instant when, boolean includeObsolete, int fromRow, int toRow);
 
     /**
-     * returns a list of all relations for the given attribute type
+     * Gets the {@link Relation}s for the given attribute type.
      *
      * @param attrib the relation attribute type
      * @return the list of Relation objects
@@ -49,13 +42,13 @@ public interface RelationParticipant {
     public List<Relation> getAllRelations(RelationAttributeType attrib);
 
     /**
-     * returns a list of all relations for the given attribute type valid in the given period
+     * Gets the {@link Relation}s for the given attribute type valid during the specified Range.
      *
      * @param attrib The relation attribute type
      * @param interval The time Interval when the relation should be valid
      * @param includeObsolete boolean indicating whether obsolete versions should be returned
      * @return the list of Relation objects
      */
-    public List<Relation> getRelations(RelationAttributeType attrib, Interval interval, boolean includeObsolete);
+    public List<Relation> getRelations(RelationAttributeType attrib, Range<Instant> interval, boolean includeObsolete);
 
 }
