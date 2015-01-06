@@ -79,4 +79,9 @@ public class MockCollectedMessage implements CollectedMessage {
         this.deviceProtocolInformation = deviceProtocolInformation;
     }
 
+    @Override
+    public void setDataCollectionConfiguration(DataCollectionConfiguration configuration) {
+
+    }
+
 }
