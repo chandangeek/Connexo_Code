@@ -1,19 +1,12 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cbo.HexString;
 import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
-import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.LoadProfileMode;
-
-import java.util.Date;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
@@ -29,11 +22,7 @@ public class Dsmr50MessageConverter extends Dsmr40MessageConverter {
 
         //G3 PLC objects
         registry.put(PLCConfigurationDeviceMessage.WritePlcG3Timeout, new MultipleAttributeMessageEntry("WritePlcG3Timeout", "Timeout_in_minutes"));
-        registry.put(SecurityMessage.WRITE_PSK, new MultipleAttributeMessageEntry("WritePlcPsk", "PSK"));
 
-        registry.put(PLCConfigurationDeviceMessage.ResetPlcOfdmMacCounters, new SimpleTagMessageEntry("ResetPlcOfdmMacCounters"));
-
-        registry.put(PLCConfigurationDeviceMessage.SetToneMaskAttributeName, new MultipleAttributeMessageEntry("SetToneMask", "ToneMask"));
         registry.put(PLCConfigurationDeviceMessage.SetTMRTTL, new MultipleAttributeMessageEntry("SetTMRTTL", "tmrTTL"));
         registry.put(PLCConfigurationDeviceMessage.SetMaxFrameRetries, new MultipleAttributeMessageEntry("SetMaxFrameRetries", "maxFrameRetries"));
         registry.put(PLCConfigurationDeviceMessage.SetNeighbourTableEntryTTL, new MultipleAttributeMessageEntry("SetNeighbourTableEntryTTL", "NeighbourTableEntryTTL"));
@@ -99,30 +88,12 @@ public class Dsmr50MessageConverter extends Dsmr40MessageConverter {
     public String format(PropertySpec propertySpec, Object messageAttribute) {
 
         //All G3 attributes are covered here (PLC and security)
-        if (propertySpec.getName().equals(meterTimeAttributeName)) {
-            return europeanDateTimeFormat.format((Date) messageAttribute);
-        } else if (propertySpec.getName().equals(capturePeriodAttributeName)
-                || propertySpec.getName().equals(broadCastLogTableEntryTTLAttributeName)) {
+        if (propertySpec.getName().equals(broadCastLogTableEntryTTLAttributeName)) {
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
         } else if (propertySpec.getName().equals(plcG3TimeoutAttributeName)) {
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds() / 60);  //Minutes
         } else if (propertySpec.getName().equals(consumerProducerModeAttributeName)) {
             return String.valueOf(LoadProfileMode.fromDescription(messageAttribute.toString()));
-        } else if (propertySpec.getName().equals(encryptionLevelAttributeName)) {
-            return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
-        } else if (propertySpec.getName().equals(pskAttributeName) || propertySpec.getName().equals(newHexPasswordAttributeName)) {
-            return ((HexString) messageAttribute).getContent();
-        } else if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
-            return String.valueOf(((Date) messageAttribute).getTime());
-        } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            return convertCodeTableToXML((Code) messageAttribute);
-        } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
-            return convertSpecialDaysCodeTableToXML((Code) messageAttribute);
-        } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            return String.valueOf(((UserFile) messageAttribute).getId());  //The old DSMR protocol uses the ID of the user file to fetch it from the database
-        } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)
-                || propertySpec.getName().equals(plcTypeFirmwareUpdateAttributeName)) {
-            return ((Boolean) messageAttribute).toString();
         } else if (propertySpec.getName().equals(newAuthenticationKeyAttributeName) ||
                 propertySpec.getName().equals(newWrappedAuthenticationKeyAttributeName) ||
                 propertySpec.getName().equals(newEncryptionKeyAttributeName) ||
