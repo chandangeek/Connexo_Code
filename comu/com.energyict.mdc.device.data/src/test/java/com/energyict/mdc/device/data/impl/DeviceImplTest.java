@@ -55,7 +55,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -718,8 +717,8 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         Instant readingTimeStamp = Instant.ofEpochMilli(1406852100000L);// 1/8/2014 0:15
         intervalBlock.addIntervalReading(IntervalReadingImpl.of(readingTimeStamp, readingValue));
         IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(code);
-        Date previousReadingTimeStamp = new Date(1406851200000L);// 1/8/2014 0:00
-        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(previousReadingTimeStamp.toInstant(), BigDecimal.ZERO));
+        Instant previousReadingTimeStamp = Instant.ofEpochMilli(1406851200000L);// 1/8/2014 0:00
+        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(previousReadingTimeStamp, BigDecimal.ZERO));
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addIntervalBlock(intervalBlock);
         meterReading.addIntervalBlock(intervalBlock2);
@@ -800,13 +799,13 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testGetLoadProfileDataDST() {
         BigDecimal readingValue = new BigDecimal(5432.32);
-        Date readingTimeStamp = new Date(1396138500000L); // 3/30/2014, 01:15:00 AM
+        Instant readingTimeStamp = Instant.ofEpochMilli(1396138500000L); // 3/30/2014, 01:15:00 AM
         Instant dayStart = Instant.ofEpochMilli(1396137600000L); // 3/30/2014, 1:00:00 AM
         Instant dayEnd = Instant.ofEpochMilli(1396159200000L); // 3/30/2014, 8:00:00 AM !! 6 hours later!!
         String code = getForwardEnergyReadingTypeCodeBuilder().period(TimeAttribute.MINUTE15).code();
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(code);
-        intervalBlock.addIntervalReading(IntervalReadingImpl.of(readingTimeStamp.toInstant(), readingValue));
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(readingTimeStamp, readingValue));
         meterReading.addIntervalBlock(intervalBlock);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);

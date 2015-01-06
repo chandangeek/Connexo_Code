@@ -507,13 +507,12 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         DeviceMessageId contactorClose = DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS;
         String displayMessageAttributeName = "DisplayMessageAttributeName";
         BigDecimal displayMessageTimeDurationAttributeName = BigDecimal.valueOf(123);
-        Date displayMessageActivationDate = Date.from(myReleaseInstant);
 
         device.newDeviceMessage(contactorClose)
                 .setReleaseDate(myReleaseInstant)
                 .addProperty(DeviceMessageConstants.DisplayMessageAttributeName, displayMessageAttributeName)
                 .addProperty(DeviceMessageConstants.DisplayMessageTimeDurationAttributeName, displayMessageTimeDurationAttributeName)
-                .addProperty(DeviceMessageConstants.DisplayMessageActivationDate, displayMessageActivationDate)
+                .addProperty(DeviceMessageConstants.DisplayMessageActivationDate, myReleaseInstant)
                 .add();
 
         Device reloadedDevice = getReloadedDevice(device);
@@ -543,7 +542,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
                         .filter(attribute -> attribute.getName().equals(DeviceMessageConstants.DisplayMessageActivationDate))
                         .findFirst();
         assertThat(deviceMessageAttributeOptional3.isPresent()).isTrue();
-        assertThat(deviceMessageAttributeOptional3.get().getValue()).isEqualTo(displayMessageActivationDate);
+        assertThat(deviceMessageAttributeOptional3.get().getValue()).isEqualTo(myReleaseInstant);
     }
 
     @Test
