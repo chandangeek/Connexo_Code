@@ -3,12 +3,8 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.g3;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
@@ -34,21 +30,15 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.protocolimpl.dlms.g3.G3Properties;
-import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.RtuPlusServerMessages;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
@@ -61,7 +51,6 @@ import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionTy
 import javax.inject.Inject;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -95,6 +84,7 @@ public class RtuPlusServer implements DeviceProtocol {
     private final SocketService socketService;
     private final IssueService issueService;
     private final IdentificationService identificationService;
+    private G3Topology g3Topology;
 
     @Inject
     public RtuPlusServer(PropertySpecService propertySpecService, SocketService socketService, IssueService issueService, IdentificationService identificationService) {
@@ -249,114 +239,14 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        CollectedTopology deviceTopology = this.getCollectedDataFactory().createCollectedTopology(offlineDevice.getDeviceIdentifier());
-
-        collectAndUpdateMacAddresses(deviceTopology);
-
-        collectAndUpdateShortAdresses(deviceTopology);
-
-        collectAndUpdatePathSegments(deviceTopology);
-
-        return deviceTopology;
+        return getG3Topology().collectTopology();
     }
 
-    private void collectAndUpdatePathSegments(CollectedTopology deviceTopology) {
-        try {
-            Array adpRoutingTable = getDlmsSession().getCosemObjectFactory().getSixLowPanAdaptationLayerSetup().readAdpRoutingTable();
-
-            for (AbstractDataType abstractStructure : adpRoutingTable) {
-                Structure structure = abstractStructure.getStructure();
-                if (structure != null) {
-                    //Skip empty elements
-                    if (structure.getDataType(0).intValue() == 0xFFFF && structure.getDataType(1).intValue() == 0xFFFF) {
-                        continue;
-                    }
-
-                    if (structure.nrOfDataTypes() == 6) {
-                        deviceTopology.addPathSegmentFor(offlineDevice.getDeviceIdentifier(),
-
-                                //TODO the G3_SHORT_ADDRESS_PROP_NAME should be used...
-//                                identificationService.createDeviceIdentifierByProperty(G3GatewayProperties.G3_SHORT_ADDRESS_PROP_NAME, Integer.toString(structure.getDataType(0).intValue())),
-                                identificationService.createDeviceIdentifierByProperty(MeterProtocol.ADDRESS, Integer.toString(structure.getDataType(0).intValue())),
-//                                identificationService.createDeviceIdentifierByProperty(G3GatewayProperties.G3_SHORT_ADDRESS_PROP_NAME, Integer.toString(structure.getDataType(1).intValue())),
-                                identificationService.createDeviceIdentifierByProperty(MeterProtocol.ADDRESS, Integer.toString(structure.getDataType(1).intValue())),
-                                Duration.ofSeconds(structure.getDataType(5).intValue()),
-                                structure.getDataType(2).intValue());
-                    }
-                }
-            }
-        } catch (IOException e) {
-            deviceTopology.setFailureInformation(ResultType.Supported, issueService.newWarning("SixLowPanAdaptationLayerSetup", e.getMessage()));
+    public G3Topology getG3Topology() {
+        if (g3Topology == null) {
+            g3Topology = new G3Topology(this.offlineDevice.getDeviceIdentifier(), this, identificationService, issueService, propertySpecService);
         }
-    }
-
-    private void collectAndUpdateShortAdresses(CollectedTopology deviceTopology) {
-        try {
-            Array nodeList = this.getDlmsSession().getCosemObjectFactory().getG3NetworkManagement().getNodeList();
-            for (AbstractDataType abstractDataType : nodeList) {
-                if (abstractDataType != null && abstractDataType instanceof Structure) {
-                    DeviceIdentifier nodeIdentifier = getSlaveMacAddressPropertyIdentifier(ProtocolTools.getHexStringFromBytes(((Structure) abstractDataType).getDataType(0).getOctetString().getOctetStr()));
-                    deviceTopology.addAdditionalCollectedDeviceInfo(
-                            this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
-                                    nodeIdentifier,
-                                    getSlaveShortAddressPropertySpec(),
-                                    getSlaveShortAddressPropertySpec().getValueFactory().fromStringValue(String.valueOf(((Structure) abstractDataType).getDataType(2).getInteger32().intValue()))));
-
-                }
-
-
-            }
-        } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
-        }
-    }
-
-    private void collectAndUpdateMacAddresses(CollectedTopology deviceTopology) {
-        List<SAPAssignmentItem> sapAssignmentList;      //List that contains the SAP id's and the MAC addresses of all logical devices (= gateway + slaves)
-        try {
-            sapAssignmentList = this.getDlmsSession().getCosemObjectFactory().getSAPAssignment().getSapAssignmentList();
-        } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
-        }
-        for (SAPAssignmentItem sapAssignmentItem : sapAssignmentList) {
-            if (!isGatewayNode(sapAssignmentItem)) {
-                DeviceIdentifier slaveDeviceIdentifier = getSlaveMacAddressPropertyIdentifier(sapAssignmentItem.getLogicalDeviceName());
-                deviceTopology.addSlaveDevice(slaveDeviceIdentifier);
-                deviceTopology.addAdditionalCollectedDeviceInfo(
-                        this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
-                                slaveDeviceIdentifier,
-                                getSlaveLogicalDeviceIdPropertySpec(),
-                                getSlaveLogicalDeviceIdPropertySpec().getValueFactory().fromStringValue(String.valueOf(sapAssignmentItem.getSap()))));
-            } else {
-                deviceTopology.addAdditionalCollectedDeviceInfo(
-                        this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
-                                offlineDevice.getDeviceIdentifier(),
-                                getDynamicProperties().getLogicalDeviceIdPropertySpec(),
-                                BigDecimal.valueOf(sapAssignmentItem.getSap())));
-            }
-        }
-    }
-
-    private PropertySpec getSlaveShortAddressPropertySpec() {
-        //TODo, this is hte correct property but we need to wait for the V2 protocol to use them ...
-//        return getDynamicProperties().getShortAddressPropertySpec();
-        return propertySpecService.stringPropertySpec(MeterProtocol.ADDRESS, false, "");
-    }
-
-    private PropertySpec getSlaveLogicalDeviceIdPropertySpec() {
-        //TODo, this is hte correct property but we need to wait for the V2 protocol to use them ...
-//        return getDynamicProperties().getLogicalDeviceIdPropertySpec();
-        return propertySpecService.stringPropertySpec(MeterProtocol.NODEID, false, "");
-    }
-
-    private DeviceIdentifier getSlaveMacAddressPropertyIdentifier(String macAddress) {
-        //TODo, this is hte correct property but we need to wait for the V2 protocol to use them ...
-//        this.identificationService.createDeviceIdentifierByProperty(G3GatewayProperties.G3_MAC_ADDRESS_PROP_NAME, sapAssignmentItem.getLogicalDeviceName())
-        return this.identificationService.createDeviceIdentifierByProperty(BasicDynamicPropertySupport.CALL_HOME_ID_PROPERTY_NAME, macAddress);
-    }
-
-    private boolean isGatewayNode(SAPAssignmentItem sapAssignmentItem) {
-        return sapAssignmentItem.getSap() == 1;
+        return g3Topology;
     }
 
     @Override
@@ -373,7 +263,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     private RtuPlusServerMessages getRtuPlusServerMessages() {
         if (rtuPlusServerMessages == null) {
-            rtuPlusServerMessages = new RtuPlusServerMessages(this.getDlmsSession(), issueService);
+            rtuPlusServerMessages = new RtuPlusServerMessages(issueService, this);
         }
         return rtuPlusServerMessages;
     }
@@ -413,7 +303,7 @@ public class RtuPlusServer implements DeviceProtocol {
     /**
      * Holder for all properties: security, general and dialects.
      */
-    private G3GatewayProperties getDynamicProperties() {
+    G3GatewayProperties getDynamicProperties() {
         if (dynamicProperties == null) {
             dynamicProperties = new G3GatewayProperties(propertySpecService);
         }

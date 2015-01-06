@@ -204,6 +204,10 @@ public class DLMSMeterConfig {
 		return config.getIPv4SetupSN(IOL);
 	}
 
+	public int getIPv6SetupSN() throws ProtocolException {
+		return config.getIPv6SetupSN(IOL);
+	}
+
 	public int getP3ImageTransferSN() throws ProtocolException {
 		return config.getP3ImageTransferSN(IOL);
 	}

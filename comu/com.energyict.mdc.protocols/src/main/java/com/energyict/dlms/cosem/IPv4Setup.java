@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;

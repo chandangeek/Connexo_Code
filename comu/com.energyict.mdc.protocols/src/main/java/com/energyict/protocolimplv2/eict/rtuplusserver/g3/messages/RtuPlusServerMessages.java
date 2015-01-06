@@ -23,10 +23,14 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
@@ -37,16 +41,20 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimpl.dlms.idis.xml.XMLParser;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -60,6 +68,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     private final DlmsSession session;
     private final IssueService issueService;
+    private RtuPlusServer deviceProtocol;
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
 
     private Set<DeviceMessageId> supportedMessages = EnumSet.of(
@@ -136,8 +145,9 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             DeviceMessageId.SECURITY_CHANGE_WEBPORTAL_PASSWORD2
     );
 
-    public RtuPlusServerMessages(DlmsSession session, IssueService issueService) {
-        this.session = session;
+    public RtuPlusServerMessages(IssueService issueService, RtuPlusServer deviceProtocol) {
+        this.deviceProtocol = deviceProtocol;
+        this.session = this.deviceProtocol.getDlmsSession();
         this.issueService = issueService;
     }
 
@@ -147,7 +157,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = getCollectedDataFactory().createCollectedMessageList(pendingMessages);
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
@@ -209,8 +219,9 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MIN_BE)) {
                     setMinBe(pendingMessage);
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_PATH_REQUEST)) {
-                    String feedback = pathRequest(pendingMessage);
-                    collectedMessage.setDeviceProtocolInformation(feedback);
+                    CollectedTopologyMessageInfo collectedTopologyMessageInfo = pathRequest(pendingMessage);
+                    collectedMessage = getCollectedDataFactory().createCollectedMessageTopology(pendingMessage.getIdentifier(), collectedTopologyMessageInfo.collectedTopology);
+                    collectedMessage.setDeviceProtocolInformation(collectedTopologyMessageInfo.protocolMessageInfo);
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.UPLINK_CONFIGURATION_ENABLE_PING)) {
                     enableUplinkPing(pendingMessage);
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.UPLINK_CONFIGURATION_WRITE_UPLINK_PING_DESTINATION_ADDRESS)) {
@@ -309,6 +320,10 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             result.addCollectedMessages(collectedMessage);
         }
         return result;
+    }
+
+    private CollectedDataFactory getCollectedDataFactory() {
+        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
     private void setFWDefaultState(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -461,6 +476,10 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         this.session.getCosemObjectFactory().getG3NetworkManagement().setKeepAliveTimeout(getSingleIntegerAttribute(pendingMessage));
     }
 
+    private void enableG3PLCInterface(OfflineDeviceMessage pendingMessage) throws IOException {
+        this.session.getCosemObjectFactory().getG3NetworkManagement().enableG3Interface(getSingleBooleanAttribute(pendingMessage));
+    }
+
     private void setKeepAliveRetries(OfflineDeviceMessage pendingMessage) throws IOException {
         this.session.getCosemObjectFactory().getG3NetworkManagement().setKeepAliveRetries(getSingleIntegerAttribute(pendingMessage));
     }
@@ -607,51 +626,106 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         this.session.getCosemObjectFactory().getUplinkPingConfiguration().enableUplinkPing(enable);
     }
 
-    private String pathRequest(OfflineDeviceMessage pendingMessage) throws IOException {
+    private class CollectedTopologyMessageInfo{
+        private final CollectedTopology collectedTopology;
+        private final String protocolMessageInfo;
+
+        private CollectedTopologyMessageInfo(CollectedTopology collectedTopology, String protocolMessageInfo) {
+            this.collectedTopology = collectedTopology;
+            this.protocolMessageInfo = protocolMessageInfo;
+        }
+    }
+
+    private CollectedTopologyMessageInfo pathRequest(OfflineDeviceMessage pendingMessage) throws IOException {
+        CollectedTopology collectedTopology = null;
         String macAddressesString = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
         final G3NetworkManagement topologyManagement = this.session.getCosemObjectFactory().getG3NetworkManagement();
         List<String> macAddresses = Arrays.asList(macAddressesString.split(";"));
 
+        StringBuilder pingFailed = new StringBuilder();
+        StringBuilder pingSuccess = new StringBuilder();
+        StringBuilder pathFailed = new StringBuilder();
         long aarqTimeout = ((G3GatewayProperties) session.getProperties()).getAarqTimeout();
         long normalTimeout = session.getProperties().getTimeout();
         long pingTimeout = (aarqTimeout == 0 ? normalTimeout : aarqTimeout);
         long fullRoundTripTimeout = 30000 + pingTimeout;
-        int numberPingFailed = 0;
-        int numberPathFailed = 0;
-        int success = 0;
-        for (String macAddress : macAddresses) {
+         for (String macAddress : macAddresses) {
             session.getDLMSConnection().setTimeout(fullRoundTripTimeout);     //The ping request can take a long time, increase the timeout of the DLMS connection
             Integer ping;
             try {
+                session.getLogger().info("Executing ping request to meter " + macAddress);
                 ping = topologyManagement.pingNode(macAddress, (int) (pingTimeout / 1000));
             } catch (DataAccessResultException e) {
                 ping = null;
+                session.getLogger().warning("Meter " + macAddress + " is not registered to this concentrator! Will not execute path request for this meter.");
             } finally {
                 session.getDLMSConnection().setTimeout(normalTimeout);
             }
             if (ping == null) {
-                numberPingFailed++;
+                logFailedPingRequest(pingFailed, macAddress);
             } else if (ping > 0) {
+                logSuccessfulPingRequest(pingSuccess, macAddress, ping);
+                session.getLogger().info("Ping request for meter " + macAddress + " was successful (" + ping + " ms).");
                 try {
+                    session.getLogger().info("Executing path request to meter " + macAddress);
                     session.getDLMSConnection().setTimeout(fullRoundTripTimeout);
-                    topologyManagement.requestPath(macAddress);     //If successful, it will be added in the topology of the RTU+Server
-                    success++;
-                } catch (DataAccessResultException e) {
-                    numberPathFailed++;
+                    collectedTopology = this.deviceProtocol.getG3Topology().doPathRequestFor(macAddress);
+                    session.getLogger().info("Path request for meter " + macAddress + " was successful.");
                 } finally {
                     session.getDLMSConnection().setTimeout(normalTimeout);
                 }
             } else if (ping <= 0) {
-                numberPingFailed++;
+                session.getLogger().info("Ping failed for meter " + macAddress + ". Will not execute path request for this meter.");
+                logFailedPingRequest(pingFailed, macAddress);
             }
         }
+        String allInfo = (pingSuccess.length() == 0 ? "" : (pingSuccess + ". ")) + (pingFailed.length() == 0 ? "" : (pingFailed + ". ")) + (pathFailed.length() == 0 ? "" : (pathFailed + "."));
 
-        return getProtocolInfo(success, macAddresses.size(), numberPingFailed, numberPathFailed);
+        if (pingFailed.toString().length() == 0 && pathFailed.toString().length() == 0) {
+            session.getLogger().info("Message result: ping and path requests were successful for every meter.");
+        }
+        return new CollectedTopologyMessageInfo(collectedTopology, allInfo);
     }
 
-    private String getProtocolInfo(int success, int total, int numberPingFailed, int numberPathFailed) {
-        return "Successful for " + success + "/" + total + " device(s), ping failed for " + numberPingFailed + " device(s), path request failed for " + numberPathFailed + " device(s).";
+    private void logFailedPingRequest(StringBuilder pingFailed, String macAddress) {
+        if (pingFailed.toString().length() == 0) {
+            pingFailed.append("Ping failed for: ");
+            pingFailed.append(macAddress);
+        } else {
+            pingFailed.append(", ");
+            pingFailed.append(macAddress);
+        }
     }
+
+    private void logSuccessfulPingRequest(StringBuilder pingSuccess, String macAddress, int pingTime) {
+        if (pingSuccess.toString().length() == 0) {
+            pingSuccess.append("Ping successful for: ");
+            pingSuccess.append(macAddress);
+            if (pingTime > 1) {
+                pingSuccess.append(" (").append(pingTime).append(" ms)");
+            }
+        } else {
+            pingSuccess.append(", ");
+            pingSuccess.append(macAddress);
+            if (pingTime > 1) {
+                pingSuccess.append(" (").append(pingTime).append(" ms)");
+            }
+        }
+    }
+
+    private void logFailedPathRequest(StringBuilder pathFailed, String macAddress) {
+        if (pathFailed.toString().length() == 0) {
+            pathFailed.append("Path request failed for: ");
+            pathFailed.append(macAddress);
+        } else {
+            pathFailed.append(", ");
+            pathFailed.append(macAddress);
+        }
+    }
+
+    //private String getProtocolInfo(int success, int total, int numberPingFailed, int numberPathFailed) {
+    //    return "Successful for " + success + "/" + total + " device(s), ping failed for " + numberPingFailed + " device(s), path request failed for " + numberPathFailed + " device(s).";
+    //}
 
     private void setMinBe(OfflineDeviceMessage pendingMessage) throws IOException {
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
@@ -838,7 +912,11 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessage(message.getIdentifier());
+        return getCollectedDataFactory().createCollectedMessage(message.getIdentifier());
+    }
+
+    protected CollectedMessage createCollectedMessageWithRegisterData(OfflineDeviceMessage message, List<CollectedRegister> registers) {
+        return getCollectedDataFactory().createCollectedMessageWithRegisterData(message.getDeviceIdentifier(), message.getIdentifier(), registers);
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, Exception e) {
@@ -862,7 +940,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
+        return getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
     }
 
     @Override

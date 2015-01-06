@@ -4,11 +4,13 @@ import com.energyict.dlms.cosem.DLMSClassId;
 
 public enum G3NetworkManagementMethods implements DLMSClassMethods {
 
-	// We don't use short addresses, RTU+Server uses LN references.
+    // We don't use short addresses, RTU+Server uses LN references.
     PATH_REQUEST(1),
     ROUTE_REQUEST(2),
-	PING(3),
-	DETACH(4);
+    PING(3),
+    DETACH(4),
+    ENABLE(5),
+    PROVIDE_PSK(9);
 	
 	private final int methodId;
 	

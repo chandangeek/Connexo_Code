@@ -182,6 +182,22 @@ public class G3NetworkManagement extends AbstractCosemObject {
         return readDataType(G3NetworkManagementAttributes.KEEP_ALIVE_TIMEOUT, Unsigned16.class).getValue();
     }
 
+    public final boolean isG3InterfaceEnabled() throws IOException {
+        return readDataType(G3NetworkManagementAttributes.IS_G3_INTERFACE_ENABLED, BooleanObject.class).getState();
+    }
+
+    public final Array getJoiningNodes() throws IOException {
+        return readDataType(G3NetworkManagementAttributes.JOINING_NODES, Array.class);
+    }
+
+    public void enableG3Interface(boolean enable) throws IOException {
+        methodInvoke(G3NetworkManagementMethods.ENABLE, new BooleanObject(enable).getBEREncodedByteArray());
+    }
+
+    public void provideKeyPairs(Array keyPairs) throws IOException {
+        methodInvoke(G3NetworkManagementMethods.PROVIDE_PSK, keyPairs.getBEREncodedByteArray());
+    }
+
     public final void setAutomaticRouteManagement(boolean routeRequestEnabled, boolean pingEnabled, boolean pathRequestEnabled) throws IOException {
         Structure structure = new Structure();
         structure.addDataType(new BooleanObject(routeRequestEnabled));
@@ -282,15 +298,27 @@ public class G3NetworkManagement extends AbstractCosemObject {
      * @throws IOException In case of an IO error during method execution.
      */
     public final List<String> requestPath(final String macAddress) throws IOException {
-        final Array response = this.methodInvoke(G3NetworkManagementMethods.PATH_REQUEST, extractEUI64(macAddress), Array.class);
+        final Array response = getPathRequestArray(macAddress);
 
-        final List<String> path = new ArrayList<String>(response.nrOfDataTypes());
+        final List<String> path = new ArrayList<>(response.nrOfDataTypes());
 
         for (final AbstractDataType element : response) {
             path.add((DLMSUtils.getHexStringFromBytes(((OctetString) element).getOctetStr(), "")));
         }
 
         return path;
+    }
+
+    /**
+     * Requests the path to a particular node.
+     *
+     * @param macAddress the Hex String containing the EUI64 address of the path.
+     * @return the DLMS Array of EUI64 addresses representing the upstream and downstream path to the given node.
+     *
+     * @throws IOException In case of an IO error during method execution.
+     */
+    public Array getPathRequestArray(final String macAddress) throws IOException {
+        return this.methodInvoke(G3NetworkManagementMethods.PATH_REQUEST, extractEUI64(macAddress), Array.class);
     }
 
     /**

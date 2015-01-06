@@ -30,6 +30,7 @@ public final class DLMSConfig {
 	private static final DLMSConfig HISTORICVALUES =  new DLMSConfig("",7,0,-1,98,1,-1,126);
 	private static final DLMSConfig RESETCOUNTER =  new DLMSConfig("",3,1,0,0,1,0,255);
 	private static final DLMSConfig IPV4SETUP = new DLMSConfig("",42,0,0,25,1,0,255);
+	private static final DLMSConfig IPV6SETUP = new DLMSConfig("",48,0,0,25,7,0,255);
 	private static final DLMSConfig P3IMAGETRANSFER = new DLMSConfig("",18,0,0,44,0,0,255);
 	private static final DLMSConfig IMAGEACTIVATIONSCHEDULE = new DLMSConfig("",22,0,0,15,0,2,255);
 	private static final DLMSConfig DISCONNECTCONTROLSCHEDULE = new DLMSConfig("",22,0,0,15,0,1,255);
@@ -1144,6 +1145,18 @@ public final class DLMSConfig {
 		}
 		for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(IPV4SETUP)) {
+				return objectList[i].getBaseName();
+			}
+		}
+		return 0;
+	}
+
+	public int getIPv6SetupSN(UniversalObject[] objectList) throws ProtocolException {
+		if (objectList == null) {
+			throw new ProtocolException("DLMSConfig, ipv6Setup, objectlist empty!");
+		}
+		for (int i=0;i<objectList.length;i++) {
+			if (objectList[i].equals(IPV6SETUP)) {
 				return objectList[i].getBaseName();
 			}
 		}

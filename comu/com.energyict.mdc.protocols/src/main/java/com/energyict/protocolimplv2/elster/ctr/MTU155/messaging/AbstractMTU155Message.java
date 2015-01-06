@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 import com.elster.jupiter.properties.PropertySpec;
 
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
@@ -47,11 +48,11 @@ public abstract class AbstractMTU155Message {
     }
 
     public CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessage(message.getIdentifier());
+        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessage(message.getIdentifier());
     }
 
     public CollectedMessage createCollectedMessageWithCollectedLoadProfileData(OfflineDeviceMessage message, CollectedLoadProfile collectedLoadProfile) {
-        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessageWithLoadProfileData(message.getIdentifier(), collectedLoadProfile);
+        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessageWithLoadProfileData(message.getIdentifier(), collectedLoadProfile);
     }
 
     public CollectedMessage executeMessage(OfflineDeviceMessage message) {

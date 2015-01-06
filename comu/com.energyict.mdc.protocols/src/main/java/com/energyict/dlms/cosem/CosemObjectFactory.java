@@ -226,6 +226,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     	return new IPv4Setup(protocolLink, getObjectReference(IPV4_SETUP, protocolLink.getMeterConfig().getIPv4SetupSN()));
     }
 
+    public IPv6Setup getIPv6Setup(){
+        return new IPv6Setup(protocolLink);
+    }
+
     public MacAddressSetup getMacAddressSetup(ObisCode obisCode) throws ProtocolException {
         return new MacAddressSetup(protocolLink, getObjectReference(obisCode, DLMSClassId.MAC_ADDRESS_SETUP.getClassId()));
     }
@@ -256,7 +260,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
      * @param obisCode the obisCode of the Object
      * @return a newly created MbusClient object
      * @throws java.io.IOException if the {@link com.energyict.dlms.ProtocolLink#getReference()} != (ProtocolLink#LN_REFERENCE || ProtocolLink#SN_REFERENCE)
-     * @deprecated use {@link #getMbusClient(com.energyict.obis.ObisCode, int)} instead
+     * @deprecated use {@link #getMbusClient(ObisCode, int)} instead
      */
 	public MBusClient getMbusClient(ObisCode obisCode) throws ProtocolException {
         return getMbusClient(obisCode, MbusClientAttributes.VERSION9);
