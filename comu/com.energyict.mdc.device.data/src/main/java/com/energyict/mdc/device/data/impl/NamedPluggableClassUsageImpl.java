@@ -24,7 +24,6 @@ import com.energyict.mdc.pluggable.PluggableClassWithRelationSupport;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -164,10 +163,6 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
 
     public List<PT> getAllProperties(Instant date) {
         return this.getAllLocalProperties(date);
-    }
-
-    protected List<PT> getAllProperties(Date date) {
-        return this.getAllProperties(date.toInstant());
     }
 
     private List<PT> getAllLocalProperties() {

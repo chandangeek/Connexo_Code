@@ -32,7 +32,6 @@ import javax.validation.constraints.NotNull;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -250,14 +249,6 @@ public class ProtocolDialectPropertiesImpl
     @Override
     protected List<PropertySpec> getPluggablePropetySpecs() {
         return this.getDeviceProtocolDialectUsagePluggableClass().getDeviceProtocolDialect().getPropertySpecs();
-    }
-
-    @Override
-    public List<DeviceProtocolDialectProperty> getAllProperties(Date date) {
-        List<DeviceProtocolDialectProperty> allProperties = new ArrayList<>();
-        List<DeviceProtocolDialectProperty> localProperties = super.getAllProperties(date);
-        this.addConfigurationProperties(allProperties, localProperties);
-        return this.checkForRelationAttributeNameConversions(allProperties);
     }
 
     @Override

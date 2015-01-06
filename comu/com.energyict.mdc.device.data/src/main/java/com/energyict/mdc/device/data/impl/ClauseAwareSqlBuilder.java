@@ -4,11 +4,9 @@ import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.sql.TupleParser;
-import java.time.Clock;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Date;
 
 /**
  * Wraps or decorates a {@link SqlBuilder} and is aware of the
@@ -68,22 +66,6 @@ public class ClauseAwareSqlBuilder {
 
     public void addNull(int sqlType) {
         this.actualBuilder.addNull(sqlType);
-    }
-
-    public void addTimestamp(Date date) {
-        this.actualBuilder.addTimestamp(date);
-    }
-
-    public void addDate(Date date) {
-        this.actualBuilder.addDate(date);
-    }
-
-    public void addUtcInstant(Clock clock) {
-        this.addUtcInstant(Date.from(clock.instant()));
-    }
-
-    public void addUtcInstant(Date date) {
-        this.actualBuilder.addLong(date.getTime());
     }
 
     public void space() {

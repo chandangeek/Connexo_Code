@@ -6,7 +6,7 @@ import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiMember;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.Instant;
 import java.util.Map;
 
 /**
@@ -18,9 +18,9 @@ import java.util.Map;
  */
 public class AbstractDataCollectionKpiCalculatorImpl {
 
-    private final Date timestamp;
+    private final Instant timestamp;
 
-    public AbstractDataCollectionKpiCalculatorImpl(Date timestamp) {
+    public AbstractDataCollectionKpiCalculatorImpl(Instant timestamp) {
         super();
         this.timestamp = timestamp;
     }
@@ -29,7 +29,7 @@ public class AbstractDataCollectionKpiCalculatorImpl {
         for (KpiMember kpiMember : koreKpi.getMembers()) {
             MonitoredTaskStatus taskStatus = MonitoredTaskStatus.valueOf(kpiMember.getName());
             long counter = taskStatus.calculateFrom(statusCounters);
-            kpiMember.score(this.timestamp.toInstant(), new BigDecimal(counter));
+            kpiMember.score(this.timestamp, new BigDecimal(counter));
         }
     }
 
