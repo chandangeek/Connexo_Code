@@ -1,12 +1,12 @@
 package com.energyict.mdc.pluggable;
 
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
-import com.energyict.mdc.dynamic.relation.RelationType;
 
-import java.util.Date;
+import com.google.common.collect.Range;
+
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -35,7 +35,7 @@ public interface RelationSupport {
      * @param date The Date
      * @return The Relations
      */
-    public Relation getRelation (RelationParticipant relationParticipant, Date date);
+    public Relation getRelation (RelationParticipant relationParticipant, Instant date);
 
     /**
      * Gets the {@link Relation}s that hold the attributes of the {@link RelationParticipant}
@@ -45,6 +45,6 @@ public interface RelationSupport {
      * @param period The TimePeriod
      * @return The Relations
      */
-    public List<Relation> getRelations (RelationParticipant relationParticipant, Interval period);
+    public List<Relation> getRelations (RelationParticipant relationParticipant, Range<Instant> period);
 
 }

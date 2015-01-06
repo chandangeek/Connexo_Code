@@ -1,7 +1,9 @@
 package com.energyict.mdc.pluggable;
 
 import com.elster.jupiter.properties.HasDynamicProperties;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
+
+import java.time.Instant;
 
 /**
  * Holds the value of a property of a {@link PluggableClass}.
@@ -54,6 +56,6 @@ public interface PluggableClassUsageProperty<T extends HasDynamicProperties> {
      *
      * @return The activity period
      */
-    public Interval getActivePeriod ();
+    public Range<Instant> getActivePeriod ();
 
 }
