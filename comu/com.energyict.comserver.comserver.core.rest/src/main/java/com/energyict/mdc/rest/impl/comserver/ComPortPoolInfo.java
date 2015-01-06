@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 @XmlRootElement
@@ -25,7 +25,7 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
     public Boolean active;
     public String description;
     public Boolean obsoleteFlag;
-    public Date obsoleteDate;
+    public Instant obsoleteDate;
     @XmlJavaTypeAdapter(ComPortTypeAdapter.class)
     public ComPortType type;
     public List<InboundComPortInfo> inboundComPorts;
