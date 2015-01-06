@@ -63,6 +63,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                             },
                                             {
                                                 xtype: 'fieldcontainer',
+                                                itemId: 'fld-device-config-addressable',
                                                 columnWidth: 0.5,
                                                 fieldLabel: Uni.I18n.translate('deviceconfiguration.isDirectlyAddressable', 'MDC', 'Directly addressable'),
                                                 required: true,
@@ -106,6 +107,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                             },
                                             {
                                                 xtype: 'fieldcontainer',
+                                                itemId: 'fld-device-config-gateway',
                                                 columnWidth: 0.5,
                                                 fieldLabel: Uni.I18n.translate('deviceconfiguration.deviceIsGateway', 'MDC', 'Device is a gateway'),
                                                 required: true,
