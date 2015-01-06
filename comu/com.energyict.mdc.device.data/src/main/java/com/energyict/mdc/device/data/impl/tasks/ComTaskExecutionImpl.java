@@ -45,7 +45,6 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -246,10 +245,6 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         });
     }
 
-    private Instant asInstant(Date date) {
-        return date == null ? null : date.toInstant();
-    }
-
     private void validateMakeObsolete() {
         if (this.isObsolete()) {
             throw new ComTaskExecutionIsAlreadyObsoleteException(this.getThesaurus(), this);
@@ -378,7 +373,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     private Instant calculateNextExecutionTimestampFromBaseline(Instant baseLine) {
         NextExecutionSpecs nextExecutionSpecs = this.getNextExecutionSpecs().get();
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(this.clock.getZone()));
-        calendar.setTime(Date.from(baseLine));
+        calendar.setTimeInMillis(baseLine.toEpochMilli());
         return nextExecutionSpecs.getNextTimestamp(calendar).toInstant();
     }
 
@@ -461,7 +456,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
                 return nextActualConnectionTime;
             } else {
                 Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(this.clock.getZone()));
-                calendar.setTime(Date.from(nextExecutionTimestamp));
+                calendar.setTimeInMillis(nextExecutionTimestamp.toEpochMilli());
                 calendar.add(Calendar.MILLISECOND, -1); // hack getNextTimeStamp to be inclusive
                 return getScheduledConnectionTask().getNextExecutionSpecs().getNextTimestamp(calendar).toInstant();
             }
@@ -561,7 +556,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     private Instant calculateNextExecutionTimestampAfterFailure() {
         Instant failureDate = clock.instant();
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(clock.getZone()));
-        calendar.setTime(Date.from(failureDate));
+        calendar.setTimeInMillis(failureDate.toEpochMilli());
         TimeDuration baseRetryDelay = this.getRescheduleRetryDelay();
         TimeDuration failureRetryDelay = new TimeDuration(baseRetryDelay.getCount() * getCurrentRetryCount(), baseRetryDelay.getTimeUnitCode());
         failureRetryDelay.addTo(calendar);

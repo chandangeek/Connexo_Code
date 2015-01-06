@@ -5,11 +5,9 @@ import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-import org.joda.time.DateTimeConstants;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Date;
 
 /**
  * Represents the counterpart of {@link TaskStatus} for {@link ComTaskExecution}s
@@ -35,7 +33,7 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Date now) {
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and cte.nextExecutionTimestamp is null");
         }
@@ -56,7 +54,7 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Date now) {
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and ((comport is not null) or ((exists (select * from ");
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
@@ -84,7 +82,7 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Date now) {
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and comport is null and not exists (select * from ");
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
@@ -113,7 +111,7 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Date now) {
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and lastSuccessfulCompletion is null ");
             sqlBuilder.append("and comport is null ");
@@ -142,7 +140,7 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Date now) {
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and nextexecutiontimestamp > ");
             sqlBuilder.addLong(this.asSeconds(now));
@@ -172,7 +170,7 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Date now) {
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and nextExecutionTimestamp is not null ");
             sqlBuilder.append("and nextExecutionTimestamp >");
@@ -203,7 +201,7 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Date now) {
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and comport is null ");
             sqlBuilder.append("and lastSuccessfulCompletion is not null ");
@@ -213,12 +211,12 @@ public enum ServerComTaskStatus {
         }
     };
 
-    protected long asSeconds(Date date) {
+    protected long asSeconds(Instant date) {
         if (date == null) {
             return 0;
         }
         else {
-            return date.getTime() / DateTimeConstants.MILLIS_PER_SECOND;
+            return date.getEpochSecond();
         }
     }
 
@@ -240,10 +238,10 @@ public enum ServerComTaskStatus {
 
     public final void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock) {
         sqlBuilder.appendWhereOrAnd();
-        this.completeFindBySqlBuilder(sqlBuilder, Date.from(clock.instant()));
+        this.completeFindBySqlBuilder(sqlBuilder, clock.instant());
     }
 
-    protected void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Date date) {
+    protected void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant date) {
         sqlBuilder.append("cte.obsolete_date is null ");
     }
 

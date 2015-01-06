@@ -1,10 +1,9 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
 import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -20,7 +19,7 @@ public class ConnectionSetupKpiCalculator extends AbstractDataCollectionKpiCalcu
     private final ConnectionTaskService connectionTaskService;
     private final Logger logger;
 
-    public ConnectionSetupKpiCalculator(DataCollectionKpiImpl dataCollectionKpi, Date timestamp, ConnectionTaskService connectionTaskService, Logger logger) {
+    public ConnectionSetupKpiCalculator(DataCollectionKpiImpl dataCollectionKpi, Instant timestamp, ConnectionTaskService connectionTaskService, Logger logger) {
         super(timestamp);
         this.kpi = dataCollectionKpi;
         this.connectionTaskService = connectionTaskService;

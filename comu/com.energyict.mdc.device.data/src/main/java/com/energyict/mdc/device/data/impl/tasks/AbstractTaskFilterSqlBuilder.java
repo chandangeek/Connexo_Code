@@ -1,23 +1,24 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
+import com.energyict.mdc.device.data.impl.TableSpecs;
+
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
-import com.energyict.mdc.device.data.impl.TableSpecs;
+
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import org.joda.time.DateTimeConstants;
 
 /**
  * Provides code reuse opportunities to builds SQL queries that will
@@ -176,7 +177,7 @@ public abstract class AbstractTaskFilterSqlBuilder {
             this.append(".");
             this.append(columnName);
             this.append(" >=");
-            this.addLong(intervalBindStrategy.toLong(Date.from(interval.getStart())));
+            this.addLong(intervalBindStrategy.toLong(interval.getStart()));
             if (interval.getEnd() != null) {
                 this.append(" and ");
             }
@@ -189,7 +190,7 @@ public abstract class AbstractTaskFilterSqlBuilder {
             this.append(".");
             this.append(columnName);
             this.append(" <");
-            this.addLong(intervalBindStrategy.toLong(Date.from(interval.getEnd())));
+            this.addLong(intervalBindStrategy.toLong(interval.getEnd()));
             this.append(") ");
         }
         else {
@@ -200,19 +201,19 @@ public abstract class AbstractTaskFilterSqlBuilder {
     protected enum IntervalBindStrategy {
         MILLIS {
             @Override
-            protected long toLong(Date intervalDate) {
-                return intervalDate.getTime();
+            protected long toLong(Instant intervalDate) {
+                return intervalDate.toEpochMilli();
             }
         },
 
         SECONDS {
             @Override
-            protected long toLong(Date intervalDate) {
-                return intervalDate.getTime() / DateTimeConstants.MILLIS_PER_SECOND;
+            protected long toLong(Instant intervalDate) {
+                return intervalDate.getEpochSecond();
             }
         };
 
-        protected abstract long toLong(Date intervalDate);
+        protected abstract long toLong(Instant intervalDate);
     }
 
 }

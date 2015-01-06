@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.tasks;
 
 import java.time.Instant;
-import java.util.Date;
 
 /**
  * Updater that supports basic value setters for a {@link ComTaskExecution}.

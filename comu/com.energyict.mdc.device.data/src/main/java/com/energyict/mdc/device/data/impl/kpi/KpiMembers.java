@@ -5,9 +5,9 @@ import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +47,7 @@ class KpiMembers {
                     collect(Collectors.toList());
         List<DataCollectionKpiScore> scores = new ArrayList<>();
         for (int i = 0; i < entries.get(0).size(); i++) {
-            Date timestamp = Date.from(entries.get(0).get(i).getTimestamp());
+            Instant timestamp = entries.get(0).get(i).getTimestamp();
             List<KpiEntry> kpiEntries = new ArrayList<>(MonitoredTaskStatus.values().length);
             for (int s = 0; s < MonitoredTaskStatus.values().length; s++) {
                 kpiEntries.add(entries.get(s).get(i));
@@ -57,7 +57,7 @@ class KpiMembers {
         return scores;
     }
 
-    private DataCollectionKpiScore newScore(Date timestamp, KpiMember targetMember, List<KpiEntry> kpiEntries) {
+    private DataCollectionKpiScore newScore(Instant timestamp, KpiMember targetMember, List<KpiEntry> kpiEntries) {
         return new DataCollectionKpiScoreImpl(
                 timestamp,
                 targetMember,

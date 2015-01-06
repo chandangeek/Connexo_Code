@@ -8,7 +8,6 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
@@ -65,7 +64,6 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -158,7 +156,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.pluggableClass = partialConnectionTask.getPluggableClass();
         this.pluggableClassId = this.pluggableClass.getId();
         this.comPortPool.set(comPortPool);
-        if(partialConnectionTask.isDefault() && !this.device.get().getConnectionTasks().stream().filter(connectionTask -> connectionTask.isDefault()).findAny().isPresent()){
+        if (partialConnectionTask.isDefault() && !this.device.get().getConnectionTasks().stream().filter(connectionTask -> connectionTask.isDefault()).findAny().isPresent()) {
             this.isDefault = partialConnectionTask.isDefault();
         }
     }
@@ -441,10 +439,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return this.protocolPluggableService.findConnectionTypePluggableClass(connectionTypePluggableClassId);
     }
 
-    private List<PropertySpec> getPluggablePropetySpecs() {
-        return this.getPluggableClass().getConnectionType().getPropertySpecs();
-    }
-
     @Override
     public Relation getDefaultRelation() {
         return this.getDefaultRelation(clock.instant());
@@ -470,16 +464,12 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     public List<ConnectionTaskProperty> getAllProperties() {
-        return this.getAllProperties(Date.from(clock.instant()));
-    }
-
-    public List<ConnectionTaskProperty> getAllProperties(Instant date) {
-        return this.getAllLocalProperties(date);
+        return this.getAllProperties(clock.instant());
     }
 
     @Override
-    public List<ConnectionTaskProperty> getAllProperties(Date date) {
-        return this.getAllProperties(date.toInstant());
+    public List<ConnectionTaskProperty> getAllProperties(Instant date) {
+        return this.getAllLocalProperties(date);
     }
 
     private List<ConnectionTaskProperty> getAllLocalProperties(Instant date) {

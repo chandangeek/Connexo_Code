@@ -5,7 +5,7 @@ import com.elster.jupiter.kpi.KpiMember;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.Instant;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -18,11 +18,11 @@ import java.util.stream.IntStream;
  * @since 2014-10-07 (12:04)
  */
 public final class DataCollectionKpiScoreImpl implements DataCollectionKpiScore {
-    private final Date timestamp;
+    private final Instant timestamp;
     private final KpiMember targetMember;
     private final Map<MonitoredTaskStatus, KpiEntry> entries = new EnumMap<>(MonitoredTaskStatus.class);
 
-    public DataCollectionKpiScoreImpl(Date timestamp, KpiMember targetMember, List<MonitoredTaskStatus> statuses, List<KpiEntry> entries) {
+    public DataCollectionKpiScoreImpl(Instant timestamp, KpiMember targetMember, List<MonitoredTaskStatus> statuses, List<KpiEntry> entries) {
         this.timestamp = timestamp;
         this.targetMember = targetMember;
         IntStream.
@@ -32,13 +32,13 @@ public final class DataCollectionKpiScoreImpl implements DataCollectionKpiScore 
     }
 
     @Override
-    public Date getTimestamp() {
+    public Instant getTimestamp() {
         return this.timestamp;
     }
 
     @Override
     public BigDecimal getTarget() {
-        return this.targetMember.getTarget(this.timestamp.toInstant());
+        return this.targetMember.getTarget(this.timestamp);
     }
 
     @Override

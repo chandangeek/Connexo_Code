@@ -3,7 +3,7 @@ package com.energyict.mdc.device.data.kpi;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Models scoring of the Kpi at a certain point in time.
@@ -25,7 +25,7 @@ public interface DataCollectionKpiScore extends Comparable<DataCollectionKpiScor
      *
      * @return The timestamp of this score
      */
-    public Date getTimestamp();
+    public Instant getTimestamp();
 
     /**
      * Returns the target of the related {@link DataCollectionKpi}.
@@ -46,4 +46,5 @@ public interface DataCollectionKpiScore extends Comparable<DataCollectionKpiScor
     public BigDecimal getOngoing();
 
     public BigDecimal getFailed();
+
 }

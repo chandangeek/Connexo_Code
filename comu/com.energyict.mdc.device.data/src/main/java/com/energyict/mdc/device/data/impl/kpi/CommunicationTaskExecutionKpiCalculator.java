@@ -3,7 +3,7 @@ package com.energyict.mdc.device.data.impl.kpi;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -19,7 +19,7 @@ public class CommunicationTaskExecutionKpiCalculator extends AbstractDataCollect
     private final CommunicationTaskService communicationTaskService;
     private final Logger logger;
 
-    public CommunicationTaskExecutionKpiCalculator(DataCollectionKpiImpl dataCollectionKpi, Date timestamp, CommunicationTaskService communicationTaskService, Logger logger) {
+    public CommunicationTaskExecutionKpiCalculator(DataCollectionKpiImpl dataCollectionKpi, Instant timestamp, CommunicationTaskService communicationTaskService, Logger logger) {
         super(timestamp);
         this.kpi = dataCollectionKpi;
         this.communicationTaskService = communicationTaskService;

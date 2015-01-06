@@ -45,7 +45,6 @@ import javax.validation.constraints.NotNull;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -282,7 +281,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     private Instant doUpdateNextExecutionTimestamp(PostingMode postingMode) {
         Calendar calendar = Calendar.getInstance(getClocksTimeZone());
-        calendar.setTime(Date.from(this.now()));
+        calendar.setTimeInMillis(this.now().toEpochMilli());
         this.plannedNextExecutionTimestamp = this.applyComWindowIfAny(this.getNextExecutionSpecs().getNextTimestamp(calendar).toInstant());
         return this.schedule(this.plannedNextExecutionTimestamp, postingMode);
     }
@@ -341,7 +340,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     public Instant applyComWindowIfAny(Instant calculatedNextExecutionTimestamp) {
         Calendar calendar = Calendar.getInstance(getClocksTimeZone());
-        calendar.setTime(Date.from(calculatedNextExecutionTimestamp));
+        calendar.setTimeInMillis(calculatedNextExecutionTimestamp.toEpochMilli());
         this.applyComWindowIfAny(calendar);
         return calendar.getTime().toInstant();
     }
@@ -397,7 +396,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private Instant calculateNextRetryExecutionTimestamp() {
         Instant failureDate = this.now();
         Calendar calendar = Calendar.getInstance(getClocksTimeZone());
-        calendar.setTime(Date.from(failureDate));
+        calendar.setTimeInMillis(failureDate.toEpochMilli());
         TimeDuration baseRetryDelay = this.getRescheduleRetryDelay();
         TimeDuration failureRetryDelay = new TimeDuration(baseRetryDelay.getCount() * getCurrentRetryCount(), baseRetryDelay.getTimeUnitCode());
         failureRetryDelay.addTo(calendar);
@@ -420,7 +419,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     private Instant calculateNextExecutionTimestampFromBaseline(Instant baseLine, NextExecutionSpecs nextExecutionSpecs) {
         Calendar calendar = Calendar.getInstance(getClocksTimeZone());
-        calendar.setTime(Date.from(baseLine));
+        calendar.setTimeInMillis(baseLine.toEpochMilli());
         if (nextExecutionSpecs != null) {
             return nextExecutionSpecs.getNextTimestamp(calendar).toInstant();
         } else {
