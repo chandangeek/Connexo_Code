@@ -154,9 +154,11 @@ Ext.define('Usr.controller.GroupEdit', {
 
         for (var i = 0; i < groups.length; i++) {
             var record = Ext.create(Ext.ModelManager.getModel('Usr.model.Application'));
+            record.beginEdit();
             record.set('componentName', groups[i].name);
             var value = this.checkRights(record, groups[i].children);
             record.set('selected', value);
+            record.endEdit();
             applications.add(record);
         }
         applications.commitChanges();
