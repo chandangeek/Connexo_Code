@@ -9,6 +9,8 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.properties.PropertySpec;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
@@ -17,7 +19,6 @@ import com.energyict.mdc.device.data.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -68,8 +69,8 @@ public class ProtocolDialectPropertiesImpl
     private ProtocolPluggableService protocolPluggableService;
 
     @Inject
-    public ProtocolDialectPropertiesImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, RelationService relationService, Clock clock, ProtocolPluggableService protocolPluggableService) {
-        super(ProtocolDialectProperties.class, dataModel, eventService, thesaurus, relationService, clock);
+    public ProtocolDialectPropertiesImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService) {
+        super(ProtocolDialectProperties.class, dataModel, eventService, thesaurus, clock);
         this.protocolPluggableService = protocolPluggableService;
     }
 
@@ -188,12 +189,12 @@ public class ProtocolDialectPropertiesImpl
 
     @Override
     protected DeviceProtocolDialectProperty newInheritedPropertyFor (String propertyName, Object propertyValue) {
-        return new DeviceProtocolDialectPropertyImpl(propertyName, propertyValue, this.always(), this.getPluggableClass(), true);
+        return new DeviceProtocolDialectPropertyImpl(propertyName, propertyValue, Range.all(), this.getPluggableClass(), true);
     }
 
     @Override
     public DeviceProtocolDialectProperty newProperty(String propertyName, Object propertyValue, Instant activeDate) {
-        return new DeviceProtocolDialectPropertyImpl(propertyName, propertyValue, this.always(), this.getPluggableClass(), false);
+        return new DeviceProtocolDialectPropertyImpl(propertyName, propertyValue, Range.all(), this.getPluggableClass(), false);
     }
 
     @Override

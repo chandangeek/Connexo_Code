@@ -8,7 +8,8 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -59,6 +60,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -469,11 +471,11 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         RelationType relationType = this.mockRelationType();
         Relation mockedRelation = mock(Relation.class);
         when(mockedRelation.getRelationType()).thenReturn(relationType);
-        Date from = new Date();
-        when(mockedRelation.getPeriod()).thenReturn(Interval.startAt(from.toInstant()));
+        Instant from = Instant.now();
+        when(mockedRelation.getPeriod()).thenReturn(Range.atLeast(from));
         when(mockedRelation.getFrom()).thenReturn(from);
         when(mockedRelation.getTo()).thenReturn(null);
-        when(mockedRelation.includes(any(Date.class))).thenReturn(true);
+        when(mockedRelation.includes(any(Instant.class))).thenReturn(true);
         when(mockedRelation.isObsolete()).thenReturn(false);
         return mockedRelation;
     }
@@ -824,7 +826,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         }
 
         private TestableProtocolDialectProperties(String dialectName, DataModel dataModel, EventService eventService, Thesaurus thesaurus, RelationService relationService, Clock clock, ProtocolPluggableService protocolPluggableService) {
-            super(dataModel, eventService, thesaurus, relationService, clock, protocolPluggableService);
+            super(dataModel, eventService, thesaurus, clock, protocolPluggableService);
             this.dialectName = dialectName;
         }
 
@@ -838,7 +840,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         }
 
         @Override
-        public List<Relation> getRelations(RelationAttributeType attrib, Date date, boolean includeObsolete) {
+        public List<Relation> getRelations(RelationAttributeType attrib, Instant date, boolean includeObsolete) {
             List<Relation> filteredByDate = this.filterByDate(this.propertyRelations, date);
             if (includeObsolete) {
                 return filteredByDate;
@@ -847,7 +849,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
             }
         }
 
-        private List<Relation> filterByDate(List<Relation> relations, Date date) {
+        private List<Relation> filterByDate(List<Relation> relations, Instant date) {
             List<Relation> activeOnDate = new ArrayList<>(relations.size());    // Worst case: all relations are active on the specified Date
             for (Relation relation : relations) {
                 if (relation.includes(date)) {

@@ -1,10 +1,14 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.properties.HasDynamicProperties;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
+
+import com.elster.jupiter.properties.HasDynamicProperties;
+import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
+
+import java.time.Instant;
 
 /**
  * Provides an implementation for the {@link PluggableClassUsageProperty} interface.
@@ -29,10 +33,10 @@ public class PluggableClassUsagePropertyImpl<T extends HasDynamicProperties> imp
         this(name, relation.get(name), relation.getPeriod(), pluggableClass, false);
     }
 
-    protected PluggableClassUsagePropertyImpl (String name, Object value, Interval activePeriod, PluggableClass pluggableClass, boolean inherited) {
+    protected PluggableClassUsagePropertyImpl (String name, Object value, Range<Instant> activePeriod, PluggableClass pluggableClass, boolean inherited) {
         this(name);
         this.value = value;
-        this.activePeriod = activePeriod;
+        this.activePeriod = Interval.of(activePeriod);
         this.pluggableClass = pluggableClass;
         this.inherited = inherited;
     }
@@ -62,8 +66,8 @@ public class PluggableClassUsagePropertyImpl<T extends HasDynamicProperties> imp
     }
 
     @Override
-    public Interval getActivePeriod () {
-        return this.activePeriod;
+    public Range<Instant> getActivePeriod() {
+        return this.activePeriod.toClosedOpenRange();
     }
 
     public void setActivePeriod (Interval activePeriod) {

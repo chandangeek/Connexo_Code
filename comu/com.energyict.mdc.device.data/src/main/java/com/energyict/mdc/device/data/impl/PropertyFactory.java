@@ -1,8 +1,9 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.properties.HasDynamicProperties;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
+
+import com.elster.jupiter.properties.HasDynamicProperties;
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
@@ -30,7 +31,7 @@ public interface PropertyFactory<T extends HasDynamicProperties, PT extends Plug
      * @param period The TimePeriod
      * @return The properties that are active in the specified TimePeriod.
      */
-    public List<PT> loadProperties (Interval period);
+    public List<PT> loadProperties (Range<Instant> period);
 
     /**
      * Creates a new PT with the specified name and value

@@ -11,7 +11,7 @@ import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
 
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.Instant;
 
 /**
 * Provides an implementation for the {@link RelationTransactionExecutor} interface
@@ -23,11 +23,11 @@ import java.util.Date;
 */
 public class SimpleRelationTransactionExecutor<T extends HasDynamicProperties> implements RelationTransactionExecutor<T> {
     private DefaultRelationParticipant propertyOwner;
-    private Date now;
+    private Instant now;
     private RelationTransaction transaction;
     private Thesaurus thesaurus;
 
-    public SimpleRelationTransactionExecutor (DefaultRelationParticipant propertyOwner, Date now, RelationType relationType, Thesaurus thesaurus) {
+    public SimpleRelationTransactionExecutor (DefaultRelationParticipant propertyOwner, Instant now, RelationType relationType, Thesaurus thesaurus) {
         super();
         this.propertyOwner = propertyOwner;
         this.now = now;

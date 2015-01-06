@@ -717,7 +717,7 @@ public class DeviceImpl implements Device, CanLock {
             DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
             RelationType relationType = protocolPluggableService.findSecurityPropertyRelationType(deviceProtocolPluggableClass);
             RelationTransaction transaction = relationType.newRelationTransaction();
-            transaction.setFrom(Date.from(clock.instant()));
+            transaction.setFrom(clock.instant());
             transaction.setTo(null);
             transaction.set(DEVICE_ATTRIBUTE_NAME, this);
             transaction.set(SECURITY_PROPERTY_SET_ATTRIBUTE_NAME, securityPropertySet);

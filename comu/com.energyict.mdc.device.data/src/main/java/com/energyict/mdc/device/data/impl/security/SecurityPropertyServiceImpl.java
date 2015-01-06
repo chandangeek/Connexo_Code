@@ -87,7 +87,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
                 return Optional.empty();
             } else {
                 for (Relation relation : relations) {
-                    if (relation.getPeriod().contains(activeDate, Interval.EndpointBehavior.OPEN_CLOSED)) {
+                    if (relation.getPeriod().contains(activeDate)) {
                         return Optional.of(relation);
                     }
                 }

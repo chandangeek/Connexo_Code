@@ -3,6 +3,8 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsAlreadyObsoleteException;
@@ -246,8 +248,8 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         assertTrue(connectionTask.isObsolete());
         assertNotNull(connectionTask.getObsoleteDate());
         RelationAttributeType connectionMethodAttributeType = outboundIpConnectionTypePluggableClass.getDefaultAttributeType();
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, new Interval(null, null), false)).isEmpty();
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, new Interval(null, null), true)).hasSize(1);
+        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), false)).isEmpty();
+        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), true)).hasSize(1);
     }
 
     @Test
@@ -280,8 +282,8 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         // Asserts
         assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionInitiationTask(id).isPresent()).isFalse();
         RelationAttributeType connectionMethodAttributeType = outboundIpConnectionTypePluggableClass.getDefaultAttributeType();
-        assertThat(connectionInitiationTask.getRelations(connectionMethodAttributeType, new Interval(null, null), false)).isEmpty();
-        assertThat(connectionInitiationTask.getRelations(connectionMethodAttributeType, new Interval(null, null), true)).isNotEmpty();    // The relations should have been made obsolete
+        assertThat(connectionInitiationTask.getRelations(connectionMethodAttributeType, Range.all(), false)).isEmpty();
+        assertThat(connectionInitiationTask.getRelations(connectionMethodAttributeType, Range.all(), true)).isNotEmpty();    // The relations should have been made obsolete
     }
 
     @Test
@@ -335,8 +337,8 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         });
         assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionInitiationTask(id).isPresent()).isFalse();
         RelationAttributeType connectionMethodAttributeType = outboundIpConnectionTypePluggableClass.getDefaultAttributeType();
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, new Interval(null, null), false)).isEmpty();
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, new Interval(null, null), true)).isNotEmpty();    // The relations should have been made obsolete
+        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), false)).isEmpty();
+        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), true)).isNotEmpty();    // The relations should have been made obsolete
     }
 
     @Test
@@ -359,8 +361,8 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         assertNotNull("ObsoleteDate should be set", connectionTask.getObsoleteDate());
         assertTrue("Should be obsolete", connectionTask.isObsolete());
         RelationAttributeType connectionMethodAttributeType = outboundIpConnectionTypePluggableClass.getDefaultAttributeType();
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, new Interval(null, null), false)).isEmpty();
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, new Interval(null, null), true)).hasSize(1);
+        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), false)).isEmpty();
+        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), true)).hasSize(1);
     }
 
     @Test

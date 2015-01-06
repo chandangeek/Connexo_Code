@@ -1,13 +1,14 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.pluggable.PluggableClass;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Date;
+import java.time.Instant;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -23,7 +24,7 @@ public class DeviceProtocolDialectPropertyImplEqualsAndHashCodeTest {
     private static final String STRING_VALUE = "DeviceProtocolDialectPropertyImplEqualsAndHashCodeTest";
     private static final String PROPERTY_NAME = "property";
     private static final String PROPERTY_VALUE = "value";
-    private static final Interval ACTIVE_PERIOD = new Interval(null, new Date());
+    private static final Range<Instant> ACTIVE_PERIOD = Range.lessThan(Instant.now());
 
     @Mock
     private PluggableClass pluggableClass;

@@ -55,6 +55,7 @@ import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Range;
 
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -272,9 +273,9 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             } else {
                 this.saveAllProperties(
                         this.getAllProperties(),
-                        new SimpleRelationTransactionExecutor<ConnectionType>(
+                        new SimpleRelationTransactionExecutor<>(
                                 this,
-                                Date.from(clock.instant()),
+                                clock.instant(),
                                 this.findRelationType(),
                                 this.getThesaurus()));
             }
@@ -297,9 +298,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     private void saveAllProperties(List<ConnectionTaskProperty> properties, RelationTransactionExecutor<ConnectionType> transactionExecutor) {
-        for (ConnectionTaskProperty property : properties) {
-            transactionExecutor.add(property);
-        }
+        properties.forEach(transactionExecutor::add);
         transactionExecutor.execute();
         this.clearPropertyCache();
     }
@@ -343,7 +342,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
      * all the {@link ConnectionTaskProperty ConnectionTaskProperties} obsolete.
      */
     protected void obsoleteAllProperties() {
-        List<Relation> relations = this.getPluggableClass().getRelations(this, new Interval(null, null));
+        List<Relation> relations = this.getPluggableClass().getRelations(this, Range.all());
         for (Relation relation : relations) {
             try {
                 relation.makeObsolete();
@@ -448,11 +447,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public Relation getDefaultRelation() {
-        return this.getDefaultRelation(Date.from(clock.instant()));
+        return this.getDefaultRelation(clock.instant());
     }
 
     @Override
-    public Relation getDefaultRelation(Date date) {
+    public Relation getDefaultRelation(Instant date) {
         return this.getPluggableClass().getRelation(this, date);
     }
 
@@ -489,7 +488,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public List<ConnectionTaskProperty> loadProperties(Instant date) {
-        Relation defaultRelation = this.getDefaultRelation(Date.from(date));
+        Relation defaultRelation = this.getDefaultRelation(date);
         /* defaultRelation is null when the pluggable class has no properties.
          * In that case, no relation type was created. */
         if (defaultRelation != null) {
@@ -500,7 +499,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
-    public List<ConnectionTaskProperty> loadProperties(Interval interval) {
+    public List<ConnectionTaskProperty> loadProperties(Range<Instant> interval) {
         List<ConnectionTaskProperty> properties = new ArrayList<>();
         RelationAttributeType defaultAttributeType = this.getDefaultAttributeType();
         /* defaultAttributeType is null when the pluggable class has no properties.
@@ -549,15 +548,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return new ConnectionTaskPropertyImpl(this, relation, attributeType.getName(), this.getPluggableClass());
     }
 
-    private ConnectionTaskProperty newInheritedPropertyFor(String propertyName, Object propertyValue) {
-        return new ConnectionTaskPropertyImpl(this, propertyName, propertyValue, this.always(), this.getPluggableClass());
-    }
-
     @Override
     public ConnectionTaskProperty newProperty(String name, Object value, Instant activeDate) {
         ConnectionTaskPropertyImpl property = new ConnectionTaskPropertyImpl(this, name);
         property.setValue(value);
-        property.setActivePeriod(new Interval(Date.from(activeDate), null));
+        property.setActivePeriod(Interval.startAt(activeDate));
         return property;
     }
 
@@ -576,7 +571,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
-    public Object get(String propertyName, Date date) {
+    public Object get(String propertyName, Instant date) {
         PluggableClassWithRelationSupport pluggableClass = this.getPluggableClass();
         if (pluggableClass.findRelationType().hasAttribute(propertyName)) {
             // Should in fact be at most one since this is the default relation
@@ -594,31 +589,26 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public Object get(String attributeName) {
-        return this.get(attributeName, Date.from(clock.instant()));
+        return this.get(attributeName, clock.instant());
     }
 
     @Override
-    public Object get(RelationAttributeType attributeType, Date date) {
+    public Object get(RelationAttributeType attributeType, Instant date) {
         return this.get(attributeType.getName(), date);
     }
 
     @Override
     public Object get(RelationAttributeType attributeType) {
-        return this.get(attributeType, Date.from(clock.instant()));
+        return this.get(attributeType, clock.instant());
     }
 
     @Override
-    public List<RelationType> getAvailableRelationTypes() {
-        return this.relationService.findRelationTypesByParticipant(this);
+    public List<Relation> getRelations(RelationAttributeType attrib, Instant when, boolean includeObsolete) {
+        return attrib.getRelations(this, when, includeObsolete, 0, 0);
     }
 
     @Override
-    public List<Relation> getRelations(RelationAttributeType attrib, Date date, boolean includeObsolete) {
-        return attrib.getRelations(this, date, includeObsolete, 0, 0);
-    }
-
-    @Override
-    public List<Relation> getRelations(RelationAttributeType attrib, Date date, boolean includeObsolete, int fromRow, int toRow) {
+    public List<Relation> getRelations(RelationAttributeType attrib, Instant date, boolean includeObsolete, int fromRow, int toRow) {
         return attrib.getRelations(this, date, includeObsolete, fromRow, toRow);
     }
 
@@ -628,7 +618,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
-    public List<Relation> getRelations(RelationAttributeType defaultAttribute, Interval period, boolean includeObsolete) {
+    public List<Relation> getRelations(RelationAttributeType defaultAttribute, Range<Instant> period, boolean includeObsolete) {
         return defaultAttribute.getRelations(this, period, includeObsolete);
     }
 
@@ -783,7 +773,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
                     new ConnectionTaskPropertyImpl(
                             this, propertyName,
                             partialProperties.getProperty(propertyName),
-                            this.always(),
+                            Range.all(),
                             this.getPartialConnectionTask().getPluggableClass())
             );
         }
@@ -803,10 +793,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             }
         }
         return merged;
-    }
-
-    private Interval always() {
-        return new Interval(null, null);
     }
 
     @Override

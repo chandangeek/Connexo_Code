@@ -1,11 +1,14 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.device.data.impl.PluggableClassUsagePropertyImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectProperty;
+
+import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
+
+import java.time.Instant;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -21,13 +24,14 @@ public class DeviceProtocolDialectPropertyImpl extends PluggableClassUsageProper
 
     public DeviceProtocolDialectPropertyImpl(String name) {
         super(name);
+        this.setActivePeriod(Interval.of(Range.all()));
     }
 
     public DeviceProtocolDialectPropertyImpl(Relation relation, String name, PluggableClass pluggableClass) {
         super(relation, name, pluggableClass);
     }
 
-    protected DeviceProtocolDialectPropertyImpl (String name, Object value, Interval activePeriod, PluggableClass pluggableClass, boolean inherited) {
+    protected DeviceProtocolDialectPropertyImpl (String name, Object value, Range<Instant> activePeriod, PluggableClass pluggableClass, boolean inherited) {
         super(name, value, activePeriod, pluggableClass, inherited);
     }
 

@@ -3,15 +3,16 @@ package com.energyict.mdc.device.data.impl;
 import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
 
 import com.elster.jupiter.properties.HasDynamicProperties;
-import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.Ranges;
+import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Provides a caching mechanism for properties of {@link HasDynamicProperties}.
@@ -73,8 +74,8 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
      * @param period The TimePeriod
      * @return A flag that indicates if this cache contains properties that are active in the specified TimePeriod
      */
-    public boolean isCached (Interval period) {
-        return this.activePeriod != null && this.activePeriod.span().encloses(period.toRange(Interval.EndpointBehavior.OPEN_CLOSED));
+    public boolean isCached (Range<Instant> period) {
+        return this.activePeriod != null && this.activePeriod.span().encloses(period);
     }
 
     /**
@@ -116,13 +117,11 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
     }
 
     private List<PT> filterByDate (Instant date) {
-        List<PT> result = new ArrayList<>(this.properties.size());    // At most all cached properties are active on the specified Date
-        for (PT property : this.properties.values()) {
-            if (property.getActivePeriod().contains(date, Interval.EndpointBehavior.CLOSED_CLOSED)) {
-                result.add(property);
-            }
-        }
-        return result;
+        return this.properties
+                .values()
+                .stream()
+                .filter(property -> property.getActivePeriod().contains(date))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -131,7 +130,7 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
      *
      * @return The properties that are active on the specified Date
      */
-    public List<PT> get (Interval period) {
+    public List<PT> get (Range<Instant> period) {
         if (this.isCached(period)) {
             return this.filterByPeriod(period);
         }
@@ -142,14 +141,12 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
         }
     }
 
-    private List<PT> filterByPeriod (Interval period) {
-        List<PT> result = new ArrayList<>(this.properties.size());    // At most all cached properties are active in the specified TimePeriod
-        for (PT property : this.properties.values()) {
-            if (period.overlaps(property.getActivePeriod())) {
-                result.add(property);
-            }
-        }
-        return result;
+    private List<PT> filterByPeriod (Range<Instant> period) {
+        return this.properties
+                .values()
+                .stream()
+                .filter(property -> Ranges.does(period).overlap(property.getActivePeriod()))
+                .collect(Collectors.toList());
     }
 
     private void addAll (List<PT> properties, Instant cacheHitDate) {
@@ -161,10 +158,10 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
         }
     }
 
-    private void addAll (List<PT> properties, Interval cacheHitPeriod) {
+    private void addAll (List<PT> properties, Range<Instant> cacheHitPeriod) {
         if (properties.isEmpty()) {
             this.activePeriod = TreeRangeSet.create();
-            activePeriod.add(cacheHitPeriod.toOpenClosedRange());
+            activePeriod.add(cacheHitPeriod);
         }
         else {
             this.addAll(properties);
@@ -172,9 +169,7 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
     }
 
     private void addAll (List<PT> properties) {
-        for (PT property : properties) {
-            this.add(property);
-        }
+        properties.forEach(this::add);
     }
 
     private void add (PT property) {
@@ -183,13 +178,13 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
         }
         else {
             this.activePeriod = TreeRangeSet.create();
-            activePeriod.add(property.getActivePeriod().toOpenClosedRange());
+            activePeriod.add(property.getActivePeriod());
         }
         this.properties.put(property.getName(), property);
     }
 
-    private void extendActivePeriodIfNecessary (Interval propertyActivePeriod) {
-        this.activePeriod.add(propertyActivePeriod.toOpenClosedRange());
+    private void extendActivePeriodIfNecessary (Range<Instant> propertyActivePeriod) {
+        this.activePeriod.add(propertyActivePeriod);
     }
 
 }

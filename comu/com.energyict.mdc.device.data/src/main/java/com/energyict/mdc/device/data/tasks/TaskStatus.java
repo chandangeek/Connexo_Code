@@ -87,7 +87,7 @@ public enum TaskStatus {
      * @see ConnectionTask#activate()
      * @see ComTaskExecution#isOnHold()
      * @see ComTaskExecution#scheduleNow()
-     * @see ComTaskExecution#schedule(java.util.Date)
+     * @see ComTaskExecution#schedule(java.time.Instant)
      */
     OnHold;
 

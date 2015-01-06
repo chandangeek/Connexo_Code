@@ -5,7 +5,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.properties.PropertySpec;
-import java.time.Clock;import com.elster.jupiter.util.time.Interval;
+import java.time.Clock;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.exceptions.NestedRelationTransactionException;
@@ -14,7 +16,6 @@ import com.energyict.mdc.dynamic.relation.CanLock;
 import com.energyict.mdc.dynamic.relation.DefaultRelationParticipant;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
@@ -45,13 +46,11 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
     private long pluggableClassId;
     private transient PropertyCache<T, PT> cache;
 
-    private RelationService relationService;
     private Clock clock;
 
-    protected NamedPluggableClassUsageImpl(Class<D> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus, RelationService relationService, Clock clock) {
+    protected NamedPluggableClassUsageImpl(Class<D> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock) {
         super(domainClass, dataModel, eventService, thesaurus);
         this.cache = new PropertyCache<>(this);
-        this.relationService = relationService;
         this.clock = clock;
     }
 
@@ -78,7 +77,7 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
      * all the {@link PluggableClass properties} obsolete.
      */
     protected void obsoleteAllProperties()  {
-        List<Relation> relations = this.getPluggableClass().getRelations(this, new Interval(null, null));
+        List<Relation> relations = this.getPluggableClass().getRelations(this, Range.all());
         for (Relation relation : relations) {
             try {
                 relation.makeObsolete();
@@ -101,11 +100,11 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
 
     @Override
     public Relation getDefaultRelation() {
-        return this.getDefaultRelation(Date.from(clock.instant()));
+        return this.getDefaultRelation(clock.instant());
     }
 
     @Override
-    public Relation getDefaultRelation(Date date) {
+    public Relation getDefaultRelation(Instant date) {
         return this.getPluggableClass().getRelation(this, date);
     }
 
@@ -124,7 +123,7 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
     }
 
     @Override
-    public Object get(String propertyName, Date date) {
+    public Object get(String propertyName, Instant date) {
         PluggableClassWithRelationSupport pluggableClass = this.getPluggableClass();
         if (pluggableClass.findRelationType().hasAttribute(propertyName)) {
             // Should in fact be at most one since this is the default relation
@@ -181,7 +180,7 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
 
     @Override
     public List<PT> loadProperties(Instant date) {
-        Relation defaultRelation = this.getDefaultRelation(Date.from(date));
+        Relation defaultRelation = this.getDefaultRelation(date);
         /* defaultRelation is null when the pluggable class has no properties.
          * In that case, no relation type was created. */
         if (defaultRelation != null) {
@@ -192,7 +191,7 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
     }
 
     @Override
-    public List<PT> loadProperties(Interval interval) {
+    public List<PT> loadProperties(Range<Instant> interval) {
         List<PT> properties = new ArrayList<>();
         RelationAttributeType defaultAttributeType = this.getDefaultAttributeType();
         /* defaultAttributeType is null when the pluggable class has no properties.
@@ -253,31 +252,26 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
 
     @Override
     public Object get(String attributeName) {
-        return this.get(attributeName, Date.from(clock.instant()));
+        return this.get(attributeName, clock.instant());
     }
 
     @Override
-    public Object get(RelationAttributeType attributeType, Date date) {
+    public Object get(RelationAttributeType attributeType, Instant date) {
         return this.get(attributeType.getName(), date);
     }
 
     @Override
     public Object get(RelationAttributeType attributeType) {
-        return this.get(attributeType, Date.from(clock.instant()));
+        return this.get(attributeType, clock.instant());
     }
 
     @Override
-    public List<RelationType> getAvailableRelationTypes() {
-        return this.relationService.findRelationTypesByParticipant(this);
-    }
-
-    @Override
-    public List<Relation> getRelations(RelationAttributeType attrib, Date date, boolean includeObsolete) {
+    public List<Relation> getRelations(RelationAttributeType attrib, Instant date, boolean includeObsolete) {
         return attrib.getRelations(this, date, includeObsolete, 0, 0);
     }
 
     @Override
-    public List<Relation> getRelations(RelationAttributeType attrib, Date date, boolean includeObsolete, int fromRow, int toRow) {
+    public List<Relation> getRelations(RelationAttributeType attrib, Instant date, boolean includeObsolete, int fromRow, int toRow) {
         return attrib.getRelations(this, date, includeObsolete, fromRow, toRow);
     }
 
@@ -287,7 +281,7 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
     }
 
     @Override
-    public List<Relation> getRelations(RelationAttributeType defaultAttribute, Interval period, boolean includeObsolete) {
+    public List<Relation> getRelations(RelationAttributeType defaultAttribute, Range<Instant> period, boolean includeObsolete) {
         return defaultAttribute.getRelations(this, period, includeObsolete);
     }
 
@@ -299,9 +293,9 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
             else {
                 this.saveAllProperties(
                         this.getAllLocalProperties(),
-                        new SimpleRelationTransactionExecutor<T>(
+                        new SimpleRelationTransactionExecutor<>(
                                 this,
-                                Date.from(clock.instant()),
+                                clock.instant(),
                                 this.findRelationType(),
                                 this.getThesaurus()));
             }
@@ -327,15 +321,9 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
     protected abstract RelationType findRelationType ();
 
     private void saveAllProperties(List<PT> propertyShadows, RelationTransactionExecutor<T> transactionExecutor) {
-        for (PT shadow : propertyShadows) {
-            transactionExecutor.add(shadow);
-        }
+        propertyShadows.forEach(transactionExecutor::add);
         transactionExecutor.execute();
         this.clearPropertyCache();
-    }
-
-    protected Interval always() {
-        return new Interval(null, null);
     }
 
 }

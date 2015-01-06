@@ -1,11 +1,14 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.device.data.impl.PluggableClassUsagePropertyImpl;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.pluggable.PluggableClass;
+
+import java.time.Instant;
 
 /**
  * Provides an implementation for the {@link ConnectionTaskProperty} interface.
@@ -27,7 +30,7 @@ public class ConnectionTaskPropertyImpl extends PluggableClassUsagePropertyImpl<
         this.connectionTask = connectionTask;
     }
 
-    public ConnectionTaskPropertyImpl(ConnectionTaskImpl connectionTask, String name, Object value, Interval activePeriod, PluggableClass pluggableClass) {
+    public ConnectionTaskPropertyImpl(ConnectionTaskImpl connectionTask, String name, Object value, Range<Instant> activePeriod, PluggableClass pluggableClass) {
         super(name, value, activePeriod, pluggableClass, true);
         this.connectionTask = connectionTask;
     }
