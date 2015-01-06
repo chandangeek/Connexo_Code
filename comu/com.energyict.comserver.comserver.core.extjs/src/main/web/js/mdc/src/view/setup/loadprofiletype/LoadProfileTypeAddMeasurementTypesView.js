@@ -7,7 +7,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesVie
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesView.title', 'MDC', 'Add measurement types'),
+            title: Uni.I18n.translate('setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesView.title', 'MDC', 'Add register types'),
             layout: {
                 type: 'vbox',
                 align: 'stretch'

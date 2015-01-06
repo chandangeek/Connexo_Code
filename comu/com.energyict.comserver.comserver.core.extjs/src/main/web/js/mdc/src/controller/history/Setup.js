@@ -469,7 +469,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showEdit',
                             items: {
                                 addmeasurementtypes: {
-                                    title: 'Add measurement types',
+                                    title: 'Add register types',
                                     route: 'addmeasurementtypes',
                                     controller: 'Mdc.controller.setup.LoadProfileTypes',
                                     action: 'showMeasurementTypesAddView'
@@ -492,7 +492,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             },
                             items: {
                                 addmeasurementtypes: {
-                                    title: 'Add measurement types',
+                                    title: 'Add register types',
                                     route: 'addmeasurementtypes',
                                     controller: 'Mdc.controller.setup.LoadProfileTypes',
                                     action: 'showMeasurementTypesAddView'

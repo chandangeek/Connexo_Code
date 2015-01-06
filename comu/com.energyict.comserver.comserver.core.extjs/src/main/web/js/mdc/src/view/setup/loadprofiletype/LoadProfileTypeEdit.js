@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEdit', {
                     xtype: 'load-profile-type-add-measurement-types-grid',
                     itemId: 'load-profile-type-add-measurement-types-grid',
                     ui: 'large',
-                    title: Uni.I18n.translate('setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesView.title', 'MDC', 'Add measurement types'),
+                    title: Uni.I18n.translate('setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesView.title', 'MDC', 'Add register types'),
                     cancelHref: me.currentRoute
                 }
             ]
