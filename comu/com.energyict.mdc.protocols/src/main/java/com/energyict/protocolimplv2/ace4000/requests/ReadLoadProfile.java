@@ -31,8 +31,8 @@ public class ReadLoadProfile extends AbstractRequest<LoadProfileReader, List<Col
 
     @Override
     protected void doRequest() {
-        Date fromDate = getInput().getStartReadingTime();
-        Date toDate = getInput().getEndReadingTime();
+        Date fromDate = Date.from(getInput().getStartReadingTime());
+        Date toDate = Date.from(getInput().getEndReadingTime());
 
         List<IntervalData> intervalDatas = getAce4000().getObjectFactory().getLoadProfile().getProfileData().getIntervalDatas();
         if (intervalDatas.size() > 1) {

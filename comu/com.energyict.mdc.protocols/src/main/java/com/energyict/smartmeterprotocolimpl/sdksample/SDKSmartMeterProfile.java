@@ -266,7 +266,7 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
             }
 
             Calendar endCal = Calendar.getInstance(getProtocol().getTimeZone());
-            endCal.setTime(lpro.getEndReadingTime());
+            endCal.setTimeInMillis(lpro.getEndReadingTime().toEpochMilli());
             long count = 1;
             switch (new TimeDuration(timeDuration, timeInterval).getSeconds()) {
                 case 900:

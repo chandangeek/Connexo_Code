@@ -19,6 +19,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23Messaging;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.time.Clock;
 
 /**
  * Copyrights EnergyICT
@@ -28,13 +29,13 @@ import java.io.IOException;
 public class WebRTUKP extends AbstractSmartNtaProtocol implements HHUEnabler {
 
     @Inject
-    public WebRTUKP(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
+    public WebRTUKP(Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
         super(clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
     }
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this, clock, this.getTopologyService()));
+        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this, this.getClock(), this.getTopologyService()));
     }
 
     /**

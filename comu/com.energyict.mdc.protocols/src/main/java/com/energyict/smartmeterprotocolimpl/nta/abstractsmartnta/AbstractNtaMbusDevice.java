@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -50,6 +51,7 @@ import java.util.logging.Logger;
 public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterProtocol, MessageProtocol {
 
     private final AbstractSmartNtaProtocol meterProtocol;
+    private final Clock clock;
     private final TopologyService topologyService;
     private final LoadProfileFactory loadProfileFactory;
     private final String serialNumber;
@@ -57,12 +59,17 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
 
     public abstract MessageProtocol getMessageProtocol();
 
-    protected AbstractNtaMbusDevice(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
+    protected AbstractNtaMbusDevice(Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
         this.topologyService = topologyService;
-        this.meterProtocol = new WebRTUKP(topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
+        this.meterProtocol = new WebRTUKP(clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
         this.serialNumber = "CurrentlyUnKnown";
         this.physicalAddress = -1;
         this.loadProfileFactory = loadProfileFactory;
+        this.clock = clock;
+    }
+
+    protected Clock getClock() {
+        return clock;
     }
 
     protected TopologyService getTopologyService() {

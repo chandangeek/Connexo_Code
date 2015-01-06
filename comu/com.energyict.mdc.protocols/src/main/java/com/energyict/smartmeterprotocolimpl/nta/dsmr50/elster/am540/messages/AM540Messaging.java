@@ -85,6 +85,10 @@ public class AM540Messaging extends G3Messaging {
         this.clock = clock;
     }
 
+    protected Clock getClock() {
+        return clock;
+    }
+
     protected TopologyService getTopologyService() {
         return topologyService;
     }

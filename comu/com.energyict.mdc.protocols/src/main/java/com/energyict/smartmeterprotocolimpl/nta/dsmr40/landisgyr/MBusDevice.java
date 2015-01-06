@@ -28,12 +28,9 @@ import java.util.List;
  */
 public class MBusDevice extends AbstractNtaMbusDevice {
 
-    private final Clock clock;
-
     @Inject
     public MBusDevice(Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
-        super(topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
-        this.clock = clock;
+        super(clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
     }
 
     @Override
@@ -55,11 +52,11 @@ public class MBusDevice extends AbstractNtaMbusDevice {
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder(clock, this.getTopologyService(), this.getLoadProfileFactory());
+        return new LegacyLoadProfileRegisterMessageBuilder(this.getClock(), this.getTopologyService(), this.getLoadProfileFactory());
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder(clock, this.getTopologyService(), this.getLoadProfileFactory());
+        return new LegacyPartialLoadProfileMessageBuilder(this.getClock(), this.getTopologyService(), this.getLoadProfileFactory());
     }
 
     @Override

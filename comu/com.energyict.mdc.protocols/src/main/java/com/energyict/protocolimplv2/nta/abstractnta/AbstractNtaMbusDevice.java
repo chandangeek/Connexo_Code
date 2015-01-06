@@ -42,6 +42,7 @@ import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccess
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 import com.energyict.protocols.exception.UnsupportedMethodException;
 
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -69,11 +70,11 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
     private final int physicalAddress;
     private final TopologyService topologyService;
 
-    public AbstractNtaMbusDevice(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
+    public AbstractNtaMbusDevice(Clock clock, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
         this.propertySpecService = propertySpecService;
         this.topologyService = topologyService;
         //TODO, what? wait! Is this even correct?
-        this.meterProtocol = new WebRTUKP(this.propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, loadProfileFactory);
+        this.meterProtocol = new WebRTUKP(clock, this.propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, loadProfileFactory);
         this.serialNumber = "CurrentlyUnKnown";
         this.physicalAddress = -1;
     }

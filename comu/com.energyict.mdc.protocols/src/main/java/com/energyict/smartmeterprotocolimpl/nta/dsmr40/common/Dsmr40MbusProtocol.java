@@ -8,6 +8,7 @@ import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.MbusDevice;
 
 import javax.inject.Inject;
+import java.time.Clock;
 
 /**
  * Copyrights EnergyICT
@@ -18,7 +19,7 @@ import javax.inject.Inject;
 public class Dsmr40MbusProtocol extends MbusDevice {
 
     @Inject
-    public Dsmr40MbusProtocol(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
+    public Dsmr40MbusProtocol(Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
         super(clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
     }
 

@@ -13,6 +13,7 @@ import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,10 +25,12 @@ import java.util.List;
  */
 public class IskraMx372MbusMessaging  extends GenericMessaging implements MessageProtocol {
 
+    private final Clock clock;
     private final TopologyService topologyService;
     private final LoadProfileFactory loadProfileFactory;
 
-    public IskraMx372MbusMessaging(TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
+    public IskraMx372MbusMessaging(Clock clock, TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
+        this.clock = clock;
         this.topologyService = topologyService;
         this.loadProfileFactory = loadProfileFactory;
     }

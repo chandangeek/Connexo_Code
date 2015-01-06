@@ -21,6 +21,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeTableBase64Builder;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 
+import java.time.Clock;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
@@ -58,13 +59,15 @@ public class Messaging implements DeviceMessageSupport {
     );
 
     private final MTU155 protocol;
+    private final Clock clock;
     private final TopologyService topologyService;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
     private final LoadProfileFactory loadProfileFactory;
 
-    public Messaging(MTU155 protocol, TopologyService topologyService, IssueService issueService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
+    public Messaging(MTU155 protocol, Clock clock, TopologyService topologyService, IssueService issueService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
         this.protocol = protocol;
+        this.clock = clock;
         this.topologyService = topologyService;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
@@ -163,7 +166,7 @@ public class Messaging implements DeviceMessageSupport {
                 new TariffDisablePassiveMessage(this, this.issueService, this.collectedDataFactory),
 
                 // LoadProfile group
-                new ReadPartialProfileDataMessage(this, this.issueService, this.topologyService, this.collectedDataFactory, this.loadProfileFactory),
+                new ReadPartialProfileDataMessage(this, clock, this.issueService, this.topologyService, this.collectedDataFactory, this.loadProfileFactory),
 
                 // Firmware Upgrade
                 new FirmwareUpgradeMessage(this, this.issueService, this.collectedDataFactory)

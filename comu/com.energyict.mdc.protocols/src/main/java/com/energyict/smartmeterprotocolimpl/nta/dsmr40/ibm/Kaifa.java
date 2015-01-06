@@ -58,7 +58,7 @@ public class Kaifa extends E350 {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new Dsmr40Messaging(new KaifaDsmr40MessageExecutor(this, this.getTopologyService()));
+            messageProtocol = new Dsmr40Messaging(new KaifaDsmr40MessageExecutor(this, this.getClock(), this.getTopologyService()));
         }
         return messageProtocol;
     }

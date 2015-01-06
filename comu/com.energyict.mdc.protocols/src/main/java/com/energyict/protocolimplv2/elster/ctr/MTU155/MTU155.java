@@ -54,6 +54,7 @@ import com.energyict.protocols.mdc.protocoltasks.CTRDeviceProtocolDialect;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -102,6 +103,7 @@ public class MTU155 implements DeviceProtocol {
     private LoadProfileBuilder loadProfileBuilder;
     private Messaging messaging;
 
+    private final Clock clock;
     private final PropertySpecService propertySpecService;
     private final SerialComponentService serialComponentService;
     private final IssueService issueService;
@@ -109,9 +111,10 @@ public class MTU155 implements DeviceProtocol {
     private final TopologyService topologyService;
 
     @Inject
-    public MTU155(CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory, PropertySpecService propertySpecService, SerialComponentService serialComponentService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService) {
+    public MTU155(CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory, Clock clock, PropertySpecService propertySpecService, SerialComponentService serialComponentService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService) {
         this.collectedDataFactory = collectedDataFactory;
         this.loadProfileFactory = loadProfileFactory;
+        this.clock = clock;
         this.readingTypeUtilService = readingTypeUtilService;
         this.topologyService = topologyService;
         this.securityCapabilities = new Mtu155SecuritySupport(propertySpecService);
@@ -272,7 +275,7 @@ public class MTU155 implements DeviceProtocol {
 
     public Messaging getMessaging() {
         if (messaging == null) {
-            this.messaging = new Messaging(this, this.topologyService, this.issueService, this.collectedDataFactory, this.loadProfileFactory);
+            this.messaging = new Messaging(this, clock, this.topologyService, this.issueService, this.collectedDataFactory, this.loadProfileFactory);
         }
         return messaging;
     }
