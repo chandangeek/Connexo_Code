@@ -2,6 +2,6 @@
 -dsannotations: *
 
 Export-Package:  \
-	com.elster.jupiter.data.lifecycle
+	com.elster.jupiter.data.lifecycle, com.elster.jupiter.data.lifecycle.security
 Private-Package:  \
 	com.elster.jupiter.data.lifecycle.impl

@@ -2,6 +2,7 @@ package com.elster.jupiter.data.lifecycle.impl;
 
 import com.elster.jupiter.data.lifecycle.LifeCycleCategory;
 import com.elster.jupiter.data.lifecycle.LifeCycleCategoryKind;
+import com.elster.jupiter.data.lifecycle.security.Privileges;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
@@ -9,6 +10,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.users.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +24,14 @@ class Installer {
 	private MessageService messageService;
 	private TaskService taskService;
 	private MeteringService meteringService;
+    private UserService userService;
 	
-	Installer (DataModel dataModel, MessageService messageService, TaskService taskService, MeteringService meteringService) {
+	Installer (DataModel dataModel, MessageService messageService, TaskService taskService, MeteringService meteringService, UserService userService) {
 		this.dataModel = dataModel;
 		this.messageService = messageService;
 		this.taskService = taskService;
 		this.meteringService = meteringService;
+        this.userService = userService;
 	}
 	
 	void install() {
@@ -42,6 +46,7 @@ class Installer {
 			categories.add(newCategory);
 		}
 		createTask();
+        createPrivileges();
 	}
 
 	private DestinationSpec getDestination() {
@@ -69,5 +74,9 @@ class Installer {
 		}
 		getSubscriberSpec();		
 	}
+
+    private void createPrivileges() {
+        this.userService.createResourceWithPrivileges("SYS", "dataPurge.dataPurge", "dataPurge.dataPurge.description", new String[]{Privileges.VIEW_DATA_PURGE, Privileges.ADMINISTRATE_DATA_PURGE});
+    }
 }
 

@@ -19,6 +19,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.users.UserService;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -46,20 +47,22 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 	private volatile MessageService messageService;
 	private volatile TaskService taskService;
 	private volatile IdsService idsService;
-	private volatile MeteringService meteringService;
+    private volatile MeteringService meteringService;
+    private volatile UserService userService;
 	private volatile Clock clock;
 	
 	public LifeCycleServiceImpl() {	
 	}
 
 	@Inject
-	public LifeCycleServiceImpl(OrmService ormService, NlsService nlsService, MessageService messageService, TaskService taskService, IdsService idsService, MeteringService meteringService, Clock clock) {
+	public LifeCycleServiceImpl(OrmService ormService, NlsService nlsService, MessageService messageService, TaskService taskService, IdsService idsService, MeteringService meteringService, UserService userService, Clock clock) {
 		setOrmService(ormService);
 		setNlsService(nlsService);
 		setMessageService(messageService);
 		setTaskService(taskService);
 		setIdsService(idsService);
 		setMeteringService(meteringService);
+        setUserService(userService);
 		setClock(clock);
 		activate();
 		if (!dataModel.isInstalled()) {
@@ -70,7 +73,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 	@Override
 	public void install() {		
 		dataModel.install(true, true);
-		new Installer(dataModel, messageService, taskService, meteringService).install();
+		new Installer(dataModel, messageService, taskService, meteringService, userService).install();
 	}
 	
 	@Override
@@ -122,7 +125,12 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 	public void setMeteringService(MeteringService meteringService) {
 		this.meteringService = meteringService;
 	}
-	
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
 	@Reference
 	public void setClock(Clock clock) {
 		this.clock = clock;
