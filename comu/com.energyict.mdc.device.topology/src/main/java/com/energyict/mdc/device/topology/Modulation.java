@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.topology;
 
+import java.util.stream.Stream;
+
 /**
  * Insert your comments here.
  *
@@ -24,4 +26,19 @@ public enum Modulation {
         return this.modulationScheme;
     }
 
+
+    /**
+     * Returns the ModulationScheme that is uniquely identifier
+     * by the specified ordinal.
+     *
+     * @param ordinal The ordinal.
+     * @return The coresponding scheme, <code>null</code> if none matching.
+     */
+    public static Modulation fromOrdinal(int ordinal) {
+        return Stream
+                .of(Modulation.values())
+                .filter(p -> p.ordinal() == ordinal)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown Modulation ordinal " + ordinal));
+    }
 }
