@@ -1,11 +1,7 @@
 package com.energyict.mdc.protocol.api.device;
 
-import com.energyict.mdc.common.ApplicationComponent;
-
-import java.util.List;
-
 /**
- * Defines the behavior of an {@link ApplicationComponent}
+ * Defines the behavior of a component
  * that is capable of finding {@link BaseRegister}s.
  *
  * @author Rudi Vankeirsbilck (rudi)

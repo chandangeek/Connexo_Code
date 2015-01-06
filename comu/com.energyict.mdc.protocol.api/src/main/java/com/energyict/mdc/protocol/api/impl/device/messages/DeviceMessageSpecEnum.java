@@ -44,6 +44,6 @@ public interface DeviceMessageSpecEnum {
      * @param propertySpecService The PropertySpecService
      * @return The PropertySpec or <code>null</code> if no such PropertySpec exists
      */
-    public <T> PropertySpec<T> getPropertySpec(String name, PropertySpecService propertySpecService);
+    public PropertySpec getPropertySpec(String name, PropertySpecService propertySpecService);
 
 }

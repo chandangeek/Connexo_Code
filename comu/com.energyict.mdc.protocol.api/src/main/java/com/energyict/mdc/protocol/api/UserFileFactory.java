@@ -1,13 +1,12 @@
 package com.energyict.mdc.protocol.api;
 
-import com.energyict.mdc.common.ApplicationComponent;
 import com.energyict.mdc.common.BusinessException;
 
 import java.sql.SQLException;
 import java.util.List;
 
 /**
- * Defines the behavior of an {@link ApplicationComponent}
+ * Defines the behavior of a component
  * that is capable of finding {@link UserFile}s.
  *
  * @author Rudi Vankeirsbilck (rudi)

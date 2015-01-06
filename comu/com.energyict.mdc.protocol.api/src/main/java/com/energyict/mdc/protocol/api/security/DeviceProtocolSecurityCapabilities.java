@@ -17,7 +17,7 @@ import java.util.List;
 public interface DeviceProtocolSecurityCapabilities {
 
     /**
-     * Gets <b>ALL</b> the {@link PropertySpec properties}
+     * Gets <b>ALL</b> the {@link PropertySpec}s
      * that can be set on a physical Device for this DeviceSecuritySupport.
      * Note that none of the properties returned here
      * will be marked as 'required' because it is possible that the communication
@@ -38,7 +38,7 @@ public interface DeviceProtocolSecurityCapabilities {
      *
      * @return The list of security properties
      */
-    public List<PropertySpec> getSecurityProperties();
+    public List<PropertySpec> getSecurityPropertySpecs();
 
     /**
      * Returns a String that is suitable as the name of
