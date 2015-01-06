@@ -1,14 +1,15 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.Ranges;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.device.data.LogBook;
@@ -21,9 +22,9 @@ public class LogBookInfo {
     public ObisCode obisCode;
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode overruledObisCode;
-    public Date lastEventDate;
+    public Instant lastEventDate;
     public EndDeviceEventTypeInfo lastEventType;
-    public Date lastReading;
+    public Instant lastReading;
 
     public static LogBookInfo from(LogBook logBook, Thesaurus thesaurus) {
         LogBookInfo info = new LogBookInfo();
@@ -31,12 +32,12 @@ public class LogBookInfo {
         info.name = logBook.getLogBookType().getName();
         info.obisCode = logBook.getLogBookType().getObisCode();
         info.overruledObisCode = logBook.getDeviceObisCode();
-        info.lastReading = logBook.getLatestEventAdditionDate();
+        info.lastReading = logBook.getLatestEventAdditionDate().orElse(null);
 
-        Date lastLogBookDate = logBook.getLastLogBook();
-        if (lastLogBookDate != null) {
-            info.lastEventDate = lastLogBookDate;
-            List<EndDeviceEventRecord> endDeviceEvents = logBook.getEndDeviceEvents(new Interval(lastLogBookDate, lastLogBookDate));
+        Optional<Instant> lastLogBookDate = logBook.getLastLogBook();
+        if (lastLogBookDate.isPresent()) {
+            info.lastEventDate = lastLogBookDate.get();
+            List<EndDeviceEventRecord> endDeviceEvents = logBook.getEndDeviceEvents(Ranges.openClosed(lastLogBookDate.get(), lastLogBookDate.get()));
             if (!endDeviceEvents.isEmpty()) {
                 EndDeviceEventRecord lastRecord = endDeviceEvents.get(0);
                 info.lastEventType = EndDeviceEventTypeInfo.from(lastRecord.getEventType(), thesaurus);

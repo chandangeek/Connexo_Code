@@ -580,8 +580,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testGetAllLogBooks() {
-        Date lastLogBook = new Date();
-        Date lastReading = new Date();
+        Instant lastLogBook = Instant.now();
+        Instant lastReading = Instant.now();
 
         Device device = mock(Device.class);
         List<LogBook> logBooks = new ArrayList<>();
@@ -606,8 +606,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 .contains(MapEntry.entry("name", "A_LogBook"))
                 .contains(MapEntry.entry("obisCode", "0.0.0.0.0.5"))
                 .contains(MapEntry.entry("overruledObisCode", "0.0.0.0.0.6"))
-                .contains(MapEntry.entry("lastEventDate", lastLogBook.getTime()))
-                .contains(MapEntry.entry("lastReading", lastReading.getTime()));
+                .contains(MapEntry.entry("lastEventDate", lastLogBook.toEpochMilli()))
+                .contains(MapEntry.entry("lastReading", lastReading.toEpochMilli()));
 
         Map logBookInfo2 = (Map) ((List) response.get("data")).get(1);
         assertThat(logBookInfo2)
@@ -615,14 +615,14 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 .contains(MapEntry.entry("name", "B_LogBook"))
                 .contains(MapEntry.entry("obisCode", "0.0.0.0.0.3"))
                 .contains(MapEntry.entry("overruledObisCode", "0.0.0.0.0.4"))
-                .contains(MapEntry.entry("lastEventDate", lastLogBook.getTime()))
-                .contains(MapEntry.entry("lastReading", lastReading.getTime()));
+                .contains(MapEntry.entry("lastEventDate", lastLogBook.toEpochMilli()))
+                .contains(MapEntry.entry("lastReading", lastReading.toEpochMilli()));
     }
 
     @Test
     public void testGetLogBookById() {
-        Date lastLogBook = new Date();
-        Date lastReading = new Date();
+        Instant lastLogBook = Instant.now();
+        Instant lastReading = Instant.now();
 
         Device device = mock(Device.class);
         LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", lastLogBook, lastReading);
@@ -631,7 +631,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
-        when(logBook.getEndDeviceEvents(Matchers.any(Interval.class))).thenReturn(Arrays.asList(endDeviceEvent));
+        when(logBook.getEndDeviceEvents(Matchers.any(Range.class))).thenReturn(Arrays.asList(endDeviceEvent));
         when(endDeviceEvent.getEventType()).thenReturn(endDeviceEventType);
         when(endDeviceEventType.getMRID()).thenReturn("0.2.38.57");
         when(endDeviceEventType.getType()).thenReturn(EndDeviceType.NA);
@@ -639,7 +639,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(endDeviceEventType.getSubDomain()).thenReturn(EndDeviceSubDomain.VOLTAGE);
         when(endDeviceEventType.getEventOrAction()).thenReturn(EndDeviceEventorAction.DECREASED);
         when(nlsService.getThesaurus(Matchers.anyString(), Matchers.<Layer>any())).thenReturn(thesaurus);
-        when(thesaurus.getString(Matchers.anyString(), Matchers.anyString())).thenAnswer(invocation -> (String) invocation.getArguments()[1]);
+        when(thesaurus.getString(Matchers.anyString(), Matchers.anyString())).thenAnswer(invocation -> invocation.getArguments()[1]);
 
         LogBookInfo info = target("/devices/mrid/logbooks/1").request().get(LogBookInfo.class);
 
@@ -763,7 +763,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(endDeviceType.getEventOrAction()).thenReturn(eventorAction);
 
         when(nlsService.getThesaurus(Matchers.anyString(), Matchers.<Layer>any())).thenReturn(thesaurus);
-        when(thesaurus.getString(Matchers.anyString(), Matchers.anyString())).thenAnswer(invocation -> (String) invocation.getArguments()[1]);
+        when(thesaurus.getString(Matchers.anyString(), Matchers.anyString())).thenAnswer(invocation -> invocation.getArguments()[1]);
 
         Map<?, ?> response = target("/devices/mrid/logbooks/1/data")
                 .queryParam("filter", ("[{\"property\":\"intervalStart\",\"value\":1},"
@@ -1159,7 +1159,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         return loadProfile1;
     }
 
-    private LogBook mockLogBook(String name, long id, String obis, String overruledObis, Date lastLogBook, Date lastReading) {
+    private LogBook mockLogBook(String name, long id, String obis, String overruledObis, Instant lastLogBook, Instant lastReading) {
         LogBookType logBookType = mock(LogBookType.class);
         when(logBookType.getName()).thenReturn(name);
 
@@ -1168,8 +1168,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(logBook.getLogBookType()).thenReturn(logBookType);
         when(logBookType.getObisCode()).thenReturn(ObisCode.fromString(obis));
         when(logBook.getDeviceObisCode()).thenReturn(ObisCode.fromString(overruledObis));
-        when(logBook.getLastLogBook()).thenReturn(lastLogBook);
-        when(logBook.getLatestEventAdditionDate()).thenReturn(lastReading);
+        when(logBook.getLastLogBook()).thenReturn(Optional.of(lastLogBook));
+        when(logBook.getLatestEventAdditionDate()).thenReturn(Optional.of(lastReading));
         return logBook;
     }
 
