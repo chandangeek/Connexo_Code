@@ -12,7 +12,6 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableMap;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -124,8 +123,8 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     }
 
     @Override
-    public Date getObsoleteDate () {
-        return this.obsoleteDate == null ? null : Date.from(obsoleteDate);
+    public Instant getObsoleteDate () {
+        return this.obsoleteDate;
     }
 
     @Override

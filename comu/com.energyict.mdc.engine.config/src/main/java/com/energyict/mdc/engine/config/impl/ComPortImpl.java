@@ -15,7 +15,6 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableMap;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -165,8 +164,8 @@ public abstract class ComPortImpl implements ComPort {
 
     @Override
     @XmlElement
-    public Date getObsoleteDate() {
-        return obsoleteDate == null ? null : Date.from(obsoleteDate);
+    public Instant getObsoleteDate() {
+        return obsoleteDate;
     }
 
     @Override

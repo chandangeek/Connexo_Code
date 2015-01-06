@@ -7,7 +7,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.io.SerialPortConfiguration;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -249,7 +248,7 @@ public interface ComServer extends HasId, HasName {
      *         or <code>null</code> when this ComServer is not obsolete at all.
      */
 
-    public Date getObsoleteDate ();
+    public Instant getObsoleteDate ();
 
     public void setActive(boolean active);
 

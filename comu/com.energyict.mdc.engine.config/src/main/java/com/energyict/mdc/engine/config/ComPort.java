@@ -5,7 +5,6 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.protocol.api.ComPortType;
 
 import java.time.Instant;
-import java.util.Date;
 
 /**
  * Models a port that can be used to communicate with a device.
@@ -139,6 +138,6 @@ public interface ComPort extends HasId, HasName  {
      * @return The date when this ComPort was made obsolete
      *         or <code>null</code> when this ComPort is not obsolete at all.
      */
-    public Date getObsoleteDate();
+    public Instant getObsoleteDate();
 
 }

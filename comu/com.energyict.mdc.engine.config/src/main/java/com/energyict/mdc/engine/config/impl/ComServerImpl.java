@@ -24,7 +24,6 @@ import com.google.inject.Provider;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -420,8 +419,8 @@ public abstract class ComServerImpl implements ComServer {
 
     @Override
     @XmlElement
-    public Date getObsoleteDate () {
-        return this.obsoleteDate == null ? null : Date.from(obsoleteDate);
+    public Instant getObsoleteDate () {
+        return this.obsoleteDate;
     }
 
     public long getId() {

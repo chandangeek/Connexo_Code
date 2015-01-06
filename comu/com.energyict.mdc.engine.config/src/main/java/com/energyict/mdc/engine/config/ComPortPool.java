@@ -3,7 +3,8 @@ package com.energyict.mdc.engine.config;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.protocol.api.ComPortType;
-import java.util.Date;
+
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -63,7 +64,7 @@ public interface ComPortPool extends HasId, HasName {
      * @return The date when this ComPortPool was made obsolete
      *         or <code>null</code> when this ComPortPool is not obsolete at all.
      */
-    public Date getObsoleteDate();
+    public Instant getObsoleteDate();
 
     /**
      * Gets the {@link ComPortType type} of {@link com.energyict.mdc.engine.config.ComPort}s
