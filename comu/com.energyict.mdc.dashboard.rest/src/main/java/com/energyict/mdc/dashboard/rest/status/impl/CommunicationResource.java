@@ -4,8 +4,6 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.rest.DateAdapter;
-import com.energyict.mdc.common.rest.LongAdapter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -30,9 +28,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -42,8 +40,6 @@ public class CommunicationResource {
 
     private static final TaskStatusAdapter TASK_STATUS_ADAPTER = new TaskStatusAdapter();
     private static final CompletionCodeAdapter COMPLETION_CODE_ADAPTER = new CompletionCodeAdapter();
-    public static final LongAdapter LONG_ADAPTER = new LongAdapter();
-    public static final DateAdapter DATE_ADAPTER = new DateAdapter();
 
     private final CommunicationTaskService communicationTaskService;
     private final SchedulingService schedulingService;
@@ -121,27 +117,27 @@ public class CommunicationResource {
 
 
         if (jsonQueryFilter.hasProperty(FilterOption.startIntervalFrom.name()) || jsonQueryFilter.hasProperty(FilterOption.startIntervalTo.name())) {
-            Date start = null;
-            Date end = null;
+            Instant start = null;
+            Instant end = null;
             if (jsonQueryFilter.hasProperty(FilterOption.startIntervalFrom.name())) {
-                start = Date.from(jsonQueryFilter.getInstant(FilterOption.startIntervalFrom.name()));
+                start = jsonQueryFilter.getInstant(FilterOption.startIntervalFrom.name());
             }
             if (jsonQueryFilter.hasProperty(FilterOption.startIntervalTo.name())) {
-                end = Date.from(jsonQueryFilter.getInstant(FilterOption.startIntervalTo.name()));
+                end = jsonQueryFilter.getInstant(FilterOption.startIntervalTo.name());
             }
-            filter.lastSessionStart = new Interval(start, end);
+            filter.lastSessionStart = Interval.of(start, end);
         }
 
         if (jsonQueryFilter.hasProperty(FilterOption.finishIntervalFrom.name()) || jsonQueryFilter.hasProperty(FilterOption.finishIntervalTo.name())) {
-            Date start = null;
-            Date end = null;
+            Instant start = null;
+            Instant end = null;
             if (jsonQueryFilter.hasProperty(FilterOption.finishIntervalFrom.name())) {
-                start = Date.from(jsonQueryFilter.getInstant(FilterOption.finishIntervalFrom.name()));
+                start = jsonQueryFilter.getInstant(FilterOption.finishIntervalFrom.name());
             }
             if (jsonQueryFilter.hasProperty(FilterOption.finishIntervalTo.name())) {
-                end = Date.from(jsonQueryFilter.getInstant(FilterOption.finishIntervalTo.name()));
+                end = jsonQueryFilter.getInstant(FilterOption.finishIntervalTo.name());
             }
-            filter.lastSessionEnd = new Interval(start, end);
+            filter.lastSessionEnd = Interval.of(start, end);
         }
 
         return filter;
