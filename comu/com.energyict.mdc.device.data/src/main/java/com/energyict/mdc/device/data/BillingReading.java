@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data;
 
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
+
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -20,6 +22,6 @@ public interface BillingReading extends NumericalReading {
      *
      * @return The Interval
      */
-    public Optional<Interval> getInterval();
+    public Optional<Range<Instant>> getRange();
 
 }

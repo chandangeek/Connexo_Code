@@ -2,8 +2,9 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.readings.ProfileStatus;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.LoadProfileReading;
 
@@ -19,19 +20,18 @@ import java.util.Map;
  * Created by bvn on 8/1/14.
  */
 public class LoadProfileReadingImpl implements LoadProfileReading {
-    private Interval interval;
+    private Range<Instant> interval;
     private Map<Channel, IntervalReadingRecord> values = new HashMap<>();
     private Map<Channel, DataValidationStatus> states = new HashMap<>();
     private Instant readingTime;
     private final List<ProfileStatus.Flag> flags = new ArrayList<>();
 
     @Override
-    public Interval getInterval() {
+    public Range<Instant> getRange() {
         return interval;
     }
 
-    @Override
-    public void setInterval(Interval interval) {
+    public void setRange(Range<Instant> interval) {
         this.interval = interval;
     }
 

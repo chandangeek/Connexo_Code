@@ -1,16 +1,16 @@
 package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,7 +66,8 @@ public interface Channel extends BaseChannel {
      * @param interval The interval over which data will be returned
      * @return data for this channel
      */
-    List<LoadProfileReading> getChannelData(Interval interval);
+    List<LoadProfileReading> getChannelData(Range<Instant> interval);
 
     Optional<Instant> getLastDateTime();
+
 }

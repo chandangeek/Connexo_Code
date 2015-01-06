@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
@@ -125,7 +124,7 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
     }
 
     @Override
-    public Optional<Date> getLastReadingDate() {
+    public Optional<Instant> getLastReadingDate() {
         return this.getLastReading().map(Reading::getTimeStamp);
     }
 

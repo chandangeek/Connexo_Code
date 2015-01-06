@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -61,13 +62,13 @@ public abstract class ReadingImpl implements Reading {
     }
 
     @Override
-    public Date getTimeStamp() {
-        return Date.from(this.actualReading.getTimeStamp());
+    public Instant getTimeStamp() {
+        return this.actualReading.getTimeStamp();
     }
 
     @Override
-    public Date getReportedDateTime() {
-        return Date.from(this.actualReading.getReportedDateTime());
+    public Instant getReportedDateTime() {
+        return this.actualReading.getReportedDateTime();
     }
 
     @Override

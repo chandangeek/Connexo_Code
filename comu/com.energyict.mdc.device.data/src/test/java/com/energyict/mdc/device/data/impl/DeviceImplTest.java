@@ -46,6 +46,7 @@ import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import org.joda.time.DateTimeConstants;
@@ -419,8 +420,8 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void getRegisterReadingsShouldReturnResultsTest() {
         BigDecimal readingValue = new BigDecimal(5432.32);
-        Date readingTimeStamp = new Date(123456789);
-        com.elster.jupiter.metering.readings.Reading reading = com.elster.jupiter.metering.readings.beans.ReadingImpl.of(forwardEnergyReadingType.getMRID(), readingValue, readingTimeStamp.toInstant());
+        Instant readingTimeStamp = Instant.ofEpochMilli(123456789);
+        com.elster.jupiter.metering.readings.Reading reading = com.elster.jupiter.metering.readings.beans.ReadingImpl.of(forwardEnergyReadingType.getMRID(), readingValue, readingTimeStamp);
         MeterReadingImpl meterReading = MeterReadingImpl.of(reading);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
@@ -444,12 +445,12 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     public void getEventRegisterReadings() {
         BigDecimal readingValue = new BigDecimal(5432.32);
         long eventStartUTC = 957225600000L;    // May 1st, 2000 00:00:00 (UTC)
-        Date eventStart = new Date(eventStartUTC);
-        Date eventEnd = new Date(eventStartUTC + DateTimeConstants.MILLIS_PER_DAY);   // May 2nd, 2000 00:00:00
-        Date readingTimeStamp = eventEnd;
+        Instant eventStart = Instant.ofEpochMilli(eventStartUTC);
+        Instant eventEnd = Instant.ofEpochMilli(eventStartUTC + DateTimeConstants.MILLIS_PER_DAY);   // May 2nd, 2000 00:00:00
+        Instant readingTimeStamp = eventEnd;
         com.elster.jupiter.metering.readings.beans.ReadingImpl reading =
-                com.elster.jupiter.metering.readings.beans.ReadingImpl.of(this.averageForwardEnergyReadingTypeMRID, readingValue, readingTimeStamp.toInstant());
-        reading.setTimePeriod(eventStart.toInstant(), eventEnd.toInstant());
+                com.elster.jupiter.metering.readings.beans.ReadingImpl.of(this.averageForwardEnergyReadingTypeMRID, readingValue, readingTimeStamp);
+        reading.setTimePeriod(eventStart, eventEnd);
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addReading(reading);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
@@ -465,8 +466,8 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         BillingReading billingReading = (BillingReading) readings.get(0);
         assertThat(billingReading.getType().getMRID()).isEqualTo(forwardEnergyReadingType.getMRID());
         assertThat(billingReading.getTimeStamp()).isEqualTo(readingTimeStamp);
-        assertThat(billingReading.getInterval().isPresent()).isTrue();
-        assertThat(billingReading.getInterval().get()).isEqualTo(new Interval(eventStart, eventEnd));
+        assertThat(billingReading.getRange().isPresent()).isTrue();
+        assertThat(billingReading.getRange().get()).isEqualTo(Ranges.openClosed(eventStart, eventEnd));
         assertThat(billingReading.getValue()).isEqualTo(readingValue);
     }
 
@@ -645,12 +646,12 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         device.store(meterReading);
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Interval.of(dayStart, dayEnd));
+        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(dayStart, dayEnd));
         assertThat(readings).describedAs("There should be no data(holders) for the interval 00:00->08:45").hasSize(24 * 4 - 4 * 9 + 1);
-        assertThat(readings.get(0).getInterval().getEnd()).isEqualTo(dayEnd);
-        assertThat(readings.get(readings.size()-1).getInterval().getStart()).isEqualTo(startIntervalForPreviousReadingTimeStamp);
+        assertThat(readings.get(0).getRange().upperEndpoint()).isEqualTo(dayEnd);
+        assertThat(readings.get(readings.size()-1).getRange().lowerEndpoint()).isEqualTo(startIntervalForPreviousReadingTimeStamp);
         for (LoadProfileReading reading : readings) { // Only 1 channel will contain a value for a single interval
-            if (reading.getInterval().getEnd().equals(readingTimeStamp)) {
+            if (reading.getRange().upperEndpoint().equals(readingTimeStamp)) {
                 assertThat(reading.getChannelValues()).hasSize(1);
                 for (Map.Entry<Channel, IntervalReadingRecord> channelBigDecimalEntry : reading.getChannelValues().entrySet()) {
                     assertThat(channelBigDecimalEntry.getKey().getReadingType().getMRID()).isEqualTo(code);
@@ -682,16 +683,16 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         meterReading.addIntervalBlock(intervalBlock);
         meterReading.addIntervalBlock(intervalBlock2);
         device.store(meterReading);
-        Date lastReading = new Date(1406926800000L); //  Fri, 01 Aug 2014 21:00:00 GMT
+        Instant lastReading = Instant.ofEpochMilli(1406926800000L); //  Fri, 01 Aug 2014 21:00:00 GMT
         device.getLoadProfileUpdaterFor(device.getLoadProfiles().get(0)).setLastReading(lastReading).update();
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Interval.of(requestIntervalStart, requestIntervalEnd));
+        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(requestIntervalStart, requestIntervalEnd));
         assertThat(readings).describedAs("There should be no data(holders) for the interval 21:00->00:00").hasSize(24 * 4 - 12); // 3 times 4 intervals/hour missing
-        assertThat(readings.get(0).getInterval().getEnd()).isEqualTo(lastReading.toInstant());
-        assertThat(readings.get(readings.size()-1).getInterval().getStart()).isEqualTo(requestIntervalStart);
+        assertThat(readings.get(0).getRange().upperEndpoint()).isEqualTo(lastReading);
+        assertThat(readings.get(readings.size()-1).getRange().lowerEndpoint()).isEqualTo(requestIntervalStart);
         for (LoadProfileReading reading : readings) { // Only 1 channel will contain a value for a single interval
-            if (reading.getInterval().getEnd().equals(readingTimeStamp)) {
+            if (reading.getRange().upperEndpoint().equals(readingTimeStamp)) {
                 assertThat(reading.getChannelValues()).hasSize(1);
                 for (Map.Entry<Channel, IntervalReadingRecord> channelBigDecimalEntry : reading.getChannelValues().entrySet()) {
                     assertThat(channelBigDecimalEntry.getKey().getReadingType().getMRID()).isEqualTo(code);
@@ -705,8 +706,8 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testGetLoadProfileData() {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
-        Date dayStart = new Date(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
-        Date dayEnd = new Date(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
+        Instant dayStart = Instant.ofEpochMilli(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
+        Instant dayEnd = Instant.ofEpochMilli(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
@@ -714,8 +715,8 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(code);
-        Date readingTimeStamp = new Date(1406852100000L);// 1/8/2014 0:15
-        intervalBlock.addIntervalReading(IntervalReadingImpl.of(readingTimeStamp.toInstant(), readingValue));
+        Instant readingTimeStamp = Instant.ofEpochMilli(1406852100000L);// 1/8/2014 0:15
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(readingTimeStamp, readingValue));
         IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(code);
         Date previousReadingTimeStamp = new Date(1406851200000L);// 1/8/2014 0:00
         intervalBlock2.addIntervalReading(IntervalReadingImpl.of(previousReadingTimeStamp.toInstant(), BigDecimal.ZERO));
@@ -725,12 +726,12 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         device.store(meterReading);
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
+        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(dayStart, dayEnd));
         assertThat(readings).hasSize(24 * 4);
-        assertThat(readings.get(0).getInterval().getEnd()).isEqualTo(dayEnd.toInstant());
-        assertThat(readings.get(readings.size()-1).getInterval().getStart()).isEqualTo(dayStart.toInstant());
+        assertThat(readings.get(0).getRange().upperEndpoint()).isEqualTo(dayEnd);
+        assertThat(readings.get(readings.size()-1).getRange().lowerEndpoint()).isEqualTo(dayStart);
         for (LoadProfileReading reading : readings) { // Only 1 channel will contain a value for a single interval
-            if (reading.getInterval().getEnd().equals(readingTimeStamp.toInstant())) {
+            if (reading.getRange().upperEndpoint().equals(readingTimeStamp)) {
                 assertThat(reading.getChannelValues()).hasSize(1);
                 for (Map.Entry<Channel, IntervalReadingRecord> channelBigDecimalEntry : reading.getChannelValues().entrySet()) {
                     assertThat(channelBigDecimalEntry.getKey().getReadingType().getMRID()).isEqualTo(code);
@@ -744,8 +745,8 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testGetLoadProfileDataHasValidationState() {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
-        Date dayStart = new Date(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
-        Date dayEnd = new Date(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
+        Instant dayStart = Instant.ofEpochMilli(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
+        Instant dayEnd = Instant.ofEpochMilli(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
@@ -753,23 +754,23 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(code);
-        Date readingTimeStamp = new Date(1406852100000L);// 1/8/2014 0:15
-        intervalBlock.addIntervalReading(IntervalReadingImpl.of(readingTimeStamp.toInstant(), readingValue));
+        Instant readingTimeStamp = Instant.ofEpochMilli(1406852100000L);// 1/8/2014 0:15
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(readingTimeStamp, readingValue));
         IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(code);
-        Date previousReadingTimeStamp = new Date(1406851200000L);// 1/8/2014 0:00
-        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(previousReadingTimeStamp.toInstant(), BigDecimal.ZERO));
+        Instant previousReadingTimeStamp = Instant.ofEpochMilli(1406851200000L);// 1/8/2014 0:00
+        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(previousReadingTimeStamp, BigDecimal.ZERO));
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addIntervalBlock(intervalBlock);
         meterReading.addIntervalBlock(intervalBlock2);
         device.store(meterReading);
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
+        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(dayStart, dayEnd));
         assertThat(readings).hasSize(24 * 4);
-        assertThat(readings.get(0).getInterval().getEnd()).isEqualTo(dayEnd.toInstant());
-        assertThat(readings.get(readings.size()-1).getInterval().getStart()).isEqualTo(dayStart.toInstant());
+        assertThat(readings.get(0).getRange().upperEndpoint()).isEqualTo(dayEnd);
+        assertThat(readings.get(readings.size()-1).getRange().lowerEndpoint()).isEqualTo(dayStart);
         for (LoadProfileReading reading : readings) { // Only 1 channel will contain a value for a single interval
-            if (reading.getInterval().getEnd().equals(readingTimeStamp.toInstant())) {
+            if (reading.getRange().upperEndpoint().equals(readingTimeStamp)) {
                 assertThat(reading.getChannelValidationStates()).hasSize(1);
                 for (Map.Entry<Channel, DataValidationStatus> channelBigDecimalEntry : reading.getChannelValidationStates().entrySet()) {
                     assertThat(channelBigDecimalEntry.getKey().getReadingType().getMRID()).isEqualTo(code);
@@ -784,14 +785,14 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testGetEmptyLoadProfileData() {
-        Date dayStart = new Date(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
-        Date dayEnd = new Date(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
+        Instant dayStart = Instant.ofEpochMilli(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
+        Instant dayEnd = Instant.ofEpochMilli(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        Collection<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
+        Collection<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(dayStart, dayEnd));
         assertThat(readings).isEmpty();
     }
 
@@ -800,8 +801,8 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     public void testGetLoadProfileDataDST() {
         BigDecimal readingValue = new BigDecimal(5432.32);
         Date readingTimeStamp = new Date(1396138500000L); // 3/30/2014, 01:15:00 AM
-        Date dayStart = new Date(1396137600000L); // 3/30/2014, 1:00:00 AM
-        Date dayEnd = new Date(1396159200000L); // 3/30/2014, 8:00:00 AM !! 6 hours later!!
+        Instant dayStart = Instant.ofEpochMilli(1396137600000L); // 3/30/2014, 1:00:00 AM
+        Instant dayEnd = Instant.ofEpochMilli(1396159200000L); // 3/30/2014, 8:00:00 AM !! 6 hours later!!
         String code = getForwardEnergyReadingTypeCodeBuilder().period(TimeAttribute.MINUTE15).code();
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(code);
@@ -813,7 +814,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         device.store(meterReading);
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
+        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(dayStart, dayEnd));
         assertThat(readings).hasSize(4 * 6);  // 4 per hour, during 6 hours
     }
 

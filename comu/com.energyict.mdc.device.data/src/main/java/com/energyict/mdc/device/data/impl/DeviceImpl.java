@@ -34,6 +34,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
@@ -133,7 +134,6 @@ import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -857,7 +857,7 @@ public class DeviceImpl implements Device, CanLock {
         return Collections.emptyList();
     }
 
-    List<LoadProfileReading> getChannelData(LoadProfile loadProfile, Interval interval) {
+    List<LoadProfileReading> getChannelData(LoadProfile loadProfile, Range<Instant> interval) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         List<LoadProfileReading> loadProfileReadings = Collections.emptyList();
         boolean meterHasData = false;
@@ -867,9 +867,9 @@ public class DeviceImpl implements Device, CanLock {
                 Map<Instant, LoadProfileReadingImpl> sortedLoadProfileReadingMap =
                         getPreFilledLoadProfileReadingMap(
                                 loadProfile,
-                                Range.openClosed(interval.getStart(), interval.getEnd()),
+                                interval,
                                 meter.get());
-                Interval clipped = interval.withEnd(lastReadingClipped(loadProfile, interval));
+                Range<Instant> clipped = Ranges.openClosed(interval.lowerEndpoint(), this.lastReadingClipped(loadProfile, interval));
                 for (Channel channel : loadProfile.getChannels()) {
                     meterHasData |= this.addChannelDataToMap(clipped, meter.get(), channel, sortedLoadProfileReadingMap);
                 }
@@ -882,7 +882,7 @@ public class DeviceImpl implements Device, CanLock {
         return Lists.reverse(loadProfileReadings);
     }
 
-    List<LoadProfileReading> getChannelData(Channel channel, Interval interval) {
+    List<LoadProfileReading> getChannelData(Channel channel, Range<Instant> interval) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         List<LoadProfileReading> loadProfileReadings = Collections.emptyList();
         boolean meterHasData;
@@ -892,9 +892,9 @@ public class DeviceImpl implements Device, CanLock {
                 Map<Instant, LoadProfileReadingImpl> sortedLoadProfileReadingMap =
                         getPreFilledLoadProfileReadingMap(
                                 channel.getLoadProfile(),
-                                Range.openClosed(interval.getStart(), interval.getEnd()),
+                                interval,
                                 meter.get());
-                Interval clipped = interval.withEnd(lastReadingClipped(channel.getLoadProfile(), interval));
+                Range<Instant> clipped = Ranges.openClosed(interval.lowerEndpoint(), this.lastReadingClipped(channel.getLoadProfile(), interval));
                 meterHasData = this.addChannelDataToMap(clipped, meter.get(), channel, sortedLoadProfileReadingMap);
                 if (meterHasData) {
                     loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
@@ -916,7 +916,7 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     /**
-     * Adds meter readings for a single channel the timeslot-map.
+     * Adds meter readings for a single channel to the timeslot-map.
      *
      * @param interval                    The interval over which meter readings are requested
      * @param meter                       The meter for which readings are requested
@@ -924,13 +924,13 @@ public class DeviceImpl implements Device, CanLock {
      * @param sortedLoadProfileReadingMap The map to add the readings too in the correct timeslot
      * @return true if any readings were added to the map, false otherwise
      */
-    private boolean addChannelDataToMap(Interval interval, Meter meter, Channel mdcChannel, Map<Instant, LoadProfileReadingImpl> sortedLoadProfileReadingMap) {
+    private boolean addChannelDataToMap(Range<Instant> interval, Meter meter, Channel mdcChannel, Map<Instant, LoadProfileReadingImpl> sortedLoadProfileReadingMap) {
         boolean meterHasData = false;
-        List<MeterActivation> meterActivations = this.getSortedMeterActivations(meter, interval);
+        List<MeterActivation> meterActivations = this.getSortedMeterActivations(meter, Ranges.closed(interval.lowerEndpoint(), interval.upperEndpoint()));
         for (MeterActivation meterActivation : meterActivations) {
-            Interval meterActivationInterval = meterActivation.getInterval().intersection(interval);
+            Range<Instant> meterActivationInterval = meterActivation.getRange().intersection(interval);
             ReadingType readingType = mdcChannel.getChannelSpec().getReadingType();
-            List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(meterActivationInterval.toOpenClosedRange(), readingType);
+            List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(meterActivationInterval, readingType);
             if (!meterReadings.isEmpty()) {
                 meterHasData = true;
             }
@@ -943,9 +943,9 @@ public class DeviceImpl implements Device, CanLock {
 
             Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation, readingType);
             if (koreChannel.isPresent()) {
-                List<DataValidationStatus> validationStatus = forValidation().getValidationStatus(mdcChannel, meterReadings, meterActivationInterval.toClosedRange());
+                List<DataValidationStatus> validationStatus = forValidation().getValidationStatus(mdcChannel, meterReadings, meterActivationInterval);
                 validationStatus.stream()
-                        .filter(s -> s.getReadingTimestamp().isAfter(meterActivationInterval.getStart()))
+                        .filter(s -> s.getReadingTimestamp().isAfter(meterActivationInterval.lowerEndpoint()))
                         .forEach(s -> {
                             LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(s.getReadingTimestamp());
                             if (loadProfileReading != null) {
@@ -1001,7 +1001,7 @@ public class DeviceImpl implements Device, CanLock {
                 while (meterActivationInterval.contains(requestStart.toInstant())) {
                     ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
                     LoadProfileReadingImpl value = new LoadProfileReadingImpl();
-                    value.setInterval(Interval.of(requestStart.toInstant(), readingTimestamp.toInstant()));
+                    value.setRange(Ranges.openClosed(requestStart.toInstant(), readingTimestamp.toInstant()));
                     loadProfileReadingMap.put(readingTimestamp.toInstant(), value);
                     requestStart = readingTimestamp;
                 }
@@ -1244,14 +1244,12 @@ public class DeviceImpl implements Device, CanLock {
      * @param interval The Interval
      * @return The List of MeterActivation
      */
-    private List<MeterActivation> getSortedMeterActivations(Meter meter, Interval interval) {
-        List<? extends MeterActivation> allActivations = meter.getMeterActivations();
-        List<MeterActivation> overlapping = new ArrayList<>(allActivations.size());
-        for (MeterActivation activation : allActivations) {
-            if (activation.overlaps(interval.toClosedRange())) {
-                overlapping.add(activation);
-            }
-        }
+    private List<MeterActivation> getSortedMeterActivations(Meter meter, Range<Instant> interval) {
+        List<MeterActivation> overlapping = new ArrayList<>();
+        meter.getMeterActivations()
+                .stream()
+                .filter(activation -> activation.overlaps(interval))
+                .forEach(overlapping::add);
         Collections.reverse(overlapping);
         return overlapping;
     }

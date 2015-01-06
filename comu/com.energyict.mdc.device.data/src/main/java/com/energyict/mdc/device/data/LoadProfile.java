@@ -3,6 +3,8 @@ package com.energyict.mdc.device.data;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
 import com.elster.jupiter.time.TimeDuration;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 
@@ -59,8 +61,7 @@ public interface LoadProfile extends BaseLoadProfile<Channel>, HasId {
      * @param interval The interval over which data will be returned
      * @return data for all channels of this loadprofile
      */
-    public List<LoadProfileReading> getChannelData(Interval interval);
-
+    public List<LoadProfileReading> getChannelData(Range<Instant> interval);
 
     /**
      * Gets the {@link com.energyict.mdc.device.config.LoadProfileSpec} which
@@ -82,14 +83,14 @@ public interface LoadProfile extends BaseLoadProfile<Channel>, HasId {
          *
          * @param lastReading the new last reading.
          */
-        LoadProfileUpdater setLastReadingIfLater(Date lastReading);
+        LoadProfileUpdater setLastReadingIfLater(Instant lastReading);
 
         /**
          * Updates the last reading.
          *
          * @param lastReading the new last reading
          */
-        LoadProfileUpdater setLastReading(Date lastReading);
+        LoadProfileUpdater setLastReading(Instant lastReading);
 
         /**
          * Updates the LoadProfile, preferably via his Device

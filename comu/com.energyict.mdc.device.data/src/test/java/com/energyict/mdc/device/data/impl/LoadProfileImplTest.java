@@ -26,7 +26,6 @@ import com.elster.jupiter.time.TimeDuration;
 import org.fest.assertions.core.Condition;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -230,7 +229,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         Instant newLastReading = Instant.ofEpochMilli(123546);
         LoadProfile loadProfile = getReloadedLoadProfile(device);
         LoadProfile.LoadProfileUpdater loadProfileUpdater = device.getLoadProfileUpdaterFor(loadProfile);
-        loadProfileUpdater.setLastReading(Date.from(newLastReading));
+        loadProfileUpdater.setLastReading(newLastReading);
         loadProfileUpdater.update();
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(device);
         assertThat(reloadedLoadProfile.getLastReading().isPresent()).isTrue();
@@ -241,7 +240,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
     @Transactional
     public void updateLastReadingIfLaterTest() {
         Device device = createSimpleDeviceWithLoadProfiles();
-        Date oldLastReading = new Date(123);
+        Instant oldLastReading = Instant.ofEpochMilli(123);
         Instant newLastReading = Instant.ofEpochMilli(123546);
         LoadProfile loadProfile = getReloadedLoadProfile(device);
         LoadProfile.LoadProfileUpdater loadProfileUpdater = device.getLoadProfileUpdaterFor(loadProfile);
@@ -249,7 +248,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         loadProfileUpdater.update();
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(device);
         LoadProfile.LoadProfileUpdater loadProfileUpdater2 = device.getLoadProfileUpdaterFor(reloadedLoadProfile);
-        loadProfileUpdater2.setLastReadingIfLater(Date.from(newLastReading));
+        loadProfileUpdater2.setLastReadingIfLater(newLastReading);
         loadProfileUpdater2.update();
         LoadProfile finalReloadedLoadProfile = getReloadedLoadProfile(device);
         assertThat(finalReloadedLoadProfile.getLastReading().isPresent()).isTrue();
@@ -261,10 +260,10 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
     public void updateLastReadingIfNotLaterTest() {
         Device device = createSimpleDeviceWithLoadProfiles();
         Instant oldLastReading = Instant.ofEpochMilli(999999999);
-        Date newLastReading = new Date(123546);
+        Instant newLastReading = Instant.ofEpochMilli(123546);
         LoadProfile loadProfile = getReloadedLoadProfile(device);
         LoadProfile.LoadProfileUpdater loadProfileUpdater = device.getLoadProfileUpdaterFor(loadProfile);
-        loadProfileUpdater.setLastReading(Date.from(oldLastReading));
+        loadProfileUpdater.setLastReading(oldLastReading);
         loadProfileUpdater.update();
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(device);
         LoadProfile.LoadProfileUpdater loadProfileUpdater2 = device.getLoadProfileUpdaterFor(reloadedLoadProfile);

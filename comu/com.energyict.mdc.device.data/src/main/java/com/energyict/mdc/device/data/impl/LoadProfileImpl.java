@@ -17,7 +17,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -118,7 +118,7 @@ public class LoadProfileImpl implements LoadProfile {
     }
 
     @Override
-    public List<LoadProfileReading> getChannelData(Interval interval) {
+    public List<LoadProfileReading> getChannelData(Range<Instant> interval) {
         return this.device.get().getChannelData(this, interval);
     }
 
@@ -135,17 +135,17 @@ public class LoadProfileImpl implements LoadProfile {
         }
 
         @Override
-        public LoadProfile.LoadProfileUpdater setLastReadingIfLater(Date lastReading) {
+        public LoadProfile.LoadProfileUpdater setLastReadingIfLater(Instant lastReading) {
             Instant loadProfileLastReading = this.loadProfile.lastReading;
-            if (lastReading != null && (loadProfileLastReading == null || lastReading.toInstant().isAfter(loadProfileLastReading))) {
-                this.loadProfile.lastReading = lastReading.toInstant();
+            if (lastReading != null && (loadProfileLastReading == null || lastReading.isAfter(loadProfileLastReading))) {
+                this.loadProfile.lastReading = lastReading;
             }
             return this;
         }
 
         @Override
-        public LoadProfile.LoadProfileUpdater setLastReading(Date lastReading) {
-            this.loadProfile.lastReading = lastReading == null ? null : lastReading.toInstant();
+        public LoadProfile.LoadProfileUpdater setLastReading(Instant lastReading) {
+            this.loadProfile.lastReading = lastReading;
             return this;
         }
 
@@ -258,7 +258,7 @@ public class LoadProfileImpl implements LoadProfile {
         }
 
         @Override
-        public List<LoadProfileReading> getChannelData(Interval interval) {
+        public List<LoadProfileReading> getChannelData(Range<Instant> interval) {
             return LoadProfileImpl.this.device.get().getChannelData(this, interval);
         }
 
@@ -268,4 +268,5 @@ public class LoadProfileImpl implements LoadProfile {
             return koreChannel.map(com.elster.jupiter.metering.Channel::getLastDateTime);
         }
     }
+
 }

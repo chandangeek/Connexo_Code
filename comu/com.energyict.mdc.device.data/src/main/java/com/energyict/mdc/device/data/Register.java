@@ -5,6 +5,8 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 
 import com.elster.jupiter.util.time.Interval;
+
+import java.time.Instant;
 import java.util.Optional;
 
 import java.util.Date;
@@ -67,7 +69,7 @@ public interface Register<R extends Reading> extends BaseRegister {
      * @return the <code>RegisterReading</code>
      * @see #getLastReading()
      */
-    public Optional<Date> getLastReadingDate();
+    public Optional<Instant> getLastReadingDate();
 
     public ReadingType getReadingType();
 

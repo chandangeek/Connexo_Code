@@ -5,7 +5,7 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.ReadingType;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -18,9 +18,9 @@ public interface Reading {
 
     public ReadingType getType();
 
-    public Date getTimeStamp();
+    public Instant getTimeStamp();
 
-    public Date getReportedDateTime();
+    public Instant getReportedDateTime();
 
     public BigDecimal getSensorAccuracy();
 
@@ -46,6 +46,6 @@ public interface Reading {
      */
     public List<ReadingQuality> getReadingQualities();
 
-    ReadingRecord getActualReading();
+    public ReadingRecord getActualReading();
 
 }
