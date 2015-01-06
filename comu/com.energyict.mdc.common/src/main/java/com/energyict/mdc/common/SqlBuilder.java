@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -180,6 +181,16 @@ public class SqlBuilder {
         bindTypeNames.add("");
     }
 
+    public void bindTimestamp(Instant bindVar) {
+        Timestamp ts = null;
+        if (bindVar != null) {
+            ts = new Timestamp(bindVar.toEpochMilli());
+        }
+        bindObjects.add(ts);
+        bindTypes.add(TIMESTAMP);
+        bindTypeNames.add("");
+    }
+
     public void bindUtcTimestamp(Date bindVar) {
         Timestamp ts = null;
         if (bindVar != null) {
@@ -201,6 +212,13 @@ public class SqlBuilder {
         } else {
             date = new java.sql.Date(bindVar.getTime());
         }
+        bindObjects.add(date);
+        bindTypes.add(DATE);
+        bindTypeNames.add("");
+    }
+
+    public void bindDate(Instant bindVar) {
+        java.sql.Date date = new java.sql.Date(bindVar.toEpochMilli());
         bindObjects.add(date);
         bindTypes.add(DATE);
         bindTypeNames.add("");
@@ -352,6 +370,12 @@ public class SqlBuilder {
 
     public void bindUtc(Date bindVar) {
         bindObjects.add(bindVar.getTime() / 1000L);
+        bindTypes.add(LONG);
+        bindTypeNames.add("");
+    }
+
+    public void bindUtc(Instant bindVar) {
+        bindObjects.add(bindVar.getEpochSecond());
         bindTypes.add(LONG);
         bindTypeNames.add("");
     }

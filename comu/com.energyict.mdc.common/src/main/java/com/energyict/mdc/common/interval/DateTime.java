@@ -184,13 +184,7 @@ public class DateTime implements Comparable, Serializable {
         return cachedDate;
     }
 
-    /**
-     * return the java.util.Date corresponding to the receiver
-     * Internal use only. Use getDate()
-     *
-     * @return the java.util.Date
-     */
-    public Date doGetDate() {
+    private Date doGetDate() {
         int year = dstamp / 10000;
         int remainder = dstamp % 10000;
         int month = remainder / 100;
