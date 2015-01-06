@@ -240,9 +240,9 @@ public class DemoServiceImpl implements DemoService {
                 createDemoUsersImpl();
                 createValidationRulesImpl();
 
-                createIssueReasons();
+              /*  createIssueReasons();
                 createCreationRule();
-                createIssues();
+                createIssues();*/
                 createKpi();
             }
         });
