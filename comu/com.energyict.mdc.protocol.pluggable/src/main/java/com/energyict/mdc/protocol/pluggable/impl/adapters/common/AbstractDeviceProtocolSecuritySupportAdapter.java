@@ -63,9 +63,9 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
+    public List<PropertySpec> getSecurityPropertySpecs() {
         if (checkExistingSecuritySupport()) {
-            return this.legacySecuritySupport.getSecurityProperties();
+            return this.legacySecuritySupport.getSecurityPropertySpecs();
         } else {
             return Collections.emptyList();
         }

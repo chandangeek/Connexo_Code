@@ -1,10 +1,8 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.StackTracePrinter;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -42,6 +40,7 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
      */
     private final SmartMeterProtocol smartMeterProtocol;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
 
     /**
      * The used {@link SmartMeterProtocolClockAdapter}
@@ -50,13 +49,14 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
 
     /**
      * Default constructor
-     *
-     * @param smartMeterProtocol the {@link com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol} to glue
+     *  @param smartMeterProtocol the {@link SmartMeterProtocol} to glue
      * @param issueService
+     * @param collectedDataFactory
      */
-    public SmartMeterProtocolLoadProfileAdapter(final SmartMeterProtocol smartMeterProtocol, IssueService issueService) {
+    public SmartMeterProtocolLoadProfileAdapter(final SmartMeterProtocol smartMeterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.smartMeterProtocol = smartMeterProtocol;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
         this.smartMeterProtocolClockAdapter = new SmartMeterProtocolClockAdapter(smartMeterProtocol);
     }
 
@@ -90,7 +90,7 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
     }
 
     private List<CollectedLoadProfileConfiguration> createIssueListForLoadProfileReaders(List<LoadProfileReader> loadProfilesToRead, Exception e) {
-        CollectedDataFactory collectedDataFactory = this.getCollectedDataFactory();
+        CollectedDataFactory collectedDataFactory = this.collectedDataFactory;
         List<CollectedLoadProfileConfiguration> configurations = new ArrayList<>();
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
             CollectedLoadProfileConfiguration deviceLoadProfileConfiguration = collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getDeviceIdentifier(), false);
@@ -101,7 +101,7 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
     }
 
     private List<CollectedLoadProfileConfiguration> convertToCollectedLoadProfileConfigurations(List<LoadProfileConfiguration> loadProfileConfigurations) {
-        CollectedDataFactory collectedDataFactory = this.getCollectedDataFactory();
+        CollectedDataFactory collectedDataFactory = this.collectedDataFactory;
         List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = new ArrayList<>();
         for (LoadProfileConfiguration loadProfileConfiguration : loadProfileConfigurations) {
             CollectedLoadProfileConfiguration deviceLoadProfileConfiguration = collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileConfiguration.getObisCode(), loadProfileConfiguration.getDeviceIdentifier());
@@ -133,7 +133,7 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
         if (loadProfiles != null) {
             List<CollectedLoadProfile> collectedLoadProfiles = new ArrayList<>();
             try {
-                CollectedDataFactory collectedDataFactory = this.getCollectedDataFactory();
+                CollectedDataFactory collectedDataFactory = this.collectedDataFactory;
                 final List<ProfileData> loadProfileData = this.smartMeterProtocol.getLoadProfileData(loadProfiles);
                 CollectedLoadProfile deviceLoadProfile;
                 for (LoadProfileReader loadProfileReader : loadProfiles) {
@@ -187,10 +187,6 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
     @Override
     public Date getTime() {
         return this.smartMeterProtocolClockAdapter.getTime();
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
     private Issue getIssue(Object source, String description, Object... arguments) {

@@ -16,6 +16,7 @@ import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -76,6 +77,8 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
      * The use <code>IssueService</code> which can be used for this adapter
      */
     private final IssueService issueService;
+
+    private final CollectedDataFactory collectedDataFactory;
 
     /**
      * The used <code>RegisterProtocol</code> for which the adapter is working
@@ -142,10 +145,11 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
      */
     private HHUEnabler hhuEnabler;
 
-    public MeterProtocolAdapterImpl(MeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, IssueService issueService) {
+    public MeterProtocolAdapterImpl(MeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         super(propertySpecService, protocolPluggableService, securitySupportAdapterMappingFactory, dataModel);
         this.meterProtocol = meterProtocol;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
         if (meterProtocol instanceof RegisterProtocol) {
             this.registerProtocol = (RegisterProtocol) meterProtocol;
         }
@@ -170,13 +174,13 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
      */
     protected void initializeAdapters() {
         this.propertiesAdapter = new PropertiesAdapter();
-        this.meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(registerProtocol, issueService);
-        this.meterProtocolLoadProfileAdapter = new MeterProtocolLoadProfileAdapter(meterProtocol, issueService);
+        this.meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(registerProtocol, issueService, collectedDataFactory);
+        this.meterProtocolLoadProfileAdapter = new MeterProtocolLoadProfileAdapter(meterProtocol, issueService, collectedDataFactory);
         this.meterProtocolClockAdapter = new MeterProtocolClockAdapter(meterProtocol);
-        this.deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter(issueService);
+        this.deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter(issueService, collectedDataFactory);
 
         if (!DeviceMessageSupport.class.isAssignableFrom(this.meterProtocol.getClass())) {
-            this.meterProtocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol, this.getDataModel(), this.getProtocolPluggableService(), issueService);
+            this.meterProtocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol, this.getDataModel(), this.getProtocolPluggableService(), this.issueService, this.collectedDataFactory);
         }
         else {
             this.deviceMessageSupport = (DeviceMessageSupport) this.meterProtocol;
@@ -239,7 +243,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
 
     @Override
     public String getProtocolDescription() {
-        return "";
+        return this.meterProtocol.getClass().getName() + "" + this.meterProtocol.getProtocolVersion();
     }
 
     @Override
@@ -430,7 +434,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         List<DeviceProtocolDialect> dialects = new ArrayList<>(1);
-        dialects.add(new AdapterDeviceProtocolDialect(this.getPropertySpecService(), this.getProtocolPluggableService(), this.meterProtocol, getSecurityProperties()));
+        dialects.add(new AdapterDeviceProtocolDialect(this.getPropertySpecService(), this.getProtocolPluggableService(), this.meterProtocol, getSecurityPropertySpecs()));
         return dialects;
     }
 
@@ -455,12 +459,12 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
+    public List<PropertySpec> getSecurityPropertySpecs() {
         if (this.delegateSecurityToActualProtocol()) {
-            return getDeviceSecuritySupport().getSecurityProperties();
+            return getDeviceSecuritySupport().getSecurityPropertySpecs();
         }
         else {
-            return this.meterProtocolSecuritySupportAdapter.getSecurityProperties();
+            return this.meterProtocolSecuritySupportAdapter.getSecurityPropertySpecs();
         }
     }
 

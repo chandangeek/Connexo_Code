@@ -1,8 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
-import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -17,6 +15,7 @@ import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
@@ -43,6 +42,7 @@ import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import org.fest.assertions.core.Condition;
 
@@ -91,6 +91,8 @@ public class MeterProtocolAdapterTest {
     private CapabilityAdapterMappingFactory capabilityAdapterMappingFactory;
     @Mock
     private SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
+    @Mock
+    private CollectedDataFactory collectedDataFactory;
 
     private InMemoryPersistence inMemoryPersistence;
     private ProtocolPluggableServiceImpl protocolPluggableService;
@@ -100,23 +102,24 @@ public class MeterProtocolAdapterTest {
         this.inMemoryPersistence = new InMemoryPersistence();
         this.inMemoryPersistence.initializeDatabase("MeterProtocolAdapterTest.mdc.protocol.pluggable");
         this.protocolPluggableService = this.inMemoryPersistence.getProtocolPluggableService();
-        this.initializeMocks();
+        this.initializeMocks(this.protocolPluggableService);
     }
 
-    private void initializeMocks() {
+    private void initializeMocks(ProtocolPluggableServiceImpl protocolPluggableService) {
         IdBusinessObjectFactory timeZoneInUseFactory = mock(IdBusinessObjectFactory.class);
         when(timeZoneInUseFactory.getInstanceType()).thenReturn(TimeZone.class);
+        protocolPluggableService.addCollectedDataFactory(this.collectedDataFactory);
 
         when(securitySupportAdapterMappingFactory.getSecuritySupportJavaClassNameForDeviceProtocol(PROTOCOL_CLASS)).
                 thenReturn("com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport");
         when(capabilityAdapterMappingFactory.getCapabilitiesMappingForDeviceProtocol(MockDeviceProtocol.class.getCanonicalName())).thenReturn(6);  //6 = master and session capability
         PropertySpecService propertySpecService = inMemoryPersistence.getPropertySpecService();
         when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME, false, StringFactory.class))
-                .thenReturn(new BasicPropertySpec<>(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME, false, new StringFactory()));
+                .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME, false, new StringFactory()));
         when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecuritySupport.SECOND_PROPERTY_NAME, false, StringFactory.class))
-                .thenReturn(new BasicPropertySpec<>(SimpleTestDeviceSecuritySupport.SECOND_PROPERTY_NAME, false, new StringFactory()));
+                .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecuritySupport.SECOND_PROPERTY_NAME, false, new StringFactory()));
         when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME, false, StringFactory.class))
-                .thenReturn(new BasicPropertySpec<>(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME, false, new StringFactory()));
+                .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME, false, new StringFactory()));
 
         SimpleTestDeviceSecuritySupport securitySupport = new SimpleTestDeviceSecuritySupport(propertySpecService);
         DeviceProtocolSecurityService deviceProtocolSecurityService = this.inMemoryPersistence.getDeviceProtocolSecurityService();
@@ -158,12 +161,7 @@ public class MeterProtocolAdapterTest {
 
     @After
     public void cleanUpDataBase() throws SQLException {
-        new InMemoryPersistence().cleanUpDataBase();
-    }
-
-    @AfterClass
-    public static void cleanUpEnvironment () {
-        Environment.DEFAULT.set(null);
+        this.inMemoryPersistence.cleanUpDataBase();
     }
 
     private ComChannel getMockedComChannel() {
@@ -302,11 +300,11 @@ public class MeterProtocolAdapterTest {
         optionalKeys.add(PropertySpecFactory.stringPropertySpec("o3"));
         when(meterProtocol.getOptionalProperties()).thenReturn(optionalKeys);
         PropertySpecService propertySpecService = this.inMemoryPersistence.getPropertySpecService();
-        doReturn(new BasicPropertySpec<>("o1", false, new StringFactory()))
+        doReturn(new BasicPropertySpec("o1", false, new StringFactory()))
             .when(propertySpecService).basicPropertySpec(eq("o1"), eq(false), any(ValueFactory.class));
-        doReturn(new BasicPropertySpec<>("o2", false, new StringFactory()))
+        doReturn(new BasicPropertySpec("o2", false, new StringFactory()))
             .when(propertySpecService).basicPropertySpec(eq("o2"), eq(false), any(ValueFactory.class));
-        doReturn(new BasicPropertySpec<>("o3", false, new StringFactory()))
+        doReturn(new BasicPropertySpec("o3", false, new StringFactory()))
             .when(propertySpecService).basicPropertySpec(eq("o3"), eq(false), any(ValueFactory.class));
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         MeterProtocolAdapterImpl meterProtocolAdapter = newMeterProtocolAdapter(meterProtocol);
@@ -522,10 +520,10 @@ public class MeterProtocolAdapterTest {
         MeterProtocolAdapterImpl adapter = new TestMeterProtocolAdapter(adaptedProtocol, this.inMemoryPersistence.getPropertySpecService(), this.protocolPluggableService, this.securitySupportAdapterMappingFactory);
 
         // Business method
-        List<PropertySpec> securityProperties = adapter.getSecurityProperties();
+        List<PropertySpec> securityProperties = adapter.getSecurityPropertySpecs();
 
         // Asserts
-        assertThat(securityProperties).isEqualTo(new SimpleTestDeviceSecuritySupport(inMemoryPersistence.getPropertySpecService()).getSecurityProperties());
+        assertThat(securityProperties).isEqualTo(new SimpleTestDeviceSecuritySupport(inMemoryPersistence.getPropertySpecService()).getSecurityPropertySpecs());
     }
 
     @Test
@@ -534,10 +532,10 @@ public class MeterProtocolAdapterTest {
         MeterProtocolAdapterImpl adapter = newMeterProtocolAdapter(adaptedProtocol);
 
         // Business method
-        adapter.getSecurityProperties();
+        adapter.getSecurityPropertySpecs();
 
         // Asserts
-        verify(adaptedProtocol).getSecurityProperties();
+        verify(adaptedProtocol).getSecurityPropertySpecs();
     }
 
     @Test
@@ -638,7 +636,7 @@ public class MeterProtocolAdapterTest {
     }
 
     protected MeterProtocolAdapterImpl newMeterProtocolAdapter(MeterProtocol meterProtocol) {
-        return new MeterProtocolAdapterImpl(meterProtocol, this.inMemoryPersistence.getPropertySpecService(), this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.protocolPluggableService.getDataModel(), this.inMemoryPersistence.getIssueService());
+        return new MeterProtocolAdapterImpl(meterProtocol, this.inMemoryPersistence.getPropertySpecService(), this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.protocolPluggableService.getDataModel(), this.inMemoryPersistence.getIssueService(), collectedDataFactory);
     }
 
     private interface MeterProtocolWithDeviceSecuritySupport extends MeterProtocol, DeviceSecuritySupport {
@@ -647,7 +645,7 @@ public class MeterProtocolAdapterTest {
     private class TestMeterProtocolAdapter extends MeterProtocolAdapterImpl {
 
         private TestMeterProtocolAdapter(MeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService1, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
-            super(meterProtocol, propertySpecService, protocolPluggableService1, securitySupportAdapterMappingFactory, protocolPluggableService.getDataModel(), inMemoryPersistence.getIssueService());
+            super(meterProtocol, propertySpecService, protocolPluggableService1, securitySupportAdapterMappingFactory, protocolPluggableService.getDataModel(), inMemoryPersistence.getIssueService(), collectedDataFactory);
         }
 
         @Override

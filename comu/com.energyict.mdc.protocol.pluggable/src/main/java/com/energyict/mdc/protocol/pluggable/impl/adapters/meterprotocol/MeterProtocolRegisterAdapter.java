@@ -1,7 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -35,9 +34,11 @@ public class MeterProtocolRegisterAdapter implements DeviceRegisterSupport {
      */
     private final RegisterProtocol registerProtocol;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public MeterProtocolRegisterAdapter(final RegisterProtocol registerProtocol, IssueService issueService) {
+    public MeterProtocolRegisterAdapter(final RegisterProtocol registerProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
         if (registerProtocol != null) {
             this.registerProtocol = registerProtocol;
         } else {
@@ -56,7 +57,7 @@ public class MeterProtocolRegisterAdapter implements DeviceRegisterSupport {
     @Override
     public List<CollectedRegister> readRegisters(final List<OfflineRegister> registers) {
         if (registers != null) {
-            CollectedDataFactory collectedDataFactory = this.getCollectedDataFactory();
+            CollectedDataFactory collectedDataFactory = this.collectedDataFactory;
             List<CollectedRegister> collectedRegisters = new ArrayList<>();
             for (OfflineRegister register : registers) {
                 try {
@@ -87,10 +88,6 @@ public class MeterProtocolRegisterAdapter implements DeviceRegisterSupport {
 
     private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRegister){
         return new RegisterDataIdentifier(offlineRegister.getAmrRegisterObisCode(), offlineRegister.getObisCode(), offlineRegister.getDeviceIdentifier());
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
 }

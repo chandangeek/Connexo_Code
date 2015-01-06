@@ -54,7 +54,7 @@ public abstract class AbstractSecurityPropertySetRelationSupport implements Secu
     }
 
     protected boolean deviceProtocolHasSecurityProperties() {
-        return !this.getSecuritySupport().getSecurityProperties().isEmpty();
+        return !this.getSecuritySupport().getSecurityPropertySpecs().isEmpty();
     }
 
     public RelationType findRelationType() {

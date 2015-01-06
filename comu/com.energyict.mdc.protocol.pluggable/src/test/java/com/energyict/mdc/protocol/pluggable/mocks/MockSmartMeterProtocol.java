@@ -82,7 +82,7 @@ public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecurit
     }
 
     @Override
-    public List<com.elster.jupiter.properties.PropertySpec> getSecurityProperties() {
+    public List<com.elster.jupiter.properties.PropertySpec> getSecurityPropertySpecs() {
         return Collections.emptyList();
     }
 

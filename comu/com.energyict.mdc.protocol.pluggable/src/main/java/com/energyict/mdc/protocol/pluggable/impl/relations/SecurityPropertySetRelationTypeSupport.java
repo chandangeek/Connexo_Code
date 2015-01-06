@@ -76,7 +76,7 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
         relationTypeShadow.add(deviceAttribute);
         relationTypeShadow.add(securityPropertySetAttribute);
         relationTypeShadow.add(statusAttributeTypeShadow);
-        for (PropertySpec propertySpec : securitySupport.getSecurityProperties()) {
+        for (PropertySpec propertySpec : securitySupport.getSecurityPropertySpecs()) {
             relationTypeShadow.add(this.relationAttributeTypeShadowFor(propertySpec));
         }
         relationTypeShadow.add(this.constraintShadowFor(deviceAttribute, securityPropertySetAttribute));

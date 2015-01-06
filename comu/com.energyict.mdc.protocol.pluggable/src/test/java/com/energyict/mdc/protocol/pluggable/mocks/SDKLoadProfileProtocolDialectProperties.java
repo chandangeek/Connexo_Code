@@ -1,6 +1,5 @@
 package com.energyict.mdc.protocol.pluggable.mocks;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
@@ -55,7 +54,7 @@ public class SDKLoadProfileProtocolDialectProperties extends AbstractDeviceProto
         return optionalProperties;
     }
 
-    private PropertySpec<ObisCode> getNotSupportedLoadProfileObisCodePropertySpec() {
+    private PropertySpec getNotSupportedLoadProfileObisCodePropertySpec() {
         return this.propertySpecService.basicPropertySpec(notSupportedLoadProfileObisCodePropertyName, false, new ObisCodeValueFactory());
     }
 

@@ -54,7 +54,7 @@ public class SDKTopologyTaskProtocolDialectProperties extends AbstractDeviceProt
         return optionalProperties;
     }
 
-    private PropertySpec<String> getSlaveOneSerialNumber() {
+    private PropertySpec getSlaveOneSerialNumber() {
         return this.propertySpecService.basicPropertySpec(slaveOneSerialNumberPropertyName, false, new StringFactory());
     }
 

@@ -33,7 +33,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.time.TimeDuration;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -283,7 +282,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
+    public List<PropertySpec> getSecurityPropertySpecs() {
         return Collections.emptyList();
     }
 
@@ -304,7 +303,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
 
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
-        return this.getSecurityProperties()
+        return this.getSecurityPropertySpecs()
                 .stream()
                 .filter(p -> p.getName().equals(name))
                 .findFirst()
@@ -423,7 +422,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
 
     }
 
-    private PropertySpec<BigDecimal> clientMacAddressPropertySpec() {
+    private PropertySpec clientMacAddressPropertySpec() {
         return propertySpecService.
                 newPropertySpecBuilder(new BigDecimalFactory()).
                 name("ClientMacAddress").

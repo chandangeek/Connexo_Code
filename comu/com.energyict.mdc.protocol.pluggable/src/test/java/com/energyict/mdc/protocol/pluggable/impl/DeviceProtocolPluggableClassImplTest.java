@@ -1,38 +1,11 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.UtilModule;
-import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
@@ -62,10 +35,37 @@ import com.energyict.mdc.protocol.pluggable.mocks.MockSmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.NotADeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.SDKDeviceProtocolTestWithMandatoryProperty;
 
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
+import org.joda.time.DateMidnight;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -75,19 +75,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import org.joda.time.DateMidnight;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -155,7 +148,6 @@ public class DeviceProtocolPluggableClassImplTest {
                 new UserModule(),
                 new IssuesModule(),
                 new PluggableModule(),
-                new MdcCommonModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new ProtocolPluggableModule());
@@ -170,25 +162,12 @@ public class DeviceProtocolPluggableClassImplTest {
             createOracleMetaDataTables(dataModel.getConnection(true));
             ctx.commit();
         }
-        Environment environment = injector.getInstance(Environment.class);
-        environment.put(InMemoryPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
-        ApplicationContext applicationContext = mock(ApplicationContext.class);
-
-        if (Environment.DEFAULT.get().getApplicationContext() != null) {
-            fail("Application context was not cleaned up properly by previous test");
-        }
         propertySpecService.addFactoryProvider(() -> {
             List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
             finders.add(new ProtocolDialectPropertiesFinder());
             finders.add(new CodeFinder());
             return finders;
         });
-
-        Translator translator = mock(Translator.class);
-        when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
-        when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
-        when(applicationContext.getTranslator()).thenReturn(translator);
-        environment.setApplicationContext(applicationContext);
     }
 
     private static void createOracleMetaDataTables(Connection connection) throws SQLException {
@@ -378,7 +357,7 @@ public class DeviceProtocolPluggableClassImplTest {
     public void newInstanceSmartMeterProtocolIllegalPropertyTest() throws BusinessException, SQLException {
         transactionService.execute(() -> {
             DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass("SDKDeviceProtocolTestWithMandatoryProperty", SDK_DEVICE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY);
-            PropertySpec<?> deviceTimeZone = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpec("SDKObisCodeProperty");
+            PropertySpec deviceTimeZone = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpec("SDKObisCodeProperty");
             deviceProtocolPluggableClass.setProperty(deviceTimeZone, new ObisCode(1,1,1,1,1,1));
             deviceProtocolPluggableClass.save();
             return deviceProtocolPluggableClass;

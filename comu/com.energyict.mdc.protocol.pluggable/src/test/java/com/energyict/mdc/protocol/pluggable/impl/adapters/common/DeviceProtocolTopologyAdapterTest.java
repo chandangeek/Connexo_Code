@@ -1,18 +1,13 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.energyict.mdc.common.ApplicationContext;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-
-import java.util.Arrays;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -39,10 +34,6 @@ public class DeviceProtocolTopologyAdapterTest {
     private static final long DEVICE_ID = 93;
 
     @Mock
-    private Environment environment;
-    @Mock
-    private ApplicationContext applicationContext;
-    @Mock
     private IssueService issueService;
     @Mock
     private CollectedDataFactory collectedDataFactory;
@@ -54,28 +45,8 @@ public class DeviceProtocolTopologyAdapterTest {
     private DeviceIdentifier deviceIdentifier;
 
     @Before
-    public void initializeEnvironment () {
-        Environment.DEFAULT.set(this.environment);
-        when(this.environment.getApplicationContext()).thenReturn(this.applicationContext);
-        when(this.applicationContext.getModulesImplementing(CollectedDataFactory.class)).thenReturn(Arrays.asList(this.collectedDataFactory));
-    }
-
-    @After
-    public void cleanupEnvironment () {
-        Environment.DEFAULT.set(null);
-    }
-
-    @Before
     public void initializeCollecteData () {
         when(this.collectedDataFactory.createCollectedTopology(getDeviceIdentifier())).thenReturn(this.collectedTopology);
-        CollectedDataFactoryProvider collectedDataFactoryProvider = mock(CollectedDataFactoryProvider.class);
-        when(collectedDataFactoryProvider.getCollectedDataFactory()).thenReturn(this.collectedDataFactory);
-        CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
-    }
-
-    @After
-    public void resetCollectedData () {
-        CollectedDataFactoryProvider.instance.set(null);
     }
 
     @Before
@@ -91,7 +62,7 @@ public class DeviceProtocolTopologyAdapterTest {
 
     @Test
     public void getUnsupportedCollectedTopology(){
-        DeviceProtocolTopologyAdapter deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter(issueService);
+        DeviceProtocolTopologyAdapter deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter(issueService, collectedDataFactory);
         deviceProtocolTopologyAdapter.setDeviceIdentifier(getDeviceIdentifier());
 
         // Business method

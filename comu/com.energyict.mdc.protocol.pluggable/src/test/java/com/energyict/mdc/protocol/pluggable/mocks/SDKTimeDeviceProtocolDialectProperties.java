@@ -4,7 +4,6 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TimeDuration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,11 +56,11 @@ public class SDKTimeDeviceProtocolDialectProperties extends AbstractDeviceProtoc
         return requiredProperties;
     }
 
-    private PropertySpec<TimeDuration> getClockOffsetToWritePropertySpec() {
+    private PropertySpec getClockOffsetToWritePropertySpec() {
         return this.propertySpecService.basicPropertySpec(clockOffsetToWritePropertyName, true, new TimeDurationValueFactory());
     }
 
-    private PropertySpec<TimeDuration> getClockOffsetToReadPropertySpec() {
+    private PropertySpec getClockOffsetToReadPropertySpec() {
         return this.propertySpecService.basicPropertySpec(clockOffsetToReadPropertyName, true, new TimeDurationValueFactory());
     }
 

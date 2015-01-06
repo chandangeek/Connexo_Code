@@ -73,11 +73,11 @@ public class MeterProtocolSecuritySupportAdapterTest {
         when(securitySupportAdapterMappingFactory.getSecuritySupportJavaClassNameForDeviceProtocol
                 (ThirdSimpleTestMeterProtocol.class.getName())).thenReturn(ThirdSimpleTestMeterProtocol.class.getName());
         when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME, false, StringFactory.class))
-                .thenReturn(new BasicPropertySpec<>(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME, false, new StringFactory()));
+                .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME, false, new StringFactory()));
         when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecuritySupport.SECOND_PROPERTY_NAME, false, StringFactory.class))
-                .thenReturn(new BasicPropertySpec<>(SimpleTestDeviceSecuritySupport.SECOND_PROPERTY_NAME, false, new StringFactory()));
+                .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecuritySupport.SECOND_PROPERTY_NAME, false, new StringFactory()));
         when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME, false, StringFactory.class))
-                .thenReturn(new BasicPropertySpec<>(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME, false, new StringFactory()));
+                .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME, false, new StringFactory()));
         SimpleTestDeviceSecuritySupport securitySupport = new SimpleTestDeviceSecuritySupport(propertySpecService);
         when(this.protocolPluggableService.createDeviceProtocolSecurityFor(SimpleTestDeviceSecuritySupport.class.getName())).thenReturn(securitySupport);
         doThrow(ProtocolCreationException.class).when(this.protocolPluggableService).
@@ -151,7 +151,7 @@ public class MeterProtocolSecuritySupportAdapterTest {
                 this.securitySupportAdapterMappingFactory);
 
         // business method
-        List<PropertySpec> securityProperties = meterProtocolSecuritySupportAdapter.getSecurityProperties();
+        List<PropertySpec> securityProperties = meterProtocolSecuritySupportAdapter.getSecurityPropertySpecs();
 
         // asserts
         assertThat(securityProperties).hasSize(3);

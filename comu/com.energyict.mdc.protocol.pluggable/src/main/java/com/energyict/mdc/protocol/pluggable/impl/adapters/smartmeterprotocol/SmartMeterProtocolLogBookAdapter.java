@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -29,15 +28,17 @@ public class SmartMeterProtocolLogBookAdapter implements DeviceLogBookSupport {
      */
     private final SmartMeterProtocol smartMeterProtocol;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public SmartMeterProtocolLogBookAdapter(final SmartMeterProtocol smartMeterProtocol, IssueService issueService) {
+    public SmartMeterProtocolLogBookAdapter(SmartMeterProtocol smartMeterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.smartMeterProtocol = smartMeterProtocol;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
     public List<CollectedLogBook> getLogBookData(final List<LogBookReader> logBookReaders) {
-        CollectedDataFactory collectedDataFactory = this.getCollectedDataFactory();
+        CollectedDataFactory collectedDataFactory = this.collectedDataFactory;
         List<CollectedLogBook> collectedLogBooks = new ArrayList<>();
         if (logBookReaders != null && this.smartMeterProtocol != null) {
             for (LogBookReader reader : logBookReaders) {
@@ -56,10 +57,6 @@ public class SmartMeterProtocolLogBookAdapter implements DeviceLogBookSupport {
             }
         }
         return collectedLogBooks;
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
     private Issue getProblem(Object source, String description, Object... arguments){
