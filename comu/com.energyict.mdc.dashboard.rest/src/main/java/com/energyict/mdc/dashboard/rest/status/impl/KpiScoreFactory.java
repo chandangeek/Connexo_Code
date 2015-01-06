@@ -1,6 +1,8 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.Ranges;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import java.math.BigDecimal;
@@ -14,7 +16,6 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import javax.inject.Inject;
 
@@ -32,7 +33,7 @@ public class KpiScoreFactory {
         this.clock = clock;
     }
 
-    public KpiInfo getKpiAsInfo(TemporalAmount frequency, List<DataCollectionKpiScore> kpiScores, Interval intervalByPeriod) {
+    public KpiInfo getKpiAsInfo(TemporalAmount frequency, List<DataCollectionKpiScore> kpiScores, Range<Instant> intervalByPeriod) {
         KpiInfo kpiInfo = new KpiInfo();
         kpiInfo.time = new ArrayList<>();
         kpiInfo.series = new ArrayList<>();
@@ -45,15 +46,15 @@ public class KpiScoreFactory {
         kpiInfo.series.add(failed);
         kpiInfo.series.add(target);
 
-        Instant timeIndex = intervalByPeriod.getStart();
-        Instant endTimeIndex = intervalByPeriod.getEnd();
+        Instant timeIndex = intervalByPeriod.lowerEndpoint();
+        Instant endTimeIndex = intervalByPeriod.upperEndpoint();
 
-        int kpiScoreIndex=0;
+        int kpiScoreIndex = 0;
         kpiScores.add(new SentinelKpiScore());
         while (timeIndex.isBefore(endTimeIndex)) {
-            kpiInfo.time.add(Date.from(timeIndex).getTime());
+            kpiInfo.time.add(timeIndex.toEpochMilli());
             DataCollectionKpiScore kpiScore = kpiScores.get(kpiScoreIndex);
-            if (kpiScore.getTimestamp().toInstant().equals(timeIndex)) {
+            if (kpiScore.getTimestamp().equals(timeIndex)) {
                 success.data.add(kpiScore.getSuccess());
                 ongoing.data.add(kpiScore.getOngoing());
                 failed.data.add(kpiScore.getFailed());
@@ -70,7 +71,7 @@ public class KpiScoreFactory {
         return kpiInfo;
     }
 
-    public Interval getIntervalByPeriod(TemporalAmount temporalAmount) {
+    public Range<Instant> getIntervalByPeriod(TemporalAmount temporalAmount) {
         LocalDate startDay=null;
         LocalDate endDay=null;
         if (temporalAmount.getUnits().contains(ChronoUnit.SECONDS)) {
@@ -99,7 +100,9 @@ public class KpiScoreFactory {
             throw exceptionFactory.newException(MessageSeeds.UNSUPPORTED_KPI_PERIOD);
         }
 
-        return Interval.of(startDay.atStartOfDay().toInstant(ZoneOffset.UTC), endDay.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC));
+        return Ranges.closed(
+                startDay.atStartOfDay().toInstant(ZoneOffset.UTC),
+                endDay.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC));
     }
 
     /**
@@ -108,8 +111,8 @@ public class KpiScoreFactory {
     private class SentinelKpiScore implements DataCollectionKpiScore {
 
         @Override
-        public Date getTimestamp() {
-            return Date.from(Instant.EPOCH);
+        public Instant getTimestamp() {
+            return Instant.EPOCH;
         }
 
         @Override
@@ -142,4 +145,5 @@ public class KpiScoreFactory {
             return 0;
         }
     }
+
 }

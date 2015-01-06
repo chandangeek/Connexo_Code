@@ -3,6 +3,8 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
 import com.energyict.mdc.dashboard.ComScheduleBreakdown;
 import com.energyict.mdc.dashboard.ComTaskBreakdown;
@@ -15,6 +17,7 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.CompletionCodeAdapter;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +32,7 @@ public class CommunicationOverviewInfoFactory {
 
     private static final TaskStatusAdapter taskStatusAdapter = new TaskStatusAdapter();
     private static final CompletionCodeAdapter completionCodeAdapter = new CompletionCodeAdapter();
-    
+
     private final BreakdownFactory breakdownFactory;
     private final OverviewFactory overviewFactory;
     private final SummaryInfoFactory summaryInfoFactory;
@@ -93,8 +96,8 @@ public class CommunicationOverviewInfoFactory {
         Optional<DataCollectionKpi> dataCollectionKpiOptional = dataCollectionKpiService.findDataCollectionKpi(queryEndDeviceGroup);
         if (dataCollectionKpiOptional.isPresent() &&  dataCollectionKpiOptional.get().calculatesComTaskExecutionKpi()) {
             TemporalAmount frequency = dataCollectionKpiOptional.get().comTaskExecutionKpiCalculationIntervalLength().get();
-            Interval intervalByPeriod = kpiScoreFactory.getIntervalByPeriod(frequency);
-            List<DataCollectionKpiScore> kpiScores = dataCollectionKpiOptional.get().getComTaskExecutionKpiScores(intervalByPeriod);            
+            Range<Instant> intervalByPeriod = kpiScoreFactory.getIntervalByPeriod(frequency);
+            List<DataCollectionKpiScore> kpiScores = dataCollectionKpiOptional.get().getComTaskExecutionKpiScores(intervalByPeriod);
             if (!kpiScores.isEmpty()) {
                 BigDecimal currentTarget = kpiScores.get(kpiScores.size() - 1).getTarget();
                 if (currentTarget != null) {

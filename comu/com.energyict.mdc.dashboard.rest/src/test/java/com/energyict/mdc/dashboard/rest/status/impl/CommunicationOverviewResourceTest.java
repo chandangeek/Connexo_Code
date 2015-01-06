@@ -20,10 +20,10 @@ import com.energyict.mdc.tasks.ComTask;
 import com.jayway.jsonpath.JsonModel;
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Test;
@@ -107,7 +107,7 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
 
         assertThat(jsonModel.<List<Integer>>get("$.overviews[*].counters[*].count")).isSortedAccordingTo((c1,c2)->c2.compareTo(c1));
         assertThat(jsonModel.<List<Integer>>get("$.breakdowns[*].counters[*].failingCount")).isSortedAccordingTo((c1,c2)->c2.compareTo(c1));
-        
+
         assertThat(jsonModel.<Integer>get("$.deviceGroup.id")).isEqualTo(321);
         assertThat(jsonModel.<String>get("$.deviceGroup.name")).isEqualTo("Northern region");
         assertThat(jsonModel.<String>get("$.deviceGroup.alias")).isEqualTo("deviceGroups");
@@ -127,21 +127,21 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
         when(dataCollectionKpi.calculatesComTaskExecutionKpi()).thenReturn(true);
         when(dataCollectionKpi.comTaskExecutionKpiCalculationIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
         List<DataCollectionKpiScore> kpiScores = new ArrayList<>();
-        kpiScores.add(mockDataCommunicationKpiScore(Date.from(LocalDateTime.of(2014, 10, 1, 0, 0, 0).toInstant(ZoneOffset.UTC)), 0, 99, 1, 100));
-        kpiScores.add(mockDataCommunicationKpiScore(Date.from(LocalDateTime.of(2014, 10, 1, 14, 0, 0).toInstant(ZoneOffset.UTC)), 10, 80, 10, 100));
-        kpiScores.add(mockDataCommunicationKpiScore(Date.from(LocalDateTime.of(2014, 10, 1, 14, 15, 0).toInstant(ZoneOffset.UTC)), 20, 70, 10, 100));
-        kpiScores.add(mockDataCommunicationKpiScore(Date.from(LocalDateTime.of(2014, 10, 1, 14, 30, 0).toInstant(ZoneOffset.UTC)), 30, 60, 10, 100));
-        kpiScores.add(mockDataCommunicationKpiScore(Date.from(LocalDateTime.of(2014, 10, 1, 14, 45, 0).toInstant(ZoneOffset.UTC)), 40, 50, 10, 100));
-        kpiScores.add(mockDataCommunicationKpiScore(Date.from(LocalDateTime.of(2014, 10, 1, 15, 0, 0).toInstant(ZoneOffset.UTC)), 50, 40, 10, 100));
-        kpiScores.add(mockDataCommunicationKpiScore(Date.from(LocalDateTime.of(2014, 10, 1, 15, 15, 0).toInstant(ZoneOffset.UTC)), 60, 30, 10, 100));
-        kpiScores.add(mockDataCommunicationKpiScore(Date.from(LocalDateTime.of(2014, 10, 1, 15, 30, 0).toInstant(ZoneOffset.UTC)), 70, 20, 10, 100));
-        kpiScores.add(mockDataCommunicationKpiScore(Date.from(LocalDateTime.of(2014, 10, 1, 15, 45, 0).toInstant(ZoneOffset.UTC)), 80, 10, 10, 100));
-        kpiScores.add(mockDataCommunicationKpiScore(Date.from(LocalDateTime.of(2014, 10, 1, 16, 0, 0).toInstant(ZoneOffset.UTC)), 90, 0, 10, 100));
+        kpiScores.add(mockDataCommunicationKpiScore(LocalDateTime.of(2014, 10, 1, 0, 0, 0).toInstant(ZoneOffset.UTC), 0, 99, 1, 100));
+        kpiScores.add(mockDataCommunicationKpiScore(LocalDateTime.of(2014, 10, 1, 14, 0, 0).toInstant(ZoneOffset.UTC), 10, 80, 10, 100));
+        kpiScores.add(mockDataCommunicationKpiScore(LocalDateTime.of(2014, 10, 1, 14, 15, 0).toInstant(ZoneOffset.UTC), 20, 70, 10, 100));
+        kpiScores.add(mockDataCommunicationKpiScore(LocalDateTime.of(2014, 10, 1, 14, 30, 0).toInstant(ZoneOffset.UTC), 30, 60, 10, 100));
+        kpiScores.add(mockDataCommunicationKpiScore(LocalDateTime.of(2014, 10, 1, 14, 45, 0).toInstant(ZoneOffset.UTC), 40, 50, 10, 100));
+        kpiScores.add(mockDataCommunicationKpiScore(LocalDateTime.of(2014, 10, 1, 15, 0, 0).toInstant(ZoneOffset.UTC), 50, 40, 10, 100));
+        kpiScores.add(mockDataCommunicationKpiScore(LocalDateTime.of(2014, 10, 1, 15, 15, 0).toInstant(ZoneOffset.UTC), 60, 30, 10, 100));
+        kpiScores.add(mockDataCommunicationKpiScore(LocalDateTime.of(2014, 10, 1, 15, 30, 0).toInstant(ZoneOffset.UTC), 70, 20, 10, 100));
+        kpiScores.add(mockDataCommunicationKpiScore(LocalDateTime.of(2014, 10, 1, 15, 45, 0).toInstant(ZoneOffset.UTC), 80, 10, 10, 100));
+        kpiScores.add(mockDataCommunicationKpiScore(LocalDateTime.of(2014, 10, 1, 16, 0, 0).toInstant(ZoneOffset.UTC), 90, 0, 10, 100));
         when(dataCollectionKpi.getComTaskExecutionKpiScores(anyObject())).thenReturn(kpiScores);
         return dataCollectionKpi;
     }
 
-    private DataCollectionKpiScore mockDataCommunicationKpiScore(Date timeStamp, long success, long ongoing, long failed, long target) {
+    private DataCollectionKpiScore mockDataCommunicationKpiScore(Instant timeStamp, long success, long ongoing, long failed, long target) {
         DataCollectionKpiScore mock = mock(DataCollectionKpiScore.class);
         when(mock.getTimestamp()).thenReturn(timeStamp);
         when(mock.getSuccess()).thenReturn(BigDecimal.valueOf(success));
