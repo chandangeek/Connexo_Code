@@ -212,7 +212,7 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
                 new LoadProfileReader(
                         this.getClock(),
                         loadProfile.getObisCode(),
-                        loadProfile.getLastReading(),
+                        loadProfile.getLastReading().orElse(null),
                         null,
                         loadProfile.getLoadProfileId(),
                         loadProfile.getDeviceIdentifier(),

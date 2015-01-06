@@ -22,10 +22,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -51,9 +53,9 @@ public class LogBooksCommandImplTest {
     private static final long LOGBOOK_TYPE_2 = 20;
     private static final long LOGBOOK_TYPE_3 = 30;
 
-    private static final Date LAST_LOGBOOK_1 = new Date(1354320000L * 1000L); // 01 Dec 2012 00:00:00 GMT
-    private static final Date LAST_LOGBOOK_2 = new Date(1351728000L * 1000L); // 01 Nov 2012 00:00:00 GMT
-    private static final Date LAST_LOGBOOK_3 = new Date(1349049600L * 1000L); // 01 Oct 2012 00:00:00 GMT
+    private static final Instant LAST_LOGBOOK_1 = Instant.ofEpochMilli(1354320000L * 1000L); // 01 Dec 2012 00:00:00 GMT
+    private static final Instant LAST_LOGBOOK_2 = Instant.ofEpochMilli(1351728000L * 1000L); // 01 Nov 2012 00:00:00 GMT
+    private static final Instant LAST_LOGBOOK_3 = Instant.ofEpochMilli(1349049600L * 1000L); // 01 Oct 2012 00:00:00 GMT
 
     private static final ObisCode DEVICE_OBISCODE_LOGBOOK_1 = ObisCode.fromString("1.1.1.1.1.1");
     private static final ObisCode DEVICE_OBISCODE_LOGBOOK_2 = ObisCode.fromString("2.2.2.2.2.2");
@@ -84,11 +86,13 @@ public class LogBooksCommandImplTest {
     @Mock
     private LogBookService logBookService;
 
+    private Clock clock = Clock.systemUTC();
+
     @Before
     public void setUp() throws Exception {
         when(offlineLogBook_A.getLogBookId()).thenReturn(LOGBOOK_ID_1);
         when(offlineLogBook_A.getLogBookIdentifier()).thenReturn(new LogBookIdentifierById(LOGBOOK_ID_1, logBookService));
-        when(offlineLogBook_A.getLastLogBook()).thenReturn(LAST_LOGBOOK_1);
+        when(offlineLogBook_A.getLastLogBook()).thenReturn(Optional.of(LAST_LOGBOOK_1));
         when(offlineLogBook_A.getMasterSerialNumber()).thenReturn(SERIAL_NUMBER);
         when(offlineLogBook_A.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_1);
         when(offlineLogBook_A.getObisCode()).thenReturn(DEVICE_OBISCODE_LOGBOOK_1);
@@ -96,7 +100,7 @@ public class LogBooksCommandImplTest {
 
         when(offlineLogBook_B.getLogBookId()).thenReturn(LOGBOOK_ID_2);
         when(offlineLogBook_B.getLogBookIdentifier()).thenReturn(new LogBookIdentifierById(LOGBOOK_ID_2, logBookService));
-        when(offlineLogBook_B.getLastLogBook()).thenReturn(LAST_LOGBOOK_2);
+        when(offlineLogBook_B.getLastLogBook()).thenReturn(Optional.of(LAST_LOGBOOK_2));
         when(offlineLogBook_B.getMasterSerialNumber()).thenReturn(SERIAL_NUMBER);
         when(offlineLogBook_B.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_2);
         when(offlineLogBook_B.getObisCode()).thenReturn(DEVICE_OBISCODE_LOGBOOK_2);
@@ -104,7 +108,7 @@ public class LogBooksCommandImplTest {
 
         when(offlineLogBook_C.getLogBookId()).thenReturn(LOGBOOK_ID_3);
         when(offlineLogBook_C.getLogBookIdentifier()).thenReturn(new LogBookIdentifierById(LOGBOOK_ID_3, logBookService));
-        when(offlineLogBook_C.getLastLogBook()).thenReturn(LAST_LOGBOOK_3);
+        when(offlineLogBook_C.getLastLogBook()).thenReturn(Optional.of(LAST_LOGBOOK_3));
         when(offlineLogBook_C.getMasterSerialNumber()).thenReturn(SERIAL_NUMBER);
         when(offlineLogBook_C.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_3);
         when(offlineLogBook_C.getObisCode()).thenReturn(DEVICE_OBISCODE_LOGBOOK_3);
@@ -174,9 +178,9 @@ public class LogBooksCommandImplTest {
         LogBooksCommandImpl logBooksCommand = new LogBooksCommandImpl(logBooksTask, device, commandRoot, comTaskExecution);
         List<LogBookReader> logBookReaders = logBooksCommand.getLogBookReaders();
 
-        LogBookReader expectedLogBookReader_1 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_1, LAST_LOGBOOK_1, new LogBookIdentifierById(LOGBOOK_ID_1, logBookService), deviceIdentifier);
-        LogBookReader expectedLogBookReader_2 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_2, LAST_LOGBOOK_2, new LogBookIdentifierById(LOGBOOK_ID_2, logBookService), deviceIdentifier);
-        LogBookReader expectedLogBookReader_3 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_3, LAST_LOGBOOK_3, new LogBookIdentifierById(LOGBOOK_ID_3, logBookService), deviceIdentifier);
+        LogBookReader expectedLogBookReader_1 = new LogBookReader(this.clock, DEVICE_OBISCODE_LOGBOOK_1, Optional.of(LAST_LOGBOOK_1), new LogBookIdentifierById(LOGBOOK_ID_1, logBookService), deviceIdentifier);
+        LogBookReader expectedLogBookReader_2 = new LogBookReader(this.clock, DEVICE_OBISCODE_LOGBOOK_2, Optional.of(LAST_LOGBOOK_2), new LogBookIdentifierById(LOGBOOK_ID_2, logBookService), deviceIdentifier);
+        LogBookReader expectedLogBookReader_3 = new LogBookReader(this.clock, DEVICE_OBISCODE_LOGBOOK_3, Optional.of(LAST_LOGBOOK_3), new LogBookIdentifierById(LOGBOOK_ID_3, logBookService), deviceIdentifier);
 
         // asserts
         assertEquals(ComCommandTypes.LOGBOOKS_COMMAND, logBooksCommand.getCommandType());
@@ -209,8 +213,8 @@ public class LogBooksCommandImplTest {
         LogBooksCommand logBooksCommand = new LogBooksCommandImpl(logBooksTask, device, commandRoot, comTaskExecution);
         List<LogBookReader> logBookReaders = ((LogBooksCommandImpl) logBooksCommand).getLogBookReaders();
 
-        LogBookReader expectedLogBookReader_1 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_1, LAST_LOGBOOK_1, new LogBookIdentifierById(LOGBOOK_ID_1, logBookService), deviceIdentifier);
-        LogBookReader expectedLogBookReader_3 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_3, LAST_LOGBOOK_3, new LogBookIdentifierById(LOGBOOK_ID_3, logBookService), deviceIdentifier);
+        LogBookReader expectedLogBookReader_1 = new LogBookReader(this.clock, DEVICE_OBISCODE_LOGBOOK_1, Optional.of(LAST_LOGBOOK_1), new LogBookIdentifierById(LOGBOOK_ID_1, logBookService), deviceIdentifier);
+        LogBookReader expectedLogBookReader_3 = new LogBookReader(this.clock, DEVICE_OBISCODE_LOGBOOK_3, Optional.of(LAST_LOGBOOK_3), new LogBookIdentifierById(LOGBOOK_ID_3, logBookService), deviceIdentifier);
 
         // asserts
         assertEquals(ComCommandTypes.LOGBOOKS_COMMAND, logBooksCommand.getCommandType());

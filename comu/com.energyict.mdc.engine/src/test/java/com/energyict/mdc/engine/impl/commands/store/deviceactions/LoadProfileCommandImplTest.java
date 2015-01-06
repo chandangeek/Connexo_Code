@@ -27,10 +27,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -53,7 +54,7 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
 
     private static final ObisCode FIXED_LOAD_PROFILE_OBIS_CODE = ObisCode.fromString("1.0.99.1.0.255");
     private static final TimeDuration FIXED_LOAD_PROFILE_INTERVAL = new TimeDuration(900);
-    private static final Date LAST_READING = new Date();
+    private static final Instant LAST_READING = Instant.now();
     private static final long FIXED_DEVICE_ID = 123;
     private static final String FIXED_DEVICE_SERIAL_NUMBER = "FIXED_DEVICE_SERIAL_NUMBER";
     private static final long LOAD_PROFILE_TYPE_ID = 651;
@@ -62,7 +63,7 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
     private OfflineLoadProfile getMockedOfflineLoadProfile() {
         OfflineLoadProfile loadProfile = mock(OfflineLoadProfile.class);
         when(loadProfile.getLoadProfileTypeId()).thenReturn(LOAD_PROFILE_TYPE_ID);
-        when(loadProfile.getLastReading()).thenReturn(LAST_READING);
+        when(loadProfile.getLastReading()).thenReturn(Optional.of(LAST_READING));
         when(loadProfile.getDeviceId()).thenReturn(FIXED_DEVICE_ID);
         when(loadProfile.getObisCode()).thenReturn(FIXED_LOAD_PROFILE_OBIS_CODE);
         when(loadProfile.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL);
