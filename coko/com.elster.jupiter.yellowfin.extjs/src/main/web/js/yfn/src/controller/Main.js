@@ -27,7 +27,9 @@ Ext.define('Yfn.controller.Main', {
         var me = this,
             historian = me.getController('Yfn.controller.history.YellowfinReports'); // Forces route registration.
 
-        me.initDeviceReports();
+        // TODO Make sure the REST call just gives a count of 0 and an empty list when there is nothing is the system...
+        // Otherwise the call fails and nothing gets added anymore to the portal items.
+//        me.initDeviceReports();
     },
 
     initDeviceReports: function () {
