@@ -1,13 +1,10 @@
 package com.elster.jupiter.yellowfin.groups.impl;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 
 public enum TableSpecs {
     YFN_ADHOC_DG {
@@ -20,8 +17,8 @@ public enum TableSpecs {
     },
     YFN_ED_IN_AHG {
         void addTo(DataModel dataModel) {
-            Table<AdHocDeviceGroupImpl.Entry> table = dataModel.addTable(name(), AdHocDeviceGroupImpl.Entry.class);
-            table.map(AdHocDeviceGroupImpl.EntryImpl.class);
+            Table<AdHocDeviceGroupImpl.AdHocEntryImpl> table = dataModel.addTable(name(), AdHocDeviceGroupImpl.AdHocEntryImpl.class);
+            table.map(AdHocDeviceGroupImpl.AdHocEntryImpl.class);
             Column deviceIdColumn = table.column("ENDDEVICEID").number().notNull().conversion(NUMBER2LONG).map("deviceId").add();
             Column groupIdColumn = table.column("DEVICEGROUPID").number().notNull().conversion(NUMBER2LONG).map("groupId").add();
             table.primaryKey("YFG_PK_DEVICEINAHG").on(deviceIdColumn , groupIdColumn).add();
@@ -31,8 +28,8 @@ public enum TableSpecs {
     },
     YFN_ED_IN_DG {
         void addTo(DataModel dataModel) {
-            Table<DynamicDeviceGroupImpl.Entry> table = dataModel.addTable(name(), DynamicDeviceGroupImpl.Entry.class);
-            table.map(DynamicDeviceGroupImpl.EntryImpl.class);
+            Table<DynamicDeviceGroupImpl.DynamicEntryImpl> table = dataModel.addTable(name(), DynamicDeviceGroupImpl.DynamicEntryImpl.class);
+            table.map(DynamicDeviceGroupImpl.DynamicEntryImpl.class);
             Column deviceIdColumn = table.column("ENDDEVICEID").number().notNull().conversion(NUMBER2LONG).map("deviceId").add();
             Column groupIdColumn = table.column("DEVICEGROUPID").number().notNull().conversion(NUMBER2LONG).map("groupId").add();
             table.primaryKey("YFG_PK_DEVICEINDG").on(deviceIdColumn , groupIdColumn).add();

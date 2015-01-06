@@ -16,7 +16,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.yellowfin.groups.CachedDeviceGroup;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -120,7 +119,7 @@ public class AdHocDeviceGroupImplIT {
 
         List<Device> devices = new ArrayList<Device>();
 
-        Optional<CachedDeviceGroup> found;
+        Optional<AdHocDeviceGroupImpl> found;
         YellowfinGroupsService yellowfinGroupsService = injector.getInstance(YellowfinGroupsService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             found = yellowfinGroupsService.cacheAdHocDeviceGroup(devices);
@@ -128,9 +127,9 @@ public class AdHocDeviceGroupImplIT {
         }
 
         assertThat(found.isPresent()).isTrue();
-        assertThat(found.get()).isInstanceOf(CachedDeviceGroup.class);
-        CachedDeviceGroup group = (CachedDeviceGroup) found.get();
-        List<CachedDeviceGroup.Entry> entries = group.getEntries();
+        assertThat(found.get()).isInstanceOf(AdHocDeviceGroupImpl.class);
+        AdHocDeviceGroupImpl group = (AdHocDeviceGroupImpl) found.get();
+        List<AdHocDeviceGroupImpl.AdHocEntryImpl> entries = group.getEntries();
         assertThat(entries).hasSize(1);
         assertThat(entries.get(0).getGroupId()).isEqualTo(1);
         assertThat(entries.get(0).getDeviceId()).isEqualTo(device.getId());

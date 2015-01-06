@@ -26,7 +26,6 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Operator;
-import com.elster.jupiter.yellowfin.groups.CachedDeviceGroup;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -135,7 +134,7 @@ public class DynamicDeviceGroupImplIT {
             ctx.commit();
         }
 
-        Optional<CachedDeviceGroup> found = Optional.empty();
+        Optional<DynamicDeviceGroupImpl> found = Optional.empty();
         YellowfinGroupsService yellowfinGroupsService = injector.getInstance(YellowfinGroupsService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             found = yellowfinGroupsService.cacheDynamicDeviceGroup("mine");
@@ -143,9 +142,9 @@ public class DynamicDeviceGroupImplIT {
         }
 
         assertThat(found.isPresent()).isTrue();
-        assertThat(found.get()).isInstanceOf(CachedDeviceGroup.class);
-        CachedDeviceGroup group = (CachedDeviceGroup) found.get();
-        List<CachedDeviceGroup.Entry> entries = group.getEntries();
+        assertThat(found.get()).isInstanceOf(DynamicDeviceGroupImpl.class);
+        DynamicDeviceGroupImpl group = (DynamicDeviceGroupImpl) found.get();
+        List<DynamicDeviceGroupImpl.DynamicEntryImpl> entries = group.getEntries();
         assertThat(entries).hasSize(1);
         assertThat(entries.get(0).getGroupId()).isEqualTo(queryEndDeviceGroup.getId());
         assertThat(entries.get(0).getDeviceId()).isEqualTo(endDevice.getId());

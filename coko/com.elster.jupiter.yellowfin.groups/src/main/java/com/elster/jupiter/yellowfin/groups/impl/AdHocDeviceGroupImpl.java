@@ -1,9 +1,7 @@
 package com.elster.jupiter.yellowfin.groups.impl;
 
-
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.yellowfin.groups.CachedDeviceGroup;
 import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
@@ -11,9 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class AdHocDeviceGroupImpl implements CachedDeviceGroup {
+public class AdHocDeviceGroupImpl {
     protected long id;
-    protected List<Entry> entries = new ArrayList<Entry>();
+    protected List<AdHocEntryImpl> entries = new ArrayList<AdHocEntryImpl>();
     protected final DataModel dataModel;
 
     @Inject
@@ -24,7 +22,7 @@ public class AdHocDeviceGroupImpl implements CachedDeviceGroup {
     AdHocDeviceGroupImpl init(long id, List<Device> devices) {
         this.id = id;
         for(Device device : devices){
-            entries.add(EntryImpl.from(dataModel, id, device.getId()));
+            entries.add(AdHocEntryImpl.from(dataModel, id, device.getId()));
         }
 
         return this;
@@ -34,7 +32,7 @@ public class AdHocDeviceGroupImpl implements CachedDeviceGroup {
         return dataModel.getInstance(AdHocDeviceGroupImpl.class).init(id, devices);
     }
 
-    static class EntryImpl implements CachedDeviceGroup.Entry {
+    static class AdHocEntryImpl {
 
         private long groupId;
         private long deviceId;
@@ -42,31 +40,28 @@ public class AdHocDeviceGroupImpl implements CachedDeviceGroup {
         private final DataModel dataModel;
 
         @Inject
-        EntryImpl(DataModel dataModel) {
+        AdHocEntryImpl(DataModel dataModel) {
             this.dataModel = dataModel;
         }
 
-        EntryImpl init(long groupId, long deviceId) {
+        AdHocEntryImpl init(long groupId, long deviceId) {
             this.groupId = groupId;
             this.deviceId = deviceId;
             return this;
         }
 
-        static EntryImpl from(DataModel dataModel, long groupId, long deviceId) {
-            return dataModel.getInstance(EntryImpl.class).init(groupId, deviceId);
+        static AdHocEntryImpl from(DataModel dataModel, long groupId, long deviceId) {
+            return dataModel.getInstance(AdHocEntryImpl.class).init(groupId, deviceId);
         }
 
-        @Override
         public long getDeviceId() {
             return deviceId;
         }
 
-        @Override
         public long getGroupId() {
             return groupId;
         }
 
-        @Override
         public void setGroupId(long id){
             this.groupId = id;
         }
@@ -80,7 +75,7 @@ public class AdHocDeviceGroupImpl implements CachedDeviceGroup {
                 return false;
             }
 
-            Entry entry = (Entry) o;
+            AdHocEntryImpl entry = (AdHocEntryImpl) o;
 
             return groupId == entry.getGroupId() && deviceId == entry.getDeviceId();
 
@@ -92,15 +87,14 @@ public class AdHocDeviceGroupImpl implements CachedDeviceGroup {
         }
     }
 
-    @Override
     public void save() {
         factory().persist(this);
-        for (Entry entry : entries) {
+        for (AdHocEntryImpl entry : entries) {
             entry.setGroupId(id);
         }
 
-        ArrayList<Entry> result = new ArrayList<Entry>();
-        for (Entry entry : entries) {
+        ArrayList<AdHocEntryImpl> result = new ArrayList<AdHocEntryImpl>();
+        for (AdHocEntryImpl entry : entries) {
             result.add(entry);
         }
         entryFactory().persist(result);
@@ -110,12 +104,11 @@ public class AdHocDeviceGroupImpl implements CachedDeviceGroup {
          return dataModel.mapper(AdHocDeviceGroupImpl.class);
     }
 
-    private DataMapper<Entry> entryFactory() {
-        return dataModel.mapper(Entry.class);
+    private DataMapper<AdHocEntryImpl> entryFactory() {
+        return dataModel.mapper(AdHocEntryImpl.class);
     }
 
-    @Override
-    public List<Entry> getEntries(){
+    public List<AdHocEntryImpl> getEntries(){
         return this.entries;
     }
 }

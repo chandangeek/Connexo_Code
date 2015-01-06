@@ -5,7 +5,6 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
-import com.elster.jupiter.yellowfin.groups.CachedDeviceGroup;
 import com.google.common.collect.FluentIterable;
 
 import javax.inject.Inject;
@@ -13,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class DynamicDeviceGroupImpl implements CachedDeviceGroup {
+public class DynamicDeviceGroupImpl  {
     protected long id;
-    protected List<Entry> entries = new ArrayList<Entry>();
+    protected List<DynamicEntryImpl> entries = new ArrayList<DynamicEntryImpl>();
     protected final DataModel dataModel;
 
     @Inject
@@ -26,7 +25,7 @@ public class DynamicDeviceGroupImpl implements CachedDeviceGroup {
     DynamicDeviceGroupImpl init(long id, List<EndDevice> endDevices) {
         this.id = id;
         for(EndDevice endDevice : endDevices){
-            entries.add(EntryImpl.from(dataModel, id, endDevice.getId()));
+            entries.add(DynamicEntryImpl.from(dataModel, id, endDevice.getId()));
         }
 
         return this;
@@ -36,7 +35,7 @@ public class DynamicDeviceGroupImpl implements CachedDeviceGroup {
         return dataModel.getInstance(DynamicDeviceGroupImpl.class).init(id, endDevices);
     }
 
-    static class EntryImpl implements CachedDeviceGroup.Entry {
+    static class DynamicEntryImpl /*implements CachedDeviceGroup.Entry */{
 
         private long groupId;
         private long deviceId;
@@ -44,31 +43,29 @@ public class DynamicDeviceGroupImpl implements CachedDeviceGroup {
         private final DataModel dataModel;
 
         @Inject
-        EntryImpl(DataModel dataModel) {
+        DynamicEntryImpl(DataModel dataModel) {
             this.dataModel = dataModel;
         }
 
-        EntryImpl init(long groupId, long deviceId) {
+        DynamicEntryImpl init(long groupId, long deviceId) {
             this.groupId = groupId;
             this.deviceId = deviceId;
             return this;
         }
 
-        static EntryImpl from(DataModel dataModel, long groupId, long deviceId) {
-            return dataModel.getInstance(EntryImpl.class).init(groupId, deviceId);
+        static DynamicEntryImpl from(DataModel dataModel, long groupId, long deviceId) {
+            return dataModel.getInstance(DynamicEntryImpl.class).init(groupId, deviceId);
         }
 
-        @Override
+
         public long getDeviceId() {
             return deviceId;
         }
 
-        @Override
         public long getGroupId() {
             return groupId;
         }
 
-        @Override
         public void setGroupId(long id){
             this.groupId = id;
         }
@@ -82,7 +79,7 @@ public class DynamicDeviceGroupImpl implements CachedDeviceGroup {
                 return false;
             }
 
-            Entry entry = (Entry) o;
+            DynamicEntryImpl entry = (DynamicEntryImpl) o;
 
             return groupId == entry.getGroupId() && deviceId == entry.getDeviceId();
 
@@ -94,14 +91,13 @@ public class DynamicDeviceGroupImpl implements CachedDeviceGroup {
         }
     }
 
-    @Override
     public void save() {
-        List<Entry> existingEntries = entryFactory().find("groupId", id);
-        DiffList<Entry> entryDiff = ArrayDiffList.fromOriginal(existingEntries);
+        List<DynamicEntryImpl> existingEntries = entryFactory().find("groupId", id);
+        DiffList<DynamicEntryImpl> entryDiff = ArrayDiffList.fromOriginal(existingEntries);
 
         entryDiff.clear();
-        for(Entry entry : entries){
-            entryDiff.add(EntryImpl.from(dataModel, id, entry.getDeviceId()));
+        for(DynamicEntryImpl entry : entries){
+            entryDiff.add(DynamicEntryImpl.from(dataModel, id, entry.getDeviceId()));
         }
 
         entryFactory().remove(FluentIterable.from(entryDiff.getRemovals()).toList());
@@ -109,12 +105,12 @@ public class DynamicDeviceGroupImpl implements CachedDeviceGroup {
         entryFactory().persist(FluentIterable.from(entryDiff.getAdditions()).toList());
     }
 
-    private DataMapper<Entry> entryFactory() {
-        return dataModel.mapper(Entry.class);
+    private DataMapper<DynamicEntryImpl> entryFactory() {
+        return dataModel.mapper(DynamicEntryImpl.class);
     }
 
-    @Override
-    public List<Entry> getEntries(){
+
+    public List<DynamicEntryImpl> getEntries(){
         return this.entries;
     }
 }

@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.yellowfin.groups.CachedDeviceGroup;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -88,12 +87,12 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Insta
     }
 
     @Override
-    public Optional<CachedDeviceGroup> cacheDynamicDeviceGroup(String groupName) {
+    public Optional<DynamicDeviceGroupImpl> cacheDynamicDeviceGroup(String groupName) {
         Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroupByName(groupName);
         if(found.isPresent() && found.get().isDynamic()){
             QueryEndDeviceGroup group = (QueryEndDeviceGroup)found.get();
 
-            CachedDeviceGroup cachedDeviceGroup = DynamicDeviceGroupImpl.from(dataModel, group.getId(), group.getMembers(Instant.now()));
+            DynamicDeviceGroupImpl cachedDeviceGroup = DynamicDeviceGroupImpl.from(dataModel, group.getId(), group.getMembers(Instant.now()));
             cachedDeviceGroup.save();
             return Optional.of(cachedDeviceGroup);
         }
@@ -102,8 +101,8 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Insta
     }
 
     @Override
-    public Optional<CachedDeviceGroup> cacheAdHocDeviceGroup(List<Device> devices){
-        CachedDeviceGroup cachedDeviceGroup = AdHocDeviceGroupImpl.from(dataModel, 0, devices);
+    public Optional<AdHocDeviceGroupImpl> cacheAdHocDeviceGroup(List<Device> devices){
+        AdHocDeviceGroupImpl cachedDeviceGroup = AdHocDeviceGroupImpl.from(dataModel, 0, devices);
         cachedDeviceGroup.save();
         return Optional.of(cachedDeviceGroup);
     }
