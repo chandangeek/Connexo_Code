@@ -5,7 +5,6 @@ import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
@@ -46,6 +45,9 @@ import org.joda.time.DateMidnight;
 
 import java.sql.SQLException;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -82,7 +84,6 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
 
     protected static OutboundComPortPool outboundTcpipComPortPool;
     protected static ConnectionTypePluggableClass outboundNoParamsConnectionTypePluggableClass;
-    protected DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     protected Device device;
     protected ComTaskEnablement comTaskEnablement1;
     protected ComTaskEnablement comTaskEnablement2;
@@ -131,7 +132,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
 
     @Before
     public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration() {
-        this.protocolDialectConfigurationProperties = this.deviceConfiguration.getCommunicationConfiguration().getProtocolDialectConfigurationPropertiesList().get(0);
+        this.protocolDialectConfigurationProperties = this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
     }
 
     @Before
@@ -147,13 +148,10 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         this.comTaskEnablement2 = enableComTask(true, configDialect, comTaskWithLogBooks);
         this.comTaskEnablement3 = enableComTask(true, configDialect, comTaskWithRegisters);
 
-        deviceCommunicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
-
-        partialScheduledConnectionTask = deviceCommunicationConfiguration.newPartialScheduledConnectionTask("Outbound (1)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
+        partialScheduledConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("Outbound (1)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                 comWindow(new ComWindow(0, 7200)).
                 build();
-        deviceCommunicationConfiguration.save();
-
+        deviceConfiguration.save();
     }
 
     @Before
@@ -176,7 +174,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
     @Test
     @Transactional
     public void testCreateDefaultWithASAPCopiesTheEarliestNextExecutionTimestamp() {
-        Date earliestNextExecutionTimestamp = new DateMidnight(2013, 2, 14).toDate();
+        Instant earliestNextExecutionTimestamp = LocalDateTime.of(2013, 2, 14, 0, 0).toInstant(ZoneOffset.UTC);
         ScheduledComTaskExecution comTaskExecution = createComTaskExecution();
         ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.forceNextExecutionTimeStampAndPriority(earliestNextExecutionTimestamp, comTaskEnablementPriority);
@@ -198,7 +196,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
     @Test
     @Transactional
     public void updateToAsapDefaultTestNextExecutionTimeStamp() throws SQLException, BusinessException {
-        Date comTaskNextExecutionTimeStamp = freezeClock(2013, Calendar.FEBRUARY, 13);
+        Instant comTaskNextExecutionTimeStamp = freezeClock(2013, Calendar.FEBRUARY, 13);
 
         freezeClock(2013, Calendar.FEBRUARY, 13, 10, 53, 20, 0);    // anything, as long as it's different from comTaskNextExecutionTimeStamp
 
@@ -219,13 +217,13 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
     @Test
     @Transactional
     public void updateToMinimizeDefaultTestNextExecutionTimeStamp() throws SQLException, BusinessException {
-        Date comTaskNextExecutionTimeStamp = freezeClock(2013, Calendar.FEBRUARY, 13);
+        Instant comTaskNextExecutionTimeStamp = freezeClock(2013, Calendar.FEBRUARY, 13);
 
         freezeClock(2013, Calendar.FEBRUARY, 17, 10, 53, 20, 0);    // anything, as long as it's different from comTaskNextExecutionTimeStamp
 
         ScheduledConnectionTaskImpl theOneThatMinimizesConnections = this.createMinimizeWithNoPropertiesWithoutViolations("updateToDefaultTestNextExecutionTimeStamp", new TemporalExpression(EVERY_HOUR));
         theOneThatMinimizesConnections.save();
-        Date nextExecutionTimestamp = theOneThatMinimizesConnections.getNextExecutionTimestamp();
+        Instant nextExecutionTimestamp = theOneThatMinimizesConnections.getNextExecutionTimestamp();
         ConnectionTaskService connectionTaskService = inMemoryPersistence.getConnectionTaskService();
 
         ComTaskExecution comTaskExecution = createComTaskExecutionAndSetNextExecutionTimeStamp(comTaskNextExecutionTimeStamp);
@@ -301,8 +299,8 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testTriggerWithAsapStrategyAndOnlyOnHoldAndWaitingTasks");
         connectionTask.save();
         inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
-        final Date futureDate = freezeClock(2013, Calendar.JULY, 4);
-        Date triggerDate = freezeClock(2013, Calendar.JUNE, 3);
+        final Instant futureDate = freezeClock(2013, Calendar.JULY, 4);
+        Instant triggerDate = freezeClock(2013, Calendar.JUNE, 3);
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimestampAndPriority = new EarliestNextExecutionTimeStampAndPriority(triggerDate, TaskPriorityConstants.DEFAULT_PRIORITY);
         ScheduledComTaskExecution comTaskExecution1 = createComTaskExecutionAndSetNextExecutionTimeStamp(futureDate, comTaskEnablement1);
         ((ServerComTaskExecution) comTaskExecution1).executionCompleted();
@@ -312,7 +310,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         comTaskExecution2.putOnHold();
 
         // Business method
-        Date nextExecutionTimstamp = connectionTask.trigger(triggerDate);
+        Instant nextExecutionTimstamp = connectionTask.trigger(triggerDate);
 
         // Asserts
         Device reloadedDevice = getReloadedDevice(device);
@@ -335,7 +333,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
     @Test
     @Transactional
     public void createWithComTaskUsingDefaultTestNextExecutionTimeStamp() throws SQLException, BusinessException {
-        Date febFirst = freezeClock(2013, Calendar.FEBRUARY, 1);
+        Instant febFirst = freezeClock(2013, Calendar.FEBRUARY, 1);
         ComTaskExecution comTaskExecution = createComTaskExecutionAndSetNextExecutionTimeStamp(febFirst);
 
         ScheduledConnectionTaskImpl defaultConnectionTask = this.createAsapWithNoPropertiesWithoutViolations("createWithComTaskUsingDefaultTestNextExecutionTimeStamp");
@@ -352,15 +350,15 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testTriggerWithAsapStrategyAndOnlyPendingTasks");
         connectionTask.save();
         inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
-        Date pastDate = freezeClock(2013, Calendar.JULY, 5);
-        final Date triggerDate = freezeClock(2013, Calendar.JUNE, 3);
+        Instant pastDate = freezeClock(2013, Calendar.JULY, 5);
+        final Instant triggerDate = freezeClock(2013, Calendar.JUNE, 3);
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimestampAndPriority = new EarliestNextExecutionTimeStampAndPriority(triggerDate, TaskPriorityConstants.DEFAULT_PRIORITY);
 
         ComTaskExecution comTaskExecution1 = createComTaskExecutionAndSetNextExecutionTimeStamp(pastDate, comTaskEnablement1);
         ComTaskExecution comTaskExecution2 = createComTaskExecutionAndSetNextExecutionTimeStamp(pastDate, comTaskEnablement2);
 
         // Business method
-        Date nextExecutionTimstamp = connectionTask.trigger(triggerDate);
+        Instant nextExecutionTimstamp = connectionTask.trigger(triggerDate);
 
         // Asserts
         Device reloadedDevice = getReloadedDevice(device);
@@ -415,8 +413,8 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testTriggerWithAsapStrategyAllComTaskStatusses");
         connectionTask.save();
         inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
-        final Date futureDate = freezeClock(2013, Calendar.JULY, 4);
-        final Date triggerDate = freezeClock(2013, Calendar.JUNE, 3);
+        final Instant futureDate = freezeClock(2013, Calendar.JULY, 4);
+        final Instant triggerDate = freezeClock(2013, Calendar.JUNE, 3);
         ScheduledComTaskExecution comTaskExecution = createComTaskExecutionAndSetNextExecutionTimeStamp(futureDate, comTaskEnablement1);
         assertThat(comTaskExecution.getStatus()).isEqualTo(TaskStatus.NeverCompleted);
         connectionTask.trigger(triggerDate); // never completed
@@ -465,7 +463,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
             }
         });
         comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution).forceNextExecutionTimeStampAndPriority(futureDate, 100).update();
-        final Date futureTrigger = freezeClock(2013, Calendar.AUGUST, 5); // pending task
+        final Instant futureTrigger = freezeClock(2013, Calendar.AUGUST, 5); // pending task
         assertThat(getReloadedComTaskExecution(device).getStatus()).isEqualTo(TaskStatus.Pending);
         connectionTask.trigger(futureTrigger);
         reloadedDevice = getReloadedDevice(device);
@@ -481,7 +479,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         assertThat(comTaskExecutions).areExactly(1, new Condition<ComTaskExecution>() {
             @Override
             public boolean matches(ComTaskExecution comTaskExecution) {
-                return futureTrigger.before(getReloadedComTaskExecution(device).getNextExecutionTimestamp());
+                return futureTrigger.isBefore(getReloadedComTaskExecution(device).getNextExecutionTimestamp());
             }
         });
         connectionTask.trigger(futureTrigger);
@@ -529,25 +527,26 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         return outboundComPort;
     }
 
-    protected Date freezeClock (int year, int month, int day) {
+    protected Instant freezeClock (int year, int month, int day) {
         return freezeClock(year, month, day, 0, 0, 0, 0);
     }
 
-    protected Date freezeClock (int year, int month, int day, TimeZone timeZone) {
+    protected Instant freezeClock (int year, int month, int day, TimeZone timeZone) {
         return freezeClock(year, month, day, 0, 0, 0, 0, timeZone);
     }
 
-    protected Date freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond) {
+    protected Instant freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond) {
         return freezeClock(year, month, day, hour, minute, second, millisecond, utcTimeZone);
     }
 
-    protected Date freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond, TimeZone timeZone) {
+    protected Instant freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond, TimeZone timeZone) {
         Calendar calendar = Calendar.getInstance(timeZone);
         calendar.set(year, month, day, hour, minute, second);
         calendar.set(Calendar.MILLISECOND, millisecond);
         when(clock.getZone()).thenReturn(timeZone.toZoneId());
-        when(clock.instant()).thenReturn(calendar.getTime().toInstant());
-        return calendar.getTime();
+        Instant frozenClockValue = calendar.getTime().toInstant();
+        when(clock.instant()).thenReturn(frozenClockValue);
+        return frozenClockValue;
     }
 
     protected ScheduledComTaskExecution createComTaskExecution() {
@@ -562,11 +561,11 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         return comTaskExecution;
     }
 
-    protected ComTaskExecution createComTaskExecutionAndSetNextExecutionTimeStamp(Date nextExecutionTimeStamp) {
+    protected ComTaskExecution createComTaskExecutionAndSetNextExecutionTimeStamp(Instant nextExecutionTimeStamp) {
         return createComTaskExecutionAndSetNextExecutionTimeStamp(nextExecutionTimeStamp, comTaskEnablement1);
     }
 
-    protected ScheduledComTaskExecution createComTaskExecutionAndSetNextExecutionTimeStamp(Date nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement) {
+    protected ScheduledComTaskExecution createComTaskExecutionAndSetNextExecutionTimeStamp(Instant nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement) {
         ScheduledComTaskExecution comTaskExecution = createComTaskExecution(comTaskEnablement);
         ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.forceNextExecutionTimeStampAndPriority(nextExecutionTimeStamp, 100);

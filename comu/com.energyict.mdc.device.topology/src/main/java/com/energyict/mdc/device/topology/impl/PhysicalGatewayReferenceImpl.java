@@ -43,6 +43,10 @@ public class PhysicalGatewayReferenceImpl implements PhysicalGatewayReference {
     private Reference<Device> gateway = ValueReference.absent();
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
     private Interval interval;
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     public PhysicalGatewayReferenceImpl createFor(Interval interval, Device master, Device origin) {
         this.interval = interval;

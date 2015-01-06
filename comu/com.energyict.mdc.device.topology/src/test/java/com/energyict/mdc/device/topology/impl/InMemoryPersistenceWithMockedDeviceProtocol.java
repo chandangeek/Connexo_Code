@@ -1,10 +1,6 @@
 package com.energyict.mdc.device.topology.impl;
 
-import com.energyict.mdc.common.ApplicationContext;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
@@ -91,7 +87,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -104,10 +99,7 @@ import static org.mockito.Mockito.when;
  */
 public class InMemoryPersistenceWithMockedDeviceProtocol {
 
-    public static final String JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME = "jupiter.bootstrap.module";
-
     private final Clock clock;
-
     private BundleContext bundleContext;
     private Principal principal;
     private EventAdmin eventAdmin;
@@ -119,7 +111,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private DeviceConfigurationService deviceConfigurationService;
     private MeteringService meteringService;
     private DataModel dataModel;
-    private ApplicationContext applicationContext;
     private ProtocolPluggableService protocolPluggableService;
     private MdcReadingTypeUtilService readingTypeUtilService;
     private DeviceDataModelServiceImpl deviceDataModelService;
@@ -128,6 +119,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private SchedulingService schedulingService;
     private ValidationService validationService;
     private DataVaultService dataVaultService;
+    private InMemoryBootstrapModule bootstrapModule;
 
     public InMemoryPersistenceWithMockedDeviceProtocol() {
         this(Clock.systemDefaultZone());
@@ -140,7 +132,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
 
     public void initializeDatabase(String testName, boolean showSqlLogging) {
         this.initializeMocks(testName);
-        InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
+        this.bootstrapModule = new InMemoryBootstrapModule();
         Injector injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
@@ -171,15 +163,11 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new MasterDataModule(),
                 new ValidationModule(),
                 new DeviceConfigurationModule(),
-                new MdcCommonModule(),
                 new MdcIOModule(),
                 new SchedulingModule(),
                 new DeviceDataModule(),
                 new TopologyModule());
         this.transactionService = injector.getInstance(TransactionService.class);
-        Environment environment = injector.getInstance(Environment.class);
-        environment.put(InMemoryPersistenceWithMockedDeviceProtocol.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
-        environment.setApplicationContext(this.applicationContext);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(PluggableService.class);
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
@@ -212,28 +200,10 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         this.principal = mock(Principal.class);
         when(this.principal.getName()).thenReturn(testName);
         this.protocolPluggableService = mock(ProtocolPluggableService.class);
-        this.applicationContext = mock(ApplicationContext.class);
-        Translator translator = mock(Translator.class);
-        when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
-        when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
-        when(this.applicationContext.getTranslator()).thenReturn(translator);
     }
 
     public void cleanUpDataBase() throws SQLException {
-        Environment environment = Environment.DEFAULT.get();
-        if (environment != null) {
-            Object bootstrapModule = environment.get(JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME);
-            if (bootstrapModule != null) {
-                deactivate(bootstrapModule);
-            }
-        }
-    }
-
-    private void deactivate(Object bootstrapModule) {
-        if (bootstrapModule instanceof InMemoryBootstrapModule) {
-            InMemoryBootstrapModule inMemoryBootstrapModule = (InMemoryBootstrapModule) bootstrapModule;
-            inMemoryBootstrapModule.deactivate();
-        }
+        this.bootstrapModule.deactivate();
     }
 
     public MeteringService getMeteringService() {
@@ -258,10 +228,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
 
     public MdcReadingTypeUtilService getReadingTypeUtilService() {
         return readingTypeUtilService;
-    }
-
-    public ApplicationContext getApplicationContext() {
-        return applicationContext;
     }
 
     public ServerDeviceService getDeviceService() {
