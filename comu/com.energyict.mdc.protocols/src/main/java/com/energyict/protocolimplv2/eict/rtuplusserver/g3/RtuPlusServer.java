@@ -44,6 +44,7 @@ import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.RtuPlusServer
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.G3GatewayRegisters;
 import com.energyict.protocolimplv2.elster.garnet.TcpDeviceProtocolDialect;
+import com.energyict.protocolimplv2.g3.common.G3Topology;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
@@ -244,7 +245,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     public G3Topology getG3Topology() {
         if (g3Topology == null) {
-            g3Topology = new G3Topology(this.offlineDevice.getDeviceIdentifier(), this, identificationService, issueService, propertySpecService);
+            g3Topology = new G3Topology(this.offlineDevice.getDeviceIdentifier(), identificationService, issueService, propertySpecService, getDlmsSession(), getDynamicProperties());
         }
         return g3Topology;
     }

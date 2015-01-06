@@ -1,19 +1,18 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
-import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocolimpl.dlms.g3.AS330D;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -39,8 +38,11 @@ public class SingleActionScheduleMapping extends G3Mapping {
         modes.put(5, "Mode 5: Number of \"execution time\" = n, all time values may be different and wildcards in the date are allowed.");
     }
 
-    public SingleActionScheduleMapping(ObisCode obisCode) {
+    private final TimeZone timeZone;
+
+    public SingleActionScheduleMapping(TimeZone timeZone, ObisCode obisCode) {
         super(obisCode);
+        this.timeZone = timeZone;
     }
 
     @Override
@@ -54,11 +56,10 @@ public class SingleActionScheduleMapping extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(DlmsSession dlmsSession) throws IOException {
+    public RegisterValue readRegister(CosemObjectFactory cosemObjectFactory) throws IOException {
         ObisCode objectObisCode = ProtocolTools.setObisCodeField(getObisCode(), 4, (byte) 0);
-        SingleActionSchedule singleActionSchedule = dlmsSession.getCosemObjectFactory().getSingleActionSchedule(objectObisCode);
+        SingleActionSchedule singleActionSchedule = cosemObjectFactory.getSingleActionSchedule(objectObisCode);
 
-        TimeZone timeZone = dlmsSession.getTimeZone();
         if (getObisCode().getE() == 1) {                //Type
             return parse(singleActionSchedule.getType(), null, null);
         } else if (getObisCode().getE() == 2) {         //Execution time

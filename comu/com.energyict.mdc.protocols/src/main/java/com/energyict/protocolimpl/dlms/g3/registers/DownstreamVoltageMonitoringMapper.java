@@ -1,15 +1,14 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
-import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.RegisterMonitor;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocolimpl.dlms.g3.AS330D;
 
 import java.io.IOException;
 import java.util.Date;
@@ -29,8 +28,8 @@ public class DownstreamVoltageMonitoringMapper extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(DlmsSession session) throws IOException {
-        RegisterMonitor registerMonitor = session.getCosemObjectFactory().getRegisterMonitor(getObisCode());
+    public RegisterValue readRegister(CosemObjectFactory cosemObjectFactory) throws IOException {
+        RegisterMonitor registerMonitor = cosemObjectFactory.getRegisterMonitor(getObisCode());
         return parse(registerMonitor.readThresholds(), unit);
     }
 

@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
-import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
@@ -9,7 +8,6 @@ import com.energyict.dlms.cosem.Data;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocolimpl.dlms.g3.AS330D;
 
 import java.io.IOException;
 import java.util.Date;
@@ -26,9 +24,8 @@ class TestModeMapper extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(DlmsSession dlmsSession) throws IOException {
-        final CosemObjectFactory cof = dlmsSession.getCosemObjectFactory();
-        final Data data = cof.getData(getObisCode());
+    public RegisterValue readRegister(CosemObjectFactory cosemObjectFactory) throws IOException {
+        final Data data = cosemObjectFactory.getData(getObisCode());
         return parse(data.getValueAttr(BooleanObject.class));
     }
 

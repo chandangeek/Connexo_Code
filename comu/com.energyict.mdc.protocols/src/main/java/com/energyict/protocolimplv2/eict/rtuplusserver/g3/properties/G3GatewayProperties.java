@@ -5,7 +5,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.protocolimplv2.edp.EDPProperties;
-import com.energyict.protocolimplv2.dlms.DlmsProperties;
+import com.energyict.protocolimplv2.g3.common.G3Properties;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -18,13 +18,10 @@ import java.util.List;
  * @author khe
  * @since 11/06/2014 - 13:46
  */
-public class G3GatewayProperties extends DlmsProperties {
+public class G3GatewayProperties extends G3Properties {
 
     public static final String AARQ_TIMEOUT_PROP_NAME = "AARQ_Timeout";
     public static final TimeDuration AARQ_TIMEOUT_DEFAULT = TimeDuration.NONE;
-    public static final String G3_MAC_ADDRESS_PROP_NAME = "MAC_address";
-    public static final String G3_SHORT_ADDRESS_PROP_NAME = "Short_MAC_address";
-    public static final String G3_LOGICAL_DEVICE_ID_PROP_NAME ="Logical_device_id";
 
     public G3GatewayProperties(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -45,10 +42,7 @@ public class G3GatewayProperties extends DlmsProperties {
                 aarqTimeoutPropertySpec(),
                 readCachePropertySpec(),
                 forcedDelayPropertySpec(),
-                maxRecPduSizePropertySpec(),
-                getMacAddressPropertySPec(),
-                getShortAddressPropertySpec(),
-                getLogicalDeviceIdPropertySpec()));
+                maxRecPduSizePropertySpec()));
         return propertySpecs;
     }
 
@@ -71,17 +65,4 @@ public class G3GatewayProperties extends DlmsProperties {
     private PropertySpec maxRecPduSizePropertySpec() {
         return getPropertySpecService().bigDecimalPropertySpec(MAX_REC_PDU_SIZE, false, DEFAULT_MAX_REC_PDU_SIZE);
     }
-
-    public PropertySpec getMacAddressPropertySPec() {
-        return getPropertySpecService().stringPropertySpec(G3_MAC_ADDRESS_PROP_NAME, false, "");
-    }
-
-    public PropertySpec getShortAddressPropertySpec() {
-        return getPropertySpecService().bigDecimalPropertySpec(G3_SHORT_ADDRESS_PROP_NAME, false, BigDecimal.ZERO);
-    }
-
-    public PropertySpec getLogicalDeviceIdPropertySpec() {
-        return getPropertySpecService().bigDecimalPropertySpec(G3_LOGICAL_DEVICE_ID_PROP_NAME, false, BigDecimal.ZERO);
-    }
-
 }

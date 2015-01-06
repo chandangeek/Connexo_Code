@@ -1,19 +1,15 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
-import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocolimpl.dlms.g3.SerialNumber;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -30,8 +26,8 @@ public class DisconnectControlMapper extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(DlmsSession session) throws IOException {
-        final Disconnector disconnector = session.getCosemObjectFactory().getDisconnector(getObisCode());
+    public RegisterValue readRegister(CosemObjectFactory cosemObjectFactory) throws IOException {
+        final Disconnector disconnector = cosemObjectFactory.getDisconnector(getObisCode());
         return parse(disconnector.getControlState());
     }
 

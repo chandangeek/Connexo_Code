@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.dlms.g3.registers.mapping;
 
-import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BitString;
@@ -11,11 +10,10 @@ import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -27,12 +25,8 @@ public class PLCOFDMType2MACSetupMapping extends RegisterMapping {
     private static final int MIN_ATTR = 1;
     private static final int MAX_ATTR = 22;
 
-    public PLCOFDMType2MACSetupMapping(final DlmsSession session) {
-        super(session);
-    }
-
-    public PLCOFDMType2MACSetupMapping(Logger logger, CosemObjectFactory cosemObjectFactory) {
-        super(logger, cosemObjectFactory);
+    public PLCOFDMType2MACSetupMapping(CosemObjectFactory cosemObjectFactory) {
+        super(cosemObjectFactory);
     }
 
     @Override

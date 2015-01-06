@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.eict.rtuplusserver.g3;
+package com.energyict.protocolimplv2.g3.common;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.DLMSUtils;
@@ -15,10 +15,8 @@ import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
@@ -32,18 +30,20 @@ import java.util.List;
 public class G3Topology {
 
     private final DeviceIdentifier masterDeviceIdentifier;
-    private final RtuPlusServer deviceProtocol;
     private final IdentificationService identificationService;
     private final IssueService issueService;
     private final PropertySpecService propertySpecService;
+    private final DlmsSession dlmsSession;
+    private final G3Properties g3Properties;
     private CollectedTopology collectedTopology;
 
-    public G3Topology(DeviceIdentifier masterDeviceIdentifier, RtuPlusServer deviceProtocol, IdentificationService identificationService, IssueService issueService, PropertySpecService propertySpecService) {
+    public G3Topology(DeviceIdentifier masterDeviceIdentifier, IdentificationService identificationService, IssueService issueService, PropertySpecService propertySpecService, DlmsSession dlmsSession, G3Properties g3Properties) {
         this.masterDeviceIdentifier = masterDeviceIdentifier;
-        this.deviceProtocol = deviceProtocol;
         this.identificationService = identificationService;
         this.issueService = issueService;
         this.propertySpecService = propertySpecService;
+        this.dlmsSession = dlmsSession;
+        this.g3Properties = g3Properties;
     }
 
     public CollectedTopology collectTopology() {
@@ -91,9 +91,7 @@ public class G3Topology {
 
                     if (structure.nrOfDataTypes() == 11) {
                         deviceTopology.addTopologyNeighbour(
-                                //TODO the G3_SHORT_ADDRESS_PROP_NAME should be used...
-//                                identificationService.createDeviceIdentifierByProperty(G3GatewayProperties.G3_SHORT_ADDRESS_PROP_NAME, Integer.toString(structure.getDataType(0).intValue())),
-                                identificationService.createDeviceIdentifierByProperty(MeterProtocol.ADDRESS, Integer.toString(structure.getDataType(0).intValue())),
+                                identificationService.createDeviceIdentifierByProperty(G3Properties.G3_SHORT_ADDRESS_PROP_NAME, Integer.toString(structure.getDataType(0).intValue())),
                                 structure.getDataType(1).intValue(),
                                 structure.getDataType(2).longValue(),
                                 structure.getDataType(3).intValue(),
@@ -128,11 +126,8 @@ public class G3Topology {
                     if (structure.nrOfDataTypes() == 6) {
                         deviceTopology.addPathSegmentFor(masterDeviceIdentifier,
 
-                                //TODO the G3_SHORT_ADDRESS_PROP_NAME should be used...
-//                                identificationService.createDeviceIdentifierByProperty(G3GatewayProperties.G3_SHORT_ADDRESS_PROP_NAME, Integer.toString(structure.getDataType(0).intValue())),
-                                identificationService.createDeviceIdentifierByProperty(MeterProtocol.ADDRESS, Integer.toString(structure.getDataType(0).intValue())),
-//                                identificationService.createDeviceIdentifierByProperty(G3GatewayProperties.G3_SHORT_ADDRESS_PROP_NAME, Integer.toString(structure.getDataType(1).intValue())),
-                                identificationService.createDeviceIdentifierByProperty(MeterProtocol.ADDRESS, Integer.toString(structure.getDataType(1).intValue())),
+                                identificationService.createDeviceIdentifierByProperty(G3Properties.G3_SHORT_ADDRESS_PROP_NAME, Integer.toString(structure.getDataType(0).intValue())),
+                                identificationService.createDeviceIdentifierByProperty(G3Properties.G3_SHORT_ADDRESS_PROP_NAME, Integer.toString(structure.getDataType(1).intValue())),
                                 Duration.ofSeconds(structure.getDataType(5).intValue()),
                                 structure.getDataType(2).intValue());
                     }
@@ -181,32 +176,26 @@ public class G3Topology {
                 deviceTopology.addAdditionalCollectedDeviceInfo(
                         this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                                 masterDeviceIdentifier,
-                                this.deviceProtocol.getDynamicProperties().getLogicalDeviceIdPropertySpec(),
+                                this.g3Properties.getLogicalDeviceIdPropertySpec(),
                                 BigDecimal.valueOf(sapAssignmentItem.getSap())));
             }
         }
     }
 
     private PropertySpec getSlaveShortAddressPropertySpec() {
-        //TODo, this is the correct property but we need to wait for the V2 protocol to use them ...
-//        return getDynamicProperties().getShortAddressPropertySpec();
-        return propertySpecService.stringPropertySpec(MeterProtocol.ADDRESS, false, "");
+        return this.g3Properties.getShortAddressPropertySpec();
     }
 
     private PropertySpec getSlaveLogicalDeviceIdPropertySpec() {
-        //TODo, this is the correct property but we need to wait for the V2 protocol to use them ...
-//        return getDynamicProperties().getLogicalDeviceIdPropertySpec();
-        return propertySpecService.stringPropertySpec(MeterProtocol.NODEID, false, "");
+        return this.g3Properties.getLogicalDeviceIdPropertySpec();
     }
 
     private DeviceIdentifier getSlaveMacAddressPropertyIdentifier(String macAddress) {
-        //TODo, this is the correct property but we need to wait for the V2 protocol to use them ...
-//        this.identificationService.createDeviceIdentifierByProperty(G3GatewayProperties.G3_MAC_ADDRESS_PROP_NAME, sapAssignmentItem.getLogicalDeviceName())
-        return this.identificationService.createDeviceIdentifierByProperty(BasicDynamicPropertySupport.CALL_HOME_ID_PROPERTY_NAME, macAddress);
+        return this.identificationService.createDeviceIdentifierByProperty(G3Properties.G3_MAC_ADDRESS_PROP_NAME, macAddress);
     }
 
     private DlmsSession getDlmsSession() {
-        return this.deviceProtocol.getDlmsSession();
+        return this.dlmsSession;
     }
 
     private boolean isGatewayNode(SAPAssignmentItem sapAssignmentItem) {

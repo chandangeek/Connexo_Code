@@ -56,17 +56,6 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     public static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
     public static final ObisCode monthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
 
-    private Dsmr23RegisterFactory registerFactory = null;
-    private ComposedMeterInfo meterInfo;
-    protected DlmsProperties dlmsProperties;
-    private DlmsSession dlmsSession;
-    private LoadProfileBuilder loadProfileBuilder;
-    private DLMSCache dlmsCache;
-    private MeterTopology meterTopology;
-    private Dsmr23LogBookFactory logBookFactory;
-    private Dsmr23Messaging dsmr23Messaging;
-    protected OfflineDevice offlineDevice;
-    private DlmsSecuritySupport dlmsSecuritySupport;
     private final PropertySpecService propertySpecService;
     private final SocketService socketService;
     private final SerialComponentService serialComponentService;
@@ -74,6 +63,20 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     private final TopologyService topologyService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final IdentificationService identificationService;
+
+    protected LoadProfileBuilder loadProfileBuilder;
+    protected DlmsProperties dlmsProperties;
+    protected OfflineDevice offlineDevice;
+    protected Dsmr23RegisterFactory registerFactory = null;
+
+    private ComposedMeterInfo meterInfo;
+    private DlmsSession dlmsSession;
+    private DLMSCache dlmsCache;
+    private MeterTopology meterTopology;
+    private Dsmr23LogBookFactory logBookFactory;
+    private Dsmr23Messaging dsmr23Messaging;
+
+    private DlmsSecuritySupport dlmsSecuritySupport;
 
     protected AbstractDlmsProtocol(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService) {
         this.propertySpecService = propertySpecService;
@@ -421,4 +424,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         return serialComponentService;
     }
 
+    public IdentificationService getIdentificationService() {
+        return identificationService;
+    }
 }

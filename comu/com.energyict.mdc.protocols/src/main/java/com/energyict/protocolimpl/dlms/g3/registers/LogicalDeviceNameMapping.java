@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
-import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.CosemObjectFactory;
@@ -26,9 +25,8 @@ public class LogicalDeviceNameMapping extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(DlmsSession dlmsSession) throws IOException {
-        final CosemObjectFactory cof = dlmsSession.getCosemObjectFactory();
-        Data data = cof.getData(getObisCode());
+    public RegisterValue readRegister(CosemObjectFactory cosemObjectFactory) throws IOException {
+        Data data = cosemObjectFactory.getData(getObisCode());
         return parse(data.getValueAttr(OctetString.class));
     }
 

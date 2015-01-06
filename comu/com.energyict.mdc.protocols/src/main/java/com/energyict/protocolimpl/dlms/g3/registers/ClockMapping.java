@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
-import com.energyict.mdc.common.Unit;
-import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import java.io.IOException;
@@ -23,8 +23,8 @@ public class ClockMapping extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(DlmsSession session) throws IOException {
-        Clock clock = session.getCosemObjectFactory().getClock(getObisCode());
+    public RegisterValue readRegister(CosemObjectFactory cosemObjectFactory) throws IOException {
+        Clock clock = cosemObjectFactory.getClock(getObisCode());
         return parse(null, null, clock.getDateTime());   //Already parse it, and pass it along in the captureTime parameter, because we only have access to the device timezone in this method
     }
 

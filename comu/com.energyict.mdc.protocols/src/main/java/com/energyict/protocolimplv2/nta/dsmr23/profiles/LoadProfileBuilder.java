@@ -330,7 +330,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
      * @return a constructed list of <CODE>ChannelInfos</CODE>
      * @throws java.io.IOException when an error occurred during dataFetching or -Parsing
      */
-    private List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
+    protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<>();
         for (CapturedRegisterObject registerUnit : registers) {
             if (!"".equalsIgnoreCase(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
@@ -522,8 +522,26 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         return meterProtocol;
     }
 
-    private CollectedDataFactory getCollectedDataFactory() {
+    protected CollectedDataFactory getCollectedDataFactory() {
         return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
+    protected Map<CapturedRegisterObject, DLMSAttribute> getRegisterUnitMap() {
+        return registerUnitMap;
+    }
 
+    public Map<LoadProfileReader, Integer> getChannelMaskMap() {
+        return channelMaskMap;
+    }
+
+    public Map<LoadProfileReader, Integer> getStatusMasksMap() {
+        return statusMasksMap;
+    }
+
+    public MdcReadingTypeUtilService getReadingTypeUtilService() {
+        return readingTypeUtilService;
+    }
+
+    public IssueService getIssueService() {
+        return issueService;
+    }
 }

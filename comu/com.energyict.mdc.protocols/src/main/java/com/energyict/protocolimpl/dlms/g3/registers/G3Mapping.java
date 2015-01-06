@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
-import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
@@ -24,10 +24,10 @@ public abstract class G3Mapping {
     }
 
     public RegisterValue readRegister(AS330D as330D) throws IOException {
-        return readRegister(as330D.getSession());
+        return readRegister(as330D.getSession().getCosemObjectFactory());
     }
 
-    public abstract RegisterValue readRegister(DlmsSession dlmsSession) throws IOException;
+    public abstract RegisterValue readRegister(CosemObjectFactory cosemObjectFactory) throws IOException;
 
     public final ObisCode getObisCode() {
         return obis;

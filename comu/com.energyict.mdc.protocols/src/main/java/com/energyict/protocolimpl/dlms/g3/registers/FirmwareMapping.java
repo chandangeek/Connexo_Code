@@ -1,14 +1,14 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
-import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocolimpl.dlms.g3.AS330D;
 import com.energyict.protocolimpl.dlms.g3.FirmwareVersion;
 
@@ -32,7 +32,7 @@ public class FirmwareMapping extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(DlmsSession dlmsSession) throws IOException {
+    public RegisterValue readRegister(CosemObjectFactory cosemObjectFactory) throws IOException {
         return null;    //Not used here, the method above is overridden
     }
 

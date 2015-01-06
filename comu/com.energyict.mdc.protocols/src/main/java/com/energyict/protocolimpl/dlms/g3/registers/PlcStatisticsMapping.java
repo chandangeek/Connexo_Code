@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.dlms.g3.registers;
 
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.PLCOFDMType2MACSetup;
 import com.energyict.dlms.cosem.PLCOFDMType2PHYAndMACCounters;
@@ -40,20 +41,20 @@ public class PlcStatisticsMapping extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(DlmsSession dlmsSession) throws IOException {
-        instantiateMappers(dlmsSession);
+    public RegisterValue readRegister(CosemObjectFactory cosemObjectFactory) throws IOException {
+        instantiateMappers(cosemObjectFactory);
         return readRegister(getObisCode());
     }
 
-    private void instantiateMappers(DlmsSession session) {
+    private void instantiateMappers(CosemObjectFactory cosemObjectFactory) {
         if (plcofdmType2MACSetupMapping == null) {
-            this.plcofdmType2MACSetupMapping = new PLCOFDMType2MACSetupMapping(session);
+            this.plcofdmType2MACSetupMapping = new PLCOFDMType2MACSetupMapping(cosemObjectFactory);
         }
         if (plcofdmType2PHYAndMACCountersMapping == null) {
-            this.plcofdmType2PHYAndMACCountersMapping = new PLCOFDMType2PHYAndMACCountersMapping(session);
+            this.plcofdmType2PHYAndMACCountersMapping = new PLCOFDMType2PHYAndMACCountersMapping(cosemObjectFactory);
         }
         if (sixLowPanAdaptationLayerSetupMapping == null) {
-            this.sixLowPanAdaptationLayerSetupMapping = new SixLowPanAdaptationLayerSetupMapping(session);
+            this.sixLowPanAdaptationLayerSetupMapping = new SixLowPanAdaptationLayerSetupMapping(cosemObjectFactory);
         }
     }
 
