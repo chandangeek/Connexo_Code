@@ -73,7 +73,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurationLogbooks', {
             record = grid.getSelectionModel().getLastSelected(),
             url = '/api/dtc/devicetypes/' + logbooksView.deviceTypeId + '/deviceconfigurations/' + logbooksView.deviceConfigurationId + '/logbookconfigurations/' + record.data.id;
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: 'The logbook configuration will no longer be available on this device type.',
+            msg: 'The logbook configuration will no longer be available on this device configuration.',
             title: 'Remove logbook configuration ' + record.data.name + ' ?',
             config: {
             },
