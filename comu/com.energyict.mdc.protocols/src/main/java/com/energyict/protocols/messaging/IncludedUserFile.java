@@ -4,13 +4,13 @@ import com.energyict.mdc.common.BusinessObject;
 import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.UserFileShadow;
 
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -183,17 +183,12 @@ final class IncludedUserFile implements UserFile {
     }
 
     @SuppressWarnings({"unchecked"})
-    public List<RelationType> getAvailableRelationTypes() {
+    public List<Relation> getRelations(RelationAttributeType attrib, Instant date, boolean includeObsolete) {
         return Collections.EMPTY_LIST;
     }
 
     @SuppressWarnings({"unchecked"})
-    public List<Relation> getRelations(RelationAttributeType attrib, Date date, boolean includeObsolete) {
-        return Collections.EMPTY_LIST;
-    }
-
-    @SuppressWarnings({"unchecked"})
-    public List<Relation> getRelations(RelationAttributeType attrib, Date date, boolean includeObsolete, int fromRow, int toRow) {
+    public List<Relation> getRelations(RelationAttributeType attrib, Instant date, boolean includeObsolete, int fromRow, int toRow) {
         return Collections.EMPTY_LIST;
     }
 
@@ -203,7 +198,8 @@ final class IncludedUserFile implements UserFile {
     }
 
     @SuppressWarnings({"unchecked"})
-    public List<Relation> getRelations(RelationAttributeType attrib, Interval period, boolean includeObsolete) {
+    public List<Relation> getRelations(RelationAttributeType attrib, Range<Instant> period, boolean includeObsolete) {
         return Collections.EMPTY_LIST;
     }
+
 }
