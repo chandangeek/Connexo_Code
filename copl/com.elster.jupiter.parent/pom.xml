@@ -19,6 +19,12 @@
         <connection>scm:git:ssh://git@source.eict.vpdc/com/elster/jupiter/parent</connection>
     </scm>
 
+    <properties>
+        <!-- property to include the source code in the bundles
+             will be set to false by the release profile for releases -->
+        <include.source>true</include.source>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -372,7 +378,7 @@
                         <Bundle-RequiredExecutionEnvironment>JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
                         <Git-SHA-1>${buildNumber}</Git-SHA-1>
                         <Build-timestamp>${timestamp}</Build-timestamp>
-                        <_sources>true</_sources>
+                        <_sources>${include.source}</_sources>
                         <_include>bnd.bnd</_include>
                     </instructions>
                 </configuration>
@@ -491,6 +497,8 @@
             <id>platform</id>
             <modules>
                 <module>../com.elster.jupiter.appserver</module>
+                <module>../com.elster.jupiter.appserver.extjs</module>
+                <module>../com.elster.jupiter.appserver.rest</module>
                 <module>../com.elster.jupiter.bootstrap</module>
                 <module>../com.elster.jupiter.bootstrap.oracle</module>
                 <module>../com.elster.jupiter.bpm</module>
@@ -544,6 +552,12 @@
                 <module>../com.elster.jupiter.yellowfin.app</module>
                 <module>../com.elster.jupiter.yellowfin.extjs</module>
             </modules>
+        </profile>
+        <profile>
+            <id>release</id>
+            <properties>
+                <include.source>false</include.source>
+            </properties>
         </profile>
         <profile>
             <id>sencha-dev</id>
