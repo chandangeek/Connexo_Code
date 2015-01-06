@@ -85,7 +85,8 @@ public class LogBookImplTest extends PersistenceIntegrationTest {
         Device simpleDeviceWithLogBook = createSimpleDeviceWithLogBook();
 
         LogBook reloadedLogBook = getReloadedLogBook(simpleDeviceWithLogBook);
-        assertThat(reloadedLogBook.getLastLogBook()).isNull();
+        assertThat(reloadedLogBook.getLastLogBook()).isNotNull();
+        assertThat(reloadedLogBook.getLastLogBook().isPresent()).isFalse();
     }
 
     private void tryToUpdateLastReading(Device simpleDeviceWithLogBook, Instant newLastReading, LogBook reloadedLogBook) {
@@ -104,7 +105,9 @@ public class LogBookImplTest extends PersistenceIntegrationTest {
         tryToUpdateLastReading(simpleDeviceWithLogBook, newLastReading, reloadedLogBook);
 
         LogBook updatedLogBook = getReloadedLogBook(simpleDeviceWithLogBook);
-        assertThat(updatedLogBook.getLastLogBook()).isEqualTo(Optional.of(newLastReading));
+        assertThat(updatedLogBook.getLastLogBook()).isNotNull();
+        assertThat(updatedLogBook.getLastLogBook().isPresent()).isTrue();
+        assertThat(updatedLogBook.getLastLogBook().get()).isEqualTo(newLastReading);
     }
 
     @Test
@@ -120,7 +123,9 @@ public class LogBookImplTest extends PersistenceIntegrationTest {
         tryToUpdateLastReading(simpleDeviceWithLogBook, newLastReading, updatedLogBook);
 
         LogBook logBook = getReloadedLogBook(simpleDeviceWithLogBook);
-        assertThat(logBook.getLastLogBook()).isEqualTo(Optional.of(originalLastReading));
+        assertThat(logBook.getLastLogBook()).isNotNull();
+        assertThat(logBook.getLastLogBook().isPresent()).isTrue();
+        assertThat(logBook.getLastLogBook().get()).isEqualTo(originalLastReading);
     }
 
     @Test
@@ -136,7 +141,9 @@ public class LogBookImplTest extends PersistenceIntegrationTest {
         tryToUpdateLastReading(simpleDeviceWithLogBook, newLastReading, updatedLogBook);
 
         LogBook logBook = getReloadedLogBook(simpleDeviceWithLogBook);
-        assertThat(logBook.getLastLogBook()).isEqualTo(Optional.of(newLastReading));
+        assertThat(logBook.getLastLogBook()).isNotNull();
+        assertThat(logBook.getLastLogBook().isPresent()).isTrue();
+        assertThat(logBook.getLastLogBook().get()).isEqualTo(newLastReading);
     }
 
     @Test
@@ -149,4 +156,5 @@ public class LogBookImplTest extends PersistenceIntegrationTest {
 
         assertThat(inMemoryPersistence.getDataModel().mapper(LogBook.class).find()).isEmpty();
     }
+
 }

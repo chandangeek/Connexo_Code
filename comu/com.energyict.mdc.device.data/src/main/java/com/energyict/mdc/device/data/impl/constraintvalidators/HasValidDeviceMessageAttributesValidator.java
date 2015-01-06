@@ -45,14 +45,14 @@ public class HasValidDeviceMessageAttributesValidator implements ConstraintValid
 
         deviceMessageAttributes.stream().forEach(deviceMessageAttribute -> {
             try {
-                if(deviceMessageAttribute.getSpecification() != null){
+                if (deviceMessageAttribute.getSpecification() != null) {
                     deviceMessageAttribute.getSpecification().validateValue(deviceMessageAttribute.getValue());
                 }
             } catch (InvalidValueException e) {
                 context
-                        .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_MESSAGE_ATTRIBUTE_INVALID_VALUE + "}")
-                        .addPropertyNode("properties").addPropertyNode(deviceMessageAttribute.getName()).addConstraintViolation()
-                        .disableDefaultConstraintViolation();
+                    .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_MESSAGE_ATTRIBUTE_INVALID_VALUE + "}")
+                    .addPropertyNode("properties").addPropertyNode(deviceMessageAttribute.getName()).addConstraintViolation()
+                    .disableDefaultConstraintViolation();
                 this.valid = false;
             }
         });

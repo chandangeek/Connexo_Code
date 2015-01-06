@@ -1133,7 +1133,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         SqlBuilder sqlBuilder = new SqlBuilder("update ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" set obsolete_date = ? where id = ?");
-        sqlBuilder.bindDate(Date.from(clock.instant()));
+        sqlBuilder.bindDate(clock.instant());
         sqlBuilder.bindLong(id);
         return sqlBuilder;
     }
