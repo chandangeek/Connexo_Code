@@ -15,7 +15,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages.Dsm
 public class SagemComMessaging extends AM540Messaging {
 
     public SagemComMessaging(AM540 protocol, TopologyService topologyService) {
-        super(protocol, topologyService);
+        super(protocol, topologyService, clock);
     }
 
     protected Dsmr50MessageExecutor getMessageExecutor() {

@@ -24,9 +24,10 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -50,6 +51,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     private static final String RegisterObiscodeTag = "OC";
     private static final String RtuRegisterSerialNumber = "ID";
 
+    private final Clock clock;
     private final TopologyService topologyService;
     private final LoadProfileFactory loadProfileFactory;
     private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -66,7 +68,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     /**
      * Holds the Date from where to start fetching data from the <CODE>LoadProfile</CODE>
      */
-    private Date startReadingTime;
+    private Instant startReadingTime;
 
     /**
      * Represents the database ID of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} to read.
@@ -84,8 +86,9 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
      */
     private LoadProfile loadProfile;
 
-    public LegacyLoadProfileRegisterMessageBuilder(TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
+    public LegacyLoadProfileRegisterMessageBuilder(Clock clock, TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
         super();
+        this.clock = clock;
         this.topologyService = topologyService;
         this.loadProfileFactory = loadProfileFactory;
     }
@@ -102,7 +105,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
         this.meterSerialNumber = meterSerialNumber;
     }
 
-    public void setStartReadingTime(final Date startReadingTime) {
+    public void setStartReadingTime(final Instant startReadingTime) {
         this.startReadingTime = startReadingTime;
     }
 
@@ -118,7 +121,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
         return meterSerialNumber;
     }
 
-    public Date getStartReadingTime() {
+    public Instant getStartReadingTime() {
         return startReadingTime;
     }
 
@@ -296,7 +299,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     }
 
     public LoadProfileReader getLoadProfileReader() {
-        return new LoadProfileReader(this.profileObisCode, startReadingTime, startReadingTime, loadProfileId, new DeviceIdentifier<BaseDevice<?, ?, ?>>() {
+        return new LoadProfileReader(this.clock, this.profileObisCode, startReadingTime, startReadingTime, loadProfileId, new DeviceIdentifier<BaseDevice<?, ?, ?>>() {
             @Override
             public String getIdentifier() {
                 return meterSerialNumber;
@@ -399,7 +402,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
                         this.messageBuilder.setMeterSerialNumber(atts.getValue(namespaceURI, MeterSerialNumberTag));
                         try {
                             String startReadingTime = atts.getValue(namespaceURI, StartReadingTimeTag);
-                            this.messageBuilder.setStartReadingTime(formatter.parse(startReadingTime));
+                            this.messageBuilder.setStartReadingTime(formatter.parse(startReadingTime).toInstant());
                         } catch (ParseException e) {
                             throw new SAXException(e);
                         }

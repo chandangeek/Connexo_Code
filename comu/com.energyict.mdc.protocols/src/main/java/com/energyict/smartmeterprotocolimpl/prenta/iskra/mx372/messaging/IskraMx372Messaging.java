@@ -64,6 +64,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -82,6 +85,7 @@ import java.util.logging.Logger;
 public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProtocolSupport {
 
     private final IskraMx372 protocol;
+    private final Clock clock;
     private final TopologyService topologyService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final LoadProfileFactory loadProfileFactory;
@@ -139,8 +143,9 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     private static final int maxNumbersManagedWhiteList = 8;
 
 
-    public IskraMx372Messaging(IskraMx372 protocol, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
+    public IskraMx372Messaging(IskraMx372 protocol, Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
         this.protocol = protocol;
+        this.clock = clock;
         this.topologyService = topologyService;
         this.readingTypeUtilService = readingTypeUtilService;
         this.loadProfileFactory = loadProfileFactory;
@@ -268,11 +273,11 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService, this.loadProfileFactory);
+        return new LegacyLoadProfileRegisterMessageBuilder(clock, this.topologyService, this.loadProfileFactory);
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder(this.topologyService, this.loadProfileFactory);
+        return new LegacyPartialLoadProfileMessageBuilder(clock, this.topologyService, this.loadProfileFactory);
     }
 
     /**
@@ -297,7 +302,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
 
         if (!this.protocol.getSerialNumber().equalsIgnoreCase(messageEntry.getSerialNumber())) {
-            IskraMx372MbusMessageExecutor mbusMessageExecutor = new IskraMx372MbusMessageExecutor(protocol, topologyService, loadProfileFactory);
+            IskraMx372MbusMessageExecutor mbusMessageExecutor = new IskraMx372MbusMessageExecutor(protocol, clock, topologyService, loadProfileFactory);
             return mbusMessageExecutor.queryMessage(messageEntry);
         } else {
             MessageResult msgResult = null;
@@ -798,9 +803,16 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
                 channelInfos.add(new ChannelInfo(channelInfos.size(), register.getObisCode().toString(), Unit.getUndefined(), register.getSerialNumber(),
                         this.readingTypeUtilService.getReadingTypeFrom(register.getObisCode(), Unit.getUndefined())));
             }
-            LoadProfileReader lpr = constructDateTimeCorrectdLoadProfileReader(new LoadProfileReader(reader.getProfileObisCode(),
-                    reader.getStartReadingTime(), reader.getEndReadingTime(), reader.getLoadProfileId(), reader.getDeviceIdentifier(), channelInfos,
-                    reader.getMeterSerialNumber(), reader.getLoadProfileIdentifier()));
+            LoadProfileReader lpr = constructDateTimeCorrectdLoadProfileReader(
+                    new LoadProfileReader(
+                            this.clock,
+                            reader.getProfileObisCode(),
+                            reader.getStartReadingTime(), reader.getEndReadingTime(),
+                            reader.getLoadProfileId(),
+                            reader.getDeviceIdentifier(),
+                            channelInfos,
+                            reader.getMeterSerialNumber(),
+                            reader.getLoadProfileIdentifier()));
 
             List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
             final List<ProfileData> profileDatas = this.protocol.getLoadProfileData(Arrays.asList(lpr));
@@ -850,10 +862,17 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
      * @return the reader with the adjested times
      */
     protected LoadProfileReader constructDateTimeCorrectdLoadProfileReader(final LoadProfileReader loadProfileReader) {
-        Date from = new Date(loadProfileReader.getStartReadingTime().getTime() - 5000);
-        Date to = new Date(loadProfileReader.getEndReadingTime().getTime() + 5000);
-        return new LoadProfileReader(loadProfileReader.getProfileObisCode(), from, to, loadProfileReader.getLoadProfileId(), loadProfileReader.getDeviceIdentifier(), loadProfileReader.getChannelInfos()
-        , loadProfileReader.getMeterSerialNumber(), loadProfileReader.getLoadProfileIdentifier());
+        Instant from = loadProfileReader.getStartReadingTime().minus(Duration.ofSeconds(5));
+        Instant to = loadProfileReader.getEndReadingTime().plus(Duration.ofSeconds(5));
+        return new LoadProfileReader(
+                this.clock,
+                loadProfileReader.getProfileObisCode(),
+                from, to,
+                loadProfileReader.getLoadProfileId(),
+                loadProfileReader.getDeviceIdentifier(),
+                loadProfileReader.getChannelInfos(),
+                loadProfileReader.getMeterSerialNumber(),
+                loadProfileReader.getLoadProfileIdentifier());
     }
 
     public MessageResult doReadPartialLoadProfile(final MessageEntry msgEntry) {

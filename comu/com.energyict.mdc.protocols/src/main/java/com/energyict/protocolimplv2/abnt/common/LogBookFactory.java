@@ -19,6 +19,7 @@ import com.energyict.protocolimplv2.abnt.common.structure.field.HistoryLogRecord
 import com.energyict.protocolimplv2.abnt.common.structure.field.PowerFailRecord;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -80,7 +81,7 @@ public class LogBookFactory implements DeviceLogBookSupport {
                     Function.FunctionCode.HISTORY_LOG.getFunctionCode(),
                     0
             );
-            if (protocolEvent.getTime().after(logBook.getLastLogBook())) {
+            if (protocolEvent.getTime().after(Date.from(logBook.getLastLogBook()))) {
                 meterEvents.add(protocolEvent);
             }
         }
@@ -102,7 +103,7 @@ public class LogBookFactory implements DeviceLogBookSupport {
                         Function.FunctionCode.POWER_FAIL_LOG.getFunctionCode(),
                         0
                 );
-                if (protocolEvent.getTime().after(logBook.getLastLogBook())) {
+                if (protocolEvent.getTime().after(Date.from(logBook.getLastLogBook()))) {
                     meterEvents.add(protocolEvent);
                 }
             }

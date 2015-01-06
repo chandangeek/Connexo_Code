@@ -12,6 +12,7 @@ import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccess
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,12 +27,12 @@ import java.util.List;
 public class ACE4000MBus extends ACE4000Outbound {
 
     @Inject
-    public ACE4000MBus(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
-        super(propertySpecService, issueService, readingTypeUtilService, identificationService, collectedDataFactory);
+    public ACE4000MBus(Clock clock, PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
+        super(clock, propertySpecService, issueService, readingTypeUtilService, identificationService, collectedDataFactory);
     }
 
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        List<DeviceProtocolCapabilities> capabilities = new ArrayList<DeviceProtocolCapabilities>();
+        List<DeviceProtocolCapabilities> capabilities = new ArrayList<>();
         capabilities.add(DeviceProtocolCapabilities.PROTOCOL_SLAVE);
         return capabilities;
     }

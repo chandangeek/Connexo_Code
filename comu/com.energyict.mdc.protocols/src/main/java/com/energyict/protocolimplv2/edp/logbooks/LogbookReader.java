@@ -74,7 +74,7 @@ public class LogbookReader implements DeviceLogBookSupport {
                     throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
                 }
                 Calendar fromDate = getCalendar();
-                fromDate.setTime(logBookReader.getLastLogBook());
+                fromDate.setTimeInMillis(logBookReader.getLastLogBook().toEpochMilli());
                 try {
                     byte[] bufferData = profileGeneric.getBufferData(fromDate, getCalendar());
                     collectedLogBook.setMeterEvents(logBookParser.parseEvents(bufferData));

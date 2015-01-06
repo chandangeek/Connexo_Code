@@ -43,6 +43,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.Clock;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -67,6 +68,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     private ObisCode deviceLogicalName = ObisCode.fromString("0.0.42.0.0.255");
 
     private IskraMx372Messaging messageProtocol;
+    private final Clock clock;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final TopologyService topologyService;
     private final LoadProfileFactory loadProfileFactory;
@@ -76,8 +78,9 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     private static final int MBUS = 0x01;
 
     @Inject
-    public IskraMx372(OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
+    public IskraMx372(OrmClient ormClient, Clock clock, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
         super(ormClient);
+        this.clock = clock;
         this.readingTypeUtilService = readingTypeUtilService;
         this.topologyService = topologyService;
         this.loadProfileFactory = loadProfileFactory;
@@ -451,7 +454,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
 
     public IskraMx372Messaging getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new IskraMx372Messaging(this, this.topologyService, readingTypeUtilService, loadProfileFactory);
+            messageProtocol = new IskraMx372Messaging(this, clock, this.topologyService, readingTypeUtilService, loadProfileFactory);
         }
         return messageProtocol;
     }

@@ -74,7 +74,7 @@ public class G3GatewayEvents {
     private Array getMainLogBookBuffer(LogBookReader logBook) throws IOException {
         final Calendar from = Calendar.getInstance(dlmsSession.getTimeZone());
         final Calendar to = Calendar.getInstance(dlmsSession.getTimeZone());
-        from.setTime(logBook.getLastLogBook());
+        from.setTimeInMillis(logBook.getLastLogBook().toEpochMilli());
         byte[] rawData = dlmsSession.getCosemObjectFactory().getProfileGeneric(OBIS_CODE).getBufferData(from, to);
         AbstractDataType abstractData = AXDRDecoder.decode(rawData);
         return abstractData.getArray();

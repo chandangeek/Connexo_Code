@@ -40,6 +40,7 @@ import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -69,6 +70,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     private Dsmr23Messaging dsmr23Messaging;
     protected OfflineDevice offlineDevice;
     private DlmsSecuritySupport dlmsSecuritySupport;
+    private final Clock clock;
     private final PropertySpecService propertySpecService;
     private final SocketService socketService;
     private final SerialComponentService serialComponentService;
@@ -79,7 +81,8 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     private final CollectedDataFactory collectedDataFactory;
     private final LoadProfileFactory loadProfileFactory;
 
-    protected AbstractDlmsProtocol(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
+    protected AbstractDlmsProtocol(Clock clock, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
+        this.clock = clock;
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
         this.serialComponentService = serialComponentService;
@@ -200,7 +203,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     protected Dsmr23Messaging getDsmr23Messaging() {
         if (dsmr23Messaging == null) {
-            dsmr23Messaging = new Dsmr23Messaging(new Dsmr23MessageExecutor(this, topologyService, this.issueService, this.readingTypeUtilService, this.collectedDataFactory, this.loadProfileFactory), topologyService);
+            dsmr23Messaging = new Dsmr23Messaging(new Dsmr23MessageExecutor(this, clock, topologyService, this.issueService, this.readingTypeUtilService, this.collectedDataFactory, this.loadProfileFactory), topologyService);
         }
         return dsmr23Messaging;
     }

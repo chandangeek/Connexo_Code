@@ -245,7 +245,7 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
             pd.setChannelInfos(LoadProfileSerialNumberChannelInfoMap.get(lpro.getDeviceIdentifier()).get(lpro.getProfileObisCode()));
 
             Calendar cal = Calendar.getInstance(getProtocol().getTimeZone());
-            cal.setTime(lpro.getStartReadingTime());
+            cal.setTimeInMillis(lpro.getStartReadingTime().toEpochMilli());
 
             if (timeDuration == 0) { //monthly
                 cal.set(Calendar.DAY_OF_MONTH, 1);

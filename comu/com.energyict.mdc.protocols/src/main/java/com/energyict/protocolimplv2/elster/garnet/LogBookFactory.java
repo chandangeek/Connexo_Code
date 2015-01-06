@@ -63,10 +63,10 @@ public class LogBookFactory implements DeviceLogBookSupport {
 
             Date eventDate = null;
             int currentEventNr = totalNrOfEvents;
-            while ((currentEventNr > 0) && (eventDate == null || eventDate.after(logBookReader.getLastLogBook()))) {
+            while ((currentEventNr > 0) && (eventDate == null || eventDate.after(Date.from(logBookReader.getLastLogBook())))) {
                 LogBookEventResponseStructure logBookEvent = getDeviceProtocol().getRequestFactory().readLogBookEvent(currentEventNr);
                 eventDate = logBookEvent.getDateTimeOfEvent().getDate();
-                if (logBookEvent.getDateTimeOfEvent().getDate().after(logBookReader.getLastLogBook())) {
+                if (logBookEvent.getDateTimeOfEvent().getDate().after(Date.from(logBookReader.getLastLogBook()))) {
                     if (logBookEvent.getSourceOfEvent().getAddress() == concentratorId) {   // The event is not inherited from a downstream concentrator
                         meterEvents.add(createMeterProtocolEventFor(logBookEvent));
                     }

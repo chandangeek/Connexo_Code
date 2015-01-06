@@ -17,6 +17,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23Messaging;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.time.Clock;
 
 /**
  * Copyrights EnergyICT
@@ -26,13 +27,13 @@ import java.io.IOException;
 public class Mx382 extends AbstractSmartNtaProtocol {
 
     @Inject
-    public Mx382(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
-        super(topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
+    public Mx382(Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
+        super(clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
     }
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this, this.getTopologyService()));
+        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this, this.getClock(), this.getTopologyService()));
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {

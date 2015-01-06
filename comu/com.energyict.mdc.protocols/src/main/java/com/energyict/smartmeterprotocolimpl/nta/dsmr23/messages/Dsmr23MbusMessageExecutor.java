@@ -41,6 +41,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGLoad
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -54,11 +55,13 @@ import java.util.logging.Level;
  */
 public class Dsmr23MbusMessageExecutor extends MessageParser {
 
+    private final Clock clock;
     private final AbstractSmartNtaProtocol protocol;
     private final DlmsSession dlmsSession;
 
-    public Dsmr23MbusMessageExecutor(final AbstractSmartNtaProtocol protocol) {
+    public Dsmr23MbusMessageExecutor(final AbstractSmartNtaProtocol protocol, Clock clock) {
         this.protocol = protocol;
+        this.clock = clock;
         this.dlmsSession = this.protocol.getDlmsSession();
     }
 
@@ -309,7 +312,7 @@ public class Dsmr23MbusMessageExecutor extends MessageParser {
                 ((LGLoadProfileBuilder) loadProfileBuilder).setFixMBusToDate(false);    //Don't subtract 15 minutes from the to date
             }
 
-            LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()), msgEntry);
+            LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(this.clock, builder.getLoadProfileReader()), msgEntry);
             final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
             final List<ProfileData> profileDatas = this.protocol.getLoadProfileData(Arrays.asList(lpr));
 
@@ -408,7 +411,15 @@ public class Dsmr23MbusMessageExecutor extends MessageParser {
      */
     private LoadProfileReader checkLoadProfileReader(final LoadProfileReader lpr, final MessageEntry msgEntry) {
         if (lpr.getProfileObisCode().equalsIgnoreBChannel(ObisCode.fromString("0.x.24.3.0.255"))) {
-            return new LoadProfileReader(lpr.getProfileObisCode(), lpr.getStartReadingTime(), lpr.getEndReadingTime(), lpr.getLoadProfileId(), lpr.getDeviceIdentifier(), lpr.getChannelInfos(), msgEntry.getSerialNumber(), lpr.getLoadProfileIdentifier());
+            return new LoadProfileReader(
+                    this.clock,
+                    lpr.getProfileObisCode(),
+                    lpr.getStartReadingTime(), lpr.getEndReadingTime(),
+                    lpr.getLoadProfileId(),
+                    lpr.getDeviceIdentifier(),
+                    lpr.getChannelInfos(),
+                    msgEntry.getSerialNumber(),
+                    lpr.getLoadProfileIdentifier());
         } else {
             return lpr;
         }

@@ -23,6 +23,7 @@ import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -185,7 +186,7 @@ public class LoadProfileBuilder {
                     try {
                         int profileInterval = getProfileInterval(lpr.getProfileObisCode());
                         CTRObjectID objectID = getCorrectedChannelObjectID(channel.getChannelObisCode(), profileInterval);
-                        ProfileChannel profileChannel = new ProfileChannel(meterProtocol.getRequestFactory(), getStartOfGasDayParser(), objectID, profileInterval, lpr.getStartReadingTime(), lpr.getEndReadingTime());
+                        ProfileChannel profileChannel = new ProfileChannel(meterProtocol.getRequestFactory(), getStartOfGasDayParser(), objectID, profileInterval, Date.from(lpr.getStartReadingTime()), Date.from(lpr.getEndReadingTime()));
                         meterProtocol.getLogger().info("Reading profile for channel [" + channel.getName() + "]");
                         channelIntervalData = profileChannel.getProfileData().getIntervalDatas();
                         collectedIntervalData = mergeChannelIntervalData(collectedIntervalData, channelIntervalData);

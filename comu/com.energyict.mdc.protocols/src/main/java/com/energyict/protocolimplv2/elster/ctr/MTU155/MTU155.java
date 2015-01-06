@@ -369,7 +369,7 @@ public class MTU155 implements DeviceProtocol {
             collectedLogBook = this.collectedDataFactory.createCollectedLogBook(logBook.getLogBookIdentifier());
             if (logBook.getLogBookObisCode().equals(LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE)) {
                 try {
-                    Date lastLogBookReading = logBook.getLastLogBook();
+                    Date lastLogBookReading = Date.from(logBook.getLastLogBook());
                     CTRMeterEvent meterEvent = new CTRMeterEvent(getRequestFactory());
                     List<MeterProtocolEvent> meterProtocolEvents = MeterEvent.mapMeterEventsToMeterProtocolEvents(
                             meterEvent.getMeterEvents(lastLogBookReading));

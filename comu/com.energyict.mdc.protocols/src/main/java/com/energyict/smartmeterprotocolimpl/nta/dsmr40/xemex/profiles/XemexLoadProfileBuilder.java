@@ -42,9 +42,9 @@ public class XemexLoadProfileBuilder extends LGLoadProfileBuilder {
                 profileData = new ProfileData(lpr.getLoadProfileId());
                 profileData.setChannelInfos(getChannelInfoMap().get(lpr));
                 Calendar fromCalendar = Calendar.getInstance(getMeterProtocol().getTimeZone());
-                fromCalendar.setTime(lpr.getStartReadingTime());
+                fromCalendar.setTimeInMillis(lpr.getStartReadingTime().toEpochMilli());
                 Calendar toCalendar = Calendar.getInstance(getMeterProtocol().getTimeZone());
-                toCalendar.setTime(lpr.getEndReadingTime());
+                toCalendar.setTimeInMillis(lpr.getEndReadingTime().toEpochMilli());
 
                 XemexDSMRProfileIntervals intervals = new XemexDSMRProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), LGDLMSProfileIntervals.DefaultClockMask,
                         getStatusMasksMap().get(lpr), -1, getProfileIntervalStatusBits());

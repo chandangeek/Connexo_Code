@@ -15,6 +15,8 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.eventhandling.DSMR40Event
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExecutor;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging;
 
+import java.time.Clock;
+
 /**
  * Abstract class to group functionality for all <b>DSMR4.0</b> protocols
  */
@@ -25,13 +27,13 @@ public abstract class AbstractSmartDSMR40NtaProtocol extends AbstractSmartNtaPro
      */
     protected DSMR40EventProfile eventProfile;
 
-    public AbstractSmartDSMR40NtaProtocol(TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
-        super(topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
+    public AbstractSmartDSMR40NtaProtocol(Clock clock, TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
+        super(clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
     }
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.getTopologyService()));
+        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.getClock(), this.getTopologyService()));
     }
 
     /**

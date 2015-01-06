@@ -19,7 +19,7 @@ public class Dsmr40MbusProtocol extends MbusDevice {
 
     @Inject
     public Dsmr40MbusProtocol(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
-        super(topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
+        super(clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
     }
 
     @Override

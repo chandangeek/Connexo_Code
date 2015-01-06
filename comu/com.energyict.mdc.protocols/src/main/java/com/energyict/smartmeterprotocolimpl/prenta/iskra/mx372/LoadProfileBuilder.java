@@ -203,9 +203,9 @@ public class LoadProfileBuilder {
                 int channelMask = constructChannelMask(captureObjects, lpc);
 
                 Calendar fromCalendar = Calendar.getInstance(meterProtocol.getTimeZone());
-                fromCalendar.setTime(lpr.getStartReadingTime());
+                fromCalendar.setTimeInMillis(lpr.getStartReadingTime().toEpochMilli());
                 Calendar toCalendar = Calendar.getInstance(meterProtocol.getTimeZone());
-                toCalendar.setTime(lpr.getEndReadingTime());
+                toCalendar.setTimeInMillis(lpr.getEndReadingTime().toEpochMilli());
 
                 DLMSProfileIntervals intervals = new DLMSProfileIntervals( profile.getBufferData(fromCalendar,  toCalendar), clockMask, statusMask, channelMask, new IskraMx372ProfileIntervalStatusBits());
                 profileData.setIntervalDatas(intervals.parseIntervals(lpc.getProfileInterval(), meterProtocol.getTimeZone()));

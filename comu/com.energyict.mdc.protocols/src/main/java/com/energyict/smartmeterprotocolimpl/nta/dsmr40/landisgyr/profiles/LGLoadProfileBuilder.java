@@ -14,9 +14,10 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuild
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -64,9 +65,9 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
             ObisCode lpObisCode = getMeterProtocol().getPhysicalAddressCorrectedObisCode(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
             LoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
             if (getChannelInfoMap().containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
-                Date toDate = lpr.getEndReadingTime();
+                Instant toDate = lpr.getEndReadingTime();
                 if (fixMBusToDate && !lpr.getMeterSerialNumber().equals(getMeterProtocol().getSerialNumber())) {     //MBus load profile
-                    toDate.setTime(toDate.getTime() - 900000);                                      //Read to current time - 15 minutes, see RFC 168
+                    toDate = toDate.minus(Duration.ofMinutes(15));                                      //Read to current time - 15 minutes, see RFC 168
                 }
                 fixMBusToDate = true;       //Reset to default for next LP requests
                 getMeterProtocol().getLogger().log(Level.INFO, "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + toDate);
@@ -75,9 +76,9 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
                 profileData = new ProfileData(lpr.getLoadProfileId());
                 profileData.setChannelInfos(getChannelInfoMap().get(lpr));
                 Calendar fromCalendar = Calendar.getInstance(getMeterProtocol().getTimeZone());
-                fromCalendar.setTime(lpr.getStartReadingTime());
+                fromCalendar.setTimeInMillis(lpr.getStartReadingTime().toEpochMilli());
                 Calendar toCalendar = Calendar.getInstance(getMeterProtocol().getTimeZone());
-                toCalendar.setTime(toDate);
+                toCalendar.setTimeInMillis(toDate.toEpochMilli());
 
                 LGDLMSProfileIntervals intervals = new LGDLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), LGDLMSProfileIntervals.DefaultClockMask,
                         getStatusMasksMap().get(lpr), this.channelMaskMap.get(lpr), getProfileIntervalStatusBits());

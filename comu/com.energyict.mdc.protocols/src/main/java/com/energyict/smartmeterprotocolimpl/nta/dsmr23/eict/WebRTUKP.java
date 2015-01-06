@@ -29,12 +29,12 @@ public class WebRTUKP extends AbstractSmartNtaProtocol implements HHUEnabler {
 
     @Inject
     public WebRTUKP(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
-        super(topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
+        super(clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
     }
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this, this.getTopologyService()));
+        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this, clock, this.getTopologyService()));
     }
 
     /**

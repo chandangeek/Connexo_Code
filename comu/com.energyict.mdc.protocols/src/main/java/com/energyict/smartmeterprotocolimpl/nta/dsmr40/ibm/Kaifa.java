@@ -16,6 +16,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.KaifaDsmr40Messa
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.time.Clock;
 
 /**
  * Copyrights EnergyICT
@@ -28,8 +29,8 @@ public class Kaifa extends E350 {
     private Dsmr40Messaging messageProtocol = null;
 
     @Inject
-    public Kaifa(TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
-        super(topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
+    public Kaifa(Clock clock, TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
+        super(clock, topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
     }
 
     public String getProtocolDescription() {

@@ -337,9 +337,9 @@ public class ZigbeeGasLoadProfile {
                 profileData = new ProfileData(lpr.getLoadProfileId());
                 profileData.setChannelInfos(this.channelInfoMap.get(lpr));
                 Calendar fromCalendar = Calendar.getInstance(this.zigbeeGas.getTimeZone());
-                fromCalendar.setTime(lpr.getStartReadingTime());
+                fromCalendar.setTimeInMillis(lpr.getStartReadingTime().toEpochMilli());
                 Calendar toCalendar = Calendar.getInstance(this.zigbeeGas.getTimeZone());
-                toCalendar.setTime(lpr.getEndReadingTime());
+                toCalendar.setTimeInMillis(lpr.getEndReadingTime().toEpochMilli());
 
                 List<Integer> maskList = this.maskMask.get(lpr);
                 ZigbeeGasDLMSProfileIntervals intervals = new ZigbeeGasDLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar),  maskList.get(0), maskList.get(1), maskList.get(2), null);

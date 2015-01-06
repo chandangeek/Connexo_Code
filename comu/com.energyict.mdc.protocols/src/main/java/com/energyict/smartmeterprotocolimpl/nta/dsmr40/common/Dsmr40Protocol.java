@@ -32,7 +32,7 @@ public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
 
     @Inject
     public Dsmr40Protocol(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
-        super(topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
+        super(clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
     }
 
     @Override

@@ -1,11 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
-import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessageExecutor;
+
+import java.time.Clock;
 
 /**
  * Copyrights EnergyICT
@@ -15,9 +16,8 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessag
  */
 public class Dsmr40MbusMessageExecutor extends Dsmr23MbusMessageExecutor {
 
-
-    public Dsmr40MbusMessageExecutor(AbstractSmartNtaProtocol protocol, TopologyService topologyService) {
-        super(protocol);
+    public Dsmr40MbusMessageExecutor(AbstractSmartNtaProtocol protocol, Clock clock) {
+        super(protocol, clock);
     }
 
     /**
@@ -30,4 +30,5 @@ public class Dsmr40MbusMessageExecutor extends Dsmr23MbusMessageExecutor {
         MessageResult messageResult = super.doReadLoadProfileRegisters(msgEntry);
         return new LoadProfileToRegisterParser().parse(messageResult);
     }
+
 }

@@ -86,11 +86,11 @@ public class IskraMx372MbusMessaging  extends GenericMessaging implements Messag
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService, this.loadProfileFactory);
+        return new LegacyLoadProfileRegisterMessageBuilder(clock, this.topologyService, this.loadProfileFactory);
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder(this.topologyService, this.loadProfileFactory);
+        return new LegacyPartialLoadProfileMessageBuilder(clock, this.topologyService, this.loadProfileFactory);
     }
 
 }

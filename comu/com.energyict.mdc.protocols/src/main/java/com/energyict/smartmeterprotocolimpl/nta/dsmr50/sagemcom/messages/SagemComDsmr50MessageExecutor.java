@@ -13,6 +13,7 @@ import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNt
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages.Dsmr50MessageExecutor;
 
 import java.text.ParseException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -26,8 +27,8 @@ import java.util.List;
  */
 public class SagemComDsmr50MessageExecutor extends Dsmr50MessageExecutor {
 
-    public SagemComDsmr50MessageExecutor(AbstractSmartNtaProtocol protocol, TopologyService topologyService) {
-        super(protocol, topologyService);
+    public SagemComDsmr50MessageExecutor(AbstractSmartNtaProtocol protocol, Clock clock, TopologyService topologyService) {
+        super(protocol, clock, topologyService);
     }
 
     @Override
@@ -40,7 +41,7 @@ public class SagemComDsmr50MessageExecutor extends Dsmr50MessageExecutor {
      */
     protected Array sort(Array specialDays) {
 
-        List<Date> startDates = new ArrayList<Date>();
+        List<Date> startDates = new ArrayList<>();
         for (AbstractDataType specialDay : specialDays) {
             Structure structure = (Structure) specialDay;
             startDates.add(parseDate(structure.getDataType(1).getOctetString()));

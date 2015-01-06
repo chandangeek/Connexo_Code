@@ -471,9 +471,9 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                     profileData = new ProfileData(lpr.getLoadProfileId());
                     profileData.setChannelInfos(channelInfos);
                     Calendar fromCalendar = Calendar.getInstance(this.meterProtocol.getTimeZone());
-                    fromCalendar.setTime(lpr.getStartReadingTime());
+                    fromCalendar.setTimeInMillis(lpr.getStartReadingTime().toEpochMilli());
                     Calendar toCalendar = Calendar.getInstance(this.meterProtocol.getTimeZone());
-                    toCalendar.setTime(lpr.getEndReadingTime());
+                    toCalendar.setTimeInMillis(lpr.getEndReadingTime().toEpochMilli());
 
                     DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), DLMSProfileIntervals.DefaultClockMask,
                             this.statusMasksMap.get(lpr), this.channelMaskMap.get(lpr), new DSMRProfileIntervalStatusBits());

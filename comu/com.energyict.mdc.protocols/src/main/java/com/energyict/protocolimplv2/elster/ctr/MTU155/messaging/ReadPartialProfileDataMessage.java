@@ -49,7 +49,7 @@ public class ReadPartialProfileDataMessage extends AbstractMTU155Message {
 
     private CollectedMessage readPartialProfileData(OfflineDeviceMessage message, String loadProfileXML, Date fromDate, Date toDate) throws CTRException {
         try {
-            LegacyPartialLoadProfileMessageBuilder builder = new LegacyPartialLoadProfileMessageBuilder(this.topologyService, loadProfileFactory);
+            LegacyPartialLoadProfileMessageBuilder builder = new LegacyPartialLoadProfileMessageBuilder(clock, this.topologyService, loadProfileFactory);
             builder.fromXml(loadProfileXML);
             builder.setStartReadingTime(fromDate);
             builder.setEndReadingTime(toDate);

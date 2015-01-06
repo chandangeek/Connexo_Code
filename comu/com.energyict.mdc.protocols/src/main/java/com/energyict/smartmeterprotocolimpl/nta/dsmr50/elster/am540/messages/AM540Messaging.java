@@ -16,6 +16,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,17 +70,19 @@ public class AM540Messaging extends G3Messaging {
     };
 
     protected final AM540 protocol;
+    private final Clock clock;
     private final TopologyService topologyService;
     private Dsmr40Messaging dsmr40Messaging;
 
-    public AM540Messaging(AM540 protocol, TopologyService topologyService) {
-        this(protocol, topologyService, ANNOTATED_MESSAGES);
+    public AM540Messaging(AM540 protocol, TopologyService topologyService, Clock clock) {
+        this(protocol, topologyService, ANNOTATED_MESSAGES, clock);
     }
 
-    public AM540Messaging(AM540 protocol, TopologyService topologyService, Class<? extends AnnotatedMessage>[] messages) {
+    public AM540Messaging(AM540 protocol, TopologyService topologyService, Class<? extends AnnotatedMessage>[] messages, Clock clock) {
         super(protocol.getDlmsSession(), messages);
         this.protocol = protocol;
         this.topologyService = topologyService;
+        this.clock = clock;
     }
 
     protected TopologyService getTopologyService() {
@@ -156,7 +159,7 @@ public class AM540Messaging extends G3Messaging {
     }
 
     protected Dsmr50MessageExecutor getMessageExecutor() {
-        return new Dsmr50MessageExecutor(protocol, this.topologyService);
+        return new Dsmr50MessageExecutor(protocol, this.clock, this.topologyService);
     }
 
     @Override

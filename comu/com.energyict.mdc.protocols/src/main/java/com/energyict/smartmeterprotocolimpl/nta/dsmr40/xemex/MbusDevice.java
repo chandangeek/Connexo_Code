@@ -14,6 +14,7 @@ import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbus
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages.XemexMbusMessaging;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,9 +24,12 @@ import java.util.List;
  */
 public class MbusDevice extends AbstractNtaMbusDevice {
 
+    private final Clock clock;
+
     @Inject
-    public MbusDevice(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
+    public MbusDevice(Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
         super(topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
+        this.clock = clock;
     }
 
     @Override
@@ -57,11 +61,11 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder(this.getTopologyService(), this.getLoadProfileFactory());
+        return new LegacyLoadProfileRegisterMessageBuilder(this.clock, this.getTopologyService(), this.getLoadProfileFactory());
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder(this.getTopologyService(), this.getLoadProfileFactory());
+        return new LegacyPartialLoadProfileMessageBuilder(this.clock, this.getTopologyService(), this.getLoadProfileFactory());
     }
 
 }
