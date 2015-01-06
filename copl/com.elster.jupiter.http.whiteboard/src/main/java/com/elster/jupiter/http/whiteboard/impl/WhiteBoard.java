@@ -6,9 +6,11 @@ import com.elster.jupiter.http.whiteboard.UnderlyingNetworkException;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.rest.util.BinderProvider;
+import com.elster.jupiter.system.app.SysAppService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.app.MdcAppService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -37,6 +39,9 @@ public class WhiteBoard extends Application implements BinderProvider {
     private volatile LicenseService licenseService;
     private volatile MessageService messageService;
     private volatile TransactionService transactionService;
+    private volatile SysAppService sysAppService;
+    private volatile MdcAppService mdcAppService;
+
     private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
 
     private final static String SESSION_TIMEOUT = "com.elster.jupiter.session.timeout";
@@ -79,6 +84,15 @@ public class WhiteBoard extends Application implements BinderProvider {
         this.messageService = messageService;
     }
 
+    @Reference
+    public void setSysAppService(SysAppService sysAppService) {
+        this.sysAppService = sysAppService;
+    }
+
+    @Reference
+      public void setMdcAppService(MdcAppService mdcAppService) {
+        this.mdcAppService = mdcAppService;
+    }
     @Reference
     public void setEventAdminService(EventAdmin eventAdminService) {
         this.eventAdminHolder.set(eventAdminService);
@@ -162,6 +176,14 @@ public class WhiteBoard extends Application implements BinderProvider {
 
     LicenseService getLicenseService() {
         return licenseService;
+    }
+
+    SysAppService getSysAppService() {
+        return sysAppService;
+    }
+
+    MdcAppService getMdcAppService() {
+        return mdcAppService;
     }
 
     List<App> getApps() {
