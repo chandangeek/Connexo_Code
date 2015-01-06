@@ -14,6 +14,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
 import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
@@ -260,6 +261,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public void storeNeighbours(DeviceIdentifier sourceDeviceIdentifier, List<TopologyNeighbour> topologyNeighbours) {
+        this.actual.storeNeighbours(sourceDeviceIdentifier, topologyNeighbours);
+    }
+
+    @Override
     public ComSession createComSession(ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator) {
         return this.actual.createComSession(builder, successIndicator);
     }
@@ -329,6 +335,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
         @Override
         public void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegment) {
+
+        }
+
+        @Override
+        public void storeNeighbours(DeviceIdentifier sourceDeviceIdentifier, List<TopologyNeighbour> topologyNeighbours) {
 
         }
 

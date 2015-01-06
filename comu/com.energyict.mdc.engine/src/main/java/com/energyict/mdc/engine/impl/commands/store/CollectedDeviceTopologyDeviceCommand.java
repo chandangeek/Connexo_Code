@@ -12,6 +12,7 @@ import com.energyict.mdc.engine.impl.events.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.engine.impl.meterdata.CollectedDeviceData;
 import com.energyict.mdc.engine.impl.meterdata.DeviceTopology;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -29,7 +30,7 @@ import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.S
 
 public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
 
-    private final DeviceTopology deviceTopology;
+    private final CollectedTopology deviceTopology;
     private final ComTaskExecution comTaskExecution;
     private final MeterDataStoreCommand meterDataStoreCommand;
     private boolean topologyChanged;
@@ -53,7 +54,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
      */
     private List<DeviceCommand> collectedDeviceInfoCommands;
 
-    public CollectedDeviceTopologyDeviceCommand(DeviceTopology deviceTopology, ComTaskExecution comTaskExecution, MeterDataStoreCommand meterDataStoreCommand) {
+    public CollectedDeviceTopologyDeviceCommand(CollectedTopology deviceTopology, ComTaskExecution comTaskExecution, MeterDataStoreCommand meterDataStoreCommand) {
         super();
         this.deviceTopology = deviceTopology;
         this.comTaskExecution = comTaskExecution;
@@ -97,6 +98,13 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
         if (!isVerifyTopologyAction()) {
             doExecuteCollectedDeviceInfoCommands(comServerDAO);
             doStorePathSegments(comServerDAO);
+            doStoreNeighbours(comServerDAO);
+        }
+    }
+
+    private void doStoreNeighbours(ComServerDAO comServerDAO) {
+        if(this.deviceTopology.getTopologyNeighbours().size() >= 1){
+            comServerDAO.storeNeighbours(this.deviceTopology.getDeviceIdentifier(), this.deviceTopology.getTopologyNeighbours());
         }
     }
 

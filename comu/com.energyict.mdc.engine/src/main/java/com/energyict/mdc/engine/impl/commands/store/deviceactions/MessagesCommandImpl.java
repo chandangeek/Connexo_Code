@@ -40,9 +40,11 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
     private List<Integer> allowedCategories;
 
     private List<CollectedMessageList> messagesCollectedData = new ArrayList<>(2);
+    private ComTaskExecution comTaskExecution;
 
     public MessagesCommandImpl(final MessagesTask messagesTask, final OfflineDevice device, final CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
         super(commandRoot);
+        this.comTaskExecution = comTaskExecution;
         if (messagesTask == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "messagesTask");
         }
@@ -167,6 +169,7 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         messagesCollectedData.add(deviceProtocol.updateSentMessages(this.sentMessages));
         messagesCollectedData.add(deviceProtocol.executePendingMessages(this.pendingMessages));
+        messagesCollectedData.stream().forEach(collectedMessageList -> collectedMessageList.getCollectedMessages().forEach(collectedMessage -> collectedMessage.setDataCollectionConfiguration(comTaskExecution)));
         addListOfCollectedDataItems(messagesCollectedData);
     }
 

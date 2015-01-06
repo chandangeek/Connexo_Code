@@ -55,6 +55,6 @@ public class DeviceProtocolMessageAcknowledgement extends CollectedDeviceData im
 
     @Override
     public boolean isConfiguredIn(DataCollectionConfiguration configuration) {
-        return true;
+        return configuration.isConfiguredToSendMessages();
     }
 }

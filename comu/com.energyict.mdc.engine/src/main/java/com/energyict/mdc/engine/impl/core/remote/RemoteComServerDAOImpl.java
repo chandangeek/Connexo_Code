@@ -23,6 +23,7 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
 import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
@@ -228,6 +229,11 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegment) {
+
+    }
+
+    @Override
+    public void storeNeighbours(DeviceIdentifier sourceDeviceIdentifier, List<TopologyNeighbour> topologyNeighbours) {
 
     }
 

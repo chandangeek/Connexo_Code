@@ -67,6 +67,11 @@ public class DeviceProtocolMessageWithCollectedRegisterData extends CollectedDev
     }
 
     @Override
+    public void setDataCollectionConfiguration(DataCollectionConfiguration configuration) {
+
+    }
+
+    @Override
     public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
         return new CollectedRegisterListDeviceCommand(this, meterDataStoreCommand);
     }

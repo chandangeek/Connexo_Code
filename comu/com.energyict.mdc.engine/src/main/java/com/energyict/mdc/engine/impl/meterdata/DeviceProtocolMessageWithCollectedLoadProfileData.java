@@ -40,7 +40,6 @@ public class DeviceProtocolMessageWithCollectedLoadProfileData extends Collected
         return this.deviceMessageIdentifier;
     }
 
-
     @Override
     public DeviceMessageStatus getNewDeviceMessageStatus() {
         return this.deviceMessageStatus;
@@ -58,6 +57,11 @@ public class DeviceProtocolMessageWithCollectedLoadProfileData extends Collected
     @Override
     public void setDeviceProtocolInformation(String deviceProtocolInformation) {
         this.deviceProtocolInformation = deviceProtocolInformation;
+    }
+
+    @Override
+    public void setDataCollectionConfiguration(DataCollectionConfiguration configuration) {
+
     }
 
     @Override

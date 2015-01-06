@@ -90,6 +90,11 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     }
 
     @Override
+    public CollectedMessage createCollectedMessageTopology(MessageIdentifier messageIdentifier, CollectedTopology collectedTopology) {
+        return new DeviceProtocolMessageWithCollectedTopology(messageIdentifier, collectedTopology);
+    }
+
+    @Override
     public CollectedDeviceCache createCollectedDeviceCache(DeviceIdentifier deviceIdentifier) {
         return new UpdatedDeviceCache(deviceIdentifier);
     }

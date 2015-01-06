@@ -1,53 +1,54 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.commands.store.CollectedDeviceTopologyDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.engine.impl.commands.store.NoopDeviceCommand;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
 /**
+ * An implementation of a CollectedMessage with additional CollectedTopology
+ * <p>
  * Copyrights EnergyICT
- * Date: 21/03/13
- * Time: 16:27
+ * Date: 1/5/15
+ * Time: 1:59 PM
  */
-public class DeviceProtocolMessage extends CollectedDeviceData implements CollectedMessage {
+public class DeviceProtocolMessageWithCollectedTopology extends CollectedDeviceData implements CollectedMessage {
 
-    private final MessageIdentifier deviceMessageIdentifier;
-
+    private final MessageIdentifier messageIdentifier;
+    private final CollectedTopology collectedTopology;
     private DeviceMessageStatus deviceMessageStatus;
     private String deviceProtocolInformation;
+    private ComTaskExecution comTaskExecution;
 
-    public DeviceProtocolMessage(MessageIdentifier deviceMessageIdentifier) {
-        this.deviceMessageIdentifier = deviceMessageIdentifier;
-    }
-
-    @Override
-    public boolean isConfiguredIn(DataCollectionConfiguration configuration) {
-        return configuration.isConfiguredToSendMessages();
+    public DeviceProtocolMessageWithCollectedTopology(MessageIdentifier messageIdentifier, CollectedTopology collectedTopology) {
+        this.messageIdentifier = messageIdentifier;
+        this.collectedTopology = collectedTopology;
     }
 
     @Override
     public MessageIdentifier getMessageIdentifier() {
-        return this.deviceMessageIdentifier;
+        return messageIdentifier;
     }
-
 
     @Override
     public DeviceMessageStatus getNewDeviceMessageStatus() {
         return this.deviceMessageStatus;
     }
 
+    @Override
     public void setNewDeviceMessageStatus(DeviceMessageStatus deviceMessageStatus) {
         this.deviceMessageStatus = deviceMessageStatus;
     }
 
     @Override
     public String getDeviceProtocolInformation() {
-        return this.deviceProtocolInformation;
+        return deviceProtocolInformation;
     }
 
     @Override
@@ -57,11 +58,16 @@ public class DeviceProtocolMessage extends CollectedDeviceData implements Collec
 
     @Override
     public void setDataCollectionConfiguration(DataCollectionConfiguration configuration) {
-
+        comTaskExecution = (ComTaskExecution) configuration;
     }
 
     @Override
     public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
-        return new NoopDeviceCommand();
+        return new CollectedDeviceTopologyDeviceCommand(this.collectedTopology, comTaskExecution, meterDataStoreCommand);
+    }
+
+    @Override
+    public boolean isConfiguredIn(DataCollectionConfiguration configuration) {
+        return configuration.isConfiguredToSendMessages();
     }
 }

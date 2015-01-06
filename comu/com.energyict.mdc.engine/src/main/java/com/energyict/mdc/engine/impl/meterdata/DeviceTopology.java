@@ -7,6 +7,7 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
+import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
 import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
@@ -49,6 +50,7 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
     private List<CollectedDeviceInfo> additionalCollectedDeviceInfo;
 
     private List<TopologyPathSegment> topologyPathSegments;
+    private List<TopologyNeighbour> topologyNeighbours;
 
     /**
      * Default constructor
@@ -65,6 +67,7 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
         this.slaveDeviceIdentifiers = slaveDeviceIdentifiers;
         this.additionalCollectedDeviceInfo = new ArrayList<>();
         this.topologyPathSegments = new ArrayList<>();
+        this.topologyNeighbours = new ArrayList<>();
     }
 
     @Override
@@ -132,7 +135,17 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
     }
 
     @Override
+    public void addTopologyNeighbour(DeviceIdentifier neighbour, int modulationSchema, long toneMap, int modulation, int txGain, int txRes, int txCoeff, int lqi, int phaseDifferential, int tmrValidTime, int neighbourValidTime) {
+        topologyNeighbours.add(new TopologyNeighbour(neighbour, modulationSchema, toneMap, modulation, txGain, txRes, txCoeff, lqi, phaseDifferential, tmrValidTime, neighbourValidTime));
+    }
+
+    @Override
     public List<TopologyPathSegment> getTopologyPathSegments() {
         return this.topologyPathSegments;
+    }
+
+    @Override
+    public List<TopologyNeighbour> getTopologyNeighbours() {
+        return this.topologyNeighbours;
     }
 }
