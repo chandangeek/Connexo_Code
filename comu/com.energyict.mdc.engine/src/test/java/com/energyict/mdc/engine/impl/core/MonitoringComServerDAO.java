@@ -34,6 +34,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 
 import java.text.DateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -245,7 +246,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Date lastReading) {
+    public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading) {
         this.actual.updateLastReadingFor(loadProfileIdentifier, lastReading);
     }
 
@@ -318,7 +319,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Date lastReading) {
+        public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading) {
 
         }
 

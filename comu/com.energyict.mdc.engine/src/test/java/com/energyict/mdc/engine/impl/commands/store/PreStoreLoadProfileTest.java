@@ -28,6 +28,8 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierTy
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+
+import java.time.Instant;
 import java.util.Optional;
 
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -320,7 +322,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         when(comServerDAO.findOfflineLoadProfile(any(LoadProfileIdentifier.class))).thenReturn(offlineLoadProfile);
         DeviceIdentifier<Device> deviceIdentifier = (DeviceIdentifier<Device>) offlineLoadProfile.getDeviceIdentifier();
         when(comServerDAO.getDeviceIdentifierFor(any(LoadProfileIdentifier.class))).thenReturn(deviceIdentifier);
-        doCallRealMethod().when(comServerDAO).updateLastReadingFor(any(LoadProfileIdentifier.class), any(Date.class));
+        doCallRealMethod().when(comServerDAO).updateLastReadingFor(any(LoadProfileIdentifier.class), any(Instant.class));
         return comServerDAO;
     }
 

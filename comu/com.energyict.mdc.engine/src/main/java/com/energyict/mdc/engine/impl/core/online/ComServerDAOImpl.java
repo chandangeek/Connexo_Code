@@ -72,6 +72,7 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.text.DateFormat;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -684,7 +685,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Date lastReading) {
+    public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading) {
         LoadProfile loadProfile = (LoadProfile) loadProfileIdentifier.findLoadProfile();
         LoadProfile.LoadProfileUpdater loadProfileUpdater = loadProfile.getDevice().getLoadProfileUpdaterFor(loadProfile);
         loadProfileUpdater.setLastReadingIfLater(lastReading);

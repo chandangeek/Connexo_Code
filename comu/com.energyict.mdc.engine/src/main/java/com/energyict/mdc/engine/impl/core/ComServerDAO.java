@@ -30,6 +30,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 
 import java.text.DateFormat;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -407,9 +408,10 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
 
     public DeviceIdentifier<Device> getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier);
 
-    public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Date lastReading);
+    public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading);
 
     public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook);
 
     public void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegments);
+
 }
