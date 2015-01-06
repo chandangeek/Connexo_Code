@@ -1,7 +1,6 @@
 package com.elster.jupiter.yellowfin.rest.impl;
 
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.yellowfin.YellowfinService;
 
 import javax.inject.Inject;
@@ -36,6 +35,26 @@ public class YellowfinResource {
 		User user = (User) securityContext.getUserPrincipal();
 
 		yellowfinService.logout(user.getName());
+		String webServiceLoginToken = yellowfinService.login(user.getName());
+
+		YellowfinInfo info = new YellowfinInfo();
+		if(webServiceLoginToken!=null) {
+			info.token = webServiceLoginToken;
+			info.url = yellowfinService.getYellowfinUrl();
+		}
+		else{
+			throw new WebApplicationException(Response.Status.NOT_FOUND);
+		}
+		return info;
+	}
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/token")
+
+	public YellowfinInfo token(HttpServletResponse response, @Context SecurityContext securityContext) {
+		User user = (User) securityContext.getUserPrincipal();
+
+		//yellowfinService.logout(user.getName());
 		String webServiceLoginToken = yellowfinService.login(user.getName());
 
 		YellowfinInfo info = new YellowfinInfo();
