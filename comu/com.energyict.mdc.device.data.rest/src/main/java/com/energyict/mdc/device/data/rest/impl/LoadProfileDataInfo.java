@@ -1,9 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.JsonInstantAdapter;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.rest.IntervalInfo;
@@ -19,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by bvn on 8/1/14.
@@ -43,12 +42,13 @@ public class LoadProfileDataInfo {
 
     private static LoadProfileDataInfo getLoadProfileDataInfo(LoadProfileReading loadProfileReading, DeviceValidation deviceValidation, Thesaurus thesaurus, Clock clock, List<Channel> channels) {
         LoadProfileDataInfo channelIntervalInfo = new LoadProfileDataInfo();
-        channelIntervalInfo.interval= IntervalInfo.from(loadProfileReading.getInterval());
-        channelIntervalInfo.readingTime=loadProfileReading.getReadingTime();
-        channelIntervalInfo.intervalFlags=new ArrayList<>();
-        for (ProfileStatus.Flag flag : loadProfileReading.getFlags()) {
-            channelIntervalInfo.intervalFlags.add(thesaurus.getString(flag.name(), flag.name()));
-        }
+        channelIntervalInfo.interval = IntervalInfo.from(loadProfileReading.getRange());
+        channelIntervalInfo.readingTime = loadProfileReading.getReadingTime();
+        channelIntervalInfo.intervalFlags = loadProfileReading
+                .getFlags()
+                .stream()
+                .map(flag -> thesaurus.getString(flag.name(), flag.name()))
+                .collect(Collectors.toList());
         if (loadProfileReading.getChannelValues().isEmpty()){
             for (Channel channel : channels) {
                 channelIntervalInfo.channelData.put(channel.getId(), null);
@@ -81,5 +81,5 @@ public class LoadProfileDataInfo {
     private static BigDecimal getRoundedBigDecimal(BigDecimal value, Channel channel) {
         return value != null ? value.setScale(channel.getChannelSpec().getNbrOfFractionDigits(), BigDecimal.ROUND_UP) : value;
     }
-}
 
+}

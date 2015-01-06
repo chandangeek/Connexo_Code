@@ -60,7 +60,7 @@ public class ChannelDataInfo {
         List<ChannelDataInfo> channelData = new ArrayList<>();
         for (LoadProfileReading loadProfileReading : loadProfileReadings) {
             ChannelDataInfo channelIntervalInfo = new ChannelDataInfo();
-            channelIntervalInfo.interval=IntervalInfo.from(loadProfileReading.getInterval());
+            channelIntervalInfo.interval=IntervalInfo.from(loadProfileReading.getRange());
             channelIntervalInfo.readingTime=loadProfileReading.getReadingTime();
             channelIntervalInfo.intervalFlags=new ArrayList<>();
             channelIntervalInfo.validationStatus = isValidationActive;
@@ -83,7 +83,7 @@ public class ChannelDataInfo {
                 channelIntervalInfo.modificationFlag = ReadingModificationFlag.REMOVED;
                 channelIntervalInfo.reportedDateTime = loadProfileReading.getReadingTime();
             }
- 
+
             if (valueOwnerChannel != null){
                 channelIntervalInfo.value = getRoundedBigDecimal(channelIntervalInfo.value, valueOwnerChannel);
                 channelIntervalInfo.collectedValue = getRoundedBigDecimal(channelIntervalInfo.collectedValue, valueOwnerChannel);

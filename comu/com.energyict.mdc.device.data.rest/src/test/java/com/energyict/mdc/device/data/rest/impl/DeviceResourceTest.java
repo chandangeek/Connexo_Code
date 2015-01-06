@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
@@ -42,6 +43,8 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+
+import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
 import org.assertj.core.data.MapEntry;
@@ -493,10 +496,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         final long startTime = 1388534400000L;
         long start = startTime;
         for (int i = 0; i < 2880; i++) {
-            loadProfileReadings.add(mockLoadProfileReading(loadProfile3, Interval.of(Instant.ofEpochMilli(start), Instant.ofEpochMilli(start + 900))));
+            loadProfileReadings.add(mockLoadProfileReading(loadProfile3, Ranges.openClosed(Instant.ofEpochMilli(start), Instant.ofEpochMilli(start + 900))));
             start += 900;
         }
-        when(loadProfile3.getChannelData(any(Interval.class))).thenReturn(loadProfileReadings);
+        when(loadProfile3.getChannelData(any(Range.class))).thenReturn(loadProfileReadings);
 
 
         Map response = target("/devices/mrid2/loadprofiles/3/data")
@@ -539,10 +542,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         final long startTime = 1388534400000L;
         long start = startTime;
         for (int i = 0; i < 2880; i++) {
-            loadProfileReadings.add(mockLoadProfileReading(loadProfile3, Interval.of(Instant.ofEpochMilli(start), Instant.ofEpochMilli(start + 900))));
+            loadProfileReadings.add(mockLoadProfileReading(loadProfile3, Ranges.openClosed(Instant.ofEpochMilli(start), Instant.ofEpochMilli(start + 900))));
             start += 900;
         }
-        when(channel1.getChannelData(any(Interval.class))).thenReturn(loadProfileReadings);
+        when(channel1.getChannelData(any(Range.class))).thenReturn(loadProfileReadings);
 
 
         Map response = target("/devices/mrid2/channels/7/data")
@@ -1108,13 +1111,13 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         return device;
     }
 
-    private LoadProfileReading mockLoadProfileReading(final LoadProfile loadProfile, Interval interval) {
+    private LoadProfileReading mockLoadProfileReading(final LoadProfile loadProfile, Range<Instant> interval) {
         LoadProfileReading loadProfileReading = mock(LoadProfileReading.class);
         IntervalReadingRecord intervalReadingRecord = mock(IntervalReadingRecord.class);
         when(intervalReadingRecord.getValue()).thenReturn(BigDecimal.TEN);
         when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProfileStatus.Flag.CORRUPTED));
         when(loadProfileReading.getReadingTime()).thenReturn(Instant.now());
-        when(loadProfileReading.getInterval()).thenReturn(interval);
+        when(loadProfileReading.getRange()).thenReturn(interval);
         Map<Channel, IntervalReadingRecord> map = new HashMap<>();
         for (Channel channel : loadProfile.getChannels()) {
             map.put(channel, intervalReadingRecord);

@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
@@ -69,7 +68,7 @@ public class NumericalReadingInfo extends ReadingInfo {
 
     @Override
     protected BaseReading createNew(Register register) {
-        return ReadingImpl.of(register.getReadingType().getMRID(), this.value, this.timeStamp.toInstant());
+        return ReadingImpl.of(register.getReadingType().getMRID(), this.value, this.timeStamp);
     }
 
 }

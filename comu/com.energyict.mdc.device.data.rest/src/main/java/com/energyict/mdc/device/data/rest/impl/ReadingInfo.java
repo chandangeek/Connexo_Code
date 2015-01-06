@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import java.util.Date;
+import java.time.Instant;
 
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
@@ -22,11 +22,11 @@ import java.util.Date;
 })
 public abstract class ReadingInfo {
     @JsonProperty("id")
-    public Date id;    
+    public Instant id;
     @JsonProperty("timeStamp")
-    public Date timeStamp;
+    public Instant timeStamp;
     @JsonProperty("reportedDateTime")
-    public Date reportedDateTime;
+    public Instant reportedDateTime;
     @JsonProperty("modificationFlag")
     @XmlJavaTypeAdapter(ReadingModificationFlagAdapter.class)
     public ReadingModificationFlag modificationFlag;
@@ -42,4 +42,5 @@ public abstract class ReadingInfo {
     }
 
     protected abstract BaseReading createNew(Register register);
+
 }

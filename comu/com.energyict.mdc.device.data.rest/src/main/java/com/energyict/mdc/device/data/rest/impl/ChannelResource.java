@@ -4,7 +4,7 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.Ranges;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
@@ -35,7 +35,6 @@ import javax.ws.rs.core.UriInfo;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -115,7 +114,7 @@ public class ChannelResource {
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
         boolean isValidationActive = deviceValidation.isValidationActive(channel, clock.instant());
         if (intervalStart != null && intervalEnd != null) {
-            List<LoadProfileReading> channelData = channel.getChannelData(new Interval(new Date(intervalStart), new Date(intervalEnd)));
+            List<LoadProfileReading> channelData = channel.getChannelData(Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd)));
             List<ChannelDataInfo> infos = ChannelDataInfo.from(channelData, isValidationActive, thesaurus, deviceValidation);
             infos = filter(infos, uriInfo.getQueryParameters());
             List<ChannelDataInfo> paginatedChannelData = ListPager.of(infos).from(queryParameters).find();

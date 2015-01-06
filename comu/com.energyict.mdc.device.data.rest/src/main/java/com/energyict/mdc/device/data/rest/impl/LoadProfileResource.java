@@ -11,8 +11,8 @@ import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.security.Privileges;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.streams.Functions;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableList;
@@ -157,7 +157,7 @@ public class LoadProfileResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
         if (intervalStart != null && intervalEnd != null) {
-            List<LoadProfileReading> loadProfileData = loadProfile.getChannelData(new Interval(new Date(intervalStart), new Date(intervalEnd)));
+            List<LoadProfileReading> loadProfileData = loadProfile.getChannelData(Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd)));
             List<LoadProfileDataInfo> infos = LoadProfileDataInfo.from(device, loadProfileData, thesaurus, clock, loadProfile.getChannels());
             infos = filter(infos, uriInfo.getQueryParameters());
             List<LoadProfileDataInfo> paginatedLoadProfileData = ListPager.of(infos).from(queryParameters).find();

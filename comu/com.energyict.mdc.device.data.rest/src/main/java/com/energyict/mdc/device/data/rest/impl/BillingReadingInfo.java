@@ -11,7 +11,6 @@ import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
-import com.energyict.mdc.device.data.rest.BigDecimalAsStringAdapter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Range;
 
@@ -51,8 +50,8 @@ public class BillingReadingInfo extends ReadingInfo {
             this.value = reading.getQuantity().getValue();
         }
         this.unitOfMeasure = registerSpec.getUnit();
-        if (reading.getInterval().isPresent()) {
-            this.interval = IntervalInfo.from(reading.getInterval().get());
+        if (reading.getRange().isPresent()) {
+            this.interval = IntervalInfo.from(reading.getRange().get());
         }
         this.validationStatus = isValidationStatusActive;
         if(dataValidationStatus != null) {
@@ -64,7 +63,7 @@ public class BillingReadingInfo extends ReadingInfo {
 
     @Override
     protected BaseReading createNew(Register register) {
-        ReadingImpl reading = ReadingImpl.of(register.getReadingType().getMRID(), this.value, this.timeStamp.toInstant());
+        ReadingImpl reading = ReadingImpl.of(register.getReadingType().getMRID(), this.value, this.timeStamp);
         if (this.interval != null) {
             reading.setTimePeriod(Range.openClosed(Instant.ofEpochMilli(this.interval.start), Instant.ofEpochMilli(this.interval.end)));
         }

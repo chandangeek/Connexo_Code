@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -57,9 +58,9 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
     @Mock
     private List list;
 
-    public static final Date BILLING_READING_INTERVAL_END = new Date(1410786196000L);
-    public static final Date BILLING_READING_INTERVAL_START = new Date(1409570229000L);
-    public static final Date READING_TIMESTAMP = new Date(1409570229000L);
+    public static final Instant BILLING_READING_INTERVAL_END = Instant.ofEpochMilli(1410786196000L);
+    public static final Instant BILLING_READING_INTERVAL_START = Instant.ofEpochMilli(1409570229000L);
+    public static final Instant READING_TIMESTAMP = Instant.ofEpochMilli(1409570229000L);
 
     public RegisterDataResourceTest() {
     }
@@ -78,8 +79,8 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(numericalReading.getQuantity()).thenReturn(quantity);
         when(billingReading.getTimeStamp()).thenReturn(READING_TIMESTAMP);
         when(numericalReading.getTimeStamp()).thenReturn(READING_TIMESTAMP);
-        Interval interval = new Interval(BILLING_READING_INTERVAL_START, BILLING_READING_INTERVAL_END);
-        when(billingReading.getInterval()).thenReturn(Optional.of(interval));
+        Range<Instant> interval = Ranges.openClosed(BILLING_READING_INTERVAL_START, BILLING_READING_INTERVAL_END);
+        when(billingReading.getRange()).thenReturn(Optional.of(interval));
         when(register.getReadings(Interval.sinceEpoch())).thenReturn(Arrays.asList(billingReading, numericalReading));
         when(billingReading.getActualReading()).thenReturn(actualReading1);
         when(actualReading1.edited()).thenReturn(true);

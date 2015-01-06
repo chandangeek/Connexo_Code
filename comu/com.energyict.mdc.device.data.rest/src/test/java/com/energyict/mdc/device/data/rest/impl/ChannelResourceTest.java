@@ -4,7 +4,7 @@ import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -20,6 +20,7 @@ import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -83,29 +84,29 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(loadProfile.getId()).thenReturn(1L);
         when(loadProfile.getChannels()).thenReturn(Arrays.asList(channel));
 
-        Interval interval = new Interval(new Date(intervalStart), new Date(intervalEnd));
+        Range<Instant> interval = Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
         when(channel.getChannelData(interval)).thenReturn(asList(loadProfileReading, addedloadProfileReading, editedProfileReading, removedProfileReading));
-        when(loadProfileReading.getInterval()).thenReturn(interval);
+        when(loadProfileReading.getRange()).thenReturn(interval);
         when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProfileStatus.Flag.BATTERY_LOW));
         when(thesaurus.getString(BATTERY_LOW, BATTERY_LOW)).thenReturn(BATTERY_LOW);
         when(loadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel, readingRecord));
         when(readingRecord.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
         when(readingRecord.getReportedDateTime()).thenReturn(LAST_READING);
 
-        when(addedloadProfileReading.getInterval()).thenReturn(interval);
+        when(addedloadProfileReading.getRange()).thenReturn(interval);
         when(addedloadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel, addedReadingRecord));
         when(addedReadingRecord.getValue()).thenReturn(BigDecimal.valueOf(201, 0));
         when(addedReadingRecord.wasAdded()).thenReturn(true);
         when(addedReadingRecord.getReportedDateTime()).thenReturn(LAST_READING);
 
-        when(editedProfileReading.getInterval()).thenReturn(interval);
+        when(editedProfileReading.getRange()).thenReturn(interval);
         when(editedProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel, editedReadingRecord));
         when(editedReadingRecord.getValue()).thenReturn(BigDecimal.valueOf(202, 0));
         when(editedReadingRecord.wasAdded()).thenReturn(false);
         when(editedReadingRecord.edited()).thenReturn(true);
         when(editedReadingRecord.getReportedDateTime()).thenReturn(LAST_READING);
 
-        when(removedProfileReading.getInterval()).thenReturn(interval);
+        when(removedProfileReading.getRange()).thenReturn(interval);
         when(removedProfileReading.getReadingTime()).thenReturn(LAST_READING);
 
         when(clock.instant()).thenReturn(NOW);
