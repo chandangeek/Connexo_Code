@@ -3,7 +3,8 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.rest.SuccessIndicatorInfo;
-import java.util.Date;
+
+import java.time.Instant;
 
 /**
  * Created by bvn on 10/3/14.
@@ -11,8 +12,8 @@ import java.util.Date;
 class ComSessionInfo {
     public long id;
     public IdWithNameInfo connectionMethod;
-    public Date startedOn;
-    public Date finishedOn;
+    public Instant startedOn;
+    public Instant finishedOn;
     public Long durationInSeconds;
     public String direction;
     public String connectionType;

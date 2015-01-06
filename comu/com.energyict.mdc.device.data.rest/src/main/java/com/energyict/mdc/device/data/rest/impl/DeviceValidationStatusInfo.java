@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import java.util.Date;
+import java.time.Instant;
+import java.util.Optional;
 
 public class DeviceValidationStatusInfo extends ValidationStatusInfo {
     public Long registerSuspectCount;
@@ -9,7 +10,7 @@ public class DeviceValidationStatusInfo extends ValidationStatusInfo {
     public DeviceValidationStatusInfo() {
     }
 
-    public DeviceValidationStatusInfo(boolean isActive, Date lastChecked, boolean hasValidation) {
+    public DeviceValidationStatusInfo(boolean isActive, Optional<Instant> lastChecked, boolean hasValidation) {
         super(isActive, lastChecked, hasValidation);
     }
 

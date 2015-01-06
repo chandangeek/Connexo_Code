@@ -1,11 +1,19 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Function;
+import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.PagedInfoList;
+import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.security.Privileges;
+
+import com.elster.jupiter.cbo.IllegalEnumValueException;
+import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.util.time.Interval;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -16,20 +24,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import com.elster.jupiter.cbo.IllegalEnumValueException;
-import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.security.Privileges;
+import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.BiFunction;
 
 public class LogBookResource {
 
@@ -89,7 +87,7 @@ public class LogBookResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getLogBookDataForDevice(@PathParam("mRID") String mrid, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters){
-        return this.getLogBookData(mrid, (d, f) -> d.getDeviceEventsByFilter(f), jsonQueryFilter, queryParameters);
+        return this.getLogBookData(mrid, Device::getDeviceEventsByFilter, jsonQueryFilter, queryParameters);
     }
 
     private Response getLogBookData(String mrid, BiFunction<Device, EndDeviceEventRecordFilterSpecification, List<EndDeviceEventRecord>> eventProvider, JsonQueryFilter jsonQueryFilter, QueryParameters queryParameters){
@@ -106,15 +104,15 @@ public class LogBookResource {
 
     private EndDeviceEventRecordFilterSpecification buildFilterFromJsonQuery(JsonQueryFilter jsonQueryFilter) {
         EndDeviceEventRecordFilterSpecification filter = new EndDeviceEventRecordFilterSpecification();
-        Date intervalStart = null;
-        Date intervalEnd = null;
+        Instant intervalStart = null;
+        Instant intervalEnd = null;
         if (jsonQueryFilter.hasProperty(INTERVAL_START)) {
-            intervalStart = Date.from(jsonQueryFilter.getInstant(INTERVAL_START));
+            intervalStart = jsonQueryFilter.getInstant(INTERVAL_START);
         }
         if (jsonQueryFilter.hasProperty(INTERVAL_END)) {
-            intervalEnd = Date.from(jsonQueryFilter.getInstant(INTERVAL_END));
+            intervalEnd = jsonQueryFilter.getInstant(INTERVAL_END);
         }
-        filter.range = new Interval(intervalStart, intervalEnd).toOpenClosedRange();
+        filter.range = Interval.of(intervalStart, intervalEnd).toOpenClosedRange();
         if (jsonQueryFilter.hasProperty(DOMAIN)) {
             filter.domain = jsonQueryFilter.getProperty(DOMAIN, new EndDeviceDomainAdapter());
         }

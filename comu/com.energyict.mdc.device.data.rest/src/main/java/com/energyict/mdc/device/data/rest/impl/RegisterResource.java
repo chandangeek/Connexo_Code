@@ -1,20 +1,13 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.security.Privileges;
 
-import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -30,25 +23,19 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 public class RegisterResource {
 
     private final ResourceHelper resourceHelper;
-    private final ExceptionFactory exceptionFactory;
     private final Provider<RegisterDataResource> registerDataResourceProvider;
     private final ValidationInfoHelper validationInfoHelper;
     private final Clock clock;
 
     @Inject
-    public RegisterResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Provider<RegisterDataResource> registerDataResourceProvider, ValidationInfoHelper validationInfoHelper, ValidationService validationService, Clock clock) {
+    public RegisterResource(ResourceHelper resourceHelper, Provider<RegisterDataResource> registerDataResourceProvider, ValidationInfoHelper validationInfoHelper, Clock clock) {
         this.resourceHelper = resourceHelper;
-        this.exceptionFactory = exceptionFactory;
         this.registerDataResourceProvider = registerDataResourceProvider;
         this.clock = clock;
         this.validationInfoHelper = validationInfoHelper;
@@ -86,12 +73,12 @@ public class RegisterResource {
         if (validationInfo.lastChecked == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.NULL_DATE, "lastChecked");
         }
-        Date newDate = new Date(validationInfo.lastChecked);
-        Date lastChecked = lastChecked(register);
-        if (lastChecked != null && newDate.after(lastChecked)) {
+        Instant newDate = Instant.ofEpochMilli(validationInfo.lastChecked);
+        Optional<Instant> lastChecked = register.getDevice().forValidation().getLastChecked(register);
+        if (lastChecked.isPresent() && newDate.isAfter(lastChecked.get())) {
             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_DATE, "lastChecked", lastChecked);
         }
-        validateRegister(register, newDate.toInstant());
+        validateRegister(register, newDate);
         return Response.status(Response.Status.OK).build();
     }
 
@@ -123,7 +110,7 @@ public class RegisterResource {
     }
 
     private ValidationStatusInfo determineStatus(Register<?> register) {
-        return new ValidationStatusInfo(isValidationActive(register), lastChecked(register), hasData(register));
+        return new ValidationStatusInfo(isValidationActive(register), register.getDevice().forValidation().getLastChecked(register), hasData(register));
     }
 
     private boolean isValidationActive(Register<?> register) {
@@ -132,38 +119,6 @@ public class RegisterResource {
 
     private boolean hasData(Register<?> channel) {
         return channel.getDevice().forValidation().hasData(channel);
-    }
-
-    private DetailedValidationInfo getRegisterValidationInfo(Register<?> register) {
-        boolean validationActive = validationActive(register, register.getDevice().forValidation());
-        Date lastChecked = lastChecked(register);
-        return new DetailedValidationInfo(validationActive, statuses(register), lastChecked);
-    }
-
-    private Date lastChecked(Register<?> register) {
-        return register.getDevice().forValidation().getLastChecked(register)
-                .map(Date::from)
-                .orElse(null);
-    }
-
-    private List<DataValidationStatus> statuses(Register<?> register) {
-        List<? extends Reading> readings = getReadingsForOneYear(register);
-        List<ReadingRecord> readingRecords = readings.stream().map(Reading::getActualReading).collect(Collectors.toList());
-        return register.getDevice().forValidation().getValidationStatus(register, readingRecords);
-    }
-
-    private boolean validationActive(Register<?> register, DeviceValidation deviceValidation) {
-        return deviceValidation.isValidationActive(register, clock.instant());
-    }
-
-    private List<? extends Reading> getReadingsForOneYear(Register<?> register) {
-        return register.getReadings(lastYear());
-    }
-
-    private Interval lastYear() {
-        ZonedDateTime end = clock.instant().atZone(ZoneId.systemDefault()).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
-        ZonedDateTime start = end.minusYears(1);
-        return new Interval(Date.from(start.toInstant()), Date.from(end.toInstant()));
     }
 
 }

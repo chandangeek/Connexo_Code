@@ -1,14 +1,5 @@
 package com.energyict.mdc.device.data.rest;
 
-import java.sql.Date;
-import java.time.Duration;
-import java.time.temporal.ChronoField;
-import java.util.Optional;
-import java.util.function.Supplier;
-
-import javax.inject.Inject;
-
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
@@ -23,21 +14,29 @@ import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 
+import com.elster.jupiter.nls.Thesaurus;
+
+import javax.inject.Inject;
+import java.time.Duration;
+import java.time.temporal.ChronoField;
+import java.util.Optional;
+import java.util.function.Supplier;
+
 public class DeviceConnectionTaskInfoFactory {
     private static final ConnectionTaskSuccessIndicatorAdapter SUCCESS_INDICATOR_ADAPTER = new ConnectionTaskSuccessIndicatorAdapter();
     private static final ConnectionStrategyAdapter CONNECTION_STRATEGY_ADAPTER = new ConnectionStrategyAdapter();
 
     private final Thesaurus thesaurus;
-    
+
     @Inject
     public DeviceConnectionTaskInfoFactory(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
-    
+
     public DeviceConnectionTaskInfo from(ConnectionTask<?, ?> connectionTask, Optional<ComSession> lastComSessionOptional) {
         return this.from(connectionTask, lastComSessionOptional, DeviceConnectionTaskInfo::new);
     }
-    
+
     protected <T extends DeviceConnectionTaskInfo> T from(ConnectionTask<?, ?> connectionTask, Optional<ComSession> lastComSessionOptional, Supplier<T> supplier) {
         T info = supplier.get();
         info.id=connectionTask.getId();
@@ -56,9 +55,9 @@ public class DeviceConnectionTaskInfoFactory {
             info.taskCount.numberOfFailedTasks = comSession.getNumberOfFailedTasks();
             info.taskCount.numberOfIncompleteTasks = comSession.getNumberOfPlannedButNotExecutedTasks();
 
-            info.startDateTime = Date.from(comSession.getStartDate().with(ChronoField.MILLI_OF_SECOND,0));
-            info.endDateTime = Date.from(comSession.getStopDate().with(ChronoField.MILLI_OF_SECOND, 0));
-            info.duration=new TimeDurationInfo(Duration.ofMillis(info.endDateTime.getTime()-info.startDateTime.getTime()).getSeconds());   // JP-6022
+            info.startDateTime = comSession.getStartDate().with(ChronoField.MILLI_OF_SECOND, 0);
+            info.endDateTime = comSession.getStopDate().with(ChronoField.MILLI_OF_SECOND, 0);
+            info.duration=new TimeDurationInfo(Duration.ofMillis(info.endDateTime.toEpochMilli() - info.startDateTime.toEpochMilli()).getSeconds());   // JP-6022
             info.comPort = new IdWithNameInfo(comSession.getComPort());
             info.comServer = new IdWithNameInfo(comSession.getComPort().getComServer());
             info.comPortPool = new IdWithNameInfo(connectionTask.getComPortPool());
@@ -91,7 +90,7 @@ public class DeviceConnectionTaskInfoFactory {
         }
         return info;
     }
-    
+
     protected Thesaurus getThesaurus() {
         return thesaurus;
     }

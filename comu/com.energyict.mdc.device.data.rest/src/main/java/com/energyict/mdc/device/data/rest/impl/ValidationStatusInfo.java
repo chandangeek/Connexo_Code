@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import java.util.Date;
+import java.time.Instant;
+import java.util.Optional;
 
 public class ValidationStatusInfo {
     public boolean isActive;
@@ -11,9 +12,14 @@ public class ValidationStatusInfo {
     public ValidationStatusInfo() {
     }
 
-    public ValidationStatusInfo(boolean isActive, Date lastChecked, boolean hasValidation) {
+    public ValidationStatusInfo(boolean isActive, Optional<Instant> lastChecked, boolean hasValidation) {
         this.isActive = isActive;
-        this.lastChecked = lastChecked == null ? null : lastChecked.getTime();
+        if (lastChecked.isPresent()) {
+            this.lastChecked = lastChecked.get().toEpochMilli();
+        }
+        else {
+            this.lastChecked = null;
+        }
         this.hasValidation = hasValidation;
     }
 

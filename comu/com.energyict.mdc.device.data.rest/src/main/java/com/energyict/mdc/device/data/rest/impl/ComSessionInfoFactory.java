@@ -11,7 +11,6 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 
 import java.time.Duration;
 import java.time.temporal.ChronoField;
-import java.util.Date;
 import javax.inject.Inject;
 
 /**
@@ -35,9 +34,9 @@ public class ComSessionInfoFactory {
         info.deviceConfiguration = new DeviceConfigurationIdInfo(comSession.getConnectionTask().getDevice().getDeviceConfiguration());
         info.connectionMethod = new IdWithNameInfo(connectionTask);
         info.isDefault = connectionTask.isDefault();
-        info.startedOn = Date.from(comSession.getStartDate().with(ChronoField.MILLI_OF_SECOND,0));
-        info.finishedOn = Date.from(comSession.getStopDate().with(ChronoField.MILLI_OF_SECOND, 0));
-        info.durationInSeconds = Duration.ofMillis(info.finishedOn.getTime() - info.startedOn.getTime()).getSeconds(); // JP-6022
+        info.startedOn = comSession.getStartDate().with(ChronoField.MILLI_OF_SECOND, 0);
+        info.finishedOn = comSession.getStopDate().with(ChronoField.MILLI_OF_SECOND, 0);
+        info.durationInSeconds = Duration.ofMillis(info.finishedOn.toEpochMilli() - info.startedOn.toEpochMilli()).getSeconds(); // JP-6022
         if (comSession.getComPort()!=null) {
             info.comPort = comSession.getComPort().getName();
             info.comServer = new IdWithNameInfo(comSession.getComPort().getComServer());

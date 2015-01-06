@@ -40,7 +40,6 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -85,7 +84,7 @@ public class DeviceValidationResource {
 
     private void fillValidationRuleSetStatus(List<ValidationRuleSet> linkedRuleSets, Optional<? extends MeterActivation> activation, List<DeviceValidationRuleSetInfo> result) {
         List<? extends ValidationRuleSet> activeRuleSets = activation.map(validationService::activeRuleSets).orElse(Collections.emptyList());
-        linkedRuleSets.forEach(ruleset -> result.add(new DeviceValidationRuleSetInfo(ruleset, activeRuleSets.contains(ruleset))));       
+        linkedRuleSets.forEach(ruleset -> result.add(new DeviceValidationRuleSetInfo(ruleset, activeRuleSets.contains(ruleset))));
     }
 
     @Path("/{validationRuleSetId}/status")
@@ -110,7 +109,7 @@ public class DeviceValidationResource {
     	  validationService.activate(activation, ruleSet);
       } else {
     	  validationService.activate(activation, ruleSet);
-      }    
+      }
     }
 
     @Path("/validationstatus")
@@ -130,7 +129,7 @@ public class DeviceValidationResource {
         DeviceValidationStatusInfo deviceValidationStatusInfo =
                 new DeviceValidationStatusInfo(
                         deviceValidation.isValidationActive(),
-                        deviceValidation.getLastChecked().map(Date::from).orElse(null),
+                        deviceValidation.getLastChecked(),
                         meter.hasData());
 
         ZonedDateTime end = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).truncatedTo(ChronoUnit.DAYS).plusDays(1);

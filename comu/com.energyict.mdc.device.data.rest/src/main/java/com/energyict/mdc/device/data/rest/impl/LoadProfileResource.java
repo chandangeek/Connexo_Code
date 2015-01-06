@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
@@ -14,13 +13,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -40,7 +37,6 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -59,17 +55,13 @@ public class LoadProfileResource {
     private static final Comparator<LoadProfile> LOAD_PROFILE_COMPARATOR_BY_NAME = new LoadProfileComparator();
 
     private final ResourceHelper resourceHelper;
-    private final ExceptionFactory exceptionFactory;
     private final Thesaurus thesaurus;
-    private final Provider<ChannelResource> channelResourceProvider;
     private final Clock clock;
 
     @Inject
-    public LoadProfileResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Thesaurus thesaurus, Provider<ChannelResource> channelResourceProvider, ValidationService validationService, Clock clock) {
+    public LoadProfileResource(ResourceHelper resourceHelper, Thesaurus thesaurus, Clock clock) {
         this.resourceHelper = resourceHelper;
-        this.exceptionFactory = exceptionFactory;
         this.thesaurus = thesaurus;
-        this.channelResourceProvider = channelResourceProvider;
         this.clock = clock;
     }
 
@@ -119,15 +111,14 @@ public class LoadProfileResource {
                 .anyMatch(isValidationActive());
     }
 
-    private Date lastChecked(LoadProfile loadProfile) {
+    private Optional<Instant> lastChecked(LoadProfile loadProfile) {
         return loadProfile
                     .getChannels()
                     .stream()
                     .filter(isValidationActive())
                     .map(this::getLastChecked)
                     .flatMap(Functions.asStream())
-                    .map(Date::from)
-                    .reduce(this::min).orElse(null);
+                    .reduce(this::min);
     }
 
     private Optional<Instant> getLastChecked(Channel channel) {
@@ -140,9 +131,9 @@ public class LoadProfileResource {
         return Range.openClosed(start.toInstant(), end.toInstant());
     }
 
-    private Date min(Date d1, Date d2) {
-        Comparator<Date> comparator = nullsFirst(naturalOrder());
-        return comparator.compare(d1, d2) <= 0 ? d1 : d2;
+    private Instant min(Instant i1, Instant i2) {
+        Comparator<Instant> comparator = nullsFirst(naturalOrder());
+        return comparator.compare(i1, i2) <= 0 ? i1 : i2;
     }
 
     private Predicate<Channel> isValidationActive() {

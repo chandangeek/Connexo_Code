@@ -4,11 +4,12 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 
+import java.time.Instant;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -21,11 +22,16 @@ public class DetailedValidationInfo {
     public Set<Map.Entry<ValidationRuleInfo, Long>> suspectReason;
     public Long lastChecked;
 
-    public DetailedValidationInfo(Boolean active, List<DataValidationStatus> dataValidationStatuses, Date lastChecked) {
+    public DetailedValidationInfo(Boolean active, List<DataValidationStatus> dataValidationStatuses, Optional<Instant> lastChecked) {
         validationActive = active;
         this.dataValidated = isDataCompletelyValidated(dataValidationStatuses);
         this.suspectReason = getSuspectReasonMap(dataValidationStatuses).entrySet();
-        this.lastChecked = lastChecked == null ? null : lastChecked.getTime();
+        if (lastChecked.isPresent()) {
+            this.lastChecked = lastChecked.get().toEpochMilli();
+        }
+        else {
+            this.lastChecked = null;
+        }
     }
 
     public DetailedValidationInfo() {

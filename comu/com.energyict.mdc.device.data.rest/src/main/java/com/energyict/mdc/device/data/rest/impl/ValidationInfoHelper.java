@@ -9,11 +9,12 @@ import com.energyict.mdc.device.data.Register;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ValidationInfoHelper {
@@ -26,14 +27,8 @@ public class ValidationInfoHelper {
 
     public DetailedValidationInfo getRegisterValidationInfo(Register<?> register) {
         boolean validationActive = validationActive(register, register.getDevice().forValidation());
-        Date lastChecked = lastChecked(register);
+        Optional<Instant> lastChecked = register.getDevice().forValidation().getLastChecked(register);
         return new DetailedValidationInfo(validationActive, statuses(register), lastChecked);
-    }
-
-    private Date lastChecked(Register<?> register) {
-        return register.getDevice().forValidation().getLastChecked(register)
-                .map(Date::from)
-                .orElse(null);
     }
 
     private List<DataValidationStatus> statuses(Register<?> register) {
@@ -53,7 +48,7 @@ public class ValidationInfoHelper {
     private Interval lastYear() {
         ZonedDateTime end = clock.instant().atZone(ZoneId.of("UTC")).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
         ZonedDateTime start = end.minusYears(1);
-        return new Interval(Date.from(start.toInstant()), Date.from(end.toInstant()));
+        return Interval.of(start.toInstant(), end.toInstant());
     }
 
 }

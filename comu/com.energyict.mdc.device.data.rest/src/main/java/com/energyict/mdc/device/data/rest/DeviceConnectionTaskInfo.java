@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.rest;
 
 import java.time.Instant;
-import java.util.Date;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -18,8 +17,8 @@ public class DeviceConnectionTaskInfo {
     public LatestStatusInfo latestStatus;
     public SuccessIndicatorInfo latestResult;
     public ComTaskCountInfo taskCount;
-    public Date startDateTime;
-    public Date endDateTime;
+    public Instant startDateTime;
+    public Instant endDateTime;
     public TimeDurationInfo duration;
     public IdWithNameInfo comPort;
     public IdWithNameInfo comPortPool;
