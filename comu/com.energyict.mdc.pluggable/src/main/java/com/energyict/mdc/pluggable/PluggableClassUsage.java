@@ -4,7 +4,7 @@ import com.elster.jupiter.properties.HasDynamicProperties;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -54,7 +54,7 @@ public interface PluggableClassUsage
     public void removeProperty (String propertyName);
 
     /**
-     * Provides the current properties ({@link #getAllProperties(Date)} in the TypedProperties format.
+     * Provides the current properties ({@link #getAllProperties(Instant)} in the TypedProperties format.
      *
      * @return the TypedProperties
      */
@@ -67,6 +67,6 @@ public interface PluggableClassUsage
      * @param date The Date on which the properties should be active
      * @return The List of all properties
      */
-    public List<PT> getAllProperties (Date date);
+    public List<PT> getAllProperties (Instant date);
 
 }
