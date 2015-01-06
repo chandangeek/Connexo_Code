@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 
@@ -24,10 +25,12 @@ import java.util.*;
 public class ReadPartialProfileDataMessage extends AbstractMTU155Message {
 
     private final TopologyService topologyService;
+    private final LoadProfileFactory loadProfileFactory;
 
-    public ReadPartialProfileDataMessage(Messaging messaging, IssueService issueService, TopologyService topologyService) {
-        super(messaging, issueService);
+    public ReadPartialProfileDataMessage(Messaging messaging, IssueService issueService, TopologyService topologyService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
+        super(messaging, issueService, collectedDataFactory);
         this.topologyService = topologyService;
+        this.loadProfileFactory = loadProfileFactory;
     }
 
     @Override
@@ -46,7 +49,7 @@ public class ReadPartialProfileDataMessage extends AbstractMTU155Message {
 
     private CollectedMessage readPartialProfileData(OfflineDeviceMessage message, String loadProfileXML, Date fromDate, Date toDate) throws CTRException {
         try {
-            LegacyPartialLoadProfileMessageBuilder builder = new LegacyPartialLoadProfileMessageBuilder(this.topologyService);
+            LegacyPartialLoadProfileMessageBuilder builder = new LegacyPartialLoadProfileMessageBuilder(this.topologyService, loadProfileFactory);
             builder.fromXml(loadProfileXML);
             builder.setStartReadingTime(fromDate);
             builder.setEndReadingTime(toDate);

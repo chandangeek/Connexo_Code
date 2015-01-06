@@ -4,18 +4,18 @@ package com.energyict.protocolimpl.dlms;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSObis;
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.GenericInvoke;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
@@ -34,15 +34,11 @@ import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocolimpl.dlms.siemenszmd.LogBookReader;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocols.messaging.MessageBuilder;
 import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
-import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
-import com.energyict.protocols.messaging.TimeOfUseMessaging;
-import com.energyict.protocols.messaging.TimeOfUseMessagingConfig;
-import com.energyict.protocolimpl.dlms.siemenszmd.EventNumber;
+
 import com.energyict.protocolimpl.dlms.siemenszmd.ObisCodeMapper;
 import com.energyict.protocolimpl.dlms.siemenszmd.ZMDSecurityProvider;
 import com.energyict.protocolimpl.dlms.siemenszmd.ZmdMessages;
@@ -88,9 +84,9 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
     int eventIdIndex;
 
     @Inject
-    public DLMSZMD(OrmClient ormClient) {
+    public DLMSZMD(OrmClient ormClient, CodeFactory codeFactory, UserFileFactory userFileFactory) {
         super(ormClient);
-        this.messageProtocol = new ZmdMessages(this);
+        this.messageProtocol = new ZmdMessages(this, codeFactory, userFileFactory);
     }
 
     protected String getDeviceID() {

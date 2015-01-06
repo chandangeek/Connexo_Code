@@ -3,9 +3,9 @@ package com.energyict.protocolimplv2.abnt.common;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
@@ -62,18 +62,20 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     private final AbstractAbntProtocol meterProtocol;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public LoadProfileBuilder(AbstractAbntProtocol meterProtocol, MdcReadingTypeUtilService readingTypeUtilService, IssueService issueService) {
+    public LoadProfileBuilder(AbstractAbntProtocol meterProtocol, MdcReadingTypeUtilService readingTypeUtilService, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.meterProtocol = meterProtocol;
         this.readingTypeUtilService = readingTypeUtilService;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
         List<CollectedLoadProfileConfiguration> loadProfileConfigurations = new ArrayList<>(loadProfilesToRead.size());
         for (LoadProfileReader reader : loadProfilesToRead) {
-            CollectedLoadProfileConfiguration config = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfileConfiguration(reader.getProfileObisCode(), reader.getDeviceIdentifier());
+            CollectedLoadProfileConfiguration config = this.collectedDataFactory.createCollectedLoadProfileConfiguration(reader.getProfileObisCode(), reader.getDeviceIdentifier());
             if (reader.getProfileObisCode().equals(LOAD_PROFILE_OBIS)) {
                 fetchLoadProfileConfiguration(reader, config);
             } else {
@@ -123,7 +125,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
         List<CollectedLoadProfile> collectedLoadProfiles = new ArrayList<>(loadProfiles.size());
         for (LoadProfileReader reader : loadProfiles) {
-            CollectedLoadProfile collectedLoadProfile = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfile(reader.getLoadProfileIdentifier());
+            CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(reader.getLoadProfileIdentifier());
             if (getChannelInfoMap().containsKey(reader)) {
                 readLoadProfileData(reader, collectedLoadProfile);
             } else {

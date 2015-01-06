@@ -4,6 +4,7 @@ import com.elster.jupiter.properties.PropertySpec;
 
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
@@ -33,11 +34,13 @@ public abstract class AbstractMTU155Message {
     private final RequestFactory factory;
     private final Logger logger;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
 
     public abstract boolean canExecuteThisMessage(OfflineDeviceMessage message);
 
-    public AbstractMTU155Message(Messaging messaging, IssueService issueService) {
+    public AbstractMTU155Message(Messaging messaging, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
         this.protocol = messaging.getProtocol();
         this.factory = messaging.getProtocol().getRequestFactory();
         this.logger = messaging.getProtocol().getLogger();
@@ -48,11 +51,11 @@ public abstract class AbstractMTU155Message {
     }
 
     public CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessage(message.getIdentifier());
+        return this.collectedDataFactory.createCollectedMessage(message.getIdentifier());
     }
 
     public CollectedMessage createCollectedMessageWithCollectedLoadProfileData(OfflineDeviceMessage message, CollectedLoadProfile collectedLoadProfile) {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessageWithLoadProfileData(message.getIdentifier(), collectedLoadProfile);
+        return this.collectedDataFactory.createCollectedMessageWithLoadProfileData(message.getIdentifier(), collectedLoadProfile);
     }
 
     public CollectedMessage executeMessage(OfflineDeviceMessage message) {

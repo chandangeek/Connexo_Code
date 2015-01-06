@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
@@ -31,9 +33,6 @@ import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 
 import com.energyict.protocols.mdc.services.impl.OrmClient;
-import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
-import com.energyict.protocols.messaging.TimeOfUseMessaging;
-import com.energyict.protocols.messaging.TimeOfUseMessagingConfig;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.actaris.sl7000.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging.Messages;
@@ -87,10 +86,14 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
     private StoredValuesImpl storedValues;
 
     private Messages messageProtocol;
+    private final CodeFactory codeFactory;
+    private final UserFileFactory userFileFactory;
 
     @Inject
-    public ActarisSl7000(OrmClient ormClient) {
+    public ActarisSl7000(OrmClient ormClient, CodeFactory codeFactory, UserFileFactory userFileFactory) {
         super(ormClient);
+        this.codeFactory = codeFactory;
+        this.userFileFactory = userFileFactory;
     }
 
     @Override
@@ -289,7 +292,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
 
      public Messages getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new Messages(this);
+            messageProtocol = new Messages(this, codeFactory, userFileFactory);
         }
         return messageProtocol;
     }

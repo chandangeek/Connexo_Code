@@ -1,7 +1,6 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
@@ -30,13 +29,16 @@ public class EventPOFrame extends AbstractInboundFrame {
     private static final int UNKNOWN = 0;
     private static final String EVENT_TAG = "event";
 
+    private final CollectedDataFactory collectedDataFactory;
+
     @Override
     protected FrameType getType() {
         return FrameType.EVENTP0;
     }
 
-    public EventPOFrame(String frame, IssueService issueService, IdentificationService identificationService) {
+    public EventPOFrame(String frame, IssueService issueService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         super(frame, issueService, identificationService);
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
@@ -47,7 +49,7 @@ public class EventPOFrame extends AbstractInboundFrame {
         if (!device.getLogBooks().isEmpty()) {
             logBookIdentifier = getIdentificationService().createLogbookIdentifierByObisCodeAndDeviceIdentifier(LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE, getDeviceIdentifier());
         } else {
-            getCollectedDatas().add(this.getCollectedDataFactory().createNoLogBookCollectedData(getDeviceIdentifier()));
+            getCollectedDatas().add(this.collectedDataFactory.createNoLogBookCollectedData(getDeviceIdentifier()));
             return;
         }
 
@@ -69,7 +71,7 @@ public class EventPOFrame extends AbstractInboundFrame {
             }
         }
         if (!meterEvents.isEmpty()) {
-            CollectedLogBook deviceLogBook = this.getCollectedDataFactory().createCollectedLogBook(logBookIdentifier);
+            CollectedLogBook deviceLogBook = this.collectedDataFactory.createCollectedLogBook(logBookIdentifier);
             deviceLogBook.setMeterEvents(meterEvents);
             getCollectedDatas().add(deviceLogBook);
         }
@@ -83,10 +85,6 @@ public class EventPOFrame extends AbstractInboundFrame {
         } catch (ParseException e) {
             return new Date();
         }
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
 }

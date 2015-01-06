@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.elster.garnet.common;
 
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
@@ -30,17 +30,19 @@ public class TopologyMaintainer implements DeviceTopologySupport {
     private final GarnetConcentrator deviceProtocol;
     private final IssueService issueService;
     private final IdentificationService identificationService;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public TopologyMaintainer(GarnetConcentrator deviceProtocol, IssueService issueService, IdentificationService identificationService) {
+    public TopologyMaintainer(GarnetConcentrator deviceProtocol, IssueService issueService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         this.deviceProtocol = deviceProtocol;
         this.issueService = issueService;
         this.identificationService = identificationService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
     public CollectedTopology getDeviceTopology() {
         DeviceIdentifier deviceIdentifierOfMaster = getMasterDevice().getDeviceIdentifier();
-        CollectedTopology collectedTopology = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedTopology(deviceIdentifierOfMaster);
+        CollectedTopology collectedTopology = this.collectedDataFactory.createCollectedTopology(deviceIdentifierOfMaster);
         try {
             List<DeviceIdentifier> slaveMeters = readListOfSlaveDevices();
             for (DeviceIdentifier slave : slaveMeters) {

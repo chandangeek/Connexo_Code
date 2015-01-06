@@ -8,6 +8,7 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -59,13 +60,15 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
     private static final int DEFAULT_INVOKE_ID_AND_PRIORITY = 66; // 0x42, 0b01000010 -> [invoke-id = 1, service_class = 1 (confirmed), priority = 0 (normal)]
 
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
     private DLMSConnection dlmsConnection;
     private SimpleApplicationServiceObject aso;
 
     @Inject
-    public DlmsSerialNumberDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService) {
+    public DlmsSerialNumberDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         super(propertySpecService, issueService, readingTypeUtilService, thesaurus, identificationService);
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
@@ -88,7 +91,7 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
 
     private void setInboundConnection() {
         ComChannel comChannel = this.getComChannel();
-        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), issueService, this.getReadingTypeUtilService(), this.getThesaurus(), getIdentificationService()));
+        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), issueService, this.getReadingTypeUtilService(), collectedDataFactory, this.getThesaurus(), getIdentificationService()));
     }
 
     public void init() throws IOException {

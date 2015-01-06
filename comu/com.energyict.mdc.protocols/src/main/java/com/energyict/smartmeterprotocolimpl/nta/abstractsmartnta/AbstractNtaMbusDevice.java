@@ -4,6 +4,7 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
@@ -50,20 +51,26 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
 
     private final AbstractSmartNtaProtocol meterProtocol;
     private final TopologyService topologyService;
+    private final LoadProfileFactory loadProfileFactory;
     private final String serialNumber;
     private final int physicalAddress;
 
     public abstract MessageProtocol getMessageProtocol();
 
-    protected AbstractNtaMbusDevice(TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService) {
+    protected AbstractNtaMbusDevice(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
         this.topologyService = topologyService;
-        this.meterProtocol = new WebRTUKP(topologyService, readingTypeUtilService, ormClient);
+        this.meterProtocol = new WebRTUKP(topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
         this.serialNumber = "CurrentlyUnKnown";
         this.physicalAddress = -1;
+        this.loadProfileFactory = loadProfileFactory;
     }
 
     protected TopologyService getTopologyService() {
         return topologyService;
+    }
+
+    protected LoadProfileFactory getLoadProfileFactory() {
+        return loadProfileFactory;
     }
 
     /**

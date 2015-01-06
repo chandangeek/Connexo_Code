@@ -1,6 +1,5 @@
 package com.energyict.mdw.dynamicattributes;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.dynamic.DynamicAttributeOwner;
 import com.energyict.mdc.protocol.api.legacy.dynamic.AttributeType;
 import com.energyict.mdc.protocol.api.legacy.dynamic.Seed;

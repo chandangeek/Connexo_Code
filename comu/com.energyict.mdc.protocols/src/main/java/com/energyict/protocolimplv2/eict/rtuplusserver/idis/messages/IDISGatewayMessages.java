@@ -20,6 +20,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeOfDay;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -77,10 +78,12 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
 
     private final DlmsSession session;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public IDISGatewayMessages(DlmsSession session, IssueService issueService) {
+    public IDISGatewayMessages(DlmsSession session, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.session = session;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
@@ -90,7 +93,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = this.collectedDataFactory.createCollectedMessageList(pendingMessages);
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
@@ -368,7 +371,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
     }
 
     private CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessage(message.getIdentifier());
+        return this.collectedDataFactory.createCollectedMessage(message.getIdentifier());
     }
 
     private Issue messageFailed(OfflineDeviceMessage pendingMessage, Exception e) {
@@ -392,7 +395,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
+        return this.collectedDataFactory.createEmptyCollectedMessageList();  //Nothing to do here
     }
 
     @Override

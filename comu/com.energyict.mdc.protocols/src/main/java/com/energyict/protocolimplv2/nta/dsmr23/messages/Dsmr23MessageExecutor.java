@@ -42,7 +42,9 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
@@ -88,10 +90,12 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     private static final byte[] DEFAULT_MONITORED_ATTRIBUTE = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
 
     private final TopologyService topologyService;
+    private final LoadProfileFactory loadProfileFactory;
 
-    public Dsmr23MessageExecutor(AbstractDlmsProtocol protocol, TopologyService topologyService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService) {
-        super(protocol, issueService, readingTypeUtilService);
+    public Dsmr23MessageExecutor(AbstractDlmsProtocol protocol, TopologyService topologyService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
+        super(protocol, issueService, readingTypeUtilService, collectedDataFactory);
         this.topologyService = topologyService;
+        this.loadProfileFactory = loadProfileFactory;
     }
 
     @Override
@@ -102,7 +106,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         List<OfflineDeviceMessage> mbusMessages = getMbusMessages(pendingMessages);
         if (!mbusMessages.isEmpty()) {
             // Execute messages for MBus devices
-            Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(getProtocol(), this.getIssueService(), this.getReadingTypeUtilService(), this.topologyService);
+            Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(getProtocol(), this.getIssueService(), this.getReadingTypeUtilService(), this.topologyService, this.getCollectedDataFactory(), this.loadProfileFactory);
             mbusMessageExecutor
                     .executePendingMessages(mbusMessages)
                     .getCollectedMessages()
@@ -234,7 +238,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         );
         Date fromDate = new Date(Long.valueOf(fromDateEpoch));
         try {
-            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder(this.topologyService);
+            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder(this.topologyService, loadProfileFactory);
             builder.fromXml(fullLoadProfileContent);
             if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
                 CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
@@ -311,7 +315,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             Date fromDate = new Date(Long.valueOf(fromDateEpoch));
             Date toDate = new Date(Long.valueOf(toDateEpoch));
 
-            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder(this.topologyService);
+            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder(this.topologyService, loadProfileFactory);
             builder.fromXml(fullLoadProfileContent);
 
             LoadProfileReader lpr = builder.getLoadProfileReader();  //Does not contain the correct from & to date yet, they were stored in separate attributes

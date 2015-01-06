@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
 import com.energyict.mdc.protocol.api.crypto.MD5Seed;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
@@ -74,6 +73,7 @@ public class PacketBuilder {
     private static final long SIX_CHANNELS_MASK = 0x0000003FL;
     private static final int BITS_IN_NIBBLE = 4;
     private final IdentificationService identificationService;
+    private final CollectedDataFactory collectedDataFactory;
 
     private int version;
     private long mask;
@@ -90,15 +90,16 @@ public class PacketBuilder {
     private List<CollectedData> collectedData = new ArrayList<>();
     private Logger logger;
 
-    public PacketBuilder(Cryptographer cryptographer, IdentificationService identificationService) {
-        this(cryptographer, Logger.getAnonymousLogger(), identificationService);
+    public PacketBuilder(Cryptographer cryptographer, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
+        this(cryptographer, Logger.getAnonymousLogger(), identificationService, collectedDataFactory);
     }
 
-    public PacketBuilder(Cryptographer cryptographer, Logger logger, IdentificationService identificationService) {
+    public PacketBuilder(Cryptographer cryptographer, Logger logger, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         super();
         this.cryptographer = cryptographer;
         this.logger = logger;
         this.identificationService = identificationService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     public String getSeq() {
@@ -459,7 +460,7 @@ public class PacketBuilder {
     }
 
     protected CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
+        return this.collectedDataFactory;
     }
 
 }

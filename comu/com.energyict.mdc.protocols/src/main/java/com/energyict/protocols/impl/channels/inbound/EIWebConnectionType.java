@@ -37,11 +37,11 @@ public class EIWebConnectionType implements ServerConnectionType {
         this.propertySpecService = propertySpecService;
     }
 
-    private PropertySpec<String> ipAddressPropertySpec() {
+    private PropertySpec ipAddressPropertySpec() {
         return this.propertySpecService.basicPropertySpec(IP_ADDRESS_PROPERTY_NAME, false, StringFactory.class);
     }
 
-    private PropertySpec<String> macAddressPropertySpec() {
+    private PropertySpec macAddressPropertySpec() {
         return this.propertySpecService.basicPropertySpec(MAC_ADDRESS_PROPERTY_NAME, false, StringFactory.class);
     }
 

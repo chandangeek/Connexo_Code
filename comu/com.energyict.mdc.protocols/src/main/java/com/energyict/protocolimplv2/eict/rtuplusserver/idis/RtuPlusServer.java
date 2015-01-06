@@ -17,6 +17,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -51,8 +52,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import static com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance;
-
 /**
  * @author sva
  * @since 15/10/2014 - 10:55
@@ -73,13 +72,15 @@ public class RtuPlusServer implements DeviceProtocol {
     private final SocketService socketService;
     private final IssueService issueService;
     private final IdentificationService identificationService;
+    private final CollectedDataFactory collectedDataFactory;
 
     @Inject
-    public RtuPlusServer(PropertySpecService propertySpecService, SocketService socketService, IssueService issueService, IdentificationService identificationService) {
+    public RtuPlusServer(PropertySpecService propertySpecService, SocketService socketService, IssueService issueService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
         this.issueService = issueService;
         this.identificationService = identificationService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
@@ -197,7 +198,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        CollectedTopology deviceTopology = instance.get().getCollectedDataFactory().createCollectedTopology(getOfflineDevice().getDeviceIdentifier());
+        CollectedTopology deviceTopology = this.collectedDataFactory.createCollectedTopology(getOfflineDevice().getDeviceIdentifier());
 
         List<SAPAssignmentItem> sapAssignmentList;      //List that contains the SAP id's and the MAC addresses of all logical devices (= gateway + slaves)
         try {
@@ -211,14 +212,14 @@ public class RtuPlusServer implements DeviceProtocol {
 
                 deviceTopology.addSlaveDevice(slaveDeviceIdentifier);
                 deviceTopology.addAdditionalCollectedDeviceInfo(
-                        instance.get().getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                        this.collectedDataFactory.createCollectedDeviceProtocolProperty(
                                 slaveDeviceIdentifier,
                                 getDynamicPropertySupport().callingAPTitlePropertySpec(),
                                 getDynamicPropertySupport().getDeviceId()    // The DeviceID of the gateway
                         )
                 );
                 deviceTopology.addAdditionalCollectedDeviceInfo(
-                        instance.get().getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                        this.collectedDataFactory.createCollectedDeviceProtocolProperty(
                                 slaveDeviceIdentifier,
                                 getDynamicPropertySupport().nodeAddressPropertySpec(),
                                 Integer.toString(sapAssignmentItem.getSap())
@@ -268,8 +269,8 @@ public class RtuPlusServer implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
-        return getDlmsSecuritySupport().getSecurityProperties();
+    public List<PropertySpec> getSecurityPropertySpecs() {
+        return getDlmsSecuritySupport().getSecurityPropertySpecs();
     }
 
     @Override
@@ -298,21 +299,21 @@ public class RtuPlusServer implements DeviceProtocol {
 
     public IDISGatewayRegisters getIDISGatewayRegisters() {
         if (this.idisGatewayRegisters == null) {
-            this.idisGatewayRegisters = new IDISGatewayRegisters(getDlmsSession(), issueService);
+            this.idisGatewayRegisters = new IDISGatewayRegisters(getDlmsSession(), issueService, collectedDataFactory);
         }
         return this.idisGatewayRegisters;
     }
 
     public IDISGatewayEvents getIDISGatewayEvents() {
         if (this.idisGatewayEvents == null) {
-            this.idisGatewayEvents = new IDISGatewayEvents(getDlmsSession(), this.issueService);
+            this.idisGatewayEvents = new IDISGatewayEvents(getDlmsSession(), this.issueService, collectedDataFactory);
         }
         return this.idisGatewayEvents;
     }
 
     public IDISGatewayMessages getIDISGatewayMessages() {
         if (this.idisGatewayMessages == null) {
-            this.idisGatewayMessages = new IDISGatewayMessages(getDlmsSession(), issueService);
+            this.idisGatewayMessages = new IDISGatewayMessages(getDlmsSession(), issueService, collectedDataFactory);
         }
         return this.idisGatewayMessages;
     }

@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
@@ -68,16 +69,18 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     private IskraMx372Messaging messageProtocol;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final TopologyService topologyService;
+    private final LoadProfileFactory loadProfileFactory;
 
     public static ScalerUnit[] demandScalerUnits = {new ScalerUnit(0, 30), new ScalerUnit(0, 255), new ScalerUnit(0, 255), new ScalerUnit(0, 255), new ScalerUnit(0, 255)};
     private static final int ELECTRICITY = 0x00;
     private static final int MBUS = 0x01;
 
     @Inject
-    public IskraMx372(OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService) {
+    public IskraMx372(OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
         super(ormClient);
         this.readingTypeUtilService = readingTypeUtilService;
         this.topologyService = topologyService;
+        this.loadProfileFactory = loadProfileFactory;
     }
 
     /**
@@ -448,7 +451,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
 
     public IskraMx372Messaging getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new IskraMx372Messaging(this, this.topologyService, readingTypeUtilService);
+            messageProtocol = new IskraMx372Messaging(this, this.topologyService, readingTypeUtilService, loadProfileFactory);
         }
         return messageProtocol;
     }
@@ -501,22 +504,9 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
         return getMessageProtocol().getPartialLoadProfileMessageBuilder();
     }
 
-    /**
-     * Executes the WakeUp call. The implementer should use and/or update the <code>Link</code> if a WakeUp succeeded. The communicationSchedulerId
-     * can be used to find the task which triggered this wakeUp or which Device is being waked up.
-     *
-     * @param communicationSchedulerId the ID of the <code>CommunicationScheduler</code> which started this task
-     * @param link                     Link created by the comserver, can be null if a NullDialer is configured
-     * @param logger                   Logger object - when using a level of warning or higher message will be stored in the communication session's database log,
-     *                                 messages with a level lower than warning will only be logged in the file log if active.
-     * @throws BusinessException if a business exception occurred
-     * @throws IOException if an io exception occurred
-     */
     public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws BusinessException, IOException {
         return getMessageProtocol().executeWakeUp(communicationSchedulerId, link, logger);
     }
-    /*** END OF MESSAGE PROTOCOL INTERFACE SECTION **/
-
 
     /**
      * Based on the serial number, find out the physical address of the slave Mbus meter.

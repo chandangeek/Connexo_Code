@@ -1,18 +1,13 @@
 package com.energyict.protocolimpl.CM32;
 
-import com.energyict.dialer.core.impl.ATDialer;
-import com.energyict.mdc.protocol.api.dialer.core.Dialer;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
-import com.energyict.mdc.protocol.api.dialer.core.LinkException;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -20,7 +15,7 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -33,29 +28,31 @@ public class CM32 extends AbstractProtocol {
     private ObisCodeMapper obisCodeMapper = new ObisCodeMapper(this);
     private RegisterFactory registerFactory;
 
-
+	@Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getCM32Profile().getProfileData(lastReading,includeEvents);
     }
 
+	@Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
+	@Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return obisCodeMapper.getRegisterValue(obisCode);
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+	@Override
+    public int getNumberOfChannels() throws IOException {
         return 16;
     }
 
+	@Override
     protected void validateSerialNumber() throws IOException {
-        boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) ||
-            ("".compareTo(getInfoTypeSerialNumber())==0)) return;
-    }
+	}
 
+	@Override
 	protected void doConnect() throws IOException {
 		getLogger().info("doConnect");
 
@@ -68,11 +65,12 @@ public class CM32 extends AbstractProtocol {
 		getLogger().info("time in doConnect: " + time);
 	}
 
+	@Override
 	protected void doDisConnect() throws IOException {
 	}
 
-	protected List doGetOptionalKeys() {
-		return new ArrayList();
+	protected List<String> doGetOptionalKeys() {
+		return Collections.emptyList();
 	}
 
 	public RegisterFactory getRegisterFactory() throws IOException {
@@ -83,6 +81,7 @@ public class CM32 extends AbstractProtocol {
         return registerFactory;
     }
 
+	@Override
 	protected ProtocolConnection doInit(InputStream inputStream,
 			OutputStream outputStream, int timeoutProperty,
 			int protocolRetriesProperty, int forcedDelay, int echoCancelling,
@@ -119,21 +118,24 @@ public class CM32 extends AbstractProtocol {
         this.commandFactory = commandFactory;
     }
 
+	@Override
 	protected void doValidateProperties(Properties properties)
 			throws MissingPropertyException, InvalidPropertyException {
 		// TODO Auto-generated method stub
-
 	}
 
-	public String getFirmwareVersion() throws IOException, UnsupportedException {
+	@Override
+	public String getFirmwareVersion() throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
     public String getProtocolVersion() {
 		return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
 	}
 
+	@Override
 	public Date getTime() throws IOException {
 		getLogger().info("getTime");
 		CommandFactory commandFactory = getCommandFactory();
@@ -146,61 +148,10 @@ public class CM32 extends AbstractProtocol {
 		return time;
 	}
 
+	@Override
 	public void setTime() throws IOException {
 		// TODO Auto-generated method stub
 
-	}
-
-	public static void main(String[] args) {
-		try {
-	           int count=0;
-	           System.out.println("start DialerTest");
-	           Dialer dialer = new ATDialer();
-	           dialer.init("COM1");
-	           dialer.connect("000441908257417",60000);
-	           dialer.getSerialCommunicationChannel().setParamsAndFlush(1200,
-	                   SerialCommunicationChannel.DATABITS_8,
-	                   SerialCommunicationChannel.PARITY_NONE,
-	                   SerialCommunicationChannel.STOPBITS_1);
-
-	           try {
-	               System.out.println("connected, start sending");
-	               byte[] data = {0x65, 0x0B, 0x00, 0x00, 0x00, 0x21, 0x00, 0x00, 0x00, 0x00, 0x6F};
-	               dialer.getOutputStream().write(data);
-
-
-	               while(true) {
-	                  if (dialer.getInputStream().available() != 0) {
-
-	                      int kar = dialer.getInputStream().read();
-	                      System.out.print((char)kar);
-	                      count=0;
-	                  }
-	                  else {
-	                      Thread.sleep(100);
-	                      if (count++ >= 100) {
-	                          System.out.println();
-	                          System.out.println("KV_DEBUG> connection timeout DialerTest");
-	                          break;
-	                      }
-	                  }
-	               }
-	           }
-	           catch(Exception e){
-	               e.printStackTrace();
-	           }
-	           dialer.disConnect();
-	           System.out.println("end DialerTest");
-	        }
-	        catch(NestedIOException e) {
-	            e.printStackTrace();
-	        }
-	        catch(LinkException e) {
-	            e.printStackTrace();
-	        }
-	        catch(IOException e) {
-	            e.printStackTrace();
-	        }
 	}
 
 	public CM32Connection getCM32Connection() {

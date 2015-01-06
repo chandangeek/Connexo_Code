@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.common;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import java.math.BigDecimal;
@@ -48,7 +47,7 @@ public class BasicDynamicPropertySupport implements HasDynamicProperties{
         );
     }
 
-    public PropertySpec<TimeDuration> delayAfterErrorPropertySpec() {
+    public PropertySpec delayAfterErrorPropertySpec() {
         return propertySpecService.timeDurationPropertySpec(DELAY_AFTER_ERROR, false, getDefaultDelayAfterError());
     }
 
@@ -56,7 +55,7 @@ public class BasicDynamicPropertySupport implements HasDynamicProperties{
         return DEFAULT_DELAY_AFTER_ERROR;
     }
 
-    public PropertySpec<TimeDuration> forceDelayPropertySpec() {
+    public PropertySpec forceDelayPropertySpec() {
         return propertySpecService.timeDurationPropertySpec(FORCED_DELAY, false, getDefaultForcedDelay());
     }
 
@@ -64,7 +63,7 @@ public class BasicDynamicPropertySupport implements HasDynamicProperties{
         return DEFAULT_FORCED_DELAY;
     }
 
-    public PropertySpec<BigDecimal> retriesPropertySPec() {
+    public PropertySpec retriesPropertySPec() {
         return propertySpecService.bigDecimalPropertySpec(RETRIES, false, getDefaultRetries());
     }
 
@@ -76,7 +75,7 @@ public class BasicDynamicPropertySupport implements HasDynamicProperties{
         return propertySpecService.timeZonePropertySpec(TIMEZONE, false, TimeZone.getTimeZone(DEFAULT_TIMEZONE));
     }
 
-    public PropertySpec<TimeDuration> timeOutPropertySpec() {
+    public PropertySpec timeOutPropertySpec() {
         return propertySpecService.timeDurationPropertySpec(TIMEOUT, false, getDefaultTimeout());
     }
 
@@ -92,4 +91,5 @@ public class BasicDynamicPropertySupport implements HasDynamicProperties{
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
     }
+
 }

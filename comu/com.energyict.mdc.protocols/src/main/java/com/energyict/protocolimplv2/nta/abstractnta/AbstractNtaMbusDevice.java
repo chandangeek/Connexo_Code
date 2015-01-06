@@ -17,6 +17,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -42,6 +44,7 @@ import com.energyict.protocols.exception.UnsupportedMethodException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -66,11 +69,11 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
     private final int physicalAddress;
     private final TopologyService topologyService;
 
-    public AbstractNtaMbusDevice(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService) {
+    public AbstractNtaMbusDevice(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
         this.propertySpecService = propertySpecService;
         this.topologyService = topologyService;
         //TODO, what? wait! Is this even correct?
-        this.meterProtocol = new WebRTUKP(this.propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService);
+        this.meterProtocol = new WebRTUKP(this.propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, loadProfileFactory);
         this.serialNumber = "CurrentlyUnKnown";
         this.physicalAddress = -1;
     }
@@ -172,8 +175,8 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
-        return getMeterProtocol().getSecurityProperties();
+    public List<PropertySpec> getSecurityPropertySpecs() {
+        return getMeterProtocol().getSecurityPropertySpecs();
     }
 
     @Override
@@ -250,7 +253,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
 
     @Override
     public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        throw new UnsupportedMethodException(this.getClass(), "addDeviceProtocolDialectProperties");
+        // Using NoParamsDeviceProtocolDialect so nothign to add here
     }
 
     @Override
@@ -311,7 +314,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

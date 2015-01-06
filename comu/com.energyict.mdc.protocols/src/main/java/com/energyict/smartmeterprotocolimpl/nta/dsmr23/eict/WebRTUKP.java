@@ -2,6 +2,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict;
 
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -27,8 +28,8 @@ import java.io.IOException;
 public class WebRTUKP extends AbstractSmartNtaProtocol implements HHUEnabler {
 
     @Inject
-    public WebRTUKP(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, OrmClient ormClient) {
-        super(topologyService, readingTypeUtilService, ormClient);
+    public WebRTUKP(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
+        super(topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
     }
 
     @Override

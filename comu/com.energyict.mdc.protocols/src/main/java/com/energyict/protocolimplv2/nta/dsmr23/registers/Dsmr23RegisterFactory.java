@@ -5,7 +5,6 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
@@ -85,11 +84,13 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     private final boolean supportsBulkRequests;
     protected final IssueService issueService;
     protected final MdcReadingTypeUtilService readingTypeUtilService;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public Dsmr23RegisterFactory(AbstractDlmsProtocol protocol, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, boolean supportsBulkRequests) {
+    public Dsmr23RegisterFactory(AbstractDlmsProtocol protocol, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, CollectedDataFactory collectedDataFactory, boolean supportsBulkRequests) {
         this.protocol = protocol;
         this.issueService = issueService;
         this.readingTypeUtilService = readingTypeUtilService;
+        this.collectedDataFactory = collectedDataFactory;
         this.supportsBulkRequests = supportsBulkRequests;
     }
 
@@ -132,6 +133,9 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                 }
 
                 if (rv != null) {
+                    CollectedRegister deviceRegister =
+                            this.collectedDataFactory.createMaximumDemandCollectedRegister(
+                                    getRegisterIdentifier(register),
                     CollectedRegister deviceRegister = getCollectedDataFactory()
                             .createMaximumDemandCollectedRegister(getRegisterIdentifier(register),
                                     this.readingTypeUtilService.getReadingTypeFrom(register.getAmrRegisterObisCode(), register.getUnit()));
@@ -377,6 +381,8 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
         return new RegisterDataIdentifierByObisCodeAndDevice(offlineRtuRegister.getObisCode(), offlineRtuRegister.getObisCode(), offlineRtuRegister.getDeviceIdentifier());
     }
 
+    private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
+        CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register),
     public CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
         CollectedRegister collectedRegister = getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register),
                 this.readingTypeUtilService.getReadingTypeFrom(register.getAmrRegisterObisCode(), register.getUnit()));

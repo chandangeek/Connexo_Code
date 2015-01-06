@@ -56,7 +56,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
+    public List<PropertySpec> getSecurityPropertySpecs() {
         return Arrays.asList(
                 DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService),
                 getEncryptionKeyCPropertySpec(),
@@ -81,7 +81,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
 
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityProperties()) {
+        for (PropertySpec securityProperty : getSecurityPropertySpecs()) {
             if (securityProperty.getName().equals(name)) {
                 return securityProperty;
             }
@@ -179,7 +179,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
         }
     }
 
-    private PropertySpec<String> getEncryptionKeyTPropertySpec() {
+    private PropertySpec getEncryptionKeyTPropertySpec() {
         return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_1.toString())
                 .setDefaultValue("")
@@ -187,7 +187,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
                 .finish();
     }
 
-    private PropertySpec<String> getEncryptionKeyCPropertySpec() {
+    private PropertySpec getEncryptionKeyCPropertySpec() {
         return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_2.toString())
                 .setDefaultValue("")
@@ -195,7 +195,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
                 .finish();
     }
 
-    private PropertySpec<String> getEncryptionKeyFPropertySpec() {
+    private PropertySpec getEncryptionKeyFPropertySpec() {
         return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_3.toString())
                 .setDefaultValue("")

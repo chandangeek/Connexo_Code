@@ -5,6 +5,8 @@ import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
+
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.messaging.*;
 import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
@@ -23,9 +25,11 @@ import java.util.List;
 public class IskraMx372MbusMessaging  extends GenericMessaging implements MessageProtocol {
 
     private final TopologyService topologyService;
+    private final LoadProfileFactory loadProfileFactory;
 
-    public IskraMx372MbusMessaging(TopologyService topologyService) {
+    public IskraMx372MbusMessaging(TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
         this.topologyService = topologyService;
+        this.loadProfileFactory = loadProfileFactory;
     }
 
     /**
@@ -82,11 +86,11 @@ public class IskraMx372MbusMessaging  extends GenericMessaging implements Messag
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService);
+        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService, this.loadProfileFactory);
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder(this.topologyService);
+        return new LegacyPartialLoadProfileMessageBuilder(this.topologyService, this.loadProfileFactory);
     }
 
 }

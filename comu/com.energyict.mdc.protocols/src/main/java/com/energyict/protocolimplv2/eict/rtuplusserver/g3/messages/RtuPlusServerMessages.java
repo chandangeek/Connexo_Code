@@ -68,6 +68,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     private final DlmsSession session;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
     private RtuPlusServer deviceProtocol;
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
 
@@ -145,10 +146,13 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             DeviceMessageId.SECURITY_CHANGE_WEBPORTAL_PASSWORD2
     );
 
+    public RtuPlusServerMessages(DlmsSession session, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+        this.session = session;
     public RtuPlusServerMessages(IssueService issueService, RtuPlusServer deviceProtocol) {
         this.deviceProtocol = deviceProtocol;
         this.session = this.deviceProtocol.getDlmsSession();
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     public Set<DeviceMessageId> getSupportedMessages() {
@@ -157,6 +161,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
+        CollectedMessageList result = this.collectedDataFactory.createCollectedMessageList(pendingMessages);
         CollectedMessageList result = getCollectedDataFactory().createCollectedMessageList(pendingMessages);
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
@@ -912,7 +917,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return getCollectedDataFactory().createCollectedMessage(message.getIdentifier());
+        return this.collectedDataFactory.createCollectedMessage(message.getIdentifier());
     }
 
     protected CollectedMessage createCollectedMessageWithRegisterData(OfflineDeviceMessage message, List<CollectedRegister> registers) {
@@ -940,7 +945,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
+        return this.collectedDataFactory.createEmptyCollectedMessageList();  //Nothing to do here
     }
 
     @Override

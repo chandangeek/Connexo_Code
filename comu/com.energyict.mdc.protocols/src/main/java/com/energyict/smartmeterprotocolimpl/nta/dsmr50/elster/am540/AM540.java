@@ -6,6 +6,7 @@ import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
 
@@ -44,8 +45,8 @@ public class AM540 extends E350 {
     private static final String TIMEOUT = "timeout";
 
     @Inject
-    public AM540(TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService) {
-        super(topologyService, ormClient, readingTypeUtilService);
+    public AM540(TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
+        super(topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
         setHasBreaker(false);
     }
 

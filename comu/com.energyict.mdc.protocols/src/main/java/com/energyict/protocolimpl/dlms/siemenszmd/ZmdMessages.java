@@ -1,21 +1,20 @@
 package com.energyict.protocolimpl.dlms.siemenszmd;
 
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
-import com.energyict.protocols.messaging.MessageBuilder;
-import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
-import com.energyict.protocols.messaging.TimeOfUseMessaging;
-import com.energyict.protocols.messaging.TimeOfUseMessagingConfig;
+
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.DLMSZMD;
 import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
 import com.energyict.protocolimpl.messages.ProtocolMessages;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -26,9 +25,13 @@ import java.util.List;
 public class ZmdMessages extends ProtocolMessages {
 
     private final DLMSZMD protocol;
+    private final CodeFactory codeFactory;
+    private final UserFileFactory userFileFactory;
 
-    public ZmdMessages(final DLMSZMD protocol) {
+    public ZmdMessages(final DLMSZMD protocol, CodeFactory codeFactory, UserFileFactory userFileFactory) {
         this.protocol = protocol;
+        this.codeFactory = codeFactory;
+        this.userFileFactory = userFileFactory;
     }
 
     /**
@@ -70,21 +73,18 @@ public class ZmdMessages extends ProtocolMessages {
         } catch (IOException e){
             infoLog("Message failed : " + e.getMessage());
         }    catch (SAXException e) {
-            String msg = "Cannot process ActivityCalendar upgrade message due to an XML parsing error [" + e.getMessage() + "]";
              infoLog("Message failed - Unable to parse the ActivityCalendar upgrade message:" + e.getMessage());
         }
         return MessageResult.createFailed(messageEntry);
     }
 
     public List getMessageCategories() {
-        List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
-        categories.add(ProtocolMessageCategories.getDemandResetCategory());
-        return categories;
+        return Arrays.asList(ProtocolMessageCategories.getDemandResetCategory());
     }
 
     private void updateTimeOfUse(MessageEntry messageEntry) throws IOException, SAXException {
-        final ZMDTimeOfUseMessageBuilder builder = new ZMDTimeOfUseMessageBuilder();
-        ActivityCalendarController activityCalendarController = new ZMDActivityCalendarController((DLMSZMD) this.protocol);
+        final ZMDTimeOfUseMessageBuilder builder = new ZMDTimeOfUseMessageBuilder(this.codeFactory, this.userFileFactory);
+        ActivityCalendarController activityCalendarController = new ZMDActivityCalendarController(this.protocol);
         builder.initFromXml(messageEntry.getContent());
         if (builder.getCodeId() > 0) { // codeTable implementation
             infoLog("Parsing the content of the CodeTable.");
@@ -96,12 +96,8 @@ public class ZmdMessages extends ProtocolMessages {
         }
     }
 
-    /**
-     * Log the given message to the logger with the INFO level
-     *
-     * @param messageToLog
-     */
     private void infoLog(String messageToLog) {
         this.protocol.getLogger().info(messageToLog);
     }
+
     }

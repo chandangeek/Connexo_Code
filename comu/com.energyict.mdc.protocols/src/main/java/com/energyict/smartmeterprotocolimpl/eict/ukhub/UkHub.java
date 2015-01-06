@@ -1,18 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub;
 
-import com.energyict.dialer.core.impl.IPDialer;
-import com.energyict.dialer.core.impl.SocketStreamConnection;
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.ConnectionMode;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.IF2HHUSignon;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
@@ -28,6 +20,14 @@ import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.ConnectionMode;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.IF2HHUSignon;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
@@ -71,10 +71,16 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     private UkHubRegisterFactory registerFactory = null;
     private UkHubEventProfiles ukHubEventProfiles = null;
     private boolean reboot = false;
+    private final UserFileFactory userFileFactory;
 
     @Inject
-    public UkHub(OrmClient ormClient) {
+    public UkHub(OrmClient ormClient, UserFileFactory userFileFactory) {
         super(ormClient);
+        this.userFileFactory = userFileFactory;
+    }
+
+    protected UserFileFactory getUserFileFactory() {
+        return userFileFactory;
     }
 
     /**
@@ -84,7 +90,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      */
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new UkHubMessaging(new UkHubMessageExecutor(this));
+            messageProtocol = new UkHubMessaging(new UkHubMessageExecutor(this, this.userFileFactory));
         }
         return messageProtocol;
     }
@@ -360,10 +366,6 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
         return ukHubEventProfiles;
     }
 
-    public void disConnect() throws IOException {
-        super.disconnect();
-    }
-
     /**
      * Disconnect from the physical device.
      * Close the association and check if we need to close the underlying connection
@@ -388,26 +390,10 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
         return getDlmsSession().getCosemObjectFactory();
     }
 
-    /**
-     * Executes the WakeUp call. The implementer should use and/or update the <code>Link</code> if a WakeUp succeeded. The communicationSchedulerId
-     * can be used to find the task which triggered this wakeUp or which Device is being waked up.
-     *
-     * @param communicationSchedulerId the ID of the <code>CommunicationScheduler</code> which started this task
-     * @param link                     Link created by the comserver, can be null if a NullDialer is configured
-     * @param logger                   Logger object - when using a level of warning or higher message will be stored in the communication session's database log,
-     *                                 messages with a level lower than warning will only be logged in the file log if active.
-     * @throws BusinessException
-     *                             if a business exception occurred
-     * @throws java.io.IOException if an io exception occurred
-     */
     public boolean executeWakeUp(final int communicationSchedulerId, Link link, final Logger logger) throws BusinessException, IOException {
-
-        boolean success = true;
-
         init(link.getInputStream(), link.getOutputStream(), TimeZone.getDefault(), logger);
         enableHHUSignOn(link.getSerialCommunicationChannel(), false);
-
-        if(getProperties().getDataTransportSecurityLevel() != 0 || getProperties().getAuthenticationSecurityLevel() == 5){
+        if (getProperties().getDataTransportSecurityLevel() != 0 || getProperties().getAuthenticationSecurityLevel() == 5) {
             int backupClientId = getProperties().getClientMacAddress();
             String backupSecurityLevel = getProperties().getSecurityLevel();
             String password = getProperties().getPassword();
@@ -426,21 +412,14 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
             getProperties().getProtocolProperties().setProperty(SmartMeterProtocol.PASSWORD, password);
             getProperties().getProtocolProperties().setProperty(UkHubProperties.CIPHERING_TYPE, backUpCipheringType.getTypeString());
 
-            if (link instanceof IPDialer) {
-                String ipAddress = link.getStreamConnection().getSocket().getInetAddress().getHostAddress();
-                link.getStreamConnection().serverClose();
-                link.setStreamConnection(new SocketStreamConnection(ipAddress + ":4059"));
-                link.getStreamConnection().serverOpen();
-            }
-
             getProperties().setSecurityProvider(new UkHubSecurityProvider(getProperties().getProtocolProperties()));
-            ((UkHubSecurityProvider) (getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
+            getProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter + 1);
 
             reInitDlmsSession(link);
         } else {
             this.dlmsSession = null;
         }
-        return success;
+        return true;
     }
 
     private void reInitDlmsSession(final Link link) throws ConnectionException {

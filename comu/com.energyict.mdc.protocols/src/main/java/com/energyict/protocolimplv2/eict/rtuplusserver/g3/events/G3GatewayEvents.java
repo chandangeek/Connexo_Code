@@ -2,8 +2,8 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.g3.events;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -35,16 +35,18 @@ public class G3GatewayEvents {
     public static final ObisCode OBIS_CODE = ObisCode.fromString("0.0.99.98.0.255");
     private final DlmsSession dlmsSession;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public G3GatewayEvents(DlmsSession dlmsSession, IssueService issueService) {
+    public G3GatewayEvents(DlmsSession dlmsSession, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.dlmsSession = dlmsSession;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     public List<CollectedLogBook> readEvents(List<LogBookReader> logBooks) {
         List<CollectedLogBook> result = new ArrayList<>();
         for (LogBookReader logBook : logBooks) {
-            CollectedLogBook collectedLogBook = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
+            CollectedLogBook collectedLogBook = this.collectedDataFactory.createCollectedLogBook(logBook.getLogBookIdentifier());
             if (logBook.getLogBookObisCode().equals(OBIS_CODE)) {
                 try {
                     Array eventArray = getMainLogBookBuffer(logBook);

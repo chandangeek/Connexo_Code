@@ -39,7 +39,7 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
+    public List<PropertySpec> getSecurityPropertySpecs() {
         return Arrays.asList(
                 DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService),
                 DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
@@ -62,7 +62,7 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
 
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityProperties()) {
+        for (PropertySpec securityProperty : getSecurityPropertySpecs()) {
             if (securityProperty.getName().equals(name)) {
                 return securityProperty;
             }

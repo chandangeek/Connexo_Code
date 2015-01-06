@@ -4,6 +4,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -31,17 +32,19 @@ public class LogBookFactory implements DeviceLogBookSupport {
 
     private final AbstractAbntProtocol meterProtocol;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public LogBookFactory(AbstractAbntProtocol meterProtocol, IssueService issueService) {
+    public LogBookFactory(AbstractAbntProtocol meterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.meterProtocol = meterProtocol;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
         List<CollectedLogBook> collectedLogBooks = new ArrayList<>(logBooks.size());
         for (LogBookReader logBook : logBooks) {
-            CollectedLogBook deviceLogBook = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
+            CollectedLogBook deviceLogBook = this.collectedDataFactory.createCollectedLogBook(logBook.getLogBookIdentifier());
             if (logBook.getLogBookObisCode().equals(HISTORY_LOG_OBIS)) {
                 readHistoryLog(logBook, deviceLogBook);
             } else if (logBook.getLogBookObisCode().equals(POWER_FAIL_LOG_OBIS)) {

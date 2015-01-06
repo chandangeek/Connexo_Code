@@ -54,14 +54,16 @@ public class ProtocolHandler {
     private LegacyMessageConverter messageConverter = null;
     private final Clock clock;
     private final IdentificationService identificationService;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public ProtocolHandler(ResponseWriter responseWriter, InboundDiscoveryContext inboundDiscoveryContext, Cryptographer cryptographer, Clock clock, IdentificationService identificationService) {
+    public ProtocolHandler(ResponseWriter responseWriter, InboundDiscoveryContext inboundDiscoveryContext, Cryptographer cryptographer, Clock clock, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         super();
         this.responseWriter = responseWriter;
         this.inboundDiscoveryContext = inboundDiscoveryContext;
         this.cryptographer = cryptographer;
         this.clock = clock;
         this.identificationService = identificationService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     private enum ContentType {
@@ -165,7 +167,7 @@ public class ProtocolHandler {
     public void handle(HttpServletRequest request, Logger logger) {
         try {
             setContentType(request);
-            this.packetBuilder = new PacketBuilder(this.cryptographer, logger, identificationService);
+            this.packetBuilder = new PacketBuilder(this.cryptographer, logger, identificationService, collectedDataFactory);
             this.contentType.dispatch(request, this);
             if (this.packetBuilder.isConfigFileMode()) {
                 this.profileBuilder = new ProfileBuilder(this.packetBuilder, identificationService);

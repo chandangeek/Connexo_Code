@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 
@@ -22,8 +23,8 @@ public class ActivateTemporaryKeyMessage extends AbstractMTU155Message {
     private static final int MIN_ACTIVE_TIME = 0;
     private static final int MAX_ACTIVE_TIME = 255;
 
-    public ActivateTemporaryKeyMessage(Messaging messaging, IssueService issueService) {
-        super(messaging, issueService);
+    public ActivateTemporaryKeyMessage(Messaging messaging, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+        super(messaging, issueService, collectedDataFactory);
     }
 
     @Override

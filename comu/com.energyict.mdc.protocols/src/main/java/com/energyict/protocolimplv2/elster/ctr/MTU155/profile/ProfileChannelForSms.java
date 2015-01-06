@@ -5,6 +5,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocolimplv2.elster.ctr.EK155.EK155Properties;
@@ -29,15 +30,17 @@ public class ProfileChannelForSms {
 
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
     private String deviceSerialNumber;
     private MTU155Properties properties;
     private Trace_CQueryResponseStructure response;
     private StartOfGasDayParser startOfGasDayParser;
     private boolean fetchTotals;
 
-    public ProfileChannelForSms(MdcReadingTypeUtilService readingTypeUtilService, IssueService issueService, String deviceSerialNumber, MTU155Properties properties, Trace_CQueryResponseStructure queryResponseStructure) {
+    public ProfileChannelForSms(MdcReadingTypeUtilService readingTypeUtilService, IssueService issueService, CollectedDataFactory collectedDataFactory, String deviceSerialNumber, MTU155Properties properties, Trace_CQueryResponseStructure queryResponseStructure) {
         this.readingTypeUtilService = readingTypeUtilService;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
         this.deviceSerialNumber = deviceSerialNumber;
         this.properties = properties;
         this.response = queryResponseStructure;
@@ -92,7 +95,7 @@ public class ProfileChannelForSms {
     }
 
     private SmsObisCodeMapper getSmsObisCodeMapper() {
-        return new SmsObisCodeMapper(null, this.readingTypeUtilService, this.issueService);
+        return new SmsObisCodeMapper(null, this.readingTypeUtilService, this.issueService, collectedDataFactory);
     }
 
     public Trace_CQueryResponseStructure getResponse() {

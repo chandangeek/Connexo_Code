@@ -54,7 +54,7 @@ public class MessageConverterTools {
 
     }
 
-    private static class EmptyAttributePropertySpec implements PropertySpec<String> {
+    private static class EmptyAttributePropertySpec implements PropertySpec {
         @Override
         public String getName() {
             return "";
@@ -76,17 +76,17 @@ public class MessageConverterTools {
         }
 
         @Override
-        public boolean validateValue(String s) throws InvalidValueException {
-            return true;
+        public boolean validateValue(Object s) throws InvalidValueException {
+            return s instanceof String;
         }
 
         @Override
-        public boolean validateValueIgnoreRequired(String s) throws InvalidValueException {
-            return true;
+        public boolean validateValueIgnoreRequired(Object s) throws InvalidValueException {
+            return s instanceof String;
         }
 
         @Override
-        public PropertySpecPossibleValues<String> getPossibleValues() {
+        public PropertySpecPossibleValues getPossibleValues() {
             return null;
         }
     }

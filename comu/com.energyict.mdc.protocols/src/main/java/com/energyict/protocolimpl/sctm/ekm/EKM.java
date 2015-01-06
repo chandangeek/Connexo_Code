@@ -7,18 +7,19 @@
 package com.energyict.protocolimpl.sctm.ekm;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
+
 import com.energyict.protocolimpl.customerconfig.EDPRegisterConfig;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.metcom.Metcom2;
 import com.energyict.protocolimpl.sctm.base.GenericRegisters;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -57,21 +58,20 @@ public class EKM extends Metcom2 implements RegisterProtocol {
         super.validateProperties(properties);
     }
 
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("HalfDuplex");
-        result.add("ExtendedLogging");
-        result.add("RemovePowerOutageIntervals");
-        result.add("LogBookReadCommand");
-        result.add("ForcedDelay");
-        result.add("IntervalStatusBehaviour");
-        result.add("AutoBillingPointNrOfDigits");
-        result.add("TimeSetMethod");
-        result.add("Software7E1");
-        result.add(BILLING_TIME_STAMP_ID);
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                "Timeout",
+                "Retries",
+                "HalfDuplex",
+                "ExtendedLogging",
+                "RemovePowerOutageIntervals",
+                "LogBookReadCommand",
+                "ForcedDelay",
+                "IntervalStatusBehaviour",
+                "AutoBillingPointNrOfDigits",
+                "TimeSetMethod",
+                "Software7E1",
+                BILLING_TIME_STAMP_ID);
     }
 
     public String getProtocolVersion() {

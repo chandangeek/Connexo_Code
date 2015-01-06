@@ -59,7 +59,7 @@ public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilitie
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
+    public List<PropertySpec> getSecurityPropertySpecs() {
         return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService));
     }
 
@@ -84,7 +84,7 @@ public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilitie
 
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityProperties()) {
+        for (PropertySpec securityProperty : getSecurityPropertySpecs()) {
             if (securityProperty.getName().equals(name)) {
                 return securityProperty;
             }

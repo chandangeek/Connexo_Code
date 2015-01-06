@@ -4,6 +4,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
 
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
@@ -30,8 +31,8 @@ public class REMIDatalogger extends E350 {
     private XemexLoadProfileBuilder loadProfileBuilder;
 
     @Inject
-    public REMIDatalogger(TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService) {
-        super(topologyService, ormClient, readingTypeUtilService);
+    public REMIDatalogger(TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
+        super(topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
     }
 
     @Override

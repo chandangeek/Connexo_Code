@@ -20,6 +20,7 @@ import java.sql.Blob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -38,11 +39,13 @@ public class OrmClientImpl implements OrmClient {
 
     private final DataModel dataModel;
     private final TransactionService transactionService;
+    private final Clock clock;
 
-    public OrmClientImpl(DataModel dataModel, TransactionService transactionService) {
+    public OrmClientImpl(DataModel dataModel, TransactionService transactionService, Clock clock) {
         super();
         this.dataModel = dataModel;
         this.transactionService = transactionService;
+        this.clock = clock;
     }
 
     @Override
@@ -98,9 +101,11 @@ public class OrmClientImpl implements OrmClient {
         try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(true))) {
             try (ResultSet rs = stmnt.executeQuery()) {
                 if (!rs.next()) {
-                    builder = new SqlBuilder("insert into ces_devicecache (deviceid, content, mod_date) values (");
-                    builder.addInt(deviceId);
-                    builder.append(",empty_blob(),sysdate)");
+                    builder = new SqlBuilder("insert into ces_devicecache (deviceid, content, modTime) values (");
+                    builder.addLong(deviceId);
+                    builder.append(",empty_blob(),");
+                    builder.addLong(this.clock.instant().toEpochMilli());
+                    builder.append(")");
                     try (PreparedStatement insertStmnt = builder.prepare(this.dataModel.getConnection(true))) {
                         insertStmnt.executeUpdate();
                     }

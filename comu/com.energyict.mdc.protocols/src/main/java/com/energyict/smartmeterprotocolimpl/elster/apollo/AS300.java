@@ -1,8 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
-import com.energyict.dialer.core.impl.IPDialer;
-import com.energyict.dialer.core.impl.SocketStreamConnection;
+import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
@@ -24,10 +24,6 @@ import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 
 import com.energyict.protocols.mdc.services.impl.OrmClient;
-import com.energyict.protocols.messaging.MessageBuilder;
-import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
-import com.energyict.protocols.messaging.TimeOfUseMessaging;
-import com.energyict.protocols.messaging.TimeOfUseMessagingConfig;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
@@ -55,10 +51,14 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     private RegisterReader registerReader;
     protected AS300LoadProfileBuilder loadProfileBuilder;
     protected AS300Messaging messageProtocol;
+    protected final CodeFactory codeFactory;
+    protected final UserFileFactory userFileFactory;
 
     @Inject
-    public AS300(OrmClient ormClient) {
+    public AS300(CodeFactory codeFactory, UserFileFactory userFileFactory, OrmClient ormClient) {
         super(ormClient);
+        this.codeFactory = codeFactory;
+        this.userFileFactory = userFileFactory;
     }
 
     @Override
@@ -88,6 +88,14 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
             loadProfileBuilder = new AS300LoadProfileBuilder(this);
         }
         return loadProfileBuilder;
+    }
+
+    protected CodeFactory getCodeFactory() {
+        return codeFactory;
+    }
+
+    protected UserFileFactory getUserFileFactory() {
+        return userFileFactory;
     }
 
     @Override
@@ -196,7 +204,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
 
     public AS300Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this));
+            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this, codeFactory, userFileFactory));
         }
         return messageProtocol;
     }
@@ -241,24 +249,9 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
         return getMessageProtocol().writeValue(value);
     }
 
-    /**
-     * Executes the WakeUp call. The implementer should use and/or update the <code>Link</code> if a WakeUp succeeded. The communicationSchedulerId
-     * can be used to find the task which triggered this wakeUp or which Device is being waked up.
-     *
-     * @param communicationSchedulerId the ID of the <code>CommunicationScheduler</code> which started this task
-     * @param link                     Link created by the comserver, can be null if a NullDialer is configured
-     * @param logger                   Logger object - when using a level of warning or higher message will be stored in the communication session's database log,
-     *                                 messages with a level lower than warning will only be logged in the file log if active.
-     * @throws BusinessException
-     *                             if a business exception occurred
-     * @throws java.io.IOException if an io exception occurred
-     */
     public boolean executeWakeUp(final int communicationSchedulerId, Link link, final Logger logger) throws BusinessException, IOException {
-
-        boolean success = true;
-
         init(link.getInputStream(), link.getOutputStream(), TimeZone.getDefault(), logger);
-        if(getProperties().getDataTransportSecurityLevel() != 0 || getProperties().getAuthenticationSecurityLevel() == 5){
+        if (getProperties().getDataTransportSecurityLevel() != 0 || getProperties().getAuthenticationSecurityLevel() == 5) {
             int backupClientId = getProperties().getClientMacAddress();
             String backupSecurityLevel = getProperties().getSecurityLevel();
             String password = getProperties().getPassword();
@@ -274,25 +267,19 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
             getProperties().getProtocolProperties().setProperty(AS300Properties.SECURITY_LEVEL, backupSecurityLevel);
             getProperties().getProtocolProperties().setProperty(SmartMeterProtocol.PASSWORD, password);
 
-            if (link instanceof IPDialer) {
-                String ipAddress = link.getStreamConnection().getSocket().getInetAddress().getHostAddress();
-                link.getStreamConnection().serverClose();
-                link.setStreamConnection(new SocketStreamConnection(ipAddress + ":4059"));
-                link.getStreamConnection().serverOpen();
-            }
-
             getProperties().setSecurityProvider(new UkHubSecurityProvider(getProperties().getProtocolProperties()));
-            ((UkHubSecurityProvider) (getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
+            getProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter + 1);
 
             reInitDlmsSession(link);
             this.objectFactory = null;
         } else {
             this.dlmsSession = null;
         }
-        return success;
+        return true;
     }
 
     private void reInitDlmsSession(final Link link) {
         this.dlmsSession = new DlmsSession(link.getInputStream(), link.getOutputStream(), getLogger(), getProperties(), getTimeZone());
     }
+
 }

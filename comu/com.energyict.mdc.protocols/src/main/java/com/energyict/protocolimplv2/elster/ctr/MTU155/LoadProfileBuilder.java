@@ -4,7 +4,7 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
@@ -41,6 +41,7 @@ public class LoadProfileBuilder {
 
     private final MTU155 meterProtocol;
     private final IssueService issueService;
+    private final CollectedDataFactory collectedDataFactory;
 
     /**
      * The list of LoadProfileReaders which are expected to be fetched
@@ -62,9 +63,10 @@ public class LoadProfileBuilder {
      */
     protected StartOfGasDayParser startOfGasDayParser;
 
-    public LoadProfileBuilder(MTU155 meterProtocol, IssueService issueService) {
+    public LoadProfileBuilder(MTU155 meterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.meterProtocol = meterProtocol;
         this.issueService = issueService;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     /**
@@ -79,9 +81,7 @@ public class LoadProfileBuilder {
 
         for (LoadProfileReader lpr : expectedLoadProfileReaders) {
             this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
-            CollectedLoadProfileConfiguration lpc = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getDeviceIdentifier());
-
-
+            CollectedLoadProfileConfiguration lpc = this.collectedDataFactory.createCollectedLoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getDeviceIdentifier());
             try {
                 List<ChannelInfo> channelInfos = constructChannelInfos(lpr);
                 lpc.setChannelInfos(channelInfos);
@@ -177,7 +177,7 @@ public class LoadProfileBuilder {
             CollectedLoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
             if (this.channelInfoMap.containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
                 List<ChannelInfo> channelInfos = this.channelInfoMap.get(lpr);
-                CollectedLoadProfile collectedLoadProfile = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfile(lpr.getLoadProfileIdentifier());
+                CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(lpr.getLoadProfileIdentifier());
                 List<IntervalData> collectedIntervalData = new ArrayList<>();
 
                 for (ChannelInfo channel : channelInfos) {
@@ -199,7 +199,7 @@ public class LoadProfileBuilder {
                 collectedLoadProfile.setCollectedData(collectedIntervalData, channelInfos);
                 collectedLoadProfileList.add(collectedLoadProfile);
             } else {
-                CollectedLoadProfile collectedLoadProfile = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfile(lpr.getLoadProfileIdentifier());
+                CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(lpr.getLoadProfileIdentifier());
                 Issue problem = this.issueService.newWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
                 collectedLoadProfileList.add(collectedLoadProfile);

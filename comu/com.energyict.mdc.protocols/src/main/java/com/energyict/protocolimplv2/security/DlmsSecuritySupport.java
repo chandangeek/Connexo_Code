@@ -80,7 +80,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
+    public List<PropertySpec> getSecurityPropertySpecs() {
         return Arrays.asList(
                 DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService),
                 DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService),
@@ -116,7 +116,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityProperties()) {
+        for (PropertySpec securityProperty : getSecurityPropertySpecs()) {
             if (securityProperty.getName().equals(name)) {
                 return securityProperty;
             }

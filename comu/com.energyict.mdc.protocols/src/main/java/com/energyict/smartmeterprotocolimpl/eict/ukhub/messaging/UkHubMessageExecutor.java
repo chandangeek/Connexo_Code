@@ -1,5 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
+import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.UserFileShadow;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
@@ -25,16 +35,6 @@ import com.energyict.dlms.cosem.ZigBeeSETCControl;
 import com.energyict.dlms.cosem.ZigbeeHanManagement;
 import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
 import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
-import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.UserFile;
-import com.energyict.mdc.protocol.api.UserFileFactory;
-import com.energyict.mdc.protocol.api.UserFileShadow;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.generic.MessageParser;
@@ -73,11 +73,13 @@ public class UkHubMessageExecutor extends MessageParser {
     private static final String RESUME = "resume";
 
     private final AbstractSmartDlmsProtocol protocol;
+    private final UserFileFactory userFileFactory;
 
     private boolean success;
 
-    public UkHubMessageExecutor(final AbstractSmartDlmsProtocol protocol) {
+    public UkHubMessageExecutor(AbstractSmartDlmsProtocol protocol, UserFileFactory userFileFactory) {
         this.protocol = protocol;
+        this.userFileFactory = userFileFactory;
     }
 
     private CosemObjectFactory getCosemObjectFactory() {
@@ -315,14 +317,7 @@ public class UkHubMessageExecutor extends MessageParser {
     }
 
     private UserFile findUserFile(int userFileID) {
-        List<UserFileFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(UserFileFactory.class);
-        for (UserFileFactory codeFactory : factories) {
-            UserFile userFile = codeFactory.findUserFile(userFileID);
-            if (userFile != null) {
-                return userFile;
-            }
-        }
-        return null;
+        return this.userFileFactory.findUserFile(userFileID);
     }
 
     private void zigbeeNCPFirmwareUpdate(MessageHandler messageHandler, String content) throws IOException {
@@ -438,11 +433,7 @@ public class UkHubMessageExecutor extends MessageParser {
     }
 
     private UserFile createUserFile(UserFileShadow shadow) throws SQLException, BusinessException {
-        List<UserFileFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(UserFileFactory.class);
-        for (UserFileFactory codeFactory : factories) {
-            return codeFactory.createUserFile(shadow);
-        }
-        throw new BusinessException("noModuleToCreateUserFile", "Failure to create UserFile because no module is available to do it");
+        return this.userFileFactory.createUserFile(shadow);
     }
 
     private void restoreZigBeeHanParameters(final MessageHandler messageHandler) throws IOException {

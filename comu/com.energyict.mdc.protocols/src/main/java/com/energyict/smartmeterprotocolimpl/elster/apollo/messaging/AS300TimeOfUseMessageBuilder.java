@@ -1,6 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
+
 import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -15,6 +18,10 @@ import java.util.Calendar;
 public class AS300TimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
 
     public static final String RAW_CONTENT_TAG = "Activity_Calendar";
+
+    public AS300TimeOfUseMessageBuilder(CodeFactory codeFactory, UserFileFactory userFileFactory) {
+        super(codeFactory, userFileFactory);
+    }
 
     /**
      * We override this because we can't convert the CodeTable content in a proper manner ...

@@ -8,12 +8,13 @@ import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -59,8 +60,8 @@ public class CX20009 extends AbstractDlmsProtocol {
     private EDPMessaging edpMessaging;
 
     @Inject
-    public CX20009(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService) {
-        super(propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService);
+    public CX20009(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
+        super(propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, loadProfileFactory);
     }
 
     @Override
@@ -194,27 +195,28 @@ public class CX20009 extends AbstractDlmsProtocol {
      */
     @Override
     public CollectedTopology getDeviceTopology() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedTopology(getOfflineDevice().getDeviceIdentifier());
+        return this.getCollectedDataFactory().createCollectedTopology(getOfflineDevice().getDeviceIdentifier());
     }
 
     private LogbookReader getLogbookReader() {
         if (logbookReader == null) {
-            logbookReader = new LogbookReader(this, this.getIssueService());
+            logbookReader = new LogbookReader(this, this.getIssueService(), this.getCollectedDataFactory());
         }
         return logbookReader;
     }
 
     private EDPMessaging getMessaging() {
         if (edpMessaging == null) {
-            edpMessaging = new EDPMessaging(new EDPMessageExecutor(this, this.getIssueService(), this.getReadingTypeUtilService()));
+            edpMessaging = new EDPMessaging(new EDPMessageExecutor(this, this.getIssueService(), this.getReadingTypeUtilService(), this.getCollectedDataFactory()));
         }
         return edpMessaging;
     }
 
     public RegisterReader getRegisterReader() {
         if (registerReader == null) {
-            registerReader = new RegisterReader(this, this.getIssueService());
+            registerReader = new RegisterReader(this, this.getIssueService(), this.getCollectedDataFactory());
         }
         return registerReader;
     }
+
 }

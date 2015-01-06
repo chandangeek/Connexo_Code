@@ -1,10 +1,8 @@
 package com.energyict.protocols.messaging;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.protocol.api.UserFile;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 

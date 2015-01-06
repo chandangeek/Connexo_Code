@@ -19,7 +19,6 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.dynamic.TimeOfDayFactory;
 import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -45,6 +44,9 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilitie
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 
@@ -98,14 +100,18 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
      * Keeps track of all the protocol properties <b>AND</b> the current deviceProtocolDialectProperties
      */
     private TypedProperties typedProperties = TypedProperties.empty();
+    private final ProtocolPluggableService protocolPluggableService;
     private final PropertySpecService propertySpecService;
     private final IdentificationService identificationService;
+    private final CollectedDataFactory collectedDataFactory;
 
     @Inject
-    public SDKDeviceProtocolTestWithAllProperties(PropertySpecService propertySpecService, IdentificationService identificationService) {
+    public SDKDeviceProtocolTestWithAllProperties(ProtocolPluggableService protocolPluggableService, PropertySpecService propertySpecService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         super();
+        this.protocolPluggableService = protocolPluggableService;
         this.propertySpecService = propertySpecService;
         this.identificationService = identificationService;
+        this.collectedDataFactory = collectedDataFactory;
         this.deviceProtocolSecurityCapabilities = new DlmsSecuritySupport(propertySpecService);
     }
 
@@ -252,7 +258,7 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
 
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-        CollectedDataFactory collectedDataFactory = this.getCollectedDataFactory();
+        CollectedDataFactory collectedDataFactory = this.collectedDataFactory;
         List<CollectedLoadProfileConfiguration> loadProfileConfigurations = new ArrayList<>();
         // by default all loadProfileReaders are supported, only if the corresponding ObisCodeProperty matches, we mark it as not supported
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
@@ -341,7 +347,7 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
+    public List<PropertySpec> getSecurityPropertySpecs() {
         return Collections.emptyList();
     }
 
@@ -373,7 +379,7 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        final CollectedTopology collectedTopology = this.getCollectedDataFactory().createCollectedTopology(this.offlineDevice.getDeviceIdentifier());
+        final CollectedTopology collectedTopology = this.collectedDataFactory.createCollectedTopology(this.offlineDevice.getDeviceIdentifier());
         if (!is(getSlaveOneSerialNumber()).empty()) {
             collectedTopology.addSlaveDevice(this.identificationService.createDeviceIdentifierBySerialNumber(getSlaveOneSerialNumber()));
         }
@@ -434,17 +440,13 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
         List<ConnectionType> connectionTypes = new ArrayList<>();
         for (ConnectionTypeRule connectionTypeRule : ConnectionTypeRule.values()) {
             try {
-                connectionTypes.add(connectionTypeRule.getProtocolTypeClass().newInstance());
+                connectionTypes.add(this.protocolPluggableService.createConnectionType(connectionTypeRule.getProtocolTypeClass().getName()));
             }
-            catch (InstantiationException | IllegalAccessException e) {
+            catch (UnableToCreateConnectionType e) {
                 e.printStackTrace(System.err);
             }
         }
         return connectionTypes;
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
 }

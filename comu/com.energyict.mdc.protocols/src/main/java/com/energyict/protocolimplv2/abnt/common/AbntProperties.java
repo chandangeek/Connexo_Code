@@ -124,7 +124,7 @@ public class AbntProperties extends BasicDynamicPropertySupport {
         return this.properties;
     }
 
-    private PropertySpec<BigDecimal> readerSerialNumberPropertySpec() {
+    private PropertySpec readerSerialNumberPropertySpec() {
         return getPropertySpecService().bigDecimalPropertySpec(READER_SERIAL_NUMBER_PROPERTY, false, DEFAULT_READER_SERIAL_NUMBER);
     }
 

@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd;
 
+import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
@@ -27,8 +28,8 @@ import java.util.List;
 public class InHomeDisplay extends UkHub {
 
     @Inject
-    public InHomeDisplay(OrmClient ormClient) {
-        super(ormClient);
+    public InHomeDisplay(OrmClient ormClient, UserFileFactory userFileFactory) {
+        super(ormClient, userFileFactory);
     }
 
     @Override
@@ -39,7 +40,7 @@ public class InHomeDisplay extends UkHub {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new InHomeDisplayMessaging(new InHomeDisplayMessageExecutor(this));
+            messageProtocol = new InHomeDisplayMessaging(new InHomeDisplayMessageExecutor(this, this.getUserFileFactory()));
         }
         return messageProtocol;
     }
@@ -73,4 +74,5 @@ public class InHomeDisplay extends UkHub {
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
         throw new UnsupportedException("InHomeDisplay, getLoadProfileData(List<LoadProfileReader> loadProfiles) not supported.");
     }
+
 }

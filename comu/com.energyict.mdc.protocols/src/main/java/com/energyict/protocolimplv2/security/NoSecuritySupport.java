@@ -25,7 +25,7 @@ public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, Le
     private final String authenticationTranslationKeyConstant = "NoSecuritySupport.authenticationlevel.";
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
+    public List<PropertySpec> getSecurityPropertySpecs() {
         return Collections.emptyList();
     }
 
