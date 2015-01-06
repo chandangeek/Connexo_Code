@@ -75,14 +75,18 @@ Ext.define('Uni.controller.AppController', {
     packages: [],
     // </debug>
 
-    init: function () {
+    init: function (app) {
 
         var me = this;
         me.initCrossroads();
 
-        me.getController('Uni.controller.Navigation').applicationTitle = me.applicationTitle;
-        me.getController('Uni.controller.Navigation').searchEnabled = me.searchEnabled;
-        me.getController('Uni.controller.Navigation').onlineHelpEnabled = me.onlineHelpEnabled;
+        me.getController('Uni.controller.Navigation');
+        me.getApplication().fireEvent('onnavigationtitlechanged', me.applicationTitle);
+        me.getApplication().fireEvent('onnavigationtogglesearch', me.searchEnabled);
+        me.getApplication().fireEvent('ononlinehelpenabled', me.onlineHelpEnabled);
+
+
+
         me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
         me.getApplication().on('changecontentevent', me.showContent, me);
         me.getApplication().on('sessionexpired', me.redirectToLogin, me);
@@ -116,9 +120,10 @@ Ext.define('Uni.controller.AppController', {
     },
 
     showContent: function (widget) {
+        Ext.suspendLayouts();
         this.getContentPanel().removeAll();
         this.getContentPanel().add(widget);
-        this.getContentPanel().doComponentLayout();
+        Ext.resumeLayouts();
     },
 
     checkLicenseStatus: function () {
