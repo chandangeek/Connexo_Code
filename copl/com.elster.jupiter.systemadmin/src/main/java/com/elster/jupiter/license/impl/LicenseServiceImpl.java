@@ -90,7 +90,6 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
     }
 
     private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("SYS", "dataPurge.dataPurge", "dataPurge.dataPurge.description", new String[]{Privileges.VIEW_DATA_PURGE, Privileges.ADMINISTRATE_DATA_PURGE});
         this.userService.createResourceWithPrivileges("SYS", "license.license", "license.license.description", new String[]{Privileges.VIEW_LICENSE, Privileges.UPLOAD_LICENSE});
     }
 
