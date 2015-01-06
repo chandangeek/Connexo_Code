@@ -25,7 +25,7 @@ import java.util.TimeZone;
  */
 public class DateTime implements Comparable, Serializable {
 
-    private static ThreadLocal<Calendar> threadLocalCalendar = new ThreadLocal<Calendar>();
+    private static ThreadLocal<Calendar> threadLocalCalendar = new ThreadLocal<>();
     private int dstamp;
     private int tstamp;
     private TimeZone timeZone;

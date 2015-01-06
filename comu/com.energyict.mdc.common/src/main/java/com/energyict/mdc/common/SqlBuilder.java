@@ -42,7 +42,6 @@ public class SqlBuilder {
     private List<String> bindTypeNames;
     private boolean hasWhere = false;
     private Calendar calendar;
-    private int fetchSize = USE_DEFAULT_FETCH_SIZE;
 
     public SqlBuilder() {
         this(new StringBuffer());
@@ -66,13 +65,6 @@ public class SqlBuilder {
         return calendar;
     }
 
-    public void setFetchSize (int fetchSize) throws SQLException {
-        if (fetchSize <= 0) {
-            throw new IllegalArgumentException("Fetchsize must be strictly positive");
-        }
-        this.fetchSize = fetchSize;
-    }
-
     public void append(String text) {
         buffer.append(text);
     }
@@ -89,12 +81,6 @@ public class SqlBuilder {
         buffer.append(text);
     }
 
-    public void bindStruct(Object bindVar) {
-        bindObjects.add(bindVar);
-        bindTypes.add(STRUCT);
-        bindTypeNames.add("");
-    }
-
     public void bindObject(Object bindVar) {
         bindObjects.add(bindVar);
         bindTypes.add(OBJECT);
@@ -107,46 +93,10 @@ public class SqlBuilder {
         bindTypeNames.add("");
     }
 
-    public void bindLargeString(String bindVar) {
-        bindObjects.add(bindVar);
-        bindTypes.add(CLOB);
-        bindTypeNames.add("");
-    }
-
-    public void bindBoolean(boolean bindVar) {
-        bindObjects.add(new Integer(bindVar ? 1 : 0));
-        bindTypes.add(INTEGER);
-        bindTypeNames.add("");
-    }
-
-    public void bindDouble(double bindVar) {
-        bindObjects.add(new Double(bindVar));
-        bindTypes.add(DOUBLE);
-        bindTypeNames.add("");
-    }
-
     public void bindInt(int bindVar) {
         bindObjects.add(new Integer(bindVar));
         bindTypes.add(INTEGER);
         bindTypeNames.add("");
-    }
-
-    public void bindIntToNull() {
-        bindObjects.add(null);
-        bindTypes.add(INTEGER);
-        bindTypeNames.add("");
-    }
-
-    public void bindNull(int sqlType) {
-        bindObjects.add(null);
-        bindTypes.add(sqlType);
-        bindTypeNames.add("");
-    }
-
-    public void bindNull(int sqlType, String typeName) {
-        bindObjects.add(null);
-        bindTypes.add(sqlType);
-        bindTypeNames.add(typeName);
     }
 
     public void bindLong(long bindVar) {
@@ -161,26 +111,6 @@ public class SqlBuilder {
         bindTypeNames.add("");
     }
 
-    public void bindBigDecimal(BigDecimal bindVar) {
-        bindObjects.add(bindVar);
-        bindTypes.add(BIGDECIMAL);
-        bindTypeNames.add("");
-    }
-
-    public void bindTimestamp(Date bindVar) {
-        Timestamp ts = null;
-        if (bindVar != null) {
-            if (bindVar instanceof Timestamp) {
-                ts = (Timestamp) bindVar;
-            } else {
-                ts = new Timestamp(bindVar.getTime());
-            }
-        }
-        bindObjects.add(ts);
-        bindTypes.add(TIMESTAMP);
-        bindTypeNames.add("");
-    }
-
     public void bindTimestamp(Instant bindVar) {
         Timestamp ts = null;
         if (bindVar != null) {
@@ -191,32 +121,6 @@ public class SqlBuilder {
         bindTypeNames.add("");
     }
 
-    public void bindUtcTimestamp(Date bindVar) {
-        Timestamp ts = null;
-        if (bindVar != null) {
-            if (bindVar instanceof Timestamp) {
-                ts = (Timestamp) bindVar;
-            } else {
-                ts = new Timestamp(bindVar.getTime());
-            }
-        }
-        bindObjects.add(ts);
-        bindTypes.add(UTCTIMESTAMP);
-        bindTypeNames.add("");
-    }
-
-    public void bindDate(Date bindVar) {
-        java.sql.Date date;
-        if (bindVar instanceof java.sql.Date) {
-            date = (java.sql.Date) bindVar;
-        } else {
-            date = new java.sql.Date(bindVar.getTime());
-        }
-        bindObjects.add(date);
-        bindTypes.add(DATE);
-        bindTypeNames.add("");
-    }
-
     public void bindDate(Instant bindVar) {
         java.sql.Date date = new java.sql.Date(bindVar.toEpochMilli());
         bindObjects.add(date);
@@ -224,29 +128,8 @@ public class SqlBuilder {
         bindTypeNames.add("");
     }
 
-    public void appendAndBindLikePattern(String bindVar) {
-        append(" like ? escape '!' ");
-        bindString(toSqlLikePattern(bindVar));
-    }
-
-    private String toSqlLikePattern(String in) {
-        String inputString;
-        String escapeChar = "!";
-        StringBuilder buf = new StringBuilder(in.length() + 3);
-        for (int i = 0, max = in.length(); i < max; i++) {
-            char c = in.charAt(i);
-            if (c == '_' || c == '%' || c == '!') {
-                buf.append(escapeChar);
-            }
-            buf.append(c);
-        }
-        inputString = buf.toString();
-        return inputString.replace('*', '%').replace('?', '_');
-    }
-
     public PreparedStatement getStatement(Connection conn) throws SQLException {
         PreparedStatement result = conn.prepareStatement(buffer.toString());
-        this.setFetchSize(result);
         boolean failed = true;
         try {
             bind(result);
@@ -257,12 +140,6 @@ public class SqlBuilder {
             }
         }
         return result;
-    }
-
-    private void setFetchSize (PreparedStatement preparedStatement) throws SQLException {
-        if (USE_DEFAULT_FETCH_SIZE != this.fetchSize) {
-            preparedStatement.setFetchSize(this.fetchSize);
-        }
     }
 
     public void bind(PreparedStatement stmnt) throws SQLException {
@@ -368,20 +245,10 @@ public class SqlBuilder {
         buffer.append(")");
     }
 
-    public void bindUtc(Date bindVar) {
-        bindObjects.add(bindVar.getTime() / 1000L);
-        bindTypes.add(LONG);
-        bindTypeNames.add("");
-    }
-
     public void bindUtc(Instant bindVar) {
         bindObjects.add(bindVar.getEpochSecond());
         bindTypes.add(LONG);
         bindTypeNames.add("");
-    }
-
-    public String sqlText() {
-        return buffer.toString();
     }
 
     public String expandedText() {
@@ -447,15 +314,6 @@ public class SqlBuilder {
         }
     }
 
-    public void appendWhereOrOr() {
-        if (hasWhere) {
-            buffer.append(" or ");
-        } else {
-            buffer.append(" where ");
-            hasWhere = true;
-        }
-    }
-
     public void append(SqlBuilder other) {
         buffer.append(other.buffer);
         bindObjects.addAll(other.bindObjects);
@@ -464,7 +322,7 @@ public class SqlBuilder {
     }
 
     public void replace(SqlBuilder other){
-        if (other != this){
+        if (other != this) {
             buffer.setLength(0);
             append(other);
         }
@@ -490,52 +348,6 @@ public class SqlBuilder {
         builder.append("where rnum >= ?");
         builder.bindInt(fromRow);
         return builder;
-    }
-
-    public List getBindObjects() {
-        return bindObjects;
-    }
-
-    public List<Integer> getSqlBindTypes() {
-        List<Integer> sqlTypes = new ArrayList<>(bindTypes.size());
-        for (int bindType : bindTypes) {
-            switch (bindType) {
-                case OBJECT:
-                    sqlTypes.add(Types.JAVA_OBJECT);
-                    break;
-                case CLOB:
-                    sqlTypes.add(Types.CLOB);
-                    break;
-                case STRING:
-                    sqlTypes.add(Types.VARCHAR);
-                    break;
-                case INTEGER:
-                    sqlTypes.add(Types.INTEGER);
-                    break;
-                case LONG:
-                    sqlTypes.add(Types.BIGINT);
-                    break;
-                case DOUBLE:
-                    sqlTypes.add(Types.DOUBLE);
-                    break;
-                case TIMESTAMP:
-                    sqlTypes.add(Types.TIMESTAMP);
-                    break;
-                case BIGDECIMAL:
-                    sqlTypes.add(Types.DECIMAL);
-                    break;
-                case DATE:
-                    sqlTypes.add(Types.DATE);
-                    break;
-                case UTCTIMESTAMP:
-                    sqlTypes.add(Types.TIMESTAMP);
-                    break;
-                case STRUCT:
-                    sqlTypes.add(Types.STRUCT);
-                    break;
-            }
-        }
-        return sqlTypes;
     }
 
     public String toString() {
