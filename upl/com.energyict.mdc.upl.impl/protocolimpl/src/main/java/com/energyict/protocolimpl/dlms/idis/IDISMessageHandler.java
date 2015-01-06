@@ -4,14 +4,16 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.dlms.idis.xml.XMLParser;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -34,6 +36,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
     private static final ObisCode RELAY_CONTROL_OBISCODE = ObisCode.fromString("0.0.96.3.10.255");
     private static final ObisCode TIMED_CONNECTOR_ACTION_OBISCODE = ObisCode.fromString("0.0.15.0.1.255");
     private static final ObisCode DISCONNECTOR_SCRIPT_OBISCODE = ObisCode.fromString("0.0.10.0.106.255");
+    private static final ObisCode ERROR_BITS_OBISCODE = ObisCode.fromString("0.0.97.97.0.255");
     private static final ObisCode ALARM_BITS_OBISCODE = ObisCode.fromString("0.0.97.98.0.255");
     private static final ObisCode ALARM_FILTER_OBISCODE = ObisCode.fromString("0.0.97.98.10.255");
     protected static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
@@ -71,6 +74,8 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
                     return closeRelay(messageEntry);
                 } else if (messageEntry.getContent().contains("<ResetAllAlarmBits")) {
                     return resetAllAlarmBits(messageEntry);
+                } else if (messageEntry.getContent().contains("<ResetAllErrorBits")) {
+                    return resetAllErrorBits(messageEntry);
                 } else if (messageEntry.getContent().contains("<ForceTime")) {
                     return forceTime(messageEntry);
                 } else if (messageEntry.getContent().contains("<SetTimeOutNotAddressed")) {
@@ -136,20 +141,30 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
     }
 
     private MessageResult writeActivityCalendar(MessageEntry messageEntry) throws IOException {
-        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(idis.getCosemObjectFactory(), idis.getTimeZone());
-        activityCalendarController.parseContent(messageEntry.getContent());
-        activityCalendarController.writeCalendarName("");
-        activityCalendarController.writeCalendar();
-        idis.getLogger().log(Level.INFO, "Activity calendar was successfully written");
-        return MessageResult.createSuccess(messageEntry);
+        try {
+            ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(idis.getCosemObjectFactory(), idis.getTimeZone());
+            activityCalendarController.parseContent(messageEntry.getContent());
+            activityCalendarController.writeCalendarName("");
+            activityCalendarController.writeCalendar();
+            idis.getLogger().log(Level.INFO, "Activity calendar was successfully written");
+            return MessageResult.createSuccess(messageEntry);
+        } catch (DataAccessResultException e) {
+            idis.getLogger().severe("Writing of the activity calendar failed: " + e.getMessage());
+            return MessageResult.createFailed(messageEntry, e.getMessage());   //Meter did not accept the specified code table, set message to failed
+        }
     }
 
     private MessageResult writeSpecialDays(MessageEntry messageEntry) throws IOException {
-        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(idis.getCosemObjectFactory(), idis.getTimeZone());
-        activityCalendarController.parseContent(messageEntry.getContent());
-        activityCalendarController.writeSpecialDaysTable();
-        idis.getLogger().log(Level.INFO, "Special days were successfully written");
-        return MessageResult.createSuccess(messageEntry);
+        try {
+            ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(idis.getCosemObjectFactory(), idis.getTimeZone());
+            activityCalendarController.parseContent(messageEntry.getContent());
+            activityCalendarController.writeSpecialDaysTable();
+            idis.getLogger().log(Level.INFO, "Special days were successfully written");
+            return MessageResult.createSuccess(messageEntry);
+        } catch (DataAccessResultException e) {
+            idis.getLogger().severe("Writing of the special days table failed: " + e.getMessage());
+            return MessageResult.createFailed(messageEntry, e.getMessage());   //Meter did not accept the specified code table, set message to failed
+        }
     }
 
     protected MessageResult remoteDisconnect(MessageEntry messageEntry) throws IOException {
@@ -222,6 +237,15 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
         data.setValueAttr(new Unsigned32(alarmBits));
 
         idis.getLogger().log(Level.INFO, "Alarm bits are successfully cleared");
+        return MessageResult.createSuccess(messageEntry);
+    }
+
+    protected MessageResult resetAllErrorBits(MessageEntry messageEntry) throws IOException {
+        Data data = idis.getCosemObjectFactory().getData(ERROR_BITS_OBISCODE);
+        long errorBits = data.getValueAttr().longValue();
+        data.setValueAttr(new Unsigned32(errorBits));
+
+        idis.getLogger().log(Level.INFO, "Error bits are successfully cleared");
         return MessageResult.createSuccess(messageEntry);
     }
 
