@@ -41,6 +41,8 @@ public interface CollectedDataFactory {
 
     public CollectedMessage createCollectedMessageWithRegisterData(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, List<CollectedRegister> collectedRegisters);
 
+    public CollectedMessage createCollectedMessageTopology(MessageIdentifier messageIdentifier, CollectedTopology collectedTopology);
+
     public CollectedDeviceCache createCollectedDeviceCache(DeviceIdentifier deviceIdentifier);
 
     public CollectedMessageList createCollectedMessageList(List<OfflineDeviceMessage> offlineDeviceMessages);

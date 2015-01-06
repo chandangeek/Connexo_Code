@@ -62,5 +62,9 @@ public interface CollectedTopology extends CollectedData {
 
     public void addPathSegmentFor(DeviceIdentifier source, DeviceIdentifier target, DeviceIdentifier intermediateHop, Duration timeToLive, int cost);
 
+    public void addTopologyNeighbour(DeviceIdentifier neighbour, int modulationSchema, long toneMap, int modulation, int txGain, int txRes, int txCoeff, int lqi, int phaseDifferential, int tmrValidTime, int neighbourValidTime);
+
     public List<TopologyPathSegment> getTopologyPathSegments();
+
+    public List<TopologyNeighbour> getTopologyNeighbours();
 }

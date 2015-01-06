@@ -4,7 +4,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
 /**
- * A collectedMessages identifies a {@link com.energyict.mdc.messages.DeviceMessage} executed by the device and the
+ * A collectedMessages identifies a DeviceMessage executed by the device and the
  * result from the execution
  *
  * @author gna
@@ -22,7 +22,7 @@ public interface CollectedMessage extends CollectedData {
 
     /**
      * Provides the {@link DeviceMessageStatus status} the
-     * {@link com.energyict.mdc.messages.DeviceMessage DeviceMessage} should have after
+     * DeviceMessage should have after
      * the message has been forwarded to the device.
      *
      * @return the new DeviceMessageStatus
@@ -30,7 +30,7 @@ public interface CollectedMessage extends CollectedData {
     public DeviceMessageStatus getNewDeviceMessageStatus();
 
     /**
-     * Set the {@link DeviceMessageStatus status} the {@link com.energyict.mdc.messages.DeviceMessage message}
+     * Set the {@link DeviceMessageStatus status} the DeviceMessage
      * should have after it has been forwarded to the device
      */
     public void setNewDeviceMessageStatus(DeviceMessageStatus deviceMessageStatus);
@@ -50,5 +50,7 @@ public interface CollectedMessage extends CollectedData {
      * @param deviceProtocolInformation the additional information text
      */
     public void setDeviceProtocolInformation(String deviceProtocolInformation);
+
+    public void setDataCollectionConfiguration (DataCollectionConfiguration configuration);
 
 }
