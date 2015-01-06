@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data;
 
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
 import com.elster.jupiter.time.TimeDuration;
 import com.google.common.collect.Range;
@@ -9,7 +8,6 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 

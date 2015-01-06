@@ -1,16 +1,18 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.masterdata.LogBookType;
-import org.junit.Before;
-import org.junit.Test;
 
-import java.util.Date;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+
+import java.time.Instant;
+import java.util.Optional;
+
+import org.junit.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -74,7 +76,7 @@ public class LogBookImplTest extends PersistenceIntegrationTest {
 
     private LogBook getReloadedLogBook(Device device) {
         Device reloadedDevice = getReloadedDevice(device);
-        return (LogBook) reloadedDevice.getLogBooks().get(0);
+        return reloadedDevice.getLogBooks().get(0);
     }
 
     @Test
@@ -86,7 +88,7 @@ public class LogBookImplTest extends PersistenceIntegrationTest {
         assertThat(reloadedLogBook.getLastLogBook()).isNull();
     }
 
-    private void tryToUpdateLastReading(Device simpleDeviceWithLogBook, Date newLastReading, LogBook reloadedLogBook) {
+    private void tryToUpdateLastReading(Device simpleDeviceWithLogBook, Instant newLastReading, LogBook reloadedLogBook) {
         LogBook.LogBookUpdater logBookUpdater = simpleDeviceWithLogBook.getLogBookUpdaterFor(reloadedLogBook);
         logBookUpdater.setLastLogBookIfLater(newLastReading);
         logBookUpdater.update();
@@ -96,21 +98,21 @@ public class LogBookImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void updateLastReadingIfLastReadingWasNullTest() {
         Device simpleDeviceWithLogBook = createSimpleDeviceWithLogBook();
-        Date newLastReading = new Date(123546);
+        Instant newLastReading = Instant.ofEpochMilli(123546);
 
         LogBook reloadedLogBook = getReloadedLogBook(simpleDeviceWithLogBook);
         tryToUpdateLastReading(simpleDeviceWithLogBook, newLastReading, reloadedLogBook);
 
         LogBook updatedLogBook = getReloadedLogBook(simpleDeviceWithLogBook);
-        assertThat(updatedLogBook.getLastLogBook()).isEqualTo(newLastReading);
+        assertThat(updatedLogBook.getLastLogBook()).isEqualTo(Optional.of(newLastReading));
     }
 
     @Test
     @Transactional
     public void updateLastReadingIfLastReadingIsBeforeOldLastReadingTest() {
         Device simpleDeviceWithLogBook = createSimpleDeviceWithLogBook();
-        Date originalLastReading = new Date(123546);
-        Date newLastReading = new Date(1);
+        Instant originalLastReading = Instant.ofEpochMilli(123546);
+        Instant newLastReading = Instant.ofEpochMilli(1);
 
         LogBook reloadedLogBook = getReloadedLogBook(simpleDeviceWithLogBook);
         tryToUpdateLastReading(simpleDeviceWithLogBook, originalLastReading, reloadedLogBook);
@@ -118,15 +120,15 @@ public class LogBookImplTest extends PersistenceIntegrationTest {
         tryToUpdateLastReading(simpleDeviceWithLogBook, newLastReading, updatedLogBook);
 
         LogBook logBook = getReloadedLogBook(simpleDeviceWithLogBook);
-        assertThat(logBook.getLastLogBook()).isEqualTo(originalLastReading);
+        assertThat(logBook.getLastLogBook()).isEqualTo(Optional.of(originalLastReading));
     }
 
     @Test
     @Transactional
     public void updateLastReadingIfLastReadingIsAfterOldLastReadingTest() {
         Device simpleDeviceWithLogBook = createSimpleDeviceWithLogBook();
-        Date originalLastReading = new Date(123546);
-        Date newLastReading = new Date(999999);
+        Instant originalLastReading = Instant.ofEpochMilli(123546);
+        Instant newLastReading = Instant.ofEpochMilli(999999);
 
         LogBook reloadedLogBook = getReloadedLogBook(simpleDeviceWithLogBook);
         tryToUpdateLastReading(simpleDeviceWithLogBook, originalLastReading, reloadedLogBook);
@@ -134,7 +136,7 @@ public class LogBookImplTest extends PersistenceIntegrationTest {
         tryToUpdateLastReading(simpleDeviceWithLogBook, newLastReading, updatedLogBook);
 
         LogBook logBook = getReloadedLogBook(simpleDeviceWithLogBook);
-        assertThat(logBook.getLastLogBook()).isEqualTo(newLastReading);
+        assertThat(logBook.getLastLogBook()).isEqualTo(Optional.of(newLastReading));
     }
 
     @Test

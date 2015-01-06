@@ -2,14 +2,16 @@ package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.device.BaseLogBook;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Models a Logbook on a Device.
@@ -22,7 +24,7 @@ public interface LogBook extends BaseLogBook, HasId {
 
     Device getDevice();
 
-    Date getLastLogBook();
+    Optional<Instant> getLastLogBook();
 
     LogBookSpec getLogBookSpec();
 
@@ -32,10 +34,10 @@ public interface LogBook extends BaseLogBook, HasId {
      * Time at which the logbook was was updated in the DB with a new event
      * @return
      */
-    Date getLatestEventAdditionDate();
+    Optional<Instant> getLatestEventAdditionDate();
 
-    List<EndDeviceEventRecord> getEndDeviceEvents(Interval interval);
-    
+    List<EndDeviceEventRecord> getEndDeviceEvents(Range<Instant> interval);
+
     List<EndDeviceEventRecord> getEndDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter);
 
     /**
@@ -49,13 +51,14 @@ public interface LogBook extends BaseLogBook, HasId {
          *
          * @param lastReading the new last reading.
          */
-        LogBookUpdater setLastLogBookIfLater(Date lastReading);
+        LogBookUpdater setLastLogBookIfLater(Instant lastReading);
 
         /**
          * Updates the com.energyict.mdc.device.data.LogBook, preferably via his Device
          */
         void update();
 
-        LogBookUpdater setLastReadingIfLater(Date date);
+        LogBookUpdater setLastReadingIfLater(Instant date);
     }
+
 }

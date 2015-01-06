@@ -6,7 +6,8 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.data.Device;
@@ -16,9 +17,8 @@ import com.energyict.mdc.masterdata.LogBookType;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -76,12 +76,8 @@ public class LogBookImpl implements LogBook {
     }
 
     @Override
-    public Date getLastLogBook() {
-        if (lastEventOccurrence != null) {
-            return Date.from(lastEventOccurrence);
-        } else {
-            return null;
-        }
+    public Optional<Instant> getLastLogBook() {
+        return Optional.ofNullable(this.lastEventOccurrence);
     }
 
     private void update() {
@@ -104,14 +100,14 @@ public class LogBookImpl implements LogBook {
     }
 
     @Override
-    public Date getLatestEventAdditionDate() {
-        return latestEventAddition !=null ? Date.from(latestEventAddition) : null;
+    public Optional<Instant> getLatestEventAdditionDate() {
+        return Optional.ofNullable(latestEventAddition);
     }
 
     @Override
-    public List<EndDeviceEventRecord> getEndDeviceEvents(Interval interval) {
+    public List<EndDeviceEventRecord> getEndDeviceEvents(Range<Instant> interval) {
         EndDeviceEventRecordFilterSpecification filter = new EndDeviceEventRecordFilterSpecification();
-        filter.range = interval.toClosedRange();
+        filter.range = interval;
         return getEndDeviceEventsByFilter(filter);
     }
 
@@ -133,19 +129,19 @@ public class LogBookImpl implements LogBook {
         }
 
         @Override
-        public LogBook.LogBookUpdater setLastLogBookIfLater(Date lastReading) {
+        public LogBook.LogBookUpdater setLastLogBookIfLater(Instant lastReading) {
             Instant logBookLastReading = this.logBook.lastEventOccurrence;
-            if (lastReading != null && (logBookLastReading == null || lastReading.toInstant().isAfter(logBookLastReading))) {
-                this.logBook.lastEventOccurrence = lastReading.toInstant();
+            if (lastReading != null && (logBookLastReading == null || lastReading.isAfter(logBookLastReading))) {
+                this.logBook.lastEventOccurrence = lastReading;
             }
             return this;
         }
 
         @Override
-        public LogBook.LogBookUpdater setLastReadingIfLater(Date createTime) {
+        public LogBook.LogBookUpdater setLastReadingIfLater(Instant createTime) {
             Instant logBookCreateTime = this.logBook.latestEventAddition;
-            if (createTime != null && (logBookCreateTime == null || createTime.toInstant().isAfter(logBookCreateTime))) {
-                this.logBook.latestEventAddition = createTime.toInstant();
+            if (createTime != null && (logBookCreateTime == null || createTime.isAfter(logBookCreateTime))) {
+                this.logBook.latestEventAddition = createTime;
             }
             return this;
 

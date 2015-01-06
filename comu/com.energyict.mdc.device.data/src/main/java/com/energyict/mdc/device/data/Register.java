@@ -1,16 +1,14 @@
 package com.energyict.mdc.device.data;
 
-import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Interval;
 
 import java.time.Instant;
-import java.util.Optional;
-
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Defines the non-persistent representation of a Register.
@@ -59,7 +57,7 @@ public interface Register<R extends Reading> extends BaseRegister {
      * @return The Reading
      * @see Reading#getTimeStamp()
      */
-    public Optional<R> getReading(Date timestamp);
+    public Optional<R> getReading(Instant timestamp);
 
     public Optional<R> getLastReading();
 

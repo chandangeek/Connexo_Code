@@ -19,7 +19,6 @@ import java.util.Optional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -58,11 +57,7 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
     }
 
     @Override
-    public Optional<R> getReading(Date timestamp) {
-        return this.getReading(timestamp.toInstant());
-    }
-
-    private Optional<R> getReading(Instant timestamp) {
+    public Optional<R> getReading(Instant timestamp) {
         List<R> atMostOne = this.getReadings(Range.singleton(timestamp));
         if (atMostOne.isEmpty()) {
             return Optional.empty();
