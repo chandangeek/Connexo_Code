@@ -6,8 +6,10 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents an Offline version of LoadProfile.
@@ -50,7 +52,7 @@ public interface OfflineLoadProfile extends Offline {
      *
      * @return end time of the last interval.
      */
-    public Date getLastReading();
+    public Optional<Instant> getLastReading();
 
     /**
      * Returns the ID of the Device for the LoadProfile object.

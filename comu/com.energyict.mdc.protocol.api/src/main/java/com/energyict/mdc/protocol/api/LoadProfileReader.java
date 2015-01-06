@@ -5,7 +5,9 @@ import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
-import java.util.Date;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.Period;
 import java.util.List;
 
 /**
@@ -18,10 +20,6 @@ import java.util.List;
  * <li>If the endDate is null, then we will use the current Date
  */
 public class LoadProfileReader {
-
-    private static final long SECONDS_IN_DAY = 86400L;
-    private static final long MILLISECONDS_IN_SECOND = 1000L;
-    private static final long DAYS_IN_MONTH = 30L;
 
     /**
      * Holds the <CODE>ObisCode</CODE> from the <CODE>LoadProfile</CODE> to read
@@ -40,12 +38,12 @@ public class LoadProfileReader {
     /**
      * Holds the Date from where to start fetching data from the <CODE>LoadProfile</CODE>
      */
-    private final Date startReadingTime;
+    private final Instant startReadingTime;
 
     /**
      * Holds the Date from the <i>LAST</i> interval to fetch in the <CODE>LoadProfile</CODE>
      */
-    private final Date endReadingTime;
+    private final Instant endReadingTime;
 
     /**
      * Represents the database ID of the LoadProfile to read.
@@ -71,15 +69,15 @@ public class LoadProfileReader {
      * @param meterSerialNumber     the serialNumber of the device which owns this LoadProfile
      * @param loadProfileIdentifier the unique identifier of the LoadProfile
      */
-    public LoadProfileReader(ObisCode profileObisCode, Date startReadingTime, Date endReadingTime, long loadProfileId, DeviceIdentifier<?> deviceIdentifier, List<ChannelInfo> channelInfos, String meterSerialNumber, LoadProfileIdentifier loadProfileIdentifier) {
+    public LoadProfileReader(Clock clock, ObisCode profileObisCode, Instant startReadingTime, Instant endReadingTime, long loadProfileId, DeviceIdentifier<?> deviceIdentifier, List<ChannelInfo> channelInfos, String meterSerialNumber, LoadProfileIdentifier loadProfileIdentifier) {
         this.profileObisCode = profileObisCode;
         if (endReadingTime == null) {
-            this.endReadingTime = new Date();
+            this.endReadingTime = clock.instant();
         } else {
             this.endReadingTime = endReadingTime;
         }
         if (startReadingTime == null) {
-            this.startReadingTime = new Date(this.endReadingTime.getTime() - (DAYS_IN_MONTH * SECONDS_IN_DAY * MILLISECONDS_IN_SECOND));    //endTime - 1 month
+            this.startReadingTime = this.endReadingTime.minus(Period.ofMonths(1));
         } else {
             this.startReadingTime = startReadingTime;
         }
@@ -95,7 +93,7 @@ public class LoadProfileReader {
      *
      * @return the {@link #startReadingTime}
      */
-    public Date getStartReadingTime() {
+    public Instant getStartReadingTime() {
         return startReadingTime;
     }
 
@@ -122,7 +120,7 @@ public class LoadProfileReader {
      *
      * @return the {@link #endReadingTime}
      */
-    public Date getEndReadingTime() {
+    public Instant getEndReadingTime() {
         return endReadingTime;
     }
 
@@ -182,4 +180,5 @@ public class LoadProfileReader {
     public LoadProfileIdentifier getLoadProfileIdentifier() {
         return loadProfileIdentifier;
     }
+
 }

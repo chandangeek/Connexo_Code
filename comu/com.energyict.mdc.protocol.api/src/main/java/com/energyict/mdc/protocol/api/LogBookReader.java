@@ -4,16 +4,15 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
-import java.util.Date;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.Period;
+import java.util.Optional;
 
 /**
  * Straightforward ValueObject representation for a LogBook to read.
  */
 public class LogBookReader {
-
-    private static final long SECONDS_IN_DAY = 86400L;
-    private static final long MILLISECONDS_IN_SECOND = 1000L;
-    private static final long DAYS_IN_MONTH = 30L;
 
     /**
      * Holds the ObisCode from the LogBook to read
@@ -23,7 +22,7 @@ public class LogBookReader {
     /**
      * Holds the Date from where to start fetching data from the LogBook
      */
-    private final Date lastLogBook;
+    private final Instant lastLogBook;
 
     /**
      * The Identifier of the holding Device
@@ -41,11 +40,11 @@ public class LogBookReader {
      * @param logBookIdentifier The LogBookIdentifier, which unique defines the LogBook to read.
      * @param deviceIdentifier The serial number of the meter of the logbook
      */
-    public LogBookReader(ObisCode logBookObisCode, Date lastLogBook, LogBookIdentifier logBookIdentifier, DeviceIdentifier<?> deviceIdentifier) {
-        if (lastLogBook == null) {
-            this.lastLogBook = new Date(new Date().getTime() - (DAYS_IN_MONTH * SECONDS_IN_DAY * MILLISECONDS_IN_SECOND));    //endTime - 1 month
+    public LogBookReader(Clock clock, ObisCode logBookObisCode, Optional<Instant> lastLogBook, LogBookIdentifier logBookIdentifier, DeviceIdentifier<?> deviceIdentifier) {
+        if (!lastLogBook.isPresent()) {
+            this.lastLogBook = clock.instant().minus(Period.ofMonths(1));
         } else {
-            this.lastLogBook = lastLogBook;
+            this.lastLogBook = lastLogBook.get();
         }
         this.logBookObisCode = logBookObisCode;
         this.logBookIdentifier = logBookIdentifier;
@@ -75,7 +74,7 @@ public class LogBookReader {
      *
      * @return the {@link #lastLogBook}
      */
-    public Date getLastLogBook() {
+    public Instant getLastLogBook() {
         return lastLogBook;
     }
 
@@ -87,4 +86,5 @@ public class LogBookReader {
     public LogBookIdentifier getLogBookIdentifier() {
         return logBookIdentifier;
     }
+
 }
