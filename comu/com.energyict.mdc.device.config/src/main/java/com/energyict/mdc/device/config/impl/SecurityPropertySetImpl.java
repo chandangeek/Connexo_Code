@@ -12,7 +12,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -23,7 +22,6 @@ import com.energyict.mdc.device.config.exceptions.CannotDeleteSecurityPropertySe
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -35,7 +33,6 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,6 +44,8 @@ import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.constraints.Size;
+
+import com.google.common.collect.Range;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
@@ -181,18 +180,12 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     @Override
-    public List<RelationType> getAvailableRelationTypes() {
-//TODO        return this.getMdwInterface().getRelationTypeFactory().findByParticipant(this);
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<Relation> getRelations(RelationAttributeType attrib, Date date, boolean includeObsolete) {
+    public List<Relation> getRelations(RelationAttributeType attrib, Instant date, boolean includeObsolete) {
         return attrib.getRelations(this, date, includeObsolete, 0, 0);
     }
 
     @Override
-    public List<Relation> getRelations(RelationAttributeType attrib, Date date, boolean includeObsolete, int fromRow, int toRow) {
+    public List<Relation> getRelations(RelationAttributeType attrib, Instant date, boolean includeObsolete, int fromRow, int toRow) {
         return attrib.getRelations(this, date, includeObsolete, fromRow, toRow);
     }
 
@@ -202,7 +195,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     @Override
-    public List<Relation> getRelations(RelationAttributeType attrib, Interval period, boolean includeObsolete) {
+    public List<Relation> getRelations(RelationAttributeType attrib, Range<Instant> period, boolean includeObsolete) {
         return attrib.getRelations(this, period, includeObsolete);
     }
 
