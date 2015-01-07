@@ -1,6 +1,6 @@
 package com.energyict.mdc.issues.impl;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Implementation of a Non-Issue.
@@ -12,7 +12,7 @@ import java.util.Date;
  */
 public class NonIssue extends IssueDefaultImplementation {
 
-    public NonIssue (Date timestamp) {
+    public NonIssue (Instant timestamp) {
         super(timestamp, "NonIssue");
     }
 

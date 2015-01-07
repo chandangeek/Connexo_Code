@@ -1,6 +1,6 @@
 package com.energyict.mdc.issues;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Models issues that are found by a process while it's executing.
@@ -21,7 +21,7 @@ public interface Issue {
      *
      * @return The timestamp on which this Issue was created
      */
-    public Date getTimestamp ();
+    public Instant getTimestamp ();
 
     /**
      * Gets a human readable description that explains this Issue.

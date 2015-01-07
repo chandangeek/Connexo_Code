@@ -2,7 +2,7 @@ package com.energyict.mdc.issues.impl;
 
 import com.energyict.mdc.issues.Warning;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Models an {@link com.energyict.mdc.issues.Issue Issue} that can be worked around.
@@ -12,11 +12,11 @@ import java.util.Date;
  */
 public class WarningImpl extends IssueDefaultImplementation implements Warning {
 
-    public WarningImpl (Date timestamp, String description) {
+    public WarningImpl (Instant timestamp, String description) {
         super(timestamp, description);
     }
 
-    public WarningImpl (Date timestamp, Object source, String description, Object... arguments) {
+    public WarningImpl (Instant timestamp, Object source, String description, Object... arguments) {
         super(timestamp, source, description, arguments);
     }
 

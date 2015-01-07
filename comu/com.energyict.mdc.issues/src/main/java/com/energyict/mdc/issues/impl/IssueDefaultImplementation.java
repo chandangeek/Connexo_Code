@@ -3,7 +3,7 @@ package com.energyict.mdc.issues.impl;
 import com.energyict.mdc.issues.Issue;
 
 import java.text.MessageFormat;
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Provides a default implementation for the {@link Issue} interface.
@@ -15,13 +15,13 @@ public abstract class IssueDefaultImplementation implements Issue {
 
     private String description;
     private Object source;
-    private Date timestamp;
+    private Instant timestamp;
 
-    public IssueDefaultImplementation (Date timestamp, String description) {
+    public IssueDefaultImplementation (Instant timestamp, String description) {
         this(timestamp, null, description);
     }
 
-    public IssueDefaultImplementation(Date timestamp, Object source, String description, Object... arguments) {
+    public IssueDefaultImplementation(Instant timestamp, Object source, String description, Object... arguments) {
         super();
         this.timestamp = timestamp;
         this.source = source;
@@ -32,7 +32,7 @@ public abstract class IssueDefaultImplementation implements Issue {
      * {@inheritDoc}
      */
     @Override
-    public Date getTimestamp () {
+    public Instant getTimestamp () {
         return this.timestamp;
     }
 

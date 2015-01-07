@@ -2,7 +2,7 @@ package com.energyict.mdc.issues.impl;
 
 import com.energyict.mdc.issues.Problem;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Models an {@link com.energyict.mdc.issues.Issue Issue} that cannot be worked around
@@ -13,11 +13,11 @@ import java.util.Date;
  */
 public class ProblemImpl extends IssueDefaultImplementation implements Problem {
 
-    public ProblemImpl (Date timestamp, String description) {
+    public ProblemImpl (Instant timestamp, String description) {
         super(timestamp, description);
     }
 
-    public ProblemImpl (Date timestamp, Object source, String description, Object... arguments) {
+    public ProblemImpl (Instant timestamp, Object source, String description, Object... arguments) {
         super(timestamp, source, description, arguments);
     }
 
