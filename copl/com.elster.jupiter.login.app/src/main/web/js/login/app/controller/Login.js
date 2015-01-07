@@ -42,8 +42,9 @@ Ext.define('Login.controller.Login', {
     showOverview: function (error) {
         var params = Ext.urlDecode(location.search.substring(1));
         if (typeof params.expired !== 'undefined') {
-            this.getLoginForm().down('#errorLabel').setValue('Session expired.');
-            this.showLoginError();
+            var error = this.getLoginForm().down('#errorLabel');
+            error.setValue('Session expired.');
+            error.show();
         }
     },
 
@@ -64,7 +65,7 @@ Ext.define('Login.controller.Login', {
             form = this.getLoginForm(),
             data = form.getValues();
 
-        me.hideLoginError();
+        form.down('#errorLabel').hide();
 
         var unencodedToken = data.username + ':' + data.password;
         var encodedToken = 'Basic ' + Login.controller.Base64.encode(unencodedToken);
@@ -124,32 +125,15 @@ Ext.define('Login.controller.Login', {
     },
 
     loginNOK: function () {
-        this.getLoginForm().down('#errorLabel').setValue('Login failed. Please contact your administrator.');
-        this.showLoginError();
-    },
+        var form = this.getLoginForm(),
+            password = form.down('#password'),
+            error = form.down('#errorLabel');
 
-    hideLoginError: function () {
-        var errorLabel = this.getLoginForm().down('#errorLabel');
-        errorLabel.hide();
-    },
-
-    showLoginError: function () {
-        var errorLabel = this.getLoginForm().down('#errorLabel');
-        errorLabel.show();
-    },
-
-    signout: function () {
-        Ext.Ajax.request({
-            url: '/apps/login/index.html',
-            method: 'GET',
-            disableCaching: true,
-            params: {
-                logout: 'true'
-            },
-            scope: this,
-            success: function () {
-                window.location.replace('/apps/login/index.html');
-            }
-        });
+        form.suspendLayouts();
+        password.reset();
+        password.focus(false, 200)
+        error.setValue('Login failed. Please contact your administrator.');
+        error.show();
+        form.resumeLayouts(true);
     }
 });
