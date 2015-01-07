@@ -5,8 +5,10 @@ import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.DefaultStartPage;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.license.License;
-import org.osgi.framework.*;
-import org.osgi.service.component.annotations.Reference;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
@@ -58,7 +60,7 @@ public class Activator implements BundleActivator {
 
                 if(context != null){
                     HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context), new DefaultStartPage(APP_NAME));
-                    App app = new App(APP_KEY, APP_NAME, APP_ICON, HTTP_RESOURCE_ALIAS, resource, url);
+                    App app = new App(APP_KEY, APP_NAME, APP_ICON, HTTP_RESOURCE_ALIAS, resource, url, user -> true);
 
                     registration = context.registerService(App.class, app, null);
                 }
