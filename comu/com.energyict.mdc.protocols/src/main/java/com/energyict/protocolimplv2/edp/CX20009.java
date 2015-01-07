@@ -215,7 +215,7 @@ public class CX20009 extends AbstractDlmsProtocol {
 
     public RegisterReader getRegisterReader() {
         if (registerReader == null) {
-            registerReader = new RegisterReader(this, this.getIssueService(), this.getCollectedDataFactory());
+            registerReader = new RegisterReader(this, this.getClock(), this.getIssueService(), this.getCollectedDataFactory());
         }
         return registerReader;
     }

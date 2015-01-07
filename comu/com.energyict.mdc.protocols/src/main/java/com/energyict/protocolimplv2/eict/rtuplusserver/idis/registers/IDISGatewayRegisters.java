@@ -76,7 +76,11 @@ public class IDISGatewayRegisters {
     private CollectedRegister createCollectedRegister(RegisterValue registerValue, OfflineRegister register) {
         CollectedRegister collectedRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(register), register.getReadingType());
         collectedRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
-        collectedRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
+        collectedRegister.setCollectedTimeStamps(
+                registerValue.getReadTime().toInstant(),
+                registerValue.getFromTime().toInstant(),
+                registerValue.getToTime().toInstant(),
+                registerValue.getEventTime().toInstant());
         return collectedRegister;
     }
 

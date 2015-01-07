@@ -11,6 +11,7 @@ import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.List;
 
 /**
@@ -24,8 +25,8 @@ import java.util.List;
 public class DialHomeIdRequestDiscover extends RequestDiscover {
 
     @Inject
-    public DialHomeIdRequestDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
-        super(propertySpecService, issueService, readingTypeUtilService, thesaurus, identificationService, collectedDataFactory);
+    public DialHomeIdRequestDiscover(Clock clock, PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
+        super(clock, propertySpecService, issueService, readingTypeUtilService, thesaurus, identificationService, collectedDataFactory);
     }
 
     @Override

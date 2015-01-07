@@ -313,7 +313,7 @@ public class GarnetConcentrator implements DeviceProtocol {
 
     public RegisterFactory getRegisterFactory() {
         if (registerFactory == null) {
-            this.registerFactory = new RegisterFactory(this, issueService, collectedDataFactory);
+            this.registerFactory = new RegisterFactory(this, clock, issueService, collectedDataFactory);
         }
         return registerFactory;
     }

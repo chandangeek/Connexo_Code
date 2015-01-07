@@ -94,6 +94,10 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         this.loadProfileFactory = loadProfileFactory;
     }
 
+    protected Clock getClock() {
+        return clock;
+    }
+
     protected IssueService getIssueService() {
         return issueService;
     }

@@ -32,8 +32,9 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.M
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterTariffStatus;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -71,11 +72,13 @@ public class RegisterFactory implements DeviceRegisterSupport {
     private static final Unit REACTIVE_ENERGY_UNIT = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR);
 
     private final GarnetConcentrator meterProtocol;
+    private final Clock clock;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
 
-    public RegisterFactory(GarnetConcentrator meterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+    public RegisterFactory(GarnetConcentrator meterProtocol, Clock clock, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.meterProtocol = meterProtocol;
+        this.clock = clock;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
     }
@@ -248,7 +251,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
                 meterIndexToRead,
                 isBilling ? ReadingRequestStructure.ReadingMode.CHECKPOINT_READING : ReadingRequestStructure.ReadingMode.ONLINE_READING
         );
-        collectedRegister = createDeviceRegister(register, isBilling ? readingResponse.getReadingDateTime().getDate() : null);
+        collectedRegister = createDeviceRegister(register, isBilling ? readingResponse.getReadingDateTime().getDate().toInstant() : null);
         boolean activeEnergyRegister = register.getObisCode().equalsIgnoreBChannel(ACTIVE_ENERGY_PHASE_1_OBIS)
                 || register.getObisCode().equalsIgnoreBChannel(ACTIVE_ENERGY_PHASE_2_OBIS)
                 || register.getObisCode().equalsIgnoreBChannel(ACTIVE_ENERGY_PHASE_3_OBIS);
@@ -313,10 +316,15 @@ public class RegisterFactory implements DeviceRegisterSupport {
         return this.createDeviceRegister(register, null);
     }
 
-    private CollectedRegister createDeviceRegister(OfflineRegister register, Date eventTime) {
+    private CollectedRegister createDeviceRegister(OfflineRegister register, Instant eventTime) {
         CollectedRegister deviceRegister = this.collectedDataFactory.createDefaultCollectedRegister(
                 new RegisterDataIdentifierByObisCodeAndDevice(register.getObisCode(), register.getObisCode(), register.getDeviceIdentifier()), register.getReadingType());
-        deviceRegister.setCollectedTimeStamps(new Date(), null, eventTime != null ? eventTime : new Date(), eventTime); // If eventTime != null, then it contains the billing timestamp
+        Instant now = this.clock.instant();
+        deviceRegister.setCollectedTimeStamps(
+                now,
+                null,
+                eventTime != null ? eventTime : now,
+                eventTime != null ? eventTime : now); // If eventTime != null, then it contains the billing timestamp
         return deviceRegister;
     }
 

@@ -739,7 +739,7 @@ public class ObjectFactory {
 
     public List<Integer> getMustBeAcked() {
         if (mustBeAcked == null) {
-            mustBeAcked = new ArrayList<Integer>();
+            mustBeAcked = new ArrayList<>();
         }
         return mustBeAcked;
     }
@@ -939,7 +939,11 @@ public class ObjectFactory {
                                         registerValue.getObisCode(),
                                         deviceIdentifier), this.readingTypeUtilService.getReadingTypeFrom(registerValue.getObisCode(), registerValue.getQuantity().getUnit()));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
-        deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
+        deviceRegister.setCollectedTimeStamps(
+                registerValue.getReadTime().toInstant(),
+                registerValue.getFromTime().toInstant(),
+                registerValue.getToTime().toInstant(),
+                registerValue.getEventTime().toInstant());
         return deviceRegister;
     }
 
@@ -952,7 +956,10 @@ public class ObjectFactory {
                                         registerValue.getObisCode(),
                                         getAce4000().getDeviceIdentifier()), this.readingTypeUtilService.getReadingTypeFrom(registerValue.getObisCode(), registerValue.getQuantity().getUnit()));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
-        deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime());
+        deviceRegister.setCollectedTimeStamps(
+                registerValue.getReadTime().toInstant(),
+                registerValue.getFromTime().toInstant(),
+                registerValue.getToTime().toInstant());
         return deviceRegister;
     }
 

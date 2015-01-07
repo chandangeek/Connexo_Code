@@ -33,6 +33,7 @@ import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -59,14 +60,16 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
     private static final int DEFAULT_ISKRA_WRAPPER = 1;
     private static final int DEFAULT_INVOKE_ID_AND_PRIORITY = 66; // 0x42, 0b01000010 -> [invoke-id = 1, service_class = 1 (confirmed), priority = 0 (normal)]
 
+    private final Clock clock;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
     private DLMSConnection dlmsConnection;
     private SimpleApplicationServiceObject aso;
 
     @Inject
-    public DlmsSerialNumberDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
+    public DlmsSerialNumberDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService, Clock clock, CollectedDataFactory collectedDataFactory) {
         super(propertySpecService, issueService, readingTypeUtilService, thesaurus, identificationService);
+        this.clock = clock;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
     }
@@ -91,7 +94,7 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
 
     private void setInboundConnection() {
         ComChannel comChannel = this.getComChannel();
-        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), issueService, this.getReadingTypeUtilService(), collectedDataFactory, this.getThesaurus(), getIdentificationService()));
+        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), this.clock, issueService, this.getReadingTypeUtilService(), collectedDataFactory, this.getThesaurus(), getIdentificationService()));
     }
 
     public void init() throws IOException {

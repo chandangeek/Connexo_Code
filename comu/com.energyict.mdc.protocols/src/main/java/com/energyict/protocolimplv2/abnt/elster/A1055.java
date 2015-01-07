@@ -32,7 +32,6 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimplv2.abnt.common.AbntProperties;
 import com.energyict.protocolimplv2.abnt.common.AbstractAbntProtocol;
 import com.energyict.protocolimplv2.abnt.common.LoadProfileBuilder;
@@ -54,6 +53,7 @@ import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalC
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -76,17 +76,17 @@ public class A1055 extends AbstractAbntProtocol {
     private final PropertySpecService propertySpecService;
     private final SerialComponentService serialComponentService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
+    private final Clock clock;
     private final IssueService issueService;
-    private final IdentificationService identificationService;
     private final CollectedDataFactory collectedDataFactory;
 
     @Inject
-    public A1055(PropertySpecService propertySpecService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IssueService issueService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
+    public A1055(PropertySpecService propertySpecService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.propertySpecService = propertySpecService;
         this.serialComponentService = serialComponentService;
         this.readingTypeUtilService = readingTypeUtilService;
+        this.clock = clock;
         this.issueService = issueService;
-        this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
     }
 
@@ -326,7 +326,7 @@ public class A1055 extends AbstractAbntProtocol {
 
     public RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new RegisterFactory(this, issueService, collectedDataFactory);
+            this.registerFactory = new RegisterFactory(this, clock, issueService, collectedDataFactory);
         }
         return this.registerFactory;
     }
