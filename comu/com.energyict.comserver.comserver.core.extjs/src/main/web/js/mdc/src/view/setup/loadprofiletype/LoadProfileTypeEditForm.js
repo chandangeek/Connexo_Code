@@ -108,7 +108,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
                                     xtype: 'button',
                                     itemId: 'add-measurement-types-to-load-profile-type-button',
                                     text: Uni.I18n.translate('loadProfileTypes.addMeasurementTypes', 'MDC', 'Add measurement types'),
-                                    ui: 'action',
                                     margin: '0 0 0 10'
                                 }
                             ]
