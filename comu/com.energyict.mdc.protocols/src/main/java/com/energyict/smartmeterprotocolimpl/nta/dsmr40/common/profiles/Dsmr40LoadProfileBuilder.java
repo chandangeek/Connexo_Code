@@ -30,7 +30,7 @@ public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
     private boolean cumulativeCaptureTimeChannel = false;
 
     public Dsmr40LoadProfileBuilder(AbstractSmartNtaProtocol meterProtocol, MdcReadingTypeUtilService readingTypeUtilService) {
-        super(meterProtocol, readingTypeUtilService);
+        super(meterProtocol);
     }
 
     public void setCumulativeCaptureTimeChannel(boolean cumulativeCaptureTimeChannel) {
@@ -38,7 +38,7 @@ public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
     }
 
     @Override
-    protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
+    protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits, List<ChannelInfo> configuredChannelInfos) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<>();
         for (CapturedRegisterObject registerObject : registers) {
             if (!"".equalsIgnoreCase(registerObject.getSerialNumber()) && isDataObisCode(registerObject.getObisCode(), registerObject.getSerialNumber())) {
@@ -47,15 +47,13 @@ public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
                     ScalerUnit su = getScalerUnitForCapturedRegisterObject(registerObject, ccoRegisterUnits);
                     if (su.getUnitCode() != 0) {
                         ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), su.getEisUnit(), registerObject.getSerialNumber(), isCumulativeChannel(registerObject),
-                                this.getReadingTypeUtilService().getReadingTypeFrom(registerObject.getObisCode(), su.getEisUnit()));
+                                getReadingTypeFromConfiguredChannels(registerObject.getObisCode(), configuredChannelInfos));
                         channelInfos.add(ci);
                     } else {
-                        //TODO CHECK if this is still correct!
                         ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), Unit.getUndefined(), registerObject.getSerialNumber(), true,
-                                this.getReadingTypeUtilService().getReadingTypeFrom(registerObject.getObisCode(), Unit.getUndefined()));
+                                getReadingTypeFromConfiguredChannels(registerObject.getObisCode(), configuredChannelInfos));
 
                         channelInfos.add(ci);
-//                        throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerObject + " - unitCode was 0.");
                     }
                 } else {
                     throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerObject + " - not in registerUnitMap.");

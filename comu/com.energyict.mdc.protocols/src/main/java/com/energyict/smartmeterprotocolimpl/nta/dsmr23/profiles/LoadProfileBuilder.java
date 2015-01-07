@@ -1,15 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSUtils;
@@ -25,6 +16,14 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
@@ -66,7 +65,6 @@ public class LoadProfileBuilder {
      * The used meterProtocol
      */
     private final AbstractSmartNtaProtocol meterProtocol;
-    private final MdcReadingTypeUtilService readingTypeUtilService;
 
     /**
      * Keeps track of the link between a {@link LoadProfileReader} and a {@link com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig}
@@ -115,13 +113,8 @@ public class LoadProfileBuilder {
      */
     private List<LoadProfileConfiguration> loadProfileConfigurationList;
 
-    public LoadProfileBuilder(AbstractSmartNtaProtocol meterProtocol, MdcReadingTypeUtilService readingTypeUtilService) {
+    public LoadProfileBuilder(AbstractSmartNtaProtocol meterProtocol) {
         this.meterProtocol = meterProtocol;
-        this.readingTypeUtilService = readingTypeUtilService;
-    }
-
-    protected MdcReadingTypeUtilService getReadingTypeUtilService() {
-        return readingTypeUtilService;
     }
 
     /**
@@ -153,7 +146,7 @@ public class LoadProfileBuilder {
                     int profileInterval = readLoadProfileInterval(ccoLpConfigs, cpc);
                     lpIntervals.put(lpr, profileInterval);
                     lpc.setProfileInterval(profileInterval);
-                    List<ChannelInfo> channelInfos = constructChannelInfos(capturedObjectRegisterListMap.get(lpr), ccoCapturedObjectRegisterUnits);
+                    List<ChannelInfo> channelInfos = constructChannelInfos(capturedObjectRegisterListMap.get(lpr), ccoCapturedObjectRegisterUnits, lpr.getChannelInfos());
                     int statusMask = constructStatusMask(capturedObjectRegisterListMap.get(lpr));
                     int channelMask = constructChannelMask(capturedObjectRegisterListMap.get(lpr));
                     lpc.setChannelInfos(channelInfos);
@@ -319,10 +312,11 @@ public class LoadProfileBuilder {
      * If a given register is not available, then the corresponding profile may not be fetched.
      *
      * @param ccoRegisterUnits the {@link com.energyict.dlms.cosem.ComposedCosemObject} which groups the reading of all the registers
+     * @param configuredChannelInfos
      * @return a constructed list of <CODE>ChannelInfos</CODE>
      * @throws java.io.IOException when an error occurred during dataFetching or -Parsing
      */
-    protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
+    protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits, List<ChannelInfo> configuredChannelInfos) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<>();
         for (CapturedRegisterObject registerUnit : registers) {
             if (!"".equalsIgnoreCase(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
@@ -330,14 +324,12 @@ public class LoadProfileBuilder {
                     ScalerUnit su = new ScalerUnit(ccoRegisterUnits.getAttribute(this.registerUnitMap.get(registerUnit)));
                     if (su.getUnitCode() != 0) {
                         ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), true,
-                                this.readingTypeUtilService.getReadingTypeFrom(registerUnit.getObisCode(), su.getEisUnit()));
+                                getReadingTypeFromConfiguredChannels(registerUnit.getObisCode(), configuredChannelInfos));
                         channelInfos.add(ci);
                     } else {
-                        //TODO CHECK if this is still correct!
                         ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), Unit.getUndefined(), registerUnit.getSerialNumber(), true,
-                                this.readingTypeUtilService.getReadingTypeFrom(registerUnit.getObisCode(), Unit.getUndefined()));
+                                getReadingTypeFromConfiguredChannels(registerUnit.getObisCode(), configuredChannelInfos));
                         channelInfos.add(ci);
-//                        throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerUnit + " - unitCode was 0.");
                     }
                 } else {
                     throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerUnit + " - not in registerUnitMap.");
@@ -345,6 +337,10 @@ public class LoadProfileBuilder {
             }
         }
         return channelInfos;
+    }
+
+    protected ReadingType getReadingTypeFromConfiguredChannels(ObisCode obisCode, List<ChannelInfo> configuredChannelInfos) throws LoadProfileConfigurationException {
+        return configuredChannelInfos.stream().filter(channelInfo -> channelInfo.getChannelObisCode().equals(obisCode)).findFirst().orElseThrow(() -> new LoadProfileConfigurationException("Could not found a correct ChannelInfo with the obiscode " + obisCode)).getReadingType();
     }
 
     private int constructStatusMask(List<CapturedRegisterObject> registers) {

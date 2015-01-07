@@ -34,7 +34,7 @@ import java.util.List;
 public class WebRTUKPLoadProfileBuilder extends LoadProfileBuilder {
 
     public WebRTUKPLoadProfileBuilder(AbstractSmartNtaProtocol meterProtocol, MdcReadingTypeUtilService readingTypeUtilService) {
-        super(meterProtocol, readingTypeUtilService);
+        super(meterProtocol);
     }
 
     /**

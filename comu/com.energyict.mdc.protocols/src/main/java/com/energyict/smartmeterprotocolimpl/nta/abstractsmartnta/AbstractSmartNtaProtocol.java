@@ -351,7 +351,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
 
     public LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this, this.readingTypeUtilService);
+            this.loadProfileBuilder = new LoadProfileBuilder(this);
         }
         return loadProfileBuilder;
     }
