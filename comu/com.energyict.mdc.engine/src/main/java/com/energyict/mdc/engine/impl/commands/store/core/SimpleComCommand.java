@@ -26,8 +26,9 @@ import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.time.Clock;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -348,7 +349,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
 
     private <T extends Issue> void buildErrorDescription(DescriptionBuilder builder, String heading, List<T> issues) {
         if (!issues.isEmpty()) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSSS");
+            DateTimeFormatter dateFormat = DateTimeFormatter.ISO_INSTANT;
             PropertyDescriptionBuilder listBuilder = builder.addListProperty(heading);
             for (T issue : issues) {
                 listBuilder.append(issue.getDescription());
@@ -358,7 +359,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
         }
     }
 
-    private <T extends Issue> void appendIssueTimestamp(PropertyDescriptionBuilder builder, SimpleDateFormat dateFormat, T issue) {
+    private <T extends Issue> void appendIssueTimestamp(PropertyDescriptionBuilder builder, DateTimeFormatter dateFormat, T issue) {
         builder.append(" (").append(dateFormat.format(issue.getTimestamp())).append(")");
     }
 

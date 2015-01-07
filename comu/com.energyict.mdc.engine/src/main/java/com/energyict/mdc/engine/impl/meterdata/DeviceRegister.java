@@ -163,14 +163,6 @@ public abstract class DeviceRegister extends CollectedDeviceData implements Coll
         this.eventTime = eventTime;
     }
 
-    /**
-     * Set the collected timeStamps<br/>
-     * <i>Should be used for BillingRegisters</i>
-     *
-     * @param readTime the {@link #readTime}
-     * @param fromTime the {@link #fromTime}
-     * @param toTime   the {@link #toTime}
-     */
     @Override
     public void setCollectedTimeStamps(final Instant readTime, final Instant fromTime, final Instant toTime) {
         setReadTime(readTime);
@@ -179,15 +171,6 @@ public abstract class DeviceRegister extends CollectedDeviceData implements Coll
         setEventTime(null);
     }
 
-    /**
-     * Set the collected timeStamps.<br/>
-     * <i>Should be used for MaximumDemand registers</i>
-     *
-     * @param readTime  the {@link #readTime}
-     * @param fromTime  the {@link #fromTime}
-     * @param toTime    the {@link #toTime}
-     * @param eventTime the {@link #eventTime}
-     */
     @Override
     public void setCollectedTimeStamps(final Instant readTime, final Instant fromTime, final Instant toTime, final Instant eventTime) {
         setReadTime(readTime);

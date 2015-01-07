@@ -26,6 +26,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import org.joda.time.DateTime;
 
@@ -61,7 +62,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     private final int firstReadingTypeOfChannel = 0;
 
     private Date justBeforeRegisterReadEventTime1 = new DateTime(2013, 11, 30, 23, 50, 0, 0).toDate();
-    private Instant registerEventTime1 = Instant.ofEpochMilli(1388534400000L);  // Midnight of Jan 1st, 2014
+    private Instant registerEventTime1 = Instant.ofEpochMilli(1388530800000L);  // Dec 31st, 2014 23:00:00 (UTC)
     private Quantity register1Quantity = new Quantity(123, kiloWattHours);
     private Date registerEventTime2 = new DateTime(2014, 1, 1, 0, 23, 12, 2).toDate();
     private Date registerEventTime3 = new DateTime(2014, 1, 1, 0, 23, 12, 12).toDate();
@@ -106,7 +107,12 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         assertThat(currentMeterActivation).isNotNull();
         ReadingType registerReadingType = getReadingType(currentMeterActivation, registerObisCode1, kiloWattHours);
         assertThat(registerReadingType).isNotNull();
-        List<? extends BaseReadingRecord> readings = currentMeterActivation.getReadings(new Interval(justBeforeRegisterReadEventTime1, registerEventTime2).toOpenClosedRange(), registerReadingType);
+        List<? extends BaseReadingRecord> readings =
+                currentMeterActivation.getReadings(
+                        Ranges.closedOpen(
+                                justBeforeRegisterReadEventTime1.toInstant(),
+                                registerEventTime2.toInstant()),
+                        registerReadingType);
         assertThat(readings).hasSize(1);
         assertThat(readings.get(0).getQuantity(firstReadingTypeOfChannel).getValue()).isEqualTo(new BigDecimal(123));
     }

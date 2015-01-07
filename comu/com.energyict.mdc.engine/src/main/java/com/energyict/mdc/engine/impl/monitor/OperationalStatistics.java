@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.monitor;
 import com.elster.jupiter.time.TimeDuration;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -18,7 +19,7 @@ public interface OperationalStatistics {
      *
      * @return The timestamp on which the RunningComServer was started
      */
-    public Instant getStartTimestamp ();
+    public Date getStartTimestamp ();
 
     /**
      * Gets the {@link TimeDuration} that indicates how long the RunningComServer
@@ -45,13 +46,13 @@ public interface OperationalStatistics {
      *
      * @return The timestamp on which the RunningComServer last checked for changes
      */
-    public Optional<Instant> getLastCheckForChangesTimestamp ();
+    public Optional<Date> getLastCheckForChangesTimestamp ();
 
     /**
      * Sets the timestamp on which the RunningComServer last checked for changes.
      *
      * @param lastCheckForChangesTimestamp The timestamp on which the RunningComServer last checked for changes
      */
-    public void setLastCheckForChangesTimestamp (Instant lastCheckForChangesTimestamp);
+    public void setLastCheckForChangesTimestamp (Date lastCheckForChangesTimestamp);
 
 }

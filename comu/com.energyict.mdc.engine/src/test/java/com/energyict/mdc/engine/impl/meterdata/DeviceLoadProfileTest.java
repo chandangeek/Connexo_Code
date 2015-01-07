@@ -7,9 +7,11 @@ import com.energyict.mdc.protocol.api.device.data.ResultType;
 import org.junit.*;
 
 import java.util.Arrays;
+import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link DeviceLoadProfile} implementation
@@ -38,6 +40,7 @@ public class DeviceLoadProfileTest {
     @Test
     public void collectedDataTest() {
         IntervalData intervalData = mock(IntervalData.class);
+        when(intervalData.getEndTime()).thenReturn(new Date());
         ChannelInfo channelInfo = mock(ChannelInfo.class);
 
         DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(null);

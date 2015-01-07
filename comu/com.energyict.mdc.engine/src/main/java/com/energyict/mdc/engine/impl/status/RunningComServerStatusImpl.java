@@ -91,7 +91,7 @@ public class RunningComServerStatusImpl implements ComServerStatus {
     private Instant lastActivity(ScheduledComPortOperationalStatistics operationalStatistics) {
         return operationalStatistics.getLastCheckForWorkTimestamp()
                     .orElseGet(() -> operationalStatistics.getLastCheckForChangesTimestamp()
-                    .orElseGet(operationalStatistics::getStartTimestamp));
+                    .orElseGet(operationalStatistics::getStartTimestamp)).toInstant();
     }
 
     private boolean isBlocked(ComServerMonitor comServerMonitor) {
@@ -100,7 +100,7 @@ public class RunningComServerStatusImpl implements ComServerStatus {
     }
 
     private Instant lastActivity(ComServerOperationalStatistics operationalStatistics) {
-        return operationalStatistics.getLastCheckForChangesTimestamp().orElseGet(operationalStatistics::getStartTimestamp);
+        return operationalStatistics.getLastCheckForChangesTimestamp().orElseGet(operationalStatistics::getStartTimestamp).toInstant();
     }
 
     private boolean isBlocked(Instant lastActivity, Duration lenientDuration) {

@@ -22,7 +22,7 @@ public class ComCommandJournalist {
     private final JournalEntryFactory journalEntryFactory;
     private final Clock clock;
     public static final NumberFormat NUMBER_FORMAT = new DecimalFormat("00");
-    public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_DATE_TIME;
+    public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_INSTANT;
 
     public ComCommandJournalist(JournalEntryFactory journalEntryFactory, Clock clock) {
         super();
