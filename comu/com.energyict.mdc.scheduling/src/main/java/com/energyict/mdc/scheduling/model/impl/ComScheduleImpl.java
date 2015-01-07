@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -147,12 +148,17 @@ public class ComScheduleImpl implements ComSchedule {
     }
 
     @Override
-    public Date getPlannedDate() {
+    public Optional<Instant> getPlannedDate() {
         Calendar calendar = Calendar.getInstance();
         if (this.startDate!=null) {
             calendar.setTimeInMillis(this.startDate.toEpochMilli());
         }
-        return SchedulingStatus.PAUSED.equals(this.schedulingStatus)?null:this.getNextTimestamp(calendar);
+        if (SchedulingStatus.PAUSED.equals(this.schedulingStatus)) {
+            return Optional.empty();
+        }
+        else {
+            return Optional.of(this.getNextTimestamp(calendar).toInstant());
+        }
     }
 
     @Override
@@ -206,8 +212,8 @@ public class ComScheduleImpl implements ComSchedule {
     }
 
     @Override
-    public Date getObsoleteDate() {
-        return this.obsoleteDate == null ? null : Date.from(obsoleteDate);
+    public Optional<Instant> getObsoleteDate() {
+        return Optional.ofNullable(this.obsoleteDate);
     }
 
     @Override

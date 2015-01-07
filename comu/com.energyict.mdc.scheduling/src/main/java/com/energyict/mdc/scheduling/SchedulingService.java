@@ -8,7 +8,6 @@ import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 
 import java.time.Instant;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public interface SchedulingService {
@@ -16,7 +15,6 @@ public interface SchedulingService {
 
     public NextExecutionSpecs findNextExecutionSpecs(long id);
     public NextExecutionSpecs newNextExecutionSpecs(TemporalExpression temporalExpression);
-    public NextExecutionSpecs previewNextExecutions(TemporalExpression temporalExpression, Date startDate);
 
     public ListPager<ComSchedule> findAllSchedules(Calendar calendar);
     public List<ComSchedule> findAllSchedules();

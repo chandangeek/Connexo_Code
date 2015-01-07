@@ -33,7 +33,6 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -151,11 +150,6 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService,
     }
 
     @Override
-    public NextExecutionSpecs previewNextExecutions(TemporalExpression temporalExpression, Date startDate) {
-        return null;
-    }
-
-    @Override
     public List<ComSchedule> findAllSchedules() {
         return this.dataModel.query(ComSchedule.class, NextExecutionSpecs.class).select(where(ComScheduleImpl.Fields.OBSOLETE_DATE.fieldName()).isNull());
     }
@@ -198,7 +192,8 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService,
             if (!SchedulingStatus.PAUSED.equals(o1.getSchedulingStatus()) && SchedulingStatus.PAUSED.equals(o2.getSchedulingStatus())) {
                 return -1;
             }
-            return o1.getPlannedDate().compareTo(o2.getPlannedDate());
+            // Neither are paused so planned date is always there
+            return o1.getPlannedDate().get().compareTo(o2.getPlannedDate().get());
         }
     }
 

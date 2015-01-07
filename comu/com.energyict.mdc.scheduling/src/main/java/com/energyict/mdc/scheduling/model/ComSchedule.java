@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration {
 
@@ -56,15 +57,15 @@ public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration
      * Gets the date when this ComSchedule was made obsolete.
      *
      * @return The date when this ComSchedule was made obsolete
-     * or <code>null</code> when this ComSchedule is not obsolete at all.
+     * or <code>empty</code> when this ComSchedule is not obsolete at all.
      */
-    public Date getObsoleteDate();
+    public Optional<Instant> getObsoleteDate();
 
     public Instant getStartDate();
 
     public void setStartDate(Instant startDate);
 
-    public Date getPlannedDate();
+    public Optional<Instant> getPlannedDate();
 
     /**
      * Gets the master resource identifier of this ComSchedule
