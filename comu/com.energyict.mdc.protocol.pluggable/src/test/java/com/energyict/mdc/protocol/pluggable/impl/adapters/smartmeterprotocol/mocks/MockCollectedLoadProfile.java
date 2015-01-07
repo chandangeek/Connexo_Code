@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks;
 
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -9,6 +10,7 @@ import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -55,7 +57,7 @@ public class MockCollectedLoadProfile implements CollectedLoadProfile {
     }
 
     @Override
-    public Interval getCollectedIntervalDataRange() {
+    public Range<Instant> getCollectedIntervalDataRange() {
         return null;
     }
 

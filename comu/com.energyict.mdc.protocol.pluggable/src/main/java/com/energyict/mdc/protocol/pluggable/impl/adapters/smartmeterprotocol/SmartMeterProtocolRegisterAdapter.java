@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Adapter between a {@link SmartMeterProtocol} and a {@link DeviceRegisterSupport}
@@ -64,7 +65,11 @@ public class SmartMeterProtocolRegisterAdapter implements DeviceRegisterSupport 
                     if(!registerValue.equals(INVALID_REGISTER_VALUE)){
                         CollectedRegister adapterDeviceRegister = collectedDataFactory.createCollectedRegisterForAdapter(getRegisterIdentifier(register), register.getReadingType());
                         adapterDeviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
-                        adapterDeviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
+                        adapterDeviceRegister.setCollectedTimeStamps(
+                                registerValue.getReadTime().toInstant(),
+                                registerValue.getFromTime().toInstant(),
+                                registerValue.getToTime().toInstant(),
+                                registerValue.getEventTime().toInstant());
                         collectedRegisters.add(adapterDeviceRegister);
                     } else {
                         CollectedRegister defaultDeviceRegister = collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register), register.getReadingType());
@@ -86,11 +91,10 @@ public class SmartMeterProtocolRegisterAdapter implements DeviceRegisterSupport 
     }
 
     private List<Register> convertOfflineRegistersToRegister(final List<OfflineRegister> offlineRegisters) {
-        List<Register> registers = new ArrayList<>(offlineRegisters.size());
-        for (OfflineRegister offlineRegister : offlineRegisters) {
-            registers.add(new Register((int) offlineRegister.getRegisterId(), offlineRegister.getObisCode(), offlineRegister.getDeviceSerialNumber()));
-        }
-        return registers;
+        return offlineRegisters
+                .stream()
+                .map(offlineRegister -> new Register((int) offlineRegister.getRegisterId(), offlineRegister.getObisCode(), offlineRegister.getDeviceSerialNumber()))
+                .collect(Collectors.toList());
     }
 
     /**

@@ -8,8 +8,8 @@ import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -20,10 +20,10 @@ import java.util.List;
  */
 public class MockCollectedRegister implements CollectedRegister {
     private final ReadingType readingType;
-    private Date fromTime;
-    private Date toTime;
-    private Date eventTime;
-    private Date readTime;
+    private Instant fromTime;
+    private Instant toTime;
+    private Instant eventTime;
+    private Instant readTime;
     private String text;
     private RegisterIdentifier registerIdentifier;
     private Quantity collectedQuantity;
@@ -56,39 +56,39 @@ public class MockCollectedRegister implements CollectedRegister {
     }
 
     @Override
-    public Date getFromTime() {
+    public Instant getFromTime() {
         return fromTime;
     }
 
-    public void setFromTime(Date fromTime) {
+    public void setFromTime(Instant fromTime) {
         this.fromTime = fromTime;
     }
 
     @Override
-    public Date getToTime() {
+    public Instant getToTime() {
         return toTime;
     }
 
-    public void setToTime(Date toTime) {
+    public void setToTime(Instant toTime) {
         this.toTime = toTime;
     }
 
     @Override
-    public Date getEventTime() {
+    public Instant getEventTime() {
         return eventTime;
     }
 
-    public void setEventTime(Date eventTime) {
+    public void setEventTime(Instant eventTime) {
         this.eventTime = eventTime;
     }
 
     @Override
-    public Date getReadTime() {
+    public Instant getReadTime() {
         return readTime;
     }
 
     @Override
-    public void setReadTime(Date readTime) {
+    public void setReadTime(Instant readTime) {
         this.readTime = readTime;
     }
 
@@ -111,7 +111,7 @@ public class MockCollectedRegister implements CollectedRegister {
     }
 
     @Override
-    public void setCollectedTimeStamps(Date readTime, Date fromTime, Date toTime) {
+    public void setCollectedTimeStamps(Instant readTime, Instant fromTime, Instant toTime) {
         this.setReadTime(readTime);
         this.setFromTime(fromTime);
         this.setToTime(toTime);
@@ -134,7 +134,7 @@ public class MockCollectedRegister implements CollectedRegister {
     }
 
     @Override
-    public void setCollectedTimeStamps(Date readTime, Date fromTime, Date toTime, Date eventTime) {
+    public void setCollectedTimeStamps(Instant readTime, Instant fromTime, Instant toTime, Instant eventTime) {
         this.setReadTime(readTime);
         this.setEventTime(eventTime);
         this.setFromTime(fromTime);
