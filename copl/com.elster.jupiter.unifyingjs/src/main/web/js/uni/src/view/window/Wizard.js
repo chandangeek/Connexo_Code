@@ -171,6 +171,8 @@ Ext.define('Uni.view.window.Wizard', {
         var me = this,
             stepsMenu = this.getStepsMenuCmp();
 
+        Ext.suspendLayouts();
+
         for (var i = 0; i < steps.length; i++) {
             var step = steps[i];
 
@@ -184,6 +186,8 @@ Ext.define('Uni.view.window.Wizard', {
                 me.goToStep(this.stepIndex);
             });
         }
+
+        Ext.resumeLayouts();
 
         me.checkNavigationState();
     },

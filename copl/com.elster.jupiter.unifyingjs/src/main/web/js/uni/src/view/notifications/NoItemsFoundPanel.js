@@ -114,6 +114,9 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
         var me = this;
 
         me.callParent(arguments);
+
+        Ext.suspendLayouts();
+
         var wrapper = me.down('#wrapper');
 
         wrapper.setTitle(me.title);
@@ -142,6 +145,8 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
                 wrapper.add(me.createSteps(me.stepItems));
             }
         }
+
+        Ext.resumeLayouts();
     },
 
     formatReasons: function (reasons) {
