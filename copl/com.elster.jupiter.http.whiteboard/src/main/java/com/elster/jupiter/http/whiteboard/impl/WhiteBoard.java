@@ -6,16 +6,18 @@ import com.elster.jupiter.http.whiteboard.UnderlyingNetworkException;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.rest.util.BinderProvider;
-import com.elster.jupiter.system.app.SysAppService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.app.MdcAppService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
@@ -39,8 +41,6 @@ public class WhiteBoard extends Application implements BinderProvider {
     private volatile LicenseService licenseService;
     private volatile MessageService messageService;
     private volatile TransactionService transactionService;
-    private volatile SysAppService sysAppService;
-    private volatile MdcAppService mdcAppService;
 
     private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
 
@@ -84,15 +84,6 @@ public class WhiteBoard extends Application implements BinderProvider {
         this.messageService = messageService;
     }
 
-    @Reference
-    public void setSysAppService(SysAppService sysAppService) {
-        this.sysAppService = sysAppService;
-    }
-
-    @Reference
-      public void setMdcAppService(MdcAppService mdcAppService) {
-        this.mdcAppService = mdcAppService;
-    }
     @Reference
     public void setEventAdminService(EventAdmin eventAdminService) {
         this.eventAdminHolder.set(eventAdminService);
@@ -143,7 +134,7 @@ public class WhiteBoard extends Application implements BinderProvider {
         }
     }
 
-    MessageService getMessageService(){
+    MessageService getMessageService() {
         return this.messageService;
     }
 
@@ -176,14 +167,6 @@ public class WhiteBoard extends Application implements BinderProvider {
 
     LicenseService getLicenseService() {
         return licenseService;
-    }
-
-    SysAppService getSysAppService() {
-        return sysAppService;
-    }
-
-    MdcAppService getMdcAppService() {
-        return mdcAppService;
     }
 
     List<App> getApps() {
