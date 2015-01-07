@@ -178,6 +178,7 @@ Ext.define('Idc.controller.BulkChangeIssues', {
         this.setBulkActionListActiveItem(wizard);
 
         var pb = Ext.create('Ext.ProgressBar', {width: '50%'});
+        Ext.suspendLayouts();
         step5panel.removeAll(true);
         step5panel.add(
             pb.wait({
@@ -186,6 +187,7 @@ Ext.define('Idc.controller.BulkChangeIssues', {
                 text: (operation === 'assign' ? 'Assigning ' : 'Closing ') + requestData.issues.length + ' issue(s). Please wait...'
             })
         );
+        Ext.resumeLayouts();
 
         Ext.Ajax.request({
             url: requestUrl,
@@ -447,8 +449,10 @@ Ext.define('Idc.controller.BulkChangeIssues', {
         }
 
         if (widget) {
+            Ext.suspendLayouts();
             step3Panel.removeAll(true);
             step3Panel.add(widget);
+            Ext.resumeLayouts();
         }
     },
 
@@ -487,9 +491,10 @@ Ext.define('Idc.controller.BulkChangeIssues', {
                 cls: 'isu-bulk-assign-confirmation-request-panel',
                 html: message
             });
-
+            Ext.suspendLayouts();
             step4Panel.removeAll(true);
             step4Panel.add(widget);
+            Ext.resumeLayouts();
         }
     },
 
