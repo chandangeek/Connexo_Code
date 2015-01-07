@@ -9,7 +9,7 @@ import java.time.Clock;
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
 import java.time.Instant;
-import java.util.Date;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +23,7 @@ public class ScheduledComPortOperationalStatisticsImpl extends OperationalStatis
 
     public static final String LAST_CHECK_FOR_WORK_ITEM_NAME = "lastCheckForWorkTimestamp";
     private static final String LAST_CHECK_FOR_WORK_ITEM_DESCRIPTION = "last check for work timestamp";
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_INSTANT;
 
     private final ScheduledComPort comPort;
     private Instant lastCheckForWorkTimestamp;
@@ -72,8 +73,7 @@ public class ScheduledComPortOperationalStatisticsImpl extends OperationalStatis
                 new CompositeDataItemAccessor(
                         LAST_CHECK_FOR_WORK_ITEM_NAME,
                         () -> getLastCheckForWorkTimestamp()
-                                    .map(Date::from)
-                                    .map(Date::toString)
+                                    .map(DATE_TIME_FORMATTER::format)
                                     .orElse("")));
     }
 

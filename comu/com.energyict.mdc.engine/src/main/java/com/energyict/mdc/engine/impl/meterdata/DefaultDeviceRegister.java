@@ -1,20 +1,17 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.engine.impl.commands.store.NoopDeviceCommand;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 
-import java.util.Date;
+import com.elster.jupiter.metering.ReadingType;
+
+import java.time.Instant;
 
 /**
  * Implementation of a standard Register, collected from a Device.
  * <p/>
  * If data is collected, then a proper collected data <b>AND</b> {@link #readTime} should be set by
- * {@link #setCollectedData(Quantity, String)} and {@link #setReadTime(java.util.Date)}
+ * {@link #setCollectedData(Quantity, String)} and {@link #setReadTime(Instant)}
  * <p/>
  * If no data could be collected, the a proper {@link com.energyict.mdc.issues.Issue} and {@link com.energyict.mdc.protocol.api.device.data.ResultType}
  * should be returned by calling the {@link #setFailureInformation(com.energyict.mdc.protocol.api.device.data.ResultType, com.energyict.mdc.issues.Issue)}.
@@ -33,12 +30,8 @@ public class DefaultDeviceRegister extends DeviceQuantityRegister {
         super(registerIdentifier, readingType);
     }
 
-    /**
-     * Set the time the reading was recorded
-     *
-     * @param readTime the time the reading was recorded
-     */
-    public void setReadTime(Date readTime) {
+    @Override
+    public void setReadTime(Instant readTime) {
         super.setReadTime(readTime);
         super.setToTime(readTime);
         super.setFromTime(null);

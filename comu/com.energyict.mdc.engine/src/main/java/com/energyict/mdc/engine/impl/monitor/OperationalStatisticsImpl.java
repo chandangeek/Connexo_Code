@@ -13,7 +13,6 @@ import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -136,7 +135,7 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
         accessors.add(
                 new CompositeDataItemAccessor(
                         START_TIMESTAMP_ITEM_NAME,
-                        () -> Date.from(getStartTimestamp())));
+                        () -> getStartTimestamp()));
         accessors.add(
                 new CompositeDataItemAccessor(
                         RUNNING_TIME_ITEM_NAME,
@@ -148,9 +147,7 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
         accessors.add(
                 new CompositeDataItemAccessor(
                         LAST_CHECK_FOR_CHANGES_ITEM_NAME,
-                        () -> getLastCheckForChangesTimestamp()
-                                    .map(Date::from)
-                                    .orElse(null)));
+                        () -> getLastCheckForChangesTimestamp().orElse(null)));
     }
 
 }

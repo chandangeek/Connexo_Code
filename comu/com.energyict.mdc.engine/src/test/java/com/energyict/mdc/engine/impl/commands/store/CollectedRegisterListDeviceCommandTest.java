@@ -32,7 +32,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -79,10 +79,10 @@ public class CollectedRegisterListDeviceCommandTest {
         when(offlineRegister.getOverFlowValue()).thenReturn(new BigDecimal(DeviceCreator.CHANNEL_OVERFLOW_VALUE));
 
         when(this.collectedRegister.getCollectedQuantity()).thenReturn(new Quantity("2", Unit.getUndefined()));
-        when(this.collectedRegister.getEventTime()).thenReturn(new Date(1358757000000L)); // 21 januari 2013 9:30:00
-        when(this.collectedRegister.getFromTime()).thenReturn(new Date(1358755200000L));  // 21 januari 2013 9:00:00
-        when(this.collectedRegister.getToTime()).thenReturn(new Date(1358758800000L));    // 21 januari 2013 10:00:00
-        when(this.collectedRegister.getReadTime()).thenReturn(new Date(1358758920000L));  // 21 januari 2013 10:02:00
+        when(this.collectedRegister.getEventTime()).thenReturn(Instant.ofEpochMilli(1358757000000L)); // 21 januari 2013 9:30:00
+        when(this.collectedRegister.getFromTime()).thenReturn(Instant.ofEpochMilli(1358755200000L));  // 21 januari 2013 9:00:00
+        when(this.collectedRegister.getToTime()).thenReturn(Instant.ofEpochMilli(1358758800000L));    // 21 januari 2013 10:00:00
+        when(this.collectedRegister.getReadTime()).thenReturn(Instant.ofEpochMilli(1358758920000L));  // 21 januari 2013 10:02:00
         when(this.collectedRegister.getText()).thenReturn("CollectedRegister text");
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMRID()).thenReturn("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.3.72.0");
@@ -113,9 +113,9 @@ public class CollectedRegisterListDeviceCommandTest {
         Assert.assertEquals("Expecting only 1 registerValue", 1, readingData.getReadings().size());
         Reading registerValue = readingData.getReadings().get(0);
         Assert.assertEquals(collectedRegister.getCollectedQuantity().getAmount(), registerValue.getValue());
-        Assert.assertEquals(collectedRegister.getEventTime().toInstant(), registerValue.getTimeStamp());
-        Assert.assertEquals(collectedRegister.getFromTime().toInstant(), registerValue.getTimePeriod().filter(Range::hasLowerBound).map(Range::lowerEndpoint).orElse(null));
-        Assert.assertEquals(collectedRegister.getToTime().toInstant(), registerValue.getTimePeriod().filter(Range::hasUpperBound).map(Range::upperEndpoint).orElse(null));
+        Assert.assertEquals(collectedRegister.getEventTime(), registerValue.getTimeStamp());
+        Assert.assertEquals(collectedRegister.getFromTime(), registerValue.getTimePeriod().filter(Range::hasLowerBound).map(Range::lowerEndpoint).orElse(null));
+        Assert.assertEquals(collectedRegister.getToTime(), registerValue.getTimePeriod().filter(Range::hasUpperBound).map(Range::upperEndpoint).orElse(null));
     }
 
     @Test

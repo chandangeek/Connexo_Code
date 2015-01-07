@@ -29,10 +29,9 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 
-import java.text.DateFormat;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -359,7 +358,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param fileExtension The extension for the UserFile
      * @param contents The contents of the UserFile   @see UserFile#getExtension()
      */
-    public void storeConfigurationFile (DeviceIdentifier deviceIdentifier, DateFormat timeStampFormat, String fileExtension, byte[] contents);
+    public void storeConfigurationFile (DeviceIdentifier deviceIdentifier, DateTimeFormatter timeStampFormat, String fileExtension, byte[] contents);
 
     /**
      * Signals the occurrence of an event.

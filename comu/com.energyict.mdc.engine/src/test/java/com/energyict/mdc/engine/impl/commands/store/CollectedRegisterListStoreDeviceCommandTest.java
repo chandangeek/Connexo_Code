@@ -30,6 +30,7 @@ import com.elster.jupiter.util.time.Interval;
 import org.joda.time.DateTime;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -60,7 +61,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     private final int firstReadingTypeOfChannel = 0;
 
     private Date justBeforeRegisterReadEventTime1 = new DateTime(2013, 11, 30, 23, 50, 0, 0).toDate();
-    private Date registerEventTime1 = new DateTime(2014, 1, 1, 0, 0, 0, 0).toDate();
+    private Instant registerEventTime1 = Instant.ofEpochMilli(1388534400000L);  // Midnight of Jan 1st, 2014
     private Quantity register1Quantity = new Quantity(123, kiloWattHours);
     private Date registerEventTime2 = new DateTime(2014, 1, 1, 0, 23, 12, 2).toDate();
     private Date registerEventTime3 = new DateTime(2014, 1, 1, 0, 23, 12, 12).toDate();

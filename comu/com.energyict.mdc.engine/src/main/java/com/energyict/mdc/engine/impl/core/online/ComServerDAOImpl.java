@@ -70,12 +70,11 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
-import java.text.DateFormat;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -338,11 +337,11 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void storeConfigurationFile(DeviceIdentifier deviceIdentifier, final DateFormat timeStampFormat, final String fileExtension, final byte[] contents) {
+    public void storeConfigurationFile(DeviceIdentifier deviceIdentifier, final DateTimeFormatter timeStampFormat, final String fileExtension, final byte[] contents) {
         this.doStoreConfigurationFile(deviceIdentifier.findDevice(), timeStampFormat, fileExtension, contents);
     }
 
-    private void doStoreConfigurationFile(BaseDevice device, DateFormat timeStampFormat, String fileExtension, byte[] contents) {
+    private void doStoreConfigurationFile(BaseDevice device, DateTimeFormatter timeStampFormat, String fileExtension, byte[] contents) {
         throw new RuntimeException("Storing of UserFiles is currently not supported ...");
 //        try {
 //            String fileName = this.getUniqueUserFileName(timeStampFormat);
@@ -358,8 +357,8 @@ public class ComServerDAOImpl implements ComServerDAO {
 //        }
     }
 
-    private String getUniqueUserFileName(DateFormat timeStampFormat) {
-        String fileName = "Config_" + timeStampFormat.format(Date.from(getClock().instant()));
+    private String getUniqueUserFileName(DateTimeFormatter timeStampFormat) {
+        String fileName = "Config_" + timeStampFormat.format(getClock().instant());
         int version = this.getVersion(fileName);
         if (version > 1) {
             fileName += "_(" + version + ")";

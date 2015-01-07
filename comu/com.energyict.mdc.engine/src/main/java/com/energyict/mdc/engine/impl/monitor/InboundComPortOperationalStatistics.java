@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.monitor;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Models the operational statistics that are gathered by the process
@@ -27,7 +27,7 @@ public interface InboundComPortOperationalStatistics extends OperationalStatisti
      *
      * @return The timestamp of last activity of every thread
      */
-    public Date getLastConnectionTimestamp ();
+    public Instant getLastConnectionTimestamp ();
 
     /**
      * Gets the unique identifier of the last device

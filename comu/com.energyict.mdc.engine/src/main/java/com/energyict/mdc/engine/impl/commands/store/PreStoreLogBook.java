@@ -1,16 +1,14 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.metering.readings.EndDeviceEvent;
-
-import java.time.Clock;
-import java.time.Instant;
-
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 
+import com.elster.jupiter.metering.readings.EndDeviceEvent;
+
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,14 +42,14 @@ public class PreStoreLogBook {
      * @return the preStored logbook
      */
     public LocalLogBook preStore(CollectedLogBook deviceLogBook) {
-        Set<UniqueDuo<String, Date>> uniqueCheck = new HashSet<>();
+        Set<UniqueDuo<String, Instant>> uniqueCheck = new HashSet<>();
         OfflineLogBook offlineLogBook = this.comServerDAO.findOfflineLogBook(deviceLogBook.getLogBookIdentifier());
 
         List<EndDeviceEvent> filteredEndDeviceEvents = new ArrayList<>();
         Instant lastLogbook = null;
         Instant currentDate = this.clock.instant();
         for (EndDeviceEvent endDeviceEvent : MeterDataFactory.createEndDeviceEventsFor(deviceLogBook, offlineLogBook.getLogBookId())) {
-            if(uniqueCheck.add(new UniqueDuo<>(endDeviceEvent.getMRID(), Date.from(endDeviceEvent.getCreatedDateTime())))) {
+            if(uniqueCheck.add(new UniqueDuo<>(endDeviceEvent.getMRID(), endDeviceEvent.getCreatedDateTime()))) {
                 if (!endDeviceEvent.getCreatedDateTime().isAfter(currentDate)) {
                     filteredEndDeviceEvents.add(endDeviceEvent);
                     if (lastLogbook == null || endDeviceEvent.getCreatedDateTime().isAfter(lastLogbook)) {
@@ -60,15 +58,15 @@ public class PreStoreLogBook {
                 }
             }
         }
-        return new LocalLogBook(filteredEndDeviceEvents, lastLogbook == null ? null : Date.from(lastLogbook));
+        return new LocalLogBook(filteredEndDeviceEvents, lastLogbook);
     }
 
     class LocalLogBook {
 
         private final List<EndDeviceEvent> endDeviceEvents;
-        private final Date lastLogbook;
+        private final Instant lastLogbook;
 
-        private LocalLogBook(List<EndDeviceEvent> endDeviceEvents, Date lastLogBook) {
+        private LocalLogBook(List<EndDeviceEvent> endDeviceEvents, Instant lastLogBook) {
             this.endDeviceEvents = endDeviceEvents;
             this.lastLogbook = lastLogBook;
         }
@@ -77,7 +75,7 @@ public class PreStoreLogBook {
             return endDeviceEvents;
         }
 
-        public Date getLastLogbook() {
+        public Instant getLastLogbook() {
             return lastLogbook;
         }
 
@@ -114,4 +112,5 @@ public class PreStoreLogBook {
             return result;
         }
     }
+
 }

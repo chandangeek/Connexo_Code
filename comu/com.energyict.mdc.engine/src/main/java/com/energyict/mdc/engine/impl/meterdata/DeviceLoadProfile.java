@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.Ranges;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.store.CollectedLoadProfileDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
@@ -12,8 +14,8 @@ import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 
+import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -35,7 +37,7 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
      * The collected intervals for the LoadProfile
      */
     private List<IntervalData> collectedIntervalData;
-    private Interval collectedIntervalDataRange = new Interval(null, null);
+    private Range<Instant> collectedIntervalDataRange = Range.all();
 
     /**
      * The <code>ChannelInfo</code> corresponding with the {@link #collectedIntervalData}
@@ -83,7 +85,7 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
         return collectedIntervalData;
     }
 
-    public Interval getCollectedIntervalDataRange () {
+    public Range<Instant> getCollectedIntervalDataRange () {
         return collectedIntervalDataRange;
     }
 
@@ -125,18 +127,18 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
         this.deviceChannelInfo = deviceChannelInfo;
     }
 
-    private Interval calculateCollectedIntervalDataRange (List<IntervalData> collectedIntervalData) {
-        Date fromDate = null;
-        Date toDate = null;
+    private Range<Instant> calculateCollectedIntervalDataRange (List<IntervalData> collectedIntervalData) {
+        Instant fromDate = null;
+        Instant toDate = null;
         for (IntervalData intervalData : collectedIntervalData) {
-            fromDate = this.min(fromDate, intervalData.getEndTime());
-            toDate = this.max(toDate, intervalData.getEndTime());
+            fromDate = this.min(fromDate, intervalData.getEndTime().toInstant());
+            toDate = this.max(toDate, intervalData.getEndTime().toInstant());
         }
-        return new Interval(fromDate, toDate);
+        return Ranges.openClosed(fromDate, toDate);
     }
 
-    private Date min (Date currentMinimum, Date candidate) {
-        if (currentMinimum == null || candidate.before(currentMinimum)) {
+    private Instant min (Instant currentMinimum, Instant candidate) {
+        if (currentMinimum == null || candidate.isBefore(currentMinimum)) {
             return candidate;
         }
         else {
@@ -144,8 +146,8 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
         }
     }
 
-    private Date max (Date currentMaximum, Date candidate) {
-        if (currentMaximum == null || candidate.after(currentMaximum)) {
+    private Instant max (Instant currentMaximum, Instant candidate) {
+        if (currentMaximum == null || candidate.isAfter(currentMaximum)) {
             return candidate;
         }
         else {

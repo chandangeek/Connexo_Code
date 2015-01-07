@@ -46,7 +46,7 @@ public final class MeterDataFactory {
     public static Reading createReadingForDeviceRegisterAndObisCode(final CollectedRegister deviceRegister) {
         ReadingImpl reading = getRegisterReading(deviceRegister);
         if (deviceRegister.getFromTime() != null && deviceRegister.getToTime() != null) {
-            reading.setTimePeriod(deviceRegister.getFromTime().toInstant(), deviceRegister.getToTime().toInstant());
+            reading.setTimePeriod(deviceRegister.getFromTime(), deviceRegister.getToTime());
         }
         return reading;
     }
@@ -56,12 +56,12 @@ public final class MeterDataFactory {
             return ReadingImpl.of(
                     collectedRegister.getReadingType().getMRID(),
                     collectedRegister.getCollectedQuantity()!=null?collectedRegister.getCollectedQuantity().getAmount():BigDecimal.ZERO,
-                    (collectedRegister.getEventTime() != null ? collectedRegister.getEventTime() : collectedRegister.getReadTime()).toInstant());
+                    (collectedRegister.getEventTime() != null ? collectedRegister.getEventTime() : collectedRegister.getReadTime()));
         } else {
             return ReadingImpl.of(
                     collectedRegister.getReadingType().getMRID(),
                     collectedRegister.getText(),
-                    (collectedRegister.getEventTime() != null ? collectedRegister.getEventTime() : collectedRegister.getReadTime()).toInstant());
+                    (collectedRegister.getEventTime() != null ? collectedRegister.getEventTime() : collectedRegister.getReadTime()));
         }
     }
 
@@ -99,7 +99,7 @@ public final class MeterDataFactory {
                 pair.getFirst().addIntervalReading(IntervalReadingImpl.of(intervalData.getEndTime().toInstant(), new BigDecimal(pair.getLast().getNumber().toString())));
             }
         }
-        return new ArrayList<IntervalBlock>(intervalBlock);
+        return new ArrayList<>(intervalBlock);
     }
 
     private static List<IntervalBlockImpl> createIntervalBlocks(CollectedLoadProfile collectedLoadProfile, TimeDuration interval, MdcReadingTypeUtilService readingTypeUtilService) {
