@@ -39,7 +39,9 @@ public enum ProtocolFamily {
     ISKRA_PRE_NTA(19),
     DSMR(20),
     DSMR_NTA(21),
-    XEMEX(22);
+    XEMEX(22),
+    EDP_DLMS(23),           // EDP Public Lights Monitoring DLMS
+    ;
 
     private int code;
 
