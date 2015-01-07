@@ -46,7 +46,7 @@ Ext.define('Uni.controller.Navigation', {
 
     init: function (app) {
         var me = this;
-        debugger;
+
         Ext.util.History.addListener('change', function () {
             me.selectMenuItemByActiveToken();
         });
@@ -305,8 +305,10 @@ Ext.define('Uni.controller.Navigation', {
     },
 
     showContent: function (content, side) {
+        var panel = this.getContentWrapper();
+
         Ext.suspendLayouts();
-        this.getContentWrapper().removeAll();
+        panel.removeAll();
 
         if (content instanceof Uni.view.container.ContentContainer) {
             side = content.side;
@@ -318,7 +320,7 @@ Ext.define('Uni.controller.Navigation', {
             side: side
         });
 
-        this.getContentWrapper().add(contentContainer);
+        panel.add(contentContainer);
         Ext.resumeLayouts();
     },
 

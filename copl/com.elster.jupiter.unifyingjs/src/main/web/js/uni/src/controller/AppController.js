@@ -85,11 +85,10 @@ Ext.define('Uni.controller.AppController', {
         me.getApplication().fireEvent('onnavigationtogglesearch', me.searchEnabled);
         me.getApplication().fireEvent('ononlinehelpenabled', me.onlineHelpEnabled);
 
-
-
         me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
         me.getApplication().on('changecontentevent', me.showContent, me);
         me.getApplication().on('sessionexpired', me.redirectToLogin, me);
+        
         if (Uni.Auth.hasAnyPrivilege(me.privileges)) {
             me.checkLicenseStatus();
             me.loadControllers();
@@ -120,34 +119,40 @@ Ext.define('Uni.controller.AppController', {
     },
 
     showContent: function (widget) {
+        var panel = this.getContentPanel();
+
         Ext.suspendLayouts();
-        this.getContentPanel().removeAll();
-        this.getContentPanel().add(widget);
+
+        panel.removeAll();
+        panel.add(widget);
+
         Ext.resumeLayouts();
+
+        panel.doComponentLayout();
     },
 
     checkLicenseStatus: function () {
         var me = this;
-        if (typeof me.applicationKey !== 'undefined' && me.applicationKey !== 'SYS'){
+        if (typeof me.applicationKey !== 'undefined' && me.applicationKey !== 'SYS') {
             Ext.Ajax.request({
-                url: '/api/apps/apps/status/'+me.applicationKey,
+                url: '/api/apps/apps/status/' + me.applicationKey,
                 method: 'GET',
                 async: false,
-                success: function(response){
+                success: function (response) {
                     me.licenseStatus = response.responseText;
                     if (me.licenseStatus === 'EXPIRED') {
                         me.controllers = [];
-                        me.getController('Uni.controller.Navigation').searchEnabled  = false;
+                        me.getController('Uni.controller.Navigation').searchEnabled = false;
                     }
                 },
-                failure: function(response) {
+                failure: function (response) {
                     me.licenseStatus = 'NO_LICENSE';
                 }
             });
         }
     },
 
-    showLicenseGraced : function () {
+    showLicenseGraced: function () {
         if (!isNaN(this.licenseStatus) && !Ext.state.Manager.get('licenseGraced')) {
             Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
             Ext.state.Manager.set('licenseGraced', 'Y');
