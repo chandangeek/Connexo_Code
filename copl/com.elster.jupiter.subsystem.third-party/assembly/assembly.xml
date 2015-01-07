@@ -12,21 +12,6 @@
 
     <includeBaseDirectory>false</includeBaseDirectory>
 
-    <fileSets>
-        <fileSet>
-            <directory>assembly/bin</directory>
-            <outputDirectory>bin</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>assembly/conf</directory>
-            <outputDirectory>conf</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>assembly/logs</directory>
-            <outputDirectory>logs</outputDirectory>
-        </fileSet>
-    </fileSets>
-
     <dependencySets>
         <dependencySet>
             <outputDirectory>bundles</outputDirectory>

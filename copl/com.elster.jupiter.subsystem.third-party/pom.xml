@@ -662,7 +662,7 @@
                         <descriptor>assembly/assembly.xml</descriptor>
                     </descriptors>
 
-                    <finalName>connexo-platform-v${project.version}</finalName>
+                    <finalName>connexo-third-party-v${project.version}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
             </plugin>
