@@ -48,6 +48,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         ComSchedule mockedSchedule = mock(ComSchedule.class);
         when(mockedSchedule.getId()).thenReturn(1L);
         when(mockedSchedule.getName()).thenReturn("name");
+        when(mockedSchedule.getPlannedDate()).thenReturn(Optional.<Instant>empty());
         when(mockedSchedule.getSchedulingStatus()).thenReturn(SchedulingStatus.ACTIVE);
         when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
         when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
@@ -82,6 +83,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         ComSchedule mockedSchedule = mock(ComSchedule.class);
         when(mockedSchedule.getId()).thenReturn(1L);
         when(mockedSchedule.getName()).thenReturn("name");
+        when(mockedSchedule.getPlannedDate()).thenReturn(Optional.<Instant>empty());
         when(mockedSchedule.getSchedulingStatus()).thenReturn(SchedulingStatus.ACTIVE);
         when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
         when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
@@ -111,6 +113,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         ComSchedule mockedSchedule = mock(ComSchedule.class);
         when(mockedSchedule.getId()).thenReturn(1L);
         when(mockedSchedule.getName()).thenReturn("name");
+        when(mockedSchedule.getPlannedDate()).thenReturn(Optional.<Instant>empty());
         when(mockedSchedule.getSchedulingStatus()).thenReturn(SchedulingStatus.ACTIVE);
         when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
         when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
@@ -130,6 +133,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         ComSchedule mockedSchedule = mock(ComSchedule.class);
         when(mockedSchedule.getId()).thenReturn(1L);
         when(mockedSchedule.getName()).thenReturn("name");
+        when(mockedSchedule.getPlannedDate()).thenReturn(Optional.<Instant>empty());
         when(mockedSchedule.getSchedulingStatus()).thenReturn(SchedulingStatus.ACTIVE);
         when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
         when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
@@ -168,6 +172,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         ComSchedule mockedSchedule = mock(ComSchedule.class);
         when(mockedSchedule.getId()).thenReturn(1L);
         when(mockedSchedule.getName()).thenReturn("name");
+        when(mockedSchedule.getPlannedDate()).thenReturn(Optional.<Instant>empty());
         when(mockedSchedule.getSchedulingStatus()).thenReturn(SchedulingStatus.ACTIVE);
         when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
         when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
