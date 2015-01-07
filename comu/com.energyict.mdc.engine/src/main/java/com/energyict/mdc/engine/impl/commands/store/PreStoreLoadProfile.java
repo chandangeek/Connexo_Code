@@ -8,16 +8,12 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
 import java.time.Clock;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -60,7 +56,7 @@ public class PreStoreLoadProfile {
         List<IntervalBlock> processedBlocks = new ArrayList<>();
         Date lastReading = null;
         Date currentDate = Date.from(clock.instant());
-        for (Pair<IntervalBlock, ChannelInfo> intervalBlockChannelInfoPair : DualIterable.endWithLongest(MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile, offlineLoadProfile.getInterval(), this.mdcReadingTypeUtilService), collectedLoadProfile.getChannelInfo())) {
+        for (Pair<IntervalBlock, ChannelInfo> intervalBlockChannelInfoPair : DualIterable.endWithLongest(MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile), collectedLoadProfile.getChannelInfo())) {
             IntervalBlock intervalBlock = intervalBlockChannelInfoPair.getFirst();
             ChannelInfo channelInfo = intervalBlockChannelInfoPair.getLast();
 

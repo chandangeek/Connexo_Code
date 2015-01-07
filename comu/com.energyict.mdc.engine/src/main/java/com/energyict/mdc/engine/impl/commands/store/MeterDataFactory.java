@@ -7,15 +7,8 @@ import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
-
-import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
-
-import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
@@ -26,6 +19,7 @@ import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Creates {@link Reading Readings} and {@link com.elster.jupiter.metering.readings.IntervalReading}s
@@ -87,12 +81,10 @@ public final class MeterDataFactory {
      * Creates a list of {@link IntervalBlock IntervalBlocks} based on the given CollectedLoadProfile and interval
      *
      * @param collectedLoadProfile The collectedLoadProfile which will server as input for the IntervalBlocks
-     * @param interval The intervalPeriod which solely is used create the ReadingTypeCode
-     * @param readingTypeUtilService The MdcReadingTypeUtilService
      * @return the newly created IntervalBlocks list
      */
-    public static List<IntervalBlock> createIntervalBlocksFor(CollectedLoadProfile collectedLoadProfile, TimeDuration interval, MdcReadingTypeUtilService readingTypeUtilService) {
-        List<IntervalBlockImpl> intervalBlock = createIntervalBlocks(collectedLoadProfile, interval, readingTypeUtilService);
+    public static List<IntervalBlock> createIntervalBlocksFor(CollectedLoadProfile collectedLoadProfile) {
+        List<IntervalBlockImpl> intervalBlock = createIntervalBlocks(collectedLoadProfile);
         for (IntervalData intervalData : collectedLoadProfile.getCollectedIntervalData()) {
             for (Pair<IntervalBlockImpl, IntervalValue> pair : DualIterable.endWithLongest(intervalBlock, intervalData.getIntervalValues())) {
                 // safest way to convert from Number to BigDecimal -> using the Number#toString()
@@ -102,24 +94,8 @@ public final class MeterDataFactory {
         return new ArrayList<IntervalBlock>(intervalBlock);
     }
 
-    private static List<IntervalBlockImpl> createIntervalBlocks(CollectedLoadProfile collectedLoadProfile, TimeDuration interval, MdcReadingTypeUtilService readingTypeUtilService) {
-        List<IntervalBlockImpl> intervalBlocks = new ArrayList<>();
-        for (ChannelInfo channelInfo : collectedLoadProfile.getChannelInfo()) {
-            ObisCode channelObisCode;
-            channelObisCode = channelInfo.getChannelObisCode();
-            String readingTypeMRID = getReadingTypeFrom(interval, readingTypeUtilService, channelInfo, channelObisCode);
-            intervalBlocks.add(IntervalBlockImpl.of(readingTypeMRID));
-        }
-        return intervalBlocks;
+    private static List<IntervalBlockImpl> createIntervalBlocks(CollectedLoadProfile collectedLoadProfile) {
+        return collectedLoadProfile.getChannelInfo().stream().map(channelInfo -> IntervalBlockImpl.of(channelInfo.getReadingTypeMRID())).collect(Collectors.toList());
 
     }
-
-    private static String getReadingTypeFrom(TimeDuration interval, MdcReadingTypeUtilService readingTypeUtilService, ChannelInfo channelInfo, ObisCode channelObisCode) {
-        String readingTypeMRID = channelInfo.getReadingTypeMRID();
-        if(Checks.is(readingTypeMRID).empty()){
-            readingTypeMRID = readingTypeUtilService.getReadingTypeFrom(channelObisCode, channelInfo.getUnit(), interval);
-        }
-        return readingTypeMRID;
-    }
-
 }
