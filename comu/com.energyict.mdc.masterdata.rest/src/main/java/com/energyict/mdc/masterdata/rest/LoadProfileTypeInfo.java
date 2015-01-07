@@ -24,7 +24,6 @@ public class LoadProfileTypeInfo {
     public ObisCode obisCode;
     @XmlJavaTypeAdapter(LocalizedTimeDuration.Adapter.class)
     public TimeDuration timeDuration;
-    @JsonProperty("measurementTypes")
     public List<RegisterTypeInfo> registerTypes;
     public Boolean isLinkedToActiveDeviceConf;
 

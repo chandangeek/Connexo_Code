@@ -93,7 +93,7 @@ public class LoadProfileResourceTest extends MasterDataApplicationJerseyTest {
         assertThat(map.get("id")).isEqualTo(1);
         assertThat((String)map.get("name")).isEqualTo("Load Profile Type 0001");
         assertThat(map.get("obisCode")).isEqualTo("10.20.30.40.50.60");
-        assertThat((List)map.get("measurementTypes")).hasSize(2);
+        assertThat((List)map.get("registerTypes")).hasSize(2);
         assertThat((Integer)((Map)map.get("timeDuration")).get("id")).isBetween(0, 11);
     }
 
