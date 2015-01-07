@@ -39,8 +39,6 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
-import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.RtuPlusServerMessages;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
@@ -249,7 +247,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     public G3Topology getG3Topology() {
         if (g3Topology == null) {
-            g3Topology = new G3Topology(this.offlineDevice.getDeviceIdentifier(), identificationService, issueService, propertySpecService, getDlmsSession(), getDynamicProperties());
+            g3Topology = new G3Topology(this.offlineDevice.getDeviceIdentifier(), identificationService, issueService, propertySpecService, getDlmsSession(), getDynamicProperties(), collectedDataFactory);
         }
         return g3Topology;
     }
@@ -268,8 +266,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     private RtuPlusServerMessages getRtuPlusServerMessages() {
         if (rtuPlusServerMessages == null) {
-            rtuPlusServerMessages = new RtuPlusServerMessages(this.getDlmsSession(), issueService, collectedDataFactory);
-            rtuPlusServerMessages = new RtuPlusServerMessages(issueService, this);
+            rtuPlusServerMessages = new RtuPlusServerMessages(this.getDlmsSession(), issueService, collectedDataFactory, this);
         }
         return rtuPlusServerMessages;
     }

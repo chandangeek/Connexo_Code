@@ -10,7 +10,6 @@ import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -35,15 +34,17 @@ public class G3Topology {
     private final PropertySpecService propertySpecService;
     private final DlmsSession dlmsSession;
     private final G3Properties g3Properties;
+    private final CollectedDataFactory collectedDataFactory;
     private CollectedTopology collectedTopology;
 
-    public G3Topology(DeviceIdentifier masterDeviceIdentifier, IdentificationService identificationService, IssueService issueService, PropertySpecService propertySpecService, DlmsSession dlmsSession, G3Properties g3Properties) {
+    public G3Topology(DeviceIdentifier masterDeviceIdentifier, IdentificationService identificationService, IssueService issueService, PropertySpecService propertySpecService, DlmsSession dlmsSession, G3Properties g3Properties, CollectedDataFactory collectedDataFactory) {
         this.masterDeviceIdentifier = masterDeviceIdentifier;
         this.identificationService = identificationService;
         this.issueService = issueService;
         this.propertySpecService = propertySpecService;
         this.dlmsSession = dlmsSession;
         this.g3Properties = g3Properties;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     public CollectedTopology collectTopology() {
@@ -69,13 +70,9 @@ public class G3Topology {
 
     private CollectedTopology getDeviceTopology() {
         if (collectedTopology == null) {
-            collectedTopology = this.getCollectedDataFactory().createCollectedTopology(masterDeviceIdentifier);
+            collectedTopology = this.collectedDataFactory.createCollectedTopology(masterDeviceIdentifier);
         }
         return collectedTopology;
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
     private void collectAndUpdateNeighbours(CollectedTopology deviceTopology) {
@@ -145,7 +142,7 @@ public class G3Topology {
                 if (abstractDataType != null && abstractDataType instanceof Structure) {
                     DeviceIdentifier nodeIdentifier = getSlaveMacAddressPropertyIdentifier(ProtocolTools.getHexStringFromBytes(((Structure) abstractDataType).getDataType(0).getOctetString().getOctetStr()));
                     deviceTopology.addAdditionalCollectedDeviceInfo(
-                            this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                            this.collectedDataFactory.createCollectedDeviceProtocolProperty(
                                     nodeIdentifier,
                                     getSlaveShortAddressPropertySpec(),
                                     getSlaveShortAddressPropertySpec().getValueFactory().fromStringValue(String.valueOf(((Structure) abstractDataType).getDataType(2).getInteger32().intValue()))));
@@ -168,13 +165,13 @@ public class G3Topology {
                 DeviceIdentifier slaveDeviceIdentifier = getSlaveMacAddressPropertyIdentifier(sapAssignmentItem.getLogicalDeviceName());
                 deviceTopology.addSlaveDevice(slaveDeviceIdentifier);
                 deviceTopology.addAdditionalCollectedDeviceInfo(
-                        this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                        this.collectedDataFactory.createCollectedDeviceProtocolProperty(
                                 slaveDeviceIdentifier,
                                 getSlaveLogicalDeviceIdPropertySpec(),
                                 getSlaveLogicalDeviceIdPropertySpec().getValueFactory().fromStringValue(String.valueOf(sapAssignmentItem.getSap()))));
             } else {
                 deviceTopology.addAdditionalCollectedDeviceInfo(
-                        this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                        this.collectedDataFactory.createCollectedDeviceProtocolProperty(
                                 masterDeviceIdentifier,
                                 this.g3Properties.getLogicalDeviceIdPropertySpec(),
                                 BigDecimal.valueOf(sapAssignmentItem.getSap())));

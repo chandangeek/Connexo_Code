@@ -26,12 +26,8 @@ public class LoggerSettingsMapping extends RegisterMapping {
     private static final int MIN_ATTR = 1;
     private static final int MAX_ATTR = 3;
 
-    public LoggerSettingsMapping(final DlmsSession session) {
-        super(session);
-    }
-
-    public LoggerSettingsMapping(Logger logger, CosemObjectFactory cosemObjectFactory) {
-        super(logger, cosemObjectFactory);
+    public LoggerSettingsMapping(CosemObjectFactory cosemObjectFactory) {
+        super(cosemObjectFactory);
     }
 
     @Override

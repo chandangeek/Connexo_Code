@@ -232,11 +232,15 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     EIWEB_DEVICE_PROTOCOL(197, "com.energyict.protocolimplv2.eict.eiweb.EIWeb", ProtocolFamily.EICT_RTU_EMS),
     EIMETER_FLEX_SLAVE_MODULE(198, "com.energyict.protocolimpl.modbus.energyict.EIMeterFlexSlaveModule"),
 
+    WEB_RTU_KP_V2(199, "com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP", ProtocolFamily.EICT_NTA),
+    CX20009_V2(200, "com.energyict.protocolimplv2.edp.CX20009", ProtocolFamily.EDP_DLMS),
+
     //test with all properties
     SDK_SAMPLE_PROTOCOL_TEST_WITH_ALL_PROPERTIES(5001, "com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithAllProperties", ProtocolFamily.TEST), // need to make sure we don't run into duplicates with legacy development
 //    SDK_SMART_SAMPLE_PROTOCOL(215, "test.com.energyict.smartmeterprotocolimpl.sdksample.SDKSmartMeterProtocol", ProtocolFamily.TEST),
 
     ELSTER_AM540(219, "com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540", ProtocolFamily.DSMR_NTA),
+    AM540(224, "com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540", ProtocolFamily.G3_LINKY_DLMS),
 
     // Deprecated
 //    AS300D_ELSTER(10000, "com.energyict.protocolimpl.dlms.elster.as300d.AS300D"),

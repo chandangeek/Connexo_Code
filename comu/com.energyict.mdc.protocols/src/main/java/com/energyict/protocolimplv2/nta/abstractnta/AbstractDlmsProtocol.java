@@ -68,7 +68,6 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     private final CollectedDataFactory collectedDataFactory;
     private final LoadProfileFactory loadProfileFactory;
 
-    protected AbstractDlmsProtocol(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
     protected LoadProfileBuilder loadProfileBuilder;
     protected DlmsProperties dlmsProperties;
     protected OfflineDevice offlineDevice;
@@ -83,7 +82,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     private DlmsSecuritySupport dlmsSecuritySupport;
 
-    protected AbstractDlmsProtocol(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService) {
+    protected AbstractDlmsProtocol(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
         this.serialComponentService = serialComponentService;

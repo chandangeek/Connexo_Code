@@ -24,12 +24,8 @@ public class GprsModemSetupMapping extends RegisterMapping {
     private static final int MIN_ATTR = 1;
     private static final int MAX_ATTR = 4;
 
-    public GprsModemSetupMapping(final DlmsSession session) {
-        super(session);
-    }
-
-    public GprsModemSetupMapping(Logger logger, CosemObjectFactory cosemObjectFactory) {
-        super(logger, cosemObjectFactory);
+    public GprsModemSetupMapping(CosemObjectFactory cosemObjectFactory) {
+        super(cosemObjectFactory);
     }
 
     @Override

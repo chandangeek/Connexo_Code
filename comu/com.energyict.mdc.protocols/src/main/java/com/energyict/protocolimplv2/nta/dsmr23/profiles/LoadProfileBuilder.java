@@ -523,8 +523,8 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         return meterProtocol;
     }
 
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
+    public CollectedDataFactory getCollectedDataFactory() {
+        return this.collectedDataFactory;
     }
     protected Map<CapturedRegisterObject, DLMSAttribute> getRegisterUnitMap() {
         return registerUnitMap;

@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.nta.dsmr50.registers;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -25,8 +26,8 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
 
     private AM540PLCRegisterMapper plcRegisterMapper;
 
-    public Dsmr50RegisterFactory(AbstractDlmsProtocol protocol, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, boolean supportsBulkRequests) {
-        super(protocol, issueService, readingTypeUtilService, supportsBulkRequests);
+    public Dsmr50RegisterFactory(AbstractDlmsProtocol protocol, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, boolean supportsBulkRequests, CollectedDataFactory collectedDataFactory) {
+        super(protocol, issueService, readingTypeUtilService, supportsBulkRequests, collectedDataFactory);
     }
 
     public List<CollectedRegister> readRegisters(List<OfflineRegister> allRegisters) {

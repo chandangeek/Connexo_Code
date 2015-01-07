@@ -135,15 +135,15 @@ public class G3RegisterMapper {
 
     private final List<G3Mapping> getBillingPeriodMappings() {
         List<G3Mapping> billingMappings = new ArrayList<G3Mapping>();
-        billingMappings.add(new SingleActionScheduleMapping(ASYNC_EOB_SCHEDULE_ALL));
-        billingMappings.add(new SingleActionScheduleMapping(ASYNC_EOB_SCHEDULE_TYPE));
-        billingMappings.add(new SingleActionScheduleMapping(ASYNC_EOB_SCHEDULE_TIME));
-        billingMappings.add(new SingleActionScheduleMapping(DAILY_EOB_SCHEDULE_ALL));
-        billingMappings.add(new SingleActionScheduleMapping(DAILY_EOB_SCHEDULE_TYPE));
-        billingMappings.add(new SingleActionScheduleMapping(DAILY_EOB_SCHEDULE_TIME));
-        billingMappings.add(new SingleActionScheduleMapping(MONTHLY_EOB_SCHEDULE_ALL));
-        billingMappings.add(new SingleActionScheduleMapping(MONTHLY_EOB_SCHEDULE_TYPE));
-        billingMappings.add(new SingleActionScheduleMapping(MONTHLY_EOB_SCHEDULE_TIME));
+        billingMappings.add(new SingleActionScheduleMapping(as330D.getSession().getTimeZone(), ASYNC_EOB_SCHEDULE_ALL));
+        billingMappings.add(new SingleActionScheduleMapping(as330D.getSession().getTimeZone(), ASYNC_EOB_SCHEDULE_TYPE));
+        billingMappings.add(new SingleActionScheduleMapping(as330D.getSession().getTimeZone(), ASYNC_EOB_SCHEDULE_TIME));
+        billingMappings.add(new SingleActionScheduleMapping(as330D.getSession().getTimeZone(), DAILY_EOB_SCHEDULE_ALL));
+        billingMappings.add(new SingleActionScheduleMapping(as330D.getSession().getTimeZone(), DAILY_EOB_SCHEDULE_TYPE));
+        billingMappings.add(new SingleActionScheduleMapping(as330D.getSession().getTimeZone(), DAILY_EOB_SCHEDULE_TIME));
+        billingMappings.add(new SingleActionScheduleMapping(as330D.getSession().getTimeZone(), MONTHLY_EOB_SCHEDULE_ALL));
+        billingMappings.add(new SingleActionScheduleMapping(as330D.getSession().getTimeZone(), MONTHLY_EOB_SCHEDULE_TYPE));
+        billingMappings.add(new SingleActionScheduleMapping(as330D.getSession().getTimeZone(), MONTHLY_EOB_SCHEDULE_TIME));
         return billingMappings;
     }
 

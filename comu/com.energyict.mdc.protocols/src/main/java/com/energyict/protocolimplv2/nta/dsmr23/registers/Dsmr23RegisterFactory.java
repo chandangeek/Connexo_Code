@@ -133,10 +133,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                 }
 
                 if (rv != null) {
-                    CollectedRegister deviceRegister =
-                            this.collectedDataFactory.createMaximumDemandCollectedRegister(
-                                    getRegisterIdentifier(register),
-                    CollectedRegister deviceRegister = getCollectedDataFactory()
+                        CollectedRegister deviceRegister = this.collectedDataFactory
                             .createMaximumDemandCollectedRegister(getRegisterIdentifier(register),
                                     this.readingTypeUtilService.getReadingTypeFrom(register.getAmrRegisterObisCode(), register.getUnit()));
                     deviceRegister.setCollectedData(rv.getQuantity(), rv.getText());
@@ -158,10 +155,6 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
             }
         }
         return collectedRegisters;
-    }
-
-    public CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
     /**
@@ -381,10 +374,8 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
         return new RegisterDataIdentifierByObisCodeAndDevice(offlineRtuRegister.getObisCode(), offlineRtuRegister.getObisCode(), offlineRtuRegister.getDeviceIdentifier());
     }
 
-    private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
-        CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register),
     public CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
-        CollectedRegister collectedRegister = getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register),
+        CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register),
                 this.readingTypeUtilService.getReadingTypeFrom(register.getAmrRegisterObisCode(), register.getUnit()));
         if (resultType == ResultType.InCompatible) {
             collectedRegister.setFailureInformation(
@@ -396,5 +387,9 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                     this.issueService.newWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
         }
         return collectedRegister;
+    }
+
+    public CollectedDataFactory getCollectedDataFactory() {
+        return collectedDataFactory;
     }
 }

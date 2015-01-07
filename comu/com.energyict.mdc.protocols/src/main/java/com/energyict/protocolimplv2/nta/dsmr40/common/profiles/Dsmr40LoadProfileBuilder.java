@@ -11,6 +11,7 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.CapturedRegisterObject;
@@ -33,9 +34,10 @@ public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
      * Default constructor
      *
      * @param meterProtocol the {@link #meterProtocol}
+     * @param collectedDataFactory
      */
-    public Dsmr40LoadProfileBuilder(AbstractDlmsProtocol meterProtocol, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, boolean supportsBulkRequests) {
-        super(meterProtocol, issueService, readingTypeUtilService, supportsBulkRequests);
+    public Dsmr40LoadProfileBuilder(AbstractDlmsProtocol meterProtocol, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, boolean supportsBulkRequests, CollectedDataFactory collectedDataFactory) {
+        super(meterProtocol, issueService, readingTypeUtilService, collectedDataFactory, supportsBulkRequests);
     }
 
     public void setCumulativeCaptureTimeChannel(boolean cumulativeCaptureTimeChannel) {

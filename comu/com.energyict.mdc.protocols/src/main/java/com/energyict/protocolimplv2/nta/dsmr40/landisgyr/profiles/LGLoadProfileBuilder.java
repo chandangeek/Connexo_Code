@@ -7,6 +7,7 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
@@ -38,8 +39,8 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
      *
      * @param meterProtocol the {@link #meterProtocol}
      */
-    public LGLoadProfileBuilder(AbstractDlmsProtocol meterProtocol, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, boolean supportsBulkRequests) {
-        super(meterProtocol, issueService, readingTypeUtilService, supportsBulkRequests);
+    public LGLoadProfileBuilder(AbstractDlmsProtocol meterProtocol, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, boolean supportsBulkRequests, CollectedDataFactory collectedDataFactory) {
+        super(meterProtocol, issueService, readingTypeUtilService, supportsBulkRequests, collectedDataFactory);
     }
 
     /**

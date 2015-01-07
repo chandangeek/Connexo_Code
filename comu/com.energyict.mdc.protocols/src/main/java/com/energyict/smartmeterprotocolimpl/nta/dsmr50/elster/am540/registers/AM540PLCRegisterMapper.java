@@ -30,7 +30,7 @@ public class AM540PLCRegisterMapper extends G3RegisterMapper {
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         for (G3Mapping mapping : mappings) {
             if (mapping.getObisCode().equals(obisCode)) {
-                final RegisterValue registerValue = mapping.readRegister(dlmsSession);
+                final RegisterValue registerValue = mapping.readRegister(dlmsSession.getCosemObjectFactory());
                 if (registerValue != null) {
                     return registerValue;
                 }

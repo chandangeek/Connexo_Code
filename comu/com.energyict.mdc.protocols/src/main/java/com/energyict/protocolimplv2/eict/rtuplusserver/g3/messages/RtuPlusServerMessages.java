@@ -23,13 +23,11 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
@@ -47,14 +45,11 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -69,7 +64,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     private final DlmsSession session;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
-    private RtuPlusServer deviceProtocol;
+    private final RtuPlusServer deviceProtocol;
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
 
     private Set<DeviceMessageId> supportedMessages = EnumSet.of(
@@ -146,13 +141,11 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             DeviceMessageId.SECURITY_CHANGE_WEBPORTAL_PASSWORD2
     );
 
-    public RtuPlusServerMessages(DlmsSession session, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+    public RtuPlusServerMessages(DlmsSession session, IssueService issueService, CollectedDataFactory collectedDataFactory, RtuPlusServer deviceProtocol) {
         this.session = session;
-    public RtuPlusServerMessages(IssueService issueService, RtuPlusServer deviceProtocol) {
-        this.deviceProtocol = deviceProtocol;
-        this.session = this.deviceProtocol.getDlmsSession();
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
+        this.deviceProtocol = deviceProtocol;
     }
 
     public Set<DeviceMessageId> getSupportedMessages() {
@@ -162,7 +155,6 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
         CollectedMessageList result = this.collectedDataFactory.createCollectedMessageList(pendingMessages);
-        CollectedMessageList result = getCollectedDataFactory().createCollectedMessageList(pendingMessages);
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
@@ -225,7 +217,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                     setMinBe(pendingMessage);
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_PATH_REQUEST)) {
                     CollectedTopologyMessageInfo collectedTopologyMessageInfo = pathRequest(pendingMessage);
-                    collectedMessage = getCollectedDataFactory().createCollectedMessageTopology(pendingMessage.getIdentifier(), collectedTopologyMessageInfo.collectedTopology);
+                    collectedMessage = this.collectedDataFactory.createCollectedMessageTopology(pendingMessage.getIdentifier(), collectedTopologyMessageInfo.collectedTopology);
                     collectedMessage.setDeviceProtocolInformation(collectedTopologyMessageInfo.protocolMessageInfo);
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.UPLINK_CONFIGURATION_ENABLE_PING)) {
                     enableUplinkPing(pendingMessage);
@@ -325,10 +317,6 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             result.addCollectedMessages(collectedMessage);
         }
         return result;
-    }
-
-    private CollectedDataFactory getCollectedDataFactory() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
     private void setFWDefaultState(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -918,10 +906,6 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     protected CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
         return this.collectedDataFactory.createCollectedMessage(message.getIdentifier());
-    }
-
-    protected CollectedMessage createCollectedMessageWithRegisterData(OfflineDeviceMessage message, List<CollectedRegister> registers) {
-        return getCollectedDataFactory().createCollectedMessageWithRegisterData(message.getDeviceIdentifier(), message.getIdentifier(), registers);
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, Exception e) {
