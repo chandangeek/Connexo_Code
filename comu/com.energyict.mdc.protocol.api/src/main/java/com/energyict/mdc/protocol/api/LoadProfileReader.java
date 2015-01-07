@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
+import java.time.ZoneOffset;
 import java.util.List;
 
 /**
@@ -77,7 +78,7 @@ public class LoadProfileReader {
             this.endReadingTime = endReadingTime;
         }
         if (startReadingTime == null) {
-            this.startReadingTime = this.endReadingTime.minus(Period.ofMonths(1));
+            this.startReadingTime = this.endReadingTime.atOffset(ZoneOffset.UTC).minus(Period.ofMonths(1)).toInstant();
         } else {
             this.startReadingTime = startReadingTime;
         }
