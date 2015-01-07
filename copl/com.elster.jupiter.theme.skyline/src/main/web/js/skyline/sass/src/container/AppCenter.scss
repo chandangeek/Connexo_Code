@@ -1,14 +1,14 @@
 @import "NavigationMenu";
 
 @mixin icon($icon) {
-    .icon-#{$icon} {
+    .uni-icon-#{$icon} {
         background-image: url('images/container/appcenter/#{$icon}.png');
     }
 }
 
 @mixin iconSelected($icon) {
     .app-item.x-pressed {
-        .icon-#{$icon} {
+        .uni-icon-#{$icon} {
             background-image: url('images/container/appcenter/#{$icon}Selected.png');
         }
     }
@@ -39,7 +39,7 @@
     }
 
     .uni-nav-appcenter-dataview {
-        margin-right: -5px !important;
+        margin-right: -1px !important;
         left: 0 !important;
 
         .handlebar {
