@@ -4,6 +4,7 @@ import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.http.whiteboard.UnderlyingNetworkException;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.system.app.SysAppService;
@@ -101,7 +102,7 @@ public class WhiteBoard extends Application implements BinderProvider {
     @Reference(name = "ZResource", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResource(HttpResource resource) {
         String alias = getAlias(resource.getAlias());
-        HttpContext httpContext = new HttpContextImpl(this, resource.getResolver(), userService, transactionService, messageService, jsonService, eventAdminHolder);
+        HttpContext httpContext = new HttpContextImpl(this, resource.getResolver(), userService, transactionService, eventAdminHolder);
         try {
             httpService.registerResources(alias, resource.getLocalName(), httpContext);
             resources.add(resource);
@@ -195,6 +196,8 @@ public class WhiteBoard extends Application implements BinderProvider {
         return new AbstractBinder() {
             @Override
             protected void configure() {
+                this.bind(messageService).to(MessageService.class);
+                this.bind(jsonService).to(JsonService.class);
                 this.bind(WhiteBoard.this).to(WhiteBoard.class);
             }
         };

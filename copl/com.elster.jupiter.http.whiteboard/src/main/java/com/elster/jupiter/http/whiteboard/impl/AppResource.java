@@ -2,28 +2,33 @@ package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.license.License;
-import com.elster.jupiter.system.app.SysAppService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
-import com.energyict.mdc.app.MdcAppService;
+import com.elster.jupiter.util.json.JsonService;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Path("/apps")
 public class AppResource {
 
+    static final String LOGOUT_QUEUE_DEST = "LogoutQueueDest";
+
     @Inject
     private WhiteBoard whiteBoard;
+    @Inject
+    private MessageService messageService;
+    @Inject
+    private JsonService jsonService;
 
     private static final String APP_SYSTEM_ADMIN_KEY = "SYS";
     private static final String APP_MULTI_SENSE_KEY = "MDC";
@@ -55,6 +60,23 @@ public class AppResource {
             }
         }
         return "NO_LICENSE";
+    }
+
+    @POST
+    @Path("/logout")
+    public void logout(@Context HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            User user =( User )session.getAttribute("user");
+            if(user!=null){
+                Optional<DestinationSpec> found = messageService.getDestinationSpec(LOGOUT_QUEUE_DEST);
+                if (found.isPresent()) {
+                    String json = jsonService.serialize(user.getName());
+                    found.get().message(json).send();
+                }
+            }
+            session.invalidate();
+        }
     }
 
     private AppInfo appInfo(App app) {

@@ -41,24 +41,18 @@ public class HttpContextImpl implements HttpContext {
             "index.html",
             "index-dev.html"};
 
-    static final String LOGOUT_QUEUE_DEST = "LogoutQueueDest";
-
     private final WhiteBoard whiteboard;
     private final Resolver resolver;
     private final UserService userService;
-    private final JsonService jsonService;
-    private final MessageService messageService;
     private final TransactionService transactionService;
     private final AtomicReference<EventAdmin> eventAdminHolder;
 
-    HttpContextImpl(WhiteBoard whiteboard, Resolver resolver, UserService userService, TransactionService transactionService, MessageService messageService, JsonService jsonService, AtomicReference<EventAdmin> eventAdminHolder) {
+    HttpContextImpl(WhiteBoard whiteboard, Resolver resolver, UserService userService, TransactionService transactionService, AtomicReference<EventAdmin> eventAdminHolder) {
         this.resolver = resolver;
         this.userService = userService;
         this.transactionService = transactionService;
         this.eventAdminHolder = eventAdminHolder;
         this.whiteboard = whiteboard;
-        this.messageService = messageService;
-        this.jsonService = jsonService;
     }
 
     @Override
@@ -82,10 +76,6 @@ public class HttpContextImpl implements HttpContext {
             }
             Event event = new Event("com/elster/jupiter/http/GET", ImmutableMap.of("resource", requestUrl.toString()));
             eventAdmin.postEvent(event);
-        }
-        if (logoutRequested(request)) {
-            clearSession(request);
-            return true;
         }
 
         String authentication = request.getHeader("Authorization");
@@ -139,27 +129,6 @@ public class HttpContextImpl implements HttpContext {
     private boolean deny(HttpServletResponse response) {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         return false;
-    }
-
-    private boolean logoutRequested(HttpServletRequest request) {
-        return (request.getParameter("logout") != null && request.getParameter("logout").equals("true")) ? true : false;
-    }
-
-    private void clearSession(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            User user =( User )session.getAttribute("user");
-            if(user!=null){
-                Optional<DestinationSpec> found = messageService.getDestinationSpec(LOGOUT_QUEUE_DEST);
-                if (found.isPresent()) {
-                    String json = jsonService.serialize(user.getName());
-                    found.get().message(json).send();
-                }
-            }
-            session.invalidate();
-
-
-        }
     }
 
     private boolean unsecureAllowed(String uri) {
