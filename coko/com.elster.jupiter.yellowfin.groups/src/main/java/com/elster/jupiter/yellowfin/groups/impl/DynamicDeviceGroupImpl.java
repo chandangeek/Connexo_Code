@@ -93,7 +93,10 @@ public class DynamicDeviceGroupImpl  {
 
     public void save() {
         List<DynamicEntryImpl> existingEntries = entryFactory().find("groupId", id);
-        DiffList<DynamicEntryImpl> entryDiff = ArrayDiffList.fromOriginal(existingEntries);
+        entryFactory().remove(existingEntries);
+        entryFactory().persist(entries);
+
+        /*DiffList<DynamicEntryImpl> entryDiff = ArrayDiffList.fromOriginal(existingEntries);
 
         entryDiff.clear();
         for(DynamicEntryImpl entry : entries){
@@ -102,7 +105,7 @@ public class DynamicDeviceGroupImpl  {
 
         entryFactory().remove(FluentIterable.from(entryDiff.getRemovals()).toList());
         entryFactory().update(FluentIterable.from(entryDiff.getRemaining()).toList());
-        entryFactory().persist(FluentIterable.from(entryDiff.getAdditions()).toList());
+        entryFactory().persist(FluentIterable.from(entryDiff.getAdditions()).toList());*/
     }
 
     private DataMapper<DynamicEntryImpl> entryFactory() {
