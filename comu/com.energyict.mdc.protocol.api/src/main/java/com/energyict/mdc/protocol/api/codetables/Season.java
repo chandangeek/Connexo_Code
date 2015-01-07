@@ -2,7 +2,7 @@ package com.energyict.mdc.protocol.api.codetables;
 
 import com.energyict.mdc.common.NamedBusinessObject;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 public interface Season extends NamedBusinessObject {
@@ -19,6 +19,6 @@ public interface Season extends NamedBusinessObject {
      * @param date date to test
      * @return true if this date is included in this season('s period)
      */
-    public boolean contains(Date date);
+    public boolean contains(Instant date);
 
 }

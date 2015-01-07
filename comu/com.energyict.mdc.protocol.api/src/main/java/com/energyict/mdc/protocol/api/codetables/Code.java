@@ -6,7 +6,7 @@ import com.energyict.mdc.dynamic.relation.RelationParticipant;
 
 import com.elster.jupiter.util.time.Interval;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -174,7 +174,7 @@ public interface Code extends NamedBusinessObject, RelationParticipant {
      * @return the code.
      * @throws BusinessException if no code is available
      */
-    public int getCodeValue(Date date) throws BusinessException;
+    public int getCodeValue(Instant date) throws BusinessException;
 
     /**
      * returns the day type for the specified date.
@@ -183,7 +183,7 @@ public interface Code extends NamedBusinessObject, RelationParticipant {
      * @return the day type
      * @throws BusinessException if no day type is available
      */
-    public CodeDayType getDayType(Date date) throws BusinessException;
+    public CodeDayType getDayType(Instant date) throws BusinessException;
 
     /**
      * returns the period of the code: starting on the 1 januari of the code's begin year
@@ -213,6 +213,6 @@ public interface Code extends NamedBusinessObject, RelationParticipant {
      * @param date the date
      * @return the season
      */
-    public Season getSeason(Date date);
+    public Season getSeason(Instant date);
 
 }
