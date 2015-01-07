@@ -391,6 +391,7 @@ Ext.define('Usr.controller.GroupEdit', {
 
         if (colIndex == lastColumn) {
             var menu = grid.panel.columns[lastColumn].menu;
+            Ext.suspendLayouts();
             menu.removeAll();
 
             this.addPermissionMenuNoAccess(menu, (record.get('permissions') == ''));
@@ -398,7 +399,7 @@ Ext.define('Usr.controller.GroupEdit', {
                 this.addPermissionMenuItem(menu, privileges[i].data.name, privileges[i].data.id, privileges[i].data.selected);
             }
             this.addPermissionMenuFullControl(menu, (record.get('selected') == privileges.length));
-
+            Ext.resumeLayouts();
             var me = this;
             menu.on('beforehide', function (panel) {
                 var text = '',
