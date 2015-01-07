@@ -99,7 +99,7 @@ public class TariffConfiguration extends AbstractActarisObject {
 
         for (Season season : seasons) {
             for (SeasonTransition seasonTransition : season.getTransitions()) {
-                cal.setTime(seasonTransition.getStartDate());
+                cal.setTimeInMillis(seasonTransition.getStartDate().toEpochMilli());
                 int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK) - 1;
                 dayOfWeek = dayOfWeek == 0 ? 7 : dayOfWeek;
                 int month = cal.get(Calendar.MONTH) + 1;
