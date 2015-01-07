@@ -1,3 +1,26 @@
+/* line 360, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-notification-tc {
+  height: 3px;
+}
+
+/* line 363, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-notification-bc {
+  height: 3px;
+}
+
+/* line 374, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-notification-tl,
+.x-window-notification-bl,
+.x-window-notification-tr,
+.x-window-notification-br,
+.x-window-notification-tc,
+.x-window-notification-bc,
+.x-window-notification-ml,
+.x-window-notification-mr {
+  zoom: 1;
+  background-image: url(images/window/window-notification-corners.gif);
+}
+
 /* line 418, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-notification-ml,
 .x-window-notification-mr {
@@ -5755,6 +5778,25 @@ div.x-form-spinner-down {
 .x-form-trigger-wrap-focus
 .x-form-trigger-click {
   opacity: 1 !important;
+}
+
+/* line 70, ../../sass/src/form/field/Trigger.scss */
+.x-item-disabled .x-form-trigger-wrap {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=30);
+  opacity: 0.3;
+}
+
+/* line 75, ../../sass/src/form/field/Trigger.scss */
+.x-item-disabled .x-form-trigger {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
+  opacity: 1;
+  cursor: default;
+}
+
+/* line 81, ../../sass/src/form/field/Trigger.scss */
+.x-form-trigger-wrap .x-form-text {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
+  opacity: 1;
 }
 
 /* line 1, ../../sass/src/toolbar/Paging.scss */
