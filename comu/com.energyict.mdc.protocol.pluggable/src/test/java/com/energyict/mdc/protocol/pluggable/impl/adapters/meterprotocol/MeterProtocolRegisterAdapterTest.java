@@ -46,10 +46,10 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class MeterProtocolRegisterAdapterTest {
 
-    private final Date fromDate = mock(Date.class);
-    private final Date toDate = mock(Date.class);
-    private final Date readDate = mock(Date.class);
-    private final Date eventDate = mock(Date.class);
+    private final Date fromDate = new Date(1389612600000L); // Mon, 13 Jan 2014 11:30:00 GMT
+    private final Date toDate = new Date(1389613500000L);   // Mon, 13 Jan 2014 11:45:00 GMT
+    private final Date readDate = new Date(1389664800000L); // Tue, 14 Jan 2014 02:00:00 GMT
+    private final Date eventDate = new Date(1389613500000L);// Same as toDate
     private final String text = "Some Text From a Register";
     private final Quantity quantity = mock(Quantity.class);
 
@@ -170,10 +170,10 @@ public class MeterProtocolRegisterAdapterTest {
         final List<CollectedRegister> collectedRegisters = meterProtocolRegisterAdapter.readRegisters(Arrays.asList(register));
 
         CollectedRegister collectedRegister = collectedRegisters.get(0);
-        assertThat(collectedRegister.getFromTime()).isEqualTo(fromDate);
-        assertThat(collectedRegister.getToTime()).isEqualTo(toDate);
-        assertThat(collectedRegister.getEventTime()).isEqualTo(eventDate);
-        assertThat(collectedRegister.getReadTime()).isEqualTo(readDate);
+        assertThat(collectedRegister.getFromTime()).isEqualTo(fromDate.toInstant());
+        assertThat(collectedRegister.getToTime()).isEqualTo(toDate.toInstant());
+        assertThat(collectedRegister.getEventTime()).isEqualTo(eventDate.toInstant());
+        assertThat(collectedRegister.getReadTime()).isEqualTo(readDate.toInstant());
         assertThat(collectedRegister.getText()).isEqualTo(text);
         assertThat(collectedRegister.getCollectedQuantity()).isEqualTo(quantity);
     }
