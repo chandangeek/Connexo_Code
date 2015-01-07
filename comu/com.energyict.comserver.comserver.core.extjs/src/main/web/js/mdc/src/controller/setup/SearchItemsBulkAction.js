@@ -376,6 +376,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 case 'statusPage':
                     if (currentCmp.name != 'statusPageViewDevices') {
                         progressBar = Ext.create('Ext.ProgressBar', {width: '50%'});
+                        Ext.suspendLayouts();
                         nextCmp.removeAll(true);
                         nextCmp.add(
                             progressBar.wait({
@@ -384,6 +385,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                 text: (me.operation === 'add' ? Uni.I18n.translate('general.adding', 'MDC', 'Adding...') : Uni.I18n.translate('general.removing', 'MDC', 'Removing...'))
                             })
                         );
+                        Ext.resumeLayouts();
                         this.getNavigationMenu().jumpBack = false;
                     }
                     break;

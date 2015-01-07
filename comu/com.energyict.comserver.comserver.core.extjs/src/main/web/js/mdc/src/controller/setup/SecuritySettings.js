@@ -399,10 +399,12 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             formErrorsPanel = me.getFormPanel().down('panel[name=errors]');
 
         formErrorsPanel.hide();
+        Ext.suspendLayouts();
         formErrorsPanel.removeAll();
         formErrorsPanel.add({
             html: 'There are errors on this page that require your attention.'
         });
+        Ext.resumeLayouts();
         formErrorsPanel.show();
     },
 

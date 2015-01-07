@@ -135,7 +135,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
             slavesContainer = me.down('#slaveDevicesContainer');
             masterContainer = me.down('#masterDeviceContainer');
 
-
+            Ext.suspendLayouts();
             if (!device.get('isDirectlyAddressed')) {
                 if (device.get('masterDeviceId')) {
                     me.addItemToForm(masterContainer, device.get('masterDevicemRID'), me.router.getRoute('devices/device').buildUrl({mRID: device.get('masterDevicemRID')}));
@@ -173,6 +173,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                     }
                 );
             }
+            Ext.resumeLayouts();
         }
     },
 

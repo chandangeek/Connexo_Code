@@ -18,8 +18,9 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
         var widget = {
             html: '<h3>' + message.title + '</h3><br>' + message.body
         };
-
+        Ext.suspendLayouts();
         this.removeAll();
-        this.add(widget)
+        this.add(widget);
+        Ext.resumeLayouts();
     }
 });

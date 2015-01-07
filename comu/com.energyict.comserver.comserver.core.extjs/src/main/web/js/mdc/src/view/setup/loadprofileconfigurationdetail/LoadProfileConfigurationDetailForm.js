@@ -126,6 +126,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
 
     initComponent: function () {
         this.callParent(this);
+        Ext.suspendLayouts();
         this.down('#LoadProfileChannelAction').add(
             {
                 xtype: 'button',
@@ -143,6 +144,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 ui: 'link'
             }
         );
+        Ext.resumeLayouts();
         Ext.apply(Ext.form.VTypes, {
             overflowValue: function (val, field) {
                 var over = /[\d]+/;

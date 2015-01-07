@@ -133,6 +133,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
                 }
             }
         };
+        Ext.suspendLayouts();
         deviceConnectionHistoryPreviewMenu.add(menuItem);
         deviceConnectionHistoryGridActionColumn.menu.add(menuItem);
         deviceCommunicationTaskExecutionsStore.getProxy().setExtraParam('mRID', this.deviceMrId);
@@ -146,6 +147,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
                 me.getDeviceCommunicationTaskExecutionPreview().show();
             }
         })
+        Ext.resumeLayouts();
     },
 
     previewDeviceCommunicationTaskExecution: function () {

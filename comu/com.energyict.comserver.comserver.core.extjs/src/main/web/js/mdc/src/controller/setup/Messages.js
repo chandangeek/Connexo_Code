@@ -138,6 +138,7 @@ Ext.define('Mdc.controller.setup.Messages', {
                 }
 
                 if (activeEnablements > 0) {
+                    Ext.suspendLayouts();
                     menu.add(
                         {
                             text: Uni.I18n.translate('messages.categories.deactivateAll', 'MDC', 'Deactivate all'),
@@ -150,6 +151,7 @@ Ext.define('Mdc.controller.setup.Messages', {
                             action: 'changePrivilegesForAll'
                         }
                     );
+                    Ext.resumeLayouts();
                 }
                 this.getMessagesActionBtn().menu = menu;
             } else {

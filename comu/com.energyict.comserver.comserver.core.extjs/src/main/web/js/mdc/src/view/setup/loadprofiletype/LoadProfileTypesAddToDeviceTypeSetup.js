@@ -30,7 +30,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeSetup'
         var me = this;
 
         me.callParent(arguments);
-
         me.down('panel').add(
             {
                 xtype: 'preview-container',

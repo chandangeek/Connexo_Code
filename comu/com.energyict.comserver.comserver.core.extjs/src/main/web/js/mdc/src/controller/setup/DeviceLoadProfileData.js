@@ -137,6 +137,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                         channels: record.get('channels'),
                         device: device
                     });
+                    Ext.suspendLayouts();
                     tabWidget.down('#loadProfileTabPanel').setTitle(record.get('name'));
                     tabWidget.down('#deviceLoadProfileDataSideFilter').setVisible(true);
                     me.loadProfileModel = record;
@@ -171,6 +172,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     me.getSideFilterForm().loadRecord(router.filter);
                     me.setFilterView();
                     dataStore.load();
+                    Ext.resumeLayouts();
                 });
             }
         });

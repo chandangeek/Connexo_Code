@@ -117,7 +117,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
 
         rulePreview.loadRecord(validationRule);
         rulePreview.setTitle(validationRule.get('name'));
-
+        Ext.suspendLayouts();
         rulePreview.down('#propertiesArea').removeAll();
         for (var i = 0; i < properties.length; i++) {
             var property = properties[i];
@@ -137,6 +137,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                 }
             );
         }
+
 
         rulePreview.down('#readingTypesArea').removeAll();
         for (var i = 0; i < readingTypes.length; i++) {
@@ -160,6 +161,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                 }
             );
         }
+        Ext.resumeLayouts();
     },
     changeRuleSetStatus: function () {
         var me = this,

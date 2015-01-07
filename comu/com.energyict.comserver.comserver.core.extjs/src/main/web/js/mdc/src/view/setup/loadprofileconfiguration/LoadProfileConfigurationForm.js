@@ -80,6 +80,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
 
     initComponent: function () {
         this.callParent(this);
+        Ext.suspendLayouts();
         this.down('#LoadProfileConfigurationActionContainer').add(
             {
                 xtype: 'button',
@@ -97,6 +98,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
                 ui: 'link'
             }
         );
+        Ext.resumeLayouts();
     }
 });
 

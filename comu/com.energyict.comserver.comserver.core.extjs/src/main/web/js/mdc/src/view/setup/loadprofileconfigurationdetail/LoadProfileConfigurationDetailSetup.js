@@ -93,7 +93,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
 
     initComponent: function () {
         this.callParent(arguments);
-
+        Ext.suspendLayouts();
         this.down('#loadProfileConfigurationDetailInfoContainer').add(
             {
                 xtype: 'loadProfileConfigurationDetailInfo',
@@ -137,5 +137,6 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 deleteActionName: 'deleteloadprofileconfigurationdetailchannel'
             }
         );
+        Ext.resumeLayouts();
     }
 });

@@ -71,6 +71,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeOnDeviceTypeSetup', {
             }
         ];
         this.callParent(arguments);
+        Ext.suspendLayouts();
         this.down('#loadProfileTypeGridContainer').add(
             {
                 xtype: 'loadProfileTypeGrid',
@@ -92,6 +93,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeOnDeviceTypeSetup', {
                 actionHref: '#/administration/devicetypes/' + this.deviceTypeId + '/loadprofiles/add'
             }
         );
+        Ext.resumeLayouts();
     }
 
 });

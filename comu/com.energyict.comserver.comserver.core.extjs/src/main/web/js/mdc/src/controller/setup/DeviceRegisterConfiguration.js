@@ -97,8 +97,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         me.registerName = record.get('name');
         form.loadRecord(record);
         widget.setTitle(record.get('name'));
+        Ext.suspendLayouts();
         previewContainer.removeAll();
         previewContainer.add(widget);
+        Ext.resumeLayouts();
         if (!record.data.detailedValidationInfo.validationActive) {
             widget.down('#validateNowRegister').hide();
             Ext.ComponentQuery.query('#registerActionMenu #validateNowRegister')[0].hide();
