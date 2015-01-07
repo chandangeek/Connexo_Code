@@ -49,7 +49,7 @@ Ext.define('Dxp.view.tasks.PropertyForm', {
                 }
             }
         });
-
+        Ext.suspendLayouts();
         Ext.iterate(groups, function (groupName, groupItems) {
             var namesArray = groupName.split('.'),
                 fieldContainer = {
@@ -80,6 +80,7 @@ Ext.define('Dxp.view.tasks.PropertyForm', {
             }
             me.add(fieldContainer.items ? fieldContainer : groupItems);
         });
+        Ext.resumeLayouts();
         this.initialised = true;
     },
 

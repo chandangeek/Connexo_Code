@@ -9,7 +9,7 @@ Ext.define('Dxp.view.tasks.Menu', {
     initComponent: function () {
         var me = this;
         me.callParent(me);
-
+        Ext.suspendLayouts();
         me.add(
             {
                 text: Uni.I18n.translate('general.overview', 'DES', 'Overview'),
@@ -34,7 +34,7 @@ Ext.define('Dxp.view.tasks.Menu', {
                 }
             );
         }
-        
+        Ext.resumeLayouts();
         me.toggleMenuItem(me.toggle);
     }
 });
