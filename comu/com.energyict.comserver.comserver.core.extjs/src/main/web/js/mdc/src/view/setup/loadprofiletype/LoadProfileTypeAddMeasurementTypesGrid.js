@@ -13,18 +13,18 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGri
             'setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGrid.counterText',
             count,
             'MDC',
-            '{0} measurement types selected'
+            '{0} register types selected'
         );
     },
 
-    allLabel: Uni.I18n.translate('setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGrid.allLabel', 'MDC', 'All measurement types'),
+    allLabel: Uni.I18n.translate('setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGrid.allLabel', 'MDC', 'All register types'),
     allDescription: Uni.I18n.translate(
         'setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGrid.allDescription',
         'MDC',
         'Select all items (related to filters on previous screen)'
     ),
 
-    selectedLabel: Uni.I18n.translate('setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGrid.selectedLabel', 'MDC', 'Selected measurement types'),
+    selectedLabel: Uni.I18n.translate('setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGrid.selectedLabel', 'MDC', 'Selected register types'),
     selectedDescription: Uni.I18n.translate(
         'setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGrid.selectedDescription',
         'MDC',

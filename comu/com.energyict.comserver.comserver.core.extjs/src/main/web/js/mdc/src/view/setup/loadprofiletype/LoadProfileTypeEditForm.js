@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
         },
         {
             xtype: 'fieldcontainer',
-            fieldLabel: 'Measurement types',
+            fieldLabel: 'Register types',
             itemId: 'measurement-types-fieldcontainer',
             required: true,
             msgTarget: 'under',
@@ -90,7 +90,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
                         {
                             xtype: 'displayfield',
                             itemId: 'all-measurement-types',
-                            value: Uni.I18n.translate('loadProfileTypes.allMeasurementTypes', 'MDC', 'All measurement types'),
+                            value: Uni.I18n.translate('loadProfileTypes.allMeasurementTypes', 'MDC', 'All register types'),
                             hidden: true
                         },
                         {
@@ -107,7 +107,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
                                 {
                                     xtype: 'button',
                                     itemId: 'add-measurement-types-to-load-profile-type-button',
-                                    text: Uni.I18n.translate('loadProfileTypes.addMeasurementTypes', 'MDC', 'Add measurement types'),
+                                    text: Uni.I18n.translate('loadProfileTypes.addMeasurementTypes', 'MDC', 'Add register types'),
                                     ui: 'action',
                                     margin: '0 0 0 10'
                                 }

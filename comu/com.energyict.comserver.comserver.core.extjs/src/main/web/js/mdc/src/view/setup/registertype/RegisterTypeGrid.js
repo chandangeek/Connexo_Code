@@ -25,16 +25,17 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
             {
                 header: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
                 dataIndex: 'name',
-                flex: 1
+                flex: 2
             },
             {
                 xtype: 'reading-type-column',
                 dataIndex: 'readingType',
-                flex: 1
+                flex: 1.5
             },
             {
                 xtype: 'obis-column',
-                dataIndex: 'obisCode'
+                dataIndex: 'obisCode',
+                flex: 1
             }
         ];
         if (me.withActions) {
