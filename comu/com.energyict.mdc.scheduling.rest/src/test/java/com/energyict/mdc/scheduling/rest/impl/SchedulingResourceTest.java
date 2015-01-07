@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -91,7 +92,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
         ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
-        comScheduleInfo.plannedDate = new Date();
+        comScheduleInfo.plannedDate = Instant.now();
         comScheduleInfo.name = "new name";
         ComTaskInfo comTaskInfo = new ComTaskInfo();
         comTaskInfo.id = COM_TASK_1;
@@ -140,7 +141,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
         ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
-        comScheduleInfo.plannedDate = new Date();
+        comScheduleInfo.plannedDate = Instant.now();
         comScheduleInfo.name = "new name";
         ComTaskInfo comTaskInfo1 = new ComTaskInfo();
         comTaskInfo1.id = COM_TASK_1;
@@ -179,7 +180,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
         ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
-        comScheduleInfo.plannedDate = new Date();
+        comScheduleInfo.plannedDate = Instant.now();
         comScheduleInfo.name = "new name";
         ComTaskInfo comTaskInfo1 = new ComTaskInfo();
         comTaskInfo1.id = COM_TASK_1;

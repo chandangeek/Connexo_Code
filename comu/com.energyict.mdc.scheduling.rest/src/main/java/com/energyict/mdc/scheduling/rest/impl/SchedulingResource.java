@@ -219,7 +219,7 @@ public class SchedulingResource {
     @RolesAllowed(Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE)
     public Response createSchedule(ComScheduleInfo comScheduleInfo) {
         ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleInfo.name, comScheduleInfo.temporalExpression.asTemporalExpression(),
-                comScheduleInfo.startDate == null ? null : comScheduleInfo.startDate.toInstant()).mrid(comScheduleInfo.mRID).build();
+                comScheduleInfo.startDate == null ? null : comScheduleInfo.startDate).mrid(comScheduleInfo.mRID).build();
         if (comScheduleInfo.comTaskUsages != null) {
             updateTasks(comSchedule, comScheduleInfo.comTaskUsages);
         }
@@ -249,7 +249,7 @@ public class SchedulingResource {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
         comSchedule.setName(comScheduleInfo.name);
         comSchedule.setTemporalExpression(comScheduleInfo.temporalExpression == null ? null : comScheduleInfo.temporalExpression.asTemporalExpression());
-        comSchedule.setStartDate(comScheduleInfo.startDate == null ? null : comScheduleInfo.startDate.toInstant());
+        comSchedule.setStartDate(comScheduleInfo.startDate == null ? null : comScheduleInfo.startDate);
         comSchedule.setmRID(comScheduleInfo.mRID);
         if (comScheduleInfo.comTaskUsages != null) {
             updateTasks(comSchedule, comScheduleInfo.comTaskUsages);
@@ -315,7 +315,7 @@ public class SchedulingResource {
     private List<Date> calculateNextOccurrences(PreviewInfo previewInfo) {
         TemporalExpression temporalExpression = previewInfo.temporalExpression.asTemporalExpression();
         List<Date> nextOccurrences = new ArrayList<>();
-        Date occurrence = previewInfo.startDate == null ? new Date() : previewInfo.startDate;
+        Date occurrence = previewInfo.startDate == null ? Date.from(this.clock.instant()) : previewInfo.startDate;
         Calendar latestOccurrence = Calendar.getInstance();
         for (int i = 0; i < 5; i++) {
             latestOccurrence.setTime(occurrence);
