@@ -11,7 +11,7 @@ Ext.define('Sam.view.datapurge.HistoryActionMenu', {
         show: {
             fn: function () {
                 var me = this;
-
+                Ext.suspendLayouts();
                 me.removeAll();
                 if (me.record && me.router) {
                     me.add(
@@ -21,6 +21,7 @@ Ext.define('Sam.view.datapurge.HistoryActionMenu', {
                         }
                     );
                 }
+                Ext.resumeLayouts();
             }
         }
     }

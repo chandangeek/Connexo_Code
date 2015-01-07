@@ -121,11 +121,13 @@ Ext.define('Sam.view.licensing.List', {
         var storeTotal = store.getTotalCount(),
             gridTop = Ext.ComponentQuery.query('container[name="gridcontainer"]')[0];
         if (storeTotal) {
+            Ext.suspendLayouts();
             gridTop.removeAll();
             gridTop.add({
                 xtype: 'label',
                 text: storeTotal + ' licenses'
             });
+            Ext.resumeLayouts();
             this.hideEmptyText();
         } else {
             this.showEmptyText();
