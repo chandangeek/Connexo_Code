@@ -78,11 +78,12 @@ Ext.define('Uni.view.breadcrumb.Trail', {
 
     addBreadcrumbComponent: function (component) {
         var itemCount = this.items.getCount();
-
+        Ext.suspendLayouts();
         if (itemCount % 2 === 1) {
             this.add(Ext.widget('breadcrumbSeparator'));
         }
 
         this.add(component);
+        Ext.resumeLayouts();
     }
 });

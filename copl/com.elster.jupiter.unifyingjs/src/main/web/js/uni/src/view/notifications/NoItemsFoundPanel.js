@@ -176,7 +176,7 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
                 margin: '0 8px 0 0'
             }
         });
-
+        Ext.suspendLayouts();
         if (Ext.isArray(stepItems)) {
             Ext.Array.each(stepItems, function (stepItem) {
                 container.add(Ext.clone(stepItem));
@@ -184,7 +184,7 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
         } else if (Ext.isString(stepItems)) {
             container.add(Ext.clone(stepItems));
         }
-
+        Ext.resumeLayouts();
         return container;
     }
 });

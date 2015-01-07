@@ -273,6 +273,7 @@ Ext.define('Uni.view.window.Wizard', {
      * @param {String/Ext.Component} htmlOrCmp
      */
     setDescription: function (htmlOrCmp) {
+        Ext.suspendLayouts();
         this.getDescriptionCmp().removeAll();
 
         if (!(htmlOrCmp instanceof Ext.Component)) {
@@ -281,6 +282,7 @@ Ext.define('Uni.view.window.Wizard', {
         }
 
         this.getDescriptionCmp().add(htmlOrCmp);
+        Ext.resumeLayouts();
     },
 
     getTitleCmp: function () {

@@ -50,6 +50,7 @@ Ext.define('Uni.view.form.CheckboxGroup', {
      */
     refresh: function () {
         var me = this;
+        Ext.suspendLayouts();
         me.removeAll();
         me.store.each(function (record) {
             me.add({
@@ -62,6 +63,7 @@ Ext.define('Uni.view.form.CheckboxGroup', {
                 }
             });
         });
+        Ext.resumeLayouts();
     },
 
     getModelData: function () {

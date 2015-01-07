@@ -109,7 +109,7 @@ Ext.define('Uni.view.menu.SideMenu', {
 
     addMenuItems: function (menuItems) {
         var me = this;
-
+        Ext.suspendLayouts();
         for (var i = 0; i < menuItems.length; i++) {
             var item = menuItems[i],
                 subItems = item.items,
@@ -137,6 +137,7 @@ Ext.define('Uni.view.menu.SideMenu', {
 
             me.add(item);
         }
+        Ext.resumeLayouts();
     },
 
     applyMenuDefaults: function (config) {
