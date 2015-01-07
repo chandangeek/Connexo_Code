@@ -1168,8 +1168,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(logBook.getLogBookType()).thenReturn(logBookType);
         when(logBookType.getObisCode()).thenReturn(ObisCode.fromString(obis));
         when(logBook.getDeviceObisCode()).thenReturn(ObisCode.fromString(overruledObis));
-        when(logBook.getLastLogBook()).thenReturn(Optional.of(lastLogBook));
-        when(logBook.getLatestEventAdditionDate()).thenReturn(Optional.of(lastReading));
+        Optional<Instant> lastLogBookOptional = Optional.ofNullable(lastLogBook);
+        when(logBook.getLastLogBook()).thenReturn(lastLogBookOptional);
+        Optional<Instant> lastReadingOptional = Optional.ofNullable(lastReading);
+        when(logBook.getLatestEventAdditionDate()).thenReturn(lastReadingOptional);
         return logBook;
     }
 
