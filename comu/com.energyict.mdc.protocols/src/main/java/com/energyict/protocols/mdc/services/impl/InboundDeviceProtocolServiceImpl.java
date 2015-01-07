@@ -1,6 +1,7 @@
 package com.energyict.protocols.mdc.services.impl;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
@@ -40,6 +41,7 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
 
     private Thesaurus thesaurus;
     private volatile CollectedDataFactory collectedDataFactory;
+    private volatile IssueService issueService;
     private volatile IdentificationService identificationService;
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
     private volatile PropertySpecService propertySpecService;
@@ -75,6 +77,7 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
             public void configure() {
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(CollectedDataFactory.class).toInstance(collectedDataFactory);
+                bind(IssueService.class).toInstance(issueService);
                 bind(IdentificationService.class).toInstance(identificationService);
                 bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
@@ -92,6 +95,11 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
     @Reference
     public void setCollectedDataFactory(CollectedDataFactory collectedDataFactory) {
         this.collectedDataFactory = collectedDataFactory;
+    }
+
+    @Reference
+    public void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
     }
 
     @Reference
