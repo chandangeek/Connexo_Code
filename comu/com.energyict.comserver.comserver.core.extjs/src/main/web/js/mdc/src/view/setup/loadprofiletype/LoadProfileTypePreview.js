@@ -60,7 +60,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
                     {
                         fieldLabel: 'Register types',
                         labelWidth: 200,
-                        name: 'measurementTypes',
+                        name: 'registerTypes',
                         renderer: function (value) {
                             var typesString = '';
                             if (!Ext.isEmpty(value)) {

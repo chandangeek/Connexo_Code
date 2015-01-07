@@ -1,7 +1,7 @@
-Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGrid', {
+Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddRegisterTypesGrid', {
     extend: 'Uni.view.grid.BulkSelection',
-    alias: 'widget.load-profile-type-add-measurement-types-grid',
-    store: 'Mdc.store.MeasurementTypesToAdd',
+    alias: 'widget.load-profile-type-add-register-types-grid',
+    store: 'Mdc.store.RegisterTypesToAdd',
 
     requires: [
         'Uni.grid.column.Obis',
@@ -10,23 +10,23 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGri
 
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
-            'setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGrid.counterText',
+            'setup.loadprofiletype.LoadProfileTypeAddRegisterTypesGrid.counterText',
             count,
             'MDC',
             '{0} register types selected'
         );
     },
 
-    allLabel: Uni.I18n.translate('setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGrid.allLabel', 'MDC', 'All register types'),
+    allLabel: Uni.I18n.translate('setup.loadprofiletype.LoadProfileTypeAddRegisterTypesGrid.allLabel', 'MDC', 'All register types'),
     allDescription: Uni.I18n.translate(
-        'setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGrid.allDescription',
+        'setup.loadprofiletype.LoadProfileTypeAddRegisterTypesGrid.allDescription',
         'MDC',
         'Select all items (related to filters on previous screen)'
     ),
 
-    selectedLabel: Uni.I18n.translate('setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGrid.selectedLabel', 'MDC', 'Selected register types'),
+    selectedLabel: Uni.I18n.translate('setup.loadprofiletype.LoadProfileTypeAddRegisterTypesGrid.selectedLabel', 'MDC', 'Selected register types'),
     selectedDescription: Uni.I18n.translate(
-        'setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGrid.selectedDescription',
+        'setup.loadprofiletype.LoadProfileTypeAddRegisterTypesGrid.selectedDescription',
         'MDC',
         'Select items in table'
     ),
