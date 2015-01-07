@@ -423,13 +423,20 @@ public abstract class GenericMessaging implements Messaging {
 
     /**
      * Creates a simpler message to install an MBus device, the only input is the channel ID.
+     * Adds an (optional) message to reset the MBus client.
      */
-    public MessageCategorySpec getSimpleInstallMbusCategory() {
+    public MessageCategorySpec getSimpleInstallMbusCategory(boolean supportClearMBusClient) {
         MessageCategorySpec categorySpec = new MessageCategorySpec(
                 RtuMessageCategoryConstants.MBUSSETUP);
         MessageSpec msgSpec = addSimpleMbusInstallMessage(RtuMessageKeyIdConstants.MBUSINSTALL,
                 RtuMessageConstant.MBUS_INSTALL, false);
         categorySpec.addMessageSpec(msgSpec);
+
+        if (supportClearMBusClient) {
+            MessageSpec msgSpec2 = addResetMBusClientMessage(RtuMessageKeyIdConstants.RESET_MBUS_CLIENT,
+                    RtuMessageConstant.RESET_MBUS_CLIENT, true);
+            categorySpec.addMessageSpec(msgSpec2);
+        }
         return categorySpec;
     }
 
@@ -665,6 +672,19 @@ public abstract class GenericMessaging implements Messaging {
         msgVal.setValue(" ");
         MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
                 RtuMessageConstant.MBUS_INSTALL_CHANNEL, true);
+        tagSpec.add(msgAttrSpec);
+        tagSpec.add(msgVal);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+    private MessageSpec addResetMBusClientMessage(String keyId, String tagName, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
+                RtuMessageConstant.MBUS_SERIAL_NUMBER, true);
         tagSpec.add(msgAttrSpec);
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);

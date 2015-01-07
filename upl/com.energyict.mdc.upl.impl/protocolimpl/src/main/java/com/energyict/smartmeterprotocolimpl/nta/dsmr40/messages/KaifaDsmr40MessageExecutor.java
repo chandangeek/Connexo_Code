@@ -1,6 +1,16 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
+import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
+
+import java.io.IOException;
 
 /**
  * Copyrights EnergyICT
@@ -19,5 +29,29 @@ public class KaifaDsmr40MessageExecutor extends Dsmr40MessageExecutor {
 
     public KaifaDsmr40MessageExecutor(final AbstractSmartNtaProtocol protocol) {
         super(protocol);
+    }
+
+    protected void resetMbusClient(MessageHandler messageHandler) throws IOException {
+
+        //Find the MBus channel based on the given MBus serial number
+        String mbusSerialNumber = messageHandler.getMbusSerialNumber();
+        int channel = 0;
+        for (DeviceMapping deviceMapping : getProtocol().getMeterTopology().getMbusMeterMap()) {
+            if (deviceMapping.getSerialNumber().equals(mbusSerialNumber)) {
+                channel = deviceMapping.getPhysicalAddress();
+                break;
+            }
+        }
+        if (channel == 0) {
+            throw new IOException("No MBus slave meter with serial number '" + mbusSerialNumber + "' is installed on this e-meter");
+        }
+
+        ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) channel);
+        MBusClient mbusClient = getProtocol().getDlmsSession().getCosemObjectFactory().getMbusClient(mbusClientObisCode, MbusClientAttributes.VERSION9);
+
+        mbusClient.setIdentificationNumber(new Unsigned32(0));
+        mbusClient.setManufacturerID(new Unsigned16(0));
+        mbusClient.setVersion(0);
+        mbusClient.setDeviceType(0);
     }
 }

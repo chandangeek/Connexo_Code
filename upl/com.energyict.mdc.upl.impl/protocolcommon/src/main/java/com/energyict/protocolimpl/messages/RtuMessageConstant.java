@@ -183,6 +183,8 @@ public class RtuMessageConstant {
     public static final String MBUS_TRANSFER_KEY = "Transfer_Key_Value";
     public static final String MBUS_DEFAULT_ENCRYPTION_KEY = "Default_Encryption_Key";
     public static final String MBUS_INSTALL = "Mbus_Install";
+    public static final String RESET_MBUS_CLIENT = "Reset_MBus_client";
+    public static final String MBUS_SERIAL_NUMBER = "Mbus_Serial_Number";
     public static final String MBUS_EQUIPMENT_ID = "Mbus_Equipment_Identifier";
     public static final String MBUS_INSTALL_CHANNEL = "Mbus_channel";
     public static final String MBUS_REMOVE = "Mbus_Remove";

@@ -46,7 +46,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
     protected final DlmsSession dlmsSession;
     protected final AbstractSmartNtaProtocol protocol;
-    private static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
+    protected static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
 
     private static final byte[] defaultMonitoredAttribute = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
 
@@ -114,6 +114,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
                 boolean enableDiscoveryOnPowerUp = messageHandler.getType().equals(RtuMessageConstant.ENABLE_DISCOVERY_ON_POWER_UP);
                 boolean disableDiscoveryOnPowerUp = messageHandler.getType().equals(RtuMessageConstant.DISABLE_DISCOVERY_ON_POWER_UP);
                 boolean installMbus = messageHandler.getType().equals(RtuMessageConstant.MBUS_INSTALL);
+                boolean resetMbusClient = messageHandler.getType().equals(RtuMessageConstant.RESET_MBUS_CLIENT);
 
                 /* All MbusMeter related messages */
                 if (xmlConfig) {
@@ -206,6 +207,8 @@ public class Dsmr23MessageExecutor extends MessageParser {
                     msgResult = changeDiscoveryOnPowerUp(msgEntry, 0);
                 } else if (installMbus) {
                     installMbus(messageHandler);
+                } else if (resetMbusClient) {
+                    resetMbusClient(messageHandler);
                 } else {
                     msgResult = MessageResult.createFailed(msgEntry, "Message not supported by the protocol.");
                     log(Level.INFO, "Message not supported : " + content);
@@ -251,6 +254,14 @@ public class Dsmr23MessageExecutor extends MessageParser {
         ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) messageHandler.getMbusInstallChannel());
         MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, MbusClientAttributes.VERSION9);
         mbusClient.installSlave(0);     //Means: pick the next primary address that is available
+    }
+
+    /**
+     * Not supported for the DSMR 2.3 protocols.
+     * Sub classes can override.
+     */
+    protected void resetMbusClient(MessageHandler messageHandler) throws IOException {
+        throw new IOException("Message to reset the MBus client is only supported in the IBM Kaifa protocol");
     }
 
     protected Dsmr23MbusMessageExecutor getMbusMessageExecutor() {

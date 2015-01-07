@@ -27,6 +27,11 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
     protected boolean supportMBus = true;
 
     /**
+     * Support the message to clear the MBus client
+     */
+    protected boolean supportClearMBusClient = false;
+
+    /**
      * Boolean indicating whether or not to show the GPRS related messages in EIServer
      */
     protected boolean supportGPRS = true;
@@ -84,7 +89,7 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
         MessageCategorySpec catFirmware = getFirmwareCategory();
         MessageCategorySpec catP1Messages = getP1Category();
         if (supportMBus) {
-            MessageCategorySpec installMbusCategory = getSimpleInstallMbusCategory();
+            MessageCategorySpec installMbusCategory = getSimpleInstallMbusCategory(supportClearMBusClient);
             categories.add(installMbusCategory);
         }
         if (supportsLimiter) {
@@ -231,5 +236,9 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
 
     public void setSupportXMLConfig(boolean supportXMLConfig) {
         this.supportXMLConfig = supportXMLConfig;
+    }
+
+    public void setSupportClearMBusClient(boolean supportClearMBusClient) {
+        this.supportClearMBusClient = supportClearMBusClient;
     }
 }

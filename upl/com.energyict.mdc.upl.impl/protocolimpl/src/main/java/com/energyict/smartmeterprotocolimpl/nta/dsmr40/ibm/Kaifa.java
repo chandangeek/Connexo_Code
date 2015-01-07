@@ -9,6 +9,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.KaifaDsmr40MessageExecutor;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.KaifaDsmr40Messaging;
 
 import java.io.IOException;
 
@@ -24,7 +25,7 @@ public class Kaifa extends E350 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2013-05-02 17:50:49 +0200 (do, 02 mei 2013) $";
+        return "$Date$";
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
@@ -43,7 +44,7 @@ public class Kaifa extends E350 {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new Dsmr40Messaging(new KaifaDsmr40MessageExecutor(this));
+            messageProtocol = new KaifaDsmr40Messaging(new KaifaDsmr40MessageExecutor(this));
         }
         return messageProtocol;
     }

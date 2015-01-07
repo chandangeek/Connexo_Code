@@ -146,6 +146,9 @@ public class MessageHandler extends DefaultHandler {
         } else if (RtuMessageConstant.MBUS_INSTALL.equals(qName)) {
             setType(RtuMessageConstant.MBUS_INSTALL);
             handleMbusInstall(attrbs);
+        } else if (RtuMessageConstant.RESET_MBUS_CLIENT.equals(qName)) {
+            setType(RtuMessageConstant.RESET_MBUS_CLIENT);
+            handleResetMBusClient(attrbs);
         } else if (RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL.equals(qName)) {
             setType(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL);
             handleChangeAuthentication(attrbs);
@@ -602,7 +605,7 @@ public class MessageHandler extends DefaultHandler {
     }
 
 	/* Handle TestMessage Related messages
-	/***********************************************/
+    /***********************************************/
 
 
     private String ufId = "";
@@ -616,7 +619,7 @@ public class MessageHandler extends DefaultHandler {
     }
 
 	/* WakeUp functionality Related messages
-	/**********************************************/
+    /**********************************************/
 
 
     private String nr1 = "";
@@ -753,9 +756,18 @@ public class MessageHandler extends DefaultHandler {
         return llsSecret;
     }
 
-/* Mbus installation related messages
-    */
+    private String mbusSerialNumber = "";
 
+    private void handleResetMBusClient(Attributes attrbs) {
+        this.mbusSerialNumber = attrbs.getValue(RtuMessageConstant.MBUS_SERIAL_NUMBER);
+    }
+
+    public String getMbusSerialNumber() {
+        return mbusSerialNumber;
+    }
+
+    /* Mbus installation related messages
+    */
     private String mbusEquipmentId = "";
     private String mbusChannelToInstall = "";
     private String mbusEncryptionKey = "";

@@ -42,7 +42,8 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
             BigDecimal.valueOf(2),
             BigDecimal.valueOf(3),
             BigDecimal.valueOf(4)
-    ));
+    )),
+    Reset_MBus_Client(10, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.mbusSerialNumber));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.MBUS_SETUP;
 
