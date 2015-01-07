@@ -7,8 +7,6 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 
 import java.time.Instant;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Represents the definition of a Measurement.
