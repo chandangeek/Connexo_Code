@@ -11,8 +11,19 @@ Ext.define('Uni.view.user.Menu', {
     menu: [
         {
             text: 'Logout',
-            action: 'logout',
-            href: '/apps/login/index.html?logout=true'
+            listeners: {
+                'click': function () {
+                    Ext.Ajax.request({
+                        url: '/api/apps/apps/logout',
+                        method: 'POST',
+                        disableCaching: true,
+                        scope: this,
+                        success: function () {
+                            window.location.replace('/apps/login/index.html');
+                        }
+                    });
+                }
+            }
         }
     ]
 });
