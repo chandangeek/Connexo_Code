@@ -80,7 +80,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
 
 
     init: function () {
-        this.getReadingTypesStore().on('load', this.onReadingTypesStoreLoad, this);
         this.getRegisterTypesStore().on('load', this.onRegisterTypesStoreLoad, this);
 
         this.control({
@@ -121,35 +120,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 gridWidget.getSelectionModel().doSelect(0);
             }
 
-        }
-    },
-
-    onReadingTypesStoreLoad: function () {
-        var widget = this.getRegisterTypeEditForm();
-        var me = this;
-        if (me.getReadingTypesStore().getCount() === 1) {
-            if (widget.down('#editMrIdField').getValue() != '') {
-                if (me.getReadingTypesStore().first().get('mrid') !== widget.down('#editMrIdField').getValue()) {
-                    Ext.MessageBox.show({
-                        msg: Uni.I18n.translate('registerType.changeReadingType', 'MDC', 'Do you want to change the readingtype with this new readingtype {0}?', [me.getReadingTypesStore().first().get('mrid')]),
-                        title: Uni.I18n.translate('general.changeReadingType', 'MDC', 'Change readingtype') + ' ' + widget.down('#editMrIdField').getValue(),
-                        config: {
-                            widget: widget,
-                            newReadingType: me.getReadingTypesStore().first().get('mrid')
-                        },
-                        buttons: Ext.MessageBox.YESNO,
-                        fn: me.changeReadingType,
-                        icon: Ext.MessageBox.QUESTION
-                    });
-                }
-            } else {
-                widget.down('#editMrIdField').setValue(me.getReadingTypesStore().first().get('mrid'));
-            }
-        }
-        var obisCode = widget.down('obis-field').getValue();
-        var measurementUnit = widget.down('#measurementUnitComboBox').getValue();
-        if (obisCode !== '' && measurementUnit !== null) {
-            widget.down('#editMrIdField').enable();
         }
     },
 

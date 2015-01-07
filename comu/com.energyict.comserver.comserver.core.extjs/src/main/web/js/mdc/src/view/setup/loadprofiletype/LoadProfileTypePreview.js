@@ -58,7 +58,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
                 },
                 items: [
                     {
-                        fieldLabel: 'Measurement types',
+                        fieldLabel: 'Register types',
                         labelWidth: 200,
                         name: 'measurementTypes',
                         renderer: function (value) {

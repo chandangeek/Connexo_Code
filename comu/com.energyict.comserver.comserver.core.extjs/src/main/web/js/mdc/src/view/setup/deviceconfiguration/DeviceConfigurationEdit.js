@@ -63,6 +63,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                             },
                                             {
                                                 xtype: 'fieldcontainer',
+                                                itemId: 'fld-device-config-addressable',
                                                 columnWidth: 0.5,
                                                 fieldLabel: Uni.I18n.translate('deviceconfiguration.isDirectlyAddressable', 'MDC', 'Directly addressable'),
                                                 required: true,
@@ -78,12 +79,14 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                         items: [
                                                             {
                                                                 name: "isDirectlyAddressable",
+                                                                itemId: 'rbtn-device-config-addressable-yes',
                                                                 boxLabel: '<b>' + Uni.I18n.translate('general.yes', 'MDC', 'Yes') + '</b>',
                                                                 inputValue: true,
                                                                 checked: true
                                                             },
                                                             {
                                                                 name: "isDirectlyAddressable",
+                                                                itemId: 'rbtn-device-config-addressable-no',
                                                                 boxLabel: '<b>' + Uni.I18n.translate('general.no', 'MDC', 'No') + '</b>',
                                                                 inputValue: false,
                                                                 checked: false
@@ -106,6 +109,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                             },
                                             {
                                                 xtype: 'fieldcontainer',
+                                                itemId: 'fld-device-config-gateway',
                                                 columnWidth: 0.5,
                                                 fieldLabel: Uni.I18n.translate('deviceconfiguration.deviceIsGateway', 'MDC', 'Device is a gateway'),
                                                 required: true,
@@ -122,12 +126,14 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                         items: [
                                                             {
                                                                 name: "canBeGateway",
+                                                                itemId: 'rbtn-device-config-gateway-yes',
                                                                 boxLabel: '<b>' + Uni.I18n.translate('general.yes', 'MDC', 'Yes') + '</b>',
                                                                 inputValue: true,
                                                                 checked: false
                                                             },
                                                             {
                                                                 name: "canBeGateway",
+                                                                itemId: 'rbtn-device-config-gateway-no',
                                                                 boxLabel: '<b>' + Uni.I18n.translate('general.no', 'MDC', 'No') + '</b>',
                                                                 inputValue: false,
                                                                 checked: true
@@ -168,6 +174,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                         items: [
                                                             {
                                                                 name: "gatewayType",
+                                                                itemId: 'rbtn-device-config-gateway-han',
                                                                 boxLabel: '<b>' + Uni.I18n.translate('deviceconfiguration.HAN', 'MDC', 'HAN (Home Area Network)') + '</b>',
                                                                 afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('deviceconfiguration.HAN.description', 'MDC', 'Connects a small number of slave devices in a home environment') + '</span>',
                                                                 padding: '0 0 10 0',
@@ -176,6 +183,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                             },
                                                             {
                                                                 name: "gatewayType",
+                                                                itemId: 'rbtn-device-config-gateway-lan',
                                                                 boxLabel: '<b>' + Uni.I18n.translate('deviceconfiguration.LAN', 'MDC', 'LAN (Local Area Network)') + '</b>',
                                                                 afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('deviceconfiguration.LAN.description', 'MDC', 'Connects a large number of slave devices in a local environment') + '</span>',
                                                                 inputValue: 'LAN',
