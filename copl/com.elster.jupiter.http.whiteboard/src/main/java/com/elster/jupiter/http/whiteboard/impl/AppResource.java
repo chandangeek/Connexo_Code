@@ -4,7 +4,6 @@ import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.json.JsonService;
 
@@ -15,7 +14,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Path("/apps")
@@ -30,17 +30,12 @@ public class AppResource {
     @Inject
     private JsonService jsonService;
 
-    private static final String APP_SYSTEM_ADMIN_KEY = "SYS";
-    private static final String APP_MULTI_SENSE_KEY = "MDC";
-    private static final String APP_BPM_CONSOLE_KEY = "BPM";
-    private static final String APP_YELLOWFIN_KEY = "YFN";
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<AppInfo> getApps(@Context SecurityContext securityContext) {
         User user = (User) securityContext.getUserPrincipal();
-        Set<Privilege> privileges = user.getPrivileges();
-        return getAllowedApps(privileges).stream().map(this::appInfo).collect(Collectors.toList());
+        return whiteBoard.getApps().stream().filter(app -> app.isAllowed(user)).map(this::appInfo).collect(Collectors.toList());
     }
 
     @GET
@@ -85,7 +80,7 @@ public class AppResource {
         appInfo.icon = app.getIcon();
         appInfo.url = getUrl(app);
         appInfo.externalUrl = app.getExternalUrl();
-        appInfo.isExternal = app.getExternalUrl()!=null;
+        appInfo.isExternal = app.getExternalUrl() != null;
         return appInfo;
     }
 
@@ -96,49 +91,10 @@ public class AppResource {
     }
 
     private License getAppLicense(String app) {
-        if (whiteBoard.getLicenseService().getLicensedApplicationKeys().contains(app)){
+        if (whiteBoard.getLicenseService().getLicensedApplicationKeys().contains(app)) {
             return whiteBoard.getLicenseService().getLicenseForApplication(app).get();
         }
         return null;
     }
 
-    private List<App> getAllowedApps(Set<Privilege> privileges) {
-        List<App> applications = new ArrayList<>();
-            Optional<App> appSys = whiteBoard.getApps().stream()
-                    .filter(e -> e.getKey().equals(APP_SYSTEM_ADMIN_KEY))
-                    .findAny();
-            if (appSys.isPresent() && isUserInApp(whiteBoard.getSysAppService().getAvailablePrivileges(), privileges)) {
-                applications.add(appSys.get());
-        }
-        Optional<App> appMdc = whiteBoard.getApps().stream()
-                .filter(e -> e.getKey().equals(APP_MULTI_SENSE_KEY))
-                .findAny();
-        if (appMdc.isPresent() && isUserInApp(whiteBoard.getMdcAppService().getAvailablePrivileges(), privileges)) {
-            applications.add(appMdc.get());
-        }
-        Optional<App> appYfn = whiteBoard.getApps().stream()
-                .filter(e -> e.getKey().equals(APP_YELLOWFIN_KEY))
-                .findAny();
-        //TODO: uncomment when privileges are set into system
-        if (appYfn.isPresent() /*&& isUserInApp(APP_YELLOWFIN_PRIVILEGES, privileges)*/) {
-            applications.add(appYfn.get());
-        }
-        Optional<App> appBpm = whiteBoard.getApps().stream()
-                .filter(e -> e.getKey().equals(APP_BPM_CONSOLE_KEY))
-                .findAny();
-        //TODO: change static BPM privilege with list of privileges defined by BPM application
-        if (appBpm.isPresent() && isUserInApp(Arrays.asList("privilege.view.bpm"), privileges)) {
-            applications.add(appBpm.get());
-        }
-        return applications;
-    }
-
-    private boolean isUserInApp (List<String> appPrivileges, Set<Privilege> userPrivileges) {
-        for (String appPrivilege : appPrivileges) {
-            if (userPrivileges.stream().anyMatch(e -> e.getName().equals(appPrivilege))) {
-                return true;
-            }
-        }
-        return false;
-    }
 }
