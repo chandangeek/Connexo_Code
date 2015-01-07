@@ -106,7 +106,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                             },
                                             {
                                                 xtype: 'actioncolumn',
-                                                iconCls: 'icon-delete',
+                                                iconCls: 'uni-icon-delete',
                                                 width: 55,
                                                 items: [
                                                     {
