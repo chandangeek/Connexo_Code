@@ -5,7 +5,7 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
 
-import java.util.Date;
+import java.time.Instant;
 
 import org.mockito.ArgumentCaptor;
 
@@ -42,7 +42,7 @@ public class FakeIssueService implements IssueService {
     @Override
     public Problem newProblem(Object source, String description, Object... arguments) {
         Problem problem = mock(Problem.class);
-        when(problem.getTimestamp()).thenReturn(new Date());
+        when(problem.getTimestamp()).thenReturn(Instant.now());
         when(problem.isProblem()).thenReturn(true);
         when(problem.isWarning()).thenReturn(false);
         when(problem.getDescription()).thenReturn(description);
@@ -52,7 +52,7 @@ public class FakeIssueService implements IssueService {
     @Override
     public Warning newWarning(Object source, String description, Object... arguments) {
         Warning warning = mock(Warning.class);
-        when(warning.getTimestamp()).thenReturn(new Date());
+        when(warning.getTimestamp()).thenReturn(Instant.now());
         when(warning.isWarning()).thenReturn(true);
         when(warning.isWarning()).thenReturn(false);
         when(warning.getDescription()).thenReturn(description);
