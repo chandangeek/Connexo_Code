@@ -16,7 +16,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
-import java.util.Optional;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -30,6 +29,7 @@ import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component(
         name = "com.elster.jupiter.bpm",
@@ -82,7 +82,7 @@ public class BpmServiceImpl implements BpmService, InstallService {
         });
         if (context != null) {
             bpmServer = new BpmServerImpl(context);
-            App app = new App("BPM", "Flow", "connexo", bpmServer.getUrl());
+            App app = new App("BPM", "Flow", "connexo", bpmServer.getUrl(), user -> user.getPrivileges().stream().anyMatch(p -> "privilege.view.bpm".equals(p.getName())));
             appServiceRegistration = context.registerService(App.class, app, null);
 
         }
@@ -106,7 +106,7 @@ public class BpmServiceImpl implements BpmService, InstallService {
         return Arrays.asList("USR", "MSG", "LIC");
     }
 
-    @Reference(target="(com.elster.jupiter.license.application.key=" + APP_KEY  + ")")
+    @Reference(target = "(com.elster.jupiter.license.application.key=" + APP_KEY + ")")
     public void setLicense(License license) {
         this.license = license;
     }
