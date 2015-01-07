@@ -174,13 +174,13 @@ Ext.define('Uni.I18n', {
             //<debug>
             if (!this.blacklist[key + component]) {
                 this.blacklist[key + component] = true;
-                var warning = 'Missing translation for key \'' + key + '\'';
-                if (component) {
-                    warning += ' in component \'' + component + '\'.';
-                } else {
-                    warning += '.';
-                }
-                console.warn(warning);
+//                var warning = 'Missing translation for key \'' + key + '\'';
+//                if (component) {
+//                    warning += ' in component \'' + component + '\'.';
+//                } else {
+//                    warning += '.';
+//                }
+//                console.warn(warning);
             }
             //</debug>
         }
