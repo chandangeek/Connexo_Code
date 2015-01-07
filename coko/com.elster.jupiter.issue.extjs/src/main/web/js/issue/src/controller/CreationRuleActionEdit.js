@@ -118,7 +118,7 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
         actionTypesStore.load(checkLoadedStores);
         actionTypesPhases.load(function (records) {
             var phasesRadioGroup = me.getPhasesRadioGroup();
-
+            Ext.suspendLayouts();
             Ext.Array.each(records, function (record, index) {
                 phasesRadioGroup.add({
                     boxLabel: record.get('title'),
@@ -128,6 +128,7 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
                     checked: !index
                 });
             });
+            Ext.resumeLayouts();
             checkLoadedStores();
         });
     },
