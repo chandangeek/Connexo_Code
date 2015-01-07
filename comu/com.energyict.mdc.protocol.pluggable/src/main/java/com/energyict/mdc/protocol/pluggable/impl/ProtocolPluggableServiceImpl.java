@@ -972,6 +972,11 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         }
 
         @Override
+        public CollectedMessage createCollectedMessageTopology(MessageIdentifier messageIdentifier, CollectedTopology collectedTopology) {
+            return this.getCollectedDataFactory().createCollectedMessageTopology(messageIdentifier, collectedTopology);
+        }
+
+        @Override
         public CollectedDeviceCache createCollectedDeviceCache(DeviceIdentifier deviceIdentifier) {
             return this.getCollectedDataFactory().createCollectedDeviceCache(deviceIdentifier);
         }
