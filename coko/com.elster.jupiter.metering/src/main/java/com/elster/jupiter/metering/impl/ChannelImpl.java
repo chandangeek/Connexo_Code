@@ -166,7 +166,7 @@ public final class ChannelImpl implements ChannelContract {
         return getRecordSpecDefinition().getTimePeriod(reading, values);
     }
 
-    private RecordSpecs getRecordSpecDefinition() {
+    RecordSpecs getRecordSpecDefinition() {
         if (isRegular()) {
             return bulkQuantityReadingType.isPresent() ? RecordSpecs.BULKQUANTITYINTERVAL : RecordSpecs.SINGLEINTERVAL;
         } else {

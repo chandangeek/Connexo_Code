@@ -209,7 +209,11 @@ public class MeterReadingStorer {
     }
 
     private void store(IntervalReading reading, String readingTypeCode) {
-        Channel channel = findOrCreateChannel(reading, readingTypeCode);
+    	ReadingType readingType = findOrCreateReadingType(readingTypeCode);
+    	if (!readingType.isRegular()) {
+    		throw new IllegalArgumentException(readingTypeCode + " is not valid for interval readings ");
+    	}
+        Channel channel = findOrCreateChannel(reading, readingType);
         if (channel != null) {
             readingStorer.addReading(channel, reading);
             addedReading(channel, reading);
@@ -237,8 +241,7 @@ public class MeterReadingStorer {
         return meterActivation.createChannel(readingType);
     }
 
-    private Channel findOrCreateChannel(IntervalReading reading, String readingTypeCode) {
-        ReadingType readingType = findOrCreateReadingType(readingTypeCode);
+    private Channel findOrCreateChannel(IntervalReading reading, ReadingType readingType) {        
         Channel channel = getChannel(reading, readingType);
         if (channel == null) {
             for (MeterActivation meterActivation : meter.getMeterActivations()) {
