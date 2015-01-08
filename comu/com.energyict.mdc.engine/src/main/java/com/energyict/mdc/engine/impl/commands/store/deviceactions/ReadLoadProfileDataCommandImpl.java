@@ -12,6 +12,8 @@ import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
+
+import java.sql.Date;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,8 +63,8 @@ public class ReadLoadProfileDataCommandImpl extends SimpleComCommand implements 
                         MessageFormat.format(
                                 "{0} ({1,date,yyyy-MM-dd HH:mm:ss} - {2,date,yyy-MM-dd HH:mm:ss}",
                                 loadProfileReader.getProfileObisCode(),
-                                loadProfileReader.getStartReadingTime(),
-                                loadProfileReader.getEndReadingTime()));
+                                Date.from(loadProfileReader.getStartReadingTime()),
+                                Date.from(loadProfileReader.getEndReadingTime())));
                 loadProfilesToReadBuilder = loadProfilesToReadBuilder.next();
             }
         }
