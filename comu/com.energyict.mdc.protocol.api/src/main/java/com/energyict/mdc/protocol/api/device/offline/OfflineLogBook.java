@@ -5,7 +5,8 @@ import com.energyict.mdc.common.Offline;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 
-import java.util.Date;
+import java.time.Instant;
+import java.util.Optional;
 
 /**
  * Represents an Offline version of a LogBook
@@ -41,7 +42,7 @@ public interface OfflineLogBook extends Offline {
      *
      * @return the {@link OfflineDevice}
      */
-    Date getLastLogBook();
+    public Optional<Instant> getLastLogBook();
 
     /**
      * Returns the database ID of the LoadProfileType of this LoadProfile
@@ -60,4 +61,5 @@ public interface OfflineLogBook extends Offline {
     public DeviceIdentifier<?> getDeviceIdentifier();
 
     public LogBookIdentifier getLogBookIdentifier();
+
 }

@@ -6,7 +6,7 @@ import com.energyict.mdc.dynamic.relation.RelationParticipant;
 
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Represent a file
@@ -73,7 +73,7 @@ public interface UserFile extends NamedBusinessObject, RelationParticipant {
      *
      * @return the receiver's modification date
      */
-    public Date getModDate();
+    public Instant getModDate();
 
     /**
      * Tests if this file is a zip file (zip)

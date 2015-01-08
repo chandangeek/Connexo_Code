@@ -4,7 +4,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * A <code>CollectedRegister</code> identifies a Register (by {@link #getRegisterIdentifier()})
@@ -31,7 +31,7 @@ public interface CollectedRegister extends CollectedData {
      *
      * @return the read time
      */
-    public Date getReadTime();
+    public Instant getReadTime();
 
     /**
      * Returns the start of the measurement period covered by this reading. Most
@@ -40,7 +40,7 @@ public interface CollectedRegister extends CollectedData {
      *
      * @return the from date or null
      */
-    public Date getFromTime();
+    public Instant getFromTime();
 
     /**
      * Returns the end of the measurement period covered by this reading. For
@@ -49,7 +49,7 @@ public interface CollectedRegister extends CollectedData {
      *
      * @return the to time
      */
-    public Date getToTime();
+    public Instant getToTime();
 
     /**
      * Returns the time the metered event took place. For most registers this
@@ -58,7 +58,7 @@ public interface CollectedRegister extends CollectedData {
      *
      * @return the event time or null
      */
-    public Date getEventTime();
+    public Instant getEventTime();
 
     /**
      * Should provide an identifier to uniquely identify the requested Register.
@@ -91,7 +91,7 @@ public interface CollectedRegister extends CollectedData {
      * @param toTime    the toTime
      * @param eventTime the eventTime
      */
-    public void setCollectedTimeStamps(Date readTime, Date fromTime, Date toTime, Date eventTime);
+    public void setCollectedTimeStamps(Instant readTime, Instant fromTime, Instant toTime, Instant eventTime);
 
     /**
      * Set all collected device information, leave the text field empty
@@ -119,12 +119,13 @@ public interface CollectedRegister extends CollectedData {
      * @param fromTime the fromTime
      * @param toTime   the toTime
      */
-    public void setCollectedTimeStamps(Date readTime, Date fromTime, Date toTime);
+    public void setCollectedTimeStamps(Instant readTime, Instant fromTime, Instant toTime);
 
     /**
      * Set the collected TimeStamps
      *
      * @param readTime the time the register was read
      */
-    public void setReadTime(Date readTime);
+    public void setReadTime(Instant readTime);
+
 }

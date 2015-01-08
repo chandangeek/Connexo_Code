@@ -1,8 +1,10 @@
 package com.energyict.mdc.protocol.api.device.data;
 
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -56,10 +58,10 @@ public interface CollectedLoadProfile extends CollectedData {
     public void setCollectedData(List<IntervalData> collectedIntervalData, List<ChannelInfo> deviceChannelInfo);
 
     /**
-     * Should provide the {@link Interval} for which {@link IntervalData} is collected.
+     * Should provide the Interval for which {@link IntervalData} is collected.
      *
      * @return The Interval
      */
-    public Interval getCollectedIntervalDataRange();
+    public Range<Instant> getCollectedIntervalDataRange();
 
 }

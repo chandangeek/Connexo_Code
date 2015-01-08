@@ -11,7 +11,7 @@ import com.energyict.mdc.common.NamedObjectShadow;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * User File Shadow
@@ -22,7 +22,7 @@ public class UserFileShadow extends NamedObjectShadow {
 
     private String extension;
     private File file;
-    private Date modDate;
+    private Instant modDate;
 
     /**
      * Creates a new instance of FileShadow
@@ -92,7 +92,8 @@ public class UserFileShadow extends NamedObjectShadow {
      *
      * @return Value of property modDate.
      */
-    public Date getModDate() {
+    public Instant getModDate() {
         return modDate;
     }
+
 }
