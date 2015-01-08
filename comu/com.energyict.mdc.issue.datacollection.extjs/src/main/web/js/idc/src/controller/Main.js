@@ -62,17 +62,13 @@ Ext.define('Idc.controller.Main', {
                 route: 'datacollection',
                 items: [
                     {
-                        text: 'Overview',
-                        href: router.getRoute('workspace/datacollection').buildUrl()
-                    },
-                    {
                         text: 'Issues',
-                        href: router.getRoute('workspace/datacollection/issues').buildUrl()
+                        href: router.getRoute('workspace/datacollectionissues').buildUrl()
                     },
                     {
                         text: 'My open issues',
                         itemId: 'my-open-issues',
-                        href: router.getRoute('workspace/datacollection/issues').buildUrl({}, {myopenissues: true})
+                        href: router.getRoute('workspace/datacollectionissues').buildUrl({}, {myopenissues: true})
                     }
                 ]
             });

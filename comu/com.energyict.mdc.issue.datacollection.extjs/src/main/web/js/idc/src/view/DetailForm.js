@@ -40,7 +40,7 @@ Ext.define('Idc.view.DetailForm', {
                                 result = '';
 
                             if (value) {
-                                if (value.serialNumber && Uni.Auth.hasAnyPrivilege(['privilege.administrate.device','privilege.view.device'])) {
+                                if (value.serialNumber && Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'])) {
                                     url = me.router.getRoute('devices/device').buildUrl({mRID: value.serialNumber});
                                     result = '<a href="' + url + '">' + value.name + ' ' + value.serialNumber + '</a>';
                                 } else {
@@ -71,7 +71,9 @@ Ext.define('Idc.view.DetailForm', {
                         itemId: 'data-collection-issue-detail-due-date',
                         fieldLabel: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
                         name: 'dueDate',
-                        renderer: Ext.util.Format.dateRenderer('M d, Y')
+                        renderer: function (value) {
+                            return value ? Uni.DateTime.formatDateLong(value) : '';
+                        }
                     },
                     {
                         itemId: 'data-collection-issue-detail-assignee',
@@ -85,7 +87,9 @@ Ext.define('Idc.view.DetailForm', {
                         itemId: 'data-collection-issue-detail-creation-date',
                         fieldLabel: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date'),
                         name: 'creationDate',
-                        renderer: Ext.util.Format.dateRenderer('M d, Y H:i')
+                        renderer: function (value) {
+                            return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                        }
                     }
                 ]
             }

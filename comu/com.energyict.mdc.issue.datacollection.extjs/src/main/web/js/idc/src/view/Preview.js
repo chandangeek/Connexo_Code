@@ -34,7 +34,7 @@ Ext.define('Idc.view.Preview', {
                 itemId: 'data-collection-issues-preview-actions-button',
                 text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
                 hidden:  Uni.Auth.hasAnyPrivilege(['privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue',
-                                            'privilege.administrate.device','privilege.view.device','privilege.view.scheduleDevice']),
+                                                'privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
                 iconCls: 'x-uni-action-iconD',
                 menu: {
                     xtype: 'issues-action-menu',
@@ -80,7 +80,7 @@ Ext.define('Idc.view.Preview', {
                                 result = '';
 
                             if (value) {
-                                if (value.serialNumber && Uni.Auth.hasAnyPrivilege(['privilege.administrate.device','privilege.view.device'])) {
+                                if (value.serialNumber && Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'])) {
                                     url = me.router.getRoute('devices/device').buildUrl({mRID: value.serialNumber});
                                     result = '<a href="' + url + '">' + value.name + ' ' + value.serialNumber + '</a>';
                                 } else {
@@ -112,7 +112,9 @@ Ext.define('Idc.view.Preview', {
                         itemId: 'data-collection-issue-preview-due-date',
                         fieldLabel: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
                         name: 'dueDate',
-                        renderer: Ext.util.Format.dateRenderer('M d, Y')
+                        renderer: function (value) {
+                            return value ? Uni.DateTime.formatDateLong(value) : '';
+                        }
                     },
                     {
                         xtype: 'filter-display',
@@ -127,7 +129,9 @@ Ext.define('Idc.view.Preview', {
                         itemId: 'data-collection-issue-preview-creation-date',
                         fieldLabel: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date'),
                         name: 'creationDate',
-                        renderer: Ext.util.Format.dateRenderer('M d, Y H:i')
+                        renderer: function (value) {
+                            return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                        }
                     }
                 ]
             }
