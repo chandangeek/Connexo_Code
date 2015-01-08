@@ -20,6 +20,7 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -194,20 +195,20 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         when(dataCollectionKpi.calculatesConnectionSetupKpi()).thenReturn(true);
         when(dataCollectionKpi.connectionSetupKpiCalculationIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
         List<DataCollectionKpiScore> kpiScores = new ArrayList<>();
-        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,14, 0, 0).toInstant(ZoneOffset.UTC)), 10, 80, 10, 100));
-        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,14,15, 0).toInstant(ZoneOffset.UTC)), 20, 70, 10, 100));
-        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,14,30, 0).toInstant(ZoneOffset.UTC)), 30, 60, 10, 100));
-        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,14,45, 0).toInstant(ZoneOffset.UTC)), 40, 50, 10, 100));
-        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,15, 0, 0).toInstant(ZoneOffset.UTC)), 50, 40, 10, 100));
-        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,15,15, 0).toInstant(ZoneOffset.UTC)), 60, 30, 10, 100));
-        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,15,30, 0).toInstant(ZoneOffset.UTC)), 70, 20, 10, 100));
-        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,15,45, 0).toInstant(ZoneOffset.UTC)), 80, 10, 10, 100));
-        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014, 10, 1, 16, 0, 0).toInstant(ZoneOffset.UTC)), 90,  0, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,14, 0, 0).toInstant(ZoneOffset.UTC), 10, 80, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,14,15, 0).toInstant(ZoneOffset.UTC), 20, 70, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,14,30, 0).toInstant(ZoneOffset.UTC), 30, 60, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,14,45, 0).toInstant(ZoneOffset.UTC), 40, 50, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,15, 0, 0).toInstant(ZoneOffset.UTC), 50, 40, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,15,15, 0).toInstant(ZoneOffset.UTC), 60, 30, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,15,30, 0).toInstant(ZoneOffset.UTC), 70, 20, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,15,45, 0).toInstant(ZoneOffset.UTC), 80, 10, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014, 10, 1, 16, 0, 0).toInstant(ZoneOffset.UTC), 90,  0, 10, 100));
         when(dataCollectionKpi.getConnectionSetupKpiScores(anyObject())).thenReturn(kpiScores);
         return dataCollectionKpi;
     }
 
-    private DataCollectionKpiScore mockDataCollectionKpiScore(Date timeStamp, long success, long ongoing, long failed, long target) {
+    private DataCollectionKpiScore mockDataCollectionKpiScore(Instant timeStamp, long success, long ongoing, long failed, long target) {
         DataCollectionKpiScore mock = mock(DataCollectionKpiScore.class);
         when(mock.getTimestamp()).thenReturn(timeStamp);
         when(mock.getSuccess()).thenReturn(BigDecimal.valueOf(success));
