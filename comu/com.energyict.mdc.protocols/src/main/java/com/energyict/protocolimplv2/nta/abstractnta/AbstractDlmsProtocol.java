@@ -59,17 +59,19 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     public static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
     public static final ObisCode monthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
 
-    private Dsmr23RegisterFactory registerFactory = null;
-    private ComposedMeterInfo meterInfo;
     protected DlmsProperties dlmsProperties;
+    protected LoadProfileBuilder loadProfileBuilder;
+    protected OfflineDevice offlineDevice;
+    protected Dsmr23RegisterFactory registerFactory = null;
+
+    private ComposedMeterInfo meterInfo;
     private DlmsSession dlmsSession;
-    private LoadProfileBuilder loadProfileBuilder;
     private DLMSCache dlmsCache;
     private MeterTopology meterTopology;
     private Dsmr23LogBookFactory logBookFactory;
     private Dsmr23Messaging dsmr23Messaging;
-    protected OfflineDevice offlineDevice;
     private DlmsSecuritySupport dlmsSecuritySupport;
+
     private final Clock clock;
     private final PropertySpecService propertySpecService;
     private final SocketService socketService;

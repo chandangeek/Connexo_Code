@@ -81,9 +81,9 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
                     profileData = new ProfileData(lpr.getLoadProfileId());
                     profileData.setChannelInfos(channelInfos);
                     Calendar fromCalendar = Calendar.getInstance(this.getMeterProtocol().getTimeZone());
-                    fromCalendar.setTime(lpr.getStartReadingTime());
+                    fromCalendar.setTimeInMillis(lpr.getStartReadingTime().toEpochMilli());
                     Calendar toCalendar = Calendar.getInstance(this.getMeterProtocol().getTimeZone());
-                    toCalendar.setTime(lpr.getEndReadingTime());
+                    toCalendar.setTimeInMillis(lpr.getEndReadingTime().toEpochMilli());
 
                     LGDLMSProfileIntervals intervals = new LGDLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), LGDLMSProfileIntervals.DefaultClockMask,
                             getStatusMasksMap().get(lpr), getChannelMaskMap().get(lpr), getProfileIntervalStatusBits());
