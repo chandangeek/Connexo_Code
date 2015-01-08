@@ -7,6 +7,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
+import java.time.ZoneOffset;
 import java.util.Optional;
 
 /**
@@ -42,7 +43,7 @@ public class LogBookReader {
      */
     public LogBookReader(Clock clock, ObisCode logBookObisCode, Optional<Instant> lastLogBook, LogBookIdentifier logBookIdentifier, DeviceIdentifier<?> deviceIdentifier) {
         if (!lastLogBook.isPresent()) {
-            this.lastLogBook = clock.instant().minus(Period.ofMonths(1));
+            this.lastLogBook = clock.instant().atOffset(ZoneOffset.UTC).minus(Period.ofMonths(1)).toInstant();
         } else {
             this.lastLogBook = lastLogBook.get();
         }
