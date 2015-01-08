@@ -129,6 +129,7 @@ public class ComPortListenerFactoryImplTest {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getSchedulingInterPollDelay()).thenReturn(TimeDuration.minutes(1));
         when(comServer.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(1));
+        when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         InboundComPort comPort = mock(TCPBasedInboundComPort.class);
         when(comPort.getComServer()).thenReturn(comServer);
         when(comPort.isActive()).thenReturn(true);
@@ -153,6 +154,7 @@ public class ComPortListenerFactoryImplTest {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getSchedulingInterPollDelay()).thenReturn(TimeDuration.minutes(1));
         when(comServer.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(1));
+        when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         InboundComPort comPort = mock(ServletBasedInboundComPort.class);
         when(comPort.getComServer()).thenReturn(comServer);
         when(comServer.getChangesInterPollDelay()).thenReturn(new TimeDuration(1));
@@ -165,6 +167,7 @@ public class ComPortListenerFactoryImplTest {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getSchedulingInterPollDelay()).thenReturn(TimeDuration.minutes(1));
         when(comServer.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(1));
+        when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         InboundComPort comPort = mock(TCPBasedInboundComPort.class);
         when(comPort.getComServer()).thenReturn(comServer);
         when(comPort.isActive()).thenReturn(true);
@@ -177,6 +180,7 @@ public class ComPortListenerFactoryImplTest {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getSchedulingInterPollDelay()).thenReturn(TimeDuration.minutes(1));
         when(comServer.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(1));
+        when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         InboundComPort comPort = mock(TCPBasedInboundComPort.class);
         when(comPort.getComServer()).thenReturn(comServer);
         when(comPort.isActive()).thenReturn(true);

@@ -31,7 +31,6 @@ public abstract aspect AbstractComPortLogging {
     declare precedence :
             com.energyict.mdc.engine.impl.core.aspects.events.OutboundConnectionEventPublisher,
             com.energyict.mdc.engine.impl.core.aspects.events.OutboundComTaskEventPublisher,
-            InboundComPortLogging,
             ComPortLogging,
             com.energyict.mdc.engine.impl.core.aspects.events.ComPortLogEventPublisher;
 
