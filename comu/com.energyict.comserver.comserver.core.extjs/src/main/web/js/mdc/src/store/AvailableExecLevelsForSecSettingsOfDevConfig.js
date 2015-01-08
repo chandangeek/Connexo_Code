@@ -5,9 +5,6 @@ Ext.define('Mdc.store.AvailableExecLevelsForSecSettingsOfDevConfig', {
     ],
     model: 'Mdc.model.ExecutionLevel',
     storeId: 'AvailableExecLevelsForSecSettingsOfDevConfig',
-    // buffered: true,
-    // leadingBufferZone: 50,
-    // pageSize: 20,
     proxy: {
         type: 'rest',
         pageParam: undefined,

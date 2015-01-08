@@ -3,8 +3,6 @@ Ext.define('Mdc.store.DeviceCommunicationTaskLog', {
     storeId: 'deviceCommunicationTaskLog',
     requires: ['Mdc.model.DeviceCommunicationTaskLog'],
     model: 'Mdc.model.DeviceCommunicationTaskLog',
-//    pageSize: 20,
-//    buffered: true,
     proxy: {
         type: 'rest',
         url: '../../api/ddr/devices/{mRID}/comtasks/{comTaskId}/comtaskexecutionsessions/{sessionId}/journals',

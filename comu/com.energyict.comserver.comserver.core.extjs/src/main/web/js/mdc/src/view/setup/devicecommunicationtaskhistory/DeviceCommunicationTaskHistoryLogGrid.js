@@ -7,9 +7,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
         'Uni.view.toolbar.PagingBottom'
     ],
     store: 'DeviceCommunicationTaskLog',
-//    plugins: {
-//        ptype: 'bufferedrenderer'
-//    },
+
     columns: {
         defaults: {
             sortable: false,
