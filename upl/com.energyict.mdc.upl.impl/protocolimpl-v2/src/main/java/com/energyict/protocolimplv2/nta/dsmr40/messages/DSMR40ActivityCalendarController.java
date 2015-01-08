@@ -39,7 +39,7 @@ public class DSMR40ActivityCalendarController extends DLMSActivityCalendarContro
         } else if (!"0".equalsIgnoreCase(this.activatePassiveCalendarTime.stringValue())) {
             ac.writeActivatePassiveCalendarTime(this.activatePassiveCalendarTime);
         } else {
-            logger.trace("No passiveCalendar activation date was given.");
+            getLogger().trace("No passiveCalendar activation date was given.");
         }
     }
 }

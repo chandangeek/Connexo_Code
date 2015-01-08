@@ -291,9 +291,16 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
             }
         } else {
             SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
-            Array dateArray = convertEpochToDateTimeArray(activationDate);
+            Array dateArray = convertActivationDateEpochToDateTimeArray(activationDate);
             sas.writeExecutionTime(dateArray);
         }
+    }
+
+    /**
+     * Convert the given epoch activation date to a proper DateTimeArray
+     */
+    protected Array convertActivationDateEpochToDateTimeArray(String strDate) throws IOException {
+        return super.convertEpochToDateTimeArray(strDate);
     }
 
     /**

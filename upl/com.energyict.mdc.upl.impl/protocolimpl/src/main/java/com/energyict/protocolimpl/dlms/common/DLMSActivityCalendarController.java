@@ -750,4 +750,8 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
         dateTime = new AXDRDateTime(cal);
         return dateTime;
     }
+
+    public Log getLogger() {
+        return logger;
+    }
 }

@@ -11,6 +11,7 @@ import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40MessageExecutor;
 
 import java.io.IOException;
+import java.util.Calendar;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
@@ -74,5 +75,39 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
 
         //Update the key in the security provider, it is used instantly
         getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(newEncrytionKey, ""));
+    }
+
+    /**
+     * Convert the given epoch activation date to a proper DateTimeArray<br/>
+     * The conversion is slightly different then the DSMR4.0 implementation:
+     * <ul>
+     *     <li>Day of week should be masked 0xFF</li>
+     *     <li>Milliseconds should be masked 0xFF</li>
+     * </ul>
+     */
+    @Override
+    protected Array convertActivationDateEpochToDateTimeArray(String strDate) {
+        Calendar cal = Calendar.getInstance(getProtocol().getTimeZone());
+        cal.setTimeInMillis(Long.parseLong(strDate));
+        byte[] dateBytes = new byte[5];
+        dateBytes[0] = (byte) ((cal.get(Calendar.YEAR) >> 8) & 0xFF);
+        dateBytes[1] = (byte) (cal.get(Calendar.YEAR) & 0xFF);
+        dateBytes[2] = (byte) ((cal.get(Calendar.MONTH) & 0xFF) + 1);
+        dateBytes[3] = (byte) (cal.get(Calendar.DAY_OF_MONTH) & 0xFF);
+        dateBytes[4] = (byte) 0xFF;
+        OctetString date = OctetString.fromByteArray(dateBytes);
+        byte[] timeBytes = new byte[4];
+        timeBytes[0] = (byte) cal.get(Calendar.HOUR_OF_DAY);
+        timeBytes[1] = (byte) cal.get(Calendar.MINUTE);
+        timeBytes[2] = (byte) 0x00;
+        timeBytes[3] = (byte) 0xFF;
+        OctetString time = OctetString.fromByteArray(timeBytes);
+
+        Array dateTimeArray = new Array();
+        Structure strDateTime = new Structure();
+        strDateTime.addDataType(time);
+        strDateTime.addDataType(date);
+        dateTimeArray.addDataType(strDateTime);
+        return dateTimeArray;
     }
 }

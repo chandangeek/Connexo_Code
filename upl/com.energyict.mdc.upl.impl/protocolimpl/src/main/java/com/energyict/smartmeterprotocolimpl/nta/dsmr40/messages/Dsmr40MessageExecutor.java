@@ -2,17 +2,30 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.*;
-import com.energyict.protocolimpl.generic.ParseUtils;
-import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
-import com.energyict.protocolimpl.generic.messages.MessageHandler;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.Limiter;
+import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
+import com.energyict.protocolimpl.generic.ParseUtils;
+import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MessageExecutor;
@@ -118,9 +131,16 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         } else if (!messageHandler.getActivationDate().equalsIgnoreCase("")) {
             SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
             String strDate = messageHandler.getActivationDate();
-            Array dateArray = convertUnixToDateTimeArray(strDate);
+            Array dateArray = convertActivationDateUnixToDateTimeArray(strDate);
             sas.writeExecutionTime(dateArray);
         }
+    }
+
+    /**
+     * Convert the given unix activation date to a proper DateTimeArray
+     */
+    protected Array convertActivationDateUnixToDateTimeArray(String strDate) throws IOException {
+        return convertUnixToDateTimeArray(strDate);
     }
 
     /**
