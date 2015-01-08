@@ -28,6 +28,7 @@ public class Dsmr40Messaging extends Dsmr23Messaging {
         List<DeviceMessageSpec> supportedMessages = super.getSupportedMessages();
 
         // firmware upgrade related - add message with additional attribute 'Image identifier'
+        supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER);
         supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER);
 
         // Configuration change

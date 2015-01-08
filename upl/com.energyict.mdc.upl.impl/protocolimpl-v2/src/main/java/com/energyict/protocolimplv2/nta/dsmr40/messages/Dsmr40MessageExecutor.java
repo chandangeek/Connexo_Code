@@ -86,6 +86,8 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
                     changeEncryptionKeyAndUseNewKey(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS)) {
                     changeAuthenticationKeyAndUseNewKey(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER)) {
+                    upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER)) {
                     upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
                 } else {
@@ -243,34 +245,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
     @Override
     protected void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
-        String attributeValue = getDeviceMessageAttributeValue(pendingMessage, firmwareUpdateUserFileAttributeName);
-        byte[] image = ProtocolTools.getBytesFromHexString(attributeValue, "");
-
-        ImageTransfer it = getCosemObjectFactory().getImageTransfer();
-        if (isResume(pendingMessage)) {
-            int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
-            if (lastTransferredBlockNumber > 0) {
-                it.setStartIndex(lastTransferredBlockNumber - 1);
-            }
-        }
-
-        it.setBooleanValue(getBooleanValue());
-        it.setUsePollingVerifyAndActivate(true);    //Poll verification
-        it.setPollingDelay(10000);
-        it.setPollingRetries(30);
-        it.setDelayBeforeSendingBlocks(5000);
-        it.upgrade(image, false);
-
-        try {
-            it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
-            it.imageActivation();
-        } catch (DataAccessResultException e) {
-            if (isTemporaryFailure(e)) {
-                getProtocol().getLogger().log(Level.INFO, "Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");
-            } else {
-                throw e;
-            }
-        }
+        upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
     }
 
     @Override
@@ -280,7 +255,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
     private void upgradeFirmwareWithActivationDateAndImageIdentifier(OfflineDeviceMessage pendingMessage) throws IOException {
         String userFile = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
-        String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName).getDeviceMessageAttributeValue();
+        String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName).getDeviceMessageAttributeValue();   // Will return empty string if the MessageAttribute could not be found
         String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue(); // Will return empty string if the MessageAttribute could not be found
         byte[] image = ProtocolTools.getBytesFromHexString(userFile, "");
 
@@ -297,15 +272,28 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         it.setPollingDelay(10000);
         it.setPollingRetries(30);
         it.setDelayBeforeSendingBlocks(5000);
-        if (!imageIdentifier.isEmpty()) {
-            it.upgrade(image, false, imageIdentifier, false);
-        } else {
+        if (imageIdentifier.isEmpty()) {
             it.upgrade(image, false);
+        } else {
+            it.upgrade(image, false, imageIdentifier, false);
         }
 
-        SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
-        Array dateArray = convertEpochToDateTimeArray(activationDate);
-        sas.writeExecutionTime(dateArray);
+        if (activationDate.isEmpty()) {
+            try {
+                it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
+                it.imageActivation();
+            } catch (DataAccessResultException e) {
+                if (isTemporaryFailure(e)) {
+                    getProtocol().getLogger().log(Level.INFO, "Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");
+                } else {
+                    throw e;
+                }
+            }
+        } else {
+            SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
+            Array dateArray = convertEpochToDateTimeArray(activationDate);
+            sas.writeExecutionTime(dateArray);
+        }
     }
 
     /**
