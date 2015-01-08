@@ -13,6 +13,7 @@ import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -45,7 +46,7 @@ public class SmartMeterProtocolLogBookAdapter implements DeviceLogBookSupport {
                 CollectedLogBook deviceLogBook = collectedDataFactory.createCollectedLogBook(reader.getLogBookIdentifier());
                 try {
                     if (reader.getLogBookObisCode().equals(LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE)) {
-                        final List<MeterEvent> meterEvents = smartMeterProtocol.getMeterEvents(reader.getLastLogBook());
+                        final List<MeterEvent> meterEvents = smartMeterProtocol.getMeterEvents(Date.from(reader.getLastLogBook()));
                         deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
                     } else {
                         deviceLogBook.setFailureInformation(ResultType.NotSupported, getWarning(reader.getLogBookObisCode(), "logBookXnotsupported", reader.getLogBookObisCode()));

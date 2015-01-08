@@ -50,10 +50,10 @@ public class SmartMeterProtocolRegisterAdapterTest {
     private static final ObisCode OBIS_CODE = mock(ObisCode.class);
     private static final String METER_SERIAL_NUMBER = "METER_SERIAL_NUMBER";
 
-    private final Date fromDate = mock(Date.class);
-    private final Date toDate = mock(Date.class);
-    private final Date readDate = mock(Date.class);
-    private final Date eventDate = mock(Date.class);
+    private final Date fromDate = new Date(1389612600000L); // Mon, 13 Jan 2014 11:30:00 GMT
+    private final Date toDate = new Date(1389613500000L);   // Mon, 13 Jan 2014 11:45:00 GMT
+    private final Date readDate = new Date(1389664800000L); // Tue, 14 Jan 2014 02:00:00 GMT
+    private final Date eventDate = new Date(1389613500000L);// Same as toDate
     private final String text = "Some Text From a Register";
     private final Quantity quantity = mock(Quantity.class);
 
@@ -169,10 +169,10 @@ public class SmartMeterProtocolRegisterAdapterTest {
         SmartMeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol, issueService, collectedDataFactory);
         final List<CollectedRegister> collectedRegisters = meterProtocolRegisterAdapter.readRegisters(Arrays.asList(register));
 
-        assertThat(collectedRegisters.get(0).getFromTime()).isEqualTo(fromDate);
-        assertThat(collectedRegisters.get(0).getToTime()).isEqualTo(toDate);
-        assertThat(collectedRegisters.get(0).getEventTime()).isEqualTo(eventDate);
-        assertThat(collectedRegisters.get(0).getReadTime()).isEqualTo(readDate);
+        assertThat(collectedRegisters.get(0).getFromTime()).isEqualTo(fromDate.toInstant());
+        assertThat(collectedRegisters.get(0).getToTime()).isEqualTo(toDate.toInstant());
+        assertThat(collectedRegisters.get(0).getEventTime()).isEqualTo(eventDate.toInstant());
+        assertThat(collectedRegisters.get(0).getReadTime()).isEqualTo(readDate.toInstant());
         assertThat(collectedRegisters.get(0).getText()).isEqualTo(text);
         assertThat(collectedRegisters.get(0).getCollectedQuantity()).isEqualTo(quantity);
     }

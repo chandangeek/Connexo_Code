@@ -64,7 +64,11 @@ public class MeterProtocolRegisterAdapter implements DeviceRegisterSupport {
                     RegisterValue registerValue = this.registerProtocol.readRegister(register.getObisCode());
                     CollectedRegister adapterDeviceRegister = collectedDataFactory.createCollectedRegisterForAdapter(getRegisterIdentifier(register), register.getReadingType());
                     adapterDeviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
-                    adapterDeviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
+                    adapterDeviceRegister.setCollectedTimeStamps(
+                            registerValue.getReadTime().toInstant(),
+                            registerValue.getFromTime().toInstant(),
+                            registerValue.getToTime().toInstant(),
+                            registerValue.getEventTime().toInstant());
                     collectedRegisters.add(adapterDeviceRegister);
                 } catch (UnsupportedException | NoSuchRegisterException e) {
                     CollectedRegister defaultDeviceRegister = collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register), register.getReadingType());

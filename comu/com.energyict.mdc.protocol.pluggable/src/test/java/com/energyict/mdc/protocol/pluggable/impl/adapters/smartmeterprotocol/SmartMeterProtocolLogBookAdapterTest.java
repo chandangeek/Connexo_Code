@@ -19,6 +19,8 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import org.joda.time.DateMidnight;
 
 import java.io.IOException;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -47,9 +49,9 @@ public class SmartMeterProtocolLogBookAdapterTest {
     private static final ObisCode LOGBOOK1_OBIS = ObisCode.fromString("1.1.0.0.0.255");
     private static final ObisCode LOGBOOK_OBIS = ObisCode.fromString("0.0.99.98.0.255");
 
-    private static final Date LAST_LOGBOOK1 = new DateMidnight(2012, 11, 30).toDate();
-    private static final Date LAST_LOGBOOK2 = new DateMidnight(2012, 10, 31).toDate();
-    private static final Date LAST_LOGBOOK3 = new DateMidnight(2012, 9, 30).toDate();
+    private static final Instant LAST_LOGBOOK1 = Instant.ofEpochMilli(1354233600000L);   // Midnight of Nov 30, 2012
+    private static final Instant LAST_LOGBOOK2 = Instant.ofEpochMilli(1351641600000L);   // Midnight of Oct 31, 2012
+    private static final Instant LAST_LOGBOOK3 = Instant.ofEpochMilli(1348963200000L);   // Midnight of Sept 30, 2012
 
     private static final Date EVENT1_DATE = new DateMidnight(2012, 12, 5).toDate();
     private static final Date EVENT2_DATE = new DateMidnight(2012, 12, 10).toDate();
@@ -69,6 +71,7 @@ public class SmartMeterProtocolLogBookAdapterTest {
     private EndDeviceEventType otherEndDeviceEventType;
 
     private DeviceIdentifier<?> serialNumberDeviceIdentifier = new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER);
+    private Clock clock = Clock.systemUTC();
 
     @Before
     public void initializeMocks () {
@@ -104,17 +107,17 @@ public class SmartMeterProtocolLogBookAdapterTest {
         LogBookIdentifier logBookIdentifier1 = mock(LogBookIdentifier.class);
         LogBookIdentifier logBookIdentifier2 = mock(LogBookIdentifier.class);
         LogBookIdentifier logBookIdentifier3 = mock(LogBookIdentifier.class);
-        logBookReaders.add(new LogBookReader(LOGBOOK1_OBIS, LAST_LOGBOOK1, logBookIdentifier1, serialNumberDeviceIdentifier));
-        logBookReaders.add(new LogBookReader(LOGBOOK_OBIS, LAST_LOGBOOK2, logBookIdentifier2, serialNumberDeviceIdentifier));
-        logBookReaders.add(new LogBookReader(LOGBOOK_OBIS, LAST_LOGBOOK3, logBookIdentifier3, serialNumberDeviceIdentifier));
+        logBookReaders.add(new LogBookReader(this.clock, LOGBOOK1_OBIS, Optional.of(LAST_LOGBOOK1), logBookIdentifier1, serialNumberDeviceIdentifier));
+        logBookReaders.add(new LogBookReader(this.clock, LOGBOOK_OBIS, Optional.of(LAST_LOGBOOK2), logBookIdentifier2, serialNumberDeviceIdentifier));
+        logBookReaders.add(new LogBookReader(this.clock, LOGBOOK_OBIS, Optional.of(LAST_LOGBOOK3), logBookIdentifier3, serialNumberDeviceIdentifier));
 
         List<MeterEvent> meterEvents = new ArrayList<>(2);
         meterEvents.add(new MeterEvent(EVENT1_DATE, MeterEvent.BATTERY_VOLTAGE_LOW, PROTOCOL_CODE_EVENT1));
         meterEvents.add(new MeterEvent(EVENT2_DATE, MeterEvent.TAMPER, PROTOCOL_CODE_EVENT2));
 
         SmartMeterProtocol deviceProtocol = mock(SmartMeterProtocol.class);
-        when(deviceProtocol.getMeterEvents(LAST_LOGBOOK2)).thenReturn(meterEvents);
-        when(deviceProtocol.getMeterEvents(LAST_LOGBOOK3)).thenThrow(new IOException("IOException while reading logBook 3."));
+        when(deviceProtocol.getMeterEvents(Date.from(LAST_LOGBOOK2))).thenReturn(meterEvents);
+        when(deviceProtocol.getMeterEvents(Date.from(LAST_LOGBOOK3))).thenThrow(new IOException("IOException while reading logBook 3."));
 
         SmartMeterProtocolLogBookAdapter smartMeterProtocolLogBookAdapter = new SmartMeterProtocolLogBookAdapter(deviceProtocol, issueService, collectedDataFactory);
 
