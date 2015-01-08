@@ -94,6 +94,7 @@ Ext.define('Login.controller.Login', {
     },
 
     loginOK: function () {
+        debugger;
         var params = Ext.urlDecode(location.search.substring(1)),
             page = params.page,
             token = Ext.History.getToken(),
@@ -110,7 +111,20 @@ Ext.define('Login.controller.Login', {
         } else {
             Uni.store.Apps.load(function (apps) {
                 if (typeof apps !== 'undefined' && apps.length > 0) {
-                    window.location.replace(apps[0].data.url);
+                    var iterator = 0, internal = undefined, external = undefined;
+
+                    while(internal == undefined && iterator < apps.length){
+                        if(apps[iterator].data.isExternal){
+                            if(external == undefined){
+                                external = apps[iterator];
+                            }
+                        }
+                        else{
+                            internal = apps[iterator];
+                        }
+                        iterator++;
+                    }
+                    window.location.replace((internal==undefined)?external.data.url:internal.data.url);
                     this.getLoginViewport().destroy();
                 }
             });
