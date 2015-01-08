@@ -4,6 +4,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.impl.core.aspects.logging.ComServerLogger;
 import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactoryImpl;
@@ -12,6 +13,9 @@ import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactoryImpl;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
+import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.monitor.ComServerMonitor;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
@@ -97,6 +101,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     private CleanupDuringStartup cleanupDuringStartup;
     private TimeOutMonitor timeOutMonitor;
     private ComServerMonitor operationalMonitor;
+    private LoggerHolder loggerHolder;
 
     protected RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
         super();
@@ -120,6 +125,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
 
     private void initialize(ComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup) {
         this.comServer = comServer;
+        this.loggerHolder = new LoggerHolder(comServer);
         this.comServerDAO = comServerDAO;
         this.scheduledComPortFactory = scheduledComPortFactory;
         this.comPortListenerFactory = comPortListenerFactory;
@@ -167,7 +173,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
      * @param comPort The OutboundComPort that is ignored
      */
     private void ignored(OutboundComPort comPort) {
-        // No implementation required yet
+        this.getLogger().ignoredOutbound(comPort.getName());
     }
 
     private ScheduledComPort add(ScheduledComPort scheduledComPort) {
@@ -209,7 +215,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
      * @param comPort The InboundComPort that is ignored
      */
     private void ignored(InboundComPort comPort) {
-        // No implementation required yet
+        this.getLogger().ignoredInbound(comPort.getName());
     }
 
     private ComPortListener add(ComPortListener comPortListener) {
@@ -236,12 +242,14 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
 
     private void cleanupFailed() {
         this.status = ServerProcessStatus.SHUTDOWN;
+        this.getLogger().started(this.getComServer());
     }
 
     private void continueStartupAfterCleanup() {
         try {
             this.startComServerDAO();
             this.continueStartupAfterDAOStart();
+            this.getLogger().started(this.getComServer());
         } catch (RuntimeException e) {
             this.comServerDAOStartFailed(e);
         }
@@ -308,9 +316,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     }
 
     private void startInboundComPorts() {
-        for (ComPortListener comPortListener : this.comPortListeners) {
-            comPortListener.start();
-        }
+        this.comPortListeners.forEach(ComPortListener::start);
     }
 
     private void startEventMechanism() {
@@ -324,6 +330,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
 
     @Override
     public final void shutdown() {
+        this.getLogger().shuttingDown(this.getComServer());
         this.shutdown(false);
     }
 
@@ -446,6 +453,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     private void monitorChanges() {
         try {
             Thread.sleep(this.getChangesInterPollDelayMillis());
+            this.getLogger().monitoringChanges(this.getComServer());
             ComServer newVersion = this.comServerDAO.refreshComServer(this.comServer);
             this.operationalMonitor.getOperationalStatistics().setLastCheckForChangesTimestamp(Date.from(this.serviceProvider.clock().instant()));
             if (newVersion == null) {
@@ -458,6 +466,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
                     // ComServer is no longer active, shutdown
                     this.shutdown();
                 } else {
+                    this.resetLoggerHolder(newVersion);
                     this.applyChanges((InboundCapable) newVersion);
                     this.applyChanges((OutboundCapable) newVersion);
                     this.applyDelayChanges(newVersion);
@@ -468,6 +477,10 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+    }
+
+    private void resetLoggerHolder(ComServer newVersion) {
+        this.loggerHolder.reset(newVersion);
     }
 
     private void applyDelayChanges(ComServer newVersion) {
@@ -559,6 +572,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
                 changed.add(inboundComPort);
             }
         }
+        this.getLogger().inboundComPortChangesDetected(changed.size());
         return changed;
     }
 
@@ -580,6 +594,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
                 newlyActivated.add(inboundComPort);
             }
         }
+        this.getLogger().newInboundComPortsDetected(newlyActivated.size());
         return newlyActivated;
     }
 
@@ -614,6 +629,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
                 deactivated.add(inboundComPort);
             }
         }
+        this.getLogger().inboundComPortsDeactivated(deactivated.size());
         return deactivated;
     }
 
@@ -666,6 +682,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
                 changed.add(outboundComPort);
             }
         }
+        this.getLogger().outboundComPortChangesDetected(changed.size());
         return changed;
     }
 
@@ -687,6 +704,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
                 newlyActivated.add(outboundComPort);
             }
         }
+        this.getLogger().newOutboundComPortsDetected(newlyActivated.size());
         return newlyActivated;
     }
 
@@ -721,6 +739,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
                 deactivated.add(outboundComPort);
             }
         }
+        this.getLogger().outboundComPortsDeactivated(deactivated.size());
         return deactivated;
     }
 
@@ -805,6 +824,10 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         monitor.getEventApiStatistics().eventWasPublished();
     }
 
+    private ComServerLogger getLogger () {
+        return this.loggerHolder.get();
+    }
+
     protected ComServerMonitor getOperationalMonitor() {
         return this.operationalMonitor;
     }
@@ -830,6 +853,44 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
                 this.eventMechanism.shutdown();
             }
             this.eventPublisher.shutdown();
+        }
+
+    }
+
+    private class LoggerHolder {
+        private ComServer comServer;
+        private ComServerLogger logger;
+        private LogLevel lastLogLevel;
+
+        private LoggerHolder(ComServer comServer) {
+            super();
+            this.comServer = comServer;
+        }
+
+        private ComServerLogger get() {
+            if (this.logger == null || this.logLevelChanged()) {
+                this.lastLogLevel = this.getServerLogLevel(this.comServer);
+                this.logger = this.newLogger(this.lastLogLevel);
+            }
+            return this.logger;
+        }
+
+        private boolean logLevelChanged() {
+            return !this.lastLogLevel.equals(this.getServerLogLevel(this.comServer));
+        }
+
+        private ComServerLogger newLogger (LogLevel logLevel) {
+            return LoggerFactory.getLoggerFor(ComServerLogger.class, logLevel);
+        }
+
+        private LogLevel getServerLogLevel (ComServer comServer) {
+            return LogLevelMapper.forComServerLogLevel().toLogLevel(comServer.getServerLogLevel());
+        }
+
+        public void reset(ComServer newVersion) {
+            this.comServer = newVersion;
+            this.logger = null;
+            this.lastLogLevel = null;
         }
 
     }

@@ -1,7 +1,14 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.time.TimeDuration;
+
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundCapableComServer;
+import com.energyict.mdc.engine.exceptions.DataAccessException;
+import com.energyict.mdc.engine.impl.core.aspects.logging.ComServerLogger;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
+import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -96,7 +103,22 @@ public class TimeOutMonitorImpl implements Runnable, TimeOutMonitor {
     }
 
     private long releaseTimedOutTasks () {
-        return this.comServerDAO.releaseTimedOutTasks(this.comServer).getMilliSeconds();
+        try {
+            return this.comServerDAO.releaseTimedOutTasks(this.comServer).getMilliSeconds();
+        }
+        catch (DataAccessException e) {
+            OutboundCapableComServer comServer = this.getComServer();
+            this.getLogger(comServer).timeOutCleanupFailure(comServer, e);
+            throw e;
+        }
+    }
+
+    private ComServerLogger getLogger (ComServer comServer) {
+        return LoggerFactory.getLoggerFor(ComServerLogger.class, this.getServerLogLevel(comServer));
+    }
+
+    private LogLevel getServerLogLevel (ComServer comServer) {
+        return LogLevelMapper.forComServerLogLevel().toLogLevel(comServer.getServerLogLevel());
     }
 
 }
