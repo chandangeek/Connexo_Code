@@ -94,7 +94,6 @@ Ext.define('Login.controller.Login', {
     },
 
     loginOK: function () {
-        debugger;
         var params = Ext.urlDecode(location.search.substring(1)),
             page = params.page,
             token = Ext.History.getToken(),
