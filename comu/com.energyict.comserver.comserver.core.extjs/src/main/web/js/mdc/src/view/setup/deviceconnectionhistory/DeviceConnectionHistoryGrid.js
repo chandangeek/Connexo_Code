@@ -56,11 +56,9 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                 itemId: 'comTaskCount',
                 renderer: function (val) {
                     var template = '';
-                    if (val.numberOfSuccessfulTasks || val.numberOfFailedTasks || val.numberOfIncompleteTasks) {
                         template += '<tpl><img src="/apps/dsh/resources/images/widget/running.png" class="ct-result ct-success" title="Success"><span style="position: relative; top: -3px; left: 4px">' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '0') + '</span></tpl>';
                         template += '<tpl><img src="/apps/dsh/resources/images/widget/blocked.png" class="ct-result ct-failure" title="Failed" style="position: relative; left: 30px"><span style="position: relative; top: -3px; left: 34px">' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0') + '</span></tpl>';
                         template += '<tpl><img src="/apps/dsh/resources/images/widget/stopped.png" class="ct-result ct-incomplete" title="Not executed" style="position: relative; left: 56px"><span  style="position: relative; top: -3px; left: 60px">' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0') + '</span></tpl>';
-                    }
                     return template;
                 },
                 header: Uni.I18n.translate('deviceconnectionhistory.communicationTasks', 'DSH', 'Communication tasks'),
