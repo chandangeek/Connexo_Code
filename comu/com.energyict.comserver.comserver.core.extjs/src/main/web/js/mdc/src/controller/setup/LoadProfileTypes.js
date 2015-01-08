@@ -13,8 +13,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
 
     stores: [
         'Mdc.store.LoadProfileTypes',
-        'Mdc.store.MeasurementTypesToAdd',
-        'Mdc.store.SelectedMeasurementTypesForLoadProfileType',
+        'Mdc.store.RegisterTypesToAdd',
+        'Mdc.store.SelectedRegisterTypesForLoadProfileType',
         'Mdc.store.Intervals'
     ],
 
@@ -40,9 +40,9 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             'loadProfileTypeSetup loadProfileTypeGrid': {
                 select: this.loadGridItemDetail
             },
-            'load-profile-type-edit #load-profile-type-add-measurement-types-grid': {
-                allitemsadd: this.onAllMeasurementTypesAdd,
-                selecteditemsadd: this.onSelectedMeasurementTypesAdd
+            'load-profile-type-edit #load-profile-type-add-register-types-grid': {
+                allitemsadd: this.onAllRegisterTypesAdd,
+                selecteditemsadd: this.onSelectedRegisterTypesAdd
             },
             'load-profile-type-edit #load-profile-type-edit-form #save-load-profile-type-button': {
                 click: this.saveLoadProfileType
@@ -51,8 +51,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
 
         this.intervalStore = this.getStore('Intervals');
         this.store = this.getStore('LoadProfileTypes');
-        this.measurementTypesStore = this.getStore('MeasurementTypesToAdd');
-        this.selectedMeasurementTypesStore = this.getStore('SelectedMeasurementTypesForLoadProfileType');
+        this.registerTypesStore = this.getStore('RegisterTypesToAdd');
+        this.selectedRegisterTypesStore = this.getStore('SelectedRegisterTypesForLoadProfileType');
     },
 
     editRecord: function () {
@@ -213,7 +213,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 }
             });
             me.getApplication().fireEvent('changecontentevent', widget);
-            me.selectedMeasurementTypesStore.removeAll();
+            me.selectedRegisterTypesStore.removeAll();
             me.temporallyFormValues = null;
             me.loadProfileAction = null;
             Ext.Array.each(Ext.ComponentQuery.query('[action=editloadprofiletype]'), function (item) {
@@ -235,8 +235,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             returnLink = router.getRoute('administration/loadprofiletypes').buildUrl(),
-            currentRoute = router.currentRoute.replace('/addmeasurementtypes', ''),
-            addMeasurementTypesLink = router.getRoute(currentRoute + '/addmeasurementtypes').buildUrl(),
+            currentRoute = router.currentRoute.replace('/addregistertypes', ''),
+            addRegisterTypesLink = router.getRoute(currentRoute + '/addregistertypes').buildUrl(),
             intervalsStore = me.getStore('Mdc.store.Intervals'),
             widget,
             form;
@@ -271,58 +271,58 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                     if (record.get('isLinkedToActiveDeviceConf')) {
                         form.down('[name=timeDuration]').disable();
                         form.down('[name=obisCode]').disable();
-                        form.down('#measurement-types-fieldcontainer').disable();
-                        form.down('#measurement-types-grid').disable();
+                        form.down('#register-types-fieldcontainer').disable();
+                        form.down('#register-types-grid').disable();
                         router.getRoute(currentRoute).forward();
                     }
                 },
                 callback: function () {
                     form.setTitle(Uni.I18n.translate('loadProfileTypes.LoadProfileTypeEdit.editTitle', 'MDC', 'Edit load profile type'));
-                    form.setEdit(true, returnLink, addMeasurementTypesLink);
+                    form.setEdit(true, returnLink, addRegisterTypesLink);
                     widget.setLoading(false);
                 }
             });
         } else {
             form.setTitle(Uni.I18n.translate('loadProfileTypes.LoadProfileTypeEdit.addTitle', 'MDC', 'Add load profile type'));
-            form.setEdit(false, returnLink, addMeasurementTypesLink);
+            form.setEdit(false, returnLink, addRegisterTypesLink);
             form.loadRecord(Ext.create('Mdc.model.LoadProfileType'));
         }
     },
 
-    showMeasurementTypesAddView: function (id) {
+    showRegisterTypesAddView: function (id) {
         var me = this;
 
         if (!me.getEditPage()) {
             me.showEdit(id);
         }
 
-        me.getStore('Mdc.store.MeasurementTypesToAdd').load(function () {
-            me.getEditPage().down('#load-profile-type-add-measurement-types-grid').getSelectionModel().deselectAll();
+        me.getStore('Mdc.store.RegisterTypesToAdd').load(function () {
+            me.getEditPage().down('#load-profile-type-add-register-types-grid').getSelectionModel().deselectAll();
         });
         me.getEditPage().getLayout().setActiveItem(1);
     },
 
-    onAllMeasurementTypesAdd: function () {
-        this.addMeasurementTypes([], true);
+    onAllRegisterTypesAdd: function () {
+        this.addRegisterTypes([], true);
     },
 
-    onSelectedMeasurementTypesAdd: function (selection) {
-        this.addMeasurementTypes(selection, false);
+    onSelectedRegisterTypesAdd: function (selection) {
+        this.addRegisterTypes(selection, false);
     },
 
-    addMeasurementTypes: function (selection, all) {
+    addRegisterTypes: function (selection, all) {
         var page = this.getEditPage(),
-            measurementTypesGrid = page.down('#measurement-types-grid'),
-            measurementTypesStore = measurementTypesGrid.getStore(),
+            registerTypesGrid = page.down('#register-types-grid'),
+            registerTypesStore = registerTypesGrid.getStore(),
             router = this.getController('Uni.controller.history.Router');
 
-        router.getRoute(router.currentRoute.replace('/addmeasurementtypes', '')).forward();
+        router.getRoute(router.currentRoute.replace('/addregistertypes', '')).forward();
 
-        measurementTypesStore.removeAll();
-        measurementTypesStore.add(selection);
-        measurementTypesGrid.setVisible(!all);
-        page.down('#all-measurement-types').setVisible(all);
-        page.down('#all-measurement-types-field').setValue(all);
+        registerTypesStore.removeAll();
+        registerTypesStore.add(selection);
+        registerTypesGrid.setVisible(!all);
+        page.down('#all-register-types').setVisible(all);
+        page.down('#all-register-types-field').setValue(all);
     },
 
     saveLoadProfileType: function () {
@@ -335,11 +335,11 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             formErrorsPanel = form.down('uni-form-error-message'),
             model = form.getRecord(),
             proxy = model.getProxy(),
-            all = form.down('#all-measurement-types-field').getValue();
+            all = form.down('#all-register-types-field').getValue();
 
         formErrorsPanel.hide();
         basicForm.clearInvalid();
-        form.down('#measurement-types-fieldcontainer').clearInvalid();
+        form.down('#register-types-fieldcontainer').clearInvalid();
         form.updateRecord(model);
 
         if (model.getId()) {
@@ -372,7 +372,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                     json = Ext.decode(operation.response.responseText, true);
                     if (json && json.errors) {
                         basicForm.markInvalid(json.errors);
-                        me.measurementTypesIsValid(json.errors);
+                        me.registerTypesIsValid(json.errors);
                         formErrorsPanel.show();
                     }
                 }
@@ -380,15 +380,15 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         });
     },
 
-    measurementTypesIsValid: function (errors) {
+    registerTypesIsValid: function (errors) {
         var me = this,
-            measurementTypesError = Ext.Array.findBy(errors, function (error) {
+            registerTypesError = Ext.Array.findBy(errors, function (error) {
                 return error.id === 'readingType';
             }, me),
             form = me.getEditForm();
 
-        if (form && measurementTypesError) {
-            form.down('#measurement-types-fieldcontainer').markInvalid(measurementTypesError.msg);
+        if (form && registerTypesError) {
+            form.down('#register-types-fieldcontainer').markInvalid(registerTypesError.msg);
         }
     }
 });
