@@ -33,7 +33,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
     UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE(4,
             PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
             PropertySpecFactory.dateTimePropertySpec(firmwareUpdateActivationDateAttributeName)),
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER(14,
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER(15,
                 PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
                 PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName)),
     UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER(14,
