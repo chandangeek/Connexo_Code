@@ -115,7 +115,7 @@ public enum ServerConnectionTaskStatus {
         public boolean appliesTo(ScheduledConnectionTask task, Instant now) {
             Instant nextExecutionTimestamp = task.getNextExecutionTimestamp();
             return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                && (nextExecutionTimestamp != null && !now.isAfter(nextExecutionTimestamp));
+                && (nextExecutionTimestamp != null && !nextExecutionTimestamp.isAfter(now));
         }
 
         @Override
