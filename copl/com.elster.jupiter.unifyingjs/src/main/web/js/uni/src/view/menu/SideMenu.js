@@ -260,9 +260,9 @@ Ext.define('Uni.view.menu.SideMenu', {
     },
 
     pickBestSelection: function (a, b) {
-        if (Ext.isDefined(a) && !Ext.isDefined(b)) {
+        if (!Ext.isDefined(b)) {
             return a;
-        } else if (!Ext.isDefined(a) && Ext.isDefined(b)) {
+        } else if (!Ext.isDefined(a)) {
             return b
         }
 
