@@ -219,7 +219,7 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
     }
 
     /**
-     * The Mbus Hourly gasProfile needs to change the B-field in the ObisCode to readout the correct profile. To do se, we use the serialNumber of the Message.
+     * The Mbus Hourly gasProfile needs to change the B-field in the ObisCode to readout the correct profile. To do so, we use the serialNumber of the Message.
      *
      * @param lpr the reader to change
      * @return the adapted LoadProfileReader
@@ -232,7 +232,7 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    private CollectedMessage loadProfileRegisterRequest(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected CollectedMessage loadProfileRegisterRequest(OfflineDeviceMessage pendingMessage) throws IOException {
         String loadProfileContent = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, loadProfileAttributeName).getDeviceMessageAttributeValue();
         String fromDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fromDateAttributeName).getDeviceMessageAttributeValue();
         String fullLoadProfileContent = LoadProfileMessageUtils.createLoadProfileRegisterMessage("LoadProfileRegister", "fromDate", loadProfileContent);

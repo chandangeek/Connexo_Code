@@ -85,6 +85,19 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof RegisterDataIdentifierByObisCodeAndDevice)) {
+            return false;
+        }
+        RegisterDataIdentifierByObisCodeAndDevice identifier = (RegisterDataIdentifierByObisCodeAndDevice) obj;
+        if (identifier.getRegisterObisCode() != this.getRegisterObisCode() ||
+                !identifier.getDeviceIdentifier().equals(this.getDeviceIdentifier())) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     public RegisterIdentifierType getRegisterIdentifierType() {
         return RegisterIdentifierType.DeviceIdentifierAndObisCode;
     }

@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.nta.dsmr23.logbooks;
+package com.energyict.protocolimplv2.nta.dsmr50.logbooks;
 
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
@@ -7,12 +7,18 @@ import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
-import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.*;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.DisconnectControlLog;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.EventsLog;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.FraudDetectionLog;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.PowerFailureLog;
 
 import java.io.IOException;
 import java.util.ArrayList;

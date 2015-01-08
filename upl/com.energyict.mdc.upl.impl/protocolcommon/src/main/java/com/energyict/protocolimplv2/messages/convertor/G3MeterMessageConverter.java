@@ -128,8 +128,6 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(capturePeriodAttributeName)
                 || propertySpec.getName().equals(broadCastLogTableEntryTTLAttributeName)) {
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
-        } else if (propertySpec.getName().equals(plcG3TimeoutAttributeName)) {
-            return String.valueOf(((TimeDuration) messageAttribute).getSeconds() / 60);  //Minutes
         } else if (propertySpec.getName().equals(consumerProducerModeAttributeName)) {
             return String.valueOf(LoadProfileMode.fromDescription(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(encryptionLevelAttributeName)) {

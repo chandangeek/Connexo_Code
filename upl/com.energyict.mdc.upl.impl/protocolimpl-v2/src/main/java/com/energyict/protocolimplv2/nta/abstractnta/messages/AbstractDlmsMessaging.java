@@ -21,7 +21,7 @@ public class AbstractDlmsMessaging {
         this.protocol = protocol;
     }
 
-    protected AbstractDlmsProtocol getProtocol() {
+    public AbstractDlmsProtocol getProtocol() {
         return protocol;
     }
 

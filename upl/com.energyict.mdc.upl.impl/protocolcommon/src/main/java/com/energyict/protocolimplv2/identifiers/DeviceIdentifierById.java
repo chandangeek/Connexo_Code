@@ -72,6 +72,18 @@ public class DeviceIdentifierById implements DeviceIdentifier {
         // For xml unmarshalling purposes only
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof DeviceIdentifierById)) {
+            return false;
+        }
+        DeviceIdentifierById identifier = (DeviceIdentifierById) obj;
+        if (identifier.getId() != this.getId()) {
+            return false;
+        }
+        return true;
+    }
+
     @XmlAttribute
     public int getId() {
         return id;

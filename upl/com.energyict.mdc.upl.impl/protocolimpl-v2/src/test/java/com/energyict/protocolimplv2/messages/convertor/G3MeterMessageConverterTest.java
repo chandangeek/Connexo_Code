@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdw.core.Code;
@@ -10,13 +9,16 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.g3.AS330D;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.enums.ActivityCalendarType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -113,7 +115,7 @@ public class G3MeterMessageConverterTest extends AbstractMessageConverterTest {
         } else if (propertySpec.getName().equals(activityCalendarTypeAttributeName)) {
             return ActivityCalendarType.PublicNetwork.getDescription();
         } else if (propertySpec.getName().equals(plcG3TimeoutAttributeName)) {
-            return new TimeDuration(130);
+            return new BigDecimal(2);
         }
         return "1";     //All other attribute values are "1"
     }

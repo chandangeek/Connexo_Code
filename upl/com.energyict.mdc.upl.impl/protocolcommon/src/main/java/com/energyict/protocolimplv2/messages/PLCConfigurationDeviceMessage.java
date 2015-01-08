@@ -80,7 +80,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpec {
     ),
     SetPanId(50, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.G3PanIdAttributename)),
     SetWeakLQIValueAttributeName(14, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.weakLQIValueAttributeName)),
-    WritePlcG3Timeout(15, PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.plcG3TimeoutAttributeName)),
+    WritePlcG3Timeout(15, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.plcG3TimeoutAttributeName)),
     ResetPlcOfdmMacCounters(16),
     SetDisableDefaultRouting(17, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.disableDefaultRouting)),
     SetDeviceType(18, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.deviceType)),

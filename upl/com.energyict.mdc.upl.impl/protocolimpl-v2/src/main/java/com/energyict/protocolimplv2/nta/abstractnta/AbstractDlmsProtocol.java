@@ -63,6 +63,13 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     private DlmsSecuritySupport dlmsSecuritySupport;
 
     /**
+     * Indicating if the meter has a breaker.
+     * This implies whether or not we can control the breaker and read the control logbook.
+     * This will be set to false in the cryptoserver protocols, because these meters don't have a breaker anymore.
+     */
+    private boolean hasBreaker = true;
+
+    /**
      * Connect to the device, check the cached object lost and discover its MBus slaves.
      */
     @Override
@@ -362,6 +369,17 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     @Override
     public List<PropertySpec> getOptionalProperties() {
         return getDlmsConfigurationSupport().getOptionalProperties();
+    }
+
+    public boolean hasBreaker() {
+        return hasBreaker;
+    }
+
+    /**
+     * Setter is only called from the cryptoserver protocols to remove the breaker functionality
+     */
+    public void setHasBreaker(boolean hasBreaker) {
+        this.hasBreaker = hasBreaker;
     }
 
     /**

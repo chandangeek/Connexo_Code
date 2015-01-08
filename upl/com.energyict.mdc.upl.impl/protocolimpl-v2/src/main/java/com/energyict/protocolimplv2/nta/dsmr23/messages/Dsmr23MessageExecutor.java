@@ -31,12 +31,14 @@ import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.Limiter;
+import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
@@ -68,6 +70,7 @@ import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadProfileMessage;
+import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
@@ -96,6 +99,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
     public static final String SEPARATOR = ";";
+    private static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
     private static final byte[] defaultMonitoredAttribute = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
 
     public Dsmr23MessageExecutor(AbstractDlmsProtocol protocol) {
@@ -182,6 +186,8 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                     changeDefaultResetWindow(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.ALARM_REGISTER_RESET)) {
                     resetAlarmRegister();
+                } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.Commission_With_Channel)) {
+                    mbusCommission(pendingMessage);
                 } else {   //Unsupported message
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
@@ -216,6 +222,12 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         getCosemObjectFactory().getData(getMeterConfig().getXMLConfig().getObisCode()).setValueAttr(OctetString.fromString(xml));
     }
 
+    private void mbusCommission(OfflineDeviceMessage pendingMessage) throws IOException {
+        ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) getIntegerAttribute(pendingMessage));
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, MbusClientAttributes.VERSION9);
+        mbusClient.installSlave(0);     //Means: pick the next primary address that is available
+    }
+
     /**
      * Substracts 5 seconds from the startReadingTime and adds 5 seconds to the endReadingTime
      *
@@ -228,7 +240,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         return new LoadProfileReader(loadProfileReader.getProfileObisCode(), from, to, loadProfileReader.getLoadProfileId(), loadProfileReader.getMeterSerialNumber(), loadProfileReader.getChannelInfos());
     }
 
-    private CollectedMessage loadProfileRegisterRequest(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected CollectedMessage loadProfileRegisterRequest(OfflineDeviceMessage pendingMessage) throws IOException {
         String loadProfileContent = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, loadProfileAttributeName).getDeviceMessageAttributeValue();
         String fromDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fromDateAttributeName).getDeviceMessageAttributeValue();
 
@@ -402,7 +414,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     // first do it the Iskra way, if it fails do it our way
-    private void clearLoadLimitConfiguration() throws IOException {
+    protected void clearLoadLimitConfiguration() throws IOException {
         Limiter clearLLimiter = getCosemObjectFactory().getLimiter();
         Structure emptyStruct = new Structure();
         emptyStruct.addDataType(new Unsigned16(0));
@@ -423,8 +435,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    private void configureLoadLimitParameters(OfflineDeviceMessage pendingMessage) throws IOException {
-
+    protected void configureLoadLimitParameters(OfflineDeviceMessage pendingMessage) throws IOException {
         String normalThreshold = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, normalThresholdAttributeName).getDeviceMessageAttributeValue();
         String emergencyThreshold = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyThresholdAttributeName).getDeviceMessageAttributeValue();
         String overThresholdDuration = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, overThresholdDurationAttributeName).getDeviceMessageAttributeValue();
@@ -465,7 +476,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             emergencyProfile.addDataType(new Unsigned16(Integer.parseInt(emergencyProfileId)));
         }
         if (emergencyProfileActivationDate != null) {    // The EmergencyProfileActivationTime
-            emergencyProfile.addDataType(new OctetString(convertUnixToGMTDateTime(emergencyProfileActivationDate).getBEREncodedByteArray(), 0, true));
+            emergencyProfile.addDataType(new OctetString(getEmergencyProfileActivationAXDRDateTime(emergencyProfileActivationDate).getBEREncodedByteArray(), 0, true));
         }
         if (emergencyProfileDuration != null) {        // The EmergencyProfileDuration
             emergencyProfile.addDataType(new Unsigned32(Integer.parseInt(emergencyProfileDuration)));
@@ -477,6 +488,10 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 loadLimiter.writeEmergencyProfile(emergencyProfile.getBEREncodedByteArray());
             }
         }
+    }
+
+    protected AXDRDateTime getEmergencyProfileActivationAXDRDateTime(String emergencyProfileActivationDate) {
+        return convertUnixToGMTDateTime(emergencyProfileActivationDate);
     }
 
     /**
@@ -597,7 +612,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    private void addPhoneNumberToWhiteList(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected void addPhoneNumberToWhiteList(OfflineDeviceMessage pendingMessage) throws IOException {
         //semicolon separated list of phone numbers
         String numbers = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, whiteListPhoneNumbersAttributeName).getDeviceMessageAttributeValue();
         Array list = new Array();
@@ -607,8 +622,12 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         getCosemObjectFactory().getAutoConnect().writeDestinationList(list);
     }
 
-    private void activateWakeUp() throws IOException {   //Enable the wake up via SMS
+    protected void activateWakeUp() throws IOException {   //Enable the wake up via SMS
         getCosemObjectFactory().getAutoConnect().writeMode(4);
+    }
+
+    protected void deactivateWakeUp() throws IOException {   //Disable the wake up via SMS
+        getCosemObjectFactory().getAutoConnect().writeMode(1);
     }
 
     private void writeGprsSettings(String userName, String password) throws IOException {
@@ -623,10 +642,6 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         if ((userName != null) || (password != null)) {
             getCosemObjectFactory().getPPPSetup().writePPPAuthenticationType(pppat);
         }
-    }
-
-    private void deactivateWakeUp() throws IOException {   //Disable the wake up via SMS
-        getCosemObjectFactory().getAutoConnect().writeMode(1);
     }
 
     private void changePassword(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -646,18 +661,19 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    private void upgradeFirmwareWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
-        String userFile = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
+    protected void upgradeFirmwareWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
+        String userFile = getDeviceMessageAttributeValue(pendingMessage, firmwareUpdateUserFileAttributeName);
         String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName).getDeviceMessageAttributeValue();
+        byte[] image = ProtocolTools.getBytesFromHexString(userFile, "");
 
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
-        it.upgrade(ProtocolTools.getBytesFromHexString(userFile, ""));
+        it.upgrade(image);
         SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
         Array dateArray = convertEpochToDateTimeArray(activationDate);
         sas.writeExecutionTime(dateArray);
     }
 
-    private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
         String attributeValue = getDeviceMessageAttributeValue(pendingMessage, firmwareUpdateUserFileAttributeName);
         byte[] image = ProtocolTools.getBytesFromHexString(attributeValue, "");
 
@@ -695,7 +711,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    private void activityCalendar(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected void activityCalendar(OfflineDeviceMessage pendingMessage) throws IOException {
         String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getDeviceMessageAttributeValue();
         String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarCodeTableAttributeName).getDeviceMessageAttributeValue();
         if (calendarName.length() > 8) {
@@ -719,7 +735,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    private void activityCalendarWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected void activityCalendarWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
         String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getDeviceMessageAttributeValue();
         String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getDeviceMessageAttributeValue();
         String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarCodeTableAttributeName).getDeviceMessageAttributeValue();
@@ -772,7 +788,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
      * @param deviceMessages a List of all OfflineDeviceMessages
      * @return the list of OfflineDeviceMessages who belong to the master device
      */
-    private List<OfflineDeviceMessage> getMessagesOfMaster(List<OfflineDeviceMessage> deviceMessages) {
+    protected List<OfflineDeviceMessage> getMessagesOfMaster(List<OfflineDeviceMessage> deviceMessages) {
         List<OfflineDeviceMessage> messages = new ArrayList<>();
 
         for (OfflineDeviceMessage pendingMessage : deviceMessages) {
@@ -789,7 +805,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
      * @param deviceMessages a List of all OfflineDeviceMessages
      * @return the list of OfflineDeviceMessages who belong to a MBus slave device
      */
-    private List<OfflineDeviceMessage> getMbusMessages(List<OfflineDeviceMessage> deviceMessages) {
+    protected List<OfflineDeviceMessage> getMbusMessages(List<OfflineDeviceMessage> deviceMessages) {
         List<OfflineDeviceMessage> mbusMessages = new ArrayList<>();
 
         for (OfflineDeviceMessage pendingMessage : deviceMessages) {

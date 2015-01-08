@@ -4,7 +4,15 @@ import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
+import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
+import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
+import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
+import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.enums.LoadProfileMode;
 
@@ -90,8 +98,6 @@ public class Dsmr50MessageConverter extends Dsmr40MessageConverter {
         //All G3 attributes are covered here (PLC and security)
         if (propertySpec.getName().equals(broadCastLogTableEntryTTLAttributeName)) {
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
-        } else if (propertySpec.getName().equals(plcG3TimeoutAttributeName)) {
-            return String.valueOf(((TimeDuration) messageAttribute).getSeconds() / 60);  //Minutes
         } else if (propertySpec.getName().equals(consumerProducerModeAttributeName)) {
             return String.valueOf(LoadProfileMode.fromDescription(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(newAuthenticationKeyAttributeName) ||

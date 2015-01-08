@@ -16,7 +16,12 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.SerialPortComChannel;
@@ -36,10 +41,12 @@ import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.nta.dsmr50.Dsmr50ConfigurationSupport;
-import com.energyict.protocolimplv2.nta.dsmr23.logbooks.Dsmr50LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
+import com.energyict.protocolimplv2.nta.dsmr50.Dsmr50ConfigurationSupport;
+import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.AM540MessageExecutor;
+import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.AM540Messaging;
+import com.energyict.protocolimplv2.nta.dsmr50.logbooks.Dsmr50LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr50.registers.Dsmr50RegisterFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540Cache;
 
@@ -60,6 +67,11 @@ public class AM540 extends AbstractDlmsProtocol {
 
     private Dsmr50ConfigurationSupport dsmr50ConfigurationSupport;
     private Dsmr50LogBookFactory dsmr50LogBookFactory;
+    private AM540Messaging am540Messaging;
+
+    public AM540() {
+        super();
+    }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -247,22 +259,22 @@ public class AM540 extends AbstractDlmsProtocol {
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        return null;
+        return getAM540Messaging().getSupportedMessages();
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> list) {
-        return null;
+        return getAM540Messaging().executePendingMessages(list);
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> list) {
-        return null;
+        return getAM540Messaging().updateSentMessages(list);
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object o) {
-        return null;
+        return getAM540Messaging().format(propertySpec, o);
     }
 
     @Override
@@ -280,6 +292,13 @@ public class AM540 extends AbstractDlmsProtocol {
             this.registerFactory = new Dsmr50RegisterFactory(this);
         }
         return (Dsmr50RegisterFactory) registerFactory;
+    }
+
+    public AM540Messaging getAM540Messaging() {
+        if (this.am540Messaging == null) {
+            this.am540Messaging = new AM540Messaging(new AM540MessageExecutor(this));
+        }
+        return this.am540Messaging;
     }
 
     @Override
