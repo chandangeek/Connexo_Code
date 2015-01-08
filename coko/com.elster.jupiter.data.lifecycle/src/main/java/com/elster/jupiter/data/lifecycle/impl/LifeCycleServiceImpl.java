@@ -78,7 +78,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 	
 	@Override
 	public List<String> getPrerequisiteModules() {
-		return Arrays.asList(OrmService.COMPONENTNAME, MessageService.COMPONENTNAME, TaskService.COMPONENTNAME, NlsService.COMPONENTNAME);
+		return Arrays.asList(OrmService.COMPONENTNAME, MessageService.COMPONENTNAME, TaskService.COMPONENTNAME, NlsService.COMPONENTNAME, UserService.COMPONENTNAME);
 	}
 
 	@Reference
