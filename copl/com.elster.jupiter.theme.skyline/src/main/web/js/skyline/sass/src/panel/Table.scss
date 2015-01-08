@@ -31,10 +31,10 @@
   }
 
   // this removes horisontal scrollbar, which appears probably because of ext-neptune border management override
-  .#{$prefix}grid-view {
-    margin: -$grid-body-border-width !important;
-    margin-top: 0 !important;
-  }
+//  .#{$prefix}grid-view {
+//    margin: -$grid-body-border-width !important;
+//    margin-top: 0 !important;
+//  }
 
 //  // this is add margin at the grid bottom when no bottom toolbar is applied
 //  &.#{$prefix}noborder-rbl {
