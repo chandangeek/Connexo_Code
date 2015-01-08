@@ -34,10 +34,10 @@ public class DSMR40ActivityCalendarController extends DLMSActivityCalendarContro
         ac.writeWeekProfileTablePassive(getWeekArray());
         ac.writeSeasonProfilePassive(getSeasonArray());
 
-        if ("1".equalsIgnoreCase(this.activatePassiveCalendarTime.stringValue())) {
+        if ("1".equalsIgnoreCase(getActivatePassiveCalendarTime().stringValue())) {
             ac.activateNow();
-        } else if (!"0".equalsIgnoreCase(this.activatePassiveCalendarTime.stringValue())) {
-            ac.writeActivatePassiveCalendarTime(this.activatePassiveCalendarTime);
+        } else if (!"0".equalsIgnoreCase(getActivatePassiveCalendarTime().stringValue())) {
+            ac.writeActivatePassiveCalendarTime(getActivatePassiveCalendarTime());
         } else {
             getLogger().trace("No passiveCalendar activation date was given.");
         }

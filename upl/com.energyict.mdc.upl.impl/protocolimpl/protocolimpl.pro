@@ -42,7 +42,10 @@
 
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.*
 
--keepnames class com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController
+-keepnames class com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController  {
+    public *;
+    protected *;
+}
 
 -keepnames class com.energyict.protocolimpl.generic.*
 

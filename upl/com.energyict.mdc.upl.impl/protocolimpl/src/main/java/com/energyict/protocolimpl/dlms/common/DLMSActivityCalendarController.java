@@ -751,6 +751,10 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
         return dateTime;
     }
 
+    public OctetString getActivatePassiveCalendarTime() {
+        return activatePassiveCalendarTime;
+    }
+
     public Log getLogger() {
         return logger;
     }
