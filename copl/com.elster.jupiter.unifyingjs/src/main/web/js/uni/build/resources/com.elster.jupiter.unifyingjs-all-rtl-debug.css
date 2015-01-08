@@ -308,13 +308,13 @@ TODO Move this into a separate button UI.
 }
 
 /* line 355, ../../sass/etc/all.scss */
-.icon-info-small {
+.uni-icon-info-small {
   float: right;
   background-image: url("images/shared/icon-info-small.png");
 }
 
 /* line 361, ../../sass/etc/all.scss */
-.x-grid-row-selected .icon-info-small, .x-grid-row-over .icon-info-small {
+.x-grid-row-selected .uni-icon-info-small, .x-grid-row-over .uni-icon-info-small {
   background-image: url("images/shared/icon-info-small-white.png");
 }
 
@@ -324,7 +324,7 @@ TODO Move this into a separate button UI.
 }
 
 /* line 372, ../../sass/etc/all.scss */
-.icon-validation {
+.uni-icon-validation {
   background-size: 100% 100%;
   display: inline-block;
   height: 13px;
@@ -334,17 +334,17 @@ TODO Move this into a separate button UI.
 }
 
 /* line 381, ../../sass/etc/all.scss */
-.icon-validation-black {
+.uni-icon-validation-black {
   background-image: url("images/shared/Not-validated.png");
 }
 
 /* line 385, ../../sass/etc/all.scss */
-.icon-validation-red {
+.uni-icon-validation-red {
   background-image: url("images/shared/Suspect.png");
 }
 
 /* line 389, ../../sass/etc/all.scss */
-.icon-filter {
+.uni-icon-filter {
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAQAAADY4iz3AAAAgUlEQVR4XqXL0QmDMBgE4KML+FQQtEHBQEDAERwloziCI2UER3CEfwHlmh6UUGqfeh/wXziC0UZeMoQYKFtIsgVKBOBXT89hgTIsntkKSJ96ZnNus1rCO13ldkdnj+gs372rUNJOjTUUayd8po41JeI7d76U963UUy6nQ37/+nt6AuFSTUUWSLwtAAAAAElFTkSuQmCC);
   display: inline-block;
   height: 13px;
@@ -352,7 +352,7 @@ TODO Move this into a separate button UI.
 }
 
 /* line 396, ../../sass/etc/all.scss */
-.icon-edit {
+.uni-icon-edit {
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAQAAADY4iz3AAABCElEQVR4AUXAsUpCYRgG4Pec49oabrVa6f+f7/2+IxlCFoYNgoJLDeIiOEZEgdfQbZSEYUSCEBRIERQ0uNYQ3UPQWiLlgzmmAM1pP3mVUVzHnIQAE313NUAT3q3VMKMBwKJ86q0fLrUAydoIUxICssmxlXns23a91QTcCwCJACnxwRJrZAoAD22gDfZhIUDHnvhkf2UbSCq+LQO+xQJAvX7zPj7wDrC623EF/VAFwEXtuyO/xzE7LLuqz+gjNwCJkK3wBr8kzWfXccv6FJcASQGQE15IzhYssBav9Jy7gEWYYo/rbNoqoF39Yh6wADMykUCVZ/lLDlkELMQfOZUJe9p1VUkDEuHfD98yRLLTNcEZAAAAAElFTkSuQmCC);
   display: inline-block;
   height: 13px;
@@ -360,7 +360,7 @@ TODO Move this into a separate button UI.
 }
 
 /* line 403, ../../sass/etc/all.scss */
-.icon-remove {
+.uni-icon-remove {
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAAgUlEQVR4Xp3SgQaAMBSF4Ugv1jNUQ09XKqVH6xG6Uye2HHMWGj9yfbRrxe9zdHWFVuTErEczKlOwowtZgAwszNYXhg8ARJABNUXkxNCHGJyofUwWfoEUegGMgNiSRh45Db5/zwhmgSGvYESLuHSTWc4YUYk2Bmqr/CoYTgwSODC4AfgYBvI33Gc0AAAAAElFTkSuQmCC);
   display: inline-block;
   height: 13px;
@@ -380,7 +380,7 @@ TODO Move this into a separate button UI.
 }
 
 /* line 419, ../../sass/etc/all.scss */
-.icon-arrow-up {
+.uni-icon-arrow-up {
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAYklEQVR4XmMY5qBw7XFvECZXMwcQ3wXieyA2OQbUA/F/KK4nVbMiEH+HGQBlK5JiwGa4ZgTeTKxmH7gmTOxNTMDdw2UAwQAFamgAaSCAGwgGHDZMMECBGrbANRDGWxiGDwAATsHH9SBuh2YAAAAASUVORK5CYII=");
   display: inline-block;
   height: 16px;
@@ -388,17 +388,17 @@ TODO Move this into a separate button UI.
 }
 
 /* line 426, ../../sass/etc/all.scss */
-.x-over .icon-arrow-up {
+.x-over .uni-icon-arrow-up {
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAY0lEQVR42mNgGN4gYvpmbxAmVzMHEN8F4nsgNjkG1APxfyiuJ1WzIhB/RzIAxFYkxYDNSJpheDOxmn2waIZhb2IC7h4eA/AHKFCyAY9mGG4gNuBwYewBChTcQoRmGN4yjPILADretJerptwEAAAAAElFTkSuQmCC");
 }
 
 /* line 430, ../../sass/etc/all.scss */
-.x-disabled .icon-arrow-up {
+.x-disabled .uni-icon-arrow-up {
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAWUlEQVR4XmOgO7jifcUbnzTHlbtX7l3hwK2g/sp/IGzAJa145TtIAZBUxK5gM1ASArdgk/YBSiCgD6bz7iErwHDqlQagBCpsxHQeKvx+RQmhYAuKFMKp9AEAAWt5EFx4I5sAAAAASUVORK5CYII=");
 }
 
 /* line 434, ../../sass/etc/all.scss */
-.icon-arrow-down {
+.uni-icon-arrow-down {
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAXklEQVR4XmMYRqBw7fEtQPyfSLwFmwFKQPydkAFQNcq4XNFIhAFN+LzBAcT3cBkAleMgFBa+eAzwpSRAt5ASI4rIAQplK5EarQ1IBjTiUkcwQAkEHEFDvIHYh2F4AwACCcgGZB4GZgAAAABJRU5ErkJggg==");
   display: inline-block;
   height: 16px;
@@ -406,12 +406,12 @@ TODO Move this into a separate button UI.
 }
 
 /* line 441, ../../sass/etc/all.scss */
-.x-over .icon-arrow-down {
+.x-over .uni-icon-arrow-down {
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAXklEQVR4XmMYRiBi+uYtQPyfSLwFmwFKQPydkAFQNcq4XNFIhAFN+LzBAcT3cBkAleMgFBa+eAzwpSRAt5ASI4rIAQplK5EarQ1IBjTiUkcwQAkEHEFDvIHYh2F4AwBNKbSofp5SiQAAAABJRU5ErkJggg==");
 }
 
 /* line 445, ../../sass/etc/all.scss */
-.x-disabled .icon-arrow-down {
+.x-disabled .uni-icon-arrow-down {
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAVklEQVR4XmOgE7iy5cp/LHALQoHSle8YCr5fUUI2oxFDQSOqJRxX7qEouHeFA90dvigKfPA7dQt2vyhCnAokFXF5twGsoAFZDMOpKM7DBFe8gc6jNwAAyEZ5Fzsdi60AAAAASUVORK5CYII=");
 }
 

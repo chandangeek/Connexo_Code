@@ -661,8 +661,8 @@ Ext.define('Uni.DateTime', {
     timeShortDefault: 'H:i',
     timeLongDefault: 'H:i:s',
 
-    dateTimeShortDefault: 'H:i d M \'y',
-    dateTimeLongDefault: 'H:i:s D d M \'y',
+    dateTimeShortDefault: 'd M \'y H:i',
+    dateTimeLongDefault: 'D d M \'y H:i:s',
 
     formatDateShort: function (date) {
         date = date || new Date();
@@ -1499,6 +1499,7 @@ Ext.define('Uni.override.GridPanelOverride', {
 
 Ext.define('Uni.override.grid.Panel', {
     override: 'Ext.grid.Panel',
+
     bodyBorder: true,
     enableColumnHide: false,
     enableColumnMove: false,
@@ -1506,6 +1507,7 @@ Ext.define('Uni.override.grid.Panel', {
     sortableColumns: false,
     collapsible: false,
     overflowY: 'auto',
+
     selModel: {
         mode: 'SINGLE'
     }
@@ -1540,23 +1542,24 @@ Ext.define('Uni.override.view.Table', {
 
 Ext.define('Uni.override.grid.plugin.BufferedRenderer', {
     override: 'Ext.grid.plugin.BufferedRenderer',
-    rowHeight: 29, // comes from skyline theme
 
-    init: function(grid) {
-        this.callParent(arguments);
+    rowHeight: 29 // Comes from the Skyline theme.
 
-        // grid height calculated before the toolbar is on layouts, it causes the bug: JP-3817
-        grid.on('boxready', function() {
-            grid.view.refresh();
-        })
-    },
-
-    bindStore: function(store) {
-        var me = this;
-        me.trailingBufferZone = 0;
-        me.leadingBufferZone = store.pageSize;
-        this.callParent(arguments);
-    }
+//    init: function(grid) {
+//        this.callParent(arguments);
+//
+//        // grid height calculated before the toolbar is on layouts, it causes the bug: JP-3817
+//        grid.on('boxready', function() {
+//            grid.view.refresh();
+//        })
+//    },
+//
+//    bindStore: function(store) {
+//        var me = this;
+//        me.trailingBufferZone = 0;
+//        me.leadingBufferZone = store.pageSize;
+//        this.callParent(arguments);
+//    }
 });
 
 Ext.define('Uni.override.menu.Item', {
@@ -1659,11 +1662,15 @@ Ext.define('Uni.view.window.Acknowledgement', {
     setMessage: function (message) {
         var msgPanel = this.down('#msgmessage');
 
+        Ext.suspendLayouts();
+
         msgPanel.removeAll();
         msgPanel.add({
             xtype: 'label',
             html: message
         });
+
+        Ext.resumeLayouts();
     },
 
     initComponent: function () {
@@ -2583,6 +2590,9 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
         var me = this;
 
         me.callParent(arguments);
+
+        Ext.suspendLayouts();
+
         var wrapper = me.down('#wrapper');
 
         wrapper.setTitle(me.title);
@@ -2611,6 +2621,8 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
                 wrapper.add(me.createSteps(me.stepItems));
             }
         }
+
+        Ext.resumeLayouts();
     },
 
     formatReasons: function (reasons) {
@@ -3801,7 +3813,10 @@ Ext.define('Uni.controller.Navigation', {
     },
 
     showContent: function (content, side) {
-        this.getContentWrapper().removeAll();
+        var panel = this.getContentWrapper();
+
+        Ext.suspendLayouts();
+        panel.removeAll();
 
         if (content instanceof Uni.view.container.ContentContainer) {
             side = content.side;
@@ -3813,8 +3828,8 @@ Ext.define('Uni.controller.Navigation', {
             side: side
         });
 
-        this.getContentWrapper().add(contentContainer);
-        this.getContentWrapper().doComponentLayout();
+        panel.add(contentContainer);
+        Ext.resumeLayouts();
     },
 
     setBreadcrumb: function (breadcrumbItem) {
@@ -4280,11 +4295,13 @@ Ext.define('Uni.view.search.Quick', {
     extend: 'Ext.container.Container',
     alias: 'widget.searchQuick',
     cls: 'search-quick',
+
     layout: {
         type: 'hbox',
         align: 'stretch',
         pack: 'end'
     },
+
     items: [
         {
             xtype: 'container',
@@ -4308,10 +4325,7 @@ Ext.define('Uni.view.search.Quick', {
             glyph: 'xe021@icomoon',
             scale: 'small'
         }
-    ],
-    initComponent: function () {
-        this.callParent(arguments);
-    }
+    ]
 });
 
 /**
@@ -5700,9 +5714,14 @@ Ext.define('Uni.controller.AppController', {
     },
 
     showContent: function (widget) {
-        this.getContentPanel().removeAll();
-        this.getContentPanel().add(widget);
-        this.getContentPanel().doComponentLayout();
+        var panel = this.getContentPanel();
+
+        Ext.suspendLayouts();
+
+        panel.removeAll();
+        panel.add(widget);
+
+        Ext.resumeLayouts();
     },
 
     checkLicenseStatus: function () {
@@ -7796,6 +7815,430 @@ Ext.define('Uni.form.field.FilterDisplay', {
 });
 
 /**
+ * Copyright (C) 2013 Eoko
+ *
+ * This file is part of Opence.
+ *
+ * Opence is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Opence is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Opence. If not, see <http://www.gnu.org/licenses/gpl.txt>.
+ *
+ * @copyright Copyright (C) 2013 Eoko
+ * @licence http://www.gnu.org/licenses/gpl.txt GPLv3
+ * @author Éric Ortega <eric@eoko.fr>
+ */
+
+/**
+ * Key navigation for {@link Ext.ux.Rixo.form.field.GridPicker}.
+ *
+ * @since 2013-06-20 16:07
+ */
+Ext.define('Uni.form.field.GridPickerKeyNav', {
+	extend: 'Ext.util.KeyNav'
+
+	,constructor: function(config) {
+		this.pickerField = config.pickerField;
+		this.grid = config.grid;
+		this.callParent([config.target, Ext.apply({}, config, this.defaultHandlers)]);
+	}
+
+	,defaultHandlers: {
+		up: function() {
+			this.goUp(1);
+		}
+
+		,down: function() {
+			this.goDown(1);
+		}
+
+		,pageUp: function() {
+			this.goUp(10);
+		}
+
+		,pageDown: function() {
+			this.goDown(10);
+		}
+
+		,home: function() {
+			this.highlightAt(0);
+		}
+
+		,end: function() {
+			var count = this.getGrid().getStore().getCount();
+			if (count > 0) {
+				this.highlightAt(count - 1);
+			}
+		}
+
+		,tab: function(e) {
+			var pickerField = this.getPickerField();
+			if (pickerField.selectOnTab) {
+				this.selectHighlighted(e);
+				pickerField.triggerBlur();
+			}
+			// Tab key event is allowed to propagate to field
+			return true;
+		}
+
+		,enter: function(e) {
+			this.selectHighlighted(e);
+		}
+	}
+
+	,goUp: function(n) {
+		var grid = this.getGrid(),
+			store = grid.getStore(),
+			sm = grid.getSelectionModel(),
+			lastSelected = sm.lastSelected,
+			count = store.getCount(),
+			nextIndex = count - n;
+
+		if (count > 0) {
+			if (lastSelected) {
+				nextIndex = store.indexOf(lastSelected) - n;
+				if (nextIndex < 0) {
+					nextIndex = count - 1;
+				}
+			}
+
+			this.highlightAt(nextIndex);
+		}
+	}
+
+	,goDown: function(n) {
+		var grid = this.getGrid(),
+			store = grid.getStore(),
+			sm = grid.getSelectionModel(),
+			lastSelected = sm.lastSelected,
+			count = store.getCount(),
+			nextIndex = 0;
+
+		if (count > 0) {
+			if (lastSelected) {
+				nextIndex = store.indexOf(lastSelected) + n;
+				if (nextIndex >= count) {
+					nextIndex = 0;
+				}
+			}
+
+			this.highlightAt(nextIndex);
+		}
+	}
+
+	,getPickerField: function() {
+		return this.pickerField;
+	}
+
+	,getGrid: function() {
+		return this.grid;
+	}
+
+	,highlightAt: function(index) {
+		this.getPickerField().highlightAt(index);
+	}
+
+	,selectHighlighted: function(e) {
+		var selection = this.getGrid().getSelectionModel().getSelection(),
+			selected = selection && selection[0],
+			pickerField = this.pickerField;
+		if (selected) {
+			pickerField.setValue(selected.get(pickerField.valueField))
+		}
+	}
+});
+
+/**
+ * @since 2013-06-19 21:55
+ * @author Éric Ortega <eric@planysphere.fr>
+ */
+Ext.define('Uni.form.field.GridPicker', {
+    extend: 'Ext.form.field.ComboBox',
+    alias: 'widget.gridpicker',
+    requires: [
+        'Ext.grid.Panel',
+        'Uni.form.field.GridPickerKeyNav'
+    ],
+    defaultGridConfig: {
+        xclass: 'Ext.grid.Panel',
+        floating: true,
+        focusOnToFront: false,
+        resizable: true,
+        hideHeaders: true,
+        stripeRows: false,
+//		viewConfig: {
+//			stripeRows: false
+//		},
+        rowLines: false,
+
+        initComponent: function () {
+            Ext.grid.Panel.prototype.initComponent.apply(this, arguments);
+
+            var store = this.getStore();
+
+            Ext.Array.each(this.query('pagingtoolbar'), function (pagingToolbar) {
+                pagingToolbar.bindStore(store);
+            });
+        }
+    },
+
+    /**
+     * Configuration object for the picker grid. It will be merged with {@link #defaultGridConfig}
+     * before creating the grid with {@link #createGrid}.
+     *
+     * @cfg {Object}
+     */
+    gridConfig: null,
+
+//	/**
+//	 * @cfg {Boolean}
+//	 */
+//	multiSelect: false,
+
+    /**
+     * Overriden: delegates to {@link #createGrid}.
+     *
+     * @protected
+     */
+    createPicker: function () {
+        // We must assign it for Combo's onAdded method to work
+        return this.picker = this.createGrid();
+    },
+
+    /**
+     * Creates the picker's grid.
+     *
+     * @protected
+     */
+    createGrid: function () {
+        var grid = Ext.create(this.getGridConfig());
+        this.bindGrid(grid);
+        return grid;
+    },
+
+    /**
+     * @return {Ext.grid.Panel}
+     */
+    getGrid: function () {
+        return this.getPicker();
+    },
+
+    /**
+     * Gets the configuration for the picked's grid.
+     *
+     * The returned object will be modified, so it must be an instance dedicated to
+     * this object.
+     *
+     * @return {Object}
+     * @protected
+     */
+    getGridConfig: function () {
+        var config = {};
+
+        Ext.apply(config, this.gridConfig, this.defaultGridConfig);
+
+        Ext.applyIf(config, {
+            store: this.store, columns: [
+                {
+                    dataIndex: this.displayField || this.valueField, flex: 1
+                }
+            ]
+        });
+
+        // Avoid "Layout run failed" error
+        // See: http://stackoverflow.com/a/21740832/1387519
+        if (!config.width) {
+            config.width = this.inputEl.getWidth();
+        }
+
+        return config;
+    },
+
+    /**
+     * Binds the specified grid to this picker.
+     *
+     * @param {Ext.grid.Panel}
+     * @private
+     */
+    bindGrid: function (grid) {
+
+        this.grid = grid;
+
+        grid.ownerCt = this;
+        grid.registerWithOwnerCt();
+
+        this.mon(grid, {
+            scope: this, itemclick: this.onItemClick, refresh: this.onListRefresh, beforeselect: this.onBeforeSelect, beforedeselect: this.onBeforeDeselect, selectionchange: this.onListSelectionChange
+
+            // fix the fucking buffered view!!!
+            , afterlayout: function (grid) {
+                if (grid.getStore().getCount()) {
+                    if (!grid.fixingTheFuckingLayout) {
+                        var el = grid.getView().el;
+                        grid.fixingTheFuckingLayout = true
+                        el.setHeight('100%');
+                        el.setStyle('overflow-x', 'hidden');
+                        grid.fixingTheFuckingLayout = false;
+                    }
+                }
+            }
+
+        });
+
+        // Prevent deselectAll, that is called liberally in combo box code, to actually deselect
+        // the current value
+        var me = this,
+            sm = grid.getSelectionModel(),
+            uber = sm.deselectAll;
+        sm.deselectAll = function () {
+            if (!me.ignoreSelection) {
+                uber.apply(this, arguments);
+            }
+        };
+    },
+
+    /**
+     * Highlight (i.e. select) the specified record.
+     *
+     * @param {Ext.data.Record}
+     * @private
+     */
+    highlightRecord: function (record) {
+        var grid = this.getGrid(),
+            sm = grid.getSelectionModel(),
+            view = grid.getView(),
+            node = view.getNode(record),
+            plugins = grid.plugins,
+            bufferedPlugin = plugins && plugins.filter(function (p) {
+                return p instanceof Ext.grid.plugin.BufferedRenderer
+            })[0];
+
+        sm.select(record, false, true);
+
+        if (node) {
+            Ext.fly(node).scrollIntoView(view.el, false);
+        } else if (bufferedPlugin) {
+            bufferedPlugin.scrollTo(grid.store.indexOf(record));
+        }
+    },
+
+    /**
+     * Highlight the record at the specified index.
+     *
+     * @param {Integer} index
+     * @private
+     */
+    highlightAt: function (index) {
+        var grid = this.getGrid(),
+            sm = grid.getSelectionModel(),
+            view = grid.getView(),
+            node = view.getNode(index),
+            plugins = grid.plugins,
+            bufferedPlugin = plugins && plugins.filter(function (p) {
+                return p instanceof Ext.grid.plugin.BufferedRenderer
+            })[0];
+
+        sm.select(index, false, true);
+
+        if (node) {
+            Ext.fly(node).scrollIntoView(view.el, false);
+        } else if (bufferedPlugin) {
+            bufferedPlugin.scrollTo(index);
+        }
+    },
+
+    // private
+    onExpand: function () {
+        var me = this,
+            keyNav = me.listKeyNav,
+            selectOnTab = me.selectOnTab;
+
+        // Handle BoundList navigation from the input field. Insert a tab listener specially to enable selectOnTab.
+        if (keyNav) {
+            keyNav.enable();
+        } else {
+            keyNav = me.listKeyNav = Ext.create('Uni.form.field.GridPickerKeyNav', {
+                target: this.inputEl, forceKeyDown: true, pickerField: this, grid: this.getGrid()
+            });
+        }
+
+        // While list is expanded, stop tab monitoring from Ext.form.field.Trigger so it doesn't short-circuit selectOnTab
+        if (selectOnTab) {
+            me.ignoreMonitorTab = true;
+        }
+
+        Ext.defer(keyNav.enable, 1, keyNav); //wait a bit so it doesn't react to the down arrow opening the picker
+
+        this.focusWithoutSelection(10);
+    },
+
+    // private
+    focusWithoutSelection: function (delay) {
+        function focus() {
+            var me = this,
+                previous = me.selectOnFocus;
+            me.selectOnFocus = false;
+            me.inputEl.focus();
+            me.selectOnFocus = previous;
+        }
+
+        return function (delay) {
+            if (Ext.isNumber(delay)) {
+//				Ext.defer(focus, delay, me.inputEl);
+                Ext.defer(focus, delay, this);
+            } else {
+                focus.call(this);
+            }
+        };
+    },
+
+    // private
+    doAutoSelect: function () {
+        var me = this,
+            picker = me.picker,
+            lastSelected, itemNode;
+        if (picker && me.autoSelect && me.store.getCount() > 0) {
+            // Highlight the last selected item and scroll it into view
+            lastSelected = picker.getSelectionModel().lastSelected;
+            if (lastSelected) {
+                picker.getSelectionModel().select(lastSelected, false, true);
+            }
+        }
+    },
+
+    // private
+    onTypeAhead: function () {
+        var me = this,
+            displayField = me.displayField,
+            record = me.store.findRecord(displayField, me.getRawValue()),
+            grid = me.getPicker(),
+            newValue, len, selStart;
+
+        if (record) {
+            newValue = record.get(displayField);
+            len = newValue.length;
+            selStart = me.getRawValue().length;
+
+            //grid.highlightItem(grid.getNode(record));
+            this.highlightRecord(record);
+
+            if (selStart !== 0 && selStart !== len) {
+                me.setRawValue(newValue);
+                me.selectText(selStart, newValue.length);
+            }
+        }
+    }
+});
+
+/**
  * @class Uni.form.field.IconDisplay
  */
 Ext.define('Uni.form.field.IconDisplay', {
@@ -9037,8 +9480,10 @@ Ext.define('Uni.property.view.property.Base', {
         me.callParent(arguments);
 
         // after init
-        me.setProperty(me.property);
-        me.initListeners();
+        me.on('afterrender', function () {
+            me.setProperty(me.property);
+            me.initListeners();
+        });
     },
 
     initListeners: function () {
@@ -10780,7 +11225,7 @@ Ext.define('Uni.property.form.Property', {
 
         Ext.resumeLayouts();
 
-        this.initialised = true;
+        me.initialised = true;
     },
 
     useInheritedValues: function () {
@@ -11248,6 +11693,9 @@ Ext.define('Uni.util.FormErrorMessage', {
 
     renew: function () {
         var me = this;
+
+        Ext.suspendLayouts();
+
         me.removeAll(true);
         me.add([
             {
@@ -11262,6 +11710,9 @@ Ext.define('Uni.util.FormErrorMessage', {
                 html: me.text
             }
         ]);
+
+
+        Ext.resumeLayouts();
     },
 
     setText: function (text) {
@@ -11292,6 +11743,9 @@ Ext.define('Uni.util.FormInfoMessage', {
 
     renew: function () {
         var me = this;
+
+        Ext.suspendLayouts();
+
         me.removeAll(true);
         me.add([
             {
@@ -11300,6 +11754,8 @@ Ext.define('Uni.util.FormInfoMessage', {
                 html: me.text
             }
         ]);
+
+        Ext.resumeLayouts();
     },
 
     setText: function (text) {
@@ -11667,7 +12123,8 @@ Ext.define('Uni.view.navigation.AppCenter', {
     xtype: 'uni-nav-appcenter',
 
     text: '',
-    iconCls: 'uni-icon-appcenter',
+    scale: 'medium',
+    iconCls: 'icon-menu3',
     cls: Uni.About.baseCssPrefix + 'nav-appcenter',
 
     menu: {
@@ -11763,9 +12220,9 @@ Ext.define('Uni.view.search.Basic', {
 Ext.define('Uni.view.navigation.Help', {
     extend: 'Ext.button.Button',
     alias: 'widget.navigationHelp',
-    scale: 'small',
+    scale: 'medium',
     cls: 'nav-help',
-    iconCls: 'uni-icon-help',
+    iconCls: 'icon-question3',
     href: 'help/index.html',
     hrefTarget: '_blank'
 });
@@ -11776,31 +12233,17 @@ Ext.define('Uni.view.navigation.Help', {
 Ext.define('Uni.view.user.Menu', {
     extend: 'Ext.button.Button',
     xtype: 'userMenu',
-    scale: 'small',
+    scale: 'medium',
     cls: 'user-menu',
-    iconCls: 'uni-icon-user',
+    iconCls: 'icon-user',
 
     menu: [
-        /*{
-         text: 'Profile'
-         },
-         {
-         text: 'Settings',
-         glyph: 'xe010@icomoon'
-         },
-         {
-         xtype: 'menuseparator'
-         },*/
         {
             text: 'Logout',
             action: 'logout',
             href: '/apps/login/index.html?logout=true'
         }
-    ],
-
-    initComponent: function () {
-        this.callParent(arguments);
-    }
+    ]
 });
 
 /**
@@ -11859,8 +12302,8 @@ Ext.define('Uni.view.navigation.Header', {
             itemId: 'globalSearch',
             text: Uni.I18n.translate('navigation.header.search', 'UNI', 'Search'),
             cls: 'search-button',
-            iconCls: 'uni-icon-search',
-            scale: 'small',
+            iconCls: 'icon-search3',
+            scale: 'medium',
             action: 'search',
             href: '#/search',
             hidden: true
@@ -12531,6 +12974,16 @@ Ext.define('Uni.view.container.PreviewContainer', {
         }
     ],
 
+    listeners: {
+        afterlayout: function () {
+            var me = this;
+
+            if (me.lastGridScrollPosition) {
+                me.grid.view.getEl().scrollTo('top', me.lastGridScrollPosition.top, false);
+            }
+        }
+    },
+
     initComponent: function () {
         var me = this,
             grid = me.grid,
@@ -12569,6 +13022,9 @@ Ext.define('Uni.view.container.PreviewContainer', {
 
         me.grid = me.getWrapperCt().items.items[0];
         me.previewComponent = me.getWrapperCt().items.items[1];
+        me.hasBufferedRendererPlugin = Ext.Array.findBy(me.grid.plugins, function (item) {
+            return item.ptype === 'bufferedrenderer';
+        })
 
         me.bindStore(me.grid.store || 'ext-empty-store', true);
         me.initChildPagingBottom();
@@ -12633,6 +13089,9 @@ Ext.define('Uni.view.container.PreviewContainer', {
             selection = me.grid.view.getSelectionModel().getSelection();
 
         if (me.rendered) {
+            if (!me.hasBufferedRendererPlugin) {
+                me.lastGridScrollPosition = me.grid.view.getEl().getScroll();
+            }
             Ext.suspendLayouts();
         }
 
@@ -12752,6 +13211,9 @@ Ext.define('Uni.view.form.CheckboxGroup', {
      */
     refresh: function () {
         var me = this;
+
+        Ext.suspendLayouts();
+
         me.removeAll();
         me.store.each(function (record) {
             me.add({
@@ -12764,6 +13226,9 @@ Ext.define('Uni.view.form.CheckboxGroup', {
                 }
             });
         });
+
+
+        Ext.resumeLayouts();
     },
 
     getModelData: function () {
@@ -12823,33 +13288,33 @@ Ext.define('Uni.view.grid.SelectionGrid', {
         showHeaderCheckbox: false
     },
 
-    overflowY: 'auto',
+//    overflowY: 'auto',
     maxHeight: 450,
 
     extraTopToolbarComponent: undefined,
 
-    plugins: [
-        {
-            ptype: 'bufferedrenderer',
-            trailingBufferZone: 5,
-            leadingBufferZone: 5,
-            scrollToLoadBuffer: 10,
-            onViewResize: function (view, width, height, oldWidth, oldHeight) {
-                if (!oldHeight || height !== oldHeight) {
-                    var me = this,
-                        newViewSize,
-                        scrollRange;
-                    if (view.all.getCount()) {
-                        delete me.rowHeight;
-                    }
-                    scrollRange = me.getScrollHeight();
-                    newViewSize = 18;
-                    me.viewSize = me.setViewSize(newViewSize);
-                    me.stretchView(view, scrollRange);
-                }
-            }
-        }
-    ],
+//    plugins: [
+//        {
+//            ptype: 'bufferedrenderer',
+//            trailingBufferZone: 5,
+//            leadingBufferZone: 5,
+//            scrollToLoadBuffer: 10,
+//            onViewResize: function (view, width, height, oldWidth, oldHeight) {
+//                if (!oldHeight || height !== oldHeight) {
+//                    var me = this,
+//                        newViewSize,
+//                        scrollRange;
+//                    if (view.all.getCount()) {
+//                        delete me.rowHeight;
+//                    }
+//                    scrollRange = me.getScrollHeight();
+//                    newViewSize = 18;
+//                    me.viewSize = me.setViewSize(newViewSize);
+//                    me.stretchView(view, scrollRange);
+//                }
+//            }
+//        }
+//    ],
 
     /**
      * @cfg counterTextFn
@@ -13027,13 +13492,13 @@ Ext.define('Uni.view.grid.SelectionGrid', {
 Ext.define('Uni.view.grid.BulkSelection', {
     extend: 'Uni.view.grid.SelectionGrid',
     xtype: 'bulk-selection-grid',
-    plugins: 'bufferedrenderer',
+//    plugins: 'bufferedrenderer',
     loadMask: true,
     autoScroll: true,
     maxHeight: 600,
-    requires: [
-        'Ext.grid.plugin.BufferedRenderer'
-    ],
+//    requires: [
+//        'Ext.grid.plugin.BufferedRenderer'
+//    ],
     /**
      * @cfg allLabel
      *
@@ -13120,8 +13585,8 @@ Ext.define('Uni.view.grid.BulkSelection', {
      */
     bottomToolbarHidden: false,
 
-    gridHeight: 0,
-    gridHeaderHeight: 0,
+//    gridHeight: 0,
+//    gridHeaderHeight: 0,
 
     initComponent: function () {
         var me = this;
@@ -15283,6 +15748,8 @@ Ext.define('Uni.view.window.Wizard', {
         var me = this,
             stepsMenu = this.getStepsMenuCmp();
 
+        Ext.suspendLayouts();
+
         for (var i = 0; i < steps.length; i++) {
             var step = steps[i];
 
@@ -15296,6 +15763,8 @@ Ext.define('Uni.view.window.Wizard', {
                 me.goToStep(this.stepIndex);
             });
         }
+
+        Ext.resumeLayouts();
 
         me.checkNavigationState();
     },
