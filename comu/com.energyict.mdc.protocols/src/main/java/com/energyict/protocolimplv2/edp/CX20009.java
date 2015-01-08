@@ -34,7 +34,7 @@ import com.energyict.protocolimplv2.edp.logbooks.LogbookReader;
 import com.energyict.protocolimplv2.edp.messages.EDPMessageExecutor;
 import com.energyict.protocolimplv2.edp.messages.EDPMessaging;
 import com.energyict.protocolimplv2.edp.registers.RegisterReader;
-import com.energyict.protocolimplv2.elster.garnet.TcpDeviceProtocolDialect;
+import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxPlainSerialConnectionType;

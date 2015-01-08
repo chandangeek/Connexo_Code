@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.elster.garnet;
+package com.energyict.protocols.mdc.protocoltasks;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
