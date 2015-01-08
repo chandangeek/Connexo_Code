@@ -22,13 +22,13 @@ Ext.define('Login.controller.Login', {
         }
     ],
 
-    init: function (application) {
+    init: function () {
         this.control({
+            'viewport': {
+                beforerender: this.showOverview
+            },
             'login #login-form [action=login]': {
                 click: this.signinuser
-            },
-            'viewport menuitem[action=logout]': {
-                click: this.signout
             },
             'login #login-form #password': {
                 specialkey: this.onPasswordKey
@@ -39,7 +39,7 @@ Ext.define('Login.controller.Login', {
         });
     },
 
-    showOverview: function (error) {
+    showOverview: function () {
         var params = Ext.urlDecode(location.search.substring(1));
         if (typeof params.expired !== 'undefined') {
             var error = this.getLoginForm().down('#errorLabel');
@@ -110,18 +110,11 @@ Ext.define('Login.controller.Login', {
         } else {
             Uni.store.Apps.load(function (apps) {
                 if (typeof apps !== 'undefined' && apps.length > 0) {
-                    apps.forEach(function (app) {
-                        var url = app.data.url || '';
-
-                        if (url.indexOf('http://') !== 0 && url.indexOf('https://') !== 0) {
-                            window.location.replace(url);
-                        }
-                    });
+                    window.location.replace(apps[0].data.url);
+                    this.getLoginViewport().destroy();
                 }
             });
         }
-
-        this.getLoginViewport().destroy();
     },
 
     loginNOK: function () {
