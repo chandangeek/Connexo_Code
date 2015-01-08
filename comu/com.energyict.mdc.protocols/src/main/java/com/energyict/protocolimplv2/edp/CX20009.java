@@ -42,6 +42,7 @@ import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSeri
 import com.energyict.protocols.mdc.protocoltasks.EDPSerialDeviceProtocolDialect;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -60,8 +61,8 @@ public class CX20009 extends AbstractDlmsProtocol {
     private EDPMessaging edpMessaging;
 
     @Inject
-    public CX20009(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
-        super(propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, loadProfileFactory);
+    public CX20009(Clock clock, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
+        super(clock, propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, loadProfileFactory);
     }
 
     @Override
@@ -214,7 +215,7 @@ public class CX20009 extends AbstractDlmsProtocol {
 
     public RegisterReader getRegisterReader() {
         if (registerReader == null) {
-            registerReader = new RegisterReader(this, this.getIssueService(), this.getCollectedDataFactory());
+            registerReader = new RegisterReader(this, this.getClock(), this.getIssueService(), this.getCollectedDataFactory());
         }
         return registerReader;
     }

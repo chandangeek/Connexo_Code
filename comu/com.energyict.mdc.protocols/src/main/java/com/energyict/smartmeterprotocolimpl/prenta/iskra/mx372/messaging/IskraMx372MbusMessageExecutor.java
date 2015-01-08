@@ -16,6 +16,7 @@ import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.util.TimeZone;
 
 /**
@@ -27,14 +28,16 @@ import java.util.TimeZone;
 public class IskraMx372MbusMessageExecutor extends MessageParser {
 
     private final IskraMx372 iskraMx372;
+    private final Clock clock;
     private final TopologyService topologyService;
     private final LoadProfileFactory loadProfileFactory;
 
     private ObisCode valveState = ObisCode.fromString("0.0.128.30.31.255");
     private ObisCode valveControl = ObisCode.fromString("0.0.128.30.30.255");
 
-    public IskraMx372MbusMessageExecutor(IskraMx372 iskraMx372Protocol, TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
+    public IskraMx372MbusMessageExecutor(IskraMx372 iskraMx372Protocol, Clock clock, TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
         this.iskraMx372 = iskraMx372Protocol;
+        this.clock = clock;
         this.topologyService = topologyService;
         this.loadProfileFactory = loadProfileFactory;
     }
@@ -125,11 +128,11 @@ public class IskraMx372MbusMessageExecutor extends MessageParser {
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService, loadProfileFactory);
+        return new LegacyLoadProfileRegisterMessageBuilder(clock, this.topologyService, loadProfileFactory);
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder(this.topologyService, loadProfileFactory);
+        return new LegacyPartialLoadProfileMessageBuilder(clock, this.topologyService, loadProfileFactory);
     }
 
     private int getMbusAddress(String serialNumber) throws IOException {

@@ -17,6 +17,7 @@ import com.energyict.protocols.mdc.inbound.general.frames.RegisterFrame;
 import com.energyict.protocols.mdc.inbound.general.frames.RequestFrame;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +38,7 @@ public class InboundConnection {
     private static final int DEFAULT_DELAY_MILLIS = 10;
 
     private final MdcReadingTypeUtilService readingTypeUtilService;
+    private final Clock clock;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
     private final Thesaurus thesaurus;
@@ -50,10 +52,11 @@ public class InboundConnection {
      */
     private List<AbstractInboundFrame> framesToAck;
 
-    public InboundConnection(ComChannel comChannel, int timeout, int retries, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, CollectedDataFactory collectedDataFactory, Thesaurus thesaurus, IdentificationService identificationService) {
+    public InboundConnection(ComChannel comChannel, int timeout, int retries, Clock clock, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, CollectedDataFactory collectedDataFactory, Thesaurus thesaurus, IdentificationService identificationService) {
         this.comChannel = comChannel;
         this.timeout = timeout;
         this.retries = retries;
+        this.clock = clock;
         this.issueService = issueService;
         this.readingTypeUtilService = readingTypeUtilService;
         this.collectedDataFactory = collectedDataFactory;
@@ -165,7 +168,7 @@ public class InboundConnection {
             return new DeployFrame(frame, issueService, identificationService, collectedDataFactory);
         }
         if (frame.contains(REGISTER_TAG)) {
-            return new RegisterFrame(frame, issueService, readingTypeUtilService, identificationService, collectedDataFactory);
+            return new RegisterFrame(frame, clock, issueService, readingTypeUtilService, identificationService, collectedDataFactory);
         }
         throw new InboundFrameException(MessageSeeds.INBOUND_UNEXPECTED_FRAME, frame, "Unexpected frame type: '" + getFrameTag(frame) + "'. Expected REQUEST, DEPLOY, EVENT, EVENTPO or REGISTER");
     }

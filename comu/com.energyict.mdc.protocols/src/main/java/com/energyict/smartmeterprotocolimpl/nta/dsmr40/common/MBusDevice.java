@@ -12,6 +12,7 @@ import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -26,9 +27,12 @@ import java.util.Properties;
  */
 public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.MBusDevice {
 
+    private final Clock clock;
+
     @Inject
-    public MBusDevice(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
-        super(topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
+    public MBusDevice(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient, Clock clock) {
+        super(clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
+        this.clock = clock;
     }
 
     @Override
@@ -77,11 +81,11 @@ public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder(this.getTopologyService(), this.getLoadProfileFactory());
+        return new LegacyLoadProfileRegisterMessageBuilder(clock, this.getTopologyService(), this.getLoadProfileFactory());
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder(this.getTopologyService(), this.getLoadProfileFactory());
+        return new LegacyPartialLoadProfileMessageBuilder(clock, this.getTopologyService(), this.getLoadProfileFactory());
     }
 
 }

@@ -75,7 +75,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
                     throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
                 }
                 Calendar fromDate = getCalendar();
-                fromDate.setTime(logBookReader.getLastLogBook());
+                fromDate.setTimeInMillis(logBookReader.getLastLogBook().toEpochMilli());
                 DataContainer dataContainer;
                 try {
                     dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());

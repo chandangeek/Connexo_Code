@@ -143,7 +143,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         try {
             List<Integer> channelGroupsWhoShouldBeRead = findChannelGroupsWhoShouldBeRead(reader);
             DateTimeField lastDemandResetDateTime = (DateTimeField) getRequestFactory().getDefaultParameters().getField(ReadParameterFields.dateTimeOfLastDemandReset);
-            boolean shouldReadPreviousBillingLoadProfileData = lastDemandResetDateTime.getDate(getMeterProtocol().getTimeZone()).after(reader.getStartReadingTime());
+            boolean shouldReadPreviousBillingLoadProfileData = lastDemandResetDateTime.getDate(getMeterProtocol().getTimeZone()).after(Date.from(reader.getStartReadingTime()));
             for (Integer channelGroup : channelGroupsWhoShouldBeRead) {
                 channelInfos.addAll(getChannelInfosForChannelGroup().get(channelGroup));
                 readLoadProfilePart(intervalDataMap, channelGroup, shouldReadPreviousBillingLoadProfileData);
@@ -238,8 +238,8 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         List<IntervalData> intervalDatas = new ArrayList<>(intervalDataMap.size());
 
         for (IntervalData intervalData : intervalDataMap.values()) {
-            if (intervalData.getEndTime().before(reader.getStartReadingTime()) ||
-                    intervalData.getEndTime().after(reader.getEndReadingTime())) {
+            if (intervalData.getEndTime().before(Date.from(reader.getStartReadingTime())) ||
+                    intervalData.getEndTime().after(Date.from(reader.getEndReadingTime()))) {
                 // Entry outside of requested time frame, no need to add it
             } else if (intervalData.getValueCount() != (numberOfLoadProfileChannelGroups * CHANNELS_PER_CHANNEL_GROUP)) {
                 // Entry has an invalid number of channels, definitely do not add it

@@ -14,8 +14,8 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocols.mdc.inbound.general.frames.parsing.RegisterInfo;
 
+import java.time.Clock;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -26,6 +26,7 @@ import java.util.List;
  */
 public class RegisterFrame extends AbstractInboundFrame {
 
+    private final Clock clock;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final CollectedDataFactory collectedDataFactory;
     private CollectedRegisterList collectedRegisterList;
@@ -35,8 +36,9 @@ public class RegisterFrame extends AbstractInboundFrame {
         return FrameType.REGISTER;
     }
 
-    public RegisterFrame(String frame, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
+    public RegisterFrame(String frame, Clock clock, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         super(frame, issueService, identificationService);
+        this.clock = clock;
         this.readingTypeUtilService = readingTypeUtilService;
         this.collectedDataFactory = collectedDataFactory;
     }
@@ -78,17 +80,24 @@ public class RegisterFrame extends AbstractInboundFrame {
             deviceRegister = this.collectedDataFactory.createBillingCollectedRegister(getRegisterIdentifier(register.getObisCode()),
                     this.readingTypeUtilService.getReadingTypeFrom(register.getObisCode(), register.getQuantity().getUnit()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
-            deviceRegister.setCollectedTimeStamps(new Date(), null, getInboundParameters().getReadTime());
+            deviceRegister.setCollectedTimeStamps(
+                    this.clock.instant(),
+                    null,
+                    getInboundParameters().getReadTime().toInstant());
         } else if (register.getEventTime() != null) {
             deviceRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(register.getObisCode()),
                     this.readingTypeUtilService.getReadingTypeFrom(register.getObisCode(), register.getQuantity().getUnit()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
-            deviceRegister.setCollectedTimeStamps(new Date(), null, getInboundParameters().getReadTime(), register.getEventTime());
+            deviceRegister.setCollectedTimeStamps(
+                    this.clock.instant(),
+                    null,
+                    getInboundParameters().getReadTime().toInstant(),
+                    register.getEventTime().toInstant());
         } else {
             deviceRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register.getObisCode()),
                     this.readingTypeUtilService.getReadingTypeFrom(register.getObisCode(), register.getQuantity().getUnit()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
-            deviceRegister.setReadTime(getInboundParameters().getReadTime());
+            deviceRegister.setReadTime(getInboundParameters().getReadTime().toInstant());
         }
 
         if (this.getDevice() == null) {

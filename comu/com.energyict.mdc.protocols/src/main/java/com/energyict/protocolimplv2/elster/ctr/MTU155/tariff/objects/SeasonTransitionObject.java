@@ -3,8 +3,8 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 import com.energyict.mdc.protocol.api.codetables.SeasonTransition;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Calendar;
-import java.util.Date;
 
 /**
  * Copyrights EnergyICT
@@ -15,7 +15,7 @@ public class SeasonTransitionObject implements Serializable {
 
     private int seasonId;
     private String seasonName;
-    private Date startDate;
+    private Instant startDate;
 
     public SeasonTransitionObject() {
 
@@ -25,7 +25,7 @@ public class SeasonTransitionObject implements Serializable {
         SeasonTransitionObject sto = new SeasonTransitionObject();
         sto.setSeasonId(trans.getSeasonId());
         sto.setSeasonName(trans.getSeason().getName());
-        sto.setStartDate(trans.getStartDate() != null ? new Date(trans.getStartDate().getTime()) : null);
+        sto.setStartDate(trans.getStartDate());
         return sto;
     }
 
@@ -45,17 +45,17 @@ public class SeasonTransitionObject implements Serializable {
         this.seasonName = seasonName;
     }
 
-    public Date getStartDate() {
+    public Instant getStartDate() {
         return startDate;
     }
 
     public Calendar getStartCalendar() {
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(getStartDate());
+        calendar.setTimeInMillis(getStartDate().toEpochMilli());
         return calendar;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(Instant startDate) {
         this.startDate = startDate;
     }
 

@@ -4,6 +4,8 @@ import com.energyict.mdc.device.topology.TopologyService;
 
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 
+import java.time.Clock;
+
 /**
  * Copyrights EnergyICT
  * Date: 10/04/13
@@ -12,8 +14,8 @@ import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNt
  */
 public class KaifaDsmr40MessageExecutor extends Dsmr40MessageExecutor {
 
-    public KaifaDsmr40MessageExecutor(AbstractSmartNtaProtocol protocol, TopologyService topologyService) {
-        super(protocol, topologyService);
+    public KaifaDsmr40MessageExecutor(AbstractSmartNtaProtocol protocol, Clock clock, TopologyService topologyService) {
+        super(protocol, clock, topologyService);
     }
 
     /**

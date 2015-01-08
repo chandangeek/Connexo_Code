@@ -14,6 +14,7 @@ import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.ProtocolInstantiator;
 
 import javax.inject.Inject;
+import java.time.Clock;
 
 /**
  * In the case of IDiscover, a meter opens an inbound connection to the comserver but it doesn't send any frames.
@@ -26,11 +27,13 @@ import javax.inject.Inject;
  */
 public class IframeDiscover extends AbstractDiscover {
 
+    private final Clock clock;
     private final CollectedDataFactory collectedDataFactory;
 
     @Inject
-    public IframeDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
+    public IframeDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService, Clock clock, CollectedDataFactory collectedDataFactory) {
         super(propertySpecService, issueService, readingTypeUtilService, thesaurus, identificationService);
+        this.clock = clock;
         this.collectedDataFactory = collectedDataFactory;
     }
 
@@ -38,7 +41,7 @@ public class IframeDiscover extends AbstractDiscover {
     public DiscoverResultType doDiscovery ()  {
         try {
             ComChannel comChannel = this.getComChannel();
-            this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), this.getIssueService(), this.getReadingTypeUtilService(), this.collectedDataFactory, this.getThesaurus(), getIdentificationService()));
+            this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), this.clock, this.getIssueService(), this.getReadingTypeUtilService(), this.collectedDataFactory, this.getThesaurus(), getIdentificationService()));
             String identificationFrame = getInboundConnection().sendIRequestAndReadResponse();
             IdentificationFactory identificationFactory = processIdentificationFactory();
             String meterProtocolClass = processMeterProtocolClass(identificationFrame, identificationFactory);

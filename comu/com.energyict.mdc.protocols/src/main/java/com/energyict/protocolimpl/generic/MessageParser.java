@@ -15,8 +15,10 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 
 /**
@@ -25,13 +27,13 @@ import java.util.TimeZone;
  */
 public abstract class MessageParser {
 
-    abstract protected TimeZone getTimeZone();
+    protected abstract TimeZone getTimeZone();
 
     public void importMessage(String message, DefaultHandler handler) throws BusinessException {
         try {
 
             byte[] bai = message.getBytes();
-            InputStream i = (InputStream) new ByteArrayInputStream(bai);
+            InputStream i = new ByteArrayInputStream(bai);
 
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
@@ -109,7 +111,7 @@ public abstract class MessageParser {
 
     public AXDRDateTime convertUnixToDateTime(String time, TimeZone timeZone) throws IOException {
         try {
-            AXDRDateTime dateTime = null;
+            AXDRDateTime dateTime;
             Calendar cal = Calendar.getInstance(timeZone);
             cal.setTimeInMillis(Long.parseLong(time) * 1000);
             dateTime = new AXDRDateTime(cal.getTime(), timeZone);
@@ -126,10 +128,12 @@ public abstract class MessageParser {
      * @param loadProfileReader the reader
      * @return the reader with the adjested times
      */
-    protected LoadProfileReader constructDateTimeCorrectdLoadProfileReader(final LoadProfileReader loadProfileReader) {
-        Date from = new Date(loadProfileReader.getStartReadingTime().getTime() - 5000);
-        Date to = new Date(loadProfileReader.getEndReadingTime().getTime() + 5000);
-        return new LoadProfileReader(loadProfileReader.getProfileObisCode(),
+    protected LoadProfileReader constructDateTimeCorrectdLoadProfileReader(Clock clock, LoadProfileReader loadProfileReader) {
+        Instant from = loadProfileReader.getStartReadingTime().minus(Duration.ofSeconds(5));
+        Instant to = loadProfileReader.getEndReadingTime().plus(Duration.ofSeconds(5));
+        return new LoadProfileReader(
+                clock,
+                loadProfileReader.getProfileObisCode(),
                 from,
                 to,
                 loadProfileReader.getLoadProfileId(),
@@ -138,4 +142,5 @@ public abstract class MessageParser {
                 loadProfileReader.getMeterSerialNumber(),
                 loadProfileReader.getLoadProfileIdentifier());
     }
+
 }

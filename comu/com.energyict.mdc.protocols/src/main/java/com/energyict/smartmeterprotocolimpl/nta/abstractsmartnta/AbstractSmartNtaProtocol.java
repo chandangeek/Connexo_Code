@@ -39,6 +39,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuild
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
@@ -55,12 +56,14 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     public static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
     public static final ObisCode monthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
 
+    private final Clock clock;
     private final TopologyService topologyService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final LoadProfileFactory loadProfileFactory;
 
-    protected AbstractSmartNtaProtocol(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
+    protected AbstractSmartNtaProtocol(Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
         super(ormClient);
+        this.clock = clock;
         this.topologyService = topologyService;
         this.readingTypeUtilService = readingTypeUtilService;
         this.loadProfileFactory = loadProfileFactory;
@@ -115,6 +118,10 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
      * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology}
      */
     protected MeterTopology meterTopology;
+
+    protected Clock getClock() {
+        return clock;
+    }
 
     protected TopologyService getTopologyService() {
         return topologyService;
@@ -427,11 +434,11 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder(topologyService, loadProfileFactory);
+        return new LegacyPartialLoadProfileMessageBuilder(clock, topologyService, loadProfileFactory);
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService, loadProfileFactory);
+        return new LegacyLoadProfileRegisterMessageBuilder(clock, this.topologyService, loadProfileFactory);
     }
 
     /**

@@ -27,6 +27,8 @@ import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCode
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -40,11 +42,13 @@ import java.util.List;
 public class RegisterReader implements DeviceRegisterSupport {
 
     private final CX20009 protocol;
+    private final Clock clock;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
 
-    public RegisterReader(CX20009 protocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+    public RegisterReader(CX20009 protocol, Clock clock, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.protocol = protocol;
+        this.clock = clock;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
     }
@@ -74,10 +78,10 @@ public class RegisterReader implements DeviceRegisterSupport {
                     collectedRegisters.add(createCollectedRegister(register, quantityValue, null, null));
                 } else if (classId == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
                     ExtendedRegister extendedRegister = getCosemObjectFactory().getExtendedRegister(readObisCode);
-                    collectedRegisters.add(createCollectedRegister(register, extendedRegister.getQuantityValue(), null, extendedRegister.getCaptureTime()));
+                    collectedRegisters.add(createCollectedRegister(register, extendedRegister.getQuantityValue(), null, extendedRegister.getCaptureTime().toInstant()));
                 } else if (classId == DLMSClassId.DEMAND_REGISTER.getClassId()) {
                     DemandRegister demandRegister = getCosemObjectFactory().getDemandRegister(readObisCode);
-                    collectedRegisters.add(createMaxDemandRegister(register, demandRegister.getQuantityValue(), null, demandRegister.getCaptureTime()));
+                    collectedRegisters.add(createMaxDemandRegister(register, demandRegister.getQuantityValue(), null, demandRegister.getCaptureTime().toInstant()));
                 } else if (classId == DLMSClassId.PROFILE_GENERIC.getClassId()) {
                     if (isRelayLastTransition(obisCode)) {
                         byte[] buffer = getCosemObjectFactory().getProfileGeneric(readObisCode).getBufferData();
@@ -152,17 +156,19 @@ public class RegisterReader implements DeviceRegisterSupport {
         return collectedRegister;
     }
 
-    private CollectedRegister createCollectedRegister(OfflineRegister offlineRegister, Quantity quantity, String text, Date eventTime) {
+    private CollectedRegister createCollectedRegister(OfflineRegister offlineRegister, Quantity quantity, String text, Instant eventTime) {
         CollectedRegister deviceRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(offlineRegister), offlineRegister.getReadingType());
         deviceRegister.setCollectedData(quantity, text);
-        deviceRegister.setCollectedTimeStamps(new Date(), null, new Date(), eventTime);
+        Instant now = this.clock.instant();
+        deviceRegister.setCollectedTimeStamps(now, null, now, eventTime);
         return deviceRegister;
     }
 
-    private CollectedRegister createMaxDemandRegister(OfflineRegister offlineRegister, Quantity quantity, String text, Date eventTime) {
+    private CollectedRegister createMaxDemandRegister(OfflineRegister offlineRegister, Quantity quantity, String text, Instant eventTime) {
         CollectedRegister deviceRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister), offlineRegister.getReadingType());
         deviceRegister.setCollectedData(quantity, text);
-        deviceRegister.setCollectedTimeStamps(new Date(), null, new Date(), eventTime);
+        Instant now = this.clock.instant();
+        deviceRegister.setCollectedTimeStamps(now, null, now, eventTime);
         return deviceRegister;
     }
 

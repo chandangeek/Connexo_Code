@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import javax.inject.Inject;
+import java.time.Clock;
 
 /**
  * Copyrights EnergyICT
@@ -21,8 +22,8 @@ import javax.inject.Inject;
 public class JanzB280 extends CX20009 {
 
     @Inject
-    public JanzB280(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
-        super(propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, loadProfileFactory);
+    public JanzB280(Clock clock, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
+        super(clock, propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, loadProfileFactory);
     }
 
     @Override

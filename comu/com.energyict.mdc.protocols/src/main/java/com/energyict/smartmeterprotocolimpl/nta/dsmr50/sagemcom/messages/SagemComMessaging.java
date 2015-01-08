@@ -6,6 +6,8 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages.AM540Messaging;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages.Dsmr50MessageExecutor;
 
+import java.time.Clock;
+
 /**
  * Copyrights EnergyICT
  *
@@ -14,12 +16,12 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages.Dsm
  */
 public class SagemComMessaging extends AM540Messaging {
 
-    public SagemComMessaging(AM540 protocol, TopologyService topologyService) {
-        super(protocol, topologyService);
+    public SagemComMessaging(AM540 protocol, Clock clock, TopologyService topologyService) {
+        super(protocol, topologyService, clock);
     }
 
     protected Dsmr50MessageExecutor getMessageExecutor() {
-        return new SagemComDsmr50MessageExecutor(protocol, this.getTopologyService());
+        return new SagemComDsmr50MessageExecutor(protocol, this.getClock(), this.getTopologyService());
     }
 
 }

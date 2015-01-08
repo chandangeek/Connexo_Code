@@ -74,6 +74,7 @@ import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNt
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -93,12 +94,18 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
     protected final DlmsSession dlmsSession;
     protected final AbstractSmartNtaProtocol protocol;
+    private final Clock clock;
     private final TopologyService topologyService;
 
-    public Dsmr23MessageExecutor(AbstractSmartNtaProtocol protocol, TopologyService topologyService) {
+    public Dsmr23MessageExecutor(AbstractSmartNtaProtocol protocol, Clock clock, TopologyService topologyService) {
         this.protocol = protocol;
+        this.clock = clock;
         this.dlmsSession = this.protocol.getDlmsSession();
         this.topologyService = topologyService;
+    }
+
+    protected Clock getClock() {
+        return clock;
     }
 
     protected TopologyService getTopologyService() {
@@ -293,7 +300,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
     }
 
     protected Dsmr23MbusMessageExecutor getMbusMessageExecutor() {
-        return new Dsmr23MbusMessageExecutor(protocol);
+        return new Dsmr23MbusMessageExecutor(protocol, clock);
     }
 
     protected NTAMessageHandler getMessageHandler() {
@@ -317,7 +324,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
                 return MessageResult.createFailed(msgEntry, "Unable to execute the message, there are no channels attached under LoadProfile " + builder.getProfileObisCode() + "!");
             }
 
-            LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()), msgEntry);
+            LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(this.clock, builder.getLoadProfileReader()), msgEntry);
             final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
             final List<ProfileData> profileDatas = this.protocol.getLoadProfileData(Arrays.asList(lpr));
 
@@ -416,7 +423,9 @@ public class Dsmr23MessageExecutor extends MessageParser {
      */
     private LoadProfileReader checkLoadProfileReader(final LoadProfileReader lpr, final MessageEntry msgEntry) {
         if (lpr.getProfileObisCode().equalsIgnoreBChannel(ObisCode.fromString("0.x.24.3.0.255"))) {
-            return new LoadProfileReader(lpr.getProfileObisCode(),
+            return new LoadProfileReader(
+                    this.clock,
+                    lpr.getProfileObisCode(),
                     lpr.getStartReadingTime(),
                     lpr.getEndReadingTime(),
                     lpr.getLoadProfileId(),

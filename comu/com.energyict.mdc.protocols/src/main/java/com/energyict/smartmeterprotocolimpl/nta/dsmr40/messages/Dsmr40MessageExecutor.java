@@ -33,6 +33,7 @@ import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNt
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MessageExecutor;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -48,14 +49,14 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     private static final ObisCode OBISCODE_PUSH_SCRIPT = ObisCode.fromString("0.0.10.0.108.255");
     private static final ObisCode OBISCODE_GLOBAL_RESET = ObisCode.fromString("0.1.94.31.5.255");
 
-    public Dsmr40MessageExecutor(AbstractSmartNtaProtocol protocol, TopologyService topologyService) {
-        super(protocol, topologyService);
+    public Dsmr40MessageExecutor(AbstractSmartNtaProtocol protocol, Clock clock, TopologyService topologyService) {
+        super(protocol, clock, topologyService);
     }
 
     public MessageResult executeMessageEntry(MessageEntry msgEntry) throws ConnectionException, NestedIOException {
         if (!this.protocol.getSerialNumber().equalsIgnoreCase(msgEntry.getSerialNumber())) {
             //Execute messages for MBus device
-            Dsmr40MbusMessageExecutor mbusMessageExecutor = new Dsmr40MbusMessageExecutor(protocol, this.getTopologyService());
+            Dsmr40MbusMessageExecutor mbusMessageExecutor = new Dsmr40MbusMessageExecutor(protocol, this.getClock());
             return mbusMessageExecutor.executeMessageEntry(msgEntry);
         } else {
             return super.executeMessageEntry(msgEntry);
@@ -102,12 +103,12 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         it.setPollingRetries(30);
         it.setDelayBeforeSendingBlocks(5000);
         String imageIdentifier = messageHandler.getImageIdentifier();
-        if (imageIdentifier != null && imageIdentifier.length() > 0) {
+        if (imageIdentifier != null && !imageIdentifier.isEmpty()) {
             it.upgrade(imageData, false, imageIdentifier, false);
         } else {
             it.upgrade(imageData, false);
         }
-        if (messageHandler.getActivationDate().equalsIgnoreCase("")) { // Do an execute now
+        if ("".equalsIgnoreCase(messageHandler.getActivationDate())) { // Do an execute now
             try {
                 it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
                 log(Level.INFO, "Activating the image");
@@ -130,7 +131,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 //					sas.writeExecutionTime(dateArray);
 
 
-        } else if (!messageHandler.getActivationDate().equalsIgnoreCase("")) {
+        } else if (!"".equalsIgnoreCase(messageHandler.getActivationDate())) {
             SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
             String strDate = messageHandler.getActivationDate();
             Array dateArray = convertUnixToDateTimeArray(strDate);

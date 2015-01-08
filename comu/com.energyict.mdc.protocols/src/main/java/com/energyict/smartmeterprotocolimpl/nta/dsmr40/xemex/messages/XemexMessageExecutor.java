@@ -3,7 +3,6 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.cosem.Clock;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -14,6 +13,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessag
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExecutor;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.util.logging.Level;
 
 /**
@@ -27,14 +27,14 @@ public class XemexMessageExecutor extends Dsmr40MessageExecutor {
     private static final ObisCode ERROR_REGISTER = ObisCode.fromString("0.0.97.97.0.255");
     private final ObisCode ALARM_FILTER = ObisCode.fromString("0.0.97.98.10.255");
 
-    public XemexMessageExecutor(AbstractSmartNtaProtocol protocol, TopologyService topologyService) {
-        super(protocol, topologyService);
+    public XemexMessageExecutor(AbstractSmartNtaProtocol protocol, Clock clock, TopologyService topologyService) {
+        super(protocol, clock, topologyService);
     }
 
     @Override
     public MessageResult executeMessageEntry(MessageEntry msgEntry) throws ConnectionException, NestedIOException {
         if (!this.protocol.getSerialNumber().equalsIgnoreCase(msgEntry.getSerialNumber())) {
-            Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(protocol);
+            Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(protocol, this.getClock());
             return mbusMessageExecutor.executeMessageEntry(msgEntry);
         } else {
             MessageResult msgResult = null;
@@ -108,7 +108,7 @@ public class XemexMessageExecutor extends Dsmr40MessageExecutor {
             throw new IOException(messageToLog);
         }
 
-        Clock clock = getCosemObjectFactory().getClock();
+        com.energyict.dlms.cosem.Clock clock = getCosemObjectFactory().getClock();
         clock.enableDisableDs(mode.equals("1") ? true : false);
     }
 

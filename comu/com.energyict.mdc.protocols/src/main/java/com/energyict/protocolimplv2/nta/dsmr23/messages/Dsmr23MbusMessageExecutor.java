@@ -45,6 +45,9 @@ import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExec
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -61,11 +64,13 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
     public static final OctetString MBUS_CLIENT_VALUE_INFORMATION_BLOCK_USE_CORRECTED = OctetString.fromByteArray(new byte[]{0x13});
     public static final OctetString MBUS_CLIENT_VALUE_INFORMATION_BLOCK_USE_UNCORRECTED = OctetString.fromByteArray(new byte[]{(byte) 0x93, (byte) 0x3A});
 
+    private final Clock clock;
     private final TopologyService topologyService;
     private final LoadProfileFactory loadProfileFactory;
 
-    public Dsmr23MbusMessageExecutor(AbstractDlmsProtocol protocol, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
+    public Dsmr23MbusMessageExecutor(AbstractDlmsProtocol protocol, Clock clock, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
         super(protocol, issueService, readingTypeUtilService, collectedDataFactory);
+        this.clock = clock;
         this.topologyService = topologyService;
         this.loadProfileFactory = loadProfileFactory;
     }
@@ -198,14 +203,24 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
             String fromDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fromDateAttributeName).getDeviceMessageAttributeValue();
             String toDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, toDateAttributeName).getDeviceMessageAttributeValue();
             String fullLoadProfileContent = LoadProfileMessageUtils.createPartialLoadProfileMessage("PartialLoadProfile", "fromDate", "toDate", loadProfileContent);
-            Date fromDate = new Date(Long.valueOf(fromDateEpoch));
-            Date toDate = new Date(Long.valueOf(toDateEpoch));
+            Instant fromDate = Instant.ofEpochMilli(Long.valueOf(fromDateEpoch));
+            Instant toDate = Instant.ofEpochMilli(Long.valueOf(toDateEpoch));
 
-            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder(this.topologyService, loadProfileFactory);
+            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder(clock, this.topologyService, loadProfileFactory);
             builder.fromXml(fullLoadProfileContent);
 
             LoadProfileReader lpr = builder.getLoadProfileReader();  //Does not contain the correct from & to date yet, they were stored in separate attributes
-            LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, toDate, lpr.getLoadProfileId(), lpr.getDeviceIdentifier(), lpr.getChannelInfos(), lpr.getMeterSerialNumber(), lpr.getLoadProfileIdentifier());
+            LoadProfileReader fullLpr =
+                    new LoadProfileReader(
+                            this.clock,
+                            lpr.getProfileObisCode(),
+                            fromDate,
+                            toDate,
+                            lpr.getLoadProfileId(),
+                            lpr.getDeviceIdentifier(),
+                            lpr.getChannelInfos(),
+                            lpr.getMeterSerialNumber(),
+                            lpr.getLoadProfileIdentifier());
 
             fullLpr = checkLoadProfileReader(fullLpr, builder.getMeterSerialNumber());
             List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().fetchLoadProfileConfiguration(Arrays.asList(fullLpr));
@@ -238,7 +253,16 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
      */
     private LoadProfileReader checkLoadProfileReader(final LoadProfileReader lpr, String serialNumber) {
         if (lpr.getProfileObisCode().equalsIgnoreBChannel(ObisCode.fromString("0.x.24.3.0.255"))) {
-            return new LoadProfileReader(lpr.getProfileObisCode(), lpr.getStartReadingTime(), lpr.getEndReadingTime(), lpr.getLoadProfileId(), lpr.getDeviceIdentifier(), lpr.getChannelInfos(), serialNumber, lpr.getLoadProfileIdentifier());
+            return new LoadProfileReader(
+                    this.clock,
+                    lpr.getProfileObisCode(),
+                    lpr.getStartReadingTime(),
+                    lpr.getEndReadingTime(),
+                    lpr.getLoadProfileId(),
+                    lpr.getDeviceIdentifier(),
+                    lpr.getChannelInfos(),
+                    serialNumber,
+                    lpr.getLoadProfileIdentifier());
         } else {
             return lpr;
         }
@@ -248,9 +272,9 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
         String loadProfileContent = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, loadProfileAttributeName).getDeviceMessageAttributeValue();
         String fromDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fromDateAttributeName).getDeviceMessageAttributeValue();
         String fullLoadProfileContent = LoadProfileMessageUtils.createLoadProfileRegisterMessage("LoadProfileRegister", "fromDate", loadProfileContent);
-        Date fromDate = new Date(Long.valueOf(fromDateEpoch));
+        Instant fromDate = Instant.ofEpochMilli(Long.valueOf(fromDateEpoch));
         try {
-            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder(this.topologyService, loadProfileFactory);
+            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder(clock, this.topologyService, loadProfileFactory);
             builder.fromXml(fullLoadProfileContent);
             if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
                 CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
@@ -259,7 +283,17 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
             }
 
             LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()), builder.getMeterSerialNumber());
-            LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, new Date(), lpr.getLoadProfileId(), lpr.getDeviceIdentifier(), lpr.getChannelInfos(), lpr.getMeterSerialNumber(), lpr.getLoadProfileIdentifier());
+            LoadProfileReader fullLpr =
+                    new LoadProfileReader(
+                            this.clock,
+                            lpr.getProfileObisCode(),
+                            fromDate,
+                            this.clock.instant(),
+                            lpr.getLoadProfileId(),
+                            lpr.getDeviceIdentifier(),
+                            lpr.getChannelInfos(),
+                            lpr.getMeterSerialNumber(),
+                            lpr.getLoadProfileIdentifier());
 
             List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().fetchLoadProfileConfiguration(Arrays.asList(fullLpr));
             for (CollectedLoadProfileConfiguration config : collectedLoadProfileConfigurations) {
@@ -320,10 +354,19 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
      * @param loadProfileReader the reader
      * @return the reader with the adjested times
      */
-    protected LoadProfileReader constructDateTimeCorrectdLoadProfileReader(final LoadProfileReader loadProfileReader) {
-        Date from = new Date(loadProfileReader.getStartReadingTime().getTime() - 5000);
-        Date to = new Date(loadProfileReader.getEndReadingTime().getTime() + 5000);
-        return new LoadProfileReader(loadProfileReader.getProfileObisCode(), from, to, loadProfileReader.getLoadProfileId(), loadProfileReader.getDeviceIdentifier(), loadProfileReader.getChannelInfos(), loadProfileReader.getMeterSerialNumber(), loadProfileReader.getLoadProfileIdentifier());
+    protected LoadProfileReader constructDateTimeCorrectdLoadProfileReader(LoadProfileReader loadProfileReader) {
+        Instant from = loadProfileReader.getStartReadingTime().minus(Duration.ofSeconds(5));
+        Instant to = loadProfileReader.getEndReadingTime().plus(Duration.ofSeconds(5));
+        return new LoadProfileReader(
+                this.clock,
+                loadProfileReader.getProfileObisCode(),
+                from,
+                to,
+                loadProfileReader.getLoadProfileId(),
+                loadProfileReader.getDeviceIdentifier(),
+                loadProfileReader.getChannelInfos(),
+                loadProfileReader.getMeterSerialNumber(),
+                loadProfileReader.getLoadProfileIdentifier());
     }
 
     private enum ContactorAction {

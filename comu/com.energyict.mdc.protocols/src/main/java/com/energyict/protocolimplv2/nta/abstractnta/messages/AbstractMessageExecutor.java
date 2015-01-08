@@ -153,7 +153,10 @@ public abstract class AbstractMessageExecutor {
                                         registerValue.getObisCode(),
                                         registerValue.getQuantity().getUnit()));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
-        deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime());
+        deviceRegister.setCollectedTimeStamps(
+                registerValue.getReadTime().toInstant(),
+                registerValue.getFromTime().toInstant(),
+                registerValue.getToTime().toInstant());
         return deviceRegister;
     }
 

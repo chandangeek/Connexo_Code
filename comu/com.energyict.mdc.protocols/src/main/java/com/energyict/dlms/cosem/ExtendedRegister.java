@@ -53,7 +53,7 @@ public class ExtendedRegister extends Register implements CosemObject {
      * Getter for property captureTime.
      * @return Value of property captureTime.
      */
-    public java.util.Date getCaptureTime() throws IOException {
+    public Date getCaptureTime() throws IOException {
         if (captureTimeCached) {
 			return captureTime;
 		} else {
@@ -61,7 +61,7 @@ public class ExtendedRegister extends Register implements CosemObject {
 		}
     }
 
-    public java.util.Date getCaptureTime(byte[] responseData) throws IOException {
+    public Date getCaptureTime(byte[] responseData) throws IOException {
         Clock clock = new Clock(protocolLink,getObjectReference(CLOCK_OBJECT_LN,protocolLink.getMeterConfig().getClockSN()));
         captureTime = clock.getDateTime(responseData);
         return captureTime;

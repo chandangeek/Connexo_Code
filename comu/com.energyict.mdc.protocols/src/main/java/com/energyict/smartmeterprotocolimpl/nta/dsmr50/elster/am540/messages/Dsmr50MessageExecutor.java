@@ -15,6 +15,7 @@ import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNt
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExecutor;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +35,8 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
 
     private static final String RESUME = "resume";
 
-    public Dsmr50MessageExecutor(AbstractSmartNtaProtocol protocol, TopologyService topologyService) {
-        super(protocol, topologyService);
+    public Dsmr50MessageExecutor(AbstractSmartNtaProtocol protocol, Clock clock, TopologyService topologyService) {
+        super(protocol, clock, topologyService);
     }
 
     @Override

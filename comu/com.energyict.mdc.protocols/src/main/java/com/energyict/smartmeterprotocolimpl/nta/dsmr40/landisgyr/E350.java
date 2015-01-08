@@ -23,6 +23,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.time.Clock;
 
 /**
  * Copyrights EnergyICT
@@ -35,14 +36,14 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
     protected MessageProtocol messageProtocol;
 
     @Inject
-    public E350(TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
-        super(topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
+    public E350(Clock clock, TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
+        super(clock, topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
     }
 
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.getTopologyService()));
+            messageProtocol = new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.getClock(), this.getTopologyService()));
         }
         return messageProtocol;
     }

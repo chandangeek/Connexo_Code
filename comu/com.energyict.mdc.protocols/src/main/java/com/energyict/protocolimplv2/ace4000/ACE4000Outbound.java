@@ -45,6 +45,7 @@ import com.energyict.protocolimplv2.ace4000.requests.SetTime;
 import com.energyict.protocols.mdc.protocoltasks.ACE4000DeviceProtocolDialect;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -62,6 +63,7 @@ import java.util.logging.Logger;
  */
 public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
+    private final Clock clock;
     private final IssueService issueService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final IdentificationService identificationService;
@@ -74,8 +76,9 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     private DeviceProtocolSecurityPropertySet securityProperties;
 
     @Inject
-    public ACE4000Outbound(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
+    public ACE4000Outbound(Clock clock, PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
         super(propertySpecService, identificationService);
+        this.clock = clock;
         this.issueService = issueService;
         this.readingTypeUtilService = readingTypeUtilService;
         this.identificationService = identificationService;
@@ -85,13 +88,13 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
-        messageExecutor = new ACE4000MessageExecutor(this, issueService);
+        messageExecutor = new ACE4000MessageExecutor(this, clock, issueService);
         setAce4000Connection(new ACE4000Connection(comChannel, this, false));
     }
 
     public ACE4000MessageExecutor getMessageExecutor() {
         if (messageExecutor == null) {
-            messageExecutor = new ACE4000MessageExecutor(this, issueService);
+            messageExecutor = new ACE4000MessageExecutor(this, clock, issueService);
         }
         return messageExecutor;
     }

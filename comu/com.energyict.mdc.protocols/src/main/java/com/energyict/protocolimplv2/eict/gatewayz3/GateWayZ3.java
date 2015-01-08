@@ -30,6 +30,7 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -43,8 +44,8 @@ import java.util.Set;
 public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Inject
-    public GateWayZ3(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
-        super(propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, loadProfileFactory);
+    public GateWayZ3(Clock clock, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
+        super(clock, propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, loadProfileFactory);
     }
 
     @Override

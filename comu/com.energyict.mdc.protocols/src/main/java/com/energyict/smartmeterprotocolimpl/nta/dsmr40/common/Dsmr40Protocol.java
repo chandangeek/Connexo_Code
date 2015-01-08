@@ -19,6 +19,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.time.Clock;
 import java.util.Date;
 import java.util.logging.Level;
 
@@ -31,13 +32,13 @@ import java.util.logging.Level;
 public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
 
     @Inject
-    public Dsmr40Protocol(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
-        super(topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
+    public Dsmr40Protocol(Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
+        super(clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
     }
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.getTopologyService()));
+        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.getClock(), this.getTopologyService()));
     }
 
     /**

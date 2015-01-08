@@ -35,6 +35,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -52,6 +53,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
 
     private static final String MeterSerialNumber = "Master";
 
+    private final Clock clock;
     private final TopologyService topologyService;
     private final LoadProfileFactory loadProfileFactory;
 
@@ -69,8 +71,9 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
     private SDKSmartMeterRegisterFactory registerFactory;
 
     @Inject
-    public SDKSmartMeterProtocol(TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
+    public SDKSmartMeterProtocol(Clock clock, TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
         super();
+        this.clock = clock;
         this.topologyService = topologyService;
         this.loadProfileFactory = loadProfileFactory;
     }
@@ -344,7 +347,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder(topologyService, loadProfileFactory);
+        return new LegacyPartialLoadProfileMessageBuilder(clock, topologyService, loadProfileFactory);
     }
 
     /**
@@ -466,7 +469,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService, loadProfileFactory);
+        return new LegacyLoadProfileRegisterMessageBuilder(clock, this.topologyService, loadProfileFactory);
     }
 
 }

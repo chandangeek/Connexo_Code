@@ -40,6 +40,7 @@ import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -58,6 +59,18 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     public static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
     public static final ObisCode monthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
 
+    private Dsmr23RegisterFactory registerFactory = null;
+    private ComposedMeterInfo meterInfo;
+    protected DlmsProperties dlmsProperties;
+    private DlmsSession dlmsSession;
+    private LoadProfileBuilder loadProfileBuilder;
+    private DLMSCache dlmsCache;
+    private MeterTopology meterTopology;
+    private Dsmr23LogBookFactory logBookFactory;
+    private Dsmr23Messaging dsmr23Messaging;
+    protected OfflineDevice offlineDevice;
+    private DlmsSecuritySupport dlmsSecuritySupport;
+    private final Clock clock;
     private final PropertySpecService propertySpecService;
     private final SocketService socketService;
     private final SerialComponentService serialComponentService;
@@ -68,21 +81,8 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     private final CollectedDataFactory collectedDataFactory;
     private final LoadProfileFactory loadProfileFactory;
 
-    protected LoadProfileBuilder loadProfileBuilder;
-    protected DlmsProperties dlmsProperties;
-    protected OfflineDevice offlineDevice;
-    protected Dsmr23RegisterFactory registerFactory = null;
-
-    private ComposedMeterInfo meterInfo;
-    private DlmsSession dlmsSession;
-    private DLMSCache dlmsCache;
-    private MeterTopology meterTopology;
-    private Dsmr23LogBookFactory logBookFactory;
-    private Dsmr23Messaging dsmr23Messaging;
-
-    private DlmsSecuritySupport dlmsSecuritySupport;
-
-    protected AbstractDlmsProtocol(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
+    protected AbstractDlmsProtocol(Clock clock, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
+        this.clock = clock;
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
         this.serialComponentService = serialComponentService;
@@ -92,6 +92,10 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
         this.loadProfileFactory = loadProfileFactory;
+    }
+
+    protected Clock getClock() {
+        return clock;
     }
 
     protected IssueService getIssueService() {
@@ -203,7 +207,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     protected Dsmr23Messaging getDsmr23Messaging() {
         if (dsmr23Messaging == null) {
-            dsmr23Messaging = new Dsmr23Messaging(new Dsmr23MessageExecutor(this, topologyService, this.issueService, this.readingTypeUtilService, this.collectedDataFactory, this.loadProfileFactory), topologyService);
+            dsmr23Messaging = new Dsmr23Messaging(new Dsmr23MessageExecutor(this, clock, topologyService, this.issueService, this.readingTypeUtilService, this.collectedDataFactory, this.loadProfileFactory), topologyService);
         }
         return dsmr23Messaging;
     }

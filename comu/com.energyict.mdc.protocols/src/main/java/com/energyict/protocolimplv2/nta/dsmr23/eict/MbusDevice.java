@@ -15,6 +15,7 @@ import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
 import javax.inject.Inject;
+import java.time.Clock;
 
 /**
  * @author sva
@@ -25,8 +26,8 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     private Dsmr23MbusMessaging dsmr23MbusMessaging;
 
     @Inject
-    public MbusDevice(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
-        super(propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, loadProfileFactory);
+    public MbusDevice(Clock clock, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
+        super(clock, propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, loadProfileFactory);
     }
 
     @Override

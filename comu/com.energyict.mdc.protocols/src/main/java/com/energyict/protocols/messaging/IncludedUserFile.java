@@ -12,7 +12,6 @@ import com.google.common.collect.Range;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -56,7 +55,7 @@ final class IncludedUserFile implements UserFile {
     /**
      * {@inheritDoc}
      */
-    public final Date getModDate() {
+    public final Instant getModDate() {
         return null;
     }
 

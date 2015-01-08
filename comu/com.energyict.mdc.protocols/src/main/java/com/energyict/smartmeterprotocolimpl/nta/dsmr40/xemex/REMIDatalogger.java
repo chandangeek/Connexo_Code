@@ -21,6 +21,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.topology.XemexMeter
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.time.Clock;
 
 /**
  * @author sva
@@ -31,8 +32,8 @@ public class REMIDatalogger extends E350 {
     private XemexLoadProfileBuilder loadProfileBuilder;
 
     @Inject
-    public REMIDatalogger(TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
-        super(topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
+    public REMIDatalogger(Clock clock, TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
+        super(clock, topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
     }
 
     @Override
@@ -85,7 +86,7 @@ public class REMIDatalogger extends E350 {
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new XemexMessaging(new XemexMessageExecutor(this, this.getTopologyService()));
+        return new XemexMessaging(new XemexMessageExecutor(this, this.getClock(), this.getTopologyService()));
     }
 
     @Override

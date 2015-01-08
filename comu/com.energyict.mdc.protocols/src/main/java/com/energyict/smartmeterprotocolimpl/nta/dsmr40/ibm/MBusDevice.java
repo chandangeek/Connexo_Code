@@ -7,6 +7,7 @@ import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import javax.inject.Inject;
+import java.time.Clock;
 
 /**
  * Copyrights EnergyICT
@@ -17,8 +18,8 @@ import javax.inject.Inject;
 public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.MBusDevice {
 
     @Inject
-    public MBusDevice(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
-        super(topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
+    public MBusDevice(Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
+        super(clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
     }
 
     @Override

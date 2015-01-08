@@ -15,11 +15,8 @@ import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.protocolimpl.base.RTUCache;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
-import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350;
@@ -30,7 +27,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.registers.AM
 import javax.inject.Inject;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
+import java.time.Clock;
 import java.util.logging.Level;
 
 /**
@@ -45,8 +42,8 @@ public class AM540 extends E350 {
     private static final String TIMEOUT = "timeout";
 
     @Inject
-    public AM540(TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
-        super(topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
+    public AM540(Clock clock, TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
+        super(clock, topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
         setHasBreaker(false);
     }
 
@@ -223,7 +220,7 @@ public class AM540 extends E350 {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new AM540Messaging(this, this.getTopologyService());
+            messageProtocol = new AM540Messaging(this, this.getTopologyService(), this.getClock());
         }
         return messageProtocol;
     }

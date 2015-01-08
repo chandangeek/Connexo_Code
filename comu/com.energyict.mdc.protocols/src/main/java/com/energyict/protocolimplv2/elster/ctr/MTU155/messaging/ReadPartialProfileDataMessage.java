@@ -15,6 +15,8 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -24,11 +26,13 @@ import java.util.*;
 */
 public class ReadPartialProfileDataMessage extends AbstractMTU155Message {
 
+    private final Clock clock;
     private final TopologyService topologyService;
     private final LoadProfileFactory loadProfileFactory;
 
-    public ReadPartialProfileDataMessage(Messaging messaging, IssueService issueService, TopologyService topologyService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
+    public ReadPartialProfileDataMessage(Messaging messaging, Clock clock, IssueService issueService, TopologyService topologyService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
         super(messaging, issueService, collectedDataFactory);
+        this.clock = clock;
         this.topologyService = topologyService;
         this.loadProfileFactory = loadProfileFactory;
     }
@@ -41,15 +45,14 @@ public class ReadPartialProfileDataMessage extends AbstractMTU155Message {
     @Override
     protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
         String loadProfileXML= getDeviceMessageAttribute(message, DeviceMessageConstants.loadProfileAttributeName).getDeviceMessageAttributeValue();
-        Date fromDate = new Date(Long.parseLong(getDeviceMessageAttribute(message, DeviceMessageConstants.fromDateAttributeName).getDeviceMessageAttributeValue()));
-        Date toDate = new Date(Long.parseLong(getDeviceMessageAttribute(message, DeviceMessageConstants.toDateAttributeName).getDeviceMessageAttributeValue()));
-
+        Instant fromDate = Instant.ofEpochMilli(Long.parseLong(getDeviceMessageAttribute(message, DeviceMessageConstants.fromDateAttributeName).getDeviceMessageAttributeValue()));
+        Instant toDate = Instant.ofEpochMilli(Long.parseLong(getDeviceMessageAttribute(message, DeviceMessageConstants.toDateAttributeName).getDeviceMessageAttributeValue()));
         return readPartialProfileData(message, loadProfileXML, fromDate, toDate);
     }
 
-    private CollectedMessage readPartialProfileData(OfflineDeviceMessage message, String loadProfileXML, Date fromDate, Date toDate) throws CTRException {
+    private CollectedMessage readPartialProfileData(OfflineDeviceMessage message, String loadProfileXML, Instant fromDate, Instant toDate) throws CTRException {
         try {
-            LegacyPartialLoadProfileMessageBuilder builder = new LegacyPartialLoadProfileMessageBuilder(this.topologyService, loadProfileFactory);
+            LegacyPartialLoadProfileMessageBuilder builder = new LegacyPartialLoadProfileMessageBuilder(this.clock, this.topologyService, loadProfileFactory);
             builder.fromXml(loadProfileXML);
             builder.setStartReadingTime(fromDate);
             builder.setEndReadingTime(toDate);

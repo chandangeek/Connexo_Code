@@ -42,8 +42,9 @@ import com.energyict.protocolimplv2.abnt.common.structure.field.UnitField;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,11 +75,13 @@ public class RegisterFactory implements DeviceRegisterSupport {
     private InstrumentationPageResponse instrumentationPage;
 
     private final AbstractAbntProtocol meterProtocol;
+    private final Clock clock;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
 
-    public RegisterFactory(AbstractAbntProtocol meterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+    public RegisterFactory(AbstractAbntProtocol meterProtocol, Clock clock, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.meterProtocol = meterProtocol;
+        this.clock = clock;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
     }
@@ -96,7 +99,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
     }
 
     private void readRegister(OfflineRegister register, CollectedRegister collectedRegister) {
-        collectedRegister.setReadTime(new Date());
+        collectedRegister.setReadTime(this.clock.instant());
 
         try {
             if (registerIsOfType(register, PARAMETER_READ_BASE_OBIS)) { //A. Registers of Parameter read
@@ -259,7 +262,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
         if (abstractField instanceof FloatField) {
             setCollectedData(collectedRegister, (FloatField) abstractField);
         } else if (abstractField instanceof DateTimeField) {
-            setCollectedData(collectedRegister, ((DateTimeField) abstractField).getDate(getMeterProtocol().getTimeZone()));
+            setCollectedData(collectedRegister, ((DateTimeField) abstractField).getDate(getMeterProtocol().getTimeZone()).toInstant());
         } else if (abstractField instanceof ReactivePowerCharacteristicField) {
             setCollectedData(
                     collectedRegister,
@@ -323,9 +326,9 @@ public class RegisterFactory implements DeviceRegisterSupport {
         collectedRegister.setCollectedData(quantity);
     }
 
-    private void setCollectedData(CollectedRegister collectedRegister, Date date) {
+    private void setCollectedData(CollectedRegister collectedRegister, Instant date) {
         collectedRegister.setCollectedData(
-                new Quantity(new BigDecimal(date.getTime()), Unit.getUndefined()),
+                new Quantity(new BigDecimal(date.toEpochMilli()), Unit.getUndefined()),
                 date.toString()
         );
     }

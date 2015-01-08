@@ -36,6 +36,8 @@ import com.energyict.protocolimplv2.ace4000.requests.WriteConfiguration;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -61,10 +63,12 @@ public class ACE4000MessageExecutor implements MessageProtocol {
     private static final String CONFIG_TARIFF = "TariffConfig";
 
     private final ACE4000Outbound ace4000;
+    private final Clock clock;
     private final IssueService issueService;
 
-    public ACE4000MessageExecutor(ACE4000Outbound ace4000, IssueService issueService) {
+    public ACE4000MessageExecutor(ACE4000Outbound ace4000, Clock clock, IssueService issueService) {
         this.ace4000 = ace4000;
+        this.clock = clock;
         this.issueService = issueService;
     }
 
@@ -296,13 +300,13 @@ public class ACE4000MessageExecutor implements MessageProtocol {
     private List<CollectedLoadProfile> readProfileData(String messageContent) {
         String[] parts = messageContent.split("=");
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        Date fromDate = null;
-        Date toDate = null;
+        Instant fromDate = null;
+        Instant toDate = null;
 
         if (parts.length > 1) {
             try {
                 String fromDateString = parts[1].substring(1, 20);
-                fromDate = formatter.parse(fromDateString);
+                fromDate = formatter.parse(fromDateString).toInstant();
             } catch (Exception e) {
                 failMessage("Request for load profile data failed, invalid arguments");
                 return null;
@@ -311,18 +315,18 @@ public class ACE4000MessageExecutor implements MessageProtocol {
         if (parts.length > 2) {
             try {
                 String toDateString = parts[2].substring(1, 20);
-                toDate = formatter.parse(toDateString);
+                toDate = formatter.parse(toDateString).toInstant();
             } catch (Exception e) {
-                toDate = new Date();
+                toDate = this.clock.instant();
             }
         }
         if (toDate == null) {
-            toDate = new Date();
+            toDate = this.clock.instant();
         }
-        if (toDate.after(new Date())) {
-            toDate = new Date();
+        if (toDate.isAfter(this.clock.instant())) {
+            toDate = this.clock.instant();
         }
-        if (fromDate != null && !fromDate.before(toDate)) {
+        if (fromDate != null && !fromDate.isBefore(toDate)) {
             failMessage("Request for load profile data failed, invalid arguments");
             return null;
         }
@@ -331,12 +335,14 @@ public class ACE4000MessageExecutor implements MessageProtocol {
         LoadProfileReader loadProfileReader = null;
         for (OfflineLoadProfile offlineLoadProfile : ace4000.getOfflineDevice().getMasterOfflineLoadProfiles()) {
             if (offlineLoadProfile.getObisCode().equals(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE)) {
-                loadProfileReader = new LoadProfileReader(offlineLoadProfile.getObisCode(),
+                loadProfileReader = new LoadProfileReader(
+                        this.clock,
+                        offlineLoadProfile.getObisCode(),
                         fromDate,
                         toDate,
                         offlineLoadProfile.getLoadProfileId(),
                         loadProfileReader.getDeviceIdentifier(),
-                        new ArrayList<ChannelInfo>(),
+                        new ArrayList<>(),
                         loadProfileReader.getMeterSerialNumber(),
                         loadProfileReader.getLoadProfileIdentifier());
             }

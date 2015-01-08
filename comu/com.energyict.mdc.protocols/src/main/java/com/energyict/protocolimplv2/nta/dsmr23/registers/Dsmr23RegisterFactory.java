@@ -137,7 +137,11 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                             .createMaximumDemandCollectedRegister(getRegisterIdentifier(register),
                                     this.readingTypeUtilService.getReadingTypeFrom(register.getAmrRegisterObisCode(), register.getUnit()));
                     deviceRegister.setCollectedData(rv.getQuantity(), rv.getText());
-                    deviceRegister.setCollectedTimeStamps(rv.getReadTime(), rv.getFromTime(), rv.getToTime(), rv.getEventTime());
+                    deviceRegister.setCollectedTimeStamps(
+                            rv.getReadTime().toInstant(),
+                            rv.getFromTime().toInstant(),
+                            rv.getToTime().toInstant(),
+                            rv.getEventTime().toInstant());
                     collectedRegisters.add(deviceRegister);
                 } else {
                     collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));

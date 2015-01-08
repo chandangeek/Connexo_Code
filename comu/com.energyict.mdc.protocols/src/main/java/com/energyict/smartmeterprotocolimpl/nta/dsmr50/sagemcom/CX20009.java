@@ -10,6 +10,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages.SagemComMessaging;
 
 import javax.inject.Inject;
+import java.time.Clock;
 
 /**
  * Copyrights EnergyICT
@@ -20,8 +21,8 @@ import javax.inject.Inject;
 public class CX20009 extends AM540 {
 
     @Inject
-    public CX20009(TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
-        super(topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
+    public CX20009(Clock clock, TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
+        super(clock, topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
     }
 
     @Override
@@ -32,7 +33,7 @@ public class CX20009 extends AM540 {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new SagemComMessaging(this, this.getTopologyService());
+            messageProtocol = new SagemComMessaging(this, this.getClock(), this.getTopologyService());
         }
         return messageProtocol;
     }

@@ -226,11 +226,11 @@ public class LoadProfileBuilder {
                 profileData.setChannelInfos(this.channelInfoMap.get(lpr));
 
                 Calendar fromCalendar = Calendar.getInstance(meterProtocol.getTimeZone());
-                fromCalendar.setTime(lpr.getStartReadingTime());
+                fromCalendar.setTimeInMillis(lpr.getStartReadingTime().toEpochMilli());
                 roundCalendarToMidnight(fromCalendar, false);
 
                 Calendar toCalendar = Calendar.getInstance(meterProtocol.getTimeZone());
-                toCalendar.setTime(lpr.getEndReadingTime() == null ? new Date() : lpr.getEndReadingTime());
+                toCalendar.setTimeInMillis(lpr.getEndReadingTime().toEpochMilli());
                 roundCalendarToMidnight(toCalendar, true);
 
                 DataContainer dataContainer = profile.getBuffer(fromCalendar, toCalendar);

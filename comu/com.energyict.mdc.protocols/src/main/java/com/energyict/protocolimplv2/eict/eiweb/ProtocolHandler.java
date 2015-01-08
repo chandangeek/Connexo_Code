@@ -31,13 +31,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Clock;
+import java.time.Instant;
+import java.time.Period;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.logging.Logger;
 
 public class ProtocolHandler {
@@ -145,7 +145,7 @@ public class ProtocolHandler {
     }
 
     private void processMeterReadings(ProfileBuilder profileBuilder) {
-        Date now = Date.from(this.clock.instant());
+        Instant now = this.clock.instant();
         List<BigDecimal> meterReadings = profileBuilder.getMeterReadings();
         for (int i = 0; i < meterReadings.size(); i++) {
             BigDecimal value = meterReadings.get(i);
@@ -175,7 +175,7 @@ public class ProtocolHandler {
             } else if ((this.packetBuilder.getVersion() & 0x0080) == 0) {            // bit 8 indicates that the message is an alert
                 this.profileBuilder = new ProfileBuilder(this.packetBuilder, identificationService);
                 this.processMeterReadings(this.profileBuilder);
-                this.profileBuilder.removeFutureData(logger, this.sevenDaysFromNow());
+                this.profileBuilder.removeFutureData(logger, Date.from(this.sevenDaysFromNow()));
             } else {
                 this.processEvents();
             }
@@ -228,11 +228,8 @@ public class ProtocolHandler {
         return new MeterProtocolEvent(date, meterEvent, meterEvent, EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(meterEvent), message, 0, status);
     }
 
-    private Date sevenDaysFromNow() {
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        calendar.setTime(Date.from(this.clock.instant()));
-        calendar.add(Calendar.DATE, 7);
-        return calendar.getTime();
+    private Instant sevenDaysFromNow() {
+        return this.clock.instant().plus(Period.ofDays(7));
     }
 
     private void sendMessages(List<OfflineDeviceMessage> pendingMessages) {

@@ -23,8 +23,9 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -47,6 +48,7 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
     private static final String ChannelMeterIdentifier = "ID";
     private static final String ChannelUnitTag = "Unit";
 
+    private final Clock clock;
     private final TopologyService topologyService;
     private final LoadProfileFactory loadProfileFactory;
 
@@ -64,12 +66,12 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
     /**
      * Holds the Date from where to start fetching data from the <CODE>LoadProfile</CODE>
      */
-    private Date startReadingTime;
+    private Instant startReadingTime;
 
     /**
      * Holds the Date from the <i>LAST</i> interval to fetch in the <CODE>LoadProfile</CODE>
      */
-    private Date endReadingTime;
+    private Instant endReadingTime;
 
     /**
      * Represents the database ID of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} to read.
@@ -86,8 +88,9 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
      */
     private LoadProfile loadProfile;
 
-    public LegacyPartialLoadProfileMessageBuilder(TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
+    public LegacyPartialLoadProfileMessageBuilder(Clock clock, TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
         super();
+        this.clock = clock;
         this.topologyService = topologyService;
         this.loadProfileFactory = loadProfileFactory;
     }
@@ -104,11 +107,11 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
         this.meterSerialNumber = meterSerialNumber;
     }
 
-    public void setStartReadingTime(final Date startReadingTime) {
+    public void setStartReadingTime(final Instant startReadingTime) {
         this.startReadingTime = startReadingTime;
     }
 
-    public void setEndReadingTime(final Date endReadingTime) {
+    public void setEndReadingTime(final Instant endReadingTime) {
         this.endReadingTime = endReadingTime;
     }
 
@@ -128,11 +131,11 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
         return meterSerialNumber;
     }
 
-    public Date getStartReadingTime() {
+    public Instant getStartReadingTime() {
         return startReadingTime;
     }
 
-    public Date getEndReadingTime() {
+    public Instant getEndReadingTime() {
         return endReadingTime;
     }
 
@@ -297,7 +300,7 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
     }
 
     public LoadProfileReader getLoadProfileReader() {
-        return new LoadProfileReader(this.profileObisCode, startReadingTime, endReadingTime, loadProfileId, new DeviceIdentifier<BaseDevice<?,?,?>>() {
+        return new LoadProfileReader(this.clock, this.profileObisCode, startReadingTime, endReadingTime, loadProfileId, new DeviceIdentifier<BaseDevice<?,?,?>>() {
             @Override
             public String getIdentifier() {
                 return meterSerialNumber;
@@ -376,9 +379,9 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
                         this.messageBuilder.setMeterSerialNumber(atts.getValue(namespaceURI, MeterSerialNumberTag));
                         try {
                             String startReadingTime = atts.getValue(namespaceURI, StartReadingTimeTag);
-                            this.messageBuilder.setStartReadingTime(formatter.parse(startReadingTime));
+                            this.messageBuilder.setStartReadingTime(formatter.parse(startReadingTime).toInstant());
                             String endReadingTime = atts.getValue(namespaceURI, EndReadingTimeTag);
-                            this.messageBuilder.setEndReadingTime(formatter.parse(endReadingTime));
+                            this.messageBuilder.setEndReadingTime(formatter.parse(endReadingTime).toInstant());
                         } catch (ParseException e) {
                             throw new SAXException(e);
                         }

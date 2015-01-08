@@ -202,9 +202,9 @@ public class LoadProfileBuilder {
                 profileData.setChannelInfos(this.channelInfoMap.get(lpr));
 
                 Calendar fromCalendar = Calendar.getInstance(meterProtocol.getTimeZone());
-                fromCalendar.setTime(lpr.getStartReadingTime());
+                fromCalendar.setTimeInMillis(lpr.getStartReadingTime().toEpochMilli());
                 Calendar toCalendar = Calendar.getInstance(meterProtocol.getTimeZone());
-                toCalendar.setTime(lpr.getEndReadingTime());
+                toCalendar.setTimeInMillis(lpr.getEndReadingTime().toEpochMilli());
 
                 int[] channelMask = channelMaskMap.get(lpr);
                 if (channelMask == null) {
