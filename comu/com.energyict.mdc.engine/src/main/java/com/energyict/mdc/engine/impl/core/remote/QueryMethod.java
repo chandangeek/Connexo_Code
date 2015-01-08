@@ -14,7 +14,6 @@ import com.elster.jupiter.transaction.VoidTransaction;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
@@ -49,7 +48,7 @@ public enum QueryMethod {
             Long comServerId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMSERVER);
             Optional<ComServer> comServer = ServiceProvider.instance.get().engineConfigurationService().findComServer(comServerId);
             if (comServer.isPresent()) {
-                Instant modificationDate = this.getModificationDate(parameters).toInstant();
+                Instant modificationDate = this.getModificationDate(parameters);
                 if (comServer.get().getModificationDate().isAfter(modificationDate)) {
                     return comServer.get();
                 }
@@ -61,9 +60,9 @@ public enum QueryMethod {
         @Override
         protected Object doExecute(Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
             Long comportId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.COMPORT);
-            Date modificationDate = this.getModificationDate(parameters);
+            Instant modificationDate = this.getModificationDate(parameters);
             Optional<? extends ComPort> comPort = ServiceProvider.instance.get().engineConfigurationService().findComPort(comportId);
-            if (comPort.isPresent() && comPort.get().getModificationDate().isAfter(modificationDate.toInstant())) {
+            if (comPort.isPresent() && comPort.get().getModificationDate().isAfter(modificationDate)) {
                 return comPort.get();
             } else {
                 return null;
@@ -304,9 +303,9 @@ public enum QueryMethod {
         return ServiceProvider.instance.get().transactionService().execute(transaction);
     }
 
-    protected Date getModificationDate(Map<String, Object> parameters) {
+    protected Instant getModificationDate(Map<String, Object> parameters) {
         Long utcMillis = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE);
-        return new Date(utcMillis);
+        return Instant.ofEpochMilli(utcMillis);
     }
 
     private boolean nameMatches(String name) {

@@ -8,7 +8,8 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
-import java.util.Date;
+import java.time.Instant;
+import java.util.Optional;
 
 /**
  * Represents an Offline version of a {@link com.energyict.mdc.protocol.api.device.BaseLogBook}
@@ -43,7 +44,7 @@ public class OfflineLogBookImpl implements OfflineLogBook {
     /**
      * The Date from where to start fetching data from the {@link com.energyict.mdc.protocol.api.device.BaseLogBook}
      */
-    private Date lastLogBook;
+    private Optional<Instant> lastLogBook;
     /**
      * The ObisCode of the LogBookSpec
      */
@@ -90,7 +91,7 @@ public class OfflineLogBookImpl implements OfflineLogBook {
     }
 
     @Override
-    public Date getLastLogBook() {
+    public Optional<Instant> getLastLogBook() {
         return lastLogBook;
     }
 
@@ -126,8 +127,13 @@ public class OfflineLogBookImpl implements OfflineLogBook {
         this.serialNumber = serialNumber;
     }
 
-    public void setLastLogBook(Date lastLogBook) {
-        this.lastLogBook = lastLogBook;
+    void setLastLogBook(Optional<Instant> lastLogBook) {
+        if (lastLogBook.isPresent()) {
+            this.lastLogBook = Optional.of(lastLogBook.get());
+        }
+        else {
+            this.lastLogBook = Optional.empty();
+        }
     }
 
     public void setObisCode(ObisCode obisCode) {

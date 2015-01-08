@@ -172,8 +172,9 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
     protected void addLoadProfileToReaderList(final OfflineLoadProfile offlineLoadProfile) {
         LoadProfileReader loadProfileReader =
                 new LoadProfileReader(
+                        this.getClock(),
                         offlineLoadProfile.getObisCode(),
-                        offlineLoadProfile.getLastReading(),
+                        offlineLoadProfile.getLastReading().orElse(null),
                         null,
                         offlineLoadProfile.getLoadProfileId(),
                         offlineLoadProfile.getDeviceIdentifier(),

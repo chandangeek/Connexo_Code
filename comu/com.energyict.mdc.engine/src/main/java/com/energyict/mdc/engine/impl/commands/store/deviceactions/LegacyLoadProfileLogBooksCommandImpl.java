@@ -208,8 +208,14 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
      * @param loadProfile the loadProfile to add
      */
     protected void addLoadProfileToReaderList(final OfflineLoadProfile loadProfile) {
-        LoadProfileReader loadProfileReader = new LoadProfileReader(loadProfile.getObisCode(),
-                loadProfile.getLastReading(), null, loadProfile.getLoadProfileId(), loadProfile.getDeviceIdentifier(),
+        LoadProfileReader loadProfileReader =
+                new LoadProfileReader(
+                        this.getClock(),
+                        loadProfile.getObisCode(),
+                        loadProfile.getLastReading().orElse(null),
+                        null,
+                        loadProfile.getLoadProfileId(),
+                        loadProfile.getDeviceIdentifier(),
                 createChannelInfos(loadProfile), loadProfile.getMasterSerialNumber(), loadProfile.getLoadProfileIdentifier());
         this.loadProfileReaderMap.put(loadProfileReader, loadProfile);
     }
@@ -261,7 +267,7 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
      * @param logBook the logBook to add
      */
     protected void addLogBookToReaderList(final OfflineLogBook logBook) {
-        LogBookReader logBookReader = new LogBookReader(logBook.getObisCode(), logBook.getLastLogBook(), logBook.getLogBookIdentifier(), logBook.getDeviceIdentifier());
+        LogBookReader logBookReader = new LogBookReader(this.getClock(), logBook.getObisCode(), logBook.getLastLogBook(), logBook.getLogBookIdentifier(), logBook.getDeviceIdentifier());
         this.logBookReaders.add(logBookReader);
     }
 

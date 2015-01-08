@@ -36,27 +36,27 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
 
     private final Clock clock;
     private final Thesaurus thesaurus;
-    private final Instant startTimestamp;
+    private final Date startTimestamp;
     private final TimeDuration changesInterPollDelay;
-    private Instant lastCheckForChangesTimestamp;
+    private Date lastCheckForChangesTimestamp;
 
     public OperationalStatisticsImpl(Clock clock, Thesaurus thesaurus, TimeDuration changesInterPollDelay) {
         super();
         this.clock = clock;
         this.thesaurus = thesaurus;
-        this.startTimestamp = this.clock.instant();
+        this.startTimestamp = Date.from(this.clock.instant());
         this.changesInterPollDelay = changesInterPollDelay;
     }
 
     @Override
-    public Instant getStartTimestamp () {
+    public Date getStartTimestamp () {
         return startTimestamp;
     }
 
     @Override
     public TimeDuration getRunningTime () {
         Instant now = this.clock.instant();
-        return TimeDuration.seconds(this.asSeconds(now.toEpochMilli() - this.startTimestamp.toEpochMilli()));
+        return TimeDuration.seconds(this.asSeconds(now.toEpochMilli() - this.startTimestamp.getTime()));
     }
 
     private int asSeconds (long millis) {
@@ -69,12 +69,12 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
     }
 
     @Override
-    public Optional<Instant> getLastCheckForChangesTimestamp() {
+    public Optional<Date> getLastCheckForChangesTimestamp() {
         return Optional.ofNullable(this.lastCheckForChangesTimestamp);
     }
 
     @Override
-    public void setLastCheckForChangesTimestamp (Instant lastCheckForChangesTimestamp) {
+    public void setLastCheckForChangesTimestamp (Date lastCheckForChangesTimestamp) {
         this.lastCheckForChangesTimestamp = lastCheckForChangesTimestamp;
     }
 
@@ -136,7 +136,7 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
         accessors.add(
                 new CompositeDataItemAccessor(
                         START_TIMESTAMP_ITEM_NAME,
-                        () -> Date.from(getStartTimestamp())));
+                        this::getStartTimestamp));
         accessors.add(
                 new CompositeDataItemAccessor(
                         RUNNING_TIME_ITEM_NAME,
@@ -148,9 +148,7 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
         accessors.add(
                 new CompositeDataItemAccessor(
                         LAST_CHECK_FOR_CHANGES_ITEM_NAME,
-                        () -> getLastCheckForChangesTimestamp()
-                                    .map(Date::from)
-                                    .orElse(null)));
+                        () -> getLastCheckForChangesTimestamp().orElse(null)));
     }
 
 }

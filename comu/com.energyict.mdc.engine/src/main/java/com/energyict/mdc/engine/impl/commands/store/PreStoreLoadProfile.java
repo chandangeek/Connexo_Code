@@ -1,12 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.metering.readings.IntervalBlock;
-import com.elster.jupiter.metering.readings.IntervalReading;
-import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
-import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
-import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.collections.DualIterable;
-import java.time.Clock;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -15,9 +8,17 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 
+import com.elster.jupiter.metering.readings.IntervalBlock;
+import com.elster.jupiter.metering.readings.IntervalReading;
+import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
+import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
+import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.collections.DualIterable;
+
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -54,8 +55,8 @@ public class PreStoreLoadProfile {
     LocalLoadProfile preStore(CollectedLoadProfile collectedLoadProfile) {
         OfflineLoadProfile offlineLoadProfile = this.comServerDAO.findOfflineLoadProfile(collectedLoadProfile.getLoadProfileIdentifier());
         List<IntervalBlock> processedBlocks = new ArrayList<>();
-        Date lastReading = null;
-        Date currentDate = Date.from(clock.instant());
+        Instant lastReading = null;
+        Instant currentDate = clock.instant();
         for (Pair<IntervalBlock, ChannelInfo> intervalBlockChannelInfoPair : DualIterable.endWithLongest(MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile), collectedLoadProfile.getChannelInfo())) {
             IntervalBlock intervalBlock = intervalBlockChannelInfoPair.getFirst();
             ChannelInfo channelInfo = intervalBlockChannelInfoPair.getLast();
@@ -65,7 +66,7 @@ public class PreStoreLoadProfile {
             BigDecimal channelOverFlowValue = getChannelOverFlowValue(channelInfo, offlineLoadProfile);
             IntervalBlockImpl processingBlock = IntervalBlockImpl.of(intervalBlock.getReadingTypeCode());
             for (IntervalReading intervalReading : intervalBlock.getIntervals()) {
-                if (!intervalReading.getTimeStamp().isAfter(currentDate.toInstant())) {
+                if (!intervalReading.getTimeStamp().isAfter(currentDate)) {
                     IntervalReading scaledIntervalReading = getScaledIntervalReading(scaler, intervalReading);
                     IntervalReading overflowCheckedReading = getOverflowCheckedReading(channelOverFlowValue, scaledIntervalReading);
                     processingBlock.addIntervalReading(overflowCheckedReading);
@@ -113,9 +114,9 @@ public class PreStoreLoadProfile {
         }
     }
 
-    private Date updateLastReadingIfLater(Date lastReading, IntervalReading intervalReading) {
-        if (lastReading == null || intervalReading.getTimeStamp().isAfter(lastReading.toInstant())) {
-            lastReading = Date.from(intervalReading.getTimeStamp());
+    private Instant updateLastReadingIfLater(Instant lastReading, IntervalReading intervalReading) {
+        if (lastReading == null || intervalReading.getTimeStamp().isAfter(lastReading)) {
+            lastReading = intervalReading.getTimeStamp();
         }
         return lastReading;
     }
@@ -123,9 +124,9 @@ public class PreStoreLoadProfile {
     class LocalLoadProfile {
 
         private final List<IntervalBlock> intervalBlocks;
-        private final Date lastReading;
+        private final Instant lastReading;
 
-        private LocalLoadProfile(List<IntervalBlock> intervalBlocks, Date lastReading) {
+        private LocalLoadProfile(List<IntervalBlock> intervalBlocks, Instant lastReading) {
             super();
             this.intervalBlocks = intervalBlocks;
             this.lastReading = lastReading;
@@ -135,7 +136,7 @@ public class PreStoreLoadProfile {
             return intervalBlocks;
         }
 
-        public Date getLastReading() {
+        public Instant getLastReading() {
             return lastReading;
         }
     }

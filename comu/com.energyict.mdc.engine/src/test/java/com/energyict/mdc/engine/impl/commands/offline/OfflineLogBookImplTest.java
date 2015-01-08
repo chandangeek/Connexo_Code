@@ -10,7 +10,8 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import org.junit.*;
 import org.junit.runner.*;
 
-import java.util.Date;
+import java.time.Instant;
+import java.util.Optional;
 
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -32,7 +33,7 @@ public class OfflineLogBookImplTest {
     private static final long DEVICE_ID = 1;
     private static final long LOGBOOK_TYPE_ID = 123;
     private static final String DEVICE_SERIAL = "SerialNumber";
-    private static final Date LAST_LOGBOOK = new Date(1355150108L * 1000);  // Mon, 10 Dec 2012 14:35:08 GMT
+    private static final Instant LAST_LOGBOOK = Instant.ofEpochMilli(1355150108000L);  // Mon, 10 Dec 2012 14:35:08 GMT
     @Mock
     private IdentificationService identificationService;
 
@@ -52,7 +53,7 @@ public class OfflineLogBookImplTest {
         when(logBook.getLogBookSpec()).thenReturn(logBookSpec);
         when(logBook.getLogBookType()).thenReturn(logBookType);
         when(logBook.getDevice()).thenReturn(device);
-        when(logBook.getLastLogBook()).thenReturn(LAST_LOGBOOK);
+        when(logBook.getLastLogBook()).thenReturn(Optional.of(LAST_LOGBOOK));
 
         //Business Methods
         OfflineLogBook offlineLogBook = new OfflineLogBookImpl(logBook, this.identificationService);
@@ -62,7 +63,8 @@ public class OfflineLogBookImplTest {
         assertEquals("Expected the correct LogBook Id", LOGBOOK_ID, offlineLogBook.getLogBookId());
         assertEquals("Expected the correct device Id", device.getId(), offlineLogBook.getDeviceId());
         assertEquals("Expected the correct device serial number", device.getSerialNumber(), offlineLogBook.getMasterSerialNumber());
-        assertEquals("Expected the correct lastLogBook date", LAST_LOGBOOK, offlineLogBook.getLastLogBook());
+        assertTrue(offlineLogBook.getLastLogBook().isPresent());
+        assertEquals("Expected the correct lastLogBook date", LAST_LOGBOOK, offlineLogBook.getLastLogBook().get());
         assertEquals("Expected the correct LogBookType", LOGBOOK_TYPE_ID, offlineLogBook.getLogBookTypeId());
     }
 }

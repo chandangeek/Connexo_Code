@@ -14,7 +14,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -107,9 +106,9 @@ public class ComCommandJournalistTest {
         CompletionCode expectedCompletionCode = CompletionCode.ConfigurationWarning;
         when(comCommand.getCompletionCode()).thenReturn(expectedCompletionCode);
         when(comCommand.toJournalMessageDescription(any(LogLevel.class))).thenReturn(expectedCommandDescription);
-        when(comCommand.getIssues()).thenReturn(new ArrayList<Issue>(0));
-        when(comCommand.getProblems()).thenReturn(new ArrayList<Problem>(0));
-        when(comCommand.getWarnings()).thenReturn(new ArrayList<Warning>(0));
+        when(comCommand.getIssues()).thenReturn(new ArrayList<>(0));
+        when(comCommand.getProblems()).thenReturn(new ArrayList<>(0));
+        when(comCommand.getWarnings()).thenReturn(new ArrayList<>(0));
 
         // Business method
         this.journalist.executionCompleted(comCommand, LogLevel.ERROR);
@@ -130,7 +129,7 @@ public class ComCommandJournalistTest {
         Warning warning2 = this.mockWarning("Second warning");
         when(comCommand.getIssues()).thenReturn(Arrays.<Issue>asList(warning1, warning2));
         when(comCommand.getWarnings()).thenReturn(Arrays.asList(warning1, warning2));
-        when(comCommand.getProblems()).thenReturn(new ArrayList<Problem>(0));
+        when(comCommand.getProblems()).thenReturn(new ArrayList<>(0));
 
         // Business method
         this.journalist.executionCompleted(comCommand, LogLevel.ERROR);
@@ -155,7 +154,7 @@ public class ComCommandJournalistTest {
         Problem problem1 = this.mockProblem("First problem");
         Problem problem2 = this.mockProblem("Second problem");
         when(comCommand.getIssues()).thenReturn(Arrays.<Issue>asList(problem1, problem2));
-        when(comCommand.getWarnings()).thenReturn(new ArrayList<Warning>(0));
+        when(comCommand.getWarnings()).thenReturn(new ArrayList<>(0));
         when(comCommand.getProblems()).thenReturn(Arrays.asList(problem1, problem2));
 
         // Business method
@@ -201,7 +200,7 @@ public class ComCommandJournalistTest {
         when(warning.isWarning()).thenReturn(true);
         when(warning.isProblem()).thenReturn(false);
         when(warning.getDescription()).thenReturn(description);
-        when(warning.getTimestamp()).thenReturn(Date.from(clock.instant()));
+        when(warning.getTimestamp()).thenReturn(clock.instant());
         return warning;
     }
 
@@ -210,7 +209,7 @@ public class ComCommandJournalistTest {
         when(problem.isWarning()).thenReturn(false);
         when(problem.isProblem()).thenReturn(true);
         when(problem.getDescription()).thenReturn(description);
-        when(problem.getTimestamp()).thenReturn(Date.from(clock.instant()));
+        when(problem.getTimestamp()).thenReturn(clock.instant());
         return problem;
     }
 

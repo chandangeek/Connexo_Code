@@ -42,8 +42,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.*;
@@ -70,9 +70,9 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
     private static final long LOGBOOK_TYPE_2 = 20;
     private static final long LOGBOOK_TYPE_3 = 30;
 
-    private static final Date LAST_LOGBOOK_1 = new Date(1354320000L * 1000L); // 01 Dec 2012 00:00:00 GMT
-    private static final Date LAST_LOGBOOK_2 = new Date(1351728000L * 1000L); // 01 Nov 2012 00:00:00 GMT
-    private static final Date LAST_LOGBOOK_3 = new Date(1349049600L * 1000L); // 01 Oct 2012 00:00:00 GMT
+    private static final Instant LAST_LOGBOOK_1 = Instant.ofEpochMilli(1354320000L * 1000L); // 01 Dec 2012 00:00:00 GMT
+    private static final Instant LAST_LOGBOOK_2 = Instant.ofEpochMilli(1351728000L * 1000L); // 01 Nov 2012 00:00:00 GMT
+    private static final Instant LAST_LOGBOOK_3 = Instant.ofEpochMilli(1349049600L * 1000L); // 01 Oct 2012 00:00:00 GMT
 
     private static final ObisCode DEVICE_OBISCODE_LOGBOOK_1 = ObisCode.fromString("1.1.1.1.1.1");
     private static final ObisCode DEVICE_OBISCODE_LOGBOOK_2 = ObisCode.fromString("2.2.2.2.2.2");
@@ -106,10 +106,12 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
     @Mock
     private LogBookService logBookService;
 
+    private Clock clock = Clock.systemUTC();
+
     private OfflineLoadProfile getMockedOfflineLoadProfile() {
         OfflineLoadProfile loadProfile = mock(OfflineLoadProfile.class);
         when(loadProfile.getLoadProfileTypeId()).thenReturn(LOAD_PROFILE_TYPE_ID);
-        when(loadProfile.getLastReading()).thenReturn(Date.from(LAST_READING.instant()));
+        when(loadProfile.getLastReading()).thenReturn(Optional.of(LAST_READING.instant()));
         when(loadProfile.getDeviceId()).thenReturn(FIXED_DEVICE_ID);
         when(loadProfile.getObisCode()).thenReturn(FIXED_LOAD_PROFILE_OBIS_CODE);
         when(loadProfile.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL);
@@ -122,7 +124,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
     public void setUp() throws Exception {
         when(offlineLogBook_A.getLogBookId()).thenReturn(LOGBOOK_ID_1);
         when(offlineLogBook_A.getLogBookIdentifier()).thenReturn(new LogBookIdentifierById(LOGBOOK_ID_1, logBookService));
-        when(offlineLogBook_A.getLastLogBook()).thenReturn(LAST_LOGBOOK_1);
+        when(offlineLogBook_A.getLastLogBook()).thenReturn(Optional.of(LAST_LOGBOOK_1));
         when(offlineLogBook_A.getMasterSerialNumber()).thenReturn(FIXED_DEVICE_SERIAL_NUMBER);
         when(offlineLogBook_A.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_1);
         when(offlineLogBook_A.getObisCode()).thenReturn(DEVICE_OBISCODE_LOGBOOK_1);
@@ -130,7 +132,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
 
         when(offlineLogBook_B.getLogBookId()).thenReturn(LOGBOOK_ID_2);
         when(offlineLogBook_B.getLogBookIdentifier()).thenReturn(new LogBookIdentifierById(LOGBOOK_ID_2, logBookService));
-        when(offlineLogBook_B.getLastLogBook()).thenReturn(LAST_LOGBOOK_2);
+        when(offlineLogBook_B.getLastLogBook()).thenReturn(Optional.of(LAST_LOGBOOK_2));
         when(offlineLogBook_B.getMasterSerialNumber()).thenReturn(FIXED_DEVICE_SERIAL_NUMBER);
         when(offlineLogBook_B.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_2);
         when(offlineLogBook_B.getObisCode()).thenReturn(DEVICE_OBISCODE_LOGBOOK_2);
@@ -138,7 +140,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
 
         when(offlineLogBook_C.getLogBookId()).thenReturn(LOGBOOK_ID_3);
         when(offlineLogBook_C.getLogBookIdentifier()).thenReturn(new LogBookIdentifierById(LOGBOOK_ID_3, logBookService));
-        when(offlineLogBook_C.getLastLogBook()).thenReturn(LAST_LOGBOOK_3);
+        when(offlineLogBook_C.getLastLogBook()).thenReturn(Optional.of(LAST_LOGBOOK_3));
         when(offlineLogBook_C.getMasterSerialNumber()).thenReturn(FIXED_DEVICE_SERIAL_NUMBER);
         when(offlineLogBook_C.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_3);
         when(offlineLogBook_C.getObisCode()).thenReturn(DEVICE_OBISCODE_LOGBOOK_3);
@@ -184,7 +186,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         LoadProfileReader loadProfileReader = legacyCommand.getLoadProfileReaders().get(0);
         assertEquals(FIXED_LOAD_PROFILE_OBIS_CODE, loadProfileReader.getProfileObisCode());
         assertEquals(FIXED_DEVICE_SERIAL_NUMBER, loadProfileReader.getDeviceIdentifier().getIdentifier());
-        assertEquals(Date.from(LAST_READING.instant()), loadProfileReader.getStartReadingTime());
+        assertEquals(LAST_READING.instant(), loadProfileReader.getStartReadingTime());
         assertNotNull(loadProfileReader.getEndReadingTime());
     }
 
@@ -241,9 +243,13 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         LegacyLoadProfileLogBooksCommandImpl legacyCommand = new LegacyLoadProfileLogBooksCommandImpl(loadProfilesTask, mock(LogBooksTask.class), offlineDevice, commandRoot, comTaskExecution);
 
         OfflineLoadProfile offlineLoadProfile1 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile1.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineLoadProfile offlineLoadProfile2 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile2.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineLoadProfile offlineLoadProfile3 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile3.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineLoadProfile offlineLoadProfile4 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile4.getLastReading()).thenReturn(Optional.<Instant>empty());
         when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
 
         legacyCommand.createLoadProfileReaders();
@@ -268,10 +274,14 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         LegacyLoadProfileLogBooksCommandImpl legacyCommand = new LegacyLoadProfileLogBooksCommandImpl(loadProfilesTask, mock(LogBooksTask.class), offlineDevice, commandRoot, comTaskExecution);
 
         OfflineLoadProfile offlineLoadProfile1 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile1.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineLoadProfile offlineLoadProfile2 = mock(OfflineLoadProfile.class);
         when(offlineLoadProfile2.getLoadProfileTypeId()).thenReturn(loadProfileTypeId);
+        when(offlineLoadProfile2.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineLoadProfile offlineLoadProfile3 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile3.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineLoadProfile offlineLoadProfile4 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile4.getLastReading()).thenReturn(Optional.<Instant>empty());
         when(offlineLoadProfile4.getLoadProfileTypeId()).thenReturn(loadProfileTypeId);
         when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
 
@@ -291,9 +301,13 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
 
         OfflineLoadProfile offlineLoadProfile1 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile1.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineLoadProfile offlineLoadProfile2 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile2.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineLoadProfile offlineLoadProfile3 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile3.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineLoadProfile offlineLoadProfile4 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile4.getLastReading()).thenReturn(Optional.<Instant>empty());
         when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
         LegacyLoadProfileLogBooksCommandImpl legacyCommand = new LegacyLoadProfileLogBooksCommandImpl(loadProfilesTask, mock(LogBooksTask.class), offlineDevice, commandRoot, comTaskExecution);
 
@@ -326,12 +340,16 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         LegacyLoadProfileLogBooksCommandImpl legacyCommand = new LegacyLoadProfileLogBooksCommandImpl(loadProfilesTask, mock(LogBooksTask.class), offlineDevice, commandRoot, comTaskExecution);
 
         OfflineLoadProfile offlineLoadProfile1 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile1.getLastReading()).thenReturn(Optional.<Instant>empty());
         when(offlineLoadProfile1.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL);
         OfflineLoadProfile offlineLoadProfile2 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile2.getLastReading()).thenReturn(Optional.<Instant>empty());
         when(offlineLoadProfile2.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL);
         OfflineLoadProfile offlineLoadProfile3 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile3.getLastReading()).thenReturn(Optional.<Instant>empty());
         when(offlineLoadProfile3.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL);
         OfflineLoadProfile offlineLoadProfile4 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile4.getLastReading()).thenReturn(Optional.<Instant>empty());
         when(offlineLoadProfile4.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL);
         when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
 
@@ -424,9 +442,9 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         LegacyLoadProfileLogBooksCommand legacyCommand = new LegacyLoadProfileLogBooksCommandImpl(mock(LoadProfilesTask.class), logBooksTask, device, commandRoot, comTaskExecution);
         List<LogBookReader> logBookReaders = legacyCommand.getLogBookReaders();
 
-        LogBookReader expectedLogBookReader_1 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_1, LAST_LOGBOOK_1, new LogBookIdentifierById(LOGBOOK_ID_1, logBookService), deviceIdentifier);
-        LogBookReader expectedLogBookReader_2 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_2, LAST_LOGBOOK_2, new LogBookIdentifierById(LOGBOOK_ID_2, logBookService), deviceIdentifier);
-        LogBookReader expectedLogBookReader_3 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_3, LAST_LOGBOOK_3, new LogBookIdentifierById(LOGBOOK_ID_3, logBookService), deviceIdentifier);
+        LogBookReader expectedLogBookReader_1 = new LogBookReader(this.clock, DEVICE_OBISCODE_LOGBOOK_1, Optional.of(LAST_LOGBOOK_1), new LogBookIdentifierById(LOGBOOK_ID_1, logBookService), deviceIdentifier);
+        LogBookReader expectedLogBookReader_2 = new LogBookReader(this.clock, DEVICE_OBISCODE_LOGBOOK_2, Optional.of(LAST_LOGBOOK_2), new LogBookIdentifierById(LOGBOOK_ID_2, logBookService), deviceIdentifier);
+        LogBookReader expectedLogBookReader_3 = new LogBookReader(this.clock, DEVICE_OBISCODE_LOGBOOK_3, Optional.of(LAST_LOGBOOK_3), new LogBookIdentifierById(LOGBOOK_ID_3, logBookService), deviceIdentifier);
 
         // asserts
         assertEquals(ComCommandTypes.LEGACY_LOAD_PROFILE_LOGBOOKS_COMMAND, legacyCommand.getCommandType());
@@ -455,8 +473,8 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         LegacyLoadProfileLogBooksCommand legacyCommand = new LegacyLoadProfileLogBooksCommandImpl(mock(LoadProfilesTask.class), logBooksTask, device, commandRoot, comTaskExecution);
         List<LogBookReader> logBookReaders = legacyCommand.getLogBookReaders();
 
-        LogBookReader expectedLogBookReader_1 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_1, LAST_LOGBOOK_1, new LogBookIdentifierById(LOGBOOK_ID_1, logBookService), deviceIdentifier);
-        LogBookReader expectedLogBookReader_3 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_3, LAST_LOGBOOK_3, new LogBookIdentifierById(LOGBOOK_ID_3, logBookService), deviceIdentifier);
+        LogBookReader expectedLogBookReader_1 = new LogBookReader(this.clock, DEVICE_OBISCODE_LOGBOOK_1, Optional.of(LAST_LOGBOOK_1), new LogBookIdentifierById(LOGBOOK_ID_1, logBookService), deviceIdentifier);
+        LogBookReader expectedLogBookReader_3 = new LogBookReader(this.clock, DEVICE_OBISCODE_LOGBOOK_3, Optional.of(LAST_LOGBOOK_3), new LogBookIdentifierById(LOGBOOK_ID_3, logBookService), deviceIdentifier);
 
         // asserts
         assertEquals(ComCommandTypes.LEGACY_LOAD_PROFILE_LOGBOOKS_COMMAND, legacyCommand.getCommandType());
@@ -505,6 +523,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         LoadProfilesTask loadProfilesTask = mock(LoadProfilesTask.class);
         when(loadProfilesTask.getLoadProfileTypes()).thenReturn(Arrays.asList(loadProfileType));
         CommandRoot commandRoot = mock(CommandRoot.class);
+        when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
 
         ReadLegacyLoadProfileLogBooksDataCommand readLegacyLoadProfileLogBooksDataCommand = mock(ReadLegacyLoadProfileLogBooksDataCommand.class);
         when(commandRoot.getReadLegacyLoadProfileLogBooksDataCommand(any(LegacyLoadProfileLogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(readLegacyLoadProfileLogBooksDataCommand);
@@ -523,6 +542,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
 
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         OfflineLoadProfile offlineLoadProfile = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile.getLastReading()).thenReturn(Optional.<Instant>empty());
         when(offlineLoadProfile.getLoadProfileTypeId()).thenReturn(loadProfileTypeId);
         when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile));
         LegacyLoadProfileLogBooksCommandImpl legacyCommand = new LegacyLoadProfileLogBooksCommandImpl(loadProfilesTask, null, offlineDevice, commandRoot, comTaskExecution);

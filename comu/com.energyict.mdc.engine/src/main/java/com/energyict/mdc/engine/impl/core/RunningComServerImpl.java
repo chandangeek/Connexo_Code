@@ -30,6 +30,7 @@ import org.joda.time.DateTimeConstants;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ThreadFactory;
@@ -446,7 +447,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         try {
             Thread.sleep(this.getChangesInterPollDelayMillis());
             ComServer newVersion = this.comServerDAO.refreshComServer(this.comServer);
-            this.operationalMonitor.getOperationalStatistics().setLastCheckForChangesTimestamp(this.serviceProvider.clock().instant());
+            this.operationalMonitor.getOperationalStatistics().setLastCheckForChangesTimestamp(Date.from(this.serviceProvider.clock().instant()));
             if (newVersion == null) {
                 // ComServer was deleted or made obsolete, shutdown
                 this.shutdown();

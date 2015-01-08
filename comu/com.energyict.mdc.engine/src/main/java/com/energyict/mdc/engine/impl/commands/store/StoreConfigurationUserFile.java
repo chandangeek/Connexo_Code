@@ -7,7 +7,7 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface
@@ -33,7 +33,7 @@ public class StoreConfigurationUserFile extends DeviceCommandImpl {
 
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
-        comServerDAO.storeConfigurationFile(this.deviceIdentifier, new SimpleDateFormat("yyyy_MM_dd_HH-mm"), this.fileExtension, this.contents);
+        comServerDAO.storeConfigurationFile(this.deviceIdentifier, DateTimeFormatter.ISO_DATE_TIME, this.fileExtension, this.contents);
     }
 
     @Override

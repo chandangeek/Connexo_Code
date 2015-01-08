@@ -16,7 +16,6 @@ import com.energyict.mdc.io.SerialPortConfiguration;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import java.time.Instant;
@@ -312,7 +311,7 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     }
 
     @Override
-    public Date getObsoleteDate () {
+    public Instant getObsoleteDate () {
         return null;
     }
 

@@ -25,6 +25,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
+import java.time.Instant;
 import java.util.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -139,7 +140,7 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         when(comServerDAO.findOfflineLogBook(any(LogBookIdentifier.class))).thenReturn(offlineLogBook);
         DeviceIdentifier<Device> deviceIdentifier = (DeviceIdentifier<Device>) offlineLogBook.getDeviceIdentifier();
         when(comServerDAO.getDeviceIdentifierFor(any(LogBookIdentifier.class))).thenReturn(deviceIdentifier);
-        doCallRealMethod().when(comServerDAO).updateLastLogBook(any(LogBookIdentifier.class), any(Date.class));
+        doCallRealMethod().when(comServerDAO).updateLastLogBook(any(LogBookIdentifier.class), any(Instant.class));
         return comServerDAO;
     }
 

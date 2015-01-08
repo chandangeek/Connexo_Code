@@ -13,9 +13,10 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
-import java.util.ArrayList;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * An offline implementation of an {@link LoadProfile}.
@@ -61,7 +62,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     /**
      * The date of the last correctly stored interval of this {@link LoadProfile}
      */
-    private Date lastReading;
+    private Instant lastReading;
 
     /**
      * The serialNumber of the master {@link com.energyict.mdc.protocol.api.device.BaseDevice Device}
@@ -96,7 +97,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
         setDeviceId(this.loadProfile.getDevice().getId());
         setLoadProfileTypeId((int) this.loadProfile.getLoadProfileSpec().getLoadProfileType().getId());
         setSerialNumber(this.loadProfile.getDevice().getSerialNumber());
-        setLastReading(this.loadProfile.getLastReading().map(Date::from).orElse(null));
+        setLastReading(this.loadProfile.getLastReading().orElse(null));
         setLoadProfileInterval(this.loadProfile.getLoadProfileSpec().getInterval());
         setLoadProfileObisCode(this.loadProfile.getLoadProfileSpec().getDeviceObisCode());
         setLoadProfileChannels(convertToOfflineChannels(this.loadProfile.getChannels()));
@@ -110,11 +111,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
      * @return a list of {@link OfflineLoadProfileChannel offlineLoadProfileChannels}
      */
     protected List<OfflineLoadProfileChannel> convertToOfflineChannels(final List<Channel> channels) {
-        List<OfflineLoadProfileChannel> offlineChannelList = new ArrayList<>(channels.size());
-        for (Channel channel : channels) {
-            offlineChannelList.add(new OfflineLoadProfileChannelImpl(channel));
-        }
-        return offlineChannelList;
+        return channels.stream().map(OfflineLoadProfileChannelImpl::new).collect(Collectors.toList());
     }
 
     /**
@@ -163,8 +160,8 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
      * @return end time of the last interval.
      */
     @Override
-    public Date getLastReading() {
-        return lastReading;
+    public Optional<Instant> getLastReading() {
+        return Optional.ofNullable(lastReading);
     }
 
     /**
@@ -225,7 +222,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
         this.allLoadProfileChannels = allLoadProfileChannels;
     }
 
-    private void setLastReading(final Date lastReading) {
+    private void setLastReading(final Instant lastReading) {
         this.lastReading = lastReading;
     }
 

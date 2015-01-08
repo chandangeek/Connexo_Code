@@ -13,8 +13,8 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import org.junit.Test;
 import org.junit.runner.*;
 
+import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Optional;
 
 import org.mockito.Mock;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.*;
 public class OfflineLoadProfileImplTest {
 
     private static final TimeDuration PROFILE_INTERVAL = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
-    private static final Date LAST_READING = new Date(1338381863000L);
+    private static final Instant LAST_READING = Instant.ofEpochMilli(1338381863000L);
     private static final long RTU_ID = 4565;
     private static final int LOAD_PROFILE_ID = 48564;
     private static final long LOAD_PROFILE_TYPE_ID = 11565;
@@ -54,7 +54,7 @@ public class OfflineLoadProfileImplTest {
         LoadProfile loadProfile = mock(LoadProfile.class);
         when(loadProfile.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         when(loadProfile.getId()).thenReturn(id);
-        when(loadProfile.getLastReading()).thenReturn(Optional.of(LAST_READING.toInstant()));
+        when(loadProfile.getLastReading()).thenReturn(Optional.of(LAST_READING));
         when(loadProfile.getDevice()).thenReturn(rtu);
         return loadProfile;
     }
@@ -81,7 +81,8 @@ public class OfflineLoadProfileImplTest {
         assertThat(offlineLoadProfile.getObisCode()).isEqualTo(loadProfileObisCode);
         assertThat(offlineLoadProfile.getLoadProfileId()).isEqualTo(LOAD_PROFILE_ID);
         assertThat(offlineLoadProfile.getInterval()).isEqualTo(PROFILE_INTERVAL);
-        assertThat(offlineLoadProfile.getLastReading()).isEqualTo(LAST_READING);
+        assertThat(offlineLoadProfile.getLastReading().isPresent()).isTrue();
+        assertThat(offlineLoadProfile.getLastReading().get()).isEqualTo(LAST_READING);
         assertThat(offlineLoadProfile.getDeviceId()).isEqualTo(RTU_ID);
         assertThat(offlineLoadProfile.getLoadProfileTypeId()).isEqualTo(LOAD_PROFILE_TYPE_ID);
         assertThat(offlineLoadProfile.getMasterSerialNumber()).isEqualTo(MASTER_SERIAL_NUMBER);

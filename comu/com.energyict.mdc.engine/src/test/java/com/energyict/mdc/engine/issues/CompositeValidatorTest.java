@@ -4,8 +4,8 @@ import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.impl.ProblemImpl;
 import org.junit.*;
 
+import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Set;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -31,7 +31,7 @@ public class CompositeValidatorTest {
     private static class NeverOkValidator implements Validator<String> {
 
         public Set<Issue> validate(String target) {
-            return Collections.singleton((Issue) new ProblemImpl(new Date(), target, PROBLEM_DESCRIPTION));
+            return Collections.singleton((Issue) new ProblemImpl(Instant.now(), target, PROBLEM_DESCRIPTION));
         }
     }
 
@@ -41,7 +41,7 @@ public class CompositeValidatorTest {
             if (! is(target).empty() && Character.isUpperCase(target.charAt(0))) {
                 return Collections.emptySet();
             }
-            return Collections.singleton((Issue) new ProblemImpl(new Date(), target, "Not capitalized."));
+            return Collections.singleton((Issue) new ProblemImpl(Instant.now(), target, "Not capitalized."));
         }
     }
 

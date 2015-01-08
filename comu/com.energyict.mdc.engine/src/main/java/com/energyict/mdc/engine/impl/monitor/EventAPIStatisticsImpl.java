@@ -88,20 +88,8 @@ public class EventAPIStatisticsImpl extends CanConvertToCompositeDataSupport imp
 
     @Override
     protected void initializeAccessors (List<CompositeDataItemAccessor> accessors) {
-        accessors.add(
-                new CompositeDataItemAccessor(NUMBER_OF_CLIENTS_ITEM_NAME, new ValueProvider() {
-                    @Override
-                    public Object getValue () {
-                        return getNumberOfClients();
-                    }
-                }));
-        accessors.add(
-                new CompositeDataItemAccessor(NUMBER_OF_EVENTS_ITEM_NAME, new ValueProvider() {
-                    @Override
-                    public Object getValue () {
-                        return getNumberOfEvents();
-                    }
-                }));
+        accessors.add(new CompositeDataItemAccessor(NUMBER_OF_CLIENTS_ITEM_NAME, this::getNumberOfClients));
+        accessors.add(new CompositeDataItemAccessor(NUMBER_OF_EVENTS_ITEM_NAME, this::getNumberOfEvents));
     }
 
 }

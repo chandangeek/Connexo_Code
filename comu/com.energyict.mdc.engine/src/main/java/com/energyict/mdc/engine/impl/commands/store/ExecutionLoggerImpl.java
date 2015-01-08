@@ -76,7 +76,7 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
     }
 
     private void logIssue(CompletionCode completionCode, Issue issue, ComTaskExecutionSessionBuilder builder) {
-        builder.addComCommandJournalEntry(issue.getTimestamp().toInstant(), completionCode, issue.isProblem() ? issue.getDescription() : "", issue.getDescription());
+        builder.addComCommandJournalEntry(issue.getTimestamp(), completionCode, issue.isProblem() ? issue.getDescription() : "", issue.getDescription());
     }
 
 }

@@ -4,7 +4,6 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.ComPortType;
 
-import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -24,7 +23,7 @@ public abstract class MockComPort implements ComPort, Cloneable {
     private String description;
     private long id;
     private AtomicBoolean dirty = new AtomicBoolean(false);
-    private AtomicReference<Date> obsoleteDate = new AtomicReference();
+    private AtomicReference<Instant> obsoleteDate = new AtomicReference();
 
     protected MockComPort (ComServer comServer, String name) {
         this.setName(name) ;
@@ -71,7 +70,7 @@ public abstract class MockComPort implements ComPort, Cloneable {
 
     @Override
     public void makeObsolete() {
-        this.obsoleteDate.set(new Date());
+        this.obsoleteDate.set(Instant.now());
     }
 
     @Override
@@ -80,7 +79,7 @@ public abstract class MockComPort implements ComPort, Cloneable {
     }
 
     @Override
-    public Date getObsoleteDate() {
+    public Instant getObsoleteDate() {
         return this.obsoleteDate.get();
     }
 

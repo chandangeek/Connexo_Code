@@ -13,6 +13,7 @@ import com.elster.jupiter.users.UserService;
 
 import org.joda.time.DateTimeConstants;
 
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -200,7 +201,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     private void queriedForTasks () {
-        this.getOperationalMonitor().getOperationalStatistics().setLastCheckForWorkTimestamp(this.serviceProvider.clock().instant());
+        this.getOperationalMonitor().getOperationalStatistics().setLastCheckForWorkTimestamp(Date.from(this.serviceProvider.clock().instant()));
     }
 
     private void scheduleAll(List<ComJob> jobs) {

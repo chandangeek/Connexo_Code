@@ -8,7 +8,6 @@ import java.time.Clock;
 
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
-import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +24,7 @@ public class ScheduledComPortOperationalStatisticsImpl extends OperationalStatis
     private static final String LAST_CHECK_FOR_WORK_ITEM_DESCRIPTION = "last check for work timestamp";
 
     private final ScheduledComPort comPort;
-    private Instant lastCheckForWorkTimestamp;
+    private Date lastCheckForWorkTimestamp;
 
     public ScheduledComPortOperationalStatisticsImpl(ScheduledComPort comPort, Clock clock, Thesaurus thesaurus) {
         super(clock, thesaurus, comPort.getComPort().getComServer().getChangesInterPollDelay());
@@ -38,12 +37,12 @@ public class ScheduledComPortOperationalStatisticsImpl extends OperationalStatis
     }
 
     @Override
-    public Optional<Instant> getLastCheckForWorkTimestamp() {
+    public Optional<Date> getLastCheckForWorkTimestamp() {
         return Optional.ofNullable(this.lastCheckForWorkTimestamp);
     }
 
     @Override
-    public void setLastCheckForWorkTimestamp(Instant lastCheckForWorkTimestamp) {
+    public void setLastCheckForWorkTimestamp(Date lastCheckForWorkTimestamp) {
         this.lastCheckForWorkTimestamp = lastCheckForWorkTimestamp;
     }
 
@@ -72,7 +71,6 @@ public class ScheduledComPortOperationalStatisticsImpl extends OperationalStatis
                 new CompositeDataItemAccessor(
                         LAST_CHECK_FOR_WORK_ITEM_NAME,
                         () -> getLastCheckForWorkTimestamp()
-                                    .map(Date::from)
                                     .map(Date::toString)
                                     .orElse("")));
     }

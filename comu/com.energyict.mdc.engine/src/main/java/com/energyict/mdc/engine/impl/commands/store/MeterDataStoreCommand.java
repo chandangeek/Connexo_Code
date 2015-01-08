@@ -13,7 +13,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentif
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,8 +26,8 @@ import java.util.Map;
 public class MeterDataStoreCommand extends DeviceCommandImpl {
 
     private final Map<String, Pair<DeviceIdentifier<Device>, MeterReadingImpl>> meterReadings = new HashMap<>();
-    private final Map<LoadProfileIdentifier, Date> lastReadings = new HashMap<>();
-    private final Map<LogBookIdentifier, Date> lastLogBooks = new HashMap<>();
+    private final Map<LoadProfileIdentifier, Instant> lastReadings = new HashMap<>();
+    private final Map<LogBookIdentifier, Instant> lastLogBooks = new HashMap<>();
 
     @Override
     protected void doExecute(ComServerDAO comServerDAO) {
@@ -35,11 +35,11 @@ public class MeterDataStoreCommand extends DeviceCommandImpl {
             comServerDAO.storeMeterReadings(deviceMeterReadingEntry.getValue().getFirst(), deviceMeterReadingEntry.getValue().getLast());
         }
 
-        for (Map.Entry<LoadProfileIdentifier, Date> loadProfileDateEntry : lastReadings.entrySet()) {
-            comServerDAO.updateLastReadingFor(loadProfileDateEntry.getKey(), loadProfileDateEntry.getValue().toInstant());
+        for (Map.Entry<LoadProfileIdentifier, Instant> loadProfileDateEntry : lastReadings.entrySet()) {
+            comServerDAO.updateLastReadingFor(loadProfileDateEntry.getKey(), loadProfileDateEntry.getValue());
         }
 
-        for (Map.Entry<LogBookIdentifier, Date> logBookDateEntry : lastLogBooks.entrySet()) {
+        for (Map.Entry<LogBookIdentifier, Instant> logBookDateEntry : lastLogBooks.entrySet()) {
             comServerDAO.updateLastLogBook(logBookDateEntry.getKey(), logBookDateEntry.getValue());
         }
     }
@@ -60,9 +60,9 @@ public class MeterDataStoreCommand extends DeviceCommandImpl {
         }
     }
 
-    public void addLastReadingUpdater(LoadProfileIdentifier loadProfileIdentifier, Date lastReading) {
-        Date existingLastReading = this.lastReadings.get(loadProfileIdentifier);
-        if ((existingLastReading == null) || (lastReading != null && lastReading.after(existingLastReading))) {
+    public void addLastReadingUpdater(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading) {
+        Instant existingLastReading = this.lastReadings.get(loadProfileIdentifier);
+        if ((existingLastReading == null) || (lastReading != null && lastReading.isAfter(existingLastReading))) {
             this.lastReadings.put(loadProfileIdentifier, lastReading);
         }
     }
@@ -89,10 +89,11 @@ public class MeterDataStoreCommand extends DeviceCommandImpl {
         }
     }
 
-    public void addLastLogBookUpdater(LogBookIdentifier logBookIdentifier, Date lastLogbook) {
-        Date existingLastLogBook = this.lastLogBooks.get(logBookIdentifier);
-        if ((existingLastLogBook == null) || (lastLogbook != null && lastLogbook.after(existingLastLogBook))) {
+    public void addLastLogBookUpdater(LogBookIdentifier logBookIdentifier, Instant lastLogbook) {
+        Instant existingLastLogBook = this.lastLogBooks.get(logBookIdentifier);
+        if ((existingLastLogBook == null) || (lastLogbook != null && lastLogbook.isAfter(existingLastLogBook))) {
             this.lastLogBooks.put(logBookIdentifier, lastLogbook);
         }
     }
+
 }

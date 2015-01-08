@@ -11,7 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.text.DateFormat;
+import java.time.format.DateTimeFormatter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -48,7 +48,7 @@ public class StoreConfigurationUserFileTest {
         command.execute(comServerDAO);
 
         // Asserts
-        verify(comServerDAO).storeConfigurationFile(any(DeviceIdentifier.class), any(DateFormat.class), anyString(), any(byte[].class));
+        verify(comServerDAO).storeConfigurationFile(any(DeviceIdentifier.class), any(DateTimeFormatter.class), anyString(), any(byte[].class));
         verify(comServerDAO, never()).findOfflineDevice(deviceIdentifier);
     }
 

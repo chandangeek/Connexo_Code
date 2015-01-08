@@ -51,12 +51,11 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.DateFormat;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -224,7 +223,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook) {
+    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Instant lastLogBook) {
 
     }
 
@@ -338,7 +337,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void storeConfigurationFile (DeviceIdentifier deviceIdentifier, DateFormat timeStampFormat, String fileExtension, byte[] contents) {
+    public void storeConfigurationFile (DeviceIdentifier deviceIdentifier, DateTimeFormatter timeStampFormat, String fileExtension, byte[] contents) {
     }
 
     @Override

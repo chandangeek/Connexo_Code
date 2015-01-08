@@ -27,10 +27,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -45,15 +46,12 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class LoadProfileCommandImplTest extends CommonCommandImplTests {
 
-//    @ClassRule
-//    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
-
     @Mock
     ComTaskExecution comTaskExecution;
 
     private static final ObisCode FIXED_LOAD_PROFILE_OBIS_CODE = ObisCode.fromString("1.0.99.1.0.255");
     private static final TimeDuration FIXED_LOAD_PROFILE_INTERVAL = new TimeDuration(900);
-    private static final Date LAST_READING = new Date();
+    private static final Instant LAST_READING = Instant.now();
     private static final long FIXED_DEVICE_ID = 123;
     private static final String FIXED_DEVICE_SERIAL_NUMBER = "FIXED_DEVICE_SERIAL_NUMBER";
     private static final long LOAD_PROFILE_TYPE_ID = 651;
@@ -62,7 +60,7 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
     private OfflineLoadProfile getMockedOfflineLoadProfile() {
         OfflineLoadProfile loadProfile = mock(OfflineLoadProfile.class);
         when(loadProfile.getLoadProfileTypeId()).thenReturn(LOAD_PROFILE_TYPE_ID);
-        when(loadProfile.getLastReading()).thenReturn(LAST_READING);
+        when(loadProfile.getLastReading()).thenReturn(Optional.of(LAST_READING));
         when(loadProfile.getDeviceId()).thenReturn(FIXED_DEVICE_ID);
         when(loadProfile.getObisCode()).thenReturn(FIXED_LOAD_PROFILE_OBIS_CODE);
         when(loadProfile.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL);
@@ -162,9 +160,13 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         CommandRoot commandRoot = createCommandRoot();
 
         OfflineLoadProfile offlineLoadProfile1 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile1.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineLoadProfile offlineLoadProfile2 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile2.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineLoadProfile offlineLoadProfile3 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile3.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineLoadProfile offlineLoadProfile4 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile4.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
 
@@ -190,17 +192,20 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         CommandRoot commandRoot = createCommandRoot();
 
         OfflineLoadProfile offlineLoadProfile1 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile1.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineLoadProfile offlineLoadProfile2 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile2.getLastReading()).thenReturn(Optional.<Instant>empty());
         when(offlineLoadProfile2.getLoadProfileTypeId()).thenReturn(loadProfileTypeId);
         OfflineLoadProfile offlineLoadProfile3 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile3.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineLoadProfile offlineLoadProfile4 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile4.getLastReading()).thenReturn(Optional.<Instant>empty());
         when(offlineLoadProfile4.getLoadProfileTypeId()).thenReturn(loadProfileTypeId);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
 
         // Business method
         LoadProfileCommandImpl loadProfileCommand = new LoadProfileCommandImpl(loadProfilesTask, offlineDevice, commandRoot, comTaskExecution);
-        //loadProfileCommand.createLoadProfileReaders(offlineDevice);
 
         // Asserts
         assertNotNull(loadProfileCommand.getLoadProfileReaderMap());
@@ -216,9 +221,13 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         CommandRoot commandRoot = createCommandRoot();
 
         OfflineLoadProfile offlineLoadProfile1 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile1.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineLoadProfile offlineLoadProfile2 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile2.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineLoadProfile offlineLoadProfile3 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile3.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineLoadProfile offlineLoadProfile4 = mock(OfflineLoadProfile.class);
+        when(offlineLoadProfile4.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
 

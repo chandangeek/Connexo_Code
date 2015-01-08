@@ -71,16 +71,13 @@ public class LogBooksCommandImpl extends CompositeComCommandImpl implements LogB
     private void createLogBookReaders(final OfflineDevice device) {
         List<OfflineLogBook> listOfAllLogBooks = device.getAllOfflineLogBooks();
         if (this.logBooksTask.getLogBookTypes().isEmpty()) {
-            for (OfflineLogBook logBook : listOfAllLogBooks) {
-                addLogBookToReaderList(logBook);
-            }
+            listOfAllLogBooks.forEach(this::addLogBookToReaderList);
         } else {
             for (LogBookType logBookType : this.logBooksTask.getLogBookTypes()) {
-                for (OfflineLogBook logBook : listOfAllLogBooks) {
-                    if (logBookType.getId() == logBook.getLogBookTypeId()) {
-                        addLogBookToReaderList(logBook);
-                    }
-                }
+                listOfAllLogBooks
+                        .stream()
+                        .filter(logBook -> logBookType.getId() == logBook.getLogBookTypeId())
+                        .forEach(this::addLogBookToReaderList);
             }
         }
     }
@@ -93,6 +90,7 @@ public class LogBooksCommandImpl extends CompositeComCommandImpl implements LogB
     protected void addLogBookToReaderList(final OfflineLogBook logBook) {
         LogBookReader logBookReader =
                 new LogBookReader(
+                        this.getClock(),
                         logBook.getObisCode(),
                         logBook.getLastLogBook(),
                         logBook.getLogBookIdentifier(),

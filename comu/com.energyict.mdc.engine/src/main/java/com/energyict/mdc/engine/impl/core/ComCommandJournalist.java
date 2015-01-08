@@ -5,12 +5,10 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.Problem;
 
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.Clock;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -24,7 +22,7 @@ public class ComCommandJournalist {
     private final JournalEntryFactory journalEntryFactory;
     private final Clock clock;
     public static final NumberFormat NUMBER_FORMAT = new DecimalFormat("00");
-    public static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss:SSS");
+    public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_INSTANT;
 
     public ComCommandJournalist(JournalEntryFactory journalEntryFactory, Clock clock) {
         super();
@@ -97,7 +95,7 @@ public class ComCommandJournalist {
     private void appendIssue(StringBuilder builder, int issueNumber, Issue issue) {
         builder.append('\n').append('\t').append(NUMBER_FORMAT.format(issueNumber)).append('.').append(' ');
         builder.append(issue.getDescription());
-        builder.append(' ').append('(').append(DATE_FORMAT.print(issue.getTimestamp().getTime())).append(')');
+        builder.append(' ').append('(').append(DATE_FORMAT.format(issue.getTimestamp())).append(')');
     }
 
 }

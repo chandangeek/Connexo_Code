@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.monitor;
 
 import com.elster.jupiter.time.TimeDuration;
 
-import java.time.Instant;
+import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -27,13 +27,13 @@ public interface ScheduledComPortOperationalStatistics extends OperationalStatis
      *
      * @return The timestamp on which the ScheduledComPort last checked for work
      */
-    public Optional<Instant> getLastCheckForWorkTimestamp ();
+    public Optional<Date> getLastCheckForWorkTimestamp ();
 
     /**
      * Sets the timestamp on which the ScheduledComPort last checked for work.
      *
      * @param lastCheckForWorkTimestamp The timestamp
      */
-    public void setLastCheckForWorkTimestamp(Instant lastCheckForWorkTimestamp);
+    public void setLastCheckForWorkTimestamp(Date lastCheckForWorkTimestamp);
 
 }
