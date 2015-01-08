@@ -299,7 +299,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     /**
      * Convert the given epoch activation date to a proper DateTimeArray
      */
-    protected Array convertActivationDateEpochToDateTimeArray(String strDate) throws IOException {
+    protected Array convertActivationDateEpochToDateTimeArray(String strDate) {
         return super.convertEpochToDateTimeArray(strDate);
     }
 

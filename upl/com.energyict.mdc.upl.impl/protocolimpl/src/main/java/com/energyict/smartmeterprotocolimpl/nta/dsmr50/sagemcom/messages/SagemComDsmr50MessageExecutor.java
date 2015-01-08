@@ -5,11 +5,12 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDate;
-import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
 import com.energyict.mdw.core.Code;
+import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages.Dsmr50MessageExecutor;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,5 +64,13 @@ public class SagemComDsmr50MessageExecutor extends Dsmr50MessageExecutor {
         } catch (ParseException e) {
             return new Date(0);
         }
+    }
+
+    /**
+     * Convert the given unix activation date to a proper DateTimeArray
+     */
+    @Override
+    protected Array convertActivationDateUnixToDateTimeArray(String strDate) throws IOException {
+        return super.convertUnixToDateTimeArray(strDate); // Reuse the standard conversion instead of the special DSMR5.0 one
     }
 }
