@@ -8,7 +8,9 @@ import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
@@ -27,6 +29,7 @@ import java.util.List;
 public class AM540MessageExecutor extends AbstractMessageExecutor {
 
     private static final ObisCode PLC_G3_TIMEOUT_OBISCODE = ObisCode.fromString("0.0.94.33.10.255");
+    public static final ObisCode RELAY_CONTROL_DEFAULT_OBISCODE = ObisCode.fromString("0.0.96.3.10.255");
 
     private AbstractMessageExecutor dsmr50MessageExecutor;
 
@@ -93,6 +96,10 @@ public class AM540MessageExecutor extends AbstractMessageExecutor {
                     setDeviceType(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.WritePlcG3Timeout)) {
                     writePlcG3Timeout(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CLOSE_RELAY)) {
+                    closeRelay(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.OPEN_RELAY)) {
+                    openRelay(pendingMessage);
                 } else {
                     dsmr40Messages.add(pendingMessage);
                 }
@@ -111,6 +118,18 @@ public class AM540MessageExecutor extends AbstractMessageExecutor {
         // Then delegate all other messages to the Dsmr 5.0 message executor
         result.addCollectedMessages(getDsmr50MessageExecutor().executePendingMessages(dsmr40Messages));
         return result;
+    }
+
+    private void openRelay(OfflineDeviceMessage pendingMessage) throws IOException {
+        int relayNumber = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        ObisCode obisCode = ProtocolTools.setObisCodeField(RELAY_CONTROL_DEFAULT_OBISCODE, 1, (byte) relayNumber);
+        getCosemObjectFactory().getDisconnector(obisCode).remoteDisconnect();
+    }
+
+    private void closeRelay(OfflineDeviceMessage pendingMessage) throws IOException {
+        int relayNumber = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        ObisCode obisCode = ProtocolTools.setObisCodeField(RELAY_CONTROL_DEFAULT_OBISCODE, 1, (byte) relayNumber);
+        getCosemObjectFactory().getDisconnector(obisCode).remoteReconnect();
     }
 
     private void setTMRTTL(OfflineDeviceMessage pendingMessage) throws IOException {

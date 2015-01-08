@@ -6,6 +6,7 @@ import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
@@ -22,42 +23,46 @@ import java.util.List;
  */
 public class AM540Messaging extends Dsmr40Messaging implements DeviceMessageSupport {
 
-    private final static List<DeviceMessageSpec> supportedPLCMessages;
+    private final static List<DeviceMessageSpec> supportedMessages;
 
     private AM540MessageExecutor messageExecutor;
 
     static {
-        supportedPLCMessages = new ArrayList<>();
+        supportedMessages = new ArrayList<>();
 
         // PLC configuration - G3 PLC OFDM MAC setup
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetTMRTTL);
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetMaxFrameRetries);
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetNeighbourTableEntryTTL);
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetHighPriorityWindowSize);
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetCSMAFairnessLimit);
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetBeaconRandomizationWindowLength);
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetMacA);
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetMacK);
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetMinimumCWAttempts);
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetMaxBe);
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetMaxCSMABackOff);
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetMinBe);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetTMRTTL);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxFrameRetries);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetNeighbourTableEntryTTL);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetHighPriorityWindowSize);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetCSMAFairnessLimit);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetBeaconRandomizationWindowLength);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetMacA);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetMacK);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetMinimumCWAttempts);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxBe);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxCSMABackOff);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetMinBe);
 
         // PLC configuration - G3 6LoWPAN layer setup
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName);
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName);
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetSecurityLevel);
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetRoutingConfiguration);
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName);
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetMaxJoinWaitTime);
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetPathDiscoveryTime);
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetMetricType);
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetCoordShortAddress);
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetDisableDefaultRouting);
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.SetDeviceType);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetSecurityLevel);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetRoutingConfiguration);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxJoinWaitTime);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetPathDiscoveryTime);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetMetricType);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetCoordShortAddress);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetDisableDefaultRouting);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetDeviceType);
 
         // PLC configuration - Miscellaneous
-        supportedPLCMessages.add(PLCConfigurationDeviceMessage.WritePlcG3Timeout);
+        supportedMessages.add(PLCConfigurationDeviceMessage.WritePlcG3Timeout);
+
+        // Relay control
+        supportedMessages.add(ContactorDeviceMessage.CLOSE_RELAY);
+        supportedMessages.add(ContactorDeviceMessage.OPEN_RELAY);
     }
 
     private Dsmr40Messaging dsmr40Messaging;
@@ -69,7 +74,7 @@ public class AM540Messaging extends Dsmr40Messaging implements DeviceMessageSupp
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         List<DeviceMessageSpec> allSupportedMessages = new ArrayList<>();
-        allSupportedMessages.addAll(supportedPLCMessages);
+        allSupportedMessages.addAll(supportedMessages);
         allSupportedMessages.addAll(getDsmr40Messaging().getSupportedMessages());
 
         // DSMR5.0 security related messages who have changed compared to DSM4.0
@@ -106,10 +111,10 @@ public class AM540Messaging extends Dsmr40Messaging implements DeviceMessageSupp
     protected Dsmr40Messaging getDsmr40Messaging() {
         if (dsmr40Messaging == null) {
             dsmr40Messaging = new Dsmr40Messaging(getMessageExecutor());
+            dsmr40Messaging.setSupportLimiter(true);
             dsmr40Messaging.setSupportMBus(false);
             dsmr40Messaging.setSupportGPRS(false);
             dsmr40Messaging.setSupportMeterReset(false);
-            dsmr40Messaging.setSupportLimiter(false);
             dsmr40Messaging.setSupportResetWindow(false);
         }
         return dsmr40Messaging;
