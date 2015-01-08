@@ -16,8 +16,10 @@ import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.identifiers.RegisterDataIdentifier;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,10 +68,10 @@ public class SmartMeterProtocolRegisterAdapter implements DeviceRegisterSupport 
                         CollectedRegister adapterDeviceRegister = collectedDataFactory.createCollectedRegisterForAdapter(getRegisterIdentifier(register), register.getReadingType());
                         adapterDeviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
                         adapterDeviceRegister.setCollectedTimeStamps(
-                                registerValue.getReadTime().toInstant(),
-                                registerValue.getFromTime().toInstant(),
-                                registerValue.getToTime().toInstant(),
-                                registerValue.getEventTime().toInstant());
+                                getInstantOrNull(registerValue.getReadTime()),
+                                getInstantOrNull(registerValue.getFromTime()),
+                                getInstantOrNull(registerValue.getToTime()),
+                                getInstantOrNull(registerValue.getEventTime()));
                         collectedRegisters.add(adapterDeviceRegister);
                     } else {
                         CollectedRegister defaultDeviceRegister = collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register), register.getReadingType());
@@ -84,6 +86,10 @@ public class SmartMeterProtocolRegisterAdapter implements DeviceRegisterSupport 
         } else {
             return Collections.emptyList();
         }
+    }
+
+    private Instant getInstantOrNull(Date date) {
+        return date != null? date.toInstant():null;
     }
 
     private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRegister){
