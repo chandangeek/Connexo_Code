@@ -1,4 +1,4 @@
-Ext.define('Mdc.store.MeasurementTypesToAdd', {
+Ext.define('Mdc.store.RegisterTypesToAdd', {
     extend: 'Ext.data.Store',
     requires: [
         'Mdc.model.RegisterType'

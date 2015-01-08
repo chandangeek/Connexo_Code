@@ -52,7 +52,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
         {
             xtype: 'fieldcontainer',
             fieldLabel: 'Register types',
-            itemId: 'measurement-types-fieldcontainer',
+            itemId: 'register-types-fieldcontainer',
             required: true,
             msgTarget: 'under',
             items: [
@@ -62,9 +62,9 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
                     items: [
                         {
                             xtype: 'gridpanel',
-                            itemId: 'measurement-types-grid',
+                            itemId: 'register-types-grid',
                             hideHeaders: true,
-                            store: 'Mdc.store.SelectedMeasurementTypesForLoadProfileType',
+                            store: 'Mdc.store.SelectedRegisterTypesForLoadProfileType',
                             padding: 0,
                             columns: [
                                 {
@@ -89,14 +89,14 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
                         },
                         {
                             xtype: 'displayfield',
-                            itemId: 'all-measurement-types',
-                            value: Uni.I18n.translate('loadProfileTypes.allMeasurementTypes', 'MDC', 'All register types'),
+                            itemId: 'all-register-types',
+                            value: Uni.I18n.translate('loadProfileTypes.allRegisterTypes', 'MDC', 'All register types'),
                             hidden: true
                         },
                         {
                             xtype: 'hiddenfield',
-                            itemId: 'all-measurement-types-field',
-                            name: 'allMeasurementTypes',
+                            itemId: 'all-register-types-field',
+                            name: 'allRegisterTypes',
                             value: false
                         }
                     ],
@@ -106,8 +106,9 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
                             items: [
                                 {
                                     xtype: 'button',
-                                    itemId: 'add-measurement-types-to-load-profile-type-button',
-                                    text: Uni.I18n.translate('loadProfileTypes.addMeasurementTypes', 'MDC', 'Add register types'),
+                                    itemId: 'add-register-types-to-load-profile-type-button',
+                                    text: Uni.I18n.translate('loadProfileTypes.addRegisterTypes', 'MDC', 'Add register types'),
+                                    ui: 'action',
                                     margin: '0 0 0 10'
                                 }
                             ]
@@ -116,22 +117,22 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
                 },
                 {
                     xtype: 'component',
-                    itemId: 'measurement-types-errors',
+                    itemId: 'register-types-errors',
                     cls: 'x-form-invalid-under',
                     hidden: true,
                     height: 36
                 }
             ],
             markInvalid: function (msg) {
-                var errorComponent = this.down('#measurement-types-errors');
+                var errorComponent = this.down('#register-types-errors');
 
                 errorComponent.update(msg);
                 errorComponent.show();
-                this.down('#measurement-types-grid').setUI('wrong-data');
+                this.down('#register-types-grid').setUI('wrong-data');
             },
             clearInvalid: function () {
-                this.down('#measurement-types-errors').hide();
-                this.down('#measurement-types-grid').setUI('default');
+                this.down('#register-types-errors').hide();
+                this.down('#register-types-grid').setUI('default');
             }
         },
         {
@@ -158,7 +159,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
         return this.edit;
     },
 
-    setEdit: function (edit, returnLink, addMeasurementTypesLink) {
+    setEdit: function (edit, returnLink, addRegisterTypesLink) {
         this.edit = edit;
 
         if (edit) {
@@ -171,9 +172,9 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
         this.down('#cancel-edit-load-profile-type-button').on('click', function () {
             location.href = returnLink;
         });
-        this.down('#add-measurement-types-to-load-profile-type-button').setHref(addMeasurementTypesLink);
-        this.down('#add-measurement-types-to-load-profile-type-button').on('click', function () {
-            location.href = addMeasurementTypesLink;
+        this.down('#add-register-types-to-load-profile-type-button').setHref(addRegisterTypesLink);
+        this.down('#add-register-types-to-load-profile-type-button').on('click', function () {
+            location.href = addRegisterTypesLink;
         });
     },
 
@@ -191,10 +192,10 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
                 } else {
                     formField.setValue(value);
                 }
-            } else if (key === 'measurementTypes' && Ext.isArray(value)) {
-                me.down('#measurement-types-grid').getStore().loadData(value, true);
-            } else if (key === 'measurementTypes') {
-                me.down('#measurement-types-grid').getStore().removeAll();
+            } else if (key === 'registerTypes' && Ext.isArray(value)) {
+                me.down('#register-types-grid').getStore().loadData(value, true);
+            } else if (key === 'registerTypes') {
+                me.down('#register-types-grid').getStore().removeAll();
             }
         });
     },
@@ -202,7 +203,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
     updateRecord: function (record) {
         var me = this,
             basicForm = me.getForm(),
-            measurementTypes = [],
+            registerTypes = [],
             obj;
 
         record = record || basicForm._record;
@@ -215,11 +216,11 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
 
         obj = me.getValues();
 
-        me.down('#measurement-types-grid').getStore().each(function (model) {
-            measurementTypes.push(model.getData());
+        me.down('#register-types-grid').getStore().each(function (model) {
+            registerTypes.push(model.getData());
         });
 
-        obj.measurementTypes = measurementTypes;
+        obj.registerTypes = registerTypes;
 
         record.beginEdit();
         Ext.iterate(obj, function (key, value) {
