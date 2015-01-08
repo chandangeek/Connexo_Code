@@ -357,7 +357,9 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                         success: function (deviceType) {
                             me.getApplication().fireEvent('loadDeviceType', deviceType);
                             me.getAddLogbookPanel().setTitle(Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'logbook types');
-                            store.load('load', store);
+                            store.load(function(){
+                                widget.down('#logbook-type-add-grid').getSelectionModel().deselectAll();
+                            });
                             widget.setLoading(false);
                         }
                     });

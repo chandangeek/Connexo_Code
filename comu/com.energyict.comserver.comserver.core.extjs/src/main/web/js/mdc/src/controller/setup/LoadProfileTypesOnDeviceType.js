@@ -309,6 +309,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
                                         me.getApplication().fireEvent('loadDeviceType', deviceType);
                                         me.getApplication().fireEvent('changecontentevent', widget);
                                         me.getLoadProfileTypesOnDeviceTypeAvailableStore().fireEvent('load', me.getLoadProfileTypesOnDeviceTypeAvailableStore());
+                                        me.getAddLoadProfileTypesGrid().getSelectionModel().deselectAll();
                                     }
                                 }
                             )

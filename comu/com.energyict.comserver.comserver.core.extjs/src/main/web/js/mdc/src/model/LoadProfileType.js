@@ -5,7 +5,7 @@ Ext.define('Mdc.model.LoadProfileType', {
         {name:'name', type: 'string'},
         {name:'obisCode', type: 'string'},
         {name:'timeDuration', type: 'auto'},
-        {name:'measurementTypes', type: 'auto'},
+        {name:'registerTypes', type: 'auto'},
         {name:'isLinkedToActiveDeviceConf', type: 'boolean'}
     ],
 
