@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.impl.core.aspects.events;
+package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.events.ComServerEvent;
@@ -27,8 +27,8 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 /**
- * Tests the pointcuts and advice defined in {@link ComChannelReadWriteEventPublisher}.
- * Uses a {@link SystemOutComChannel} to read and write from.
+ * Tests that a {@link ComPortRelatedComChannelImpl} publishes
+ * events when read from and written to.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-13 (15:16)

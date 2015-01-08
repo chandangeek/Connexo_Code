@@ -1,7 +1,12 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.engine.events.ComServerEvent;
+import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.core.aspects.logging.ComChannelLogger;
+import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+import com.energyict.mdc.engine.impl.events.io.ReadEvent;
+import com.energyict.mdc.engine.impl.events.io.WriteEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
@@ -255,27 +260,35 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
     }
 
     private void logBytesWrittenIfAny () {
-        if (this.bytesWrittenForLogging != null && this.logger != null) {
+        if (this.bytesWrittenForLogging != null) {
             this.logBytesWrittenAndReset();
             this.bytesWrittenForLogging = null;
         }
     }
 
     private void logBytesWrittenAndReset() {
-        String hexBytes = this.hexService.toHexString(this.bytesWrittenForLogging.toByteArray());
-        this.logger.bytesWritten(hexBytes);
+        byte[] bytesWrittenForLogging = this.bytesWrittenForLogging.toByteArray();
+        if (this.logger != null) {
+            String hexBytes = this.hexService.toHexString(bytesWrittenForLogging);
+            this.logger.bytesWritten(hexBytes);
+        }
+        this.publish(new WriteEvent(new ComServerEventServiceProviderAdapter(), this.comPort, bytesWrittenForLogging));
     }
 
     private void logBytesReadIfAny () {
-        if (this.bytesReadForLogging != null && this.logger != null) {
+        if (this.bytesReadForLogging != null) {
             this.logBytesReadAndReset();
             this.bytesReadForLogging = null;
         }
     }
 
     private void logBytesReadAndReset() {
-        String hexBytes = this.hexService.toHexString(this.bytesReadForLogging.toByteArray());
-        this.logger.bytesRead(hexBytes);
+        byte[] bytesReadForLogging = this.bytesReadForLogging.toByteArray();
+        if (this.logger != null) {
+            String hexBytes = this.hexService.toHexString(bytesReadForLogging);
+            this.logger.bytesRead(hexBytes);
+        }
+        this.publish(new ReadEvent(new ComServerEventServiceProviderAdapter(), this.comPort, bytesReadForLogging));
     }
 
     @Override
@@ -291,6 +304,10 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
     @Override
     public Counters getTaskSessionCounters() {
         return this.taskSessionCounters;
+    }
+
+    private void publish (ComServerEvent event) {
+        EventPublisherImpl.getInstance().publish(event);
     }
 
 }
