@@ -117,7 +117,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                                     align: 'right',
                                                     items: [
                                                         {
-                                                            iconCls: 'icon-delete',
+                                                            iconCls: 'uni-icon-delete',
                                                             handler: function (grid, rowIndex) {
                                                                 grid.getStore().removeAt(rowIndex);
                                                             }
