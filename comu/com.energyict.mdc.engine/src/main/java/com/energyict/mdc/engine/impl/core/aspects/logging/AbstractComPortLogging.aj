@@ -29,7 +29,6 @@ import java.util.logging.Logger;
  */
 public abstract aspect AbstractComPortLogging {
     declare precedence :
-            com.energyict.mdc.engine.impl.core.aspects.events.OutboundConnectionEventPublisher,
             com.energyict.mdc.engine.impl.core.aspects.events.OutboundComTaskEventPublisher,
             ComPortLogging,
             com.energyict.mdc.engine.impl.core.aspects.events.ComPortLogEventPublisher;

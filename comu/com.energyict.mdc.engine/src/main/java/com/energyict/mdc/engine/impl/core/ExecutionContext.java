@@ -21,6 +21,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
@@ -31,6 +32,10 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandFactoryImpl;
 import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailureEvent;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+import com.energyict.mdc.engine.impl.events.connection.CannotEstablishConnectionEvent;
+import com.energyict.mdc.engine.impl.events.connection.CloseConnectionEvent;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
@@ -121,6 +126,12 @@ public final class ExecutionContext implements JournalEntryFactory {
         if (this.isConnected()) {
             this.comPortRelatedComChannel.close();
             this.addStatisticalInformationToComSession();
+        }
+        /* closeConnection is called from finally block
+         * even when the connection was never established.
+         * So first test if there was a connection. */
+        if (this.isConnected()) {
+            this.publish(new CloseConnectionEvent(new ComServerEventServiceProvider(), this.getComPort(), this.getConnectionTask()));
         }
     }
 
@@ -399,6 +410,7 @@ public final class ExecutionContext implements JournalEntryFactory {
                         connectionTask,
                         this.comPort,
                         this.jobExecution.getComTaskExecutions()));
+        this.publish(new CannotEstablishConnectionEvent(new ComServerEventServiceProvider(), this.getComPort(), connectionTask, e));
     }
 
     public boolean connectionFailed () {
@@ -495,6 +507,10 @@ public final class ExecutionContext implements JournalEntryFactory {
         return new DeviceCommandFactoryImpl().newForAll(serverCollectedData, this.serviceProvider.issueService());
     }
 
+    private void publish (ComServerEvent event) {
+        EventPublisherImpl.getInstance().publish(event);
+    }
+
     private class ConnectionTaskPropertyCache implements ConnectionTaskPropertyProvider {
         private List<ConnectionTaskProperty> properties;
 
@@ -513,6 +529,13 @@ public final class ExecutionContext implements JournalEntryFactory {
         @Override
         public TypedProperties getTypedProperties() {
             return TypedProperties.empty();
+        }
+    }
+
+    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
+        @Override
+        public Clock clock() {
+            return serviceProvider.clock();
         }
     }
 
