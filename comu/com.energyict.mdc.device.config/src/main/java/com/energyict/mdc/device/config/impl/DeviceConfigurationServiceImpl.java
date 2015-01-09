@@ -574,7 +574,14 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         List<ReadingType> readingTypes = new ArrayList<>();
         for (LoadProfileSpec spec : configuration.getLoadProfileSpecs()) {
             for (ChannelType channelType : spec.getLoadProfileType().getChannelTypes()) {
-                readingTypes.add(channelType.getReadingType());
+                ReadingType readingType = channelType.getReadingType();
+                readingTypes.add(readingType);
+                if (readingType.isCumulative()) {
+                    Optional<ReadingType> delta = readingType.getCalculatedReadingType();
+                    if (delta.isPresent()) {
+                        readingTypes.add(delta.get());
+                    }
+                }
             }
         }
         for (RegisterSpec spec : configuration.getRegisterSpecs()) {
