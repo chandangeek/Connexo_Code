@@ -38,7 +38,7 @@ import com.energyict.protocolimplv2.eict.rtuplusserver.idis.events.IDISGatewayEv
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.messages.IDISGatewayMessages;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.properties.IDISGatewayDynamicPropertySupportSupport;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers.IDISGatewayRegisters;
-import com.energyict.protocolimplv2.elster.garnet.TcpDeviceProtocolDialect;
+import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
