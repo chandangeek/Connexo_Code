@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -26,14 +27,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -198,7 +192,7 @@ public class MeteringCommands {
         }
     }
 
-    public void storeCumulativeIntervalData(long meterId, String readingType, String startDateTime, int numberOfInterval, double startValue,  double minValue, double maxValue) {
+    public void storeCumulativeIntervalData(long meterId, String readingType, String startDateTime, int numberOfInterval, double startValue,  double minValue, double maxValue, String intervalFlagCimCode) {
         final Optional<Meter> endDevice = meteringService.findMeter(meterId);
         if (endDevice.isPresent()) {
             try {
@@ -213,7 +207,9 @@ public class MeteringCommands {
                         BigDecimal cumulativeValue = BigDecimal.valueOf(startValue);
                         for (int i = 0; i < numberOfInterval; i++) {
                             cumulativeValue = cumulativeValue.add(BigDecimal.valueOf(randomBetween(minValue, maxValue)));
-                            intervalBlock.addIntervalReading(IntervalReadingImpl.of(startDate.getTime().toInstant(), cumulativeValue));
+                            IntervalReadingImpl reading = IntervalReadingImpl.of(startDate.getTime().toInstant(), cumulativeValue);
+                            reading.setProfileStatus(ProfileStatus.of(ProfileStatus.Flag.valueOf(intervalFlagCimCode)));
+                            intervalBlock.addIntervalReading(reading);
                             startDate.add(Calendar.SECOND, intervalInSeconds);
                         }
                         meterReading.addIntervalBlock(intervalBlock);
