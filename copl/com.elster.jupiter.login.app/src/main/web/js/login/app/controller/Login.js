@@ -124,10 +124,10 @@ Ext.define('Login.controller.Login', {
                         iterator++;
                     }
                     window.location.replace((internal==undefined)?external.data.url:internal.data.url);
-                    this.getLoginViewport().destroy();
                 }
             });
         }
+        this.getLoginViewport().destroy();
     },
 
     loginNOK: function () {
