@@ -42,6 +42,7 @@ Ext.define('Login.view.Viewport', {
                         type: 'vbox',
                         align: 'stretch'
                     },
+                    buttonAlign:'left',
                     defaults: {
                         xtype: 'textfield',
                         labelSeparator: '',
@@ -61,6 +62,7 @@ Ext.define('Login.view.Viewport', {
                             fieldLabel: 'Username',
                             name: 'username',
                             itemId: 'username',
+                            labelAlign: 'right',
                             listeners: {
                                 afterrender: function (field) {
                                     field.focus(false, 200);
@@ -71,19 +73,26 @@ Ext.define('Login.view.Viewport', {
                             fieldLabel: 'Password',
                             name: 'password',
                             itemId: 'password',
-                            inputType: 'password'
-                        }
-                    ],
-                    buttons: [
+                            inputType: 'password',
+                            labelAlign: 'right'
+                        },
                         {
-                            ui: 'action',
-                            formBind: true,
-                            type: 'submit',
-                            action: 'login',
-                            itemId: 'loginButton',
-                            text: 'Login'
+                            xtype: 'fieldcontainer',
+//                            ui: 'actions',
+                            fieldLabel: '&nbsp',
+                            layout: {
+                                type: 'hbox'
+                            },
+                            items: [
+                                {
+                                    text: 'Login',
+                                    xtype: 'button',
+                                    ui: 'action',
+                                    action: 'login',
+                                    itemId: 'loginButton'
+                                }
+                            ]
                         }
-
                     ]
                 }
             ]
