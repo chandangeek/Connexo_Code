@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.impl.core.inbound.aspects.logging;
+package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.engine.impl.logging.Configuration;
 import com.energyict.mdc.engine.impl.logging.LogLevel;

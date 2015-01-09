@@ -9,8 +9,10 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
@@ -25,7 +27,6 @@ import com.energyict.mdc.engine.impl.core.Counters;
 import com.energyict.mdc.engine.impl.core.InboundJobExecutionDataProcessor;
 import com.energyict.mdc.engine.impl.core.InboundJobExecutionGroup;
 import com.energyict.mdc.engine.impl.core.JobExecution;
-import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.UnknownInboundDeviceEvent;
@@ -35,6 +36,9 @@ import com.energyict.mdc.engine.impl.events.connection.CloseConnectionEvent;
 import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
 import com.energyict.mdc.engine.impl.events.connection.UndiscoveredCloseConnectionEvent;
 import com.energyict.mdc.engine.impl.events.connection.UndiscoveredEstablishConnectionEvent;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
+import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.protocol.inbound.aspects.statistics.StatisticsMonitoringHttpServletRequest;
 import com.energyict.mdc.engine.impl.protocol.inbound.aspects.statistics.StatisticsMonitoringHttpServletResponse;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
@@ -46,6 +50,7 @@ import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.io.CommunicationException;
@@ -60,12 +65,15 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Provides an implementation for the inbound communication process,
@@ -105,6 +113,7 @@ public class InboundCommunicationHandler {
     private InboundDiscoveryContextImpl context;
     private InboundDeviceProtocol.DiscoverResponseType responseType;
     private StopWatch discovering;
+    private CompositeComPortDiscoveryLogger logger;
 
     public InboundCommunicationHandler(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         super();
@@ -143,10 +152,12 @@ public class InboundCommunicationHandler {
     public void handle(InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContextImpl context) {
         this.publish(new UndiscoveredEstablishConnectionEvent(new ComServerEventServiceProvider(), this.comPort));
         this.initializeContext(context);
+        this.initializeLogging();
         OfflineDevice device;
         InboundDeviceProtocol.DiscoverResultType discoverResultType;
         try {
             discoverResultType = this.doDiscovery(inboundDeviceProtocol);
+            this.publishDiscoveryResult(discoverResultType, inboundDeviceProtocol);
             device = this.comServerDAO.findOfflineDevice(inboundDeviceProtocol.getDeviceIdentifier());
             if (device == null) {
                 this.handleUnknownDevice(inboundDeviceProtocol);
@@ -163,6 +174,22 @@ public class InboundCommunicationHandler {
             this.provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.FAILURE);
         }
         this.closeContext();
+    }
+
+    private void publishDiscoveryResult(InboundDeviceProtocol.DiscoverResultType discoverResultType, InboundDeviceProtocol inboundDeviceProtocol) {
+        switch (discoverResultType) {
+            case IDENTIFIER: {
+                this.logger.discoveryFoundIdentifierOnly(inboundDeviceProtocol.getDeviceIdentifier(), this.getComPort());
+                break;
+            }
+            case DATA: {
+                this.logger.discoveryFoundIdentifierAndData(inboundDeviceProtocol.getDeviceIdentifier(), this.getComPort());
+                break;
+            }
+            default: {
+                throw new CommunicationException(MessageSeeds.UNSUPPORTED_DISCOVERY_RESULT_TYPE, discoverResultType);
+            }
+        }
     }
 
     /**
@@ -269,12 +296,37 @@ public class InboundCommunicationHandler {
     }
 
     private InboundDeviceProtocol.DiscoverResultType doDiscovery(InboundDeviceProtocol inboundDeviceProtocol) {
+        this.logger.discoveryStarted(inboundDeviceProtocol.getClass().getName(), this.getComPort());
         this.discovering = new StopWatch();
         try {
             return inboundDeviceProtocol.doDiscovery();
         } finally {
             this.discovering.stop();
         }
+    }
+
+    private void initializeLogging() {
+        this.logger = new CompositeComPortDiscoveryLogger(this.newNormalLogger(), this.newEventLogger());
+    }
+
+    private ComPortDiscoveryLogger newNormalLogger() {
+        ComPortDiscoveryLogger logger = LoggerFactory.getUniqueLoggerFor(ComPortDiscoveryLogger.class, this.getServerLogLevel());
+        Logger actualLogger = ((LoggerFactory.LoggerHolder) logger).getLogger();
+        actualLogger.addHandler(new DiscoveryContextLogHandler(this.serviceProvider.clock(), this.context));
+        this.context.setLogger(actualLogger);
+        return logger;
+
+    }
+
+    private ComPortDiscoveryLogger newEventLogger() {
+        return LoggerFactory.getLoggerFor(ComPortDiscoveryLogger.class, this.getAnonymousLogger());
+    }
+
+    private Logger getAnonymousLogger () {
+        Logger logger = Logger.getAnonymousLogger();
+        logger.setLevel(Level.FINEST);
+        logger.addHandler(new ComPortDiscoveryLogHandler(this));
+        return logger;
     }
 
     private void initializeContext(InboundDiscoveryContextImpl context) {
@@ -386,8 +438,40 @@ public class InboundCommunicationHandler {
     }
 
     private void provideResponse(InboundDeviceProtocol inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType responseType) {
+        this.publishResponse(inboundDeviceProtocol, responseType);
         inboundDeviceProtocol.provideResponse(responseType);
         this.responseType = responseType;
+    }
+
+    private void publishResponse(InboundDeviceProtocol inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType responseType) {
+        switch (responseType) {
+            case DEVICE_NOT_FOUND: {
+                this.logger.deviceNotFound(inboundDeviceProtocol.getDeviceIdentifier(), this.getComPort());
+                break;
+            }
+            case FAILURE: {
+                this.logger.discoveryFailed(inboundDeviceProtocol.getClass().getName(), this.getComPort());
+                break;
+            }
+            case DEVICE_DOES_NOT_EXPECT_INBOUND: {
+                this.logger.deviceNotConfiguredForInboundCommunication(inboundDeviceProtocol.getDeviceIdentifier(), this.getComPort());
+                break;
+            }
+            case ENCRYPTION_REQUIRED: {
+                this.logger.deviceRequiresEncryptedData(inboundDeviceProtocol.getDeviceIdentifier(), this.getComPort());
+                break;
+            }
+            case SERVER_BUSY: {
+                this.logger.serverTooBusy(inboundDeviceProtocol.getDeviceIdentifier(), this.getComPort());
+                break;
+            }
+            case SUCCESS: {
+                this.logger.deviceIdentified(inboundDeviceProtocol.getDeviceIdentifier(), this.getComPort());
+                break;
+            }
+            default: {
+            }
+        }
     }
 
     public InboundDeviceProtocol.DiscoverResponseType getResponseType() {
@@ -468,6 +552,18 @@ public class InboundCommunicationHandler {
     	return serviceProvider.clock().instant();
     }
 
+    protected LogLevel getServerLogLevel() {
+        return this.getServerLogLevel(this.getComPort());
+    }
+
+    private LogLevel getServerLogLevel (ComPort comPort) {
+        return this.getServerLogLevel(comPort.getComServer());
+    }
+
+    private LogLevel getServerLogLevel (ComServer comServer) {
+        return LogLevelMapper.forComServerLogLevel().toLogLevel(comServer.getServerLogLevel());
+    }
+
     private void publish (ComServerEvent event) {
         EventPublisherImpl.getInstance().publish(event);
     }
@@ -477,6 +573,71 @@ public class InboundCommunicationHandler {
         public Clock clock() {
             return serviceProvider.clock();
         }
+    }
+
+    /**
+     * Provides an implementation for the {@link ComPortDiscoveryLogger} interface
+     * that is actually a compisite of multiple loggers
+     * and simply delegates to each of the separate loggers.
+     */
+    private class CompositeComPortDiscoveryLogger implements ComPortDiscoveryLogger {
+        private List<ComPortDiscoveryLogger> loggers;
+
+        private CompositeComPortDiscoveryLogger(ComPortDiscoveryLogger... loggers) {
+            super();
+            this.loggers = Arrays.asList(loggers);
+        }
+
+        @Override
+        public void discoveryStarted(String discoveryProtocolClassName, InboundComPort comPort) {
+            this.loggers.forEach(each -> each.discoveryStarted(discoveryProtocolClassName, comPort));
+        }
+
+        @Override
+        public void discoveryFailed(String discoveryProtocolClassName, InboundComPort comPort) {
+            this.loggers.forEach(each -> each.discoveryFailed(discoveryProtocolClassName, comPort));
+        }
+
+        @Override
+        public void discoveryFoundIdentifierOnly(DeviceIdentifier deviceIdentifier, InboundComPort comPort) {
+            this.loggers.forEach(each -> each.discoveryFoundIdentifierOnly(deviceIdentifier, comPort));
+        }
+
+        @Override
+        public void discoveryFoundIdentifierAndData(DeviceIdentifier deviceIdentifier, InboundComPort comPort) {
+            this.loggers.forEach(each -> each.discoveryFoundIdentifierAndData(deviceIdentifier, comPort));
+        }
+
+        @Override
+        public void deviceNotFound(DeviceIdentifier deviceIdentifier, InboundComPort comPort) {
+            this.loggers.forEach(each -> each.deviceNotFound(deviceIdentifier, comPort));
+        }
+
+        @Override
+        public void deviceNotConfiguredForInboundCommunication(DeviceIdentifier deviceIdentifier, InboundComPort comPort) {
+            this.loggers.forEach(each -> each.deviceNotConfiguredForInboundCommunication(deviceIdentifier, comPort));
+        }
+
+        @Override
+        public void deviceRequiresEncryptedData(DeviceIdentifier deviceIdentifier, InboundComPort comPort) {
+            this.loggers.forEach(each -> each.deviceRequiresEncryptedData(deviceIdentifier, comPort));
+        }
+
+        @Override
+        public void serverTooBusy(DeviceIdentifier deviceIdentifier, InboundComPort comPort) {
+            this.loggers.forEach(each -> each.serverTooBusy(deviceIdentifier, comPort));
+        }
+
+        @Override
+        public void deviceIdentified(DeviceIdentifier deviceIdentifier, InboundComPort comPort) {
+            this.loggers.forEach(each -> each.deviceIdentified(deviceIdentifier, comPort));
+        }
+
+        @Override
+        public void collectedDataWasFiltered(DeviceIdentifier deviceIdentifier, InboundComPort comPort, int numberOfItemsFiltered) {
+            this.loggers.forEach(each -> each.collectedDataWasFiltered(deviceIdentifier, comPort, numberOfItemsFiltered));
+        }
+
     }
 
 }
