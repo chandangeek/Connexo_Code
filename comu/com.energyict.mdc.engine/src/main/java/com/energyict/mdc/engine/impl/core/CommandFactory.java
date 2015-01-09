@@ -159,9 +159,9 @@ public final class CommandFactory {
      */
     public static CommandCreator commandCreatorForPluggableClass(DeviceProtocolPluggableClass pluggableClass) {
         DeviceProtocol deviceProtocol = pluggableClass.getDeviceProtocol();
-        if (deviceProtocol.getClass().getName().endsWith(".MeterProtocolAdapter")) {
+        if (deviceProtocol.getClass().getName().endsWith(".MeterProtocolAdapterImpl")) {
             return new LegacyMeterProtocolCommandCreator();
-        } else if (deviceProtocol.getClass().getName().endsWith(".SmartMeterProtocolAdapter")) {
+        } else if (deviceProtocol.getClass().getName().endsWith(".SmartMeterProtocolAdapterImpl")) {
             return new LegacySmartMeterProtocolCommandCreator();
         } else {
             return new DeviceProtocolCommandCreator();
