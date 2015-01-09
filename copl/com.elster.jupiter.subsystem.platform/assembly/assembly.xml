@@ -25,10 +25,21 @@
             <directory>assembly/logs</directory>
             <outputDirectory>logs</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>assembly/licenses</directory>
+            <outputDirectory>licenses</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>target/generated-sources/license</directory>
+            <outputDirectory>licenses</outputDirectory>
+            <includes>
+                <include>*.txt</include>
+            </includes>
+        </fileSet>
     </fileSets>
 
     <dependencySets>
-        <dependencySet>
+    <dependencySet>
             <includes>
                 <!-- External dependencies. -->
                 <include>com.elster.jupiter.subsystem:third-party:zip</include>
@@ -52,15 +63,6 @@
             <useTransitiveFiltering>false</useTransitiveFiltering>
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
-        <!--<dependencySet>
-            <outputDirectory>bundles</outputDirectory>
-            <unpack>false</unpack>
-            <outputFileNameMapping>
-                ${artifact.groupId}.${artifact.artifactId}-${artifact.version}${dashClassifier?}.${artifact.extension}
-            </outputFileNameMapping>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
-        </dependencySet>-->
 
     </dependencySets>
 </assembly>
