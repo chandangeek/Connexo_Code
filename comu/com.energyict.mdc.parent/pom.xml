@@ -27,13 +27,10 @@
         <jupiter.version>1.0.0-SNAPSHOT</jupiter.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <aspectj.version>1.8.2</aspectj.version>
         <serialio.version>10.0.4.2</serialio.version>
         <org.rxtx.version>2.2pre2</org.rxtx.version>
         <jetty-server.version>7.6.3.v20120416</jetty-server.version>
         <json.version>20090211</json.version>
-        <perf4j.version>0.9.16</perf4j.version>
-        <aspectj.maven.plugin.version>1.6</aspectj.maven.plugin.version>
         <!-- next line is the argLine for the maven-surefire-plugin
              but it must be declared as a property because of the jacoco plugin (defined in jupiter parent)
              see http://docs.codehaus.org/display/SONAR/JaCoCo+Plugin
@@ -163,12 +160,6 @@
                 <version>1.0.0-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
-            <!-- AOP -->
-            <dependency>
-                <groupId>org.aspectj</groupId>
-                <artifactId>aspectjrt</artifactId>
-                <version>1.8.2</version>
-            </dependency>
 
             <!-- Logging -->
             <dependency>
@@ -182,13 +173,6 @@
                 <artifactId>javassist</artifactId>
                 <version>3.16.1-GA</version>
       </dependency>
-
-            <!-- Performance monitoring -->
-            <dependency>
-                <groupId>org.perf4j</groupId>
-                <artifactId>perf4j</artifactId>
-                <version>${perf4j.version}</version>
-            </dependency>
 
             <!-- ComPort libraries -->
             <dependency>
