@@ -1,3 +1,52 @@
+/* line 319, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-default-top-tr {
+  background-position: right -9px;
+}
+
+/* line 323, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-default-top-bl {
+  background-position: 0 -12px;
+}
+
+/* line 327, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-default-top-br {
+  background-position: right -15px;
+}
+
+/* line 331, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-default-top-ml {
+  background-position: 0 top;
+}
+
+/* line 335, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-default-top-mr {
+  background-position: right top;
+}
+
+/* line 339, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-default-top-tc {
+  background-position: 0 0;
+}
+
+/* line 343, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-default-top-bc {
+  background-position: 0 -3px;
+}
+
+/* line 350, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-default-top-tr,
+.x-window-header-default-top-br,
+.x-window-header-default-top-mr {
+  padding-right: 3px;
+}
+
+/* line 356, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-default-top-tl,
+.x-window-header-default-top-bl,
+.x-window-header-default-top-ml {
+  padding-left: 3px;
+}
+
 /* line 360, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-top-tc {
   height: 3px;

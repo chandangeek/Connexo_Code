@@ -1,3 +1,16 @@
+/* line 418, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-tag-large-ml,
+.x-btn-tag-large-mr {
+  zoom: 1;
+  background-image: url(images/btn/btn-tag-large-sides.gif);
+  background-repeat: repeat-y;
+}
+
+/* line 430, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-tag-large-mc {
+  padding: 0px 0px 0px 0px;
+}
+
 /* line 439, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-strict .x-ie7 .x-btn-tag-large-tl,
 .x-strict .x-ie7 .x-btn-tag-large-bl {
@@ -16200,53 +16213,4 @@ div.x-form-spinner-down {
 /* line 315, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-top-tl {
   background-position: 0 -6px;
-}
-
-/* line 319, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-default-top-tr {
-  background-position: right -9px;
-}
-
-/* line 323, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-default-top-bl {
-  background-position: 0 -12px;
-}
-
-/* line 327, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-default-top-br {
-  background-position: right -15px;
-}
-
-/* line 331, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-default-top-ml {
-  background-position: 0 top;
-}
-
-/* line 335, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-default-top-mr {
-  background-position: right top;
-}
-
-/* line 339, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-default-top-tc {
-  background-position: 0 0;
-}
-
-/* line 343, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-default-top-bc {
-  background-position: 0 -3px;
-}
-
-/* line 350, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-default-top-tr,
-.x-window-header-default-top-br,
-.x-window-header-default-top-mr {
-  padding-right: 3px;
-}
-
-/* line 356, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-default-top-tl,
-.x-window-header-default-top-bl,
-.x-window-header-default-top-ml {
-  padding-left: 3px;
 }
