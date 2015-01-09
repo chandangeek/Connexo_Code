@@ -48,12 +48,15 @@ public class WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry impleme
         OfflineDeviceMessageAttribute firmwareUpdateImageIdentifierAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, firmwareUpdateImageIdentifierAttributeName);
         MessageTag messageTag = new MessageTag(RtuMessageConstant.FIRMWARE_UPGRADE);
         messageTag.add(new MessageAttribute(RtuMessageConstant.FIRMWARE, userFileAttribute.getDeviceMessageAttributeValue()));
-        messageTag.add(new MessageAttribute(RtuMessageConstant.FIRMWARE_ACTIVATE_DATE, activationDateAttribute.getDeviceMessageAttributeValue()));
 
-        String deviceMessageAttributeValue = firmwareUpdateImageIdentifierAttribute.getDeviceMessageAttributeValue();
+        String activationDateAttributeValue = activationDateAttribute.getDeviceMessageAttributeValue();
+        if (activationDateAttributeName != null && activationDateAttributeValue != null && !activationDateAttributeValue.isEmpty()) {
+            messageTag.add(new MessageAttribute(RtuMessageConstant.FIRMWARE_ACTIVATE_DATE, activationDateAttributeValue));
+        }
 
-        if (firmwareUpdateImageIdentifierAttributeName != null && deviceMessageAttributeValue != null && !deviceMessageAttributeValue.isEmpty()) {
-            messageTag.add(new MessageAttribute(RtuMessageConstant.FIRMWARE_IMAGE_IDENTIFIER, deviceMessageAttributeValue));
+        String imageIdentifierAttributeValue = firmwareUpdateImageIdentifierAttribute.getDeviceMessageAttributeValue();
+        if (firmwareUpdateImageIdentifierAttributeName != null && imageIdentifierAttributeValue != null && !imageIdentifierAttributeValue.isEmpty()) {
+            messageTag.add(new MessageAttribute(RtuMessageConstant.FIRMWARE_IMAGE_IDENTIFIER, imageIdentifierAttributeValue));
         }
         messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());

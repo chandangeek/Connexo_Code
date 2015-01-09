@@ -4,13 +4,15 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.OneTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.authenticationLevelAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
  * Represents a MessageConverter for the legacy DSMR4.0 L&G DE350 protocol.
@@ -36,6 +38,9 @@ public class Dsmr40MessageConverter extends Dsmr23MessageConverter {
 
         registry.put(ConfigurationChangeDeviceMessage.ENABLE_DISCOVERY_ON_POWER_UP, new SimpleTagMessageEntry(RtuMessageConstant.ENABLE_DISCOVERY_ON_POWER_UP));
         registry.put(ConfigurationChangeDeviceMessage.DISABLE_DISCOVERY_ON_POWER_UP, new SimpleTagMessageEntry(RtuMessageConstant.DISABLE_DISCOVERY_ON_POWER_UP));
+
+        // Firmware upgrade
+        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER, new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(firmwareUpdateUserFileAttributeName, null, firmwareUpdateImageIdentifierAttributeName));
     }
 
     /**
