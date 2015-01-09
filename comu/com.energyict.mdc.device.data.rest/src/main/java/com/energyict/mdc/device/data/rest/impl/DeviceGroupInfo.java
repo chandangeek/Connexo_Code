@@ -50,7 +50,7 @@ public class DeviceGroupInfo {
                 String criteriaName = criteriaToAdd.getCriteriaName();
                 List<Object> values = criteriaToAdd.getCriteriaValues();
 
-                if ("deviceConfiguration.deviceType.id".equals(criteriaName)) {
+                if ("deviceConfiguration.deviceType.name".equals(criteriaName)) {
                     for (Object value : values) {
                         String deviceTypeName = (String) value;
                         Optional<DeviceType> deviceTypeOptional = deviceConfigurationService.findDeviceTypeByName(deviceTypeName);
@@ -59,7 +59,7 @@ public class DeviceGroupInfo {
                             deviceGroupInfo.deviceTypeIds.add(deviceType.getId());
                         }
                     }
-                } else if ("deviceConfiguration.id".equals(criteriaName)) {
+                } else if ("deviceConfiguration.name".equals(criteriaName)) {
                     for (Object value : values) {
                         if (deviceType != null) {
                             String deviceConfigurationName = (String) value;
@@ -103,22 +103,24 @@ public class DeviceGroupInfo {
                 List<Object> values = criterium.getCriteriaValues();
                 List<Object> newValues = new ArrayList<Object>();
                 for (Object value : values) {
-                    Optional<DeviceType> deviceTypeOptional = deviceConfigurationService.findDeviceType((int) value);
+                    Optional<DeviceType> deviceTypeOptional = deviceConfigurationService.findDeviceType(((Number) value).longValue());
                     if (deviceTypeOptional.isPresent()) {
                         newValues.add(deviceTypeOptional.get().getName());
                     }
                 }
                 criterium.setCriteriaValues(newValues);
+                criterium.setCriteriaName("deviceConfiguration.deviceType.name");
             } else if ("deviceConfiguration.id".equals(criteriaName)) {
                 List<Object> values = criterium.getCriteriaValues();
                 List<Object> newValues = new ArrayList<Object>();
                 for (Object value : values) {
-                    Optional<DeviceConfiguration> deviceConfigurationOptional = deviceConfigurationService.findDeviceConfiguration((int) value);
+                    Optional<DeviceConfiguration> deviceConfigurationOptional = deviceConfigurationService.findDeviceConfiguration(((Number) value).longValue());
                     if (deviceConfigurationOptional.isPresent()) {
                         newValues.add(deviceConfigurationOptional.get().getName());
                     }
                 }
                 criterium.setCriteriaValues(newValues);
+                criterium.setCriteriaName("deviceConfiguration.name");
             }
             result.add(criterium);
         }
