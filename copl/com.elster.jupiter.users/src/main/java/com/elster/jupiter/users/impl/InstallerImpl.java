@@ -95,8 +95,8 @@ public class InstallerImpl {
             userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.LONG_DATE, "EEE dd MMM ''yy", "D d M \'y", true);
             userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.SHORT_TIME, "HH:mm", "H:i", true);
             userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.LONG_TIME, "HH:mm:ss", "H:i:s", true);
-            userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.SHORT_DATETIME, "HH:mm dd MMM ''yy", "H:i d M \'y", true);
-            userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.LONG_DATETIME, "HH:mm:ss EEE dd MMM ''yy", "D d M 'y H:i:s", true);
+            userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.SHORT_DATETIME, "HH:mm dd MMM ''yy", "d M \'y H:i", true);
+            userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.LONG_DATETIME, "HH:mm:ss EEE dd MMM ''yy", "D d M \'y H:i:s", true);
             userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.DECIMAL_PRECISION, "2", "2", true);
             userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.DECIMAL_SEPARATOR, ".", ".", true);
             userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.THOUSANDS_SEPARATOR, ",", ",", true);
