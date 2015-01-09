@@ -46,8 +46,8 @@
             <artifactId>serialio</artifactId>
         </dependency>
         <dependency>
-            <groupId>se.joel.osgi</groupId>
-            <artifactId>rxtx-osgi</artifactId>
+            <groupId>org.rxtx</groupId>
+            <artifactId>rxtx</artifactId>
         </dependency>
 
         <!-- OSGi -->
