@@ -316,6 +316,8 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
             return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(abstractDataType.getContentByteArray()));
         } else if (abstractDataType.isNumerical()) {
             return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.getUndefined()));
+        } else if (abstractDataType.isTypeEnum()) {
+            return new RegisterValue(register, new Quantity(abstractDataType.getTypeEnum().getValue(), Unit.getUndefined()));
         } else {
             throw new UnsupportedException("Register with obisCode " + rObisCode + " is not supported.");
         }
