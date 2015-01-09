@@ -85,7 +85,7 @@ public class SerialPortConnectorTest {
     @Test
     public void testProperAccept() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, this.clock));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
         serialComChannel.setResponses(Arrays.asList(
@@ -123,7 +123,7 @@ public class SerialPortConnectorTest {
     @Test
     public void testProperAcceptWithAdditionalRubbish() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, this.clock));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
         serialComChannel.setResponses(Arrays.asList(
@@ -162,7 +162,7 @@ public class SerialPortConnectorTest {
     @Test
     public void testProperAcceptWithDelayBeforeSend() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, this.clock));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
         when(comPort.getDelayBeforeSend()).thenReturn(new TimeDuration(500, TimeDuration.TimeUnit.MILLISECONDS));
 
@@ -201,7 +201,7 @@ public class SerialPortConnectorTest {
     @Test
     public void testProperAcceptMultipleInitStrings() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, this.clock));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
         when(comPort.getModemInitStrings()).thenReturn(Arrays.asList("FIRST INIT", "2TH INIT"));
 
@@ -242,7 +242,7 @@ public class SerialPortConnectorTest {
     @Test
     public void testProperAcceptWithLongConnectDelay() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, this.clock));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
         serialComChannel.setResponses(Arrays.asList(
@@ -280,7 +280,7 @@ public class SerialPortConnectorTest {
     @Test
     public void testProperAcceptButTimeoutBetweenRings() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, this.clock));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
         serialComChannel.setResponses(Arrays.asList(
@@ -323,7 +323,7 @@ public class SerialPortConnectorTest {
     @Test(expected = ModemException.class)
     public void testNoConnectDueToTimeout() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, this.clock));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
         serialComChannel.setResponses(Arrays.asList(
@@ -365,7 +365,7 @@ public class SerialPortConnectorTest {
     @Test(expected = ModemException.class)
     public void testTimeoutAtModemCommandWithRetries() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, this.clock));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
 //        serialComChannel.setResponses(Arrays.asList("RUBBISH - RUBBISH", "RUBBISH - RUBBISH", "RUBBISH - RUBBISH"));      // Answer at modem hang up command (first try)
@@ -402,7 +402,7 @@ public class SerialPortConnectorTest {
         when(comPort.getAddressSelector()).thenReturn("");
 
         // Business methods
-        SerialPortConnector portConnector = new SerialPortConnector(comPort, serialComponentService, this.hexService, this.clock);
+        SerialPortConnector portConnector = new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock);
         portConnector.accept();
 
         // Asserts

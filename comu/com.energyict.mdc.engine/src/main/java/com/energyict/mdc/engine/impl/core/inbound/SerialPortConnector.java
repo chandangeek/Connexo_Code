@@ -5,6 +5,7 @@ import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.ModemComponent;
@@ -34,6 +35,7 @@ public class SerialPortConnector implements InboundComPortConnector {
     private final ModemBasedInboundComPort comPort;
     private final SerialComponentService serialComponentService;
     private final HexService hexService;
+    private final EventPublisher eventPublisher;
     private final Clock clock;
 
     /**
@@ -41,11 +43,12 @@ public class SerialPortConnector implements InboundComPortConnector {
      */
     private int currentRingCount;
 
-    public SerialPortConnector(ModemBasedInboundComPort comPort, SerialComponentService serialComponentService, HexService hexService, Clock clock) {
+    public SerialPortConnector(ModemBasedInboundComPort comPort, SerialComponentService serialComponentService, HexService hexService, EventPublisher eventPublisher, Clock clock) {
         super();
         this.comPort = comPort;
         this.serialComponentService = serialComponentService;
         this.hexService = hexService;
+        this.eventPublisher = eventPublisher;
         this.clock = clock;
     }
 
@@ -57,7 +60,7 @@ public class SerialPortConnector implements InboundComPortConnector {
         waitForNumberOfRings(comChannel, modemComponent);
         acceptCallAndConnect(comChannel, modemComponent);
 
-        return new ComPortRelatedComChannelImpl(comChannel, this.comPort, this.clock, this.hexService);
+        return new ComPortRelatedComChannelImpl(comChannel, this.comPort, this.clock, this.hexService, eventPublisher);
     }
 
 

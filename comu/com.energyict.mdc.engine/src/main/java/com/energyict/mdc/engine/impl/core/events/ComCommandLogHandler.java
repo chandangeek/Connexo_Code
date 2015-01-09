@@ -4,6 +4,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventPublishingLogHandler;
 import com.energyict.mdc.engine.impl.events.logging.ComCommandLoggingEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -23,8 +24,8 @@ public class ComCommandLogHandler extends EventPublishingLogHandler {
     private final ConnectionTask connectionTask;
     private final ComTaskExecution comTaskExecution;
 
-    public ComCommandLogHandler(ComPort comPort, ConnectionTask connectionTask, ComTaskExecution comTaskExecution) {
-        super();
+    public ComCommandLogHandler(EventPublisher eventPublisher, AbstractComServerEventImpl.ServiceProvider serviceProvider, ComPort comPort, ConnectionTask connectionTask, ComTaskExecution comTaskExecution) {
+        super(eventPublisher, serviceProvider);
         this.comPort = comPort;
         this.connectionTask = connectionTask;
         this.comTaskExecution = comTaskExecution;

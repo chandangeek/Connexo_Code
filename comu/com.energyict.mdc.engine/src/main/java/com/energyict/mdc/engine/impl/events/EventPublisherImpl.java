@@ -24,8 +24,6 @@ import java.util.Set;
  */
 public class EventPublisherImpl implements EventPublisher {
 
-    private static EventPublisherImpl soleInstance;
-
     private final Clock clock;
     private final RunningComServer comServer;
     private FilteringEventReceiverFactory factory;
@@ -40,18 +38,6 @@ public class EventPublisherImpl implements EventPublisher {
         this.comServer = comServer;
         this.clock = clock;
         this.factory = factory;
-        /* Todo: Every RunningComServer should have its own publisher
-         *       so avoid setting the one and only publisher.
-         *       This will require refactoring in AOP code though. */
-        setInstance(this);
-    }
-
-    public static synchronized EventPublisherImpl getInstance() {
-        return soleInstance;
-    }
-
-    public static synchronized void setInstance(EventPublisherImpl eventPublisher) {
-        soleInstance = eventPublisher;
     }
 
     public AbstractComServerEventImpl.ServiceProvider serviceProvider() {

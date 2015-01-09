@@ -37,7 +37,7 @@ import com.energyict.mdc.engine.impl.core.logging.ComPortConnectionLogger;
 import com.energyict.mdc.engine.impl.core.logging.CompositeLogger;
 import com.energyict.mdc.engine.impl.core.logging.ExecutionContextLogHandler;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionCompletionEvent;
 import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionFailureEvent;
 import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionStartedEvent;
@@ -94,6 +94,8 @@ public final class ExecutionContext implements JournalEntryFactory {
         public ConnectionTaskService connectionTaskService();
 
         public DeviceService deviceService();
+
+        public EventPublisher eventPublisher();
 
     }
 
@@ -159,7 +161,7 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     private void addEventLogger() {
-        Logger actualLogger = this.getAnonymousLogger(new ComPortLogHandler(this.getComPort()));
+        Logger actualLogger = this.getAnonymousLogger(new ComPortLogHandler(this.getComPort(), this.serviceProvider.eventPublisher(), new ComServerEventServiceProvider()));
         ComPortConnectionLogger eventLogger = LoggerFactory.getLoggerFor(ComPortConnectionLogger.class, actualLogger);
         this.connectionLogger.add(eventLogger);
         this.logger.add(actualLogger);
@@ -188,6 +190,10 @@ public final class ExecutionContext implements JournalEntryFactory {
 
     public Clock clock() {
         return this.serviceProvider.clock();
+    }
+
+    public EventPublisher eventPublisher() {
+        return this.serviceProvider.eventPublisher();
     }
 
     private boolean isConnected() {
@@ -614,7 +620,7 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     private void publish (ComServerEvent event) {
-        EventPublisherImpl.getInstance().publish(event);
+        this.eventPublisher().publish(event);
     }
 
     private class ConnectionTaskPropertyCache implements ConnectionTaskPropertyProvider {

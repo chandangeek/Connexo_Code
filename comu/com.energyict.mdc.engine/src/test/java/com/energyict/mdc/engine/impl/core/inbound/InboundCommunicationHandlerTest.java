@@ -663,7 +663,7 @@ public class InboundCommunicationHandlerTest {
     }
 
     private InboundDiscoveryContextImpl newBinaryInboundDiscoveryContext() {
-        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(this.comPort, new ComPortRelatedComChannelImpl(mock(ComChannel.class), this.comPort, clock, this.hexService), this.connectionTaskService);
+        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(this.comPort, new ComPortRelatedComChannelImpl(mock(ComChannel.class), this.comPort, clock, this.hexService, eventPublisher), this.connectionTaskService);
         this.initializeInboundDiscoveryContext(context);
         return context;
     }

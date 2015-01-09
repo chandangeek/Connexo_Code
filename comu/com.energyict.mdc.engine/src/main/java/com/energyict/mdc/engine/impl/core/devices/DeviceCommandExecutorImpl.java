@@ -9,7 +9,9 @@ import com.energyict.mdc.engine.impl.concurrent.ResizeableSemaphore;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.DeviceCommandExecutorLogHandler;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
@@ -18,6 +20,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Optional;
 import org.eclipse.jetty.util.ConcurrentHashSet;
@@ -49,8 +52,10 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
 
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
     private final PriorityConfigurableThreadFactory threadFactory;
+    private final Clock clock;
     private final UserService userService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final EventPublisher eventPublisher;
     private int numberOfThreads;
     private final WorkQueue workQueue;
     private ExecutorService executorService;
@@ -59,8 +64,10 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     private String name;
     private CompositeDeviceCommandExecutorLogger logger;
 
-    public DeviceCommandExecutorImpl(String comServerName, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ThreadFactory threadFactory, ComServerDAO comServerDAO, ThreadPrincipalService threadPrincipalService, UserService userService) {
+    public DeviceCommandExecutorImpl(String comServerName, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ThreadFactory threadFactory, Clock clock, ComServerDAO comServerDAO, EventPublisher eventPublisher, ThreadPrincipalService threadPrincipalService, UserService userService) {
         super();
+        this.clock = clock;
+        this.eventPublisher = eventPublisher;
         this.workQueue = new WorkQueue(queueCapacity);
         this.threadFactory = new PriorityConfigurableThreadFactory(threadFactory, threadPriority, name);
         this.numberOfThreads = numberOfThreads;
@@ -104,7 +111,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     private Logger getAnonymousLogger () {
         Logger logger = Logger.getAnonymousLogger();
         logger.setLevel(Level.FINEST);
-        logger.addHandler(new DeviceCommandExecutorLogHandler());
+        logger.addHandler(new DeviceCommandExecutorLogHandler(this.eventPublisher, new ComServerEventServiceProvider()));
         return logger;
     }
 
@@ -643,6 +650,13 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
             this.loggers.forEach(each -> each.queueCapacityChanged(deviceCommandExecutor, oldCapacity, newCapacity));
         }
 
+    }
+
+    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
+        @Override
+        public Clock clock() {
+            return clock;
+        }
     }
 
 }

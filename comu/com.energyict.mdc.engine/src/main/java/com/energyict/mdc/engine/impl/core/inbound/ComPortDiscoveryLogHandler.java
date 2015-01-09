@@ -2,11 +2,11 @@ package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventPublishingLogHandler;
 import com.energyict.mdc.engine.impl.events.logging.CommunicationLoggingEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 
 /**
@@ -21,10 +21,10 @@ import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
  */
 public class ComPortDiscoveryLogHandler extends EventPublishingLogHandler {
 
-    private InboundCommunicationHandler inboundCommunicationHandler;
+    private final InboundCommunicationHandler inboundCommunicationHandler;
 
-    public ComPortDiscoveryLogHandler (InboundCommunicationHandler inboundCommunicationHandler) {
-        super();
+    protected ComPortDiscoveryLogHandler(InboundCommunicationHandler inboundCommunicationHandler, EventPublisher eventPublisher, AbstractComServerEventImpl.ServiceProvider serviceProvider) {
+        super(eventPublisher, serviceProvider);
         this.inboundCommunicationHandler = inboundCommunicationHandler;
     }
 

@@ -129,7 +129,7 @@ public class UDPPortConnectorTest {
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
 
-        UDPPortConnector udpPortConnector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, clock);
+        UDPPortConnector udpPortConnector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock);
 
         // Business method
         ComChannel accept = udpPortConnector.accept();
@@ -151,7 +151,7 @@ public class UDPPortConnectorTest {
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
 
-        UDPPortConnector udpPortConnector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, clock);
+        UDPPortConnector udpPortConnector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock);
 
         try {
             // Business method
@@ -175,7 +175,7 @@ public class UDPPortConnectorTest {
         List<String> receivedResponses = new ArrayList<>();   // received from the client
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
-        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, clock);
+        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock);
 
         final UdpClient udpClient = new UdpClient(answerCounter);
         Thread udpClientThread = new Thread(udpClient);
@@ -222,7 +222,7 @@ public class UDPPortConnectorTest {
         List<String> receivedResponses = new ArrayList<>();   // received from the client
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
-        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, clock);
+        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock);
 
         final UdpClient udpClient = new UdpClient(answerCounter);
         Thread udpClientThread = new Thread(udpClient);
@@ -269,7 +269,7 @@ public class UDPPortConnectorTest {
         List<String> receivedResponses = new ArrayList<>();   // received from the client
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
-        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, clock);
+        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock);
 
         UdpClient udpClient = new UdpClient(answerCounter);
         Thread udpClientThread = new Thread(udpClient);
@@ -327,7 +327,7 @@ public class UDPPortConnectorTest {
         List<String> receivedResponses = new ArrayList<>();   // received from the client
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
-        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, clock);
+        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock);
 
         final UdpClient udpClient = new UdpClient(answerCounter);
         Thread udpClientThread = new Thread(udpClient);

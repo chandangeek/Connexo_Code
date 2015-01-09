@@ -28,7 +28,7 @@ import com.energyict.mdc.engine.impl.core.InboundJobExecutionDataProcessor;
 import com.energyict.mdc.engine.impl.core.InboundJobExecutionGroup;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.UnknownInboundDeviceEvent;
 import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionCompletionEvent;
 import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionStartedEvent;
@@ -98,6 +98,8 @@ public class InboundCommunicationHandler {
         public EmbeddedWebServerFactory embeddedWebServerFactory();
 
         public ProtocolPluggableService protocolPluggableService();
+
+        public EventPublisher eventPublisher();
 
     }
 
@@ -325,7 +327,7 @@ public class InboundCommunicationHandler {
     private Logger getAnonymousLogger () {
         Logger logger = Logger.getAnonymousLogger();
         logger.setLevel(Level.FINEST);
-        logger.addHandler(new ComPortDiscoveryLogHandler(this));
+        logger.addHandler(new ComPortDiscoveryLogHandler(this, this.serviceProvider.eventPublisher(), new ComServerEventServiceProvider()));
         return logger;
     }
 
@@ -565,7 +567,7 @@ public class InboundCommunicationHandler {
     }
 
     private void publish (ComServerEvent event) {
-        EventPublisherImpl.getInstance().publish(event);
+        this.serviceProvider.eventPublisher().publish(event);
     }
 
     private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {

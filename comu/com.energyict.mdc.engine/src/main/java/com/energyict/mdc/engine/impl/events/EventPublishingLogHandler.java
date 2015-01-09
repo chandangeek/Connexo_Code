@@ -20,17 +20,22 @@ import java.util.logging.LogRecord;
  */
 public abstract class EventPublishingLogHandler extends Handler {
 
+    private final EventPublisher eventPublisher;
+    private final AbstractComServerEventImpl.ServiceProvider serviceProvider;
+
+    protected EventPublishingLogHandler(EventPublisher eventPublisher, AbstractComServerEventImpl.ServiceProvider serviceProvider) {
+        super();
+        this.eventPublisher = eventPublisher;
+        this.serviceProvider = serviceProvider;
+    }
+
     @Override
     public void publish (LogRecord record) {
-        EventPublisherImpl eventPublisher = EventPublisherImpl.getInstance();
-        // During shutdown, the EventPublisher may already be shutdown so test for null
-        if (eventPublisher != null) {
-            eventPublisher.publish(
-                    this.toEvent(
-                            eventPublisher.serviceProvider(),
-                            LogLevelMapper.forJavaUtilLogging().toLogLevel(record.getLevel()),
-                            this.extractInfo(record)));
-        }
+        this.eventPublisher.publish(
+                this.toEvent(
+                        this.serviceProvider,
+                        LogLevelMapper.forJavaUtilLogging().toLogLevel(record.getLevel()),
+                        this.extractInfo(record)));
     }
 
     /**

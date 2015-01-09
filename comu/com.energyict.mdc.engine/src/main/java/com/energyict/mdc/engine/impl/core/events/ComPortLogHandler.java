@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.core.events;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventPublishingLogHandler;
 import com.energyict.mdc.engine.impl.events.logging.ComPortOperationsLoggingEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -16,10 +17,10 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
  */
 public class ComPortLogHandler extends EventPublishingLogHandler {
 
-    private ComPort comPort;
+    private final ComPort comPort;
 
-    public ComPortLogHandler (ComPort comPort) {
-        super();
+    public ComPortLogHandler(ComPort comPort, EventPublisher eventPublisher, AbstractComServerEventImpl.ServiceProvider serviceProvider) {
+        super(eventPublisher, serviceProvider);
         this.comPort = comPort;
     }
 

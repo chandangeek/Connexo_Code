@@ -4,6 +4,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventPublishingLogHandler;
 import com.energyict.mdc.engine.impl.events.logging.CommunicationLoggingEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -20,10 +21,10 @@ import com.energyict.mdc.engine.config.ComPort;
  */
 public class ExecutionContextLogHandler extends EventPublishingLogHandler {
 
-    private ExecutionContext executionContext;
+    private final ExecutionContext executionContext;
 
-    public ExecutionContextLogHandler (ExecutionContext executionContext) {
-        super();
+    protected ExecutionContextLogHandler(EventPublisher eventPublisher, AbstractComServerEventImpl.ServiceProvider serviceProvider, ExecutionContext executionContext) {
+        super(eventPublisher, serviceProvider);
         this.executionContext = executionContext;
     }
 

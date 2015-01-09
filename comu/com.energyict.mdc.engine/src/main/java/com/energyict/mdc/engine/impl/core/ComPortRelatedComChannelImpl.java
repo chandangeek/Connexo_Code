@@ -4,7 +4,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.core.logging.ComChannelLogger;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.io.ReadEvent;
 import com.energyict.mdc.engine.impl.events.io.WriteEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -35,6 +35,7 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
 
     private final Clock clock;
     private final HexService hexService;
+    private final EventPublisher eventPublisher;
     private ComChannel comChannel;
     private ComChannelLogger logger;
     private ComPort comPort;
@@ -44,11 +45,12 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
     private final Counters sessionCounters = new Counters();
     private final Counters taskSessionCounters = new Counters();
 
-    public ComPortRelatedComChannelImpl(ComChannel comChannel, ComPort comPort, Clock clock, HexService hexService) {
+    public ComPortRelatedComChannelImpl(ComChannel comChannel, ComPort comPort, Clock clock, HexService hexService, EventPublisher eventPublisher) {
         super();
         this.comChannel = comChannel;
         this.clock = clock;
         this.hexService = hexService;
+        this.eventPublisher = eventPublisher;
         this.talking = new StopWatch(false);  // No cpu required;
         this.talking.stop();
         this.comPort = comPort;
@@ -310,7 +312,7 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
     }
 
     private void publish (ComServerEvent event) {
-        EventPublisherImpl.getInstance().publish(event);
+        this.eventPublisher.publish(event);
     }
 
     private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {

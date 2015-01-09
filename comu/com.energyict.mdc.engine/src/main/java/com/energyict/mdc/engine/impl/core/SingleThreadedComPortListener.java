@@ -40,7 +40,7 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
                         serviceProvider.serialAtComponentService(),
                         serviceProvider.socketService(),
                         serviceProvider.hexService(),
-                        serviceProvider.clock())
+                        eventPublisher, serviceProvider.clock())
         );
     }
 

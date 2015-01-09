@@ -13,7 +13,6 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.logging.ComPortConnectionLogger;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
@@ -58,7 +57,8 @@ public abstract class ScheduledJobImpl extends JobExecution {
                 getConnectionTask().connect(getComPort(), propertyProvider.getProperties()),
                 getComPort(),
                 getServiceProvider().clock(),
-                getServiceProvider().hexService());
+                getServiceProvider().hexService(),
+                getServiceProvider().eventPublisher());
     }
 
     @Override
@@ -162,7 +162,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
     }
 
     private void publish (ComServerEvent event) {
-        EventPublisherImpl.getInstance().publish(event);
+        this.getServiceProvider().eventPublisher().publish(event);
     }
 
     private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {

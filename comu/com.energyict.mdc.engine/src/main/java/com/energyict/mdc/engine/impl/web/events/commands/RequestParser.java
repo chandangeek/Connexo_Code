@@ -4,6 +4,7 @@ import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.util.Arrays;

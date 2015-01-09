@@ -1,8 +1,6 @@
 package com.energyict.mdc.engine.impl.events;
 
 import com.energyict.mdc.engine.events.ComServerEvent;
-import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-import com.energyict.mdc.engine.impl.events.EventPublishingLogHandler;
 import com.energyict.mdc.engine.impl.events.logging.UnrelatedLoggingEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 
@@ -15,6 +13,10 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
  * @since 2012-11-08 (16:04)
  */
 public class DeviceCommandExecutorLogHandler extends EventPublishingLogHandler {
+
+    public DeviceCommandExecutorLogHandler(EventPublisher eventPublisher, AbstractComServerEventImpl.ServiceProvider serviceProvider) {
+        super(eventPublisher, serviceProvider);
+    }
 
     @Override
     protected ComServerEvent toEvent(AbstractComServerEventImpl.ServiceProvider serviceProvider, LogLevel level, String logMessage) {

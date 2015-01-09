@@ -7,6 +7,7 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.events.ComPortLogHandler;
 import com.energyict.mdc.engine.impl.core.logging.ComPortOperationsLogger;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
@@ -19,6 +20,7 @@ import com.elster.jupiter.users.UserService;
 
 import org.joda.time.DateTimeConstants;
 
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -294,7 +296,9 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         private ComPortOperationsLogger newLogger (OutboundComPort comPort) {
             return new CompositeComPortOperationsLogger(
                     LoggerFactory.getLoggerFor(ComPortOperationsLogger.class, this.getServerLogLevel(comPort)),
-                    LoggerFactory.getLoggerFor(ComPortOperationsLogger.class, this.getAnonymousLogger(new ComPortLogHandler(comPort)))
+                    LoggerFactory.getLoggerFor(
+                            ComPortOperationsLogger.class,
+                            this.getAnonymousLogger(new ComPortLogHandler(comPort, serviceProvider.eventPublisher(), new ComServerEventServiceProvider())))
             );
         }
 
@@ -377,6 +381,13 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
             this.loggers.forEach(each -> each.unexpectedError(unexpected, comPortThreadName));
         }
 
+    }
+
+    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
+        @Override
+        public Clock clock() {
+            return serviceProvider.clock();
+        }
     }
 
 }

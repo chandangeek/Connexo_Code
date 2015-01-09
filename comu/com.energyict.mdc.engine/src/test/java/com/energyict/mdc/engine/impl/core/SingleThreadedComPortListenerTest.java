@@ -203,7 +203,7 @@ public class SingleThreadedComPortListenerTest {
 
         protected ComPortRelatedComChannel doAccept() {
             // Unit testing commands typically don't do anything useful
-            return new ComPortRelatedComChannelImpl(new VoidTestComChannel(), this.comPort, clock, hexService);
+            return new ComPortRelatedComChannelImpl(new VoidTestComChannel(), this.comPort, clock, hexService, eventPublisher);
         }
     }
 

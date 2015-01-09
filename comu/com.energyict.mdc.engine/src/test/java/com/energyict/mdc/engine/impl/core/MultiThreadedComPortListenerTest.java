@@ -466,7 +466,7 @@ public class MultiThreadedComPortListenerTest {
                     Thread.currentThread().interrupt();
                 }
             }
-            return new ComPortRelatedComChannelImpl(new VoidTestComChannel(), this.comPort, clock, hexService);
+            return new ComPortRelatedComChannelImpl(new VoidTestComChannel(), this.comPort, clock, hexService, eventPublisher);
         }
     }
 

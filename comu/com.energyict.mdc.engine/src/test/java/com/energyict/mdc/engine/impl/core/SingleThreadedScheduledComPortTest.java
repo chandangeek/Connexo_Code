@@ -415,7 +415,7 @@ public class SingleThreadedScheduledComPortTest {
         when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollection())).thenReturn(true);
-        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService);
+        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
         when(this.simultaneousConnectionTask1.connect(eq(comPort), anyList())).thenReturn(comChannel);
         final List<ComJob> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
@@ -506,7 +506,7 @@ public class SingleThreadedScheduledComPortTest {
         when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollection())).thenReturn(true);
-        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService);
+        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
         when(this.serialConnectionTask1.connect(eq(comPort), anyList())).thenReturn(comChannel);
         List<ComTaskExecution> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
@@ -546,7 +546,7 @@ public class SingleThreadedScheduledComPortTest {
         when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollection())).thenReturn(true);
-        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService);
+        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
         when(this.serialConnectionTask1.connect(eq(comPort), anyList())).thenReturn(comChannel);
         List<ComTaskExecution> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
@@ -592,7 +592,7 @@ public class SingleThreadedScheduledComPortTest {
         when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollection())).thenReturn(true);
-        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService);
+        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
         when(this.serialConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
         when(this.serialConnectionTask1.getCommunicationWindow()).thenReturn(comWindow);
         List<ComTaskExecution> work = new ArrayList<>();
@@ -641,7 +641,7 @@ public class SingleThreadedScheduledComPortTest {
         when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollection())).thenReturn(true);
-        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService);
+        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
         when(this.serialConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
         when(this.serialConnectionTask1.getCommunicationWindow()).thenReturn(comWindow);
         List<ComTaskExecution> work = new ArrayList<>();
@@ -892,7 +892,7 @@ public class SingleThreadedScheduledComPortTest {
         private CountDownLatch executeLatch;
 
         private RealTimeWorkingLatchDrivenDeviceCommandExecutor(String comServerName, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ThreadFactory threadFactory, ComServerDAO comServerDAO, CountDownLatch startedLatch, CountDownLatch executeLatch) {
-            super(comServerName, queueCapacity, numberOfThreads, threadPriority, logLevel, threadFactory, comServerDAO, threadPrincipalService, userService);
+            super(comServerName, queueCapacity, numberOfThreads, threadPriority, logLevel, threadFactory, clock, comServerDAO, eventPublisher, threadPrincipalService, userService);
             this.startedLatch = startedLatch;
             this.executeLatch = executeLatch;
         }

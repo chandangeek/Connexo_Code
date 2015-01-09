@@ -205,7 +205,12 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         this.deviceCommandExecutor =
                 new DeviceCommandExecutorImpl(
                         comServerName, queueSize, numberOfThreads, threadPriority, logLevel,
-                        this.threadFactory, this.comServerDAO, this.serviceProvider.threadPrincipalService(), this.serviceProvider.userService());
+                        this.threadFactory,
+                        this.serviceProvider.clock(),
+                        this.comServerDAO,
+                        this.serviceProvider.eventPublisher(),
+                        this.serviceProvider.threadPrincipalService(),
+                        this.serviceProvider.userService());
     }
 
     /**

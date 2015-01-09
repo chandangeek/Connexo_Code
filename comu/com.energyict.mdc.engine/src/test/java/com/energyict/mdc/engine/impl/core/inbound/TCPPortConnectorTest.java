@@ -72,7 +72,7 @@ public class TCPPortConnectorTest {
         TCPBasedInboundComPort tcpBasedInboundComPort = createTCPBasedInboundComPort();
 
         // creating a Connector with a ServerSocket with a backLog of 2 sessions
-        TCPPortConnector connector = new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService, this.clock);
+        TCPPortConnector connector = new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService, eventPublisher, this.clock);
 
         // business method
         ComChannel accept = connector.accept();
@@ -92,7 +92,7 @@ public class TCPPortConnectorTest {
 
         try {
             // Business method
-            new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService, this.clock);
+            new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService, eventPublisher, this.clock);
         }
         catch (InboundCommunicationException e) {
             if (!e.getMessageSeed().equals(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION)) {
@@ -111,7 +111,7 @@ public class TCPPortConnectorTest {
         TCPBasedInboundComPort tcpBasedInboundComPort = createTCPBasedInboundComPort();
 
         // creating a Connector with a ServerSocket with a backLog of 2 sessions
-        TCPPortConnector connector = new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService, this.clock);
+        TCPPortConnector connector = new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService, eventPublisher, this.clock);
 
         try {
             // Business method
