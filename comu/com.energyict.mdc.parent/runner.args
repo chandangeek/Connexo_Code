@@ -8,7 +8,6 @@
  javax.xml.ws;version=2.2.0,\
  javax.xml.ws.wsaddressing
 mvn:org.apache.commons/commons-csv/1.0
-mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jcommon/1.0.16_1
 mvn:com.energyict/serialio-xmodemapi-osgi/1.0.0
 mvn:se.joel.osgi/rxtx-osgi/1.0
 mvn:com.energyict.dataconcentrator.external/commons-logging/1.1.1
