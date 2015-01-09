@@ -1,9 +1,14 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
 import com.energyict.cbo.HexString;
+import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 import java.math.BigDecimal;
+
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_UPPER_SERVER_MAC_ADDRESS;
+import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS;
 
 /**
  * Extension of the standard DLMS properties, adding DSMR50 stuff
@@ -42,5 +47,22 @@ public class DSMR50Properties extends DlmsProperties {
 
     public long getAARQRetries() {
         return getProperties().<BigDecimal>getTypedProperty(AARQ_RETRIES_PROPERTY, BigDecimal.valueOf(2)).longValue();
+    }
+
+    @Override
+    public int getServerUpperMacAddress() {
+        final int oldMacAddress = parseBigDecimalProperty(SERVER_UPPER_MAC_ADDRESS, new BigDecimal(-1));
+        if (oldMacAddress == -1) {
+            return getNodeAddress();
+        }
+        return oldMacAddress;
+    }
+
+    public int getNodeAddress() {
+        try {
+            return Integer.parseInt(getProperties().<String>getTypedProperty(MeterProtocol.NODEID, ""));
+        } catch (NumberFormatException e) {
+            return DEFAULT_UPPER_SERVER_MAC_ADDRESS.intValue();
+        }
     }
 }

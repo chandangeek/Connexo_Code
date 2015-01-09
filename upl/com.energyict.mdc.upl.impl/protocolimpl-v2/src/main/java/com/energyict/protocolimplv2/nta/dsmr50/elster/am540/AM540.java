@@ -27,6 +27,7 @@ import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
@@ -68,6 +69,7 @@ public class AM540 extends AbstractDlmsProtocol {
     private Dsmr50ConfigurationSupport dsmr50ConfigurationSupport;
     private Dsmr50LogBookFactory dsmr50LogBookFactory;
     private AM540Messaging am540Messaging;
+    private long initialFrameCounter = -1;
 
     public AM540() {
         super();
@@ -118,8 +120,7 @@ public class AM540 extends AbstractDlmsProtocol {
         if ((deviceProtocolCache != null) && (deviceProtocolCache instanceof AM540Cache)) {
             AM540Cache am540Cache = (AM540Cache) deviceProtocolCache;
             super.setDeviceCache(am540Cache);
-            long initialFrameCounter = (am540Cache).getFrameCounter();
-            this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter == -1 ? 1 : initialFrameCounter);    //Get this from the last session
+            initialFrameCounter = (am540Cache).getFrameCounter();
         }
     }
 
@@ -142,6 +143,12 @@ public class AM540 extends AbstractDlmsProtocol {
             getLogger().info("Cache exist, will not be read!");
         }
         getDlmsSession().getMeterConfig().setInstantiatedObjectList(((DLMSCache) getDeviceCache()).getObjectList());
+    }
+
+    @Override
+    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        super.setSecurityPropertySet(deviceProtocolSecurityPropertySet);
+        this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter == -1 ? 1 : initialFrameCounter);    //Set the frameCounter from last session (which has been loaded from cache)
     }
 
     public DSMR50Properties getDlmsSessionProperties() {

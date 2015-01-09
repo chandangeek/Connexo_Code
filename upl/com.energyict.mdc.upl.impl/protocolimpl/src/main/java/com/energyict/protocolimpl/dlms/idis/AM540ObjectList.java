@@ -30,7 +30,7 @@ public class AM540ObjectList {
                 new UniversalObject(ObisCode.fromString("0.0.13.0.0.255"), DLMSClassId.findById(20)),
                 new UniversalObject(ObisCode.fromString("0.0.14.0.0.255"), DLMSClassId.findById(6)),
                 new UniversalObject(ObisCode.fromString("0.0.15.0.0.255"), DLMSClassId.findById(22)),
-                new UniversalObject(ObisCode.fromString("0.0.15.0.13255"), DLMSClassId.findById(22)),
+                new UniversalObject(ObisCode.fromString("0.0.15.0.13.255"), DLMSClassId.findById(22)),
                 new UniversalObject(ObisCode.fromString("0.0.15.0.2.255"), DLMSClassId.findById(22)),
                 new UniversalObject(ObisCode.fromString("0.0.15.0.3.255"), DLMSClassId.findById(22)),
                 new UniversalObject(ObisCode.fromString("0.0.16.1.0.255"), DLMSClassId.findById(21)),

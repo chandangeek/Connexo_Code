@@ -4,6 +4,7 @@ import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.DSMR50Properties;
 
 import java.math.BigDecimal;
@@ -26,6 +27,7 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.*;
 public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
 
     private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
+    private static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
@@ -42,12 +44,21 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
                 this.requestTimeZonePropertySpec(),
                 this.timeZonePropertySpec(),
                 this.validateInvokeIdPropertySpec(),
-                this.deviceId(),
                 this.readCachePropertySpec(),
                 this.pskPropertySpec(),
                 this.aarqTimeoutPropertySpec(),
                 this.aarqRetriesPropertySpec(),
-                this.cumulativeCaptureTimeChannelPropertySpec());
+                this.cumulativeCaptureTimeChannelPropertySpec(),
+                this.nodeAddressPropertySpec(),
+                this.callHomeIdPropertySpec());
+    }
+
+    protected PropertySpec nodeAddressPropertySpec() {
+        return PropertySpecFactory.stringPropertySpec(MeterProtocol.NODEID);
+    }
+
+    protected PropertySpec callHomeIdPropertySpec() {
+        return PropertySpecFactory.stringPropertySpec(CALL_HOME_ID_PROPERTY_NAME);
     }
 
     protected PropertySpec timeZonePropertySpec() {
@@ -76,10 +87,6 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
 
     protected PropertySpec aarqRetriesPropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(DSMR50Properties.AARQ_RETRIES_PROPERTY, BigDecimal.valueOf(2));
-    }
-
-    protected PropertySpec deviceId() {
-        return PropertySpecFactory.stringPropertySpec(DEVICE_ID, DEFAULT_DEVICE_ID);
     }
 
     protected PropertySpec requestTimeZonePropertySpec() {
