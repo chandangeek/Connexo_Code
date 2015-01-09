@@ -20,4 +20,12 @@ public class SearchCriteria {
     public List<Object> getCriteriaValues() {
         return criteriaValues;
     }
+
+    public void setCriteriaName(String criteriaName) {
+        this.criteriaName = criteriaName;
+    }
+
+    public void setCriteriaValues(List<Object> criteriaValues) {
+        this.criteriaValues = criteriaValues;
+    }
 }
