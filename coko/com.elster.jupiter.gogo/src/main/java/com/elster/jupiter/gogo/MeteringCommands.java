@@ -197,6 +197,10 @@ public class MeteringCommands {
         }
     }
 
+    public void storeCumulativeIntervalData(long meterId, String readingType, String startDateTime, int numberOfInterval, double startValue,  double minValue, double maxValue) {
+        storeCumulativeIntervalData(meterId, readingType, startDateTime, numberOfInterval, startValue, minValue, maxValue, null);
+    }
+
     public void storeCumulativeIntervalData(long meterId, String readingType, String startDateTime, int numberOfInterval, double startValue,  double minValue, double maxValue, String intervalFlagCimCode) {
         final Optional<Meter> endDevice = meteringService.findMeter(meterId);
         if (endDevice.isPresent()) {
@@ -213,10 +217,12 @@ public class MeteringCommands {
                             cumulativeValue = cumulativeValue.add(BigDecimal.valueOf(randomBetween(minValue, maxValue)));
                             intervalBlock.addIntervalReading(IntervalReadingImpl.of(startDate.toInstant(), cumulativeValue));
                             startDate = startDate.plusSeconds(intervalInSeconds);
-                            IntervalReadingImpl reading = IntervalReadingImpl.of(startDate.getTime().toInstant(), cumulativeValue);
-                            reading.setProfileStatus(ProfileStatus.of(ProfileStatus.Flag.valueOf(intervalFlagCimCode)));
+                            IntervalReadingImpl reading = IntervalReadingImpl.of(startDate.toInstant(), cumulativeValue);
+                            if (intervalFlagCimCode != null) {
+                                reading.setProfileStatus(ProfileStatus.of(ProfileStatus.Flag.valueOf(intervalFlagCimCode)));
+                            }
                             intervalBlock.addIntervalReading(reading);
-                            startDate.add(Calendar.SECOND, intervalInSeconds);
+                            startDate.plusSeconds(intervalInSeconds);
                         }
                         meterReading.addIntervalBlock(intervalBlock);
 
