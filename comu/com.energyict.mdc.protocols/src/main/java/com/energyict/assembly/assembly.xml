@@ -36,8 +36,6 @@
                         <excludes>
                             <exclude>com.energyict:*</exclude>
                             <exclude>com.energyict.comserver:*</exclude>
-                            <exclude>org.aspectj:*</exclude>
-                            <exclude>org.perf4j:*</exclude>
                             <exclude>org.json:*</exclude>
                         </excludes>
                         <useTransitiveDependencies>true</useTransitiveDependencies>
