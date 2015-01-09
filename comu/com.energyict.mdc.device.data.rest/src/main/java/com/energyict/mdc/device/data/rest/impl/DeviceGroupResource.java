@@ -237,7 +237,7 @@ public class DeviceGroupResource {
                         Optional<DeviceType> deviceTypeOptional = deviceConfigurationService.findDeviceType(deviceTypeId);
                         if (deviceTypeOptional.isPresent()) {
                             DeviceType deviceType = deviceTypeOptional.get();
-                            orCondition = orCondition.or(where("deviceConfiguration.deviceType.name").isEqualTo(deviceType.getName()));
+                            orCondition = orCondition.or(where("deviceConfiguration.deviceType.id").isEqualTo(deviceType.getId()));
                         }
                     }
                     condition = condition.and(orCondition);
@@ -253,7 +253,7 @@ public class DeviceGroupResource {
                         Optional<DeviceConfiguration> deviceConfigurationOptional = deviceConfigurationService.findDeviceConfiguration(deviceConfigurationId);
                         if (deviceConfigurationOptional.isPresent()) {
                             DeviceConfiguration deviceConfiguration = deviceConfigurationOptional.get();
-                            orCondition = orCondition.or(where("deviceConfiguration.name").isEqualTo(deviceConfiguration.getName()));
+                            orCondition = orCondition.or(where("deviceConfiguration.id").isEqualTo(deviceConfiguration.getId()));
                         }
                     }
                     condition = condition.and(orCondition);

@@ -42,13 +42,15 @@ public class DeviceGroupInfo {
         deviceGroupInfo.dynamic = endDeviceGroup.isDynamic();
         if (endDeviceGroup.isDynamic()) {
             DeviceType deviceType = null;
-            for (SearchCriteria criteriaToAdd : ((QueryEndDeviceGroup) endDeviceGroup).getSearchCriteria()) {
+            List<SearchCriteria> searchCriteria =
+                    translateCriteria(((QueryEndDeviceGroup) endDeviceGroup).getSearchCriteria(), deviceConfigurationService);
+            for (SearchCriteria criteriaToAdd : searchCriteria) {
                 deviceGroupInfo.criteria.add(new SearchCriteriaInfo(criteriaToAdd));
 
                 String criteriaName = criteriaToAdd.getCriteriaName();
                 List<Object> values = criteriaToAdd.getCriteriaValues();
 
-                if ("deviceConfiguration.deviceType.name".equals(criteriaName)) {
+                if ("deviceConfiguration.deviceType.id".equals(criteriaName)) {
                     for (Object value : values) {
                         String deviceTypeName = (String) value;
                         Optional<DeviceType> deviceTypeOptional = deviceConfigurationService.findDeviceTypeByName(deviceTypeName);
@@ -57,7 +59,7 @@ public class DeviceGroupInfo {
                             deviceGroupInfo.deviceTypeIds.add(deviceType.getId());
                         }
                     }
-                } else if ("deviceConfiguration.name".equals(criteriaName)) {
+                } else if ("deviceConfiguration.id".equals(criteriaName)) {
                     for (Object value : values) {
                         if (deviceType != null) {
                             String deviceConfigurationName = (String) value;
@@ -90,6 +92,37 @@ public class DeviceGroupInfo {
             deviceGroupsInfos.add(DeviceGroupInfo.from(endDeviceGroup, deviceConfigurationService, deviceService));
         }
         return deviceGroupsInfos;
+    }
+
+
+    static List<SearchCriteria> translateCriteria(List<SearchCriteria> criteria, DeviceConfigurationService deviceConfigurationService) {
+        List<SearchCriteria> result = new ArrayList<>();
+        for (SearchCriteria criterium : criteria) {
+            String criteriaName = criterium.getCriteriaName();
+            if ("deviceConfiguration.deviceType.id".equals(criteriaName)) {
+                List<Object> values = criterium.getCriteriaValues();
+                List<Object> newValues = new ArrayList<Object>();
+                for (Object value : values) {
+                    Optional<DeviceType> deviceTypeOptional = deviceConfigurationService.findDeviceType((int) value);
+                    if (deviceTypeOptional.isPresent()) {
+                        newValues.add(deviceTypeOptional.get().getName());
+                    }
+                }
+                criterium.setCriteriaValues(newValues);
+            } else if ("deviceConfiguration.id".equals(criteriaName)) {
+                List<Object> values = criterium.getCriteriaValues();
+                List<Object> newValues = new ArrayList<Object>();
+                for (Object value : values) {
+                    Optional<DeviceConfiguration> deviceConfigurationOptional = deviceConfigurationService.findDeviceConfiguration((int) value);
+                    if (deviceConfigurationOptional.isPresent()) {
+                        newValues.add(deviceConfigurationOptional.get().getName());
+                    }
+                }
+                criterium.setCriteriaValues(newValues);
+            }
+            result.add(criterium);
+        }
+        return result;
     }
 
 }
