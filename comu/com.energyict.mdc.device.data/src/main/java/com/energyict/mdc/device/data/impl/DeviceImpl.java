@@ -1020,7 +1020,7 @@ public class DeviceImpl implements Device, CanLock {
                         .ofInstant(
                                 requestedIntervalClippedToMeterActivation.lowerEndpoint(),
                                 zoneId)
-                        .truncatedTo(this.trunctationUnit(loadProfile));    // round start time to interval boundary
+                        .truncatedTo(this.truncationUnit(loadProfile));    // round start time to interval boundary
             }
             case WEEKS: {
                 return ZonedDateTime
@@ -1056,22 +1056,28 @@ public class DeviceImpl implements Device, CanLock {
 
     private ZonedDateTime prefilledIntervalStartWithIntervalWithinDay(LoadProfile loadProfile, ZoneId zoneId, Range<Instant> requestedIntervalClippedToMeterActivation) {
         /* Implementation note: truncate meter activation end point of the interval to the interval length
-         * and then increment with interval length until start >= meter activation start
+         * and then increment with interval length until start > meter activation start
          * to cater for the situation where meter activation is e.g. 8h43 with interval length of 15mins
-         * where truncating would start at 8h00 */
-        ZonedDateTime attempt =
+         * where truncating would start at 8h00
+         * So in case meter activation is at 8h13, the first reported interval will be (8:00,8:15]
+         *    in case meter activation is exactly 8h15 , the first reported interval will be (8:15,8:30]
+         */
+        ZonedDateTime nextAttempt =
                 ZonedDateTime
                     .ofInstant(
                         requestedIntervalClippedToMeterActivation.lowerEndpoint(),
                         zoneId)
-                    .truncatedTo(this.trunctationUnit(loadProfile));    // round start time to interval boundary
-        while (attempt.toInstant().isBefore(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {
-            attempt = attempt.plus(this.intervalLength(loadProfile));
+                    .truncatedTo(this.truncationUnit(loadProfile));    // round start time to interval boundary
+        ZonedDateTime latestAttemptBefore = nextAttempt;
+
+        while (nextAttempt.toInstant().isBefore(requestedIntervalClippedToMeterActivation.lowerEndpoint()) || nextAttempt.toInstant().equals(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {
+            latestAttemptBefore = nextAttempt;
+            nextAttempt = nextAttempt.plus(this.intervalLength(loadProfile));
         }
-        return attempt;
+        return latestAttemptBefore;
     }
 
-    private TemporalUnit trunctationUnit (LoadProfile loadProfile) {
+    private TemporalUnit truncationUnit(LoadProfile loadProfile) {
         switch (loadProfile.getInterval().getTimeUnit()) {
             case MINUTES: {
                 return ChronoUnit.HOURS;

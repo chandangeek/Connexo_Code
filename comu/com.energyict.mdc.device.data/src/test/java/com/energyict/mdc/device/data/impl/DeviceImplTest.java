@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
@@ -699,6 +702,43 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
                 }
             }
         }
+    }
+
+    @Test
+    @Transactional
+    public void testGetLoadProfileDataIfExternalMeterActivationDoesNotAlignWithChannelIntervalBoundary() {
+        BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
+        Instant requestIntervalStart = Instant.ofEpochMilli(1420761600000L); // Fri, 09 Jan 2015 00:00:00 GMT
+        Instant requestIntervalEnd = Instant.ofEpochMilli(1420848000000L); //  Sat, 10 Jan 2015 00:00:00 GMT
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+
+        Optional<AmrSystem> amrSystem = inMemoryPersistence.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId());
+        Optional<Meter> meter = amrSystem.get().findMeter("" + device.getId());
+        meter.get().activate(Instant.ofEpochMilli(1420801085000L));// 9/1/2015 10:58
+
+        String code = getForwardEnergyReadingTypeCodeBuilder()
+                .period(TimeAttribute.MINUTE15)
+                .code();
+        IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(code);
+        Instant readingTimeStamp = Instant.ofEpochMilli(1420801200000L);// 9/1/2015 11:00
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(readingTimeStamp, readingValue));
+        IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(code);
+        Instant previousReadingTimeStamp = Instant.ofEpochMilli(1420802100000L);// Fri, 09 Jan 2015 11:15:00 GMT
+        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(previousReadingTimeStamp, BigDecimal.ZERO));
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        meterReading.addIntervalBlock(intervalBlock);
+        meterReading.addIntervalBlock(intervalBlock2);
+        device.store(meterReading);
+        Instant lastReading = Instant.ofEpochMilli(1420802100000L); // Fri, 09 Jan 2015 11:15:00 GMT
+        device.getLoadProfileUpdaterFor(device.getLoadProfiles().get(0)).setLastReading(lastReading).update();
+
+        Device reloadedDevice = getReloadedDevice(device);
+        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(requestIntervalStart, requestIntervalEnd));
+        assertThat(readings).describedAs("There should be only 2 intervals between activation and last reading").hasSize(2);
+        assertThat(readings.get(0).getRange().upperEndpoint()).isEqualTo(lastReading);
+        assertThat(readings.get(readings.size()-1).getRange().lowerEndpoint()).isEqualTo(Instant.ofEpochMilli(1420800300000L));// 9/1/2015 10:45
     }
 
     @Test
