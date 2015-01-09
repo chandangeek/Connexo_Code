@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.impl.core.aspects.logging;
+package com.energyict.mdc.engine.impl.core.logging;
 
 import com.energyict.mdc.engine.impl.core.JournalEntryFactory;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;

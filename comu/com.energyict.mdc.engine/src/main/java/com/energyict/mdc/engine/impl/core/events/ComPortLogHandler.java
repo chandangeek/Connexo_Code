@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.impl.core.aspects.events;
+package com.energyict.mdc.engine.impl.core.events;
 
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;

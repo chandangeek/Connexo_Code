@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.impl.core.aspects.logging;
+package com.energyict.mdc.engine.impl.core.logging;
 
 import com.energyict.mdc.protocol.api.ConnectionException;
 
@@ -54,7 +54,7 @@ public class CompositeComPortConnectionLogger implements ComPortConnectionLogger
     }
 
     @Override
-    public void taskExecutionFailed (RuntimeException e, String comPortThreadName, String comTaskName) {
+    public void taskExecutionFailed (Throwable e, String comPortThreadName, String comTaskName) {
         for (ComPortConnectionLogger logger : this.loggers) {
             logger.taskExecutionFailed(e, comPortThreadName, comTaskName);
         }

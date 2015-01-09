@@ -4,7 +4,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.impl.core.aspects.logging.ComServerLogger;
+import com.energyict.mdc.engine.impl.core.logging.ComServerLogger;
 import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactoryImpl;

@@ -11,6 +11,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.commands.store.RescheduleToNextComWindow;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.core.logging.ComPortConnectionLogger;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
@@ -130,6 +131,9 @@ public abstract class ScheduledJobImpl extends JobExecution {
         boolean connected = this.getExecutionContext().connect();
         if (connected) {
             this.publish(new EstablishConnectionEvent(new ComServerEventServiceProvider(), this.getComPort(), this.getConnectionTask()));
+            ExecutionContext executionContext = this.getExecutionContext();
+            ComPortConnectionLogger logger = executionContext.getConnectionLogger();
+            logger.connectionEstablished(this.getThreadName(), this.getComPort().getName());
         }
         return connected;
     }

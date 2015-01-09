@@ -74,6 +74,7 @@ public class ScheduledComPortFactoryImplTest {
 
     private OutboundComPort activeComPort () {
         ComServer comServer = mock(ComServer.class);
+        when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(comServer.getSchedulingInterPollDelay()).thenReturn(TimeDuration.minutes(1));
         when(comServer.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(1));
         OutboundComPort comPort = mock(OutboundComPort.class);

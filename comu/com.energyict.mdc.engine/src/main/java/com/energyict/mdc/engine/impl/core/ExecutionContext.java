@@ -33,6 +33,10 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandFactoryImpl;
 import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailureEvent;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
+import com.energyict.mdc.engine.impl.core.events.ComPortLogHandler;
+import com.energyict.mdc.engine.impl.core.logging.ComPortConnectionLogger;
+import com.energyict.mdc.engine.impl.core.logging.CompositeLogger;
+import com.energyict.mdc.engine.impl.core.logging.ExecutionContextLogHandler;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionCompletionEvent;
@@ -40,6 +44,10 @@ import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionFailureEvent
 import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionStartedEvent;
 import com.energyict.mdc.engine.impl.events.connection.CannotEstablishConnectionEvent;
 import com.energyict.mdc.engine.impl.events.connection.CloseConnectionEvent;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
+import com.energyict.mdc.engine.impl.logging.LoggerFactory;
+import com.energyict.mdc.engine.impl.core.logging.CompositeComPortConnectionLogger;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
@@ -58,6 +66,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.energyict.mdc.device.data.tasks.history.ComSession.SuccessIndicator.Broken;
@@ -100,7 +110,8 @@ public final class ExecutionContext implements JournalEntryFactory {
     private ConnectionTask<?, ?> connectionTask;
     private ConnectionTaskPropertyCache connectionTaskPropertyCache = new ConnectionTaskPropertyCache();
     private ComTaskExecution comTaskExecution;
-    private Logger logger;
+    private CompositeComPortConnectionLogger connectionLogger;
+    private CompositeLogger logger;
 
     private CommandRoot commandRoot;
     private CompositeDeviceCommand storeCommand;
@@ -122,7 +133,44 @@ public final class ExecutionContext implements JournalEntryFactory {
         if (logConnectionProperties && this.isLogLevelEnabled(ComServer.LogLevel.DEBUG)) {
             this.addConnectionPropertiesAsJournalEntries();
         }
-        this.logger = Logger.getAnonymousLogger();  // Start with an anonymous one, refine it later
+        this.initializeLogging();
+    }
+
+    private void initializeLogging() {
+        this.logger = new CompositeLogger();
+        this.connectionLogger = new CompositeComPortConnectionLogger();
+        this.addNormalLogger();
+        this.addEventLogger();
+    }
+
+    private void addNormalLogger() {
+        ComPortConnectionLogger normalLogger = LoggerFactory.getUniqueLoggerFor(ComPortConnectionLogger.class, this.getCommunicationLogLevel(this.comPort));
+        Logger actualLogger = ((LoggerFactory.LoggerHolder) normalLogger).getLogger();
+        actualLogger.addHandler(new ExecutionContextLogHandler(this.serviceProvider.clock(), this));
+        this.connectionLogger.add(normalLogger);
+        this.logger.add(actualLogger);
+    }
+
+    private LogLevel getCommunicationLogLevel(ComPort comPort) {
+        return this.getCommunicationLogLevel(comPort.getComServer());
+    }
+
+    private LogLevel getCommunicationLogLevel(ComServer comServer) {
+        return LogLevelMapper.forComServerLogLevel().toLogLevel(comServer.getCommunicationLogLevel());
+    }
+
+    private void addEventLogger() {
+        Logger actualLogger = this.getAnonymousLogger(new ComPortLogHandler(this.getComPort()));
+        ComPortConnectionLogger eventLogger = LoggerFactory.getLoggerFor(ComPortConnectionLogger.class, actualLogger);
+        this.connectionLogger.add(eventLogger);
+        this.logger.add(actualLogger);
+    }
+
+    private Logger getAnonymousLogger (Handler handler) {
+        Logger logger = Logger.getAnonymousLogger();
+        logger.setLevel(Level.FINEST);
+        logger.addHandler(handler);
+        return logger;
     }
 
     public void close() {
@@ -169,7 +217,8 @@ public final class ExecutionContext implements JournalEntryFactory {
         }
     }
 
-    public void comTaskExecutionCompleted(ComTaskExecution comTaskExecution, ComTaskExecutionSession.SuccessIndicator successIndicator) {
+    public void comTaskExecutionCompleted(JobExecution job,ComTaskExecution comTaskExecution, ComTaskExecutionSession.SuccessIndicator successIndicator) {
+        this.connectionLogger.completingTask(job.getThreadName(), comTaskExecution.getComTasks().get(0).getName());
         this.executing.stop();
         this.addStatisticalInformationForTaskSession();
         this.comTaskExecutionCompleted(successIndicator);
@@ -259,6 +308,12 @@ public final class ExecutionContext implements JournalEntryFactory {
         comTaskExecutionCompleted(Success);
     }
 
+    public void reschedule(JobExecution job, List<ComTaskExecution> failedComTaskExecutions) {
+        for (ComTaskExecution failedComTask : failedComTaskExecutions) {
+            this.connectionLogger.reschedulingTask(job.getThreadName(), failedComTask.getComTasks().get(0).getName());
+        }
+    }
+
     public ComPortRelatedComChannel getComPortRelatedComChannel() {
         return comPortRelatedComChannel;
     }
@@ -299,6 +354,10 @@ public final class ExecutionContext implements JournalEntryFactory {
         return logger;
     }
 
+    public ComPortConnectionLogger getConnectionLogger() {
+        return connectionLogger;
+    }
+
     public CompositeDeviceCommand getStoreCommand() {
         if (this.storeCommand == null) {
             this.storeCommand = new ComSessionRootDeviceCommand(this.getComPort().getComServer().getCommunicationLogLevel());
@@ -331,10 +390,14 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     public void setLogger(Logger logger) {
-        this.logger = logger;
+        if (this.logger == null) {
+            this.logger = new CompositeLogger();
+        }
+        this.logger.add(logger);
     }
 
-    public void prepareStart(ComTaskExecution comTaskExecution) {
+    public void prepareStart(JobExecution job, ComTaskExecution comTaskExecution) {
+        this.connectionLogger.startingTask(job.getThreadName(), comTaskExecution.getComTasks().get(0).getName());
         this.executing.start();
         if (this.isConnected()) {
             Counters taskSessionCounters = this.comPortRelatedComChannel.getTaskSessionCounters();
@@ -434,6 +497,7 @@ public final class ExecutionContext implements JournalEntryFactory {
                         this.comPort,
                         this.jobExecution.getComTaskExecutions()));
         this.publish(new CannotEstablishConnectionEvent(new ComServerEventServiceProvider(), this.getComPort(), connectionTask, e));
+        this.connectionLogger.cannotEstablishConnection(e, this.getJob().getThreadName());
     }
 
     public boolean connectionFailed () {
@@ -464,7 +528,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.currentTaskExecutionBuilder.ifPresent(b -> b.addComTaskExecutionMessageJournalEntry(now(), logLevel, message, ""));
     }
 
-    void comTaskExecutionFailure(ComTaskExecution comTaskExecution) {
+    void comTaskExecutionFailure(JobExecution job, ComTaskExecution comTaskExecution) {
         this.publish(
                 new ComTaskExecutionFailureEvent(
                         new ComServerEventServiceProviderAdapter(),
@@ -472,9 +536,10 @@ public final class ExecutionContext implements JournalEntryFactory {
                         this.getComPort(),
                         this.getConnectionTask()
                 ));
+        this.connectionLogger.taskExecutionFailedDueToProblems(job.getThreadName(), comTaskExecution.getComTasks().get(0).getName());
     }
 
-    void comTaskExecutionFailure(ComTaskExecution comTaskExecution, Throwable t) {
+    void comTaskExecutionFailure(JobExecution job, ComTaskExecution comTaskExecution, Throwable t) {
         this.fail(comTaskExecution, t);
         this.executing.stop();
         this.addStatisticalInformationForTaskSession();
@@ -486,6 +551,7 @@ public final class ExecutionContext implements JournalEntryFactory {
                         this.getConnectionTask(),
                         t
                 ));
+        this.connectionLogger.taskExecutionFailed(t, job.getThreadName(), comTaskExecution.getComTasks().get(0).getName());
     }
 
     void fail(ComTaskExecution comTaskExecution, Throwable t) {

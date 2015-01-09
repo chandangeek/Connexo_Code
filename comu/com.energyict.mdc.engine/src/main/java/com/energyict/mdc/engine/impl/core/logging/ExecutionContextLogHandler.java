@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.impl.core.aspects.logging;
+package com.energyict.mdc.engine.impl.core.logging;
 
 import com.energyict.mdc.common.StackTracePrinter;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;

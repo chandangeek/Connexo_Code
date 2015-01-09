@@ -5,7 +5,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundCapableComServer;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
-import com.energyict.mdc.engine.impl.core.aspects.logging.ComServerLogger;
+import com.energyict.mdc.engine.impl.core.logging.ComServerLogger;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;

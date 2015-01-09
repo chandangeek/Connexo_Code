@@ -6,7 +6,7 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.impl.core.aspects.logging.InboundComPortLogger;
+import com.energyict.mdc.engine.impl.core.logging.InboundComPortLogger;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;

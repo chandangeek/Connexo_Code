@@ -178,6 +178,7 @@ public abstract class JobExecution implements ScheduledJob {
 
     @Override
     public void reschedule(ComServerDAO comServerDAO, Throwable t, RescheduleBehavior.RescheduleReason rescheduleReason) {
+        this.getExecutionContext().reschedule(this, this.getFailedComTaskExecutions());
         this.doReschedule(comServerDAO, rescheduleReason);
     }
 
@@ -316,7 +317,7 @@ public abstract class JobExecution implements ScheduledJob {
             }
             else {
                 successIndicator = Failure;
-                this.executionContext.comTaskExecutionFailure(preparedComTaskExecution.getComTaskExecution());
+                this.executionContext.comTaskExecutionFailure(this, preparedComTaskExecution.getComTaskExecution());
             }
             return noProblems;
         } catch (Throwable t) {
@@ -353,7 +354,7 @@ public abstract class JobExecution implements ScheduledJob {
      * @param successIndicator The SuccessIndicator
      */
     private void completeExecutedComTask(ComTaskExecution comTaskExecution, ComTaskExecutionSession.SuccessIndicator successIndicator) {
-        this.getExecutionContext().comTaskExecutionCompleted(comTaskExecution, successIndicator);
+        this.getExecutionContext().comTaskExecutionCompleted(this, comTaskExecution, successIndicator);
     }
 
     void connected(ComPortRelatedComChannel comChannel) {
@@ -368,7 +369,7 @@ public abstract class JobExecution implements ScheduledJob {
      * @param t                The failure
      */
     private void failure(ComTaskExecution comTaskExecution, Throwable t) {
-        this.getExecutionContext().comTaskExecutionFailure(comTaskExecution, t);
+        this.getExecutionContext().comTaskExecutionFailure(this, comTaskExecution, t);
     }
 
     private CommandRoot.ServiceProvider getComCommandServiceProvider() {
@@ -505,7 +506,7 @@ public abstract class JobExecution implements ScheduledJob {
      * @param comTaskExecution The ComTaskExecution
      */
     private void start(ComTaskExecution comTaskExecution) {
-        this.getExecutionContext().prepareStart(comTaskExecution);
+        this.getExecutionContext().prepareStart(this, comTaskExecution);
         this.getComServerDAO().executionStarted(comTaskExecution, this.getComPort());
         this.getExecutionContext().executionStarted(comTaskExecution);
     }

@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.impl.core.aspects.logging;
+package com.energyict.mdc.engine.impl.core.logging;
 
 import com.energyict.mdc.engine.impl.logging.Configuration;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -82,17 +82,6 @@ public interface ComPortOperationsLogger {
      */
     @Configuration(format = "''{0}'' cannot schedule ComTaskExecution {1} for execution because the queue is full!", logLevel = LogLevel.WARN)
     public void cannotSchedule (String comPortThreadName, ComTaskExecution comTaskExecution);
-
-    /**
-     * Logs that the specified {@link com.energyict.mdc.engine.config.ComPort} unschedule
-     * the execution of the {@link ComTaskExecution} because another ComPort
-     * has picked up the ComTaskExecution for execution.
-     *
-     * @param comPortThreadName The name of the ComPort thread that attempted to start the execution
-     * @param comTaskExecution The ComTaskExecution
-     */
-    @Configuration(format = "ComTaskExecution {1} is already being executed by another ComPort then ''{0}'' , unscheduling it now.", logLevel = LogLevel.DEBUG)
-    public void unscheduled (String comPortThreadName, ComTaskExecution comTaskExecution);
 
     /**
      * Logs that the specified {@link com.energyict.mdc.engine.config.ComPort}

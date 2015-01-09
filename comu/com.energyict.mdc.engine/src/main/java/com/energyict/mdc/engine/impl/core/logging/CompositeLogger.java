@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.impl.core.aspects.logging;
+package com.energyict.mdc.engine.impl.core.logging;
 
 import java.util.ArrayList;
 import java.util.List;

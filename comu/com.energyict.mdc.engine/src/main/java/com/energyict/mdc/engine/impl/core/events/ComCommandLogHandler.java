@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.impl.core.aspects.events;
+package com.energyict.mdc.engine.impl.core.events;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;

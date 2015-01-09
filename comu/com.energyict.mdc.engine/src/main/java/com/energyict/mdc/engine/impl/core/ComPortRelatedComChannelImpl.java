@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.engine.events.ComServerEvent;
-import com.energyict.mdc.engine.impl.core.aspects.logging.ComChannelLogger;
+import com.energyict.mdc.engine.impl.core.logging.ComChannelLogger;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.io.ReadEvent;

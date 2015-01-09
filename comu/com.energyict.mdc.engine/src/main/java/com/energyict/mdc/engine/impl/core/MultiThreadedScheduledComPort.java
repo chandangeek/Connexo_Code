@@ -95,6 +95,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
         catch (RuntimeException e) {
             LOGGER.log(Level.SEVERE, e, () -> MultiThreadedScheduledComPort.class.getName() + " for comport(" + this.getComPort().getId() + ") encountered and ignored an unexpected problem");
             e.printStackTrace(System.err);
+            this.getLogger().unexpectedError(e, this.getThreadName());
         }
     }
 
@@ -122,8 +123,8 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
      *
      * @param comTaskExecution The ComTaskExecution
      */
-    protected void alreadyScheduled (ComTaskExecution comTaskExecution) {
-        // Notification handled by AOP
+    protected void alreadyScheduled(ComTaskExecution comTaskExecution) {
+        this.getLogger().alreadyScheduled(this.getThreadName(), comTaskExecution);
     }
 
     /**
@@ -132,19 +133,8 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
      *
      * @param comTaskExecution The ComTaskExecution
      */
-    protected void cannotSchedule (ComTaskExecution comTaskExecution) {
-        // Notification handled by AOP
-    }
-
-    /**
-     * Notify interested parties that the {@link ComTaskExecution} could not
-     * be scheduled because another OutboundComPort has already
-     * picked up the ScheduledComTask for execution.
-     *
-     * @param comTaskExecution The ComTaskExecution
-     */
-    private void unscheduled (ComTaskExecution comTaskExecution) {
-        // Notification handled by AOP
+    protected void cannotSchedule(ComTaskExecution comTaskExecution) {
+        this.getLogger().cannotSchedule(this.getThreadName(), comTaskExecution);
     }
 
     private final class MultiThreadedJobScheduler implements JobScheduler {

@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.impl.core.aspects.logging;
+package com.energyict.mdc.engine.impl.core.logging;
 
 import com.energyict.mdc.engine.impl.logging.Configuration;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -76,7 +76,7 @@ public interface ComPortConnectionLogger {
      * @param comTaskName The name of the {@link com.energyict.mdc.tasks.ComTask} whose execution failed
      */
     @Configuration(format = "The execution of task ''{1}'' by ''{0}'' failed, see stacktrace below", logLevel = LogLevel.ERROR)
-    public void taskExecutionFailed (RuntimeException e, String comPortThreadName, String comTaskName);
+    public void taskExecutionFailed (Throwable e, String comPortThreadName, String comTaskName);
 
     /**
      * Logs that the execution of a {@link com.energyict.mdc.tasks.ComTask} by a

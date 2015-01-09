@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.impl.core.aspects.journaling;
+package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;

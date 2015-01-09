@@ -39,8 +39,14 @@ public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
 
     @Override
     protected void doRun () {
-        this.executeTasks();
-        this.checkAndApplyChanges();
+        try {
+            this.executeTasks();
+            this.checkAndApplyChanges();
+        }
+        catch (RuntimeException e) {
+            this.getLogger().unexpectedError(e, this.getThreadName());
+            throw e;
+        }
     }
 
     @Override
