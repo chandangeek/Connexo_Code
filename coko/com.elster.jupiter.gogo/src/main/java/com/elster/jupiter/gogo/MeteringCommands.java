@@ -23,11 +23,18 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Copyrights EnergyICT
@@ -50,8 +57,8 @@ public class MeteringCommands {
     private volatile MeteringService meteringService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
-    private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    private static DateFormat dateTimeFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+    private static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     @Reference
     public void setMeteringService(MeteringService service) {
@@ -86,7 +93,7 @@ public class MeteringCommands {
         final Optional<Meter> endDevice = meteringService.findMeter(id);
         if (endDevice.isPresent()) {
             try {
-                final Instant activationDate = dateFormat.parse(date).toInstant();
+                final Instant activationDate = Instant.from(dateFormat.parse(date));
                 MeterActivation activation = executeTransaction(new Transaction<MeterActivation>() {
                     @Override
                     public MeterActivation perform() {
@@ -107,7 +114,7 @@ public class MeteringCommands {
                 for (Channel channel : activation.getChannels()) {
                     System.out.println("  channel " + channel.getId() + " : " + channel.getMainReadingType().getMRID());
                 }
-            } catch (ParseException e) {
+            } catch (RuntimeException e) {
                 e.printStackTrace();
             }
         } else {
@@ -119,15 +126,14 @@ public class MeteringCommands {
         final Optional<Meter> endDevice = meteringService.findMeter(meterId);
         if (endDevice.isPresent()) {
             try {
-                Calendar startDate = Calendar.getInstance();
-                startDate.setTime(dateTimeFormat.parse(startDateTime));
+                ZonedDateTime startDate = LocalDateTime.from(dateTimeFormat.parse(startDateTime)).atZone(ZoneId.systemDefault());
                 Optional<ReadingType> readingTypeOptional = meteringService.getReadingType(readingType);
                 if (readingTypeOptional.isPresent()) {
                     if (!readingTypeOptional.get().getMeasuringPeriod().isApplicable()) {
                         final MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
                         for (int i = 0; i < numberOfInterval; i++) {
-                            meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(randomBetween(minValue, maxValue)), startDate.getTime().toInstant()));
-                            startDate.add(Calendar.SECOND, intervalInSeconds);
+                            meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(randomBetween(minValue, maxValue)), startDate.toInstant()));
+                            startDate = startDate.plusSeconds(intervalInSeconds);
                         }
                         executeTransaction(new VoidTransaction() {
                             @Override
@@ -143,7 +149,7 @@ public class MeteringCommands {
                     System.out.println("Unknown reading type '" + readingType + "'. Skipping.");
                 }
 
-            } catch (ParseException e) {
+            } catch (RuntimeException e) {
                 e.printStackTrace();
             }
         } else {
@@ -156,8 +162,7 @@ public class MeteringCommands {
         final Optional<Meter> endDevice = meteringService.findMeter(meterId);
         if (endDevice.isPresent()) {
             try {
-                Calendar startDate = Calendar.getInstance();
-                startDate.setTime(dateTimeFormat.parse(startDateTime));
+                ZonedDateTime startDate = LocalDateTime.from(dateTimeFormat.parse(startDateTime)).atZone(ZoneId.systemDefault());
                 Optional<ReadingType> readingTypeOptional = meteringService.getReadingType(readingType);
                 if (readingTypeOptional.isPresent()) {
                     int intervalInSeconds = getIntervalInSeconds(readingTypeOptional.get());
@@ -165,8 +170,8 @@ public class MeteringCommands {
                         final MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
                         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(readingType);
                         for (int i = 0; i < numberOfInterval; i++) {
-                            intervalBlock.addIntervalReading(IntervalReadingImpl.of(startDate.getTime().toInstant(), BigDecimal.valueOf(randomBetween(minValue, maxValue))));
-                            startDate.add(Calendar.SECOND, intervalInSeconds);
+                            intervalBlock.addIntervalReading(IntervalReadingImpl.of(startDate.toInstant(), BigDecimal.valueOf(randomBetween(minValue, maxValue))));
+                            startDate = startDate.plusSeconds(intervalInSeconds);
                         }
                         meterReading.addIntervalBlock(intervalBlock);
 
@@ -196,8 +201,7 @@ public class MeteringCommands {
         final Optional<Meter> endDevice = meteringService.findMeter(meterId);
         if (endDevice.isPresent()) {
             try {
-                Calendar startDate = Calendar.getInstance();
-                startDate.setTime(dateTimeFormat.parse(startDateTime));
+                ZonedDateTime startDate = LocalDateTime.from(dateTimeFormat.parse(startDateTime)).atZone(ZoneId.systemDefault());
                 Optional<ReadingType> readingTypeOptional = meteringService.getReadingType(readingType);
                 if (readingTypeOptional.isPresent()) {
                     int intervalInSeconds = getIntervalInSeconds(readingTypeOptional.get());
@@ -207,6 +211,8 @@ public class MeteringCommands {
                         BigDecimal cumulativeValue = BigDecimal.valueOf(startValue);
                         for (int i = 0; i < numberOfInterval; i++) {
                             cumulativeValue = cumulativeValue.add(BigDecimal.valueOf(randomBetween(minValue, maxValue)));
+                            intervalBlock.addIntervalReading(IntervalReadingImpl.of(startDate.toInstant(), cumulativeValue));
+                            startDate = startDate.plusSeconds(intervalInSeconds);
                             IntervalReadingImpl reading = IntervalReadingImpl.of(startDate.getTime().toInstant(), cumulativeValue);
                             reading.setProfileStatus(ProfileStatus.of(ProfileStatus.Flag.valueOf(intervalFlagCimCode)));
                             intervalBlock.addIntervalReading(reading);
@@ -306,9 +312,9 @@ public class MeteringCommands {
                     protected void doPerform() {
                         EndDeviceEventRecord endDeviceEventRecord = null;
                         try {
-                            endDeviceEventRecord = meter.addEventRecord(type.get(), dateTimeFormat.parse(dateTime).toInstant());
+                            endDeviceEventRecord = meter.addEventRecord(type.get(), Instant.from(dateTimeFormat.parse(dateTime)));
                             endDeviceEventRecord.save();
-                        } catch (ParseException e) {
+                        } catch (RuntimeException e) {
                             e.printStackTrace();
                         }
                     }
