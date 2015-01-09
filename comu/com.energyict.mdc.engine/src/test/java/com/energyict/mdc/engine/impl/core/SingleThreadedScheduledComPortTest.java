@@ -24,8 +24,8 @@ import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
@@ -234,7 +234,7 @@ public class SingleThreadedScheduledComPortTest {
     public void setupEventPublisher() {
         this.setupServiceProvider();
         EventPublisherImpl.setInstance(this.eventPublisher);
-        when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
+        when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProvider());
         when(comTask.getId()).thenAnswer(new Answer<Long>() {
             long counter = 0;
             @Override
@@ -992,6 +992,13 @@ public class SingleThreadedScheduledComPortTest {
         @Override
         public int getThreadPriority() {
             return 0;
+        }
+    }
+
+    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
+        @Override
+        public Clock clock() {
+            return clock;
         }
     }
 

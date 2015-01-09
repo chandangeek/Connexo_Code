@@ -5,8 +5,8 @@ import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPortPool;
@@ -58,16 +58,17 @@ public class ComServletTest {
     private ProtocolPluggableService protocolPluggableService;
     @Mock
     private EventPublisherImpl eventPublisher;
+    private Clock clock = Clock.systemDefaultZone();
 
     @Before
     public void setupEventPublisher () {
         serviceProvider = new FakeServiceProvider();
-        serviceProvider.setClock(Clock.systemDefaultZone());
+        serviceProvider.setClock(this.clock);
         serviceProvider.setProtocolPluggableService(protocolPluggableService);
         when(protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(anyString())).thenReturn(Collections.<InboundDeviceProtocolPluggableClass>emptyList());
         ServiceProvider.instance.set(serviceProvider);
         EventPublisherImpl.setInstance(this.eventPublisher);
-        when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
+        when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProvider());
     }
 
     @After
@@ -122,6 +123,13 @@ public class ComServletTest {
         verify(inboundDeviceProtocol).initializeDiscoveryContext(any(InboundDiscoveryContextImpl.class));
         verify(inboundDeviceProtocol).init(servletRequest, servletResponse);
         verify(inboundDeviceProtocol).doDiscovery();
+    }
+
+    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
+        @Override
+        public Clock clock() {
+            return clock;
+        }
     }
 
 }

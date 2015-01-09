@@ -13,7 +13,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.CommandRootServiceProvi
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -61,27 +61,27 @@ public abstract class AbstractComCommandExecuteTest {
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private EventPublisherImpl eventPublisher;
+    private Clock clock = Clock.systemDefaultZone();
 
     @Before
     public void setupEventPublisher() {
         this.setupServiceProvider();
         EventPublisherImpl.setInstance(this.eventPublisher);
-        when(this.eventPublisher.serviceProvider()).thenReturn(this.comServerEventServiceProviderAdapter());
+        when(this.eventPublisher.serviceProvider()).thenReturn(this.comServerEventServiceProvider());
     }
 
     private void setupServiceProvider() {
         FakeServiceProvider fakeServiceProvider = (FakeServiceProvider) serviceProvider;
         fakeServiceProvider.setDeviceConfigurationService(deviceConfigurationService);
-        Clock clock = Clock.systemDefaultZone();
-        fakeServiceProvider.setClock(clock);
-        fakeServiceProvider.setIssueService(new IssueServiceImpl(clock));
+        fakeServiceProvider.setClock(this.clock);
+        fakeServiceProvider.setIssueService(new IssueServiceImpl(this.clock));
         fakeServiceProvider.setConnectionTaskService(mock(ConnectionTaskService.class, RETURNS_DEEP_STUBS));
         fakeServiceProvider.setDeviceService(mock(DeviceService.class, RETURNS_DEEP_STUBS));
         ServiceProvider.instance.set(fakeServiceProvider);
     }
 
-    protected ComServerEventServiceProviderAdapter comServerEventServiceProviderAdapter() {
-        return new ComServerEventServiceProviderAdapter();
+    protected ComServerEventServiceProvider comServerEventServiceProvider() {
+        return new ComServerEventServiceProvider();
     }
 
     @After
@@ -135,6 +135,13 @@ public abstract class AbstractComCommandExecuteTest {
         executionContext.setLogger(logger);
         executionContext.start(comTaskExecution, comTask);
         return executionContext;
+    }
+
+    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
+        @Override
+        public Clock clock() {
+            return clock;
+        }
     }
 
 }

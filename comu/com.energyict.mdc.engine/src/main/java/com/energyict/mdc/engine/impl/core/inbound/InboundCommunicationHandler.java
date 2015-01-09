@@ -39,8 +39,8 @@ import com.energyict.mdc.engine.impl.events.connection.UndiscoveredEstablishConn
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
-import com.energyict.mdc.engine.impl.protocol.inbound.aspects.statistics.StatisticsMonitoringHttpServletRequest;
-import com.energyict.mdc.engine.impl.protocol.inbound.aspects.statistics.StatisticsMonitoringHttpServletResponse;
+import com.energyict.mdc.engine.impl.protocol.inbound.statistics.StatisticsMonitoringHttpServletRequest;
+import com.energyict.mdc.engine.impl.protocol.inbound.statistics.StatisticsMonitoringHttpServletResponse;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;

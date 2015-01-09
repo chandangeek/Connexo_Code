@@ -28,7 +28,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.DeviceProtocolCommandCreator;
-import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
@@ -180,7 +180,7 @@ public class JobExecutionTest {
     	when(clock.instant()).thenReturn(Instant.now());
         this.setupServiceProvider();
         EventPublisherImpl.setInstance(this.eventPublisher);
-        when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
+        when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProvider());
     }
 
     @After
@@ -502,6 +502,13 @@ public class JobExecutionTest {
             when(preparedComTaskExecution.getComTaskExecution()).thenReturn(comTaskExecution);
             when(preparedComTaskExecution.getCommandRoot()).thenReturn(root);
             return preparedComTaskExecution;
+        }
+    }
+
+    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
+        @Override
+        public Clock clock() {
+            return clock;
         }
     }
 

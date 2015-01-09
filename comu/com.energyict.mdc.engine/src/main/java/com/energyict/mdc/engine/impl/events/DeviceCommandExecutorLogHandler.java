@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.impl.events.aspects;
+package com.energyict.mdc.engine.impl.events;
 
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;

@@ -18,7 +18,7 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ComServerThreadFactory;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.config.ComServer;
 import java.util.Optional;
@@ -81,7 +81,7 @@ public class DeviceCommandExecutorImplTest {
         serviceProvider.setConnectionTaskService(this.connectionTaskService);
         when(userService.findUser(anyString())).thenReturn(Optional.of(user));
         EventPublisherImpl.setInstance(this.eventPublisher);
-        when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
+        when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProvider());
         when(this.comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
     }
 
@@ -1062,6 +1062,13 @@ public class DeviceCommandExecutorImplTest {
             return thread;
         }
 
+    }
+
+    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
+        @Override
+        public Clock clock() {
+            return clock;
+        }
     }
 
 }

@@ -32,7 +32,6 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandFactoryImpl;
 import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailureEvent;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
-import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.core.events.ComPortLogHandler;
 import com.energyict.mdc.engine.impl.core.logging.ComPortConnectionLogger;
 import com.energyict.mdc.engine.impl.core.logging.CompositeLogger;
@@ -531,7 +530,7 @@ public final class ExecutionContext implements JournalEntryFactory {
     void comTaskExecutionFailure(JobExecution job, ComTaskExecution comTaskExecution) {
         this.publish(
                 new ComTaskExecutionFailureEvent(
-                        new ComServerEventServiceProviderAdapter(),
+                        new ComServerEventServiceProvider(),
                         comTaskExecution,
                         this.getComPort(),
                         this.getConnectionTask()
@@ -545,7 +544,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.addStatisticalInformationForTaskSession();
         this.publish(
                 new ComTaskExecutionFailureEvent(
-                        new ComServerEventServiceProviderAdapter(),
+                        new ComServerEventServiceProvider(),
                         comTaskExecution,
                         this.getComPort(),
                         this.getConnectionTask(),

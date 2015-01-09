@@ -10,7 +10,6 @@ import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
@@ -37,7 +36,7 @@ public class LogOffCommandTest extends AbstractComCommandExecuteTest {
     @Before
     public void setUp() {
         EventPublisherImpl eventPublisher = mock(EventPublisherImpl.class);
-        when(eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
+        when(eventPublisher.serviceProvider()).thenReturn(this.comServerEventServiceProvider());
         EventPublisherImpl.setInstance(eventPublisher);
         ((FakeServiceProvider) serviceProvider).setClock(Clock.systemDefaultZone());
     }

@@ -76,7 +76,7 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
     public void setupEventPublisher () {
         super.setupEventPublisher();
         EventPublisherImpl.setInstance(this.eventPublisher);
-        when(this.eventPublisher.serviceProvider()).thenReturn(this.comServerEventServiceProviderAdapter());
+        when(this.eventPublisher.serviceProvider()).thenReturn(this.comServerEventServiceProvider());
     }
 
     @After

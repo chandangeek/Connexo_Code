@@ -30,7 +30,7 @@ import com.energyict.mdc.engine.impl.commands.store.UnlockScheduledJobDeviceComm
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.engine.config.ComPort;
@@ -156,7 +156,7 @@ public class InboundCommunicationHandlerTest {
         serviceProvider.setConnectionTaskService(connectionTaskService);
         serviceProvider.setHexService(this.hexService);
         EventPublisherImpl eventPublisher = mock(EventPublisherImpl.class);
-        when(eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
+        when(eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProvider());
         EventPublisherImpl.setInstance(eventPublisher);
         when(connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Instant.class))).
                 thenReturn(this.comSessionBuilder);
@@ -680,6 +680,13 @@ public class InboundCommunicationHandlerTest {
         when(cryptographer.wasUsed()).thenReturn(true);
         context.setCryptographer(cryptographer);
         // TODO need initialization of ComSessionBuilder on context
+    }
+
+    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
+        @Override
+        public Clock clock() {
+            return clock;
+        }
     }
 
 }

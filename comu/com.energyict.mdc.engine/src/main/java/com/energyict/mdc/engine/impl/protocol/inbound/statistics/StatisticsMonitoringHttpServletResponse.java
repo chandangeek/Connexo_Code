@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.impl.protocol.inbound.aspects.statistics;
+package com.energyict.mdc.engine.impl.protocol.inbound.statistics;
 
 import com.energyict.mdc.engine.impl.tools.Strings;
 

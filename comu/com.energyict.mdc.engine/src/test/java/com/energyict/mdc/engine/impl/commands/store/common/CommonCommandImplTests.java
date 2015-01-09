@@ -30,7 +30,7 @@ public abstract class CommonCommandImplTests extends AbstractComCommandExecuteTe
     public void setupEventPublisher () {
         super.setupEventPublisher();
         EventPublisherImpl.setInstance(this.eventPublisher);
-        when(this.eventPublisher.serviceProvider()).thenReturn(comServerEventServiceProviderAdapter());
+        when(this.eventPublisher.serviceProvider()).thenReturn(comServerEventServiceProvider());
     }
 
     @After
