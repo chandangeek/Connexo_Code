@@ -32,8 +32,12 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandFactoryImpl;
 import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailureEvent;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
+import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionCompletionEvent;
+import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionFailureEvent;
+import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionStartedEvent;
 import com.energyict.mdc.engine.impl.events.connection.CannotEstablishConnectionEvent;
 import com.energyict.mdc.engine.impl.events.connection.CloseConnectionEvent;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
@@ -169,6 +173,14 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.executing.stop();
         this.addStatisticalInformationForTaskSession();
         this.comTaskExecutionCompleted(successIndicator);
+        this.publish(
+                new ComTaskExecutionCompletionEvent(
+                        new ComServerEventServiceProvider(),
+                        comTaskExecution,
+                        successIndicator,
+                        this.getComPort(),
+                        this.getConnectionTask()
+                ));
     }
 
     public void comTaskExecutionCompleted(ComTaskExecutionSession.SuccessIndicator successIndicator) {
@@ -333,6 +345,17 @@ public final class ExecutionContext implements JournalEntryFactory {
         }
     }
 
+    public void executionStarted(ComTaskExecution comTaskExecution) {
+        this.initializeJournalist();
+        this.publish(
+                new ComTaskExecutionStartedEvent(
+                        new ComServerEventServiceProvider(),
+                        comTaskExecution,
+                        this.getComPort(),
+                        this.getConnectionTask()
+                ));
+    }
+
     public void start(ComTaskExecution comTaskExecution, ComTask comTask) {
         this.comTaskExecution = comTaskExecution;
         this.currentTaskExecutionBuilder = Optional.of(this.sessionBuilder.addComTaskExecutionSession(comTaskExecution, comTask, connectionTask.getDevice(), now()));
@@ -441,10 +464,28 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.currentTaskExecutionBuilder.ifPresent(b -> b.addComTaskExecutionMessageJournalEntry(now(), logLevel, message, ""));
     }
 
+    void comTaskExecutionFailure(ComTaskExecution comTaskExecution) {
+        this.publish(
+                new ComTaskExecutionFailureEvent(
+                        new ComServerEventServiceProviderAdapter(),
+                        comTaskExecution,
+                        this.getComPort(),
+                        this.getConnectionTask()
+                ));
+    }
+
     void comTaskExecutionFailure(ComTaskExecution comTaskExecution, Throwable t) {
         this.fail(comTaskExecution, t);
         this.executing.stop();
         this.addStatisticalInformationForTaskSession();
+        this.publish(
+                new ComTaskExecutionFailureEvent(
+                        new ComServerEventServiceProviderAdapter(),
+                        comTaskExecution,
+                        this.getComPort(),
+                        this.getConnectionTask(),
+                        t
+                ));
     }
 
     void fail(ComTaskExecution comTaskExecution, Throwable t) {

@@ -307,13 +307,18 @@ public abstract class JobExecution implements ScheduledJob {
         ComTaskExecutionSession.SuccessIndicator successIndicator = Success;
         try {
             this.start(preparedComTaskExecution.getComTaskExecution());
-
             CommandRoot commandRoot = preparedComTaskExecution.getCommandRoot();
             this.executionContext.setCommandRoot(commandRoot);
             commandRoot.executeFor(preparedComTaskExecution, this.executionContext);
-            boolean hasProblems = executionContext.getCommandRoot().getProblems().isEmpty();
-            successIndicator = hasProblems ? Success : Failure;
-            return hasProblems;
+            boolean noProblems = executionContext.getCommandRoot().getProblems().isEmpty();
+            if (noProblems) {
+                successIndicator = Success;
+            }
+            else {
+                successIndicator = Failure;
+                this.executionContext.comTaskExecutionFailure(preparedComTaskExecution.getComTaskExecution());
+            }
+            return noProblems;
         } catch (Throwable t) {
             this.failure(preparedComTaskExecution.getComTaskExecution(), t);
             successIndicator = Failure;
@@ -502,7 +507,7 @@ public abstract class JobExecution implements ScheduledJob {
     private void start(ComTaskExecution comTaskExecution) {
         this.getExecutionContext().prepareStart(comTaskExecution);
         this.getComServerDAO().executionStarted(comTaskExecution, this.getComPort());
-        this.getExecutionContext().initializeJournalist();
+        this.getExecutionContext().executionStarted(comTaskExecution);
     }
 
     enum BasicCheckTasks implements Comparator<ProtocolTask> {
