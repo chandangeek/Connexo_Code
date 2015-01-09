@@ -12,6 +12,16 @@
 
     <includeBaseDirectory>false</includeBaseDirectory>
 
+    <fileSets>
+        <fileSet>
+            <directory>target/generated-sources/license</directory>
+            <outputDirectory>licenses</outputDirectory>
+            <includes>
+                <include>*.txt</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+
     <dependencySets>
         <dependencySet>
             <includes>
