@@ -54,12 +54,16 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
             {
                 dataIndex: 'comTaskCount',
                 itemId: 'comTaskCount',
-                renderer: function (val) {
+                renderer: function (val,metaData) {
+                    metaData.tdCls = 'communication-tasks-status';
                     var template = '';
                     if (val.numberOfSuccessfulTasks || val.numberOfFailedTasks || val.numberOfIncompleteTasks) {
-                        template += '<tpl><img src="/apps/dsh/resources/images/widget/running.png" class="ct-result ct-success" title="Success"><span style="position: relative; top: -3px; left: 4px">' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '0') + '</span></tpl>';
-                        template += '<tpl><img src="/apps/dsh/resources/images/widget/blocked.png" class="ct-result ct-failure" title="Failed" style="position: relative; left: 30px"><span style="position: relative; top: -3px; left: 34px">' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0') + '</span></tpl>';
-                        template += '<tpl><img src="/apps/dsh/resources/images/widget/stopped.png" class="ct-result ct-incomplete" title="Not executed" style="position: relative; left: 56px"><span  style="position: relative; top: -3px; left: 60px">' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0') + '</span></tpl>';
+                        template += '<tpl><span class="icon-checkmark"></span>' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '0') + '</tpl>';
+                        template += '<tpl><span class="icon-close"></span>' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0') + '</tpl>';
+                        template += '<tpl><span  class="icon-stop2"></span>' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0') + '</tpl>';
+//                        template += '<tpl><img src="/apps/dsh/resources/images/widget/running.png" class="ct-result ct-success" title="Success"><span style="position: relative; top: -3px; left: 4px">' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '0') + '</span></tpl>';
+//                        template += '<tpl><img src="/apps/dsh/resources/images/widget/blocked.png" class="ct-result ct-failure" title="Failed" style="position: relative; left: 30px"><span style="position: relative; top: -3px; left: 34px">' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0') + '</span></tpl>';
+//                        template += '<tpl><img src="/apps/dsh/resources/images/widget/stopped.png" class="ct-result ct-incomplete" title="Not executed" style="position: relative; left: 56px"><span  style="position: relative; top: -3px; left: 60px">' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0') + '</span></tpl>';
                     }
                     return template;
                 },

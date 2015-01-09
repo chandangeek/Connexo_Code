@@ -252,12 +252,13 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     xtype: 'displayfield',
                                     fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.communicationTasks', 'DSH', 'Communication tasks'),
                                     name: 'comTaskCount',
+                                    cls: 'communication-tasks-status',
                                     renderer: function (val) {
                                         var template = '';
                                         if (val.numberOfSuccessfulTasks || val.numberOfFailedTasks || val.numberOfIncompleteTasks) {
-                                            template += '<tpl><img src="/apps/dsh/resources/images/widget/running.png" title="Success" class="ct-result ct-success"><span style="position: relative; top: -3px; left: 4px">' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '0') + '</span><br></tpl>';
-                                            template += '<tpl><img src="/apps/dsh/resources/images/widget/blocked.png" title="Failed" class="ct-result ct-failure"><span style="position: relative; top: -3px; left: 4px">' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0')  + '</span><br></tpl>';
-                                            template += '<tpl><img src="/apps/dsh/resources/images/widget/stopped.png" title="Not executed" class="ct-result ct-incomplete"><span  style="position: relative; top: -3px; left: 4px">' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0') + '</span></tpl>';
+                                            template += '<tpl><span class="icon-checkmark"></span>' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '0') + '<br></tpl>';
+                                            template += '<tpl><span class="icon-close"></span>' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0') + '<br></tpl>';
+                                            template += '<tpl><span  class="icon-stop2"></span>' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0') + '</tpl>';
                                         }
                                         return template;
                                     }
