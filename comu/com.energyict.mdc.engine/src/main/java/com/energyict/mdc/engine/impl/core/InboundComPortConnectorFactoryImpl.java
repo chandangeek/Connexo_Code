@@ -13,6 +13,8 @@ import com.energyict.mdc.protocol.api.services.HexService;
 
 import com.energyict.mdc.io.SocketService;
 
+import java.time.Clock;
+
 /**
  * Provides an implementation for the {@link InboundComPortConnectorFactory} interface.
  *
@@ -24,24 +26,26 @@ public class InboundComPortConnectorFactoryImpl implements InboundComPortConnect
     private final SerialComponentService serialAtComponentService;
     private final SocketService socketService;
     private final HexService hexService;
+    private final Clock clock;
 
-    public InboundComPortConnectorFactoryImpl(SerialComponentService serialAtComponentService, SocketService socketService, HexService hexService) {
+    public InboundComPortConnectorFactoryImpl(SerialComponentService serialAtComponentService, SocketService socketService, HexService hexService, Clock clock) {
         super();
         this.serialAtComponentService = serialAtComponentService;
         this.socketService = socketService;
         this.hexService = hexService;
+        this.clock = clock;
     }
 
     @Override
     public InboundComPortConnector connectorFor(InboundComPort inboundComPort) {
         if (inboundComPort instanceof ModemBasedInboundComPort) {
-            return new SerialPortConnector((ModemBasedInboundComPort) inboundComPort, this.serialAtComponentService, this.hexService);
+            return new SerialPortConnector((ModemBasedInboundComPort) inboundComPort, this.serialAtComponentService, this.hexService, this.clock);
         }
         else if (inboundComPort instanceof TCPBasedInboundComPort) {
-            return new TCPPortConnector((TCPBasedInboundComPort) inboundComPort, this.socketService, this.hexService);
+            return new TCPPortConnector((TCPBasedInboundComPort) inboundComPort, this.socketService, this.hexService, this.clock);
         }
         else if (inboundComPort instanceof UDPBasedInboundComPort) {
-            return new UDPPortConnector((UDPBasedInboundComPort) inboundComPort, socketService, this.hexService);
+            return new UDPPortConnector((UDPBasedInboundComPort) inboundComPort, socketService, this.hexService, this.clock);
         }
         throw new RuntimeException("Unknown or unsupported inbound comport type: " + inboundComPort.getClass().getName());
     }

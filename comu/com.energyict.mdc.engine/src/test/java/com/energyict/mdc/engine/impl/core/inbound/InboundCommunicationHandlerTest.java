@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.core.inbound;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -664,7 +663,7 @@ public class InboundCommunicationHandlerTest {
     }
 
     private InboundDiscoveryContextImpl newBinaryInboundDiscoveryContext() {
-        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(this.comPort, new ComPortRelatedComChannelImpl(mock(ComChannel.class), this.comPort, this.hexService), this.connectionTaskService);
+        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(this.comPort, new ComPortRelatedComChannelImpl(mock(ComChannel.class), this.comPort, clock, this.hexService), this.connectionTaskService);
         this.initializeInboundDiscoveryContext(context);
         return context;
     }

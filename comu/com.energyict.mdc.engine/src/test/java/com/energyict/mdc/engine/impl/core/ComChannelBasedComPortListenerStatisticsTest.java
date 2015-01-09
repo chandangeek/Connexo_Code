@@ -397,7 +397,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
         comChannel.whenRead(singleByte);
         comChannel.whenReadFromBuffer(FIRST_SERIES_OF_BYTES);
         comChannel.whenReadFromBufferWithOffset(SECOND_SERIES_OF_BYTES, SECOND_SERIES_OF_BYTES_OFFSET, SECOND_SERIES_OF_BYTES_LENGTH);
-        ComPortRelatedComChannel comPortRelatedComChannel = new ComPortRelatedComChannelImpl(comChannel, comPort, this.hexService);
+        ComPortRelatedComChannel comPortRelatedComChannel = new ComPortRelatedComChannelImpl(comChannel, comPort, clock, this.hexService);
         this.jobExecution = new MockJobExecution(comPort, comPortRelatedComChannel, serviceProvider);
         this.jobExecution.getExecutionContext().connect();   // Should initialize the communication statistics
         return comPortRelatedComChannel;
@@ -429,7 +429,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
         when(comServer.getCommunicationLogLevel()).thenReturn(comServerLogLevel);
         ComPort comPort = mock(ComPort.class);
         when(comPort.getComServer()).thenReturn(comServer);
-        ComPortRelatedComChannel comChannel = new ComPortRelatedComChannelImpl(new SystemOutComChannel(), comPort, this.hexService);
+        ComPortRelatedComChannel comChannel = new ComPortRelatedComChannelImpl(new SystemOutComChannel(), comPort, clock, this.hexService);
         this.jobExecution = new MockJobExecution(comPort, comChannel, serviceProvider);
         this.jobExecution.getExecutionContext().connect();
         comChannel.setComPort(this.comPort);

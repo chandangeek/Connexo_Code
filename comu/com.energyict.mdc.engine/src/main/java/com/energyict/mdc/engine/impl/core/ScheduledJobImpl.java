@@ -51,6 +51,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
         return new ComPortRelatedComChannelImpl(
                 getConnectionTask().connect(getComPort(), propertyProvider.getProperties()),
                 getComPort(),
+                getServiceProvider().clock(),
                 getServiceProvider().hexService());
     }
 

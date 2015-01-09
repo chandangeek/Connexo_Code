@@ -46,7 +46,8 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
                 new InboundComPortConnectorFactoryImpl(
                         serviceProvider.serialAtComponentService(),
                         serviceProvider.socketService(),
-                        serviceProvider.hexService())
+                        serviceProvider.hexService(),
+                        serviceProvider.clock())
         );
     }
 

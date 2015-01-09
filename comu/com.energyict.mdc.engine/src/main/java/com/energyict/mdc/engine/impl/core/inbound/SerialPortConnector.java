@@ -18,6 +18,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.services.HexService;
 
 import java.io.IOException;
+import java.time.Clock;
 
 /**
  * Implementation of an {@link InboundComPortConnector}
@@ -33,17 +34,19 @@ public class SerialPortConnector implements InboundComPortConnector {
     private final ModemBasedInboundComPort comPort;
     private final SerialComponentService serialComponentService;
     private final HexService hexService;
+    private final Clock clock;
 
     /**
      * The number of consecutive rings already received.
      */
     private int currentRingCount;
 
-    public SerialPortConnector(ModemBasedInboundComPort comPort, SerialComponentService serialComponentService, HexService hexService) {
+    public SerialPortConnector(ModemBasedInboundComPort comPort, SerialComponentService serialComponentService, HexService hexService, Clock clock) {
         super();
         this.comPort = comPort;
         this.serialComponentService = serialComponentService;
         this.hexService = hexService;
+        this.clock = clock;
     }
 
     @Override
@@ -54,7 +57,7 @@ public class SerialPortConnector implements InboundComPortConnector {
         waitForNumberOfRings(comChannel, modemComponent);
         acceptCallAndConnect(comChannel, modemComponent);
 
-        return new ComPortRelatedComChannelImpl(comChannel, this.comPort, this.hexService);
+        return new ComPortRelatedComChannelImpl(comChannel, this.comPort, this.clock, this.hexService);
     }
 
 

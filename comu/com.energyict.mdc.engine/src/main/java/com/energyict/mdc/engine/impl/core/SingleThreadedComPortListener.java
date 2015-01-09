@@ -39,7 +39,8 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
                 new InboundComPortConnectorFactoryImpl(
                         serviceProvider.serialAtComponentService(),
                         serviceProvider.socketService(),
-                        serviceProvider.hexService())
+                        serviceProvider.hexService(),
+                        serviceProvider.clock())
         );
     }
 

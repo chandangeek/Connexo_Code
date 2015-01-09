@@ -9,6 +9,8 @@ import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.services.HexService;
 
+import java.time.Clock;
+
 /**
  * Implementation of an {@link InboundComPortConnector} for an {@link UDPBasedInboundComPort},
  * i.e. a {@link com.energyict.mdc.engine.config.ComPort} of the type {@link ComPortType#UDP}.
@@ -21,18 +23,20 @@ public class UDPPortConnector implements InboundComPortConnector {
 
     private final InboundUdpSession inboundUdpSession;
     private final HexService hexService;
+    private final Clock clock;
     private final InboundComPort comPort;
 
-    public UDPPortConnector(UDPBasedInboundComPort comPort, SocketService socketService, HexService hexService) {
+    public UDPPortConnector(UDPBasedInboundComPort comPort, SocketService socketService, HexService hexService, Clock clock) {
         super();
         this.comPort = comPort;
         this.hexService = hexService;
+        this.clock = clock;
         this.inboundUdpSession = socketService.newInboundUdpSession(comPort.getBufferSize(), comPort.getPortNumber());
     }
 
     @Override
     public ComPortRelatedComChannel accept() {
-        return new ComPortRelatedComChannelImpl(this.inboundUdpSession.accept(), this.comPort, this.hexService);
+        return new ComPortRelatedComChannelImpl(this.inboundUdpSession.accept(), this.comPort, this.clock, this.hexService);
     }
 
 }

@@ -57,7 +57,7 @@ public class MultiThreadedComPortListenerTest {
     private SocketService socketService;
     @Mock
     private EventPublisherImpl eventPublisher;
-
+    private Clock clock = Clock.systemDefaultZone();
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
     private Thread mockedThread() {
@@ -68,7 +68,7 @@ public class MultiThreadedComPortListenerTest {
     public void setupServiceProvider () throws IOException {
         this.serviceProvider.setIssueService(this.issueService);
         this.serviceProvider.setSocketService(this.socketService);
-        this.serviceProvider.setClock(Clock.systemDefaultZone());
+        this.serviceProvider.setClock(this.clock);
         ServiceProvider.instance.set(this.serviceProvider);
         when(this.socketService.newInboundTCPSocket(anyInt())).thenReturn(mock(ServerSocket.class));
         when(this.socketService.newSocketComChannel(any(Socket.class))).thenReturn(new SystemOutComChannel());
@@ -466,7 +466,7 @@ public class MultiThreadedComPortListenerTest {
                     Thread.currentThread().interrupt();
                 }
             }
-            return new ComPortRelatedComChannelImpl(new VoidTestComChannel(), this.comPort, hexService);
+            return new ComPortRelatedComChannelImpl(new VoidTestComChannel(), this.comPort, clock, hexService);
         }
     }
 

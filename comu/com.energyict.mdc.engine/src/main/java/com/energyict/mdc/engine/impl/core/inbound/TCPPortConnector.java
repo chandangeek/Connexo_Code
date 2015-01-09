@@ -15,6 +15,7 @@ import com.energyict.mdc.io.SocketService;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Clock;
 
 /**
  * Implementation of an {@link InboundComPortConnector} for a {@link ComPort} of the type {@link ComPortType#TCP}.
@@ -31,13 +32,15 @@ public class TCPPortConnector implements InboundComPortConnector {
     private final ServerSocket serverSocket;
     private final SocketService socketService;
     private final HexService hexService;
+    private final Clock clock;
     private final InboundComPort comPort;
 
-    public TCPPortConnector(TCPBasedInboundComPort comPort, SocketService socketService, HexService hexService) {
+    public TCPPortConnector(TCPBasedInboundComPort comPort, SocketService socketService, HexService hexService, Clock clock) {
         super();
         this.comPort = comPort;
         this.hexService = hexService;
         this.socketService = socketService;
+        this.clock = clock;
         try {
             this.serverSocket = socketService.newInboundTCPSocket(comPort.getPortNumber());
         }
@@ -50,7 +53,7 @@ public class TCPPortConnector implements InboundComPortConnector {
     public ComPortRelatedComChannel accept() {
         try {
             final Socket socket = this.serverSocket.accept();
-            return new ComPortRelatedComChannelImpl(this.getSocketService().newSocketComChannel(socket), this.comPort, this.hexService);
+            return new ComPortRelatedComChannelImpl(this.getSocketService().newSocketComChannel(socket), this.comPort, this.clock, this.hexService);
         }
         catch (IOException e) {
             throw new InboundCommunicationException(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION, e);

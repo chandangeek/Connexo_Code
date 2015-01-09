@@ -12,6 +12,7 @@ import com.energyict.mdc.io.SocketService;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Clock;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -48,6 +49,8 @@ public class TCPPortConnectorTest {
     @Mock
     private ServerSocket serverSocket;
 
+    private Clock clock = Clock.systemUTC();
+
     @Before
     public void initializeMocksAndFactories() throws IOException {
         when(this.socketService.newSocketComChannel(any(Socket.class))).thenReturn(this.comChannel);
@@ -69,7 +72,7 @@ public class TCPPortConnectorTest {
         TCPBasedInboundComPort tcpBasedInboundComPort = createTCPBasedInboundComPort();
 
         // creating a Connector with a ServerSocket with a backLog of 2 sessions
-        TCPPortConnector connector = new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService);
+        TCPPortConnector connector = new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService, this.clock);
 
         // business method
         ComChannel accept = connector.accept();
@@ -89,7 +92,7 @@ public class TCPPortConnectorTest {
 
         try {
             // Business method
-            new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService);
+            new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService, this.clock);
         }
         catch (InboundCommunicationException e) {
             if (!e.getMessageSeed().equals(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION)) {
@@ -108,7 +111,7 @@ public class TCPPortConnectorTest {
         TCPBasedInboundComPort tcpBasedInboundComPort = createTCPBasedInboundComPort();
 
         // creating a Connector with a ServerSocket with a backLog of 2 sessions
-        TCPPortConnector connector = new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService);
+        TCPPortConnector connector = new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService, this.clock);
 
         try {
             // Business method

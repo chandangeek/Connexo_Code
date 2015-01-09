@@ -2,8 +2,8 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.engine.events.ComServerEvent;
-import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.core.aspects.logging.ComChannelLogger;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.io.ReadEvent;
 import com.energyict.mdc.engine.impl.events.io.WriteEvent;
@@ -20,6 +20,7 @@ import com.elster.jupiter.util.time.StopWatch;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Clock;
 import java.time.Duration;
 
 /**
@@ -32,6 +33,7 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
 
     private static final long NANOS_IN_MILLI = 1000000L;
 
+    private final Clock clock;
     private final HexService hexService;
     private ComChannel comChannel;
     private ComChannelLogger logger;
@@ -42,9 +44,10 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
     private final Counters sessionCounters = new Counters();
     private final Counters taskSessionCounters = new Counters();
 
-    public ComPortRelatedComChannelImpl(ComChannel comChannel, ComPort comPort, HexService hexService) {
+    public ComPortRelatedComChannelImpl(ComChannel comChannel, ComPort comPort, Clock clock, HexService hexService) {
         super();
         this.comChannel = comChannel;
+        this.clock = clock;
         this.hexService = hexService;
         this.talking = new StopWatch(false);  // No cpu required;
         this.talking.stop();
@@ -272,7 +275,7 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
             String hexBytes = this.hexService.toHexString(bytesWrittenForLogging);
             this.logger.bytesWritten(hexBytes);
         }
-        this.publish(new WriteEvent(new ComServerEventServiceProviderAdapter(), this.comPort, bytesWrittenForLogging));
+        this.publish(new WriteEvent(new ComServerEventServiceProvider(), this.comPort, bytesWrittenForLogging));
     }
 
     private void logBytesReadIfAny () {
@@ -288,7 +291,7 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
             String hexBytes = this.hexService.toHexString(bytesReadForLogging);
             this.logger.bytesRead(hexBytes);
         }
-        this.publish(new ReadEvent(new ComServerEventServiceProviderAdapter(), this.comPort, bytesReadForLogging));
+        this.publish(new ReadEvent(new ComServerEventServiceProvider(), this.comPort, bytesReadForLogging));
     }
 
     @Override
@@ -308,6 +311,13 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
 
     private void publish (ComServerEvent event) {
         EventPublisherImpl.getInstance().publish(event);
+    }
+
+    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
+        @Override
+        public Clock clock() {
+            return clock;
+        }
     }
 
 }
