@@ -47,7 +47,7 @@
         </dependency>
         <dependency>
             <groupId>se.joel.osgi</groupId>
-            <artifactId>rxtx</artifactId>
+            <artifactId>rxtx-osgi</artifactId>
         </dependency>
 
         <!-- OSGi -->
