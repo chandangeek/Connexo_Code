@@ -7,7 +7,9 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
@@ -23,7 +25,16 @@ import com.energyict.mdc.engine.impl.core.Counters;
 import com.energyict.mdc.engine.impl.core.InboundJobExecutionDataProcessor;
 import com.energyict.mdc.engine.impl.core.InboundJobExecutionGroup;
 import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.UnknownInboundDeviceEvent;
+import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionCompletionEvent;
+import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionStartedEvent;
+import com.energyict.mdc.engine.impl.events.connection.CloseConnectionEvent;
+import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
+import com.energyict.mdc.engine.impl.events.connection.UndiscoveredCloseConnectionEvent;
+import com.energyict.mdc.engine.impl.events.connection.UndiscoveredEstablishConnectionEvent;
 import com.energyict.mdc.engine.impl.protocol.inbound.aspects.statistics.StatisticsMonitoringHttpServletRequest;
 import com.energyict.mdc.engine.impl.protocol.inbound.aspects.statistics.StatisticsMonitoringHttpServletResponse;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
@@ -46,6 +57,7 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
@@ -129,6 +141,7 @@ public class InboundCommunicationHandler {
      * @param context               The InboundDiscoveryContext
      */
     public void handle(InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContextImpl context) {
+        this.publish(new UndiscoveredEstablishConnectionEvent(new ComServerEventServiceProvider(), this.comPort));
         this.initializeContext(context);
         OfflineDevice device;
         InboundDeviceProtocol.DiscoverResultType discoverResultType;
@@ -235,6 +248,7 @@ public class InboundCommunicationHandler {
     }
 
     private void startDeviceSessionInContext() {
+        this.publish(new EstablishConnectionEvent(new ComServerEventServiceProvider(), this.comPort, this.connectionTask));
         context.buildComSession(connectionTask, comPort.getComPortPool(), comPort, now());
     }
 
@@ -284,6 +298,19 @@ public class InboundCommunicationHandler {
             this.markSuccessful(sessionBuilder);
         } else {
             this.markFailed(sessionBuilder, this.responseType);
+        }
+        if (this.connectionTask != null) {
+            this.publish(
+                    new CloseConnectionEvent(
+                            new ComServerEventServiceProvider(),
+                            this.comPort,
+                            this.connectionTask));
+        }
+        else {
+            this.publish(
+                    new UndiscoveredCloseConnectionEvent(
+                            new ComServerEventServiceProvider(),
+                            this.comPort));
         }
     }
 
@@ -386,6 +413,7 @@ public class InboundCommunicationHandler {
     }
 
     private void processCollectedData(InboundDeviceProtocol inboundDeviceProtocol, DeviceCommandExecutionToken token, OfflineDevice offlineDevice) {
+        this.publishComTaskExecutionStartedEvents();
         InboundJobExecutionDataProcessor inboundJobExecutionDataProcessor =
                 new InboundJobExecutionDataProcessor(
                         getComPort(),
@@ -398,6 +426,30 @@ public class InboundCommunicationHandler {
         inboundJobExecutionDataProcessor.setToken(token);
         inboundJobExecutionDataProcessor.setConnectionTask(this.connectionTask);
         inboundJobExecutionDataProcessor.executeDeviceProtocol(this.deviceComTaskExecutions);
+        this.publishComTaskExecutionCompletedEvents();
+    }
+
+    private void publishComTaskExecutionStartedEvents() {
+        for (ComTaskExecution comTaskExecution : this.deviceComTaskExecutions) {
+            this.publish(
+                    new ComTaskExecutionStartedEvent(
+                            new ComServerEventServiceProvider(),
+                            comTaskExecution,
+                            this.comPort,
+                            this.connectionTask));
+        }
+    }
+
+    private void publishComTaskExecutionCompletedEvents() {
+        for (ComTaskExecution comTaskExecution : this.deviceComTaskExecutions) {
+            this.publish(
+                    new ComTaskExecutionCompletionEvent(
+                            new ComServerEventServiceProvider(),
+                            comTaskExecution,
+                            ComTaskExecutionSession.SuccessIndicator.Success,
+                            this.comPort,
+                            this.connectionTask));
+        }
     }
 
     private boolean deviceIsReadyForInboundCommunicationOnThisPort(OfflineDevice device) {
@@ -414,6 +466,17 @@ public class InboundCommunicationHandler {
 
     private Instant now() {
     	return serviceProvider.clock().instant();
+    }
+
+    private void publish (ComServerEvent event) {
+        EventPublisherImpl.getInstance().publish(event);
+    }
+
+    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
+        @Override
+        public Clock clock() {
+            return serviceProvider.clock();
+        }
     }
 
 }
