@@ -309,6 +309,11 @@ public class AM540 extends AbstractDlmsProtocol {
     }
 
     @Override
+    public String getSerialNumber() {
+        return getMeterInfo().getEquipmentIdentifier();
+    }
+
+    @Override
     public CollectedTopology getDeviceTopology() {
         return MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
     }
