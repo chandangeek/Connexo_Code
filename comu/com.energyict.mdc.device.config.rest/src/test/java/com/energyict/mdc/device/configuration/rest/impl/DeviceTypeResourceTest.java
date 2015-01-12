@@ -1038,14 +1038,14 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         Map<String, Object> response = target("/devicetypes/41/deviceconfigurations/51/connectionmethods").request().get(Map.class);
         assertThat(response).hasSize(2);
         assertThat(response.get("total")).isEqualTo(1);
-        List<Map<String, Object>> connectionMethods = (List<Map<String, Object>>) response.get("connectionMethods");
+        List<Map<String, Object>> connectionMethods = (List<Map<String, Object>>) response.get("data");
         assertThat(connectionMethods).hasSize(1);
         Map<String, Object> connectionMethod = connectionMethods.get(0);
         assertThat(connectionMethod).hasSize(13)
                 .containsKey("id")
                 .containsKey("name")
                 .containsKey("direction")
-                .containsKey("connectionType")
+                .containsKey("connectionTypePluggableClass")
                 .containsKey("comWindowStart")
                 .containsKey("comWindowEnd")
                 .containsKey("isDefault")
@@ -1063,9 +1063,10 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
                 .containsKey("propertyTypeInfo")
                 .containsKey("required");
         Map<String, Object> propertyValueInfo = (Map<String, Object>) macAddressProperty.get("propertyValueInfo");
-        assertThat(propertyValueInfo).hasSize(3)
+        assertThat(propertyValueInfo).hasSize(4)
                 .containsKey("inheritedValue")
                 .containsKey("defaultValue")
+                .containsKey("propertyHasValue")
                 .containsKey("value");
         Map<String, Object> propertyTypeInfo = (Map<String, Object>) macAddressProperty.get("propertyTypeInfo");
         assertThat(propertyTypeInfo).hasSize(4)
