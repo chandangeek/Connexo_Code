@@ -2,7 +2,9 @@ package com.elster.jupiter.yellowfin.rest.impl;
 
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.yellowfin.YellowfinService;
+import com.elster.jupiter.yellowfin.security.Privileges;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.POST;
@@ -30,7 +32,7 @@ public class YellowfinResource {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/login")
-
+	@RolesAllowed({Privileges.VIEW_REPORTS,Privileges.DESIGN_REPORTS})
 	public YellowfinInfo login(HttpServletResponse response, @Context SecurityContext securityContext) {
 		User user = (User) securityContext.getUserPrincipal();
 
@@ -43,18 +45,17 @@ public class YellowfinResource {
 			info.url = yellowfinService.getYellowfinUrl();
 		}
 		else{
-			throw new WebApplicationException(Response.Status.NOT_FOUND);
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
 		}
 		return info;
 	}
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/token")
-
+	@RolesAllowed(Privileges.VIEW_REPORTS)
 	public YellowfinInfo token(HttpServletResponse response, @Context SecurityContext securityContext) {
 		User user = (User) securityContext.getUserPrincipal();
 
-		//yellowfinService.logout(user.getName());
 		String webServiceLoginToken = yellowfinService.login(user.getName());
 
 		YellowfinInfo info = new YellowfinInfo();
@@ -63,7 +64,7 @@ public class YellowfinResource {
 			info.url = yellowfinService.getYellowfinUrl();
 		}
 		else{
-			throw new WebApplicationException(Response.Status.NOT_FOUND);
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
 		}
 		return info;
 	}
