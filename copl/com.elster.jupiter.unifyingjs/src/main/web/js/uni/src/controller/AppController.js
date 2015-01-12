@@ -129,7 +129,8 @@ Ext.define('Uni.controller.AppController', {
                 method: 'GET',
                 async: false,
                 success: function(response){
-                    me.licenseStatus = response.responseText;
+                    var data = Ext.JSON.decode(response.responseText);
+                    me.licenseStatus = data.status;
                     if (me.licenseStatus === 'EXPIRED') {
                         me.controllers = [];
                         me.getController('Uni.controller.Navigation').searchEnabled  = false;
