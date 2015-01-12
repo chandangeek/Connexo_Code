@@ -125,7 +125,7 @@ Ext.define('Uni.controller.history.Router', {
 
     getQueryString: function () {
         var token = Ext.util.History.getToken() || document.location.href.split('?')[1],
-            queryStringIndex = token.indexOf('?');
+            queryStringIndex = token?token.indexOf('?'):-1;
         return queryStringIndex < 0 ? '' : token.substring(queryStringIndex + 1);
     },
 
@@ -150,6 +150,9 @@ Ext.define('Uni.controller.history.Router', {
      * @param prefix string|null
      */
     initRoute: function (key, config, prefix) {
+        if (Ext.isArray(config.privileges) && !Uni.Auth.hasAnyPrivilege(config.privileges)) {
+            return;
+        }
         var me = this;
         prefix = typeof prefix !== 'undefined' ? prefix : '';
         var route = prefix + '/' + config.route;
