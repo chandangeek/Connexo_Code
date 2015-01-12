@@ -1,8 +1,12 @@
 package com.energyict.mdc.engine.issues;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.impl.ProblemImpl;
 import org.junit.*;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -17,7 +21,11 @@ import static org.fest.assertions.api.Assertions.assertThat;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-27 (12:02)
  */
+@RunWith(MockitoJUnitRunner.class)
 public class CompositeValidatorTest {
+
+    @Mock
+    private static Thesaurus thesaurus;
 
     private static final String PROBLEM_DESCRIPTION = "Problem";
 
@@ -31,7 +39,7 @@ public class CompositeValidatorTest {
     private static class NeverOkValidator implements Validator<String> {
 
         public Set<Issue> validate(String target) {
-            return Collections.singleton((Issue) new ProblemImpl(Instant.now(), target, PROBLEM_DESCRIPTION));
+            return Collections.singleton((Issue) new ProblemImpl(thesaurus, Instant.now(), target, PROBLEM_DESCRIPTION));
         }
     }
 
@@ -41,13 +49,13 @@ public class CompositeValidatorTest {
             if (! is(target).empty() && Character.isUpperCase(target.charAt(0))) {
                 return Collections.emptySet();
             }
-            return Collections.singleton((Issue) new ProblemImpl(Instant.now(), target, "Not capitalized."));
+            return Collections.singleton((Issue) new ProblemImpl(thesaurus, Instant.now(), target, "Not capitalized."));
         }
     }
 
     @Test
     public void testValidateAllIssuesCollected() throws Exception {
-        CompositeValidator<String> validator = new CompositeValidator<>(new NeverOkValidator(), new StartsWithCapitalValidator());
+        CompositeValidator<String> validator = new CompositeValidator(new NeverOkValidator(), new StartsWithCapitalValidator());
         Set<Issue> issues = validator.validate("invalid");
         assertThat(issues).isNotNull();
         assertThat(issues).hasSize(2);
@@ -55,7 +63,7 @@ public class CompositeValidatorTest {
 
     @Test
     public void testAllPassed() throws Exception {
-        CompositeValidator<String> validator = new CompositeValidator<>(new AlwaysOkValidator(), new StartsWithCapitalValidator());
+        CompositeValidator<String> validator = new CompositeValidator(new AlwaysOkValidator(), new StartsWithCapitalValidator());
         Set<Issue> issues = validator.validate("Invalid");
         assertThat(issues).isNotNull();
         assertThat(issues).isEmpty();
@@ -63,7 +71,7 @@ public class CompositeValidatorTest {
 
     @Test
     public void testValidateFailAtFirst() throws Exception {
-        CompositeValidator<String> validator = new CompositeValidator<>(new NeverOkValidator(), new StartsWithCapitalValidator());
+        CompositeValidator<String> validator = new CompositeValidator(new NeverOkValidator(), new StartsWithCapitalValidator());
         validator.setCollectAll(false);
         Set<Issue> issues = validator.validate("invalid");
         assertThat(issues).isNotNull();
