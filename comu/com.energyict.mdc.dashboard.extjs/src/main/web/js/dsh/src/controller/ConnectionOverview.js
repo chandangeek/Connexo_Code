@@ -63,36 +63,38 @@ Ext.define('Dsh.controller.ConnectionOverview', {
     },
 
     updateQuickLinks: function(){
-        var me = this;
-        var deviceGroupField = me.getHeader().down('#device-group');
-        var deviceGroupName = deviceGroupField.groupName;
+        if (Uni.Auth.hasAnyPrivilege(['privilege.view.reports'])) {
+            var me = this;
+            var deviceGroupField = me.getHeader().down('#device-group');
+            var deviceGroupName = deviceGroupField.groupName;
 
-        var filter = false ;
-        if(deviceGroupName && deviceGroupName.length){
-            filter = encodeURIComponent(Ext.JSON.encode({
-                'GROUPNAME':deviceGroupName
-            }))
-        }
-        var reportsStore = Ext.getStore('ReportInfos');
-        if(reportsStore) {
-            var proxy = reportsStore.getProxy();
-            proxy.setExtraParam('category', 'MDC');
-            proxy.setExtraParam('subCategory', 'Device Connections');
-            reportsStore.load(function (records) {
-                var quickLinks = Ext.isArray(me.getQuickLinks().data) ? me.getQuickLinks().data : [];
-                Ext.each(records, function (record) {
-                    var reportName = record.get('name');
-                    var reportUUID = record.get('reportUUID');
-                    quickLinks.push({
-                        link: reportName,
-                        href: '#/reports/view?reportUUID=' + reportUUID + (filter ? '&filter=' + filter : ''),
-                        target: '_blank'
+            var filter = false;
+            if (deviceGroupName && deviceGroupName.length) {
+                filter = encodeURIComponent(Ext.JSON.encode({
+                    'GROUPNAME': deviceGroupName
+                }))
+            }
+            var reportsStore = Ext.getStore('ReportInfos');
+            if (reportsStore) {
+                var proxy = reportsStore.getProxy();
+                proxy.setExtraParam('category', 'MDC');
+                proxy.setExtraParam('subCategory', 'Device Connections');
+                reportsStore.load(function (records) {
+                    var quickLinks = Ext.isArray(me.getQuickLinks().data) ? me.getQuickLinks().data : [];
+                    Ext.each(records, function (record) {
+                        var reportName = record.get('name');
+                        var reportUUID = record.get('reportUUID');
+                        quickLinks.push({
+                            link: reportName,
+                            href: '#/reports/view?reportUUID=' + reportUUID + (filter ? '&filter=' + filter : ''),
+                            target: '_blank'
+                        });
                     });
-                });
 
-                var quicklinksTplPanel = me.getQuickLinks().down('#quicklinksTplPanel');
-                quicklinksTplPanel.update(quickLinks);
-            });
+                    var quicklinksTplPanel = me.getQuickLinks().down('#quicklinksTplPanel');
+                    quicklinksTplPanel.update(quickLinks);
+                });
+            }
         }
     }
 });
