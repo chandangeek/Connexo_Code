@@ -18,7 +18,7 @@ import java.util.Set;
 
 @Component(name = "com.elster.jupiter.yellowfin.rest" , service=Application.class , immediate = true , property = {"alias=/yfn", "app=YFN", "name=" + YellowfinApplication.COMPONENT_NAME} )
 public class YellowfinApplication extends Application implements BinderProvider{
-    public static final String APP_KEY = "YFN";
+    public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "YFN";
 
     private final Set<Class<?>> classes = new HashSet<>();
@@ -60,7 +60,7 @@ public class YellowfinApplication extends Application implements BinderProvider{
     }
 
     @Reference(target="(com.elster.jupiter.license.rest.key=" + APP_KEY  + ")")
-    public void setLicense(License license) {
+      public void setLicense(License license) {
         this.license = license;
     }
 

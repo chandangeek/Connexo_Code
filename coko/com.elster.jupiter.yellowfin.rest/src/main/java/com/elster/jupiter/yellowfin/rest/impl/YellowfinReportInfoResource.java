@@ -3,8 +3,10 @@ package com.elster.jupiter.yellowfin.rest.impl;
 
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.yellowfin.YellowfinService;
+import com.elster.jupiter.yellowfin.security.Privileges;
 import com.hof.mi.web.service.ReportRow;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -31,6 +33,7 @@ public class YellowfinReportInfoResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/info")
+    @RolesAllowed(Privileges.VIEW_REPORTS)
     public ReportInfos getReportsInfo(@QueryParam("category") String category,
                                       @QueryParam("subCategory") String subCategory,
                                       @QueryParam("reportUUID") String reportUUID,
@@ -45,6 +48,7 @@ public class YellowfinReportInfoResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/filter")
+    @RolesAllowed(Privileges.VIEW_REPORTS)
     public FilterInfos getFiltersInfo(@QueryParam("reportId") int reportId,
                                       @QueryParam("reportUUID") String reportUUID,
                                       @QueryParam("listAll") boolean listAll,
@@ -72,6 +76,7 @@ public class YellowfinReportInfoResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/filterlistitems")
+    @RolesAllowed(Privileges.VIEW_REPORTS)
     public FilterListItemInfos getFiltersInfo(@QueryParam("reportId") int reportId,
                                       @QueryParam("reportUUID") String reportUUID,
                                       @QueryParam("filterId") String filterId,
