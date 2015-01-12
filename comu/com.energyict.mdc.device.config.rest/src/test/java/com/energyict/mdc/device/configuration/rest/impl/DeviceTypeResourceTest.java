@@ -46,16 +46,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import org.glassfish.jersey.client.ClientResponse;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
-
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -65,13 +55,26 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import org.glassfish.jersey.client.ClientResponse;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJerseyTest {
     public static final ReadingType READING_TYPE = mockReadingType("0.1.2.3.5.6.7.8.9.1.2.3.4.5.6.7.8");
@@ -1005,7 +1008,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
     }
 
     @Test
-    @Ignore // TODO Re-enable once Environement is removed from SimplePropertyType
+//    @Ignore // TODO Re-enable once Environement is removed from SimplePropertyType
     public void testGetAllConnectionMethodJavaScriptMappings() throws Exception {
         long deviceType_id = 41L;
         long deviceConfig_id = 51L;
@@ -1073,7 +1076,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
     }
 
     @Test
-    @Ignore // TODO Re-enable once Environement is removed from SimplePropertyType
     public void testUpdateConnectionMethodNormalProperties() throws Exception {
         long deviceType_id = 41L;
         long deviceConfig_id = 51L;

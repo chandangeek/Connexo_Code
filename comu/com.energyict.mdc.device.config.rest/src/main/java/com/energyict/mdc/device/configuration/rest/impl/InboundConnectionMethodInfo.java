@@ -5,14 +5,12 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
-import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import javax.ws.rs.core.UriInfo;
-import java.util.Optional;
 
 public class InboundConnectionMethodInfo extends ConnectionMethodInfo<PartialInboundConnectionTask> {
 
@@ -28,6 +26,8 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo<PartialInb
         super.writeTo(partialConnectionTask, engineConfigurationService, protocolPluggableService);
         if (!Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace()) {
             engineConfigurationService.findInboundComPortPoolByName(this.comPortPool).ifPresent(partialConnectionTask::setComportPool);
+        } else {
+            partialConnectionTask.setComportPool(null);
         }
         partialConnectionTask.setDefault(this.isDefault);
     }
