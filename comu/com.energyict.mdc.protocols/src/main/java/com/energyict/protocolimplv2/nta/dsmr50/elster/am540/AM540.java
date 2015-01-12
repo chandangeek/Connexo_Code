@@ -41,7 +41,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
 import com.energyict.protocolimplv2.elster.garnet.SerialDeviceProtocolDialect;
-import com.energyict.protocolimplv2.elster.garnet.TcpDeviceProtocolDialect;
+import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 import com.energyict.protocolimplv2.g3.common.G3Topology;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;

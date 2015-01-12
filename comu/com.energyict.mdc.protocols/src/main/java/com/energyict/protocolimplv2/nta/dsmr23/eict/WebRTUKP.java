@@ -23,7 +23,7 @@ import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimplv2.elster.garnet.SerialDeviceProtocolDialect;
-import com.energyict.protocolimplv2.elster.garnet.TcpDeviceProtocolDialect;
+import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.mdc.io.ComChannelType;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;

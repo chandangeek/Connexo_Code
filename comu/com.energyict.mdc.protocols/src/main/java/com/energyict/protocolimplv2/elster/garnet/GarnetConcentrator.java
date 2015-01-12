@@ -42,6 +42,7 @@ import com.energyict.protocols.exception.UnsupportedMethodException;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxPlainSerialConnectionType;
 import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSerialConnectionType;
+import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
