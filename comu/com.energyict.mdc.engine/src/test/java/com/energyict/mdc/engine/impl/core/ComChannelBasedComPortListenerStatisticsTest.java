@@ -74,6 +74,8 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     private ConnectionTaskService connectionTaskService;
     @Mock
     private DeviceService deviceService;
+    @Mock
+    private NlsService nlsService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ComSessionBuilder comSessionBuilder;
 
@@ -93,7 +95,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     @Before
     public void setupServiceProvider() {
         serviceProvider.setClock(clock);
-        serviceProvider.setIssueService(new IssueServiceImpl(this.clock));
+        serviceProvider.setIssueService(new IssueServiceImpl(this.clock, nlsService));
         this.hexService = new HexServiceImpl();
         serviceProvider.setHexService(this.hexService);
         serviceProvider.setConnectionTaskService(this.connectionTaskService);

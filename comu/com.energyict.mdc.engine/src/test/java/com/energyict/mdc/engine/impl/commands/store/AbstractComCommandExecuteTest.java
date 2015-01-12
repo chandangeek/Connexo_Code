@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -29,7 +31,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.time.Clock;
 import java.util.logging.Logger;
@@ -61,9 +65,15 @@ public abstract class AbstractComCommandExecuteTest {
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private EventPublisherImpl eventPublisher;
+    @Mock
+    private NlsService nlsService;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setupEventPublisher() {
+        when(nlsService.getThesaurus(any(), any())).thenReturn(thesaurus);
+        when(thesaurus.getStringBeyondComponent(any(), any())).thenAnswer(invocationOnMock -> (String) invocationOnMock.getArguments()[0]);
         this.setupServiceProvider();
         EventPublisherImpl.setInstance(this.eventPublisher);
         when(this.eventPublisher.serviceProvider()).thenReturn(this.comServerEventServiceProviderAdapter());
@@ -74,9 +84,10 @@ public abstract class AbstractComCommandExecuteTest {
         fakeServiceProvider.setDeviceConfigurationService(deviceConfigurationService);
         Clock clock = Clock.systemDefaultZone();
         fakeServiceProvider.setClock(clock);
-        fakeServiceProvider.setIssueService(new IssueServiceImpl(clock));
+        fakeServiceProvider.setIssueService(new IssueServiceImpl(clock, nlsService));
         fakeServiceProvider.setConnectionTaskService(mock(ConnectionTaskService.class, RETURNS_DEEP_STUBS));
         fakeServiceProvider.setDeviceService(mock(DeviceService.class, RETURNS_DEEP_STUBS));
+        fakeServiceProvider.setNlsService(nlsService);
         ServiceProvider.instance.set(fakeServiceProvider);
     }
 

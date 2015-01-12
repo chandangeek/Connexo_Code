@@ -209,8 +209,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         // Asserts
         verify(comServerDAO, never()).updateGateway(any(DeviceIdentifier.class), any(DeviceIdentifier.class));
-        verify(comServerDAO, never()).signalEvent(anyString(), any());
-        verify(mockedExecutionLogger).addIssue(eq(CompletionCode.ConfigurationWarning), any(Issue.class), eq(comTaskExecution));
+        verify(mockedExecutionLogger, atLeastOnce()).addIssue(eq(CompletionCode.ConfigurationWarning), any(Issue.class), eq(comTaskExecution));
     }
 
     /**
