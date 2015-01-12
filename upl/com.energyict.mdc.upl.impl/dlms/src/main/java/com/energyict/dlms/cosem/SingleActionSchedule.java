@@ -4,7 +4,10 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
 
 import java.io.IOException;
 
@@ -24,9 +27,9 @@ public class SingleActionSchedule extends AbstractCosemObject {
 	private Array executionTime = null;
 
 	/** Attribute numbers */
-	private static final int ATTRB_EXECUTED_SCRIPT = 2;
-	private static final int ATTRB_TYPE = 3;
-	private static final int ATTRB_EXECUTION_TIME = 4;
+	public static final int ATTRB_EXECUTED_SCRIPT = 2;
+    public static final int ATTRB_TYPE = 3;
+    public static final int ATTRB_EXECUTION_TIME = 4;
 
 	/** Method invoke */
 	// none

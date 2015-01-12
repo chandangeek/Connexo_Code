@@ -1,10 +1,15 @@
 package com.energyict.dlms.axrdencoding.util;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.NullData;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 public final class AXDRDate {
 
@@ -65,6 +70,38 @@ public final class AXDRDate {
         sb.append("/");
         String day = String.valueOf(octetStr[3] & 0xFF);
         sb.append(day.length() == 1 ? ("0" + day) : day);
+        return sb.toString();
+    }
+
+    /**
+     * Convert to readable yyyy/MM/dd string, taking into account wildcards
+     */
+    public static String toReadableDescription(OctetString date) {
+        StringBuilder sb = new StringBuilder();
+        byte[] octetStr = date.getOctetStr();
+        int year = ((octetStr[0] & 0xFF) << 8) + (octetStr[1] & 0xFF);
+        if (year == 0xFFFF) {
+            sb.append("each year");
+        } else {
+            sb.append(year);
+            sb.append("y");
+        }
+        sb.append("/");
+        String month = String.valueOf(octetStr[2] & 0xFF);
+        if (month.equals("255")) {
+            sb.append("each month");
+        } else {
+            sb.append(month.length() == 1 ? ("0" + month) : month);
+            sb.append("m");
+        }
+        sb.append("/");
+        String day = String.valueOf(octetStr[3] & 0xFF);
+        if (day.equals("255")) {
+            sb.append("each day");
+        } else {
+            sb.append(day.length() == 1 ? ("0" + day) : day);
+            sb.append("d");
+        }
         return sb.toString();
     }
 

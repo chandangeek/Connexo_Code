@@ -357,4 +357,8 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
             return strBuilder.toString();
         }
     }
+
+    public AbstractSmartNtaProtocol getProtocol() {
+        return protocol;
+    }
 }
