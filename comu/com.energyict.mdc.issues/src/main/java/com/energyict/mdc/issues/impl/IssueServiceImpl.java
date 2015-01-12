@@ -2,6 +2,7 @@ package com.energyict.mdc.issues.impl;
 
 import java.time.Clock;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.issues.IssueCollector;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
@@ -24,6 +25,7 @@ import javax.inject.Inject;
 public class IssueServiceImpl implements IssueService {
 
     private volatile Clock clock;
+    private volatile Thesaurus thesaurus;
 
     public IssueServiceImpl() {
     }
@@ -43,24 +45,29 @@ public class IssueServiceImpl implements IssueService {
         this.clock = clock;
     }
 
+    @Reference
+    public void setThesaurus(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
+    }
+
     @Override
     public  Problem newProblem (Object source, String description, Object... arguments) {
-        return new ProblemImpl(this.clock.instant(), source, description, arguments);
+        return new ProblemImpl(thesaurus, this.clock.instant(), source, description, arguments);
     }
 
     @Override
     public  Warning newWarning (Object source, String description, Object... arguments) {
-        return new WarningImpl(this.clock.instant(), source, description, arguments);
+        return new WarningImpl(thesaurus, this.clock.instant(), source, description, arguments);
     }
 
     @Override
     public IssueCollector newIssueCollector () {
-        return new IssueCollectorDefaultImplementation(this.clock);
+        return new IssueCollectorDefaultImplementation(this.clock, thesaurus);
     }
 
     @Override
     public  IssueCollector newIssueCollector (Class sourceType) {
-        return new IssueCollectorDefaultImplementation(this.clock);
+        return new IssueCollectorDefaultImplementation(this.clock, thesaurus);
     }
 
 }

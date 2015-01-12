@@ -1,5 +1,6 @@
 package com.energyict.mdc.issues.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.issues.Problem;
 
 import java.time.Instant;
@@ -13,12 +14,12 @@ import java.time.Instant;
  */
 public class ProblemImpl extends IssueDefaultImplementation implements Problem {
 
-    public ProblemImpl (Instant timestamp, String description) {
-        super(timestamp, description);
+    public ProblemImpl(Thesaurus thesaurus, Instant timestamp, String description) {
+        super(thesaurus, timestamp, description);
     }
 
-    public ProblemImpl (Instant timestamp, Object source, String description, Object... arguments) {
-        super(timestamp, source, description, arguments);
+    public ProblemImpl(Thesaurus thesaurus, Instant timestamp, Object source, String description, Object... arguments) {
+        super(thesaurus, timestamp, source, description, arguments);
     }
 
     /**

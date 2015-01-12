@@ -1,5 +1,6 @@
 package com.energyict.mdc.issues.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.issues.Issue;
 
 import java.text.MessageFormat;
@@ -13,19 +14,22 @@ import java.time.Instant;
  */
 public abstract class IssueDefaultImplementation implements Issue {
 
+    private final Thesaurus thesaurus;
+
     private String description;
     private Object source;
     private Instant timestamp;
 
-    public IssueDefaultImplementation (Instant timestamp, String description) {
-        this(timestamp, null, description);
+    public IssueDefaultImplementation(Thesaurus thesaurus, Instant timestamp, String description) {
+        this(thesaurus, timestamp, null, description);
     }
 
-    public IssueDefaultImplementation(Instant timestamp, Object source, String description, Object... arguments) {
+    public IssueDefaultImplementation(Thesaurus thesaurus, Instant timestamp, Object source, String description, Object... arguments) {
         super();
+        this.thesaurus = thesaurus;
         this.timestamp = timestamp;
         this.source = source;
-        this.description = MessageFormat.format(description, arguments);
+        this.description = MessageFormat.format(thesaurus.getStringBeyondComponent(description, description), arguments);
     }
 
     /**

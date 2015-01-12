@@ -1,5 +1,6 @@
 package com.energyict.mdc.issues.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 
 import java.time.Clock;
@@ -21,12 +22,14 @@ import java.util.List;
  */
 public class IssueCollectorDefaultImplementation implements IssueCollector {
 
-    private Clock clock;
+    private final Clock clock;
+    private final Thesaurus thesaurus;
     private List<Issue> issues = new ArrayList<>();
 
-    public IssueCollectorDefaultImplementation (Clock clock) {
+    public IssueCollectorDefaultImplementation(Clock clock, Thesaurus thesaurus) {
         super();
         this.clock = clock;
+        this.thesaurus = thesaurus;
     }
 
     /**
@@ -40,28 +43,28 @@ public class IssueCollectorDefaultImplementation implements IssueCollector {
      * {@inheritDoc}
      */
     public Issue addProblem (String description) {
-        return this.addIssue(new ProblemImpl(this.clock.instant(), description));
+        return this.addIssue(new ProblemImpl(thesaurus, this.clock.instant(), description));
     }
 
     /**
      * {@inheritDoc}
      */
     public Issue addProblem(Object source, String description, Object... arguments) {
-        return this.addIssue(new ProblemImpl(this.clock.instant(), source, description));
+        return this.addIssue(new ProblemImpl(thesaurus, this.clock.instant(), source, description));
     }
 
     /**
      * {@inheritDoc}
      */
     public Issue addWarning (String description) {
-        return this.addIssue(new WarningImpl(this.clock.instant(), description));
+        return this.addIssue(new WarningImpl(thesaurus, this.clock.instant(), description));
     }
 
     /**
      * {@inheritDoc}
      */
     public Issue addWarning(Object source, String description, Object... arguments) {
-        return this.addIssue(new WarningImpl(this.clock.instant(), source, description));
+        return this.addIssue(new WarningImpl(thesaurus, this.clock.instant(), source, description));
     }
 
     /**

@@ -1,5 +1,7 @@
 package com.energyict.mdc.issues.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
+
 import java.time.Instant;
 
 /**
@@ -12,8 +14,8 @@ import java.time.Instant;
  */
 public class NonIssue extends IssueDefaultImplementation {
 
-    public NonIssue (Instant timestamp) {
-        super(timestamp, "NonIssue");
+    public NonIssue(Thesaurus thesaurus, Instant timestamp) {
+        super(thesaurus, timestamp, "NonIssue");
     }
 
 }
