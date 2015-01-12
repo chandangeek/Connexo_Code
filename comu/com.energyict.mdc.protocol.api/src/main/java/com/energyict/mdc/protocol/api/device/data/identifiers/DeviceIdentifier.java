@@ -23,6 +23,7 @@ public interface DeviceIdentifier<T extends BaseDevice< ? extends BaseChannel, ?
 
     /**
      * Finds the {@link com.energyict.mdc.protocol.api.device.BaseDevice} that is uniquely identified by this DeviceIdentifier.
+     * An <b>CanNotFindForIdentifier</b> can be thrown if the device is not found
      *
      * @return The Device
      */
