@@ -13,20 +13,20 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
-public class OutboundTCPComPortPoolFactory extends NamedFactory<OutboundTCPComPortPoolFactory, OutboundComPortPool> {
+public class OutboundTCPComPortPoollFactory extends NamedFactory<OutboundTCPComPortPoollFactory, OutboundComPortPool> {
     private final Store store;
     private final EngineConfigurationService engineConfigurationService;
 
     private List<String> comPorts;
 
     @Inject
-    public OutboundTCPComPortPoolFactory(Store store, EngineConfigurationService engineConfigurationService) {
-        super(OutboundTCPComPortPoolFactory.class);
+    public OutboundTCPComPortPoollFactory(Store store, EngineConfigurationService engineConfigurationService) {
+        super(OutboundTCPComPortPoollFactory.class);
         this.store = store;
         this.engineConfigurationService = engineConfigurationService;
     }
 
-    public OutboundTCPComPortPoolFactory withComPorts(String... comPortNames){
+    public OutboundTCPComPortPoollFactory withComPorts(String... comPortNames){
         if (comPortNames != null){
            this.comPorts = Arrays.asList(comPortNames);
         }

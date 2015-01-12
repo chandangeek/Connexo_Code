@@ -13,7 +13,7 @@ import com.elster.jupiter.demo.impl.factories.IssueFactory;
 import com.elster.jupiter.demo.impl.factories.IssueReasonFactory;
 import com.elster.jupiter.demo.impl.factories.IssueRuleFactory;
 import com.elster.jupiter.demo.impl.factories.OutboundTCPComPortFactory;
-import com.elster.jupiter.demo.impl.factories.OutboundTCPComPortPoolFactory;
+import com.elster.jupiter.demo.impl.factories.OutboundTCPComPortPoollFactory;
 import com.elster.jupiter.demo.impl.factories.UserFactory;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -357,8 +357,8 @@ public class DemoServiceImpl implements DemoService {
     private void createComPortsAndPools() {
         ComServer comServer = store.getLast(ComServer.class).orElseThrow(() -> new UnableToCreate("Unable to find ComServer"));
         injector.getInstance(OutboundTCPComPortFactory.class).withName(Constants.OutboundTcpComPort.DEFAULT).withComServer(comServer).get();
-        injector.getInstance(OutboundTCPComPortPoolFactory.class).withName(Constants.ComPortPool.VODAFONE).withComPorts(Constants.OutboundTcpComPort.DEFAULT).get();
-        injector.getInstance(OutboundTCPComPortPoolFactory.class).withName(Constants.ComPortPool.ORANGE).withComPorts(Constants.OutboundTcpComPort.DEFAULT).get();
+        injector.getInstance(OutboundTCPComPortPoollFactory.class).withName(Constants.ComPortPool.VODAFONE).withComPorts(Constants.OutboundTcpComPort.DEFAULT).get();
+        injector.getInstance(OutboundTCPComPortPoollFactory.class).withName(Constants.ComPortPool.ORANGE).withComPorts(Constants.OutboundTcpComPort.DEFAULT).get();
         injector.getInstance(InboundComPortPoolFactory.class).withName(Constants.ComPortPool.INBOUND_SERVLET_POOL).get();
     }
 
