@@ -60,7 +60,7 @@ public class Activator implements BundleActivator {
 
                 if(context != null){
                     HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context), new DefaultStartPage(APP_NAME));
-                    App app = new App(APP_KEY, APP_NAME, APP_ICON, HTTP_RESOURCE_ALIAS, resource, url, user -> true);
+                    App app = new App(APP_KEY, APP_NAME, APP_ICON, HTTP_RESOURCE_ALIAS, resource, url, user -> user.getPrivileges().stream().anyMatch(p -> "privilege.design.reports".equals(p.getName())));
 
                     registration = context.registerService(App.class, app, null);
                 }
