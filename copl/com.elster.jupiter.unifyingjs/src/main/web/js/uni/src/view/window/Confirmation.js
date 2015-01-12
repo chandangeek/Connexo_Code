@@ -46,28 +46,36 @@ Ext.define('Uni.view.window.Confirmation', {
     initComponent: function () {
         var me = this;
 
-        me.buttons = [
-            {
-                xtype: 'button',
-                action: 'confirm',
-                name: 'confirm',
-                scope: me,
-                text: me.confirmText,
-                ui: me.confirmBtnUi,
-                handler: me.confirmation
-            },
-            {
-                xtype: 'button',
-                action: 'cancel',
-                name: 'cancel',
-                scope: me,
-                text: me.cancelText,
-                ui: 'link',
-                handler: me.cancellation
-            }
-        ];
-
         me.callParent(arguments);
+        me.add(
+            {
+                xtype: 'container',
+                layout: {
+                    type: 'hbox'
+                },
+                items: [
+                    {
+                        xtype: 'button',
+                        action: 'confirm',
+                        name: 'confirm',
+                        scope: me,
+                        text: me.confirmText,
+                        ui: me.confirmBtnUi,
+                        handler: me.confirmation,
+                        margin: '0 0 0 ' + me.iconWidth
+                    },
+                    {
+                        xtype: 'button',
+                        action: 'cancel',
+                        name: 'cancel',
+                        scope: me,
+                        text: me.cancelText,
+                        ui: 'link',
+                        handler: me.cancellation
+                    }
+                ]
+            }
+        );
     },
 
     show: function (config) {
