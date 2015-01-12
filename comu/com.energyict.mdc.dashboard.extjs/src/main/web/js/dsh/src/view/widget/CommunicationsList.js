@@ -100,6 +100,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                     {
                         xtype:'button',
                         itemId:'generate-report',
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.reports']),
                         text:Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
                     }
                 ]
