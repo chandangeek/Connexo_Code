@@ -58,12 +58,6 @@ public final class Constants {
         private UserRoles() {}
     }
 
-    public static final class AppServer{
-        public static final String DEFAULT = "Description";
-
-        private AppServer() {}
-    }
-
     public static final class RegisterGroup {
         public static final String DEFAULT_GROUP = "Default group";
         public static final String TARIFF_1 = "Tariff 1";
@@ -89,12 +83,12 @@ public final class Constants {
         private LoadProfileType() {}
     }
 
-    public static final class OutboundComPortPool{
+    public static final class ComPortPool {
         public static final String VODAFONE = "Vodafone";
         public static final String ORANGE = "Orange";
-        public static final String OUTBOUND_TCP_POOL = "Outbound TCP Pool";
+        public static final String INBOUND_SERVLET_POOL = "Inbound Servlet Pool";
 
-        private OutboundComPortPool() {}
+        private ComPortPool() {}
     }
 
     public static final class CommunicationSchedules {
@@ -140,6 +134,12 @@ public final class Constants {
         public static final String EXTENDED_CONFIG = "Extended Config";
 
         private DeviceConfiguration() {}
+    }
+
+    public static class OutboundTcpComPort {
+        public static final String DEFAULT = "Outbound TCP";
+
+        private OutboundTcpComPort() {}
     }
 
     public static final class RegisterTypes {

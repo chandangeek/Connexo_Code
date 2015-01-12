@@ -7,11 +7,13 @@ import com.elster.jupiter.demo.impl.factories.ComServerFactory;
 import com.elster.jupiter.demo.impl.factories.DeviceFactory;
 import com.elster.jupiter.demo.impl.factories.DeviceGroupFactory;
 import com.elster.jupiter.demo.impl.factories.DynamicKpiFactory;
+import com.elster.jupiter.demo.impl.factories.InboundComPortPoolFactory;
 import com.elster.jupiter.demo.impl.factories.IssueCommentFactory;
 import com.elster.jupiter.demo.impl.factories.IssueFactory;
 import com.elster.jupiter.demo.impl.factories.IssueReasonFactory;
 import com.elster.jupiter.demo.impl.factories.IssueRuleFactory;
 import com.elster.jupiter.demo.impl.factories.OutboundTCPComPortFactory;
+import com.elster.jupiter.demo.impl.factories.OutboundTCPComPortPoolFactory;
 import com.elster.jupiter.demo.impl.factories.UserFactory;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -246,7 +248,7 @@ public class DemoServiceImpl implements DemoService {
                 createCollectRemoteDataSetupImpl(comServerName, host);
                 createUsersImpl();
                 createValidationRulesImpl();
-                createAppServerImpl();
+                createAppServerImpl(comServerName); // the same name as for comserver
             }
         });
     }
@@ -262,11 +264,11 @@ public class DemoServiceImpl implements DemoService {
     }
 
     @Override
-    public void createAppServer(){
+    public void createAppServer(final String appServerName){
         executeTransaction(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                createAppServerImpl();
+                createAppServerImpl(appServerName);
             }
         });
     }
@@ -301,11 +303,7 @@ public class DemoServiceImpl implements DemoService {
         createComServer("Deitvs099");
         createComServer(comServerName);
 
-        createOutboundTcpComPort("Outbound TCP");
-        OutboundComPort outboundTCPPort = store.getLast(OutboundComPort.class).orElseThrow(() -> new UnableToCreate("Unable to find a correct TCP com port"));
-        store.getOutboundComPortPools().put(Constants.OutboundComPortPool.VODAFONE, createOutboundTcpComPortPool(Constants.OutboundComPortPool.VODAFONE, outboundTCPPort));
-        store.getOutboundComPortPools().put(Constants.OutboundComPortPool.ORANGE, createOutboundTcpComPortPool(Constants.OutboundComPortPool.ORANGE, outboundTCPPort));
-
+        createComPortsAndPools();
         findRegisterTypes(store);
         createLoadProfiles(store);
         createRegisterGroups(store);
@@ -352,9 +350,12 @@ public class DemoServiceImpl implements DemoService {
         injector.getInstance(ComServerFactory.class).withName(name).get();
     }
 
-    private void createOutboundTcpComPort(String name) {
+    private void createComPortsAndPools() {
         ComServer comServer = store.getLast(ComServer.class).orElseThrow(() -> new UnableToCreate("Unable to find ComServer"));
-        injector.getInstance(OutboundTCPComPortFactory.class).withName(name).withComServer(comServer).get();
+        injector.getInstance(OutboundTCPComPortFactory.class).withName(Constants.OutboundTcpComPort.DEFAULT).withComServer(comServer).get();
+        injector.getInstance(OutboundTCPComPortPoolFactory.class).withName(Constants.ComPortPool.VODAFONE).withComPorts(Constants.OutboundTcpComPort.DEFAULT).get();
+        injector.getInstance(OutboundTCPComPortPoolFactory.class).withName(Constants.ComPortPool.ORANGE).withComPorts(Constants.OutboundTcpComPort.DEFAULT).get();
+        injector.getInstance(InboundComPortPoolFactory.class).withName(Constants.ComPortPool.INBOUND_SERVLET_POOL).get();
     }
 
     private OutboundComPortPool createOutboundTcpComPortPool(String name, OutboundComPort... comPorts) {
@@ -699,7 +700,7 @@ public class DemoServiceImpl implements DemoService {
         ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIp").get();
         configuration
                 .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(60, TimeDuration.TimeUnit.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
-                .comPortPool(store.getOutboundComPortPools().get(Constants.OutboundComPortPool.OUTBOUND_TCP_POOL))
+                .comPortPool(store.get(OutboundComPortPool.class, Constants.ComPortPool.ORANGE))
                 .addProperty("host", store.getProperty("host"))
                 .addProperty("portNumber", new BigDecimal(4059))
                 .asDefault(true).build();
@@ -744,7 +745,7 @@ public class DemoServiceImpl implements DemoService {
             portNumber = 5049;
         }
         ScheduledConnectionTask deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
-                .setComPortPool(store.getOutboundComPortPools().get((device.getId() & 1) == 1L ? Constants.OutboundComPortPool.VODAFONE : Constants.OutboundComPortPool.ORANGE))
+                .setComPortPool(store.get(OutboundComPortPool.class, (device.getId() & 1) == 1L ? Constants.ComPortPool.VODAFONE : Constants.ComPortPool.ORANGE))
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .setNextExecutionSpecsFrom(null)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
@@ -839,8 +840,8 @@ public class DemoServiceImpl implements DemoService {
         store.get(EndDeviceGroup.class).stream().forEach(g -> injector.getInstance(DynamicKpiFactory.class).withGroup(g).get());
     }
 
-    public void createAppServerImpl(){
-        injector.getInstance(AppServerFactory.class).withName(Constants.AppServer.DEFAULT).get();
+    public void createAppServerImpl(final String appServerName){
+        injector.getInstance(AppServerFactory.class).withName(appServerName).get();
     }
 
     @Reference

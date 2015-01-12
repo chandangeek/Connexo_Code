@@ -1,5 +1,6 @@
 package com.elster.jupiter.demo.impl;
 
+import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -21,7 +22,6 @@ public class Store {
     private Map<String, LoadProfileType> loadProfileTypes;
     private Map<String, LogBookType> logBookTypes;
     private Map<String, ComTask> comTasks;
-    private Map<String, OutboundComPortPool> outboundComPortPools;
     private Map<String, ComSchedule> comSchedules;
 
     private Map<String, Object> properties;
@@ -34,7 +34,6 @@ public class Store {
         loadProfileTypes = new HashMap<>();
         logBookTypes = new HashMap<>();
         comTasks = new HashMap<>();
-        outboundComPortPools = new HashMap<>();
         comSchedules = new HashMap<>();
 
         objects = new HashMap<>();
@@ -60,10 +59,6 @@ public class Store {
         return comTasks;
     }
 
-    public Map<String, OutboundComPortPool> getOutboundComPortPools() {
-        return outboundComPortPools;
-    }
-
     public Map<String, ComSchedule> getComSchedules() {
         return comSchedules;
     }
@@ -79,6 +74,14 @@ public class Store {
     public <T> List<T> get(Class<T> clazz){
         List<T> list = (List<T>) objects.get(clazz);
         return list != null ? list : Collections.<T>emptyList();
+    }
+
+    public <T extends HasName> T get(Class<T> clazz, String name){
+        List<T> list = (List<T>) objects.get(clazz);
+        if (list != null){
+            return list.stream().filter(el -> el.getName().equals(name)).findFirst().orElseThrow(() -> new UnableToCreate("There is no " + clazz.getSimpleName() + " with name " + name));
+        }
+        throw new UnableToCreate("There is no " + clazz.getSimpleName() + "s in the store");
     }
 
     public <T> Optional<T> getLast(Class<T> clazz){
