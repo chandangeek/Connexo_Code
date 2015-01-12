@@ -1,6 +1,5 @@
 package com.elster.jupiter.bpm.impl;
 
-import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -16,7 +15,7 @@ public class InstallerImpl {
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
 
-    public void install(MessageService messageService, AppService appService, UserService userService) {
+    public void install(MessageService messageService, UserService userService) {
         createPrivileges(userService);
         createBPMQueue(messageService);
     }
