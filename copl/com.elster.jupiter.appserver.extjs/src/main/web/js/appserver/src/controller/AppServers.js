@@ -96,6 +96,20 @@ Ext.define('Apr.controller.AppServers', {
         preview.setTitle(appServerName);
         previewForm.loadRecord(record);
         preview.down('appservers-action-menu').record = record;
+        me.setupMenuItems(record);
+    },
+
+    setupMenuItems: function (record) {
+        var me = this,
+            suspended = record.data.active;
+        var textKey = ((suspended == true) ? 'general.deactivate' : 'general.activate'),
+            text = ((suspended == true) ? 'Deactivate' : 'Activate'),
+            menuItems = Ext.ComponentQuery.query('menu menuitem[action=activateAppServer]');
+        if (!Ext.isEmpty(menuItems)) {
+            Ext.Array.each(menuItems, function (item) {
+                item.setText(Uni.I18n.translate(textKey, 'APR', text));
+            });
+        }
     },
 
     chooseAction: function (menu, item) {
@@ -112,10 +126,51 @@ Ext.define('Apr.controller.AppServers', {
             case 'removeAppServer':
                 me.removeAppServer(menu.record);
                 break;
+            case 'activateAppServer':
+                me.activateAppServer(menu.record);
         }
 
         route && (route = router.getRoute(route));
         route && route.forward(router.arguments);
+    },
+
+    activateAppServer: function (record) {
+        var me = this,
+            suspended = record.data.active;
+
+        var action = ((suspended == true) ? 'deactivate' : 'activate');
+
+        Ext.Ajax.request({
+            url: '/api/apr/appserver/' + record.data.name + '/' + action,
+            method: 'PUT',
+            success: function () {
+                var messageKey = ((suspended == true) ? 'appServers.deactivateSuccessMsg' : 'appServers.activateSuccessMsg');
+                var messageText = ((suspended == true) ? 'Application server deactivated' : 'Application server activated');
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate(messageKey, 'APR', messageText));
+                me.showAppServers();
+            },
+            failure: function (response, request) {
+                if (response.status == 400) {
+                    var errorText = Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
+                    if (!Ext.isEmpty(response.statusText)) {
+                        errorText = response.statusText;
+                    }
+                    if (!Ext.isEmpty(response.responseText)) {
+                        var json = Ext.decode(response.responseText, true);
+
+                        if (json && json.error) {
+                            errorText = json.error;
+                        }
+                    }
+
+                    var titleKey = ((suspended == true) ? 'appServers.deactivate.operation.failed' : 'appServers.activate.operation.failed'),
+                        titleValue = ((suspended == true) ? 'Deactivate operation failed' : 'Activate operation failed');
+
+
+                    me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate(titleKey, 'APR', titleValue), errorText);
+                }
+            }
+        });
     },
 
     removeAppServer: function (record) {
