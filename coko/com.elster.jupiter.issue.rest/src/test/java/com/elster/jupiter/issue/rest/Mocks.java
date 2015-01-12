@@ -277,7 +277,7 @@ public class Mocks extends JerseyTest {
         IssueActionType type = mock(IssueActionType.class);
         IssueAction action = mockIssueAction(name);
         when(type.getId()).thenReturn(id);
-        when(type.createIssueAction()).thenReturn(action);
+        when(type.createIssueAction()).thenReturn(Optional.of(action));
         when(type.getIssueType()).thenReturn(issueType);
         return type;
     }

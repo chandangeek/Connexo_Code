@@ -14,11 +14,11 @@ import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.REASON;
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
@@ -53,7 +53,7 @@ public class ActionResource extends BaseResource {
                 condition = condition.or(where("issueType").isEqualTo(issueType));
             }
         }
-        List<IssueActionType> ruleActionTypes = query.select(condition);
+        List<IssueActionType> ruleActionTypes = query.select(condition).stream().filter(at -> at.createIssueAction().isPresent()).collect(Collectors.toList());
         return entity(ruleActionTypes, CreationRuleActionTypeInfo.class).build();
     }
 

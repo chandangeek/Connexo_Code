@@ -6,9 +6,6 @@ import com.elster.jupiter.issue.share.cep.ParameterDefinition;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -27,7 +24,7 @@ public class CreationRuleActionTypeInfo {
             throw new IllegalArgumentException("CreationRuleActionTypeInfo is initialized with the null IssueActionType value");
         }
         this.id = type.getId();
-        IssueAction action = type.createIssueAction();
+        IssueAction action = type.createIssueAction().get();
         this.name = action.getLocalizedName();
         this.issueType = new IssueTypeInfo(type.getIssueType());
         initParameters(action);

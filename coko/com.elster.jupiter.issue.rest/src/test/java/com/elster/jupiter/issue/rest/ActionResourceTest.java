@@ -5,11 +5,14 @@ import com.elster.jupiter.issue.rest.i18n.MessageSeeds;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.util.conditions.Condition;
+
 import java.util.Optional;
+
 import org.junit.Test;
 import org.mockito.Matchers;
 
 import javax.ws.rs.core.Response;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -84,6 +87,7 @@ public class ActionResourceTest extends Mocks {
         List<IssueActionType> actionTypes = new ArrayList<>(2);
         actionTypes.add(mockIssueActionType(1, "one", issueType));
         actionTypes.add(mockIssueActionType(2, "two", issueType));
+        
         Query<IssueActionType> query = mock(Query.class);
 
         when(query.select(Matchers.<Condition>anyObject())).thenReturn(actionTypes);
@@ -98,5 +102,30 @@ public class ActionResourceTest extends Mocks {
         assertThat(data).hasSize(2);
         assertThat(((Map) data.get(0)).get("id")).isEqualTo(1);
         assertThat(((Map) data.get(0)).get("name")).isEqualTo("one");
+    }
+    
+    @Test
+    public void testGetActionsThatCanBeInstantiated(){
+        IssueType issueType = getDefaultIssueType();
+        List<IssueActionType> actionTypes = new ArrayList<>(2);
+        actionTypes.add(mockIssueActionType(1, "one", issueType));
+        actionTypes.add(mockIssueActionType(2, "two", issueType));
+        
+        IssueActionType actionTypeNotLicensed = mockIssueActionType(3, "three", issueType);
+        when(actionTypeNotLicensed.createIssueAction()).thenReturn(Optional.empty());
+        
+        Query<IssueActionType> query = mock(Query.class);
+
+        when(query.select(Matchers.<Condition>anyObject())).thenReturn(actionTypes);
+        when(issueActionService.getActionTypeQuery()).thenReturn(query);
+        when(issueService.findIssueType(issueType.getUUID())).thenReturn(Optional.of(issueType));
+        when(issueService.findReason(null)).thenReturn(Optional.empty());
+
+        Map<String, Object> map = target("/actions").queryParam(ISSUE_TYPE, issueType.getUUID()).request().get(Map.class);
+        assertThat(map.get("total")).isEqualTo(2);
+        List data = (List) map.get("data");
+        assertThat(data).hasSize(2);
+        assertThat(((Map) data.get(0)).get("name")).isEqualTo("one");
+        assertThat(((Map) data.get(1)).get("name")).isEqualTo("two");
     }
 }
