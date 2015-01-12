@@ -16,6 +16,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.yellowfin.groups.AdHocDeviceGroup;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -119,7 +120,7 @@ public class AdHocDeviceGroupImplIT {
 
         List<Device> devices = new ArrayList<Device>();
 
-        Optional<AdHocDeviceGroupImpl> found;
+        Optional<AdHocDeviceGroup> found;
         YellowfinGroupsService yellowfinGroupsService = injector.getInstance(YellowfinGroupsService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             found = yellowfinGroupsService.cacheAdHocDeviceGroup(devices);

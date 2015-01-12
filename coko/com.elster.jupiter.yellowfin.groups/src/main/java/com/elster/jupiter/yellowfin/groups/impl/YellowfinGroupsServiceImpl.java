@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.yellowfin.groups.AdHocDeviceGroup;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -101,7 +102,7 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Insta
     }
 
     @Override
-    public Optional<AdHocDeviceGroupImpl> cacheAdHocDeviceGroup(List<Device> devices){
+    public Optional<AdHocDeviceGroup> cacheAdHocDeviceGroup(List<Device> devices){
         AdHocDeviceGroupImpl cachedDeviceGroup = AdHocDeviceGroupImpl.from(dataModel, 0, devices);
         cachedDeviceGroup.save();
         return Optional.of(cachedDeviceGroup);

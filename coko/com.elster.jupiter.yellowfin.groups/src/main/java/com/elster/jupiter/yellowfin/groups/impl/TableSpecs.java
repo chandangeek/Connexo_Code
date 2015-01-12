@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 public enum TableSpecs {
     YFN_ADHOC_DG {
@@ -12,6 +13,7 @@ public enum TableSpecs {
             Table<AdHocDeviceGroupImpl> table = dataModel.addTable(name(), AdHocDeviceGroupImpl.class);
             table.map(AdHocDeviceGroupImpl.class);
             Column deviceIdColumn = table.addAutoIdColumn();
+            table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.primaryKey("YFG_PK_ADHOCGROUP").on(deviceIdColumn).add();
         }
     },

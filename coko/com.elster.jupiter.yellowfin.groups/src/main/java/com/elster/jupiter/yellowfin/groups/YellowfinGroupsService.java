@@ -11,5 +11,5 @@ public interface YellowfinGroupsService {
     String COMPONENTNAME = "YFG";
 
     Optional<DynamicDeviceGroupImpl> cacheDynamicDeviceGroup(String groupName);
-    Optional<AdHocDeviceGroupImpl> cacheAdHocDeviceGroup(List<Device> devices);
+    Optional<AdHocDeviceGroup> cacheAdHocDeviceGroup(List<Device> devices);
 }
