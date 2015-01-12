@@ -32,7 +32,7 @@ public class App {
     }
 
     public App(String key, String name, String icon, String externalUrl, PrivilegeChecker privilegeChecker) {
-        this(key, name, icon, externalUrl, null, null, privilegeChecker);
+        this(key, name, icon, null, null, externalUrl, privilegeChecker);
     }
 
     public String getName() {
