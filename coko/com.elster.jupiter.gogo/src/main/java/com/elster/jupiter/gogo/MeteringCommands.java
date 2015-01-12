@@ -215,14 +215,12 @@ public class MeteringCommands {
                         BigDecimal cumulativeValue = BigDecimal.valueOf(startValue);
                         for (int i = 0; i < numberOfInterval; i++) {
                             cumulativeValue = cumulativeValue.add(BigDecimal.valueOf(randomBetween(minValue, maxValue)));
-                            intervalBlock.addIntervalReading(IntervalReadingImpl.of(startDate.toInstant(), cumulativeValue));
-                            startDate = startDate.plusSeconds(intervalInSeconds);
                             IntervalReadingImpl reading = IntervalReadingImpl.of(startDate.toInstant(), cumulativeValue);
                             if (intervalFlagCimCode != null) {
                                 reading.setProfileStatus(ProfileStatus.of(ProfileStatus.Flag.valueOf(intervalFlagCimCode)));
                             }
                             intervalBlock.addIntervalReading(reading);
-                            startDate.plusSeconds(intervalInSeconds);
+                            startDate = startDate.plusSeconds(intervalInSeconds);
                         }
                         meterReading.addIntervalBlock(intervalBlock);
 
