@@ -548,6 +548,7 @@
                 <module>../com.elster.jupiter.users.rest</module>
                 <module>../com.elster.jupiter.util</module>
                 <module>../com.elster.jupiter.yellowfin</module>
+                <module>../com.elster.jupiter.yellowfin.groups</module>
                 <module>../com.elster.jupiter.yellowfin.rest</module>
                 <module>../com.elster.jupiter.yellowfin.app</module>
                 <module>../com.elster.jupiter.yellowfin.extjs</module>
