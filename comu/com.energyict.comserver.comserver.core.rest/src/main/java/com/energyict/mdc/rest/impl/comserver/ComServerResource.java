@@ -142,7 +142,7 @@ public class ComServerResource {
         }
 
         comServerInfo.writeTo(comServer.get(), engineConfigurationService);
-        updateComPorts(comServer.get(), allComPortInfos);
+        //updateComPorts(comServer.get(), allComPortInfos);
 
         comServer.get().save();
         return ComServerInfoFactory.asInfo(comServer.get(), comServer.get().getComPorts(), engineConfigurationService);
