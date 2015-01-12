@@ -52,6 +52,7 @@ import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
 import com.elster.jupiter.issue.rest.transactions.CreateCommentTransaction;
 import com.elster.jupiter.issue.security.Privileges;
+import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.cep.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.AssigneeRole;
 import com.elster.jupiter.issue.share.entity.AssigneeTeam;
@@ -174,7 +175,10 @@ public class IssueResource extends BaseResource {
         Query<IssueActionType> query = getIssueService().query(IssueActionType.class, IssueType.class);
         Condition condition = where("issueType").isEqualTo(issueRef.get().getReason().getIssueType()).or(where("issueType").isNull());
         List<IssueActionType> ruleActionTypes = query.select(condition);
-        ruleActionTypes = ruleActionTypes.stream().filter(at -> at.createIssueAction().isApplicable(issueRef.get())).collect(Collectors.toList());
+        ruleActionTypes = ruleActionTypes.stream().filter(at -> {
+            Optional<IssueAction> action = at.createIssueAction();
+            return action.isPresent() && action.get().isApplicable(issueRef.get());
+        }).collect(Collectors.toList());
         return entity(ruleActionTypes, CreationRuleActionTypeInfo.class).build();
     }
 
