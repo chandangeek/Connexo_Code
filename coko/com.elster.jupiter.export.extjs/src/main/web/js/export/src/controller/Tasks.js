@@ -389,7 +389,7 @@ Ext.define('Dxp.controller.Tasks', {
                             var schedule = record.get('schedule');
                             me.taskModel = record;
                             me.getApplication().fireEvent('dataexporttaskload', record);
-                            taskForm.setTitle(Uni.I18n.translate('general.edit', 'DES', 'Edit') + ' ' + record.get('name'));
+                            taskForm.setTitle(Uni.I18n.translate('general.edit', 'DES', 'Edit') + " '" + record.get('name') + "'");
                             if (localStorage.getItem('addDataExportTaskValues')) {
                                 me.setFormValues(view);
                             } else {
@@ -418,9 +418,11 @@ Ext.define('Dxp.controller.Tasks', {
                                     taskForm.down('tasks-property-form').loadRecord(record);
                                 }
                             }
+                            view.setLoading(false);
                         }
                     });
                     me.getApplication().fireEvent('changecontentevent', view);
+                    view.setLoading();
                 });
             });
         });
