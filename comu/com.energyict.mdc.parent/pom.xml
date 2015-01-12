@@ -167,26 +167,16 @@
                 <artifactId>logback-classic</artifactId>
                 <version>1.0.0</version>
                 <scope>runtime</scope>
-      </dependency>
-      <dependency>
-                <groupId>org.javassist</groupId>
-                <artifactId>javassist</artifactId>
-                <version>3.16.1-GA</version>
-      </dependency>
+            </dependency>
 
             <!-- ComPort libraries -->
+            <!-- need to depend on org.rxtx version -->
+            <!-- but at runtime se.joel.osgi will be provided to get the osgi version -->
             <dependency>
                 <groupId>org.rxtx</groupId>
                 <artifactId>rxtx</artifactId>
                 <version>${org.rxtx.version}</version>
             </dependency>
-
-            <dependency>
-                <groupId>org.jvnet.mimepull</groupId>
-                <artifactId>mimepull</artifactId>
-                <version>1.9.4</version>
-            </dependency>
-
             <dependency>
                 <groupId>com.energyict.dataconcentrator.external</groupId>
                 <artifactId>serialio</artifactId>
@@ -200,31 +190,10 @@
                 <version>${json.version}</version>
             </dependency>
 
-            <!-- Web libraries -->
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-server</artifactId>
-                <version>${jetty-server.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-servlet</artifactId>
-                <version>${jetty-server.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-websocket</artifactId>
-                <version>${jetty-server.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-csv</artifactId>
                 <version>1.0</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>2.3.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
