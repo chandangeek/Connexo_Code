@@ -69,7 +69,7 @@ public class SysAppServiceImpl implements SysAppService, InstallService {
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(UserService.COMPONENTNAME, "DES", "LIC", "TME", "BPM", "APR", "LFC");
+        return Arrays.asList(UserService.COMPONENTNAME, "DES", "LIC", "TME", "BPM", "APR", "LFC", "YFN");
     }
 
     @Reference
