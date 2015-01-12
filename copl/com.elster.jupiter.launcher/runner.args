@@ -156,6 +156,7 @@ mvn:com.elster.jupiter/export.rest/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/data.lifecycle/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/datavault/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/yellowfin/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/yellowfin.groups/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/yellowfin.rest/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/yellowfin.app/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/yellowfin.extjs/1.0.0-SNAPSHOT
