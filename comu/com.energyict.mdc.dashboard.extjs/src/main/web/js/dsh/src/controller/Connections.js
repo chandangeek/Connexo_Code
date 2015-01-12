@@ -78,11 +78,15 @@ Ext.define('Dsh.controller.Connections', {
                 selectionchange: this.onCommunicationSelectionChange
             },
             'connections-details #connectionsActionMenu': {
-                click: this.selectAction,
                 afterrender: this.initConnectionMenu
             },
-            'connections-list #generate-report':{
+            'connections-list #generate-report': {
                 click: this.onGenerateReport
+            },
+            'connections-details uni-actioncolumn': {
+                run: this.connectionRun,
+                viewLog: this.viewLog,
+                viewHistory: this.viewHistory
             }
 
         });
@@ -187,31 +191,6 @@ Ext.define('Dsh.controller.Connections', {
         }
     },
 
-    selectAction: function (menu, item) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            record = menu.record;
-        switch (item.action) {
-            case 'viewLog':
-                router.getRoute('devices/device/connectionmethods/history/viewlog').forward(
-                    {
-                        mRID: record.get('device').id,
-                        connectionMethodId: record.get('id'),
-                        historyId: record.get('comSessionId')
-                    }
-                );
-                break;
-            case 'viewHistory':
-                router.getRoute('devices/device/connectionmethods/history').forward(
-                    {
-                        mRID: record.get('device').id,
-                        connectionMethodId: record.get('id')
-                    }
-                );
-                break;
-        }
-    },
-
     viewCommunicationLog: function (item) {
         location.href = '#/devices/' + item.action.comTask.mRID
             + '/communicationtasks/' + item.action.comTask.comTaskId
@@ -219,7 +198,7 @@ Ext.define('Dsh.controller.Connections', {
             + '/viewlog' +
             '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
     },
-    onGenerateReport: function(){
+    onGenerateReport: function () {
         var me = this;
         var router = this.getController('Uni.controller.history.Router');
         var fieldsToFilterNameMap = {};
@@ -233,13 +212,13 @@ Ext.define('Dsh.controller.Connections', {
         var reportFilter = false;
 
         var fields = me.getSideFilterForm().getForm().getFields();
-        fields.each(function(field){
+        fields.each(function (field) {
             reportFilter = reportFilter || {};
             var filterName = fieldsToFilterNameMap[field.getName()];
-            if(filterName){
+            if (filterName) {
                 var fieldValue = field.getRawValue();
-                if(field.getXType() == 'side-filter-combo'){
-                    fieldValue = Ext.isString(fieldValue) && fieldValue.split(', ') || fieldValue ;
+                if (field.getXType() == 'side-filter-combo') {
+                    fieldValue = Ext.isString(fieldValue) && fieldValue.split(', ') || fieldValue;
                     fieldValue = _.isArray(fieldValue) && _.compact(fieldValue) || fieldValue;
                 }
             }
@@ -251,10 +230,46 @@ Ext.define('Dsh.controller.Connections', {
         //router.filter.finishBetween
 
         router.getRoute('generatereport').forward(null, {
-            category:'MDC',
-            subCategory:'Device Connections',
-            filter : reportFilter
+            category: 'MDC',
+            subCategory: 'Device Connections',
+            filter: reportFilter
         });
+    },
+
+    connectionRun: function (record) {
+        var me = this;
+        record.run(function () {
+            me.getApplication().fireEvent('acknowledge',
+                Uni.I18n.translate('connection.run.now', 'MDC', 'Connection will run immediately')
+            );
+            record.set('nextExecution', new Date());
+            me.showOverview();
+        });
+
+    },
+
+    viewLog: function (record) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        router.getRoute('devices/device/connectionmethods/history/viewlog').forward(
+            {
+                mRID: record.get('device').id,
+                connectionMethodId: record.get('id'),
+                historyId: record.get('comSessionId')
+            });
+    },
+
+    viewHistory: function (record) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        router.getRoute('devices/device/connectionmethods/history').forward(
+            {
+                mRID: record.get('device').id,
+                connectionMethodId: record.get('id')
+            }
+        );
     }
 
 

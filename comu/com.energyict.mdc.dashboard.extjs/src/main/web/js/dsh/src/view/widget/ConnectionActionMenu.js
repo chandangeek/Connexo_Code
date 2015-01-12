@@ -3,11 +3,16 @@ Ext.define('Dsh.view.widget.ConnectionActionMenu', {
     alias: 'widget.connection-action-menu',
     items: [
         {
-            text: 'View connection history',
+            text: 'Run now',
+            hidden: Uni.Auth.hasNoPrivilege('privilege.operate.deviceCommunication'),
+            action: 'run'
+        },
+        {
+            text: 'View history',
             action: 'viewHistory'
         },
         {
-            text: 'View connection log',
+            text: 'View log',
             action: 'viewLog'
         }
     ]
