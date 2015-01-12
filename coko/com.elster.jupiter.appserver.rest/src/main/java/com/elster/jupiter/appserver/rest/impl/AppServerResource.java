@@ -124,6 +124,36 @@ public class AppServerResource {
         return Response.status(Response.Status.OK).build();
     }
 
+    @PUT
+    @Path("/{appserverName}/activate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response activateAppServer(@PathParam("appserverName") String appServerName) {
+        AppServer appServer = fetchAppServer(appServerName);
+        if (!appServer.isActive()) {
+            try(TransactionContext context = transactionService.getContext()) {
+                appServer.activate();
+                context.commit();
+            }
+        }
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @PUT
+    @Path("/{appserverName}/deactivate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deactivateAppServer(@PathParam("appserverName") String appServerName) {
+        AppServer appServer = fetchAppServer(appServerName);
+        if (appServer.isActive()) {
+            try (TransactionContext context = transactionService.getContext()) {
+                appServer.deactivate();
+                context.commit();
+            }
+        }
+        return Response.status(Response.Status.OK).build();
+    }
+
     private void doUpdateAppServer(AppServerInfo info, AppServer appServer) {
         Zipper<SubscriberExecutionSpec, SubscriberExecutionSpecInfo> zipper = new Zipper<>((s, i) -> i.matches(s));
         List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairs = zipper.zip(appServer.getSubscriberExecutionSpecs(), info.executionSpecs);
