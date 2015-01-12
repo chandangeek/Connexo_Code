@@ -9,6 +9,8 @@ set CUR_DIR=%CD%
 set JUPITER_INSTALLATION_DIR=%SCRIPT_DIR%\..
 
 set VM_OPTIONS=-Djava.util.logging.config.file=%JUPITER_INSTALLATION_DIR%\conf\logging.properties
+REM create logs directory if not exists
+mkdir %JUPITER_INSTALLATION_DIR%\logs 2>NUL
 
 cd %JUPITER_INSTALLATION_DIR%
 echo Starting Connexo with interactive shell....
