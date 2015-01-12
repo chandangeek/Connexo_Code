@@ -2,7 +2,7 @@ body.login {
     background-image: url('images/container/loginBackground.png') !important;
     background-repeat: no-repeat;
     background-position: center top;
-    background-size: 100%;
+    background-size: cover;
 
     .#{$prefix}panel-login {
         @include border-radius(10px);
