@@ -191,7 +191,7 @@ public class AM540ObjectList {
                 new UniversalObject(ObisCode.fromString("1.0.5.8.3.255"), DLMSClassId.findById(3)),
                 new UniversalObject(ObisCode.fromString("1.0.5.8.4.255"), DLMSClassId.findById(3)),
                 new UniversalObject(ObisCode.fromString("1.0.51.24.0.255"), DLMSClassId.findById(3)),
-                new UniversalObject(ObisCode.fromString("1.0.51.4.0.255"), DLMSClassId.findById(3)),
+                new UniversalObject(ObisCode.fromString("1.0.51.4.0.255"), DLMSClassId.findById(5)),
                 new UniversalObject(ObisCode.fromString("1.0.51.7.0.255"), DLMSClassId.findById(3)),
                 new UniversalObject(ObisCode.fromString("1.0.52.24.0.255"), DLMSClassId.findById(3)),
                 new UniversalObject(ObisCode.fromString("1.0.52.32.0.255"), DLMSClassId.findById(1)),
@@ -240,7 +240,19 @@ public class AM540ObjectList {
                 new UniversalObject(ObisCode.fromString("1.1.0.2.8.255"), DLMSClassId.findById(1)),
                 new UniversalObject(ObisCode.fromString("1.2.0.2.0.255"), DLMSClassId.findById(1)),
                 new UniversalObject(ObisCode.fromString("1.2.0.2.8.255"), DLMSClassId.findById(1)),
-                new UniversalObject(ObisCode.fromString("1.3.0.2.8.255"), DLMSClassId.findById(1))
+                new UniversalObject(ObisCode.fromString("1.3.0.2.8.255"), DLMSClassId.findById(1)),
+
+                // Objects concerning disconnector.
+                new UniversalObject(ObisCode.fromString("0.0.15.0.1.255"), DLMSClassId.findById(22)),
+                new UniversalObject(ObisCode.fromString("0.0.10.0.106.255"), DLMSClassId.findById(9)),
+                new UniversalObject(ObisCode.fromString("0.0.96.3.10.255"), DLMSClassId.findById(70)),
+                new UniversalObject(ObisCode.fromString("0.0.96.11.2.255"), DLMSClassId.findById(1)),
+                new UniversalObject(ObisCode.fromString("0.0.99.98.2.255"), DLMSClassId.findById(7)),
+                new UniversalObject(ObisCode.fromString("0.0.17.0.0.255"), DLMSClassId.findById(71)),
+                new UniversalObject(ObisCode.fromString("1.0.31.4.0.255"), DLMSClassId.findById(5)),
+                new UniversalObject(ObisCode.fromString("1.0.51.4.0.255"), DLMSClassId.findById(5)),
+                new UniversalObject(ObisCode.fromString("1.0.71.4.0.255"), DLMSClassId.findById(5)),
+                new UniversalObject(ObisCode.fromString("1.0.16.24.0.255"), DLMSClassId.findById(5)),
         };
     }
 }
