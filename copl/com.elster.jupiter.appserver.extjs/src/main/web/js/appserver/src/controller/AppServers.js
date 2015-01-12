@@ -128,6 +128,7 @@ Ext.define('Apr.controller.AppServers', {
                 break;
             case 'activateAppServer':
                 me.activateAppServer(menu.record);
+                break;
         }
 
         route && (route = router.getRoute(route));
