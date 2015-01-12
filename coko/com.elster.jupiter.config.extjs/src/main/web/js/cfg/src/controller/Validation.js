@@ -717,23 +717,25 @@ Ext.define('Cfg.controller.Validation', {
     },
 
     previewValidationRuleSet: function (selectionModel, record) {
-        Ext.suspendLayouts();
+        if (record) {
+            Ext.suspendLayouts();
 
-        this.getRuleSetBrowsePreviewCt().removeAll(true);
-        var rulesPreviewContainerPanel = Ext.widget('rule-preview-container-panel', {
-            ruleSetId: record.getId(),
-            margin: '-20 0 0 0',
-            title: '<h2>' + record.get('name') + '</h2>',
-            isSecondPagination: true,
-            height: 750
-        });
-        this.ruleSetId = record.getId();
-        Ext.Array.each(Ext.ComponentQuery.query('#addRuleLink'), function (item) {
-            item.hide();
-        });
-        this.getRuleSetBrowsePreviewCt().add(rulesPreviewContainerPanel);
+            this.getRuleSetBrowsePreviewCt().removeAll(true);
+            var rulesPreviewContainerPanel = Ext.widget('rule-preview-container-panel', {
+                ruleSetId: record.getId(),
+                margin: '-20 0 0 0',
+                title: '<h2>' + record.get('name') + '</h2>',
+                isSecondPagination: true,
+                height: 750
+            });
+            this.ruleSetId = record.getId();
+            Ext.Array.each(Ext.ComponentQuery.query('#addRuleLink'), function (item) {
+                item.hide();
+            });
+            this.getRuleSetBrowsePreviewCt().add(rulesPreviewContainerPanel);
 
-        Ext.resumeLayouts();
+            Ext.resumeLayouts();
+        }
     },
 
     previewValidationRule: function (grid, record) {
@@ -1102,15 +1104,17 @@ Ext.define('Cfg.controller.Validation', {
                     location.href = '#/administration/validation/rulesets';
                 } else {
                     view.down('pagingtoolbartop').totalCount = 0;
-                    grid.getStore().load({
-                            callback: function () {
-                                var gridView = grid.getView(),
-                                    selectionModel = gridView.getSelectionModel();
-                                selectionModel.select(0);
-                                grid.fireEvent('select', gridView, selectionModel.getLastSelected());
+                    if (grid.getStore().getCount() != 0) {
+                        grid.getStore().load({
+                                callback: function () {
+                                    var gridView = grid.getView(),
+                                        selectionModel = gridView.getSelectionModel();
+                                    selectionModel.select(0);
+                                    grid.fireEvent('select', gridView, selectionModel.getLastSelected());
+                                }
                             }
-                        }
-                    );
+                        );
+                    }
                 }
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.removeRuleSetSuccess.msg', 'CFG', 'Validation rule set removed'));
             }
