@@ -33,8 +33,8 @@ public class DynamicKpiFactory implements Factory<DataCollectionKpi>{
     public DataCollectionKpi get(){
         Log.write(this);
         DataCollectionKpiService.DataCollectionKpiBuilder kpiBuilder = dataCollectionKpiService.newDataCollectionKpi(group);
-        kpiBuilder.calculateComTaskExecutionKpi(Duration.ofMinutes(15)).expectingAsMinimum(new BigDecimal(80));
-        kpiBuilder.calculateConnectionSetupKpi(Duration.ofMinutes(15)).expectingAsMinimum(new BigDecimal(80));
+        kpiBuilder.calculateComTaskExecutionKpi(Duration.ofHours(1)).expectingAsMinimum(new BigDecimal(95));
+        kpiBuilder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMinimum(new BigDecimal(95));
         DataCollectionKpi kpi = kpiBuilder.save();
         store.add(DataCollectionKpi.class, kpi);
         return kpi;

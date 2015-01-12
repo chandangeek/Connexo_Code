@@ -31,6 +31,7 @@ public final class Constants {
     public static final class DeviceGroup{
         public static final String SOUTH_REGION = "South region";
         public static final String NORTH_REGION = "North region";
+        public static final String ALL_ELECTRICITY_DEVICES = "All electricity devices";
 
         private DeviceGroup() {}
     }

@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 public class Store {
     private Map<String, RegisterType> registerTypes;
@@ -76,12 +77,16 @@ public class Store {
         return list != null ? list : Collections.<T>emptyList();
     }
 
-    public <T extends HasName> T get(Class<T> clazz, String name){
+    public <T> T get(Class<T> clazz, Predicate<T> filter) {
         List<T> list = (List<T>) objects.get(clazz);
         if (list != null){
-            return list.stream().filter(el -> el.getName().equals(name)).findFirst().orElseThrow(() -> new UnableToCreate("There is no " + clazz.getSimpleName() + " with name " + name));
+            return list.stream().filter(filter).findFirst().orElseThrow(() -> new UnableToCreate("There is no " + clazz.getSimpleName() + " for your filter"));
         }
         throw new UnableToCreate("There is no " + clazz.getSimpleName() + "s in the store");
+    }
+
+    public <T extends HasName> T get(Class<T> clazz, String name){
+        return this.get(clazz, namedObj -> namedObj.getName().equals(name));
     }
 
     public <T> Optional<T> getLast(Class<T> clazz){

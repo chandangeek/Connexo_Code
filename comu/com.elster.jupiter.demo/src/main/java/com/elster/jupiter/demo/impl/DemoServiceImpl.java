@@ -344,6 +344,10 @@ public class DemoServiceImpl implements DemoService {
                 .withName(Constants.DeviceGroup.SOUTH_REGION)
                 .withDeviceTypes(Constants.DeviceType.Elster_AS3000.getName(), Constants.DeviceType.Siemens_7ED.getName(), Constants.DeviceType.Iskra_38.name())
                 .get();
+        injector.getInstance(DeviceGroupFactory.class)
+                .withName(Constants.DeviceGroup.ALL_ELECTRICITY_DEVICES)
+                .withDeviceTypes(Constants.DeviceType.Elster_AS1440.getName(), Constants.DeviceType.Landis_Gyr_ZMD.getName(), Constants.DeviceType.Actaris_SL7000.name(), Constants.DeviceType.Elster_AS3000.getName(), Constants.DeviceType.Siemens_7ED.getName(), Constants.DeviceType.Iskra_38.name())
+                .get();
     }
 
     private void createComServer(String name) {
@@ -837,7 +841,9 @@ public class DemoServiceImpl implements DemoService {
     }
 
     public void createKpi(){
-        store.get(EndDeviceGroup.class).stream().forEach(g -> injector.getInstance(DynamicKpiFactory.class).withGroup(g).get());
+        injector.getInstance(DynamicKpiFactory.class).withGroup(store.get(EndDeviceGroup.class, gr -> gr.getName().equals(Constants.DeviceGroup.NORTH_REGION))).get();
+        injector.getInstance(DynamicKpiFactory.class).withGroup(store.get(EndDeviceGroup.class, gr -> gr.getName().equals(Constants.DeviceGroup.SOUTH_REGION))).get();
+
     }
 
     public void createAppServerImpl(final String appServerName){
