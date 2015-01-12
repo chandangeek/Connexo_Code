@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.io.BaudrateValue;
 import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.io.NrOfDataBits;
@@ -52,6 +53,8 @@ public class SerialPortConnectorTest {
 
     @Mock
     private ModemBasedInboundComPort comPort;
+    @Mock
+    private EventPublisher eventPublisher;
 
     private SerialComponentService serialComponentService;
     private HexService hexService;
@@ -85,7 +88,7 @@ public class SerialPortConnectorTest {
     @Test
     public void testProperAccept() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, this.eventPublisher, this.clock));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
         serialComChannel.setResponses(Arrays.asList(

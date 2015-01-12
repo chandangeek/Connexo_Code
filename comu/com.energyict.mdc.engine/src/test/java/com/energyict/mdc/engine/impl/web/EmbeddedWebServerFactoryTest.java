@@ -9,12 +9,17 @@ import com.energyict.mdc.engine.config.RemoteComServer;
 import com.energyict.mdc.engine.config.impl.OfflineComServerImpl;
 import com.energyict.mdc.engine.config.impl.OnlineComServerImpl;
 import com.energyict.mdc.engine.config.impl.RemoteComServerImpl;
+import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 
 import org.fest.assertions.api.Assertions;
 
 import java.net.URISyntaxException;
 
 import org.junit.*;
+import org.junit.runner.*;
+
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.doCallRealMethod;
@@ -28,16 +33,20 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-02 (16:57)
  */
+@RunWith(MockitoJUnitRunner.class)
 public class EmbeddedWebServerFactoryTest {
 
     private static final String EVENT_REGISTRATION_URL = "ws://comserver.energyict.com/events/registration";
     private static final String INVALID_URI = "Anything but a valid URL";
 
+    @Mock
+    private WebSocketEventPublisherFactory webSocketEventPublisherFactory;
+
     private EmbeddedWebServerFactory factory;
 
     @Before
     public void setupFactoryUnderTest () {
-        this.factory = new DefaultEmbeddedWebServerFactory();
+        this.factory = new DefaultEmbeddedWebServerFactory(this.webSocketEventPublisherFactory);
     }
 
     @Test

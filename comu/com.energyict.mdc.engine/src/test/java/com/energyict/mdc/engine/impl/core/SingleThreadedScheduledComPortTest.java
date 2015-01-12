@@ -25,7 +25,6 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
-import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
@@ -208,6 +207,7 @@ public class SingleThreadedScheduledComPortTest {
     public void setupServiceProvider() {
         ServiceProvider.instance.set(this.serviceProvider);
         this.serviceProvider.setHexService(this.hexService);
+        this.serviceProvider.setEventPublisher(this.eventPublisher);
         this.serviceProvider.setIssueService(this.issueService);
         this.serviceProvider.setUserService(this.userService);
         this.serviceProvider.setClock(this.clock);
@@ -233,8 +233,6 @@ public class SingleThreadedScheduledComPortTest {
     @Before
     public void setupEventPublisher() {
         this.setupServiceProvider();
-        EventPublisherImpl.setInstance(this.eventPublisher);
-        when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProvider());
         when(comTask.getId()).thenAnswer(new Answer<Long>() {
             long counter = 0;
             @Override
@@ -245,11 +243,6 @@ public class SingleThreadedScheduledComPortTest {
     }
 
     @After
-    public void resetEventPublisher() {
-        this.resetServiceProvider();
-        EventPublisherImpl.setInstance(null);
-    }
-
     public void resetServiceProvider() {
         ServiceProvider.instance.set(null);
     }
@@ -992,13 +985,6 @@ public class SingleThreadedScheduledComPortTest {
         @Override
         public int getThreadPriority() {
             return 0;
-        }
-    }
-
-    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
-        @Override
-        public Clock clock() {
-            return clock;
         }
     }
 

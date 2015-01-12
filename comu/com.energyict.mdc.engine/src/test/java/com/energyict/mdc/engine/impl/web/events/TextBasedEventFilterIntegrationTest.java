@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.web.events;
 
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
@@ -7,6 +9,7 @@ import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ConnectionEvent;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
@@ -15,6 +18,7 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.ComTask;
 
 import org.eclipse.jetty.websocket.WebSocket;
@@ -63,6 +67,12 @@ public class TextBasedEventFilterIntegrationTest {
     private OnlineComServer comServer;
     @Mock
     private RunningOnlineComServer runningComServer;
+    @Mock
+    private ConnectionTaskService connectionTaskService;
+    @Mock
+    private CommunicationTaskService communicationTaskService;
+    @Mock
+    private IdentificationService identificationService;
 
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
@@ -73,7 +83,16 @@ public class TextBasedEventFilterIntegrationTest {
 
     @Before
     public void setupEmbeddedWebServerFactory() {
-        this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory());
+        EventGenerator eventGenerator = new EventGenerator();
+        WebSocketEventPublisherFactoryImpl webSocketEventPublisherFactory =
+                new WebSocketEventPublisherFactoryImpl(
+                        this.connectionTaskService,
+                        this.communicationTaskService,
+                        this.deviceService,
+                        this.engineConfigurationService,
+                        this.identificationService,
+                        eventGenerator);
+        this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
     }
 
     /**
@@ -86,10 +105,9 @@ public class TextBasedEventFilterIntegrationTest {
     public void testRegisterMalformedEventRequest() throws Exception {
         // Create an EventPublisherImpl that will generate mocked events
         EventGenerator eventGenerator = new EventGenerator();
-        EventPublisherImpl.setInstance(eventGenerator);
 
         CountDownLatch registrationLatch = new CountDownLatch(1);
-        LatchDrivenWebSocketEventPublisherFactory webSocketEventPublisherFactory = new LatchDrivenWebSocketEventPublisherFactory(registrationLatch);
+        LatchDrivenWebSocketEventPublisherFactory webSocketEventPublisherFactory = new LatchDrivenWebSocketEventPublisherFactory(registrationLatch, eventGenerator);
         this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
         this.serviceProvider.setWebSocketEventPublisherFactory(webSocketEventPublisherFactory);
 
@@ -134,10 +152,9 @@ public class TextBasedEventFilterIntegrationTest {
     public void testRegisterForAllEventsAndReceiveMockedConnectionEvents() throws Exception {
         // Create an EventPublisherImpl that will generate mocked events
         EventGenerator eventGenerator = new EventGenerator();
-        EventPublisherImpl.setInstance(eventGenerator);
 
         CountDownLatch registrationLatch = new CountDownLatch(1);
-        LatchDrivenWebSocketEventPublisherFactory webSocketEventPublisherFactory = new LatchDrivenWebSocketEventPublisherFactory(registrationLatch);
+        LatchDrivenWebSocketEventPublisherFactory webSocketEventPublisherFactory = new LatchDrivenWebSocketEventPublisherFactory(registrationLatch, eventGenerator);
         this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
         this.serviceProvider.setWebSocketEventPublisherFactory(webSocketEventPublisherFactory);
 
@@ -178,10 +195,9 @@ public class TextBasedEventFilterIntegrationTest {
     public void testRegisterTwoClientsForAllEventsAndReceiveMockedConnectionEvents() throws Exception {
         // Create an EventPublisherImpl that will generate mocked events
         EventGenerator eventGenerator = new EventGenerator();
-        EventPublisherImpl.setInstance(eventGenerator);
 
         CountDownLatch registrationLatch = new CountDownLatch(2);
-        LatchDrivenWebSocketEventPublisherFactory webSocketEventPublisherFactory = new LatchDrivenWebSocketEventPublisherFactory(registrationLatch);
+        LatchDrivenWebSocketEventPublisherFactory webSocketEventPublisherFactory = new LatchDrivenWebSocketEventPublisherFactory(registrationLatch, eventGenerator);
         this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
         this.serviceProvider.setWebSocketEventPublisherFactory(webSocketEventPublisherFactory);
 
@@ -236,10 +252,9 @@ public class TextBasedEventFilterIntegrationTest {
     public void testRegisterForOnlyComTaskEventsAndPublishMockedConnectionEvents() throws Exception {
         // Create an EventPublisherImpl that will generate mocked events
         EventGenerator eventGenerator = new EventGenerator();
-        EventPublisherImpl.setInstance(eventGenerator);
 
         CountDownLatch registrationLatch = new CountDownLatch(1);
-        LatchDrivenWebSocketEventPublisherFactory webSocketEventPublisherFactory = new LatchDrivenWebSocketEventPublisherFactory(registrationLatch);
+        LatchDrivenWebSocketEventPublisherFactory webSocketEventPublisherFactory = new LatchDrivenWebSocketEventPublisherFactory(registrationLatch, eventGenerator);
         this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
         this.serviceProvider.setWebSocketEventPublisherFactory(webSocketEventPublisherFactory);
 
@@ -342,7 +357,7 @@ public class TextBasedEventFilterIntegrationTest {
         private OutboundComPortPool comPortPool;
 
         private EventGenerator() {
-            super(runningComServer, clock);
+            super(runningComServer);
             this.device = mock(Device.class);
             this.connectionTask = mock(OutboundConnectionTask.class);
             this.comPort = mock(OutboundComPort.class);
@@ -391,8 +406,8 @@ public class TextBasedEventFilterIntegrationTest {
     private class LatchDrivenWebSocketEventPublisher extends WebSocketEventPublisher {
         private CountDownLatch latch;
 
-        private LatchDrivenWebSocketEventPublisher(CountDownLatch latch, WebSocketCloseEventListener closeEventListener) {
-            super(serviceProvider, closeEventListener);
+        private LatchDrivenWebSocketEventPublisher(CountDownLatch latch, EventPublisher eventPublisher, WebSocketCloseEventListener closeEventListener) {
+            super(serviceProvider, eventPublisher, closeEventListener);
             this.latch = latch;
         }
 
@@ -405,15 +420,17 @@ public class TextBasedEventFilterIntegrationTest {
 
     private class LatchDrivenWebSocketEventPublisherFactory extends WebSocketEventPublisherFactoryImpl {
         private CountDownLatch latch;
+        private EventPublisher eventPublisher;
 
-        private LatchDrivenWebSocketEventPublisherFactory(CountDownLatch latch) {
-            super();
+        private LatchDrivenWebSocketEventPublisherFactory(CountDownLatch latch, EventPublisher eventPublisher) {
+            super(connectionTaskService, communicationTaskService, deviceService, engineConfigurationService, identificationService, eventPublisher);
             this.latch = latch;
+            this.eventPublisher = eventPublisher;
         }
 
         @Override
         public WebSocketEventPublisher newWebSocketEventPublisher(WebSocketCloseEventListener closeEventListener) {
-            return new LatchDrivenWebSocketEventPublisher(this.latch, closeEventListener);
+            return new LatchDrivenWebSocketEventPublisher(this.latch, this.eventPublisher, closeEventListener);
         }
     }
 

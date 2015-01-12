@@ -6,6 +6,7 @@ import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTes
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.io.ComChannel;
@@ -33,7 +34,7 @@ public class DeviceProtocolInitializeCommandTest extends AbstractComCommandExecu
     @Test
     public void comCommandTypeTest(){
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, AbstractComCommandExecuteTest.newTestExecutionContext(), serviceProvider);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, AbstractComCommandExecuteTest.newTestExecutionContext(), (ServiceProvider) serviceProvider);
         DeviceProtocolInitializeCommand deviceProtocolInitializeCommand = new DeviceProtocolInitializeCommand(commandRoot, offlineDevice, getMockedComChannel());
 
         assertEquals(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE, deviceProtocolInitializeCommand.getCommandType());
@@ -44,7 +45,7 @@ public class DeviceProtocolInitializeCommandTest extends AbstractComCommandExecu
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, serviceProvider);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, (ServiceProvider) serviceProvider);
         ComChannelPlaceHolder comChannelPlaceHolder = getMockedComChannel();
         ComChannel mockedComChannel = comChannelPlaceHolder.getComPortRelatedComChannel();
         CommandFactory.createDeviceProtocolInitialization(commandRoot, null, offlineDevice, comChannelPlaceHolder);

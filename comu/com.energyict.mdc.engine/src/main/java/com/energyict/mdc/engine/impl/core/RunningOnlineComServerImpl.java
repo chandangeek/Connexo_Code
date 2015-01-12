@@ -4,6 +4,7 @@ import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactory;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
+import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiService;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.RemoteComServer;
@@ -37,6 +38,11 @@ public class RunningOnlineComServerImpl extends RunningComServerImpl implements 
         this.comServer = comServer;
     }
 
+    public RunningOnlineComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, EmbeddedWebServerFactory embeddedWebServerFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
+        super(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, embeddedWebServerFactory, cleanupDuringStartup, serviceProvider);
+        this.comServer = comServer;
+    }
+
     @Override
     public OnlineComServer getComServer() {
         return this.comServer;
@@ -56,7 +62,7 @@ public class RunningOnlineComServerImpl extends RunningComServerImpl implements 
     }
 
     private void startQueryApiListener () {
-        this.remoteQueryApi = this.getServiceProvider().embeddedWebServerFactory().findOrCreateRemoteQueryWebServer(this);
+        this.remoteQueryApi = this.getEmbeddedWebServerFactory().findOrCreateRemoteQueryWebServer(this);
         this.remoteQueryApi.start();
     }
 

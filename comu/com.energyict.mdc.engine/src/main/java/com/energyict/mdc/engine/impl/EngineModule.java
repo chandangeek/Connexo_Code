@@ -57,8 +57,6 @@ public class EngineModule extends AbstractModule {
         requireBinding(SerialComponentService.class);
 
         bind(WebSocketQueryApiServiceFactory.class).to(WebSocketQueryApiServiceFactoryImpl.class).in(Scopes.SINGLETON);
-        bind(WebSocketEventPublisherFactory.class).to(WebSocketEventPublisherFactoryImpl.class).in(Scopes.SINGLETON);
-        bind(EmbeddedWebServerFactory.class).to(DefaultEmbeddedWebServerFactory.class).in(Scopes.SINGLETON);
         bind(ManagementBeanFactory.class).to(ManagementBeanFactoryImpl.class).in(Scopes.SINGLETON);
         bind(StatusService.class).to(StatusServiceImpl.class).in(Scopes.SINGLETON);
         bind(EngineService.class).to(EngineServiceImpl.class).in(Scopes.SINGLETON);

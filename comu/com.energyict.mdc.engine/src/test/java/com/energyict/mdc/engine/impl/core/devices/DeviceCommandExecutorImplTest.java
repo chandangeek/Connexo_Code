@@ -79,15 +79,13 @@ public class DeviceCommandExecutorImplTest {
         ServiceProvider.instance.set(serviceProvider);
         serviceProvider.setClock(clock);
         serviceProvider.setConnectionTaskService(this.connectionTaskService);
+        serviceProvider.setEventPublisher(this.eventPublisher);
         when(userService.findUser(anyString())).thenReturn(Optional.of(user));
-        EventPublisherImpl.setInstance(this.eventPublisher);
-        when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProvider());
         when(this.comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
     }
 
     @After
     public void tearDown() {
-        EventPublisherImpl.setInstance(null);
         ServiceProvider.instance.set(null);
     }
 
@@ -1062,13 +1060,6 @@ public class DeviceCommandExecutorImplTest {
             return thread;
         }
 
-    }
-
-    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
-        @Override
-        public Clock clock() {
-            return clock;
-        }
     }
 
 }

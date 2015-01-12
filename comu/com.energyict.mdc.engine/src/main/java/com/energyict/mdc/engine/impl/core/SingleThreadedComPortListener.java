@@ -4,6 +4,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactory;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
 import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 
 import java.util.concurrent.ThreadFactory;
 
@@ -20,8 +21,8 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
 
     private InboundComPortExecutorFactory inboundComPortExecutorFactory;
 
-    public SingleThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
-        this(comPort, comServerDAO, threadFactory, deviceCommandExecutor, new InboundComPortExecutorFactoryImpl(serviceProvider), serviceProvider);
+    public SingleThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor, EventPublisher eventPublisher, ServiceProvider serviceProvider) {
+        this(comPort, comServerDAO, threadFactory, deviceCommandExecutor, new InboundComPortExecutorFactoryImpl(serviceProvider), eventPublisher, serviceProvider);
     }
 
     public SingleThreadedComPortListener(
@@ -30,6 +31,7 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
                         ThreadFactory threadFactory,
                         DeviceCommandExecutor deviceCommandExecutor,
                         InboundComPortExecutorFactory inboundComPortExecutorFactory,
+                        EventPublisher eventPublisher,
                         ServiceProvider serviceProvider) {
         this(comPort,
                 comServerDAO,
@@ -40,7 +42,8 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
                         serviceProvider.serialAtComponentService(),
                         serviceProvider.socketService(),
                         serviceProvider.hexService(),
-                        eventPublisher, serviceProvider.clock())
+                        eventPublisher,
+                        serviceProvider.clock())
         );
     }
 

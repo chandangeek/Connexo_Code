@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.engine.impl.core.remote.RemoteComServerDAOImpl;
 import com.energyict.mdc.engine.config.RemoteComServer;
+import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -18,6 +19,11 @@ public class RunningRemoteComServerImpl extends RunningComServerImpl {
 
     public RunningRemoteComServerImpl(RemoteComServer comServer, RemoteComServerDAOImpl comServerDAO, ServiceProvider serviceProvider) {
         super(comServer, comServerDAO, null, null, Executors.defaultThreadFactory(), new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
+        comServerDAO.setComServer(this);
+    }
+
+    public RunningRemoteComServerImpl(RemoteComServer comServer, RemoteComServerDAOImpl comServerDAO, EmbeddedWebServerFactory embeddedWebServerFactory, ServiceProvider serviceProvider) {
+        super(comServer, comServerDAO, null, null, Executors.defaultThreadFactory(), embeddedWebServerFactory, new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
         comServerDAO.setComServer(this);
     }
 

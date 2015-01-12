@@ -57,22 +57,13 @@ public class ComChannelReadWriteEventPublisherTest {
     public void setupServiceProvider () {
         this.serviceProvider.setClock(this.clock);
         this.serviceProvider.setHexService(this.hexService);
+        this.serviceProvider.setEventPublisher(this.eventPublisher);
         ServiceProvider.instance.set(this.serviceProvider);
     }
 
     @After
     public void resetServiceProvider () {
         ServiceProvider.instance.set(null);
-    }
-
-    @Before
-    public void setupEventPublisher () {
-        EventPublisherImpl.setInstance(this.eventPublisher);
-    }
-
-    @After
-    public void resetEventPublisher () {
-        EventPublisherImpl.setInstance(null);
     }
 
     private void initializeExpectedBytes () throws IOException {

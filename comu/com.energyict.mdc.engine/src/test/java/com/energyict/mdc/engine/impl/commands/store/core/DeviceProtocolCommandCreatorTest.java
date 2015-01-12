@@ -62,7 +62,7 @@ public class DeviceProtocolCommandCreatorTest {
     private static final long COMPORT_ID = COMPORT_POOL_ID + 1;
     private static final long CONNECTION_TASK_ID = COMPORT_ID + 1;
 
-    private ServiceProvider serviceProvider = new FakeServiceProvider();
+    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
     @Mock
     private IssueService issueService;
@@ -86,24 +86,22 @@ public class DeviceProtocolCommandCreatorTest {
 
     @Before
     public void initBefore() {
-        FakeServiceProvider fakeServiceProvider = (FakeServiceProvider) this.serviceProvider;
-        fakeServiceProvider.setClock(clock);
-        fakeServiceProvider.setConnectionTaskService(this.connectionTaskService);
-        fakeServiceProvider.setDeviceService(this.deviceService);
+        this.serviceProvider.setClock(clock);
+        this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
+        this.serviceProvider.setDeviceService(this.deviceService);
     }
 
     @After
     public void initAfter() {
-        FakeServiceProvider fakeServiceProvider = (FakeServiceProvider) this.serviceProvider;
-        fakeServiceProvider.setClock(null);
-        fakeServiceProvider.setDeviceService(null);
-        fakeServiceProvider.setConnectionTaskService(null);
+        this.serviceProvider.setClock(null);
+        this.serviceProvider.setDeviceService(null);
+        this.serviceProvider.setConnectionTaskService(null);
     }
 
     @Test
     public void testCommandCreationOrder() {
         OfflineDevice device = mock(OfflineDevice.class);
-        CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), serviceProvider));
+        CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), (ServiceProvider) serviceProvider));
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
@@ -132,7 +130,7 @@ public class DeviceProtocolCommandCreatorTest {
     @Test
     public void testMiddleStateCreationOrder() {
         OfflineDevice device = mock(OfflineDevice.class);
-        CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), serviceProvider));
+        CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), (ServiceProvider) serviceProvider));
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
@@ -163,7 +161,7 @@ public class DeviceProtocolCommandCreatorTest {
     @Test
     public void testLastStateCreationOrder() {
         OfflineDevice device = mock(OfflineDevice.class);
-        CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), serviceProvider));
+        CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), (ServiceProvider) serviceProvider));
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);

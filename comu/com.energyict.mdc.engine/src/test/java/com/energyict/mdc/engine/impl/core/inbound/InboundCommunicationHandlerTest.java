@@ -146,18 +146,18 @@ public class InboundCommunicationHandlerTest {
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private InboundCommunicationHandler handler;
     private Clock clock = Clock.systemDefaultZone();
+    private EventPublisherImpl eventPublisher;
 
     @Before
     public void setup() {
+        this.eventPublisher = mock(EventPublisherImpl.class);
         ServiceProvider.instance.set(serviceProvider);
         serviceProvider.setClock(clock);
         serviceProvider.setEventService(eventService);
+        serviceProvider.setEventPublisher(eventPublisher);
         serviceProvider.setIdentificationService(identificationService);
         serviceProvider.setConnectionTaskService(connectionTaskService);
         serviceProvider.setHexService(this.hexService);
-        EventPublisherImpl eventPublisher = mock(EventPublisherImpl.class);
-        when(eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProvider());
-        EventPublisherImpl.setInstance(eventPublisher);
         when(connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Instant.class))).
                 thenReturn(this.comSessionBuilder);
         when(this.comSessionBuilder.addSentBytes(anyLong())).thenReturn(this.comSessionBuilder);
@@ -189,7 +189,6 @@ public class InboundCommunicationHandlerTest {
 
     @After
     public void tearDown() {
-        EventPublisherImpl.setInstance(null);
         ServiceProvider.instance.set(null);
     }
 
@@ -663,7 +662,16 @@ public class InboundCommunicationHandlerTest {
     }
 
     private InboundDiscoveryContextImpl newBinaryInboundDiscoveryContext() {
-        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(this.comPort, new ComPortRelatedComChannelImpl(mock(ComChannel.class), this.comPort, clock, this.hexService, eventPublisher), this.connectionTaskService);
+        InboundDiscoveryContextImpl context =
+                new InboundDiscoveryContextImpl(
+                        this.comPort,
+                        new ComPortRelatedComChannelImpl(
+                                mock(ComChannel.class),
+                                this.comPort,
+                                this.clock,
+                                this.hexService,
+                                this.eventPublisher),
+                        this.connectionTaskService);
         this.initializeInboundDiscoveryContext(context);
         return context;
     }
@@ -680,13 +688,6 @@ public class InboundCommunicationHandlerTest {
         when(cryptographer.wasUsed()).thenReturn(true);
         context.setCryptographer(cryptographer);
         // TODO need initialization of ComSessionBuilder on context
-    }
-
-    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
-        @Override
-        public Clock clock() {
-            return clock;
-        }
     }
 
 }

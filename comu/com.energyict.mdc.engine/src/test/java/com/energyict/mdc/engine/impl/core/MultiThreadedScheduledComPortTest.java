@@ -234,6 +234,7 @@ public class MultiThreadedScheduledComPortTest {
 
     public void setupServiceProvider() {
         ServiceProvider.instance.set(this.serviceProvider);
+        this.serviceProvider.setEventPublisher(this.eventPublisher);
         this.serviceProvider.setEventService(this.eventService);
         this.serviceProvider.setIdentificationService(this.identificationService);
         this.serviceProvider.setIssueService(this.issueService);
@@ -264,8 +265,6 @@ public class MultiThreadedScheduledComPortTest {
     @Before
     public void setupEventPublisher() {
         this.setupServiceProvider();
-        EventPublisherImpl.setInstance(this.eventPublisher);
-        when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProvider());
         when(comTask.getId()).thenAnswer(new Answer<Long>() {
             long counter = 0;
             @Override
@@ -278,7 +277,6 @@ public class MultiThreadedScheduledComPortTest {
     @After
     public void resetEventPublisher() {
         this.resetServiceProvider();
-        EventPublisherImpl.setInstance(null);
     }
 
     @Before
@@ -1137,13 +1135,6 @@ public class MultiThreadedScheduledComPortTest {
                 return false;
             }
 
-        }
-    }
-
-    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
-        @Override
-        public Clock clock() {
-            return clock;
         }
     }
 

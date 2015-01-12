@@ -52,7 +52,7 @@ public abstract class AbstractComCommandExecuteTest {
     private static final long COM_TASK_EXECUTION_ID = DEVICE_ID + 1;
     private static final long PROTOCOL_DIALECT_CONFIG_PROPS_ID = 6516;
 
-    protected static final ServiceProvider serviceProvider = new FakeServiceProvider();
+    protected static final FakeServiceProvider serviceProvider = new FakeServiceProvider();
     protected static CommandRoot.ServiceProvider commandRootServiceProvider = new CommandRootServiceProviderAdapter(serviceProvider);
 
     @Mock
@@ -60,38 +60,22 @@ public abstract class AbstractComCommandExecuteTest {
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
-    private EventPublisherImpl eventPublisher;
+    protected EventPublisherImpl eventPublisher;
     private Clock clock = Clock.systemDefaultZone();
 
     @Before
-    public void setupEventPublisher() {
-        this.setupServiceProvider();
-        EventPublisherImpl.setInstance(this.eventPublisher);
-        when(this.eventPublisher.serviceProvider()).thenReturn(this.comServerEventServiceProvider());
-    }
-
-    private void setupServiceProvider() {
-        FakeServiceProvider fakeServiceProvider = (FakeServiceProvider) serviceProvider;
-        fakeServiceProvider.setDeviceConfigurationService(deviceConfigurationService);
-        fakeServiceProvider.setClock(this.clock);
-        fakeServiceProvider.setIssueService(new IssueServiceImpl(this.clock));
-        fakeServiceProvider.setConnectionTaskService(mock(ConnectionTaskService.class, RETURNS_DEEP_STUBS));
-        fakeServiceProvider.setDeviceService(mock(DeviceService.class, RETURNS_DEEP_STUBS));
-        ServiceProvider.instance.set(fakeServiceProvider);
-    }
-
-    protected ComServerEventServiceProvider comServerEventServiceProvider() {
-        return new ComServerEventServiceProvider();
+    public void setupServiceProvider() {
+        serviceProvider.setDeviceConfigurationService(deviceConfigurationService);
+        serviceProvider.setClock(this.clock);
+        serviceProvider.setIssueService(new IssueServiceImpl(this.clock));
+        serviceProvider.setConnectionTaskService(mock(ConnectionTaskService.class, RETURNS_DEEP_STUBS));
+        serviceProvider.setDeviceService(mock(DeviceService.class, RETURNS_DEEP_STUBS));
+        ServiceProvider.instance.set(serviceProvider);
     }
 
     @After
-    public void resetEventPublisher() {
-        this.resetServiceProvider();
-        EventPublisherImpl.setInstance(null);
-    }
-
-    private void resetServiceProvider() {
-        ((FakeServiceProvider) serviceProvider).setClock(Clock.systemDefaultZone());
+    public void resetServiceProvider() {
+        serviceProvider.setClock(Clock.systemDefaultZone());
         ServiceProvider.instance.set(null);
     }
 
@@ -135,13 +119,6 @@ public abstract class AbstractComCommandExecuteTest {
         executionContext.setLogger(logger);
         executionContext.start(comTaskExecution, comTask);
         return executionContext;
-    }
-
-    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
-        @Override
-        public Clock clock() {
-            return clock;
-        }
     }
 
 }

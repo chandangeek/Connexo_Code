@@ -26,8 +26,6 @@ import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
-import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
-import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiServiceFactory;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.status.StatusService;
@@ -81,8 +79,6 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     private volatile StatusService statusService;
     private volatile ManagementBeanFactory managementBeanFactory;
     private volatile WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory;
-    private volatile WebSocketEventPublisherFactory webSocketEventPublisherFactory;
-    private volatile EmbeddedWebServerFactory embeddedWebServerFactory;
     private volatile UserService userService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
@@ -103,35 +99,35 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
             MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, DeviceConfigurationService deviceConfigurationService,
             ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, LogBookService logBookService, DeviceService deviceService, TopologyService topologyService,
             ProtocolPluggableService protocolPluggableService, StatusService statusService,
-            ManagementBeanFactory managementBeanFactory, EmbeddedWebServerFactory embeddedWebServerFactory,
-            WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory, WebSocketEventPublisherFactory webSocketEventPublisherFactory,
-            SocketService socketService, SerialComponentService serialComponentService, IdentificationService identificationService) {
+            ManagementBeanFactory managementBeanFactory,
+            WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory,
+            SocketService socketService,
+            SerialComponentService serialComponentService,
+            IdentificationService identificationService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
-        setTransactionService(transactionService);
-        setClock(clock);
-        setHexService(hexService);
-        setEngineConfigurationService(engineConfigurationService);
-        setThreadPrincipalService(threadPrincipalService);
-        setIssueService(issueService);
+        this.setTransactionService(transactionService);
+        this.setClock(clock);
+        this.setHexService(hexService);
+        this.setEngineConfigurationService(engineConfigurationService);
+        this.setThreadPrincipalService(threadPrincipalService);
+        this.setIssueService(issueService);
         this.setDeviceService(deviceService);
         this.setTopologyService(topologyService);
         this.setConnectionTaskService(connectionTaskService);
         this.setCommunicationTaskService(communicationTaskService);
         this.setLogBookService(logBookService);
-        setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
-        setUserService(userService);
-        setDeviceConfigurationService(deviceConfigurationService);
-        setProtocolPluggableService(protocolPluggableService);
-        setSocketService(socketService);
-        setSerialComponentService(serialComponentService);
+        this.setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
+        this.setUserService(userService);
+        this.setDeviceConfigurationService(deviceConfigurationService);
+        this.setProtocolPluggableService(protocolPluggableService);
+        this.setSocketService(socketService);
+        this.setSerialComponentService(serialComponentService);
         this.setStatusService(statusService);
         this.setManagementBeanFactory(managementBeanFactory);
-        this.setEmbeddedWebServerFactory(embeddedWebServerFactory);
         this.setWebSocketQueryApiServiceFactory(webSocketQueryApiServiceFactory);
-        this.setWebSocketEventPublisherFactory(webSocketEventPublisherFactory);
         this.setIdentificationService(identificationService);
         this.install();
         activate();
@@ -223,16 +219,6 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     }
 
     @Reference
-    public void setWebSocketEventPublisherFactory(WebSocketEventPublisherFactory webSocketEventPublisherFactory) {
-        this.webSocketEventPublisherFactory = webSocketEventPublisherFactory;
-    }
-
-    @Reference
-    public void setEmbeddedWebServerFactory(EmbeddedWebServerFactory embeddedWebServerFactory) {
-        this.embeddedWebServerFactory = embeddedWebServerFactory;
-    }
-
-    @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
@@ -312,8 +298,6 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(StatusService.class).toInstance(statusService);
                 bind(WebSocketQueryApiServiceFactory.class).toInstance(webSocketQueryApiServiceFactory);
-                bind(WebSocketEventPublisherFactory.class).toInstance(webSocketEventPublisherFactory);
-                bind(EmbeddedWebServerFactory.class).toInstance(embeddedWebServerFactory);
                 bind(ManagementBeanFactory.class).toInstance(managementBeanFactory);
             }
         };
@@ -328,9 +312,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
 
     @Deactivate
     public void deactivate() {
-        for (DeactivationNotificationListener deactivationNotificationListener : this.deactivationNotificationListeners) {
-            deactivationNotificationListener.engineServiceDeactivationStarted();
-        }
+        this.deactivationNotificationListeners.forEach(EngineService.DeactivationNotificationListener::engineServiceDeactivationStarted);
         ServiceProvider.instance.set(null);
     }
 
@@ -471,10 +453,6 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
             return webSocketQueryApiServiceFactory;
         }
 
-        @Override
-        public EmbeddedWebServerFactory embeddedWebServerFactory() {
-            return embeddedWebServerFactory;
-        }
     }
 
 }

@@ -65,16 +65,14 @@ public class ComServletTest {
         serviceProvider = new FakeServiceProvider();
         serviceProvider.setClock(this.clock);
         serviceProvider.setProtocolPluggableService(protocolPluggableService);
+        serviceProvider.setEventPublisher(this.eventPublisher);
         when(protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(anyString())).thenReturn(Collections.<InboundDeviceProtocolPluggableClass>emptyList());
         ServiceProvider.instance.set(serviceProvider);
-        EventPublisherImpl.setInstance(this.eventPublisher);
-        when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProvider());
     }
 
     @After
-    public void resetEventPublisher () {
+    public void resetServiceProvider() {
         ServiceProvider.instance.set(null);
-        EventPublisherImpl.setInstance(null);
     }
 
     @Test
@@ -123,13 +121,6 @@ public class ComServletTest {
         verify(inboundDeviceProtocol).initializeDiscoveryContext(any(InboundDiscoveryContextImpl.class));
         verify(inboundDeviceProtocol).init(servletRequest, servletResponse);
         verify(inboundDeviceProtocol).doDiscovery();
-    }
-
-    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
-        @Override
-        public Clock clock() {
-            return clock;
-        }
     }
 
 }

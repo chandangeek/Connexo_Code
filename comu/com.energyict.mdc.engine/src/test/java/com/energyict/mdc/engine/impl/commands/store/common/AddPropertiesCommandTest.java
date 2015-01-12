@@ -7,6 +7,7 @@ import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTes
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
@@ -34,7 +35,7 @@ public class AddPropertiesCommandTest extends AbstractComCommandExecuteTest {
     @Test
     public void commandTypeTest() {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, AbstractComCommandExecuteTest.newTestExecutionContext(), serviceProvider);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, AbstractComCommandExecuteTest.newTestExecutionContext(), (ServiceProvider) serviceProvider);
         TypedProperties typedProperties = mock(TypedProperties.class);
         AddPropertiesCommand addPropertiesCommand = new AddPropertiesCommand(commandRoot, typedProperties, typedProperties, null);
 
@@ -46,7 +47,7 @@ public class AddPropertiesCommandTest extends AbstractComCommandExecuteTest {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, serviceProvider);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, (ServiceProvider) serviceProvider);
         TypedProperties typedProperties = mock(TypedProperties.class);
         CommandFactory.createAddProperties(commandRoot, null, typedProperties, typedProperties, null);
 
@@ -62,7 +63,7 @@ public class AddPropertiesCommandTest extends AbstractComCommandExecuteTest {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, serviceProvider);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, (ServiceProvider) serviceProvider);
         TypedProperties typedProperties = mock(TypedProperties.class);
         TypedProperties otherTypedProperties = mock(TypedProperties.class);
         CommandFactory.createAddProperties(commandRoot, null, typedProperties, otherTypedProperties, null);
@@ -79,7 +80,7 @@ public class AddPropertiesCommandTest extends AbstractComCommandExecuteTest {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, serviceProvider);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, (ServiceProvider) serviceProvider);
         TypedProperties typedProperties = mock(TypedProperties.class);
         TypedProperties otherTypedProperties = mock(TypedProperties.class);
         CommandFactory.createAddProperties(commandRoot, null, typedProperties, otherTypedProperties, null);
@@ -99,7 +100,7 @@ public class AddPropertiesCommandTest extends AbstractComCommandExecuteTest {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, serviceProvider);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, (ServiceProvider) serviceProvider);
         TypedProperties typedProperties = mock(TypedProperties.class);
         TypedProperties otherTypedProperties = mock(TypedProperties.class);
         DeviceProtocolSecurityPropertySet securityPropertySet = mock(DeviceProtocolSecurityPropertySet.class);

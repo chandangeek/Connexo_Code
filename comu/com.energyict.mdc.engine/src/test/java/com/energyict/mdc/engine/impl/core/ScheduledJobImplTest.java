@@ -160,6 +160,7 @@ public class ScheduledJobImplTest {
     @Before
     public void setupServiceProvider() {
         ServiceProvider.instance.set(this.serviceProvider);
+        this.serviceProvider.setEventPublisher(this.eventPublisher);
         this.serviceProvider.setEventService(this.eventService);
         this.serviceProvider.setIdentificationService(this.identificationService);
         this.serviceProvider.setIssueService(this.issueService);
@@ -181,17 +182,6 @@ public class ScheduledJobImplTest {
     @After
     public void resetServiceProvider() {
         ServiceProvider.instance.set(null);
-    }
-
-    @Before
-    public void setupEventPublisher() {
-        when(this.eventPublisher.serviceProvider()).thenReturn(this.serviceProvider);
-        EventPublisherImpl.setInstance(this.eventPublisher);
-    }
-
-    @After
-    public void resetEventPublisher() {
-        EventPublisherImpl.setInstance(null);
     }
 
     @Before

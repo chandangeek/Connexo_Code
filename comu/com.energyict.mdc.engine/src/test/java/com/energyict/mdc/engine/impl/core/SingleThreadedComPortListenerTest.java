@@ -74,16 +74,6 @@ public class SingleThreadedComPortListenerTest {
         when(this.socketService.newSocketComChannel(any(Socket.class))).thenReturn(new SystemOutComChannel());
     }
 
-    @Before
-    public void setupEventPublisher () {
-        EventPublisherImpl.setInstance(this.eventPublisher);
-    }
-
-    @After
-    public void resetEventPublisher () {
-        EventPublisherImpl.setInstance(null);
-    }
-
     @Test
     public void testStart() throws BusinessException, InterruptedException {
         ThreadFactory threadFactory = mock(ThreadFactory.class);

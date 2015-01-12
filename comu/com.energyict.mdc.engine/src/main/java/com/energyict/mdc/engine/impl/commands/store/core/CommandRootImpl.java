@@ -91,7 +91,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     private JobExecution.PreparedComTaskExecution preparedComTaskExecution;
     private Map<ComTaskExecution, ComTaskExecutionComCommand> comCommandsPerComTaskExecution = new HashMap<>();
 
-    public CommandRootImpl(OfflineDevice offlineDevice, ExecutionContext executionContext, ServiceProvider serviceProvider) {
+    public CommandRootImpl(OfflineDevice offlineDevice, ExecutionContext executionContext, CommandRoot.ServiceProvider serviceProvider) {
         super(null);
         this.offlineDevice = offlineDevice;
         this.executionContext = executionContext;
