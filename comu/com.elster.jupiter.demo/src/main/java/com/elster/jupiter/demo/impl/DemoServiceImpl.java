@@ -104,6 +104,7 @@ import java.util.stream.Collectors;
         "osgi.command.function=createDemoData",
         "osgi.command.function=createUsers",
         "osgi.command.function=createAppServer",
+        "osgi.command.function=createCollectRemoteDataSetup",
         "osgi.command.function=createValidationRules"
 }, immediate = true)
 public class DemoServiceImpl implements DemoService {
@@ -242,37 +243,81 @@ public class DemoServiceImpl implements DemoService {
         executeTransaction(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                Optional<License> license = licenseService.getLicenseForApplication("MDC");
-                if (!license.isPresent() || !License.Status.ACTIVE.equals(license.get().getStatus())) {
-                    throw new IllegalStateException("MDC License isn't installed correctly");
-                }
-                store.addProperty("host", host);
-
-                createComServer("Deitvs099");
-                createComServer(comServerName);
-
-                createOutboundTcpComPort("Outbound TCP");
-                OutboundComPort outboundTCPPort = store.getLast(OutboundComPort.class).orElseThrow(() -> new UnableToCreate("Unable to find a correct TCP com port"));
-                store.getOutboundComPortPools().put(Constants.OutboundComPortPool.VODAFONE, createOutboundTcpComPortPool(Constants.OutboundComPortPool.VODAFONE, outboundTCPPort));
-                store.getOutboundComPortPools().put(Constants.OutboundComPortPool.ORANGE, createOutboundTcpComPortPool(Constants.OutboundComPortPool.ORANGE, outboundTCPPort));
-
-                findRegisterTypes(store);
-                createLoadProfiles(store);
-                createRegisterGroups(store);
-                createLogbookTypes(store);
-                createCommunicationTasks(store);
-                createCommunicationSchedules(store);
-                createDeviceTypes(store);
-                createDeviceGroups();
+                createCollectRemoteDataSetupImpl(comServerName, host);
                 createUsersImpl();
                 createValidationRulesImpl();
-
-                createIssueReasons();
-                createCreationRule();
-                createKpi();
                 createAppServerImpl();
             }
         });
+    }
+
+    @Override
+    public void createCollectRemoteDataSetup(final String comServerName, final String host) {
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                createCollectRemoteDataSetupImpl(comServerName, host);
+            }
+        });
+    }
+
+    @Override
+    public void createAppServer(){
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                createAppServerImpl();
+            }
+        });
+    }
+
+
+    @Override
+    public void createUsers(){
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                createUsersImpl();
+            }
+        });
+    }
+
+    @Override
+    public void createValidationRules(){
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                createValidationRulesImpl();
+            }
+        });
+    }
+    private void createCollectRemoteDataSetupImpl(final String comServerName, final String host){
+        Optional<License> license = licenseService.getLicenseForApplication("MDC");
+        if (!license.isPresent() || !License.Status.ACTIVE.equals(license.get().getStatus())) {
+            throw new IllegalStateException("MDC License isn't installed correctly");
+        }
+        store.addProperty("host", host);
+
+        createComServer("Deitvs099");
+        createComServer(comServerName);
+
+        createOutboundTcpComPort("Outbound TCP");
+        OutboundComPort outboundTCPPort = store.getLast(OutboundComPort.class).orElseThrow(() -> new UnableToCreate("Unable to find a correct TCP com port"));
+        store.getOutboundComPortPools().put(Constants.OutboundComPortPool.VODAFONE, createOutboundTcpComPortPool(Constants.OutboundComPortPool.VODAFONE, outboundTCPPort));
+        store.getOutboundComPortPools().put(Constants.OutboundComPortPool.ORANGE, createOutboundTcpComPortPool(Constants.OutboundComPortPool.ORANGE, outboundTCPPort));
+
+        findRegisterTypes(store);
+        createLoadProfiles(store);
+        createRegisterGroups(store);
+        createLogbookTypes(store);
+        createCommunicationTasks(store);
+        createCommunicationSchedules(store);
+        createDeviceTypes(store);
+        createDeviceGroups();
+
+        createIssueReasons();
+        createCreationRule();
+        createKpi();
     }
 
     private void createCreationRule(){
@@ -745,16 +790,6 @@ public class DemoServiceImpl implements DemoService {
         }
     }
 
-    @Override
-    public void createUsers(){
-        executeTransaction(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                createUsersImpl();
-            }
-        });
-    }
-
     public void createUsersImpl(){
         injector.getInstance(UserFactory.class).withName(Constants.User.MELISSA).withRoles(Constants.UserRoles.METER_EXPERT).get();
         injector.getInstance(UserFactory.class).withName(Constants.User.SAM).withLanguage(Locale.US.toLanguageTag()).withRoles(Constants.UserRoles.ADMINISTRATORS).get();
@@ -766,16 +801,6 @@ public class DemoServiceImpl implements DemoService {
         injector.getInstance(UserFactory.class).withName(Constants.User.VEERLE).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
         injector.getInstance(UserFactory.class).withName(Constants.User.KURT).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
         injector.getInstance(UserFactory.class).withName(Constants.User.EDUARDO).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
-    }
-
-    @Override
-    public void createValidationRules(){
-        executeTransaction(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                createValidationRulesImpl();
-            }
-        });
     }
 
     public void createValidationRulesImpl(){
@@ -812,15 +837,6 @@ public class DemoServiceImpl implements DemoService {
 
     public void createKpi(){
         store.get(EndDeviceGroup.class).stream().forEach(g -> injector.getInstance(DynamicKpiFactory.class).withGroup(g).get());
-    }
-
-    public void createAppServer(){
-        executeTransaction(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                createAppServerImpl();
-            }
-        });
     }
 
     public void createAppServerImpl(){
