@@ -238,10 +238,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
             relationType = this.findRelationType();
         }
         catch (ApplicationException e) {
-            /* Creation of relation type failed before, no need to unRegister and delete the relation type
-             * However, since we are compiling with AspectJ's Xlint option set to error level
-             * to trap advice that does not apply,
-             * it will not be happy until we actually code something here. */
+            /* Creation of relation type failed before, no need to unRegister and delete the relation type. */
             relationType = null;
         }
         if (relationType != null) {
