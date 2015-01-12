@@ -1,8 +1,9 @@
 package com.elster.jupiter.demo.impl.factories;
 
 public abstract class NamedFactory<T, S> implements Factory<S> {
+    private final Class<T> clazz;
+
     private String name;
-    private Class<T> clazz;
 
     public NamedFactory(Class<T> clazz) {
         this.clazz = clazz;

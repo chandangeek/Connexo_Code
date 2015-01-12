@@ -10,6 +10,7 @@ import com.elster.jupiter.demo.impl.factories.IssueFactory;
 import com.elster.jupiter.demo.impl.factories.IssueReasonFactory;
 import com.elster.jupiter.demo.impl.factories.IssueRuleFactory;
 import com.elster.jupiter.demo.impl.factories.OutboundTCPComPortFactory;
+import com.elster.jupiter.demo.impl.factories.UserFactory;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
@@ -27,8 +28,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.ValidationAction;
@@ -90,6 +89,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -237,12 +237,11 @@ public class DemoServiceImpl implements DemoService {
                 createCommunicationSchedules(store);
                 createDeviceTypes(store);
                 createDeviceGroups();
-                createDemoUsersImpl();
+                createUsersImpl();
                 createValidationRulesImpl();
 
-              /*  createIssueReasons();
+                createIssueReasons();
                 createCreationRule();
-                createIssues();*/
                 createKpi();
             }
         });
@@ -699,7 +698,7 @@ public class DemoServiceImpl implements DemoService {
                 store.getLast(IssueDataCollection.class).ifPresent(
                         i -> injector.getInstance(IssueCommentFactory.class)
                                 .withIssue(i)
-                                .withUser(Constants.User.SYSTEM)
+                                .withUser(Constants.User.SAM)
                                 .withComment("System check: Missing data occurred on this channel: <a href=index.html#/devices/" + Constants.Device.DABF_12 + "/channels/" + device.getChannels().get(0).getId() + "/table?filter=%7B%22intervalStart%22%3A%222014-12-18T13%3A00%3A00%22%2C%22duration%22%3A%222weeks%22%2C%22onlySuspect%22%3Atrue%2C%22onlyNonSuspect%22%3Afalse%7D>Bulk A+ all phases (Wh)</a>")
                                 .get());
             } else if (device.getmRID().equals(Constants.Device.DABF_13)){
@@ -711,7 +710,7 @@ public class DemoServiceImpl implements DemoService {
                 store.getLast(IssueDataCollection.class).ifPresent(
                         i -> injector.getInstance(IssueCommentFactory.class)
                                 .withIssue(i)
-                                .withUser(Constants.User.SYSTEM)
+                                .withUser(Constants.User.SAM)
                                 .withComment("System check: Peak detected on this channel: <a href=index.html#/devices/" + Constants.Device.DABF_13 + "/channels/"+ device.getChannels().get(0).getId() + "/graph?filter=%7B%22intervalStart%22%3A%222014-07-30T20%3A00%3A00%22%2C%22duration%22%3A%222weeks%22%2C%22onlySuspect%22%3Afalse%2C%22onlyNonSuspect%22%3Afalse%2C%22id%22%3Anull%7D>Bulk A+ all phases (Wh)</a>")
                                 .get());
             }
@@ -719,34 +718,26 @@ public class DemoServiceImpl implements DemoService {
     }
 
     @Override
-    public void createDemoUsers(){
+    public void createUsers(){
         executeTransaction(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                createDemoUsersImpl();
+                createUsersImpl();
             }
         });
     }
 
-    public void createDemoUsersImpl(){
-        System.out.println("==> Creating demo users...");
-        createUserAndJoinAllGroups(Constants.User.SAM);
-        createUserAndJoinAllGroups(Constants.User.MELISSA);
-        createUserAndJoinAllGroups(Constants.User.SYSTEM);
-    }
-
-    private void createUserAndJoinAllGroups(String userName) {
-        User user = userService.findUser(userName).orElse(null);
-        if (user == null){
-            String pass = "admin";
-            System.out.println("==> Creating new user: " + userName + " with password: " + pass);
-            user = userService.createUser(userName, "");
-            user.setPassword(pass);
-        }
-        for (Group group : userService.getGroups()) {
-            user.join(group);
-        }
-        user.save();
+    public void createUsersImpl(){
+        injector.getInstance(UserFactory.class).withName(Constants.User.MELISSA).withRoles(Constants.UserRoles.METER_EXPERT).get();
+        injector.getInstance(UserFactory.class).withName(Constants.User.SAM).withLanguage(Locale.US.toLanguageTag()).withRoles(Constants.UserRoles.ADMINISTRATORS).get();
+        injector.getInstance(UserFactory.class).withName(Constants.User.PIETER).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
+        injector.getInstance(UserFactory.class).withName(Constants.User.JOLIEN).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
+        injector.getInstance(UserFactory.class).withName(Constants.User.INGE).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
+        injector.getInstance(UserFactory.class).withName(Constants.User.KOEN).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
+        injector.getInstance(UserFactory.class).withName(Constants.User.SEBASTIEN).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
+        injector.getInstance(UserFactory.class).withName(Constants.User.VEERLE).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
+        injector.getInstance(UserFactory.class).withName(Constants.User.KURT).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
+        injector.getInstance(UserFactory.class).withName(Constants.User.EDUARDO).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.elster.jupiter.demo.impl;
 
 import com.elster.jupiter.demo.impl.factories.Factory;
+import com.elster.jupiter.demo.impl.factories.NamedFactory;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
 
@@ -13,17 +14,13 @@ public final class Log {
 
     public static <T extends Factory<?>> void write(T factory){
         if (factory != null && !IS_PRODUCTION){
-            Field[] factoryFields = factory.getClass().getDeclaredFields();
             StringBuilder log = new StringBuilder();
             boolean hasParameters = false;
             try {
-                for (Field field : factoryFields) {
-                    if (!Modifier.isFinal(field.getModifiers())){
-                        hasParameters = true;
-                        field.setAccessible(true);
-                        log.append("\t\n ").append(field.getName()).append(" = ").append(objToReadableString(field.get(factory)));
-                    }
+                if (factory instanceof NamedFactory){
+                    hasParameters = writeParameters(NamedFactory.class, factory, log);
                 }
+                hasParameters = hasParameters | writeParameters(factory.getClass(), factory, log);
                 if (hasParameters){
                     log.insert(0, ". Parameters: ");
                 }
@@ -34,6 +31,20 @@ public final class Log {
             }
             System.out.println(log.toString());
         }
+    }
+
+    private static <T> boolean writeParameters(Class<?> explicitClass, T factory, StringBuilder log) throws IllegalAccessException {
+        Field[] factoryFields = explicitClass.getDeclaredFields();
+        boolean hasParameters = false;
+
+        for (Field field : factoryFields) {
+            if (!Modifier.isFinal(field.getModifiers())) {
+                hasParameters = true;
+                field.setAccessible(true);
+                log.append("\n\t").append(field.getName()).append(" = ").append(objToReadableString(field.get(factory)));
+            }
+        }
+        return hasParameters;
     }
 
     private static <T extends Factory<?>> String whatCreate(T factory){

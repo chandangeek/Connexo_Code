@@ -36,13 +36,27 @@ public final class Constants {
     }
 
     public static final class User{
-        public static final String SAM = "Sam";
         public static final String MELISSA = "Melissa";
-        public static final String SYSTEM = "System";
+        public static final String SAM = "Sam";
+        public static final String PIETER = "Pieter";
+        public static final String JOLIEN = "Jolien";
+        public static final String INGE = "Inge";
+        public static final String KOEN = "Koen";
+        public static final String SEBASTIEN = "Sebastien";
+        public static final String VEERLE = "Veerle";
+        public static final String KURT = "Kurt";
+        public static final String EDUARDO = "Eduardo";
 
         private User() {}
     }
 
+    public static final class UserRoles{
+        public static final String ADMINISTRATORS = "Administrators";
+        public static final String METER_EXPERT = "Meter expert";
+        public static final String METER_OPERATOR = "Meter operator";
+
+        private UserRoles() {}
+    }
     public static final class RegisterGroup {
         public static final String DEFAULT_GROUP = "Default group";
         public static final String TARIFF_1 = "Tariff 1";

@@ -30,6 +30,7 @@ import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -37,6 +38,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 import com.elster.jupiter.validators.impl.DefaultValidatorFactory;
+import com.energyict.mdc.app.impl.MdcAppServiceImpl;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
@@ -72,6 +74,7 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
 import com.google.inject.AbstractModule;
@@ -101,8 +104,8 @@ import java.util.logging.Logger;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
-public class DemoTes {
-    private static final Logger LOG = Logger.getLogger(DemoTes.class.getName());
+public class DemoTest {
+    private static final Logger LOG = Logger.getLogger(DemoTest.class.getName());
 
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
@@ -214,6 +217,7 @@ public class DemoTes {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             createOracleTablesSubstitutes();
             createRequiredProtocols();
+            createDefaultStuff();
             ctx.commit();
         }
     }
@@ -235,14 +239,13 @@ public class DemoTes {
     private void createRequiredProtocols() {
         fixMissedDynamicReference();
         ProtocolPluggableService protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
-//        protocolPluggableService.newInboundDeviceProtocolPluggableClass("DlmsSerialNumberDiscover", DlmsSerialNumberDiscover.class.getName()).save();
+        protocolPluggableService.newInboundDeviceProtocolPluggableClass("DlmsSerialNumberDiscover", DlmsSerialNumberDiscover.class.getName()).save();
         protocolPluggableService.newDeviceProtocolPluggableClass("WebRTUKP", WebRTUKP.class.getName()).save();
         protocolPluggableService.newConnectionTypePluggableClass("OutboundTcpIp", OutboundTcpIpConnectionType.class.getName());
     }
 
     private void fixMissedDynamicReference() {
         // Register device factory provider
-
         injector.getInstance(MeteringGroupsService.class);
 
         ProtocolPluggableServiceImpl protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
@@ -275,5 +278,11 @@ public class DemoTes {
         Map<String, Object> map = new HashMap<>();
         map.put("uuid", BasicDatacollectionRuleTemplate.BASIC_TEMPLATE_UUID);
         creationService.addRuleTemplate(template, map);
+    }
+
+    private void createDefaultStuff(){
+        MdcAppServiceImpl mdcAppService = new MdcAppServiceImpl();
+        mdcAppService.setUserService(injector.getInstance(UserService.class));
+        mdcAppService.install();
     }
 }
