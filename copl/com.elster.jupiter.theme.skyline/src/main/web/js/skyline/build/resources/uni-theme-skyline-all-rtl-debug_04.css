@@ -11533,18 +11533,18 @@ div.x-form-spinner-down {
   background-position: center;
 }
 
-/* line 14, ../../sass/src/window/Confirmation.scss */
-.uni-confirmation-window *[class*='x-window-'] .x-window-body .x-header .x-header-text {
+/* line 12, ../../sass/src/window/Confirmation.scss */
+.uni-confirmation-window *[class*='x-window-'] .x-header-text {
   font-weight: bold;
   font-size: 16px;
-  color: #70bb51;
+  color: #eb5642;
 }
-/* line 22, ../../sass/src/window/Confirmation.scss */
+/* line 18, ../../sass/src/window/Confirmation.scss */
 .uni-confirmation-window *[class*='x-window-'] .x-form-display-field {
   margin-top: 16px;
   color: #686868;
 }
-/* line 27, ../../sass/src/window/Confirmation.scss */
+/* line 23, ../../sass/src/window/Confirmation.scss */
 .uni-confirmation-window *[class*='x-window-'] *[class*='x-message-box-'] {
   background-position: 12px 4px;
 }

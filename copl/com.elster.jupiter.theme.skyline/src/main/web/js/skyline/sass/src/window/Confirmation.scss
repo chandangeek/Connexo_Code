@@ -9,15 +9,11 @@
     }
 
   *[class*='#{$prefix}window-'] {
-    .#{$prefix}window-body {
-      .#{$prefix}header {
         .#{$prefix}header-text {
           font-weight: bold;
           font-size: 16px;
-          color: #70bb51;
+          color: #eb5642;
         }
-      }
-    }
 
     .#{$prefix}form-display-field {
       margin-top: 16px;
