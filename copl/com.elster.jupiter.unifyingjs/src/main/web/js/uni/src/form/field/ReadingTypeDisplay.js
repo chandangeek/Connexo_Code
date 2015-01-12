@@ -142,7 +142,7 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
         }
 
         setTimeout(function () {
-            var icon = (view && record) ? view.getCell(record, me).down('.icon-info-small') : field.getEl().down('.icon-info-small');
+            var icon = (view && record) ? view.getCell(record, me).down('.uni-icon-info-small') : field.getEl().down('.uni-icon-info-small');
 
             icon.clearListeners();
             icon.on('click', function () {

@@ -4,29 +4,26 @@
 Ext.define('Uni.view.user.Menu', {
     extend: 'Ext.button.Button',
     xtype: 'userMenu',
-    scale: 'small',
+    scale: 'medium',
     cls: 'user-menu',
-    iconCls: 'uni-icon-user',
+    iconCls: 'icon-user',
 
     menu: [
-        /*{
-         text: 'Profile'
-         },
-         {
-         text: 'Settings',
-         glyph: 'xe010@icomoon'
-         },
-         {
-         xtype: 'menuseparator'
-         },*/
         {
             text: 'Logout',
-            action: 'logout',
-            href: '/apps/login/index.html?logout=true'
+            listeners: {
+                'click': function () {
+                    Ext.Ajax.request({
+                        url: '/api/apps/apps/logout',
+                        method: 'POST',
+                        disableCaching: true,
+                        scope: this,
+                        success: function () {
+                            window.location.replace('/apps/login/index.html');
+                        }
+                    });
+                }
+            }
         }
-    ],
-
-    initComponent: function () {
-        this.callParent(arguments);
-    }
+    ]
 });

@@ -135,8 +135,37 @@ Ext.define('Uni.controller.Navigation', {
     },
 
     initOnlineHelp: function () {
-        var me = this;
-        me.getOnlineHelpButton().setVisible(me.onlineHelpEnabled);
+        var me = this,
+            helpBtn = me.getOnlineHelpButton();
+
+        if (me.onlineHelpEnabled) {
+            Ext.Ajax.request({
+                url: '/api/usr/currentuser',
+                success: function(response){
+                    var currentUser = Ext.decode(response.responseText, true),
+                        url;
+                    if (currentUser && currentUser.language && currentUser.language.languageTag) {
+                        url = 'help/' + currentUser.language.languageTag + '/index.html';
+                        Ext.Ajax.request({
+                            url: url,
+                            method: 'HEAD',
+                            success: function(response){
+                                helpBtn.setHref(url);
+                            },
+                            callback: function () {
+                                helpBtn.show();
+                            },
+                        });
+                    } else {
+                        helpBtn.show();
+                    }
+                }, failure: function () {
+                    helpBtn.show();
+                }
+            });
+        } else {
+            helpBtn.hide();
+        }
     },
 
     onAfterRenderNavigationMenu: function () {

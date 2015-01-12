@@ -54,8 +54,8 @@ Ext.define('Uni.view.navigation.Header', {
             itemId: 'globalSearch',
             text: Uni.I18n.translate('navigation.header.search', 'UNI', 'Search'),
             cls: 'search-button',
-            iconCls: 'uni-icon-search',
-            scale: 'small',
+            iconCls: 'icon-search3',
+            scale: 'medium',
             action: 'search',
             href: '#/search',
             hidden: true

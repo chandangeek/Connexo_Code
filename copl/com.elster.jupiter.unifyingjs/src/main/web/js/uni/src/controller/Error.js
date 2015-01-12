@@ -141,7 +141,7 @@ Ext.define('Uni.controller.Error', {
                     'UNI',
                     'Please contact your system administrator.'
                 );
-                this.showError(title, message);
+                options.method !== 'HEAD' && this.showError(title, message);
                 break;
             case 401: // Unauthorized.
                 this.getApplication().fireEvent('sessionexpired');

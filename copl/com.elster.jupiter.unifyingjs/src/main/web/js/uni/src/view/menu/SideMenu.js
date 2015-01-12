@@ -87,6 +87,7 @@ Ext.define('Uni.view.menu.SideMenu', {
 
         me.callParent(arguments);
 
+        // Selects the correct item whenever the URL changes over time.
         Ext.util.History.addListener('change', function (token) {
             me.checkNavigation(token);
         });
@@ -199,7 +200,6 @@ Ext.define('Uni.view.menu.SideMenu', {
             items = me.items.items;
 
         Ext.suspendLayouts();
-
         if (Ext.isDefined(items) && Ext.isArray(items)) {
             me.clearSelection(items);
             me.checkSelectedItems(items, token);
@@ -221,7 +221,7 @@ Ext.define('Uni.view.menu.SideMenu', {
      * Checks which item is best to be selected based on the currently selected URL.
      * @param items
      * @param token
-     * @param selectionFitness
+     * @param selection
      */
     getMostQualifiedItems: function (items, token, selection) {
         var me = this,
@@ -259,9 +259,9 @@ Ext.define('Uni.view.menu.SideMenu', {
     },
 
     pickBestSelection: function (a, b) {
-        if (a && !b) {
+        if (Ext.isDefined(a) && !Ext.isDefined(b)) {
             return a;
-        } else if (!a && b) {
+        } else if (!Ext.isDefined(a) && Ext.isDefined(b)) {
             return b
         }
 
