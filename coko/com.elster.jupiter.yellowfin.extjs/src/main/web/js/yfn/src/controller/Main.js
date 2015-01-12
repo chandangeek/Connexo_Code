@@ -33,63 +33,60 @@ Ext.define('Yfn.controller.Main', {
     },
 
     initDeviceReports: function () {
-        //if (Uni.Auth.hasAnyPrivilege(['privilege.create.inventoryManagement', 'privilege.revoke.inventoryManagement', 'privilege.import.inventoryManagement'])) {
+        if (Uni.Auth.hasAnyPrivilege(['privilege.view.reports'])) {
             var me = this;
-
-            var reportsStore = Ext.create('Yfn.store.ReportInfos',{});
-            //var reportsStore = Ext.getStore('ReportInfos');
-            var reportsItems = [];
-
             var portalItem = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('report.home', 'YFN', 'Reports'),
                 portal: 'devices',
                 route: 'reports',
-                items: reportsItems,
-                itemId:'deviceReportsPortlet'
+                items: [],
+                itemId:'deviceReportsPortlet',
+                afterrender:me.loadDeviceReports
             });
 
             Uni.store.PortalItems.add(
                 portalItem
             );
 
-            if(reportsStore) {
-                var proxy = reportsStore.getProxy();
-                proxy.setExtraParam('category', 'MDC');
-                proxy.setExtraParam('subCategory', 'Device');
+        }
+    },
 
-                reportsStore.load(function (records) {
+    loadDeviceReports : function(portalContainer){
+        var me = this;
 
-                    Ext.each(records, function (record) {
-                        var reportDescription = record.get('description');
-                        var reportUUID = record.get('reportUUID');
-                        var reportName = record.get('name');
-                        reportsItems.push({
-                            text: reportName,
-                            tooltip: reportDescription,
-                            href: '#/administration/generatereport?reportUUID=' + reportUUID+'&subCategory=Device'
-                            //,hrefTarget: '_blank'
-                        });
+        var reportsStore = Ext.create('Yfn.store.ReportInfos',{});
+        if(reportsStore) {
+            var proxy = reportsStore.getProxy();
+            proxy.setExtraParam('category', 'MDC');
+            proxy.setExtraParam('subCategory', 'Device');
+
+            reportsStore.load(function (records) {
+                var reportsItems = [];
+                Ext.each(records, function (record) {
+                    var reportDescription = record.get('description');
+                    var reportUUID = record.get('reportUUID');
+                    var reportName = record.get('name');
+                    reportsItems.push({
+                        text: reportName,
+                        tooltip: reportDescription,
+                        href: '#/administration/generatereport?reportUUID=' + reportUUID+'&subCategory=Device'
+                        //,hrefTarget: '_blank'
                     });
-
-                    var cmp =  Ext.ComponentQuery.query('portal-container #deviceReportsPortlet')[0];
-                    if(cmp){
-                        reportsItems.sort(function (item1, item2) {
-                            if (item1.text < item2.text) {
-                                return -1;
-                            } else if (item1.text > item2.text) {
-                                return 1;
-                            } else {
-                                return 0;
-                            }
-                        });
-                        cmp.refresh(reportsItems);
-                    }
-
                 });
-            }
+                reportsItems.sort(function (item1, item2) {
+                    if (item1.text < item2.text) {
+                        return -1;
+                    } else if (item1.text > item2.text) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                });
 
+                portalContainer.refresh(reportsItems);
 
-        //}
+            });
+        }
     },
 
     /**

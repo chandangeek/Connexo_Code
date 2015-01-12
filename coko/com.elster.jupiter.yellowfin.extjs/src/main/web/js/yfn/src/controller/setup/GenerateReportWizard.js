@@ -320,9 +320,9 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                 var hasFilters = false;
 
                 Ext.each(records, function (filterRecord) {
-                    var filterOmittable = filterRecord.get('filterOmittable');
                     var filterType = filterRecord.get('filterType');
                     var filterName = filterRecord.get('filterName');
+                    var filterOmittable = filterRecord.get('filterOmittable') || filterName == 'GROUPNAME';
                     var filterDescription = filterRecord.get('filterDisplayName') || filterName;
                     var initialValue = me.reportFilters[filterName];
 
@@ -702,13 +702,27 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         var store =  Ext.create('Yfn.store.ReportFilterListItems',{});
         store.getProxy().setExtraParam('reportUUID', me.selectedReportUUID);
         store.getProxy().setExtraParam('filterId', filterRecord.get('id'));
+
+        var storeLoaded = false;
+        if( _.isArray(defaultValue)){
+
+            for(var i=0;i<defaultValue.length;i++){
+                storeLoaded = true;
+                store.add(
+                    {
+                        value1: defaultValue[i],
+                        value2: defaultValue[i]
+                    });
+            }
+        }
+
         var controls =
             [
                 {
                     xtype: 'multiselect-combo',
                     //xtype: 'uni-filter-combo',
                     name: filterName,
-                    loadStore:true,
+                    loadStore:!storeLoaded,
                     displayField: 'value1',
                     allowBlank: fieldType == 'filter',
                     fieldType:fieldType,
@@ -870,6 +884,8 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
             case 'MINIMUMDATE': return Uni.I18n.translate('generatereport.filterTypeMINIMUMDATE', 'YFN', 'Minimum Date');
             case 'MAXIMUMDATE': return Uni.I18n.translate('generatereport.filterTypeMAXIMUMDATE', 'YFN', 'Maximum Date');
             case 'LINKFILTER': return Uni.I18n.translate('generatereport.filterTypeLINKFILTER', 'YFN', 'Link to Filter');
+            case 'CONTAINS': return Uni.I18n.translate('generatereport.filterTypeCONTAINS', 'YFN', 'Contains');
+            case 'NOTCONTAINS': return Uni.I18n.translate('generatereport.filterTypeNOTCONTAINS', 'YFN', 'Does not contain');
             return filterType;
         }
     },
