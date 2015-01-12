@@ -1,5 +1,6 @@
 package com.elster.jupiter.gogo;
 
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
@@ -208,8 +209,7 @@ public class MeteringCommands {
                 ZonedDateTime startDate = LocalDateTime.from(dateTimeFormat.parse(startDateTime)).atZone(ZoneId.systemDefault());
                 Optional<ReadingType> readingTypeOptional = meteringService.getReadingType(readingType);
                 if (readingTypeOptional.isPresent()) {
-                    int intervalInSeconds = getIntervalInSeconds(readingTypeOptional.get());
-                    if (intervalInSeconds > 0) {
+                    try {
                         final MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
                         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(readingType);
                         BigDecimal cumulativeValue = BigDecimal.valueOf(startValue);
@@ -220,7 +220,7 @@ public class MeteringCommands {
                                 reading.setProfileStatus(ProfileStatus.of(ProfileStatus.Flag.valueOf(intervalFlagCimCode)));
                             }
                             intervalBlock.addIntervalReading(reading);
-                            startDate = startDate.plusSeconds(intervalInSeconds);
+                            startDate = nextIntervalTime(startDate, readingTypeOptional.get());
                         }
                         meterReading.addIntervalBlock(intervalBlock);
 
@@ -230,8 +230,8 @@ public class MeteringCommands {
                                 endDevice.get().store(meterReading);
                             }
                         });
-                    } else {
-                        System.out.println("Reading type is not valid for interval data");
+                    } catch (Exception e){
+                        e.printStackTrace();
                     }
 
                 } else {
@@ -246,12 +246,31 @@ public class MeteringCommands {
         }
     }
 
-    private double randomBetween(double minValue, double maxValue) {
-        return (Math.random() * (maxValue - minValue)) + minValue;
+    private ZonedDateTime nextIntervalTime(ZonedDateTime time, ReadingType readingType) {
+        MacroPeriod macroPeriod = readingType.getMacroPeriod();
+        if (macroPeriod.getId() != 0) {
+            switch (macroPeriod) {
+                case DAILY:
+                    return time.plusDays(1);
+                case MONTHLY:
+                    return time.plusMonths(1);
+                case WEEKLYS:
+                    return time.plusWeeks(1);
+                default:
+                    throw new IllegalArgumentException("Unsupported macro period: " + macroPeriod.toString());
+            }
+
+        } else {
+            return time.plusSeconds(getIntervalInSeconds(readingType));
+        }
     }
 
     private int getIntervalInSeconds(ReadingType readingType) {
         return readingType.getMeasuringPeriod().getMinutes() * 60;
+    }
+
+    private double randomBetween(double minValue, double maxValue) {
+        return (Math.random() * (maxValue - minValue)) + minValue;
     }
 
     public void listReadingTypes(int... timeAttribute) {
@@ -330,8 +349,6 @@ public class MeteringCommands {
         } else {
             System.out.println("No meter found with id " + meterId);
         }
-
-
     }
 
 
