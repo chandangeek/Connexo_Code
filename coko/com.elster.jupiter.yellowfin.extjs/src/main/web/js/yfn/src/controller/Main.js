@@ -29,7 +29,7 @@ Ext.define('Yfn.controller.Main', {
 
         // TODO Make sure the REST call just gives a count of 0 and an empty list when there is nothing is the system...
         // Otherwise the call fails and nothing gets added anymore to the portal items.
-//        me.initDeviceReports();
+        me.initDeviceReports();
     },
 
     initDeviceReports: function () {
