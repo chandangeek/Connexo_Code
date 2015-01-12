@@ -5,10 +5,12 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.callback.InstallService;
 
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.yellowfin.YellowfinFilterInfo;
 import com.elster.jupiter.yellowfin.YellowfinFilterListItemInfo;
 import com.elster.jupiter.yellowfin.YellowfinReportInfo;
 import com.elster.jupiter.yellowfin.YellowfinService;
+import com.elster.jupiter.yellowfin.security.Privileges;
 import com.hof.mi.web.service.*;
 
 import com.hof.util.Base64;
@@ -52,10 +54,16 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
     private String yellowfinWebServiceUser = DEFAULT_YELLOWFIN_USER;
     private String yellowfinWebServicePassword = DEFAULT_YELLOWFIN_PASSWORD;
 
-   private volatile MessageService messageService;
+    private volatile MessageService messageService;
+    private volatile UserService userService;
+
+    public YellowfinServiceImpl(){
+
+    }
 
     @Activate
     public void activate(BundleContext context) {
+
         yellowfinUrl = context.getProperty(YELLOWFIN_URL);
 
         yellowfinWebServiceUser = context.getProperty(YELLOWFIN_WEBSERVICES_USER);
@@ -81,6 +89,12 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
     public void setMessageService(MessageService messageService) {
         this.messageService = messageService;
     }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
 
     @Override
     public String getYellowfinUrl(){
@@ -272,56 +286,56 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
     public List<YellowfinReportInfo> getUserReports(String username, String category, String subCategory,String reportUUId)  {
 
         List<YellowfinReportInfo> userReports = new ArrayList<>();
-        AdministrationServiceResponse rs = null;
-        AdministrationServiceRequest rsr = new AdministrationServiceRequest();
-        AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, "/services/AdministrationService", false);
-        AdministrationServiceSoapBindingStub rssbs = null;
         try {
+            AdministrationServiceResponse rs = null;
+            AdministrationServiceRequest rsr = new AdministrationServiceRequest();
+            AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, "/services/AdministrationService", false);
+            AdministrationServiceSoapBindingStub rssbs = null;
+
             rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
+
+            rsr.setLoginId(yellowfinWebServiceUser);
+            rsr.setPassword(yellowfinWebServicePassword);
+            rsr.setOrgId(new Integer(1));
+            rsr.setFunction("GETALLUSERREPORTS");
+
+            AdministrationPerson ap = new AdministrationPerson();
+            ap.setUserId(username);
+            rsr.setPerson(ap);
+            if (rssbs != null) {
+                try {
+                    rs = rssbs.remoteAdministrationCall(rsr);
+                    if (rs != null){
+                        if("SUCCESS".equals(rs.getStatusCode()) ) {
+                            AdministrationReport[] reports = rs.getReports();
+                            for (int i = 0; i < reports.length; i++) {
+                                AdministrationReport report = reports[i];
+                                YellowfinReportInfoImpl userReport = new YellowfinReportInfoImpl();
+                                if ((category == null || category.equalsIgnoreCase(report.getReportCategory())) &&
+                                        (subCategory == null || subCategory.equalsIgnoreCase(report.getReportSubCategory())) &&
+                                        (reportUUId == null || reportUUId.equalsIgnoreCase(report.getReportUUID()))) {
+                                    userReport.setCategory(report.getReportCategory());
+                                    userReport.setName(report.getReportName());
+                                    userReport.setSubCategory(report.getReportSubCategory());
+                                    userReport.setDescription(report.getReportDescription());
+                                    userReport.setReportUUID(report.getReportUUID());
+                                    userReport.setDescription(report.getReportDescription());
+                                    userReport.setReportId(report.getReportId());
+                                    userReports.add(userReport);
+
+                                }
+                            }
+                        }
+                    }
+
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
         } catch (ServiceException e) {
             e.printStackTrace();
         }
 
-        rsr.setLoginId(yellowfinWebServiceUser);
-        rsr.setPassword(yellowfinWebServicePassword);
-        rsr.setOrgId(new Integer(1));
-        rsr.setFunction("GETALLUSERREPORTS");
-
-        AdministrationPerson ap = new AdministrationPerson();
-        ap.setUserId(username);
-        rsr.setPerson(ap);
-        if (rssbs != null) {
-            try {
-                rs = rssbs.remoteAdministrationCall(rsr);
-                if (rs != null){
-                    if("SUCCESS".equals(rs.getStatusCode()) ) {
-                        AdministrationReport[] reports = rs.getReports();
-                        for (int i = 0; i < reports.length; i++) {
-                            AdministrationReport report = reports[i];
-                            YellowfinReportInfoImpl userReport = new YellowfinReportInfoImpl();
-                            if ((category == null || category.equalsIgnoreCase(report.getReportCategory())) &&
-                                    (subCategory == null || subCategory.equalsIgnoreCase(report.getReportSubCategory())) &&
-                                    (reportUUId == null || reportUUId.equalsIgnoreCase(report.getReportUUID()))) {
-                                userReport.setCategory(report.getReportCategory());
-                                userReport.setName(report.getReportName());
-                                userReport.setSubCategory(report.getReportSubCategory());
-                                userReport.setDescription(report.getReportDescription());
-                                userReport.setReportUUID(report.getReportUUID());
-                                userReport.setDescription(report.getReportDescription());
-                                userReport.setReportId(report.getReportId());
-                                userReports.add(userReport);
-
-                            }
-                        }
-
-
-                    }
-                }
-
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-        }
 
         return userReports;
     }
@@ -329,10 +343,11 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
     @Override
     public List<YellowfinFilterInfo> getReportFilters(int reportId) {
         List<YellowfinFilterInfo> userFilters = new ArrayList<>();
-        ReportServiceService ts = new ReportServiceServiceLocator(yellowfinHost, yellowfinPort, "/services/ReportService", false);
-        ReportServiceSoapBindingStub rssbs;
-        ReportServiceRequest rsr = new ReportServiceRequest();
         try {
+            ReportServiceService ts = new ReportServiceServiceLocator(yellowfinHost, yellowfinPort, "/services/ReportService", false);
+            ReportServiceSoapBindingStub rssbs;
+            ReportServiceRequest rsr = new ReportServiceRequest();
+
             rssbs = (ReportServiceSoapBindingStub) ts.getReportService();
             ReportServiceResponse reportServiceResponse = null;
             rsr.setLoginId(yellowfinWebServiceUser);
@@ -413,11 +428,13 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
 
 
     public List<YellowfinFilterListItemInfo> getFilterListItems(String filterId,int reportId) {
-        ReportServiceService ts = new ReportServiceServiceLocator(yellowfinHost, yellowfinPort, "/services/ReportService", false);
-        ReportServiceSoapBindingStub rssbs;
-        ReportServiceRequest rsr = new ReportServiceRequest();
         List<YellowfinFilterListItemInfo> listItems = new ArrayList<>();
         try {
+            ReportServiceService ts = new ReportServiceServiceLocator(yellowfinHost, yellowfinPort, "/services/ReportService", false);
+            ReportServiceSoapBindingStub rssbs;
+            ReportServiceRequest rsr = new ReportServiceRequest();
+
+
             rssbs = (ReportServiceSoapBindingStub) ts.getReportService();
             ReportServiceResponse reportServiceResponse = null;
             rsr.setLoginId(yellowfinWebServiceUser);
@@ -459,6 +476,8 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
             DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(LOGOUT_QUEUE_DEST, DEFAULT_RETRY_DELAY_IN_SECONDS);
             destinationSpec.activate();
             destinationSpec.subscribe(LOGOUT_QUEUE_SUBSC);
+            createPrivileges(userService);
+
         } catch (Exception e) {
             Logger logger = Logger.getLogger(YellowfinServiceImpl.class.getName());
             logger.log(Level.SEVERE, e.getMessage(), e);
@@ -469,4 +488,10 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
     public List<String> getPrerequisiteModules() {
         return Arrays.asList("ORM", "MSG");
     }
+
+    private void createPrivileges(UserService userService) {
+        userService.createResourceWithPrivileges("SYS", "reportSys.reports", "reportSys.reports.description", new String[] {Privileges.DESIGN_REPORTS});
+        userService.createResourceWithPrivileges("MDC", "reportMdc.reports", "reportMdc.reports.description", new String[] {Privileges.VIEW_REPORTS});
+    }
+
 }
