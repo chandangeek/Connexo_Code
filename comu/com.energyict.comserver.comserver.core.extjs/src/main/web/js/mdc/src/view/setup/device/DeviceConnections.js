@@ -110,12 +110,10 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                     itemId: 'taskCount',
                     renderer: function (val,metaData) {
                         metaData.tdCls = 'communication-tasks-status';
-                        var template = '';
-                        if (val.numberOfSuccessfulTasks || val.numberOfFailedTasks || val.numberOfIncompleteTasks) {
+                        var template = '';                        
                             template += '<tpl><span class="icon-checkmark"></span>' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '0') + '</tpl>';
                             template += '<tpl><span class="icon-close"></span>' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0') + '</tpl>';
-                            template += '<tpl><span  class="icon-stop2"></span>' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0') + '</tpl>';
-                        }
+                            template += '<tpl><span  class="icon-stop2"></span>' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0') + '</tpl>';                        
                         return template;
                     },
                     header: Uni.I18n.translate('device.connections.taskCount', 'MDC', 'Communication tasks'),
