@@ -2,25 +2,34 @@ package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.records.IssueActionTypeImpl;
 import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.cep.IssueActionFactory;
 import com.elster.jupiter.issue.share.cep.IssueActionResult;
+import com.elster.jupiter.issue.share.cep.controls.DefaultActionResult;
 import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueMappingService;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
+
 import java.util.Optional;
 
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,15 +45,17 @@ public class IssueActionServiceImpl implements IssueActionService {
     private volatile TransactionService transactionService;
     private volatile DataModel dataModel;
     private Map<String, IssueActionFactory> registeredFactories = new HashMap<>();
+    private volatile Thesaurus thesaurus;
 
     public IssueActionServiceImpl() {
     }
 
     @Inject
-    public IssueActionServiceImpl(QueryService queryService, IssueMappingService issueMappingService, TransactionService transactionService) {
+    public IssueActionServiceImpl(QueryService queryService, IssueMappingService issueMappingService, TransactionService transactionService, NlsService nlsService) {
         setQueryService(queryService);
         setIssueMappingService(issueMappingService);
         setTransactionService(transactionService);
+        setNlsService(nlsService);
     }
 
     @Reference
@@ -55,6 +66,11 @@ public class IssueActionServiceImpl implements IssueActionService {
     @Reference
     public final void setIssueMappingService(IssueMappingService issueMappingService) {
         dataModel = IssueMappingServiceImpl.class.cast(issueMappingService).getDataModel();
+    }
+    
+    @Reference
+    public final void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -79,12 +95,13 @@ public class IssueActionServiceImpl implements IssueActionService {
     }
 
     @Override
-    public IssueAction createIssueAction(String factoryId, String issueActionClassName) {
+    public Optional<IssueAction> createIssueAction(String factoryId, String issueActionClassName) {
         IssueActionFactory actionFactory = registeredFactories.get(factoryId);
         if (actionFactory == null) {
-            throw new IllegalArgumentException("Action Factory with provided factoryId: " + factoryId + " doesn't exist");
+            LOG.info("Action Factory with provided factoryId: " + factoryId + " doesn't exist");//Probably, because not licensed anymore
+            return Optional.empty();
         }
-        return actionFactory.createIssueAction(issueActionClassName);
+        return Optional.of(actionFactory.createIssueAction(issueActionClassName));
     }
 
     @Override
@@ -130,7 +147,14 @@ public class IssueActionServiceImpl implements IssueActionService {
     public IssueActionResult executeAction(IssueActionType type, Issue issue, Map<String, String> actionParams) {
         IssueActionResult result = null;
         try(TransactionContext context = transactionService.getContext()){
-            result = createIssueAction(type.getFactoryId(), type.getClassName()).execute(issue, actionParams);
+            Optional<IssueAction> issueAction = createIssueAction(type.getFactoryId(), type.getClassName());
+            if (issueAction.isPresent()) {
+                result = issueAction.get().execute(issue, actionParams);
+            } else {
+                DefaultActionResult failedResult = new DefaultActionResult();
+                failedResult.fail(MessageSeeds.ISSUE_ACTION_CLASS_LOAD_FAIL.getTranslated(thesaurus, type.getClassName(), type.getId()));
+                result = failedResult;
+            }
             context.commit();
         }
         return result;

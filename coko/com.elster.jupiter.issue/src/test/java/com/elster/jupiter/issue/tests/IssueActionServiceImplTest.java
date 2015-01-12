@@ -47,10 +47,17 @@ public class IssueActionServiceImplTest extends BaseTest {
         IssueActionFactory factory = getMockIssueActionFactory();
         impl.addIssueActionFactory(factory, new HashMap<String, Object>());
         assertThat(getIssueActionService().getRegisteredFactories().size()).isEqualTo(1);
-        IssueAction action = getIssueActionService().createIssueAction(factory.getId(), "classname");
+        Optional<IssueAction> action = getIssueActionService().createIssueAction(factory.getId(), "classname");
         assertThat(action).isNotNull();
+        assertThat(action.get()).isNotNull();
         impl.removeIssueActionFactory(factory);
         assertThat(getIssueActionService().getRegisteredFactories()).isEmpty();
+    }
+    
+    @Test
+    public void testActionFactoryNotFound() {
+        Optional<IssueAction> action = getIssueActionService().createIssueAction("Fake factory id", "Fake issue action");
+        assertThat(action.isPresent()).isFalse();
     }
 
     @Test

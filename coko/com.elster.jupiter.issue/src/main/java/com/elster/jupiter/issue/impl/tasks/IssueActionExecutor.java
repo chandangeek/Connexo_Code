@@ -60,11 +60,13 @@ public class IssueActionExecutor implements Runnable {
         if (!actionTypeRef.isPresent()) {
             throw new IllegalArgumentException("Rule action type doesn't exist");
         }
-        IssueAction realAction = actionTypeRef.get().createIssueAction();
-        try {
-            realAction.execute(issue, getActionParameters(action));
-        } catch (RuntimeException e){
-            MessageSeeds.ISSUE_ACTION_FAIL.log(LOG, thesaurus, e, action.getId(), issue.getTitle());
+        Optional<IssueAction> realAction = actionTypeRef.get().createIssueAction();
+        if (realAction.isPresent()) {
+            try {
+                realAction.get().execute(issue, getActionParameters(action));
+            } catch (RuntimeException e) {
+                MessageSeeds.ISSUE_ACTION_FAIL.log(LOG, thesaurus, e, action.getId(), issue.getTitle());
+            }
         }
     }
 }

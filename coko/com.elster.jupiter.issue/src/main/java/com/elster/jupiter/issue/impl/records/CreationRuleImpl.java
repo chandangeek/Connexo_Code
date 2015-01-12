@@ -25,6 +25,7 @@ import javax.validation.constraints.Size;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -234,8 +235,10 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
 
         for (CreationRuleAction action : actions) {
             IssueActionType actionType = action.getType();
-            IssueAction issueAction = actionType.createIssueAction();
-            exception.addErrors(issueAction.validate(action));
+            Optional<IssueAction> issueAction = actionType.createIssueAction();
+            if (issueAction.isPresent()) {
+                exception.addErrors(issueAction.get().validate(action));
+            }
         }
         if (!exception.getErrors().isEmpty()) {
             throw exception;

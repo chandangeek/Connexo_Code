@@ -1,5 +1,7 @@
 package com.elster.jupiter.issue.impl.records;
 
+import java.util.Optional;
+
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
@@ -75,7 +77,7 @@ public class IssueActionTypeImpl extends EntityImpl implements IssueActionType {
     }
 
     @Override
-    public IssueAction createIssueAction() {
+    public Optional<IssueAction> createIssueAction() {
         return issueActionService.createIssueAction(factoryId, className);
     }
 }
