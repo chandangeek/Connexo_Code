@@ -57,6 +57,13 @@ public final class Constants {
 
         private UserRoles() {}
     }
+
+    public static final class AppServer{
+        public static final String DEFAULT = "Description";
+
+        private AppServer() {}
+    }
+
     public static final class RegisterGroup {
         public static final String DEFAULT_GROUP = "Default group";
         public static final String TARIFF_1 = "Tariff 1";

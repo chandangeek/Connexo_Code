@@ -1,6 +1,8 @@
 package com.elster.jupiter.demo.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.demo.DemoService;
+import com.elster.jupiter.demo.impl.factories.AppServerFactory;
 import com.elster.jupiter.demo.impl.factories.ComServerFactory;
 import com.elster.jupiter.demo.impl.factories.DeviceFactory;
 import com.elster.jupiter.demo.impl.factories.DeviceGroupFactory;
@@ -11,11 +13,13 @@ import com.elster.jupiter.demo.impl.factories.IssueReasonFactory;
 import com.elster.jupiter.demo.impl.factories.IssueRuleFactory;
 import com.elster.jupiter.demo.impl.factories.OutboundTCPComPortFactory;
 import com.elster.jupiter.demo.impl.factories.UserFactory;
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -30,6 +34,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -52,8 +57,8 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
@@ -94,7 +99,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 
-@Component(name = "com.elster.jupiter.demo", service = {DemoService.class, DemoServiceImpl.class}, property = {"osgi.command.scope=demo", "osgi.command.function=createDemoData", "osgi.command.function=createDemoUsers", "osgi.command.function=createValidationRules"}, immediate = true)
+@Component(name = "com.elster.jupiter.demo", service = {DemoService.class, DemoServiceImpl.class}, property = {
+        "osgi.command.scope=demo",
+        "osgi.command.function=createDemoData",
+        "osgi.command.function=createUsers",
+        "osgi.command.function=createAppServer",
+        "osgi.command.function=createValidationRules"
+}, immediate = true)
 public class DemoServiceImpl implements DemoService {
     private final boolean rethrowExceptions;
     private volatile EngineConfigurationService engineConfigurationService;
@@ -118,6 +129,10 @@ public class DemoServiceImpl implements DemoService {
     private volatile KpiService kpiService;
     private volatile IssueDataCollectionService issueDataCollectionService;
     private volatile DataCollectionKpiService dataCollectionKpiService;
+    private volatile AppService appService;
+    private volatile MessageService messageService;
+    private volatile DataExportService dataExportService;
+    private volatile CronExpressionParser cronExpressionParser;
 
     private Store store;
     private Injector injector;
@@ -151,7 +166,11 @@ public class DemoServiceImpl implements DemoService {
             MeteringGroupsService meteringGroupsService,
             KpiService kpiService,
             IssueDataCollectionService issueDataCollectionService,
-            DataCollectionKpiService dataCollectionKpiService) {
+            DataCollectionKpiService dataCollectionKpiService,
+            AppService appService,
+            MessageService messageService,
+            DataExportService dataExportService,
+            CronExpressionParser cronExpressionParser) {
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
         setValidationService(validationService);
@@ -173,6 +192,10 @@ public class DemoServiceImpl implements DemoService {
         setKpiService(kpiService);
         setIssueDataCollectionService(issueDataCollectionService);
         setDataCollectionKpiService(dataCollectionKpiService);
+        setAppService(appService);
+        setMessageService(messageService);
+        setDataExportService(dataExportService);
+        setCronExpressionParser(cronExpressionParser);
         rethrowExceptions = true;
 
         activate();
@@ -206,6 +229,10 @@ public class DemoServiceImpl implements DemoService {
                 bind(KpiService.class).toInstance(kpiService);
                 bind(IssueDataCollectionService.class).toInstance(issueDataCollectionService);
                 bind(DataCollectionKpiService.class).toInstance(dataCollectionKpiService);
+                bind(AppService.class).toInstance(appService);
+                bind(MessageService.class).toInstance(messageService);
+                bind(DataExportService.class).toInstance(dataExportService);
+                bind(CronExpressionParser.class).toInstance(cronExpressionParser);
             }
         });
     }
@@ -243,6 +270,7 @@ public class DemoServiceImpl implements DemoService {
                 createIssueReasons();
                 createCreationRule();
                 createKpi();
+                createAppServerImpl();
             }
         });
     }
@@ -786,6 +814,19 @@ public class DemoServiceImpl implements DemoService {
         store.get(EndDeviceGroup.class).stream().forEach(g -> injector.getInstance(DynamicKpiFactory.class).withGroup(g).get());
     }
 
+    public void createAppServer(){
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                createAppServerImpl();
+            }
+        });
+    }
+
+    public void createAppServerImpl(){
+        injector.getInstance(AppServerFactory.class).withName(Constants.AppServer.DEFAULT).get();
+    }
+
     @Reference
     @SuppressWarnings("unused")
     public final void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
@@ -912,6 +953,29 @@ public class DemoServiceImpl implements DemoService {
         this.dataCollectionKpiService = dataCollectionKpiService;
     }
 
+    @Reference
+    @SuppressWarnings("unused")
+    public final void setAppService(AppService appService) {
+        this.appService = appService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public final void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public final void setDataExportService(DataExportService dataExportService) {
+        this.dataExportService = dataExportService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public final void setCronExpressionParser(CronExpressionParser cronExpressionParser) {
+        this.cronExpressionParser = cronExpressionParser;
+    }
     private <T> T executeTransaction(Transaction<T> transaction) {
         setPrincipal();
         try {

@@ -8,6 +8,8 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.util.conditions.Condition;
 
 import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -16,7 +18,7 @@ public class DeviceGroupFactory extends NamedFactory<DeviceGroupFactory, EndDevi
     private final MeteringGroupsService meteringGroupsService;
     private final Store store;
 
-    private String[] deviceTypes;
+    private List<String> deviceTypes;
 
     @Inject
     public DeviceGroupFactory(Store store, MeteringGroupsService meteringGroupsService) {
@@ -26,7 +28,9 @@ public class DeviceGroupFactory extends NamedFactory<DeviceGroupFactory, EndDevi
     }
 
     public DeviceGroupFactory withDeviceTypes(String... deviceTypes){
-        this.deviceTypes = deviceTypes;
+        if (deviceTypes != null){
+            this.deviceTypes = Arrays.asList(deviceTypes);
+        }
         return this;
     }
 
