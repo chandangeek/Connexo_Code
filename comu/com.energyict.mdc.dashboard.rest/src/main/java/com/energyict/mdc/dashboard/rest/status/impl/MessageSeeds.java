@@ -59,7 +59,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     TARGET(50, "Target", "Target"),
     NO_SUCH_END_DEVICE_GROUP(51, "NoSuchEndDeviceGroup", "No end device group exists with id ''{0}''"),
     NO_SUCH_CONNECTION_TASK(52, "NoSuchConnectionTask", "No connection task with id {0}"),
-    NO_SUCH_LABEL_CATEGORY(53, "NoSuchLabelCategory", "No such label category with key {0}")
+    NO_SUCH_LABEL_CATEGORY(53, "NoSuchLabelCategory", "No such label category with key {0}"),
+    RUN_CONNECTIONTASK_IMPOSSIBLE(54,"runConTaskImpossible", "Running of this connection task is impossible"),
     ;
 
     private final int number;
