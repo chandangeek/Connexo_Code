@@ -1,17 +1,17 @@
 package com.energyict.mdc.issues.impl;
 
-import java.time.Clock;
-
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.issues.IssueCollector;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.time.Clock;
 
 /**
  * Provides an implementation for the {@link IssueService} interface
@@ -26,14 +26,16 @@ public class IssueServiceImpl implements IssueService {
 
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
+    private volatile NlsService nlsService;
 
     public IssueServiceImpl() {
     }
 
     @Inject
-    public IssueServiceImpl(Clock clock) {
+    public IssueServiceImpl(Clock clock, NlsService nlsService) {
         super();
         this.setClock(clock);
+        this.setNlsService(nlsService);
     }
 
     public Clock getClock () {
@@ -46,8 +48,9 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Reference
-    public void setThesaurus(Thesaurus thesaurus) {
-        this.thesaurus = thesaurus;
+    public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
+        this.thesaurus = nlsService.getThesaurus("ISU", Layer.DOMAIN);
     }
 
     @Override

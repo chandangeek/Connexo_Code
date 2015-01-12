@@ -5,6 +5,7 @@ import com.energyict.mdc.issues.Issue;
 
 import java.text.MessageFormat;
 import java.time.Instant;
+import java.util.regex.Matcher;
 
 /**
  * Provides a default implementation for the {@link Issue} interface.
@@ -29,7 +30,7 @@ public abstract class IssueDefaultImplementation implements Issue {
         this.thesaurus = thesaurus;
         this.timestamp = timestamp;
         this.source = source;
-        this.description = MessageFormat.format(thesaurus.getStringBeyondComponent(description, description), arguments);
+        this.description = MessageFormat.format(convertSingleQuoteArgumentsToDoubleQuoteArguments(thesaurus.getStringBeyondComponent(description, description)), arguments);
     }
 
     /**
@@ -72,4 +73,24 @@ public abstract class IssueDefaultImplementation implements Issue {
         return false;
     }
 
+    /**
+     * Due to the behavior of the MessageFormat object, we need to apply another single quote if we want to quote an argument
+     *
+     * @param description the description that can contain single quote arguments (like '{0}' etc.)
+     * @return the description with double quote arguments (like ''{0}'')
+     */
+    private String convertSingleQuoteArgumentsToDoubleQuoteArguments(String description) {
+        String openBracketsReplaced = description.replaceAll(" '\\{\\b", " ''{");
+        String closedBracketsReplaced = openBracketsReplaced.replaceAll("\\b\\}' ", "}'' ");
+        StringBuilder stringBuilder = new StringBuilder();
+        if(closedBracketsReplaced.startsWith("'{")){
+            stringBuilder.append("'");
+        }
+        stringBuilder.append(closedBracketsReplaced);
+        if(closedBracketsReplaced.endsWith("}'")){
+            stringBuilder.append("'");
+        }
+
+        return stringBuilder.toString();
+    }
 }
