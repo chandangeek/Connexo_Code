@@ -80,7 +80,7 @@ public class MdcAppServiceImpl implements MdcAppService, InstallService {
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(UserService.COMPONENTNAME, "ISU", "DTC", "DDC", "MDC", "SCH", "VAL");
+        return Arrays.asList(UserService.COMPONENTNAME, "ISU", "DTC", "DDC", "MDC", "SCH", "VAL", "YFN");
     }
 
     @Reference
