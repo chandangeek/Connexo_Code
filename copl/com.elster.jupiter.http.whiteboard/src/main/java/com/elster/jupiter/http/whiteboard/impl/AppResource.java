@@ -41,20 +41,20 @@ public class AppResource {
     @GET
     @Path("/status/{app}/")
     @Produces(MediaType.APPLICATION_JSON)
-    public String getAppLicenseStatus(@PathParam("app") String app) {
+    public LicenseInfo getAppLicenseStatus(@PathParam("app") String app) {
         License license = getAppLicense(app);
         if (license != null) {
             if (license.getStatus().equals(License.Status.ACTIVE)) {
-                return "ACTIVE";
+                return new LicenseInfo(License.Status.ACTIVE.name());
             } else if (license.getStatus().equals(License.Status.EXPIRED)) {
                 int gracePeriod = license.getGracePeriodInDays();
                 if (gracePeriod > 0) {
-                    return Integer.toString(gracePeriod);
+                    return new LicenseInfo(Integer.toString(gracePeriod));
                 }
-                return "EXPIRED";
+                return new LicenseInfo(License.Status.EXPIRED.name());
             }
         }
-        return "NO_LICENSE";
+        return  new LicenseInfo("NO_LICENSE");
     }
 
     @POST
