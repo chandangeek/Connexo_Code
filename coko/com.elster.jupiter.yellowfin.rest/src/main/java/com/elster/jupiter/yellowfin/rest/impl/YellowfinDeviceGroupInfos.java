@@ -1,5 +1,7 @@
 package com.elster.jupiter.yellowfin.rest.impl;
 
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,11 +21,21 @@ public class YellowfinDeviceGroupInfos {
     public YellowfinDeviceGroupInfos(Iterable<? extends YellowfinDeviceGroupInfo> groups) {
         addAll(groups);
     }
+    public YellowfinDeviceGroupInfos(List<EndDeviceGroup> groups) {
+        addAll(groups);
+    }
 
     public void add(YellowfinDeviceGroupInfo group) {
         groups.add(group);
         total++;
     }
+
+    public void addAll(List<EndDeviceGroup> groups) {
+        for (EndDeviceGroup each : groups) {
+            add(new YellowfinDeviceGroupInfo(each.getName(), each.isDynamic()));
+        }
+    }
+
 
     void addAll(Iterable<? extends YellowfinDeviceGroupInfo> groups) {
         for (YellowfinDeviceGroupInfo each : groups) {

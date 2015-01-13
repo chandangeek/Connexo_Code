@@ -1,6 +1,7 @@
 package com.elster.jupiter.yellowfin.rest.impl;
 
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.yellowfin.YellowfinService;
@@ -27,6 +28,7 @@ public class YellowfinApplication extends Application implements BinderProvider{
 
     private volatile YellowfinService yellowfinService;
     private volatile YellowfinGroupsService yellowfinGroupsService;
+    private volatile MeteringGroupsService meteringGroupsService;
 
     public YellowfinApplication() {
     }
@@ -57,6 +59,11 @@ public class YellowfinApplication extends Application implements BinderProvider{
         this.yellowfinGroupsService = yellowfinGroupsService;
     }
 
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
+    }
+
     @Override
     public Binder getBinder() {
         return new AbstractBinder() {
@@ -66,6 +73,7 @@ public class YellowfinApplication extends Application implements BinderProvider{
                 bind(yellowfinGroupsService).to(YellowfinGroupsService.class);
                 bind(deviceService).to(DeviceService.class);
                 bind(transactionService).to(TransactionService.class);
+                bind(meteringGroupsService).to(MeteringGroupsService.class);
             }
         };
     }
