@@ -6,7 +6,6 @@ import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 
 import javax.inject.Inject;
 
@@ -32,7 +31,7 @@ public class InboundComPortPoolFactory extends NamedFactory<InboundComPortPoolFa
 
     @Override
     public InboundComPortPool get() {
-        InboundDeviceProtocolPluggableClass protocolPluggableClass = protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(DlmsSerialNumberDiscover.class.getName()).get(0);
+        InboundDeviceProtocolPluggableClass protocolPluggableClass = protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName("com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover").get(0);
         InboundComPortPool inboundComPortPool = engineConfigurationService.newInboundComPortPool(getName(), ComPortType.SERVLET, protocolPluggableClass);
         inboundComPortPool.setActive(isActive);
         inboundComPortPool.save();

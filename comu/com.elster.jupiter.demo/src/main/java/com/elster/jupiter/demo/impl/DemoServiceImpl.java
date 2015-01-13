@@ -14,6 +14,9 @@ import com.elster.jupiter.demo.impl.factories.IssueRuleFactory;
 import com.elster.jupiter.demo.impl.factories.OutboundTCPComPortFactory;
 import com.elster.jupiter.demo.impl.factories.OutboundTCPComPortPoolFactory;
 import com.elster.jupiter.demo.impl.factories.UserFactory;
+import com.elster.jupiter.demo.impl.finders.ComTaskFinder;
+import com.elster.jupiter.demo.impl.finders.LogBookFinder;
+import com.elster.jupiter.demo.impl.finders.OutboundComPortPoolFinder;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -42,10 +45,14 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Password;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -56,6 +63,7 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.ComServer;
@@ -65,9 +73,11 @@ import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -95,13 +105,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-
 @Component(name = "com.elster.jupiter.demo", service = {DemoService.class, DemoServiceImpl.class}, property = {
         "osgi.command.scope=demo",
         "osgi.command.function=createDemoData",
         "osgi.command.function=createUsers",
         "osgi.command.function=createIssues",
         "osgi.command.function=createAppServer",
+        "osgi.command.function=createA3Device",
+        "osgi.command.function=dd",
         "osgi.command.function=createCollectRemoteDataSetup",
         "osgi.command.function=createValidationRules"
 }, immediate = true)
@@ -299,6 +310,15 @@ public class DemoServiceImpl implements DemoService {
         });
     }
 
+    @Override
+    public void createA3Device(){
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                createA3DeviceImpl();
+            }
+        });
+    }
     private void createCollectRemoteDataSetupImpl(final String comServerName, final String host){
         Optional<License> license = licenseService.getLicenseForApplication("MDC");
         if (!license.isPresent() || !License.Status.ACTIVE.equals(license.get().getStatus())) {
@@ -485,7 +505,7 @@ public class DemoServiceImpl implements DemoService {
     }
 
     private void createLogBookType(Store store, String logBookTypeName, String obisCode) {
-        com.energyict.mdc.masterdata.LogBookType logBookType = masterDataService.newLogBookType(logBookTypeName, ObisCode.fromString(obisCode));
+        LogBookType logBookType = masterDataService.newLogBookType(logBookTypeName, ObisCode.fromString(obisCode));
         logBookType.save();
         store.getLogBookTypes().put(logBookTypeName, logBookType);
     }
@@ -535,6 +555,11 @@ public class DemoServiceImpl implements DemoService {
         readLoadProfileData.createLoadProfilesTask().loadProfileTypes(new ArrayList<>(store.getLoadProfileTypes().values())).add();
         readLoadProfileData.save();
         store.getComTasks().put(Constants.CommunicationTask.READ_LOAD_PROFILE_DATA, readLoadProfileData);
+
+        ComTask readLogBookData = taskService.newComTask(Constants.CommunicationTask.READ_LOG_BOOK_DATA);
+        readLogBookData.createLogbooksTask().logBookTypes(new ArrayList<>(store.getLogBookTypes().values())).add();
+        readLogBookData.save();
+        store.getComTasks().put(Constants.CommunicationTask.READ_LOG_BOOK_DATA, readLogBookData);
     }
 
     private void createCommunicationSchedules(Store store){
@@ -612,7 +637,7 @@ public class DemoServiceImpl implements DemoService {
         addConnectionMethodToDeviceConfiguration(store, configuration);
         createSecurityPropertySetForDeviceConfiguration(configuration);
         setProtocolDialectConfigurationProperties(configuration);
-        enableComTasksOnDeviceConfiguration(configuration, store, Constants.CommunicationTask.READ_DAILY, Constants.CommunicationTask.TOPOLOGY, Constants.CommunicationTask.READ_REGISTER_BILLING_DATA, Constants.CommunicationTask.READ_ALL);
+        enableComTasksOnDeviceConfiguration(configuration, Constants.CommunicationTask.READ_DAILY, Constants.CommunicationTask.TOPOLOGY, Constants.CommunicationTask.READ_REGISTER_BILLING_DATA, Constants.CommunicationTask.READ_ALL);
         configureChannelsForLoadProfileSpec(configuration);
         configuration.activate();
         configuration.save();
@@ -622,10 +647,10 @@ public class DemoServiceImpl implements DemoService {
     /**
      * We expect that required security property set is the first element in collection
      */
-    public void enableComTasksOnDeviceConfiguration(DeviceConfiguration configuration, Store store, String... names){
+    public void enableComTasksOnDeviceConfiguration(DeviceConfiguration configuration, String... names){
         if (names != null) {
             for (String name : names) {
-                configuration.enableComTask(store.getComTasks().get(name), configuration.getSecurityPropertySets().get(0))
+                configuration.enableComTask(injector.getInstance(ComTaskFinder.class).withName(name).find(), configuration.getSecurityPropertySets().get(0))
                     .setIgnoreNextExecutionSpecsForInbound(true)
                     .setPriority(100)
                     .setProtocolDialectConfigurationProperties(configuration.getProtocolDialectConfigurationPropertiesList().get(0)).add().save();
@@ -676,7 +701,7 @@ public class DemoServiceImpl implements DemoService {
 
         createSecurityPropertySetForDeviceConfiguration(configuration);
         setProtocolDialectConfigurationProperties(configuration);
-        enableComTasksOnDeviceConfiguration(configuration, store, Constants.CommunicationTask.READ_ALL, Constants.CommunicationTask.READ_DAILY, Constants.CommunicationTask.READ_REGISTER_BILLING_DATA);
+        enableComTasksOnDeviceConfiguration(configuration, Constants.CommunicationTask.READ_ALL, Constants.CommunicationTask.READ_DAILY, Constants.CommunicationTask.READ_REGISTER_BILLING_DATA);
         configureChannelsForLoadProfileSpec(configuration);
         configuration.activate();
         configuration.save();
@@ -724,9 +749,12 @@ public class DemoServiceImpl implements DemoService {
     }
 
     private void createDevice(Store store, DeviceConfiguration configuration, String mrid, String serialNumber){
-        injector.getInstance(DeviceFactory.class).withMrid(mrid).withSerialNumber(serialNumber).withDeviceConfiguration(configuration).get();
-        List<Device> devices = store.get(Device.class);
-        Device device = devices.get(devices.size() - 1);
+        Device device = injector.getInstance(DeviceFactory.class)
+                .withMrid(mrid)
+                .withSerialNumber(serialNumber)
+                .withDeviceConfiguration(configuration)
+                .withComSchedules(Constants.CommunicationSchedules.DAILY_READ_ALL, Constants.CommunicationSchedules.MONTHLY_BILLING_DATA)
+                .get();
         addConnectionMethodToDevice(store, configuration, device);
     }
 
@@ -837,6 +865,87 @@ public class DemoServiceImpl implements DemoService {
 
     public void createAppServerImpl(final String appServerName){
         injector.getInstance(AppServerFactory.class).withName(appServerName).get();
+    }
+
+    public void createA3DeviceImpl(){
+        List<DeviceProtocolPluggableClass> alphaA3Protocols = protocolPluggableService.findDeviceProtocolPluggableClassesByClassName("com.energyict.protocolimpl.elster.a3.AlphaA3");
+        if (alphaA3Protocols.isEmpty()){
+            throw new IllegalStateException("Unable to retrieve the ALPHA_A3 protocol. Please check that license was correctly installed and that indexing process was finished for protocols.");
+        }
+        DeviceType a3DeviceType = deviceConfigurationService.newDeviceType(Constants.DeviceType.Alpha_A3.getName()/* + getRandomInt(0, 10000)*/, alphaA3Protocols.get(0));
+        a3DeviceType.addLogBookType(injector.getInstance(LogBookFinder.class).withName(Constants.LogBookType.DEFAULT_LOGBOOK).find());
+        a3DeviceType.save();
+
+        DeviceType.DeviceConfigurationBuilder configBuilder = a3DeviceType.newConfiguration("Default");
+        configBuilder.canActAsGateway(false);
+        configBuilder.isDirectlyAddressable(true);
+        configBuilder.newLogBookSpec(injector.getInstance(LogBookFinder.class).withName(Constants.LogBookType.DEFAULT_LOGBOOK).find());
+        DeviceConfiguration configuration = configBuilder.add();
+        ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIp").get();
+        configuration
+                .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(5, TimeDuration.TimeUnit.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .comPortPool(injector.getInstance(OutboundComPortPoolFinder.class).withName(Constants.ComPortPool.ORANGE).find())
+                .addProperty("host", "166.150.216.131")
+                .addProperty("portNumber", new BigDecimal(1153))
+                .asDefault(true).build();
+        SecurityPropertySet securityPropertySet = configuration.createSecurityPropertySet("Read-only authentication and encryption").authenticationLevel(2).encryptionLevel(2).build();
+        for (DeviceSecurityUserAction action : DeviceSecurityUserAction.values()) {
+            securityPropertySet.addUserAction(action);
+        }
+        securityPropertySet.update();
+        enableComTasksOnDeviceConfiguration(configuration,
+                Constants.CommunicationTask.READ_ALL,
+                Constants.CommunicationTask.READ_LOAD_PROFILE_DATA,
+                Constants.CommunicationTask.READ_LOG_BOOK_DATA,
+                Constants.CommunicationTask.READ_REGISTER_BILLING_DATA);
+//        configuration.getDeviceProtocolProperties().setProperty("deviceTimeZone", "GMT-5");
+        configuration.activate();
+        configuration.save();
+
+        Device device = injector.getInstance(DeviceFactory.class)
+                .withMrid(Constants.Device.A3WIC16499990/* + getRandomInt(0, 10000)*/)
+                .withSerialNumber("16499990")
+                .withDeviceConfiguration(configuration)
+                .get();
+        PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
+        ScheduledConnectionTask deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
+                .setComPortPool(injector.getInstance(OutboundComPortPoolFinder.class).withName(Constants.ComPortPool.ORANGE).find())
+                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .setNextExecutionSpecsFrom(null)
+                .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+                .setProperty("host", "166.150.216.131")
+                .setProperty("portNumber", new BigDecimal(1153))
+                .setSimultaneousConnectionsAllowed(false)
+                .add();
+        connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
+        TypedProperties typedProperties = TypedProperties.empty();
+        typedProperties.setProperty("C12UserId", "0");
+        typedProperties.setProperty("C12User", "          ");
+        securityPropertySet.getPropertySpecs().stream().filter(ps -> ps.getName().equals("EncryptionKey")).findFirst().ifPresent(
+                ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("93B6F29D64C9AD7331DCCAABBB7D4680")));
+        typedProperties.setProperty("AnsiCalledAPTitle", "1.3.6.1.4.1.33507.1919.29674");
+        typedProperties.setProperty("Password", new Password("00000000000000000000"));
+        device.setSecurityProperties(securityPropertySet, typedProperties);
+        ComTaskEnablement taskEnablement = configuration.getComTaskEnablementFor(injector.getInstance(ComTaskFinder.class).withName(Constants.CommunicationTask.READ_LOG_BOOK_DATA).find()).get();
+        device.newManuallyScheduledComTaskExecution(taskEnablement, configuration.getProtocolDialectConfigurationPropertiesList().get(0), new TemporalExpression(TimeDuration.hours(1))).add();
+        device.setProtocolDialectProperty(device.getProtocolDialects().get(0).getDeviceProtocolDialectName(), "CalledAPTitle", "1.3.6.1.4.1.33507.1919.29674");
+        device.setProtocolDialectProperty(device.getProtocolDialects().get(0).getDeviceProtocolDialectName(), "SecurityKey", "93B6F29D64C9AD7331DCCAABBB7D4680");
+        device.setProtocolDialectProperty(device.getProtocolDialects().get(0).getDeviceProtocolDialectName(), "SecurityMode", "2");
+        device.setProtocolDialectProperty(device.getProtocolDialects().get(0).getDeviceProtocolDialectName(), "SecurityLevel", "2");
+        device.setProtocolProperty("deviceTimeZone", "GMT-5");
+        device.save();
+    }
+
+    public void dd(String mrid){
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                Device device = deviceService.findByUniqueMrid(mrid);
+                if (device != null) {
+                    device.delete();
+                }
+            }
+        });
     }
 
     @Reference

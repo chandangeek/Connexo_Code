@@ -5,6 +5,7 @@ public interface DemoService {
     void createAppServer(String appServerName);
     void createUsers();
     void createIssues();
+    void createA3Device();
     void createValidationRules();
     void createCollectRemoteDataSetup(String comServerName, String host);
 }

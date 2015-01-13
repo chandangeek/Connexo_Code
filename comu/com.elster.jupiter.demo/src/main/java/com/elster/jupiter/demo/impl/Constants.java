@@ -103,21 +103,16 @@ public final class Constants {
         public static final String TOPOLOGY = "Topology";
         public static final String READ_REGISTER_BILLING_DATA = "Read register billing data";
         public static final String READ_LOAD_PROFILE_DATA = "Read load profile data";
+        public static final String READ_LOG_BOOK_DATA = "Read logbook data";
 
         private CommunicationTask() {}
-    }
-
-    public static final class Kpi {
-        public static final String CONNECTION = "Connection KPI";
-        public static final String COMMUNICATION = "Communication KPI";
-
-        private Kpi() {}
     }
 
     public static final class Device{
         public static final String STANDARD_PREFIX = "ZABF0100";
         public static final String DABF_12 = "DABF410005812";
         public static final String DABF_13 = "DABF410005813";
+        public static final String A3WIC16499990 = "A3WIC16499990";
 
         private Device() {}
     }
@@ -165,6 +160,7 @@ public final class Constants {
         Actaris_SL7000 ("Actaris SL7000"),
         Siemens_7ED ("Siemens 7ED"),
         Iskra_38 ("Iskra 382"),
+        Alpha_A3 ("ALPHA_A3"),
         ;
 
         private String name;

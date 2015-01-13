@@ -82,6 +82,7 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
+import com.energyict.protocolimpl.elster.a3.AlphaA3;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
@@ -223,6 +224,7 @@ public class DemoTest {
         DemoService demoService = injector.getInstance(DemoService.class);
         try {
             demoService.createDemoData("DemoTestComServer", "host");
+            demoService.createA3Device();
         } catch (Exception e){
             fail("The demo command shouldn't produce errors");
         }
@@ -256,6 +258,7 @@ public class DemoTest {
         ProtocolPluggableService protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
         protocolPluggableService.newInboundDeviceProtocolPluggableClass("DlmsSerialNumberDiscover", DlmsSerialNumberDiscover.class.getName()).save();
         protocolPluggableService.newDeviceProtocolPluggableClass("WebRTUKP", WebRTUKP.class.getName()).save();
+        protocolPluggableService.newDeviceProtocolPluggableClass("ALPHA_A3", AlphaA3.class.getName()).save();
         protocolPluggableService.newConnectionTypePluggableClass("OutboundTcpIp", OutboundTcpIpConnectionType.class.getName());
     }
 
