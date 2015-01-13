@@ -91,6 +91,11 @@
             <artifactId>metering.rest</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>yellowfin.groups</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>

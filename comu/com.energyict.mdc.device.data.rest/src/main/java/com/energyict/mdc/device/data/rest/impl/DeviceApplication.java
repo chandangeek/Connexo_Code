@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
@@ -80,6 +81,7 @@ public class DeviceApplication extends Application implements InstallService, Tr
     private volatile DeviceImportService deviceImportService;
     private volatile IssueService issueService;
     private volatile TransactionService transactionService;
+    private volatile YellowfinGroupsService yellowfinGroupsService;
     private volatile NlsService nlsService;
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
@@ -128,7 +130,8 @@ public class DeviceApplication extends Application implements InstallService, Tr
                 ConnectionResource.class,
                 CommunicationResource.class,
                 DeviceProtocolPropertyResource.class,
-                KpiResource.class
+                KpiResource.class,
+                AdhocGroupResource.class
         );
     }
 
@@ -184,6 +187,12 @@ public class DeviceApplication extends Application implements InstallService, Tr
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
+
+    @Reference
+    public void setYellowfinGroupsService(YellowfinGroupsService yellowfinGroupsService) {
+        this.yellowfinGroupsService = yellowfinGroupsService;
+    }
+
 
     @Reference
     public void setNlsService(NlsService nlsService) {
@@ -335,6 +344,7 @@ public class DeviceApplication extends Application implements InstallService, Tr
             bind(meteringService).to(MeteringService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(restQueryService).to(RestQueryService.class);
+            bind(yellowfinGroupsService).to(YellowfinGroupsService.class);
             bind(clock).to(Clock.class);
             bind(DeviceComTaskInfoFactory.class).to(DeviceComTaskInfoFactory.class);
             bind(SecurityPropertySetInfoFactory.class).to(SecurityPropertySetInfoFactory.class);
