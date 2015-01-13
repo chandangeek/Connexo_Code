@@ -5450,21 +5450,38 @@ h6 {
   background-image: url("images/grid/defaultItem.png");
 }
 
-/* line 9, ../../sass/src/Component.scss */
+/* line 1, ../../sass/src/grid/ValidationStatusColumn.scss */
+.icon-validation-cell {
+  background-repeat: no-repeat;
+  background-position: 100% 50%;
+  padding: 0px 8px 0 0;
+}
+
+/* line 7, ../../sass/src/grid/ValidationStatusColumn.scss */
+.icon-validation-black {
+  background-image: url("images/shared/Not-validated.png");
+}
+
+/* line 11, ../../sass/src/grid/ValidationStatusColumn.scss */
+.icon-validation-red {
+  background-image: url("images/shared/Suspect.png");
+}
+
+/* line 10, ../../sass/src/Component.scss */
 .uni-icon-delete {
   background-image: url("images/button/ico_delete.png") !important;
   width: 16px !important;
   height: 16px !important;
 }
 
-/* line 15, ../../sass/src/Component.scss */
+/* line 16, ../../sass/src/Component.scss */
 .uni-icon-delete:hover {
   background-image: url("images/button/ico_deleteA.png") !important;
   width: 16px !important;
   height: 16px !important;
 }
 
-/* line 21, ../../sass/src/Component.scss */
+/* line 22, ../../sass/src/Component.scss */
 .force-no-border *[class*='x-grid-'] {
   border: none !important;
 }
