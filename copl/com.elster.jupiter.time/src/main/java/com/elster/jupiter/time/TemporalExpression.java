@@ -196,7 +196,7 @@ public final class TemporalExpression implements ScheduleExpression {
         } else {
             result = result.with(offset.getTemporalField(), offset.getCount());
         }
-        if (!result.isAfter(time)) {
+        while (!result.isAfter(time)) {
             result = result.plus(every.getCount(), every.getTemporalUnit());
         }
         return Optional.of(result);
