@@ -131,7 +131,7 @@ public enum TableSpecs {
             Column channelType = table.column("CHTYPEID").number().notNull().add();
             table.addAuditColumns();
             table.primaryKey("PK_CHTYPEINLOADPROFILETYPE").on(loadProfileType, channelType).add();
-            table.foreignKey("FK_CHTPLPT_LOADPROFILETYPEID").on(loadProfileType).references(MDS_LOADPROFILETYPE.name()).map("loadProfileType").reverseMap("channelTypeUsages").composition().add();
+            table.foreignKey("FK_CHTPLPT_LOADPROFILETYPEID").on(loadProfileType).references(MDS_LOADPROFILETYPE.name()).map("loadProfileType").reverseMap(LoadProfileTypeImpl.Fields.REGISTER_TYPES.fieldName()).composition().add();
             table.foreignKey("FK_CHTPLPT_CHANTYPEID").on(channelType).references(MDS_MEASUREMENTTYPE.name()).map("channelType").add();
         }
     },

@@ -55,6 +55,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     INTERVAL_IN_YEARS_MUST_BE_ONE(1507, "loadProfileType.interval.notsupported.multipleyears", "The number of years of the interval of a load profile type cannot be greater than 1 but got {0}", SEVERE),
     INTERVAL_MUST_BE_STRICTLY_POSITIVE(1508, "loadProfileType.interval.notsupported.negative", "The value of the interval of a load profile type must be a strictly positive number and not {0}", SEVERE),
     DUPLICATE_REGISTER_TYPE_IN_LOAD_PROFILE_TYPE(1509, "loadProfileType.registerType.duplicate", "The register type {0} was already added to the load profile type {1}", SEVERE),
+    AT_LEAST_ONE_REGISTER_TYPE_REQUIRED(1510, Keys.AT_LEAST_ONE_REGISTER_TYPE_REQUIRED, "You should select at least one register type", SEVERE),
     ;
 
     private final int number;
@@ -110,6 +111,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String CHANNEL_TYPE_INTERVAL_IS_REQUIRED = "channelType.interval.required";
         public static final String REGISTER_MAPPING_STILL_USED_BY_LOADPROFILE = "registerType.usedBy.loadProfileType";
         public static final String CHANNEL_TYPE_WITH_REGISTER_TYPE_AND_INTERVAL_DUPLICATE = "duplicate.channelType.interval.registerType";
+        public static final String AT_LEAST_ONE_REGISTER_TYPE_REQUIRED = "loadProfileType.registerTypes.mustHaveAtLeastOne";
     }
 
 }

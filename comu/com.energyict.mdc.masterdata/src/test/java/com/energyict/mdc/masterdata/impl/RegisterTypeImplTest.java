@@ -23,6 +23,7 @@ import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
+import java.util.Arrays;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.*;
@@ -339,14 +340,9 @@ public class RegisterTypeImplTest {
         this.obisCode2 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(readingType2).getObisCode();
     }
 
-    private void setupLoadProfileTypesInExistingTransaction() {
-        this.loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(RegisterTypeImplTest.class.getSimpleName(), ObisCode.fromString("1.0.99.1.0.255"), INTERVAL_15_MINUTES);
-        this.loadProfileType.save();
-    }
-
     private void setupLoadProfileTypesInExistingTransaction(RegisterType registerType) {
-        this.setupLoadProfileTypesInExistingTransaction();
-        this.loadProfileType.createChannelTypeForRegisterType(registerType);
+        this.loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(RegisterTypeImplTest.class.getSimpleName(), ObisCode.fromString("1.0.99.1.0.255"), INTERVAL_15_MINUTES, Arrays.asList(registerType));
+        this.loadProfileType.save();
     }
 
     private void setupPhenomenaInExistingTransaction() {

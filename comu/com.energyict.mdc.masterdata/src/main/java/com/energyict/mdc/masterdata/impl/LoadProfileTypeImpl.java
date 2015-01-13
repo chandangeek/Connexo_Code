@@ -1,5 +1,13 @@
 package com.energyict.mdc.masterdata.impl;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -11,24 +19,15 @@ import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.exceptions.RegisterTypeAlreadyInLoadProfileTypeException;
 import com.energyict.mdc.masterdata.exceptions.UnsupportedIntervalException;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.time.TimeDuration;
-import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * Copyrights EnergyICT
@@ -38,7 +37,8 @@ import java.util.Optional;
 public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> implements LoadProfileType, PersistenceAware {
 
     enum Fields {
-        OBIS_CODE("obisCode");
+        OBIS_CODE("obisCode"),
+        REGISTER_TYPES("registerTypes");
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -75,7 +75,8 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     private long oldIntervalSeconds;
     @Size(max= Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
-    private List<LoadProfileTypeChannelTypeUsageImpl> channelTypeUsages = new ArrayList<>();
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.AT_LEAST_ONE_REGISTER_TYPE_REQUIRED + "}")
+    private List<LoadProfileTypeChannelTypeUsageImpl> registerTypes = new ArrayList<>();
 
     private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
 
@@ -88,15 +89,16 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
     }
 
-    LoadProfileTypeImpl initialize(String name, ObisCode obisCode, TimeDuration interval) {
+    LoadProfileTypeImpl initialize(String name, ObisCode obisCode, TimeDuration interval, Collection<RegisterType> registerTypes) {
         this.setName(name);
         this.setObisCode(obisCode);
         this.setInterval(interval);
+        registerTypes.stream().forEach(this::createChannelTypeForRegisterType);
         return this;
     }
 
-    static LoadProfileTypeImpl from (DataModel dataModel, String name, ObisCode obisCode, TimeDuration interval) {
-        return dataModel.getInstance(LoadProfileTypeImpl.class).initialize(name, obisCode, interval);
+    static LoadProfileTypeImpl from(DataModel dataModel, String name, ObisCode obisCode, TimeDuration interval, Collection<RegisterType> registerTypes) {
+        return dataModel.getInstance(LoadProfileTypeImpl.class).initialize(name, obisCode, interval, registerTypes);
     }
 
     @Override
@@ -125,7 +127,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     }
 
     protected void doDelete() {
-        this.channelTypeUsages.clear();
+        this.registerTypes.clear();
         this.getDataMapper().remove(this);
     }
 
@@ -188,16 +190,16 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         if ((interval.getCount() <= 0)) {
             throw UnsupportedIntervalException.strictlyPositive(this.getThesaurus(), interval);
         }
-        this.intervalChanged = this.interval != null && !this.interval.equals(interval) && !this.channelTypeUsages.isEmpty();
+        this.intervalChanged = this.interval != null && !this.interval.equals(interval) && !this.registerTypes.isEmpty();
         this.interval = interval;
     }
 
     private void updateChannelTypeUsagesAccordingToNewInterval() {
-        List<RegisterType> templateRegisters = new ArrayList<>(channelTypeUsages.size());
-        for (LoadProfileTypeChannelTypeUsageImpl channelTypeUsage : channelTypeUsages) {
+        List<RegisterType> templateRegisters = new ArrayList<>(registerTypes.size());
+        for (LoadProfileTypeChannelTypeUsageImpl channelTypeUsage : registerTypes) {
             templateRegisters.add(channelTypeUsage.getChannelType().getTemplateRegister());
         }
-        channelTypeUsages.clear();
+        registerTypes.clear();
         for (RegisterType templateRegister : templateRegisters) {
             createChannelTypeForRegisterType(templateRegister);
         }
@@ -223,8 +225,8 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     }
 
     public List<ChannelType> getChannelTypes() {
-        List<ChannelType> channelTypes = new ArrayList<>(this.channelTypeUsages.size());
-        for (LoadProfileTypeChannelTypeUsage channelTypeUsage : this.channelTypeUsages) {
+        List<ChannelType> channelTypes = new ArrayList<>(this.registerTypes.size());
+        for (LoadProfileTypeChannelTypeUsage channelTypeUsage : this.registerTypes) {
             channelTypes.add(channelTypeUsage.getChannelType());
         }
         return channelTypes;
@@ -233,18 +235,18 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     @Override
     public ChannelType createChannelTypeForRegisterType(RegisterType measurementTypeWithoutInterval) {
         ChannelType channelType = findOrCreateCorrespondingChannelType(measurementTypeWithoutInterval);
-        for (LoadProfileTypeChannelTypeUsageImpl channelTypeUsage : this.channelTypeUsages) {
+        for (LoadProfileTypeChannelTypeUsageImpl channelTypeUsage : this.registerTypes) {
             if (channelTypeUsage.sameChannelType(channelType)) {
                 throw new RegisterTypeAlreadyInLoadProfileTypeException(this.getThesaurus(), this, channelType);
             }
         }
-        this.channelTypeUsages.add(new LoadProfileTypeChannelTypeUsageImpl(this, channelType));
+        this.registerTypes.add(new LoadProfileTypeChannelTypeUsageImpl(this, channelType));
         return channelType;
     }
 
     @Override
     public void removeChannelType(ChannelType channelType) {
-        Iterator<LoadProfileTypeChannelTypeUsageImpl> iterator = this.channelTypeUsages.iterator();
+        Iterator<LoadProfileTypeChannelTypeUsageImpl> iterator = this.registerTypes.iterator();
         while (iterator.hasNext()) {
             LoadProfileTypeChannelTypeUsageImpl channelTypeUsage = iterator.next();
             if (channelTypeUsage.sameChannelType(channelType)) {
@@ -260,6 +262,11 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     @Override
     protected void validateDelete() {
         this.eventService.postEvent(EventType.LOADPROFILETYPE_VALIDATEDELETE.topic(), this);
+    }
+
+    @Override
+    public Optional<ChannelType> findChannelType(RegisterType measurementTypeWithoutInterval){
+        return this.masterDataService.findChannelTypeByTemplateRegisterAndInterval(measurementTypeWithoutInterval, getInterval());
     }
 
     private ChannelType findOrCreateCorrespondingChannelType(RegisterType measurementTypeWithoutInterval){

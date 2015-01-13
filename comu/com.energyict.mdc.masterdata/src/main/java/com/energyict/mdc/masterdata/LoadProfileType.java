@@ -5,6 +5,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -71,4 +72,5 @@ public interface LoadProfileType extends HasId {
 
     public void delete ();
 
+    Optional<ChannelType> findChannelType(RegisterType measurementTypeWithoutInterval);
 }

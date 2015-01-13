@@ -1,6 +1,7 @@
 package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -18,6 +19,8 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.IntervalIsRequiredException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.exceptions.UnsupportedIntervalException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.*;
@@ -55,10 +58,10 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
     public void testCreateWithoutSave() {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
         String loadProfileTypeName = "testCreateWithoutViolations";
-
+        setupReadingTypeInExistingTransaction();
         // Business method
         TimeDuration interval = INTERVAL_15_MINUTES;
-        LoadProfileType loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
+        LoadProfileType loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
         loadProfileType.setDescription("For testing purposes only");
 
         // Asserts
@@ -75,10 +78,11 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
         String loadProfileTypeName = "testCreateWithoutViolations";
         TimeDuration interval = INTERVAL_15_MINUTES;
+        setupReadingTypeInExistingTransaction();
 
         LoadProfileType loadProfileType;
         // Business method
-        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
+        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
         loadProfileType.setDescription("For testing purposes only");
         loadProfileType.save();
 
@@ -97,14 +101,15 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
         String loadProfileTypeName = "testDuplicateName";
         TimeDuration interval = INTERVAL_15_MINUTES;
+        setupReadingTypeInExistingTransaction();
 
         // Setup first LoadProfileType
-        LoadProfileType loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
+        LoadProfileType loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
         loadProfileType.setDescription("For testing purposes only");
         loadProfileType.save();
 
         // Business method
-        LoadProfileType loadProfileType2 = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
+        LoadProfileType loadProfileType2 = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
         loadProfileType2.setDescription("For testing purposes only");
         loadProfileType2.save();
 
@@ -116,9 +121,9 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}", strict = false)
     public void testCreateWithoutName() {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
+        setupReadingTypeInExistingTransaction();
         TimeDuration interval = INTERVAL_15_MINUTES;
-
-        LoadProfileType loadProfileType = masterDataService.newLoadProfileType(null, OBIS_CODE, interval);
+        LoadProfileType loadProfileType = masterDataService.newLoadProfileType(null, OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
 
         // Business method
         loadProfileType.save();
@@ -132,8 +137,24 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
     public void testCreateWithEmptyName() {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
         TimeDuration interval = INTERVAL_15_MINUTES;
+        setupReadingTypeInExistingTransaction();
+        LoadProfileType loadProfileType = masterDataService.newLoadProfileType("", OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
 
-        LoadProfileType loadProfileType = masterDataService.newLoadProfileType("", OBIS_CODE, interval);
+        // Business method
+        loadProfileType.save();
+
+        // Asserts: see ExpectedConstraintViolation rule
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.AT_LEAST_ONE_REGISTER_TYPE_REQUIRED + "}")
+    public void testCreateWithoutRegisterType() {
+        MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
+        TimeDuration interval = INTERVAL_15_MINUTES;
+
+        setupReadingTypeInExistingTransaction();
+        LoadProfileType loadProfileType = masterDataService.newLoadProfileType("Test", OBIS_CODE, interval, Collections.emptyList());
 
         // Business method
         loadProfileType.save();
@@ -147,8 +168,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
     public void testCreateWithoutObisCode() {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
         TimeDuration interval = INTERVAL_15_MINUTES;
-
-        LoadProfileType loadProfileType = masterDataService.newLoadProfileType("testCreateWithoutObisCode", null, interval);
+        setupReadingTypeInExistingTransaction();
+        LoadProfileType loadProfileType = masterDataService.newLoadProfileType("testCreateWithoutObisCode", null, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
 
         // Business method
         loadProfileType.save();
@@ -162,8 +183,9 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
 
         try {
+            setupReadingTypeInExistingTransaction();
             // Business method
-            masterDataService.newLoadProfileType("testCreateWithoutInterval", OBIS_CODE, null);
+            masterDataService.newLoadProfileType("testCreateWithoutInterval", OBIS_CODE, null, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
         }
         catch (IntervalIsRequiredException e) {
             // Asserts
@@ -179,8 +201,9 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         TimeDuration interval = new TimeDuration(0, TimeDuration.TimeUnit.MINUTES);
 
         try {
+            setupReadingTypeInExistingTransaction();
             // Business method
-            masterDataService.newLoadProfileType("testCreateWithEmptyInterval", OBIS_CODE, interval);
+            masterDataService.newLoadProfileType("testCreateWithEmptyInterval", OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
         }
         catch (IntervalIsRequiredException e) {
             // Asserts
@@ -196,8 +219,9 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         TimeDuration interval = new TimeDuration(1, TimeDuration.TimeUnit.WEEKS);
 
         try {
+            setupReadingTypeInExistingTransaction();
             // Business method
-            masterDataService.newLoadProfileType("testCreateWithIntervalInWeeks", OBIS_CODE, interval);
+            masterDataService.newLoadProfileType("testCreateWithIntervalInWeeks", OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
         }
         catch (UnsupportedIntervalException e) {
             // Asserts
@@ -213,8 +237,9 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         TimeDuration interval = new TimeDuration(-1, TimeDuration.TimeUnit.SECONDS);
 
         try {
+            setupReadingTypeInExistingTransaction();
             // Business method
-            masterDataService.newLoadProfileType("testCreateWithNegativeIntervalSeconds", OBIS_CODE, interval);
+            masterDataService.newLoadProfileType("testCreateWithNegativeIntervalSeconds", OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
         }
         catch (UnsupportedIntervalException e) {
             // Asserts
@@ -230,8 +255,9 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         TimeDuration interval = new TimeDuration(2, TimeDuration.TimeUnit.DAYS);
 
         try {
+            setupReadingTypeInExistingTransaction();
             // Business method
-            masterDataService.newLoadProfileType("testCreateWithMultipleDays", OBIS_CODE, interval);
+            masterDataService.newLoadProfileType("testCreateWithMultipleDays", OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
         }
         catch (UnsupportedIntervalException e) {
             // Asserts
@@ -247,8 +273,9 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         TimeDuration interval = new TimeDuration(2, TimeDuration.TimeUnit.MONTHS);
 
         try {
+            setupReadingTypeInExistingTransaction();
             // Business method
-            masterDataService.newLoadProfileType("testCreateWithMultipleMonths", OBIS_CODE, interval);
+            masterDataService.newLoadProfileType("testCreateWithMultipleMonths", OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
         }
         catch (UnsupportedIntervalException e) {
             // Asserts
@@ -264,8 +291,9 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         TimeDuration interval = new TimeDuration(2, TimeDuration.TimeUnit.YEARS);
 
         try {
+            setupReadingTypeInExistingTransaction();
             // Business method
-            masterDataService.newLoadProfileType("testCreateWithMultipleYears", OBIS_CODE, interval);
+            masterDataService.newLoadProfileType("testCreateWithMultipleYears", OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
         }
         catch (UnsupportedIntervalException e) {
             // Asserts
@@ -280,9 +308,9 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
         String loadProfileTypeName = "testUpdateInterval";
         TimeDuration interval = INTERVAL_15_MINUTES;
-
+        setupReadingTypeInExistingTransaction();
         LoadProfileType loadProfileType;
-        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
+        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
         loadProfileType.setDescription("For testing purposes only");
         loadProfileType.save();
 
@@ -313,9 +341,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         RegisterType registerType = masterDataService.findRegisterTypeByReadingType(readingType).get();
 
         // Setup LoadProfileType with RegisterType
-        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
+        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
         loadProfileType.setDescription("For testing purposes only");
-        loadProfileType.createChannelTypeForRegisterType(registerType);
 
         // Business method
         loadProfileType.save();
@@ -340,22 +367,29 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         this.setupPhenomenaInExistingTransaction();
         this.setupReadingTypeInExistingTransaction();
 
-        // Setup RegisterType
-        RegisterType registerType = masterDataService.findRegisterTypeByReadingType(readingType).get();
-
         // Setup LoadProfileType without RegisterType
-        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
+        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
         loadProfileType.setDescription("For testing purposes only");
         loadProfileType.save();
 
+        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED)
+                .flow(FlowDirection.REVERSE)
+                .measure(ENERGY)
+                .in(KILO, WATTHOUR)
+                .period(TimeAttribute.NOTAPPLICABLE)
+                .accumulate(Accumulation.BULKQUANTITY)
+                .code();
+        ReadingType readingType2 = PersistenceTest.inMemoryPersistence.getMeteringService().getReadingType(code).get();
+
         // Business method
-        loadProfileType.createChannelTypeForRegisterType(registerType);
+        RegisterType templateRegister = masterDataService.findRegisterTypeByReadingType(readingType2).get();
+        loadProfileType.createChannelTypeForRegisterType(templateRegister);
 
         // Asserts
         assertThat(loadProfileType).isNotNull();
-        Optional<ChannelType> channelTypeByTemplateRegisterAndInterval = masterDataService.findChannelTypeByTemplateRegisterAndInterval(registerType, interval);
-        assertThat(loadProfileType.getChannelTypes()).hasSize(1);
-        assertThat(loadProfileType.getChannelTypes().get(0).getId()).isEqualTo(channelTypeByTemplateRegisterAndInterval.get().getId());
+        Optional<ChannelType> channelTypeByTemplateRegisterAndInterval = masterDataService.findChannelTypeByTemplateRegisterAndInterval(templateRegister, interval);
+        assertThat(loadProfileType.getChannelTypes()).hasSize(2);
+        assertThat(loadProfileType.getChannelTypes().get(1).getId()).isEqualTo(channelTypeByTemplateRegisterAndInterval.get().getId());
     }
 
     @Test
@@ -373,9 +407,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         RegisterType registerType = masterDataService.findRegisterTypeByReadingType(readingType).get();
 
         // Setup LoadProfileType with RegisterType
-        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
+        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval, Arrays.asList(registerType));
         loadProfileType.setDescription("For testing purposes only");
-        loadProfileType.createChannelTypeForRegisterType(registerType);
         loadProfileType.save();
 
         // Business method
@@ -392,9 +425,9 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
         String loadProfileTypeName = "testSimpleDelete";
         TimeDuration interval = INTERVAL_15_MINUTES;
-
+        setupReadingTypeInExistingTransaction();
         LoadProfileType loadProfileType;
-        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
+        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
         loadProfileType.setDescription("For testing purposes only");
         loadProfileType.save();
 
@@ -421,9 +454,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         registerType = masterDataService.findRegisterTypeByReadingType(readingType).get();
 
         // Setup LoadProfileType with RegisterType
-        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
+        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
         loadProfileType.setDescription("For testing purposes only");
-        loadProfileType.createChannelTypeForRegisterType(registerType);
         loadProfileType.save();
 
         // Business method
@@ -450,9 +482,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         registerType = masterDataService.findRegisterTypeByReadingType(readingType).get();
 
         // Setup LoadProfileType with RegisterType
-        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
+        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval, Arrays.asList(registerType));
         loadProfileType.setDescription("For testing purposes only");
-        loadProfileType.createChannelTypeForRegisterType(registerType);
         loadProfileType.save();
 
         LoadProfileType reloadedLoadProfile = masterDataService.findLoadProfileType(loadProfileType.getId()).get();

@@ -6,6 +6,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.Finder;
+import java.util.Collection;
 import java.util.Optional;
 
 import java.util.List;
@@ -149,9 +150,10 @@ public interface MasterDataService {
      * @param name     the Name of the LoadProfileType
      * @param obisCode the ObisCode of the LoadProfileType
      * @param interval the interval of the LoadProfileType
+     * @param registerTypes Collection of register types used by the load profile type
      * @return the newly created LoadProfileType
      */
-    public LoadProfileType newLoadProfileType(String name, ObisCode obisCode, TimeDuration interval);
+    public LoadProfileType newLoadProfileType(String name, ObisCode obisCode, TimeDuration interval, Collection<RegisterType> registerTypes);
 
     /**
      * Find the {@link LoadProfileType} with the given ID

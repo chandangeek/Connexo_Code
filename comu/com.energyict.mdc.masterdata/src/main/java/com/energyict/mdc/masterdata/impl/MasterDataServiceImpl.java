@@ -32,6 +32,7 @@ import com.energyict.mdc.masterdata.exceptions.RegisterTypesRequiredException;
 import com.energyict.mdc.masterdata.exceptions.UnitHasNoMatchingPhenomenonException;
 import com.energyict.mdc.masterdata.impl.finders.LoadProfileTypeFinder;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import java.util.Collection;
 import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -221,8 +222,8 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     }
 
     @Override
-    public LoadProfileType newLoadProfileType(String name, ObisCode obisCode, TimeDuration interval) {
-        return LoadProfileTypeImpl.from(this.getDataModel(), name, obisCode, interval);
+    public LoadProfileType newLoadProfileType(String name, ObisCode obisCode, TimeDuration interval, Collection<RegisterType> registerTypes) {
+        return LoadProfileTypeImpl.from(this.getDataModel(), name, obisCode, interval, registerTypes);
     }
 
     @Override
