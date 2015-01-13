@@ -1,7 +1,6 @@
 package com.energyict.mdc.issue.datacollection.rest.resource;
 
 import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.ISSUE_DOES_NOT_EXIST;
-import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.ISSUE_WAS_ALREADY_CHANGED;
 import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.getString;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_ID;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_TYPE;
@@ -211,8 +210,6 @@ public class IssueResource extends BaseResource {
                     Optional<OpenIssueDataCollection> issue = getIssueDataCollectionService().findOpenIssue(issueRef.getId());
                     if (!issue.isPresent()) {
                         response.addFail(getString(ISSUE_DOES_NOT_EXIST, getThesaurus()), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
-                    } else if (issueRef.getVersion() != issue.get().getVersion()) {
-                        response.addFail(getString(ISSUE_WAS_ALREADY_CHANGED, getThesaurus()), issueRef.getId(), issue.get().getTitle());
                     } else {
                         issue.get().addComment(request.getComment(), (User) securityContext.getUserPrincipal());
                         issue.get().close(status.get());
