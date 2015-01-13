@@ -3,30 +3,28 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     border: 0,
     alias: 'widget.loadProfileConfigurationDetailDockedItems',
     aling: 'left',
-    deviceTypeId: null,
-    deviceConfigurationId: null,
-    loadProfileConfigurationId: null,
+    router: null,
 
     store: 'LoadProfileConfigurationDetailChannels',
     displayMsg: '{2} channel configurations',
     displayMoreMsg: '{0} - {1} of more than {2} channel configurations',
     emptyMsg: '0 channel configurations',
     usesExactCount: true,
-    items: [
-        '->'
-    ],
+
     initComponent: function () {
-        this.callParent(this);
-        this.add(
+        var me = this;
+
+        me.items = [
+            '->',
             {
                 xtype: 'button',
                 text: Uni.I18n.translate('loadprofileconfiguration.loadprofilechaneelconfiguationsadd', 'MDC', 'Add channel configuration'),
                 hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
                 action: 'addchannelconfiguration',
-                margin: '0 5',
-                hrefTarget: '',
-                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofiles/' + this.loadProfileConfigurationId + '/channels/add'
+                href: me.router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels/add').buildUrl()
             }
-        )
+        ];
+
+        me.callParent(this);
     }
 });
