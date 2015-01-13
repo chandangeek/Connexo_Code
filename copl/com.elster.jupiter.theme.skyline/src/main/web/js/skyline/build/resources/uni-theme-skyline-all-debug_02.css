@@ -6087,68 +6087,80 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 /* line 4, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-default-small .x-btn-icon-el {
   font-size: 15px;
+  margin: auto;
 }
-/* line 10, ../../sass/src/button/Icons.scss */
+/* line 11, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-default-medium .x-btn-icon-el {
   font-size: 22px;
+  margin: auto;
 }
-/* line 16, ../../sass/src/button/Icons.scss */
+/* line 18, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-default-large .x-btn-icon-el {
   font-size: 31px;
+  margin: auto;
 }
 
 /* line 4, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-action-small .x-btn-icon-el {
   font-size: 15px;
+  margin: auto;
 }
-/* line 10, ../../sass/src/button/Icons.scss */
+/* line 11, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-action-medium .x-btn-icon-el {
   font-size: 22px;
+  margin: auto;
 }
-/* line 16, ../../sass/src/button/Icons.scss */
+/* line 18, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-action-large .x-btn-icon-el {
   font-size: 31px;
+  margin: auto;
 }
 
 /* line 4, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-remove-small .x-btn-icon-el {
   font-size: 15px;
+  margin: auto;
 }
-/* line 10, ../../sass/src/button/Icons.scss */
+/* line 11, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-remove-medium .x-btn-icon-el {
   font-size: 22px;
+  margin: auto;
 }
-/* line 16, ../../sass/src/button/Icons.scss */
+/* line 18, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-remove-large .x-btn-icon-el {
   font-size: 31px;
+  margin: auto;
 }
 
 /* line 4, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-link-small .x-btn-icon-el {
   font-size: 15px;
+  margin: auto;
 }
-/* line 10, ../../sass/src/button/Icons.scss */
+/* line 11, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-link-medium .x-btn-icon-el {
   font-size: 22px;
+  margin: auto;
 }
-/* line 16, ../../sass/src/button/Icons.scss */
+/* line 18, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-link-large .x-btn-icon-el {
   font-size: 31px;
+  margin: auto;
 }
 
-/* line 29, ../../sass/src/button/Icons.scss */
+/* line 32, ../../sass/src/button/Icons.scss */
 .x-btn .x-btn-icon-el {
   color: white;
 }
-/* line 34, ../../sass/src/button/Icons.scss */
+/* line 37, ../../sass/src/button/Icons.scss */
 .x-btn:hover .x-btn-icon-el {
   color: white;
 }
-/* line 42, ../../sass/src/button/Icons.scss */
+/* line 45, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-link-small .x-btn-icon-el, .x-btn.x-btn-link-medium .x-btn-icon-el, .x-btn.x-btn-link-large .x-btn-icon-el {
   color: #686868;
 }
-/* line 47, ../../sass/src/button/Icons.scss */
+/* line 50, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-link-small:hover .x-btn-icon-el, .x-btn.x-btn-link-medium:hover .x-btn-icon-el, .x-btn.x-btn-link-large:hover .x-btn-icon-el {
   color: #75a6bb;
 }
