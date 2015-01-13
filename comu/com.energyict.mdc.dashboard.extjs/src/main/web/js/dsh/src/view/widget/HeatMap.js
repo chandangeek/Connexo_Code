@@ -5,7 +5,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
     items: {
         xtype: 'panel',
         ui: 'tile',
-        minHeight: '1100',
+        minHeight: '300',
         itemId: 'heatmapchart'
     },
 
@@ -99,8 +99,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
     },
 
     initComponent: function () {
-        var me = this,
-            xTitle = '';
+        var me = this;
 
         me.store = Ext.getStore(me.store || 'ext-empty-store');
 
@@ -156,24 +155,22 @@ Ext.define('Dsh.view.widget.HeatMap', {
         var me = this,
             store = me.store;
 
-        me.setLoading();
-        store.on('load', function () {
-            var cmp = me.down('#heatmapchart');
-            if (store.count() && cmp) {
-                me.show();
-                if (store.count() > 50) {
-                    cmp.setHeight(store.count() * 100);
-                }
-                me.renderChart(cmp.getEl().down('.x-panel-body').dom, me.findBorders(store));
-                me.loadChart(store, me.getCombo() ? me.getCombo().getDisplayValue() : 'Device type');
-                cmp.doLayout();
-            } else {
-                me.hide();
-            }
-            me.setLoading(false);
-        });
 
-        store.load();
+
+        store.load({
+            callback: function () {
+                var cmp = me.down('#heatmapchart');
+                if (store.count() && cmp) {
+                    cmp.setHeight(80 + store.count() * 50);
+                    me.renderChart(cmp.getEl().down('.x-panel-body').dom, me.findBorders(store));
+                    me.loadChart(store, me.getCombo() ? me.getCombo().getDisplayValue() : 'Device type');
+                    me.show();
+                    me.doLayout();
+                } else {
+                    me.hide();
+                }
+            }
+        });
     },
 
     renderChart: function (container, borders) {
@@ -239,7 +236,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
 
                     s = '<table><tbody>'
                     s += '<tr>'
-                    s += '<td style="padding-right: 10px; text-align: right">' +  Uni.I18n.translate('overview.widget.summary.numberOf', 'DSH', 'Number of') + ' ' + label + '</td>';
+                    s += '<td style="padding-right: 10px; text-align: right">' + Uni.I18n.translate('overview.widget.summary.numberOf', 'DSH', 'Number of') + ' ' + label + '</td>';
                     s += '<td style="padding-right: 1px; text-align: left"><b>' + Math.abs(this.point.value) + '</b></td>';
                     s += '</tr>'
                     s += '<tr>'
