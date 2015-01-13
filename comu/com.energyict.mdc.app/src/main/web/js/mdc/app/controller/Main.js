@@ -15,7 +15,7 @@ Ext.define('MdcApp.controller.Main', {
         ,'view.device.security.properties.level2','view.device.security.properties.level3','view.device.security.properties.level4','edit.device.security.properties.level1','edit.device.security.properties.level2','edit.device.security.properties.level4'
         ,'edit.device.security.properties.level3','execute.device.message.level1','execute.device.message.level3','execute.device.message.level2','execute.device.message.level4','privilege.add.device','privilege.view.device','privilege.remove.device','privilege.administrate.deviceData'
         ,'privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.administrate.deviceGroup','privilege.view.deviceGroupDetail','privilege.administrate.deviceOfEnumeratedGroup','privilege.revoke.inventoryManagement'
-        ,'privilege.import.inventoryManagement','privilege.administrate.communicationAdministration','privilege.view.communicationAdministration','privilege.view.reports'],
+        ,'privilege.import.inventoryManagement','privilege.administrate.communicationAdministration','privilege.view.communicationAdministration'],
     controllers: [
         'Cfg.controller.Main',
         'Mdc.controller.Main',
