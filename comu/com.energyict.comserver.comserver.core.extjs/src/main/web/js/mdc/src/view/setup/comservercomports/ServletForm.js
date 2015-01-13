@@ -114,25 +114,33 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             required: true,
             allowBlank: false,
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.keyStorePath', 'MDC', 'Key store file path'),
+            itemId: 'keyStoreFilePath',
+            disabled: true,
             name: 'keyStoreFilePath'
         },
         {
             xtype: 'password-field',
             required: true,
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.keyStorePass', 'MDC', 'Key store access password'),
+            itemId: 'keyStorePassword',
+            disabled: true,
             name: 'keyStorePassword'
         },
         {
             xtype: 'textfield',
             required: true,
             allowBlank: false,
+            disabled: true,
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.trustStorePath', 'MDC', 'Trust store file path'),
+            itemId: 'trustStoreFilePath',
             name: 'trustStoreFilePath'
         },
         {
             xtype: 'password-field',
             required: true,
+            disabled: true,
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.trustStorePass', 'MDC', 'Trust store access password'),
+            itemId: 'trustStorePassword',
             name: 'trustStorePassword'
         }
     ],
