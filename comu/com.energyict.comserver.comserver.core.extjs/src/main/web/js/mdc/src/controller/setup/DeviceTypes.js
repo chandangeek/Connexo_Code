@@ -297,11 +297,22 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         if (btn === 'confirm') {
             var deviceTypeToDelete = opt.config.deviceTypeToDelete;
             var me = opt.config.me;
+            var router = me.getController('Uni.controller.history.Router');
 
             deviceTypeToDelete.destroy({
                 success: function () {
+                    var grid = me.getDeviceTypeGrid(),
+                        gridPagingToolbar;
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceType.acknowlegment.removed', 'MDC', 'Device type removed'));
-                    location.href = '#/administration/devicetypes/';
+                    if (router.currentRoute === 'administration/devicetypes/view') {
+                        router.getRoute('administration/devicetypes').forward();
+                    } else if (grid) {
+                        gridPagingToolbar = grid.down('pagingtoolbartop');
+                        gridPagingToolbar.isFullTotalCount = false;
+                        gridPagingToolbar.totalCount = -1;
+                        grid.down('pagingtoolbarbottom').totalCount--;
+                        grid.getStore().loadPage(1);
+                    }
                 }
             });
 

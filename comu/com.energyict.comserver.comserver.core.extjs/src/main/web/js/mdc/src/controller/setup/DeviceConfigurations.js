@@ -256,7 +256,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     deleteTheDeviceConfiguration: function (deviceConfigurationToDelete) {
-        var me = this;
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('deviceconfiguration.deleteDeviceConfiguration', 'MDC', 'The device configuration will no longer be available.'),
@@ -270,8 +271,18 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     deviceConfigurationToDelete.getProxy().setExtraParam('deviceType', me.deviceTypeId);
                     deviceConfigurationToDelete.destroy({
                         success: function () {
+                            var grid = me.getDeviceConfigurationsGrid(),
+                                gridPagingToolbar;
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.acknowledgment.removed', 'MDC', 'Device configuration removed'));
-                            location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations';
+                            if (router.currentRoute === 'administration/devicetypes/view/deviceconfigurations/view') {
+                                router.getRoute('administration/devicetypes/view/deviceconfigurations').forward();
+                            } else if (grid) {
+                                gridPagingToolbar = grid.down('pagingtoolbartop');
+                                gridPagingToolbar.isFullTotalCount = false;
+                                gridPagingToolbar.totalCount = -1;
+                                grid.down('pagingtoolbarbottom').totalCount--;
+                                grid.getStore().loadPage(1);
+                            }
                         },
                         failure: function () {
 
