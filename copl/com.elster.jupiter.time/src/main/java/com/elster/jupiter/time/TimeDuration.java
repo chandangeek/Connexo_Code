@@ -59,7 +59,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
     private static final int DAYS_IN_YEAR = 365;
     private static final int SECONDS_IN_YEAR = SECONDS_PER_HOUR * HOURS_PER_DAY * DAYS_IN_YEAR;
     private static final int MILLIS_PER_SECOND = 1000;
-    
+
 
     private int count;
     private TimeUnit timeUnit;
@@ -193,7 +193,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
         public ZonedDateTime truncate(ZonedDateTime time) {
             ZonedDateTime result = time;
             for (TimeUnit timeUnit : values()) {
-                if (timeUnit.inSeconds < this.inSeconds && timeUnit != WEEKS) {
+                if (timeUnit.inSeconds <= this.inSeconds && timeUnit != WEEKS) {
                     result = result.with(timeUnit.temporalField, timeUnit.temporalField.range().getMinimum());
                 }
             }
