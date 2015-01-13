@@ -18,6 +18,7 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
+import java.util.Arrays;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
@@ -66,10 +67,11 @@ public class LoadProfileTypeInUseTest extends PersistenceTest {
         DeviceConfigurationService deviceConfigurationService = PersistenceTest.inMemoryPersistence.getDeviceConfigurationService();
         String loadProfileTypeName = "testUpdateIntervalWhileInUse";
         TimeDuration interval = INTERVAL_15_MINUTES;
+        this.setupReadingTypeInExistingTransaction();
 
         LoadProfileType loadProfileType;
         // Setup LoadProfileType
-        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
+        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(this.readingType).get()));
         loadProfileType.setDescription("For testing purposes only");
         loadProfileType.save();
 
@@ -106,9 +108,9 @@ public class LoadProfileTypeInUseTest extends PersistenceTest {
         registerType = masterDataService.findRegisterTypeByReadingType(readingType).get();
 
         // Setup LoadProfileType with RegisterType
-        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
+        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval, Arrays.asList(registerType));
         loadProfileType.setDescription("For testing purposes only");
-        ChannelType channelTypeForRegisterType = loadProfileType.createChannelTypeForRegisterType(registerType);
+        ChannelType channelTypeForRegisterType = loadProfileType.findChannelType(registerType).get();
         loadProfileType.save();
 
         // Setup DeviceType with a DeviceConfiguration and LoadProfileSpec and ChannelSpec that uses the LoadProfileType
@@ -148,9 +150,9 @@ public class LoadProfileTypeInUseTest extends PersistenceTest {
         RegisterType registerType = masterDataService.findRegisterTypeByReadingType(readingType).get();
 
         // Setup LoadProfileType
-        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
+        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval, Arrays.asList(registerType));
         loadProfileType.setDescription("For testing purposes only");
-        ChannelType channelTypeForRegisterType = loadProfileType.createChannelTypeForRegisterType(registerType);
+        ChannelType channelTypeForRegisterType = loadProfileType.findChannelType(registerType).get();
         loadProfileType.save();
 
         // Setup DeviceType with a DeviceConfiguration and LoadProfileSpec and ChannelSpec that uses the LoadProfileType

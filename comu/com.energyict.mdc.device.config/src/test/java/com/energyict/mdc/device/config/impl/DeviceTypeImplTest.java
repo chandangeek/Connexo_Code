@@ -4,7 +4,6 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceUsageType;
@@ -964,15 +963,15 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     }
 
     private void setupLoadProfileTypesInExistingTransaction(String loadProfileTypeBaseName) {
-        this.loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(loadProfileTypeBaseName + "-1", ObisCode.fromString("1.0.99.1.0.255"), INTERVAL_15_MINUTES);
+        this.setupRegisterTypesInExistingTransaction();
+        this.loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(loadProfileTypeBaseName + "-1", ObisCode.fromString("1.0.99.1.0.255"), INTERVAL_15_MINUTES, Arrays.asList(registerType1));
         this.loadProfileType.save();
-        this.loadProfileType2 = inMemoryPersistence.getMasterDataService().newLoadProfileType(loadProfileTypeBaseName + "-2", ObisCode.fromString("1.0.99.2.0.255"), INTERVAL_15_MINUTES);
+        this.loadProfileType2 = inMemoryPersistence.getMasterDataService().newLoadProfileType(loadProfileTypeBaseName + "-2", ObisCode.fromString("1.0.99.2.0.255"), INTERVAL_15_MINUTES, Arrays.asList(registerType2));
         this.loadProfileType2.save();
     }
 
     private void setupRegisterTypesInExistingTransaction() {
         this.setupProductSpecsInExistingTransaction();
-        String registerTypeBaseName = DeviceTypeImplTest.class.getSimpleName();
         Unit unit = Unit.get("kWh");
         this.phenomenon = this.createPhenomenonIfMissing(unit);
         this.registerType1 =

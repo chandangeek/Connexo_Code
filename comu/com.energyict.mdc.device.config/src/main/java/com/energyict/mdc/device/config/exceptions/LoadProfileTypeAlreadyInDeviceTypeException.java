@@ -16,7 +16,7 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 public class LoadProfileTypeAlreadyInDeviceTypeException extends LocalizedException {
 
     public LoadProfileTypeAlreadyInDeviceTypeException(Thesaurus thesaurus, DeviceType deviceType, LoadProfileType loadProfileType) {
-        super(thesaurus, MessageSeeds.DUPLICATE_LOAD_PROFILE_TYPE_IN_DEVICE_TYPE);
+        super(thesaurus, MessageSeeds.DUPLICATE_LOAD_PROFILE_TYPE_IN_DEVICE_TYPE, loadProfileType.getName(), deviceType.getName());
         this.set("deviceType", deviceType);
         this.set("loadProfileType", loadProfileType);
     }

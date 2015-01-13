@@ -1,6 +1,9 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -11,9 +14,16 @@ import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigu
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsNotConfiguredOnDeviceTypeException;
+import com.energyict.mdc.masterdata.RegisterType;
+import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
+import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
+import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
+import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
+import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -37,14 +47,16 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
 
     private DeviceConfiguration deviceConfiguration;
     private LoadProfileType loadProfileType;
+    private RegisterType registerType;
 
     @Before
     public void initializeDatabaseAndMocks() {
+        this.setupReadingTypeInExistingTransaction();
         this.initializeDeviceTypeWithLogBookTypeAndDeviceConfiguration();
     }
 
     private void initializeDeviceTypeWithLogBookTypeAndDeviceConfiguration() {
-        loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME, loadProfileTypeObisCode, interval);
+        loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME, loadProfileTypeObisCode, interval, Arrays.asList(registerType));
         loadProfileType.save();
 
         // Business method
@@ -100,7 +112,7 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
     @Test(expected = LoadProfileTypeIsNotConfiguredOnDeviceTypeException.class)
     @Transactional
     public void createWithIncorrectLoadProfileTypeTest() {
-        LoadProfileType loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "Incorrect", loadProfileTypeObisCode, interval);
+        LoadProfileType loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "Incorrect", loadProfileTypeObisCode, interval, Arrays.asList(registerType));
         loadProfileType.save();
 
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = this.getReloadedDeviceConfiguration().createLoadProfileSpec(loadProfileType);
@@ -118,7 +130,7 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
     @Test(expected = DuplicateObisCodeException.class)
     @Transactional
     public void addTwoSpecsWithDiffTypeButSameObisCodeTest() {
-        LoadProfileType loadProfileType2 = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "other", loadProfileTypeObisCode, interval);
+        LoadProfileType loadProfileType2 = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "other", loadProfileTypeObisCode, interval, Arrays.asList(registerType));
         loadProfileType2.save();
         this.deviceType.addLoadProfileType(loadProfileType2);
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec1 = this.getReloadedDeviceConfiguration().createLoadProfileSpec(loadProfileType);
@@ -130,7 +142,7 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
     @Test(expected = DuplicateObisCodeException.class)
     @Transactional
     public void addTwoSpecsWithDiffObisCodeButOverruledAsSameTest() {
-        LoadProfileType loadProfileType2 = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "other", ObisCode.fromString("1.0.99.98.0.255"), interval);
+        LoadProfileType loadProfileType2 = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "other", ObisCode.fromString("1.0.99.98.0.255"), interval, Arrays.asList(registerType));
         loadProfileType2.save();
         this.deviceType.addLoadProfileType(loadProfileType2);
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec1 = this.getReloadedDeviceConfiguration().createLoadProfileSpec(loadProfileType);
@@ -143,7 +155,7 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
     @Test(expected = DuplicateObisCodeException.class)
     @Transactional
     public void addTwoSpecsWithDiffObisCodeButSameAfterUpdateTest() {
-        LoadProfileType loadProfileType2 = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "other", ObisCode.fromString("1.0.99.98.0.255"), interval);
+        LoadProfileType loadProfileType2 = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "other", ObisCode.fromString("1.0.99.98.0.255"), interval, Arrays.asList(registerType));
         loadProfileType2.save();
         this.deviceType.addLoadProfileType(loadProfileType2);
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder1 = this.getReloadedDeviceConfiguration().createLoadProfileSpec(loadProfileType);
@@ -184,4 +196,16 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
 
         verify(buildingCompletionListener).loadProfileSpecBuildingProcessCompleted(loadProfileSpec);
     }
+
+    private void setupReadingTypeInExistingTransaction() {
+        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED)
+                .flow(FORWARD)
+                .measure(ENERGY)
+                .in(KILO, WATTHOUR)
+                .accumulate(Accumulation.BULKQUANTITY)
+                .code();
+        ReadingType readingType = PersistenceTest.inMemoryPersistence.getMeteringService().getReadingType(code).get();
+        registerType = PersistenceTest.inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType).get();
+    }
+
 }

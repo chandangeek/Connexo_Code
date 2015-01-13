@@ -29,6 +29,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
+import java.util.Arrays;
 import java.util.Optional;
 
 import org.junit.*;
@@ -131,7 +132,7 @@ public class MeasurementTypeImplTest extends PersistenceTest {
 
         this.setupLoadProfileTypesInExistingTransaction();
 
-        ChannelType channelTypeForRegisterType = this.loadProfileType.createChannelTypeForRegisterType(registerType);
+        ChannelType channelTypeForRegisterType = this.loadProfileType.findChannelType(registerType).get();
         this.loadProfileType.save();
 
         // Use it in a DeviceType and DeviceConfiguration
@@ -209,7 +210,7 @@ public class MeasurementTypeImplTest extends PersistenceTest {
 
         this.setupLoadProfileTypesInExistingTransaction();
 
-        ChannelType channelTypeForRegisterType = this.loadProfileType.createChannelTypeForRegisterType(registerType);
+        ChannelType channelTypeForRegisterType = this.loadProfileType.findChannelType(registerType).get();
         this.loadProfileType.save();
 
         // Use it in a DeviceType and DeviceConfiguration
@@ -322,7 +323,6 @@ public class MeasurementTypeImplTest extends PersistenceTest {
 
         this.setupLoadProfileTypesInExistingTransaction();
 
-        ChannelType channelTypeForRegisterType = this.loadProfileType.createChannelTypeForRegisterType(registerType);
         this.loadProfileType.save();
 
         this.loadProfileType.delete();
@@ -380,13 +380,13 @@ public class MeasurementTypeImplTest extends PersistenceTest {
 
         this.setupLoadProfileTypesInExistingTransaction();
 
-        ChannelType channelTypeForRegisterType = this.loadProfileType.createChannelTypeForRegisterType(registerType);
+        ChannelType channelTypeForRegisterType = this.loadProfileType.findChannelType(registerType).get();
         this.loadProfileType.save();
 
-        LoadProfileType loadProfileType2 = inMemoryPersistence.getMasterDataService().newLoadProfileType("LoadProfileTest2", ObisCode.fromString("1.0.99.2.0.255"), INTERVAL_15_MINUTES);
+        LoadProfileType loadProfileType2 = inMemoryPersistence.getMasterDataService().newLoadProfileType("LoadProfileTest2", ObisCode.fromString("1.0.99.2.0.255"), INTERVAL_15_MINUTES, Arrays.asList(registerType) );
         loadProfileType2.save();
 
-        ChannelType shouldBeSameChannelType = loadProfileType2.createChannelTypeForRegisterType(registerType);
+        ChannelType shouldBeSameChannelType = loadProfileType2.findChannelType(registerType).get();
 
         assertThat(channelTypeForRegisterType.getId()).isEqualTo(shouldBeSameChannelType.getId());
         assertThat(inMemoryPersistence.getMasterDataService().findAllChannelTypes().find()).hasSize(1);
@@ -417,7 +417,8 @@ public class MeasurementTypeImplTest extends PersistenceTest {
     }
 
     private void setupLoadProfileTypesInExistingTransaction() {
-        this.loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(MeasurementTypeImplTest.class.getSimpleName(), ObisCode.fromString("1.0.99.1.0.255"), INTERVAL_15_MINUTES);
+        this.setupReadingTypesInExistingTransaction();
+        this.loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(MeasurementTypeImplTest.class.getSimpleName(), ObisCode.fromString("1.0.99.1.0.255"), INTERVAL_15_MINUTES, Arrays.asList(inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(this.readingType1).get()));
         this.loadProfileType.save();
     }
 
