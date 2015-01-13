@@ -74,13 +74,11 @@
 Ext.define('Uni.view.grid.BulkSelection', {
     extend: 'Uni.view.grid.SelectionGrid',
     xtype: 'bulk-selection-grid',
-    plugins: 'bufferedrenderer',
+
     loadMask: true,
     autoScroll: true,
     maxHeight: 600,
-    requires: [
-        'Ext.grid.plugin.BufferedRenderer'
-    ],
+
     /**
      * @cfg allLabel
      *
