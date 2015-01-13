@@ -451,6 +451,8 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
                         for(int i=0;i<reportRows.length;i++){
                             String[] dataValues = reportRows[i].getDataValue();
                             YellowfinFilterListItemInfo listItem = new YellowfinFilterListItemInfoImpl();
+                            if(dataValues[0].contains("__##SEARCH_RESULTS##__"))
+                                continue;
                             listItem.setValue1(dataValues[0]);
                             listItem.setValue2(dataValues[1]);
                             listItems.add(listItem);
@@ -490,8 +492,11 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
     }
 
     private void createPrivileges(UserService userService) {
-        userService.createResourceWithPrivileges("SYS", "reportSys.reports", "reportSys.reports.description", new String[] {Privileges.DESIGN_REPORTS});
-        userService.createResourceWithPrivileges("MDC", "reportMdc.reports", "reportMdc.reports.description", new String[] {Privileges.VIEW_REPORTS});
+        userService.createResourceWithPrivileges("SYS", "reportSys.reports", "reportSys.reports.description",
+                new String[] {
+                        Privileges.VIEW_REPORTS,
+                        Privileges.DESIGN_REPORTS
+                });
     }
 
 }
