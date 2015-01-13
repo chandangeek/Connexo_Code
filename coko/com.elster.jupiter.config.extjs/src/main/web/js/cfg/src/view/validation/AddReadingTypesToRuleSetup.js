@@ -30,8 +30,8 @@ Ext.define('Cfg.view.validation.AddReadingTypesToRuleSetup', {
                     xtype: 'filter-top-panel',
                     itemId: 'filterReadingTypes',
                     margin: '0 0 20 0',
-                    name: 'filter',
-                    emptyText: Uni.I18n.translate('general.none', 'CFG', 'None')
+                    name: 'filter'/*,
+                    emptyText: Uni.I18n.translate('general.none', 'CFG', 'None')*/
                 },
                 {
                     xtype: 'container',
