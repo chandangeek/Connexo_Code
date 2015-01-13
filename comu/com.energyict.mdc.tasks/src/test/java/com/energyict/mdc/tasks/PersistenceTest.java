@@ -1,6 +1,7 @@
 package com.energyict.mdc.tasks;
 
 import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -110,6 +111,10 @@ public class PersistenceTest {
 
     public final MasterDataService getMasterDataService() {
         return injector.getInstance(MasterDataService.class);
+    }
+
+    public final MeteringService getMeteringService() {
+        return injector.getInstance(MeteringService.class);
     }
 
     public final DeviceMessageSpecificationService getDeviceMessageService() {

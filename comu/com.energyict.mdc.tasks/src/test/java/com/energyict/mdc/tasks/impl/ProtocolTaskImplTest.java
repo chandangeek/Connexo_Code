@@ -1,5 +1,8 @@
 package com.energyict.mdc.tasks.impl;
 
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -7,6 +10,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.BasicCheckTask;
@@ -26,6 +30,11 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
+import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
+import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
+import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
+import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -42,6 +51,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
     private static final TimeDuration minimumClockDifference = new TimeDuration(3, TimeDuration.TimeUnit.SECONDS);
     private static final TimeDuration maximumClockDifference = new TimeDuration(5, TimeDuration.TimeUnit.MINUTES);
     private static final TimeDuration maximumClockShift = new TimeDuration(13, TimeDuration.TimeUnit.SECONDS);
+    private RegisterType registerType;
 
     private ComTask createSimpleComTask() {
         ComTask comTask = getTaskService().newComTask(COM_TASK_NAME);
@@ -627,14 +637,15 @@ public class ProtocolTaskImplTest extends PersistenceTest {
     public void createLoadProfilesTaskWithLoadProfileTypeTest() {
         ComTask comTask = createSimpleComTask();
 
-        final LoadProfileType myLPT = getMasterDataService().newLoadProfileType("MyLPT", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.days(1));
+        setupReadingTypeInExistingTransaction();
+        final LoadProfileType myLPT = getMasterDataService().newLoadProfileType("MyLPT", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.days(1), Arrays.asList(this.registerType));
         myLPT.save();
         comTask.createLoadProfilesTask().loadProfileTypes(Arrays.asList(myLPT)).add();
         comTask.save();
 
         ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         LoadProfilesTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), LoadProfilesTask.class);
-        final LoadProfileType myLPT2 = getMasterDataService().newLoadProfileType("MyLPT2", ObisCode.fromString("1.0.99.2.0.255"), TimeDuration.days(1));
+        final LoadProfileType myLPT2 = getMasterDataService().newLoadProfileType("MyLPT2", ObisCode.fromString("1.0.99.2.0.255"), TimeDuration.days(1), Arrays.asList(this.registerType));
         myLPT2.save();
         taskByType.setLoadProfileTypes(Arrays.asList(myLPT, myLPT2));
         taskByType.save();
@@ -661,8 +672,8 @@ public class ProtocolTaskImplTest extends PersistenceTest {
     @Transactional
     public void deleteComTaskWithLoadProfileTypeShouldClearTheLinkTableTest() {
         ComTask comTask = createSimpleComTask();
-
-        final LoadProfileType myLPT = getMasterDataService().newLoadProfileType("MyLPT", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.days(1));
+        setupReadingTypeInExistingTransaction();
+        final LoadProfileType myLPT = getMasterDataService().newLoadProfileType("MyLPT", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.days(1), Arrays.asList(this.registerType));
         myLPT.save();
         comTask.createLoadProfilesTask().loadProfileTypes(Arrays.asList(myLPT)).add();
         comTask.save();
@@ -848,4 +859,16 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         assertThat(reloadedMessageTask.getMessageTaskType()).isEqualTo(MessagesTask.MessageTaskType.SELECTED);
         assertThat(reloadedMessageTask.getDeviceMessageCategories()).hasSize(2);
     }
+
+    private void setupReadingTypeInExistingTransaction() {
+        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED)
+                .flow(FORWARD)
+                .measure(ENERGY)
+                .in(KILO, WATTHOUR)
+                .accumulate(Accumulation.BULKQUANTITY)
+                .code();
+        ReadingType readingType = getMeteringService().getReadingType(code).get();
+        registerType = getMasterDataService().findRegisterTypeByReadingType(readingType).get();
+    }
+
 }
