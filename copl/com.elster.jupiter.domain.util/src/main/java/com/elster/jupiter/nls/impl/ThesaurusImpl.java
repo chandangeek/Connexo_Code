@@ -96,8 +96,10 @@ class ThesaurusImpl implements IThesaurus {
 
     @Override
     public String getString(String key, String defaultMessage) {
-        if (!translations.containsKey(key)) {
+        if (translations.isEmpty()) {
             initTranslations(component, layer);
+        }
+        if (!translations.containsKey(key)) {
             if (!translations.containsKey(key)) {
                 return defaultMessage;
             }
