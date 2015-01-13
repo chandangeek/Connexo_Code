@@ -14,6 +14,7 @@ public enum TableSpecs {
             table.map(AdHocDeviceGroupImpl.class);
             Column deviceIdColumn = table.addAutoIdColumn();
             table.column("NAME").varChar(NAME_LENGTH).map("name").add();
+            table.addCreateTimeColumn("CREATETIME", "createTime");
             table.primaryKey("YFG_PK_ADHOCGROUP").on(deviceIdColumn).add();
         }
     },

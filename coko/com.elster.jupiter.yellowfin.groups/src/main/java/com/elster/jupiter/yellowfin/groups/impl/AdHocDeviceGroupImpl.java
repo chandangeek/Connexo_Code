@@ -6,6 +6,7 @@ import com.elster.jupiter.yellowfin.groups.AdHocDeviceGroup;
 import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -16,6 +17,8 @@ public class AdHocDeviceGroupImpl implements AdHocDeviceGroup {
 
     long id;
     String name;
+    private Instant createTime;
+
     protected List<AdHocEntryImpl> entries = new ArrayList<AdHocEntryImpl>();
     protected final DataModel dataModel;
 
