@@ -2,85 +2,38 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurations', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.add-logbook-configurations',
     requires: [
-        'Uni.grid.column.Obis'
+        'Uni.grid.column.Obis',
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Mdc.store.LogbookConfigurations',
+        'Mdc.view.setup.deviceconfiguration.AddLogbookConfigurationsGrid'
     ],
     deviceTypeId: null,
     deviceConfigurationId: null,
 
-    content: [
-        {
-            xtype: 'panel',
+    initComponent: function () {
+        var me = this;
+
+        me.content = {
             ui: 'large',
-            title: 'Add logbook configuration',
+            title: Uni.I18n.translate('deviceconfiguration.addLogbookConfiguration', 'MDC', 'Add logbook configuration'),
             items: [
                 {
-                    xtype: 'grid',
-                    store: 'LogbookConfigurations',
-                    height: 395,
-                    selType: 'checkboxmodel',
-                    selModel: {
-                        checkOnly: true,
-                        enableKeyNav: false,
-                        showHeaderCheckbox: false
+                    xtype: 'preview-container',
+                    grid: {
+                        xtype: 'add-logbook-configurations-grid'
                     },
-                    forceFit: true,
-                    columns: {
-                        defaults: {
-                            sortable: false,
-                            menuDisabled: true
-                        },
-                        items: [
-                            {
-                                header: 'Name',
-                                dataIndex: 'name',
-                                flex: 5
-                            },
-                            {
-                                xtype: 'obis-column',
-                                dataIndex: 'obisCode'
-                            }
-                        ]
-                    },
-                    tbar: {
-                        border: 0,
-                        aling: 'left',
-                        items: [
-                            {
-                                xtype: 'text',
-                                itemId: 'LogBookCount',
-                                flex: 1
-                            },
-                            {
-                                xtype: 'button',
-                                text: 'Manage logbooks',
-                                action: 'manage',
-                                ui: 'link',
-                                listeners: {
-                                    click: {
-                                        fn: function () {
-                                            window.location.href = '#/administration/logbooktypes';
-                                        }
-                                    }
-                                }
-                            }
+                    emptyComponent: {
+                        xtype: 'no-items-found-panel',
+                        title: Uni.I18n.translate('logbookConfiguration.empty.title', 'MDC', 'No logbook configurations found'),
+                        reasons: [
+                            Uni.I18n.translate('logbookConfiguration.emptyMsg1', 'MDC', 'No logbook configurations have been defined yet.'),
+                            Uni.I18n.translate('logbookConfiguration.emptyMsg2', 'MDC', 'Logbook configurations exist, but you do not have permission to view them.')
                         ]
                     }
                 },
                 {
-                    xtype: 'panel',
-                    hidden: true,
-                    height: 200,
-                    items: [
-                        {
-                            xtype: 'panel',
-                            html: "<h3>No logbook configuration found</h3><br>\
-          There are no logbooks. This could be because:<br>\
-          &nbsp;&nbsp; - No logbook configuration have been defined yet.<br>"
-                        }
-                    ]
-                },
-                {
                     layout: 'hbox',
+                    margin: '10 0 0 0',
                     defaults: {
                         xtype: 'button'
                     },
@@ -105,7 +58,9 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurations', {
                     ]
                 }
             ]
-        }
-    ]
+        };
+
+        me.callParent(arguments);
+    }
 });
 
