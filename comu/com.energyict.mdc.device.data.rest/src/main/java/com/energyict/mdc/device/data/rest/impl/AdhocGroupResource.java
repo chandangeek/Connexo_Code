@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.yellowfin.groups.AdHocDeviceGroup;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
@@ -9,7 +7,6 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.rest.AdhocGroupInfo;
 import com.energyict.mdc.device.data.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -46,9 +43,9 @@ public class AdhocGroupResource {
     @POST
     @Path("/adhoc")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.VIEW_DEVICE})
+    @RolesAllowed(com.elster.jupiter.yellowfin.security.Privileges.VIEW_REPORTS)
     public AdhocGroupInfo cacheAdHocGroup(@BeanParam QueryParameters queryParameters, @BeanParam StandardParametersBean params,  @Context UriInfo uriInfo) {
-        AdhocGroupInfoImpl groupInfo = new AdhocGroupInfoImpl();
+        AdhocGroupInfo groupInfo = new AdhocGroupInfo();
 
         Condition condition;
         MultivaluedMap<String, String> uriParams = uriInfo.getQueryParameters();
