@@ -4,7 +4,6 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectSetup', {
     itemId: 'deviceProtocolDialectSetup',
 
     device: null,
-
     requires: [
         'Uni.view.navigation.SubMenu',
         'Mdc.view.setup.deviceprotocol.DeviceProtocolDialectActionMenu',
