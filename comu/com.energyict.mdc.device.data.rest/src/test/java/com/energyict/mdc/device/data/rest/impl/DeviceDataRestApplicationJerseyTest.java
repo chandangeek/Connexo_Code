@@ -20,6 +20,7 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -95,6 +96,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     FavoritesService favoritesService;
     @Mock
     DataCollectionKpiService dataCollectionKpiService;
+    @Mock
+    YellowfinGroupsService yellowfinGroupsService;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -127,6 +130,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         application.setFavoritesService(favoritesService);
         application.setDataCollectionKpiService(dataCollectionKpiService);
+        application.setYellowfinGroupsService(yellowfinGroupsService);
         return application;
     }
 
