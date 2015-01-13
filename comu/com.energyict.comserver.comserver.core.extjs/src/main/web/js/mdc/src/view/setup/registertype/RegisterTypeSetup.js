@@ -24,6 +24,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
+                        itemId: 'ctr-no-register-type',
                         title: Uni.I18n.translate('registerType.empty.title', 'MDC', 'No register types found'),
                         reasons: [
                             Uni.I18n.translate('registerType.empty.list.item1', 'MDC', 'No register types have been created yet.')

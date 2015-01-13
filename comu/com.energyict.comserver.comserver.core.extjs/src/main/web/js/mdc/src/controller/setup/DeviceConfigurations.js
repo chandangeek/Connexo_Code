@@ -259,8 +259,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         var me = this;
 
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('deviceconfiguration.deleteDeviceConfiguration', 'MDC', 'The device configuration will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + deviceConfigurationToDelete.get('name') + '?',
+            msg: Uni.I18n.translate('deviceconfiguration.removeDeviceConfiguration', 'MDC', 'This device configuration will no longer be available.'),
+            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + " '" + deviceConfigurationToDelete.get('name') + "'?",
             config: {
                 registerConfigurationToDelete: deviceConfigurationToDelete,
                 me: me
@@ -411,12 +411,16 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             record.set(values);
             if (!record.get('canBeGateway')) {
                 record.set('gatewayType', 'NONE')
-            };
+            }
             record.getProxy().setExtraParam('deviceType', this.deviceTypeId);
             record.save({
                 success: function (record) {
                     router.getRoute('administration/devicetypes/view/deviceconfigurations').forward();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.acknowledgment.saved', 'MDC', 'Device configuration saved'));
+                    if (btn.action === 'createDeviceConfiguration') {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.acknowledgment.added', 'MDC', 'Device configuration added'));
+                    } else {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.acknowledgment.saved', 'MDC', 'Device configuration saved'));
+                    }
                     editForm.setLoading(false);
                 },
                 failure: function (record, operation) {
