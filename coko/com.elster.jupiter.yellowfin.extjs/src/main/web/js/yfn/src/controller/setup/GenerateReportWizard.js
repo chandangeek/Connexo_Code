@@ -17,7 +17,10 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
     ],
 
     stores: [
-        'Yfn.store.ReportFilterInfos'
+        'Yfn.store.ReportFilterInfos',
+        'Yfn.store.ReportFilterListItems',
+        'Yfn.store.ReportInfos',
+        'Yfn.store.DeviceGroupInfos'
     ],
 
     refs: [
@@ -145,11 +148,34 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
     finishClick: function () {
         var me = this;
         var link = me.getGenerateReportLink();
-        var href = '#/reports/view?reportUUID='+me.selectedReportUUID+'&filter='+encodeURIComponent(Ext.JSON.encode(me.selectedFilterValues));
-        link.getEl().dom.href = href;
-        link.getEl().dom.target = '_blank';
-        link.getEl().dom.click();
-        Ext.util.History.back();
+        var selectedGroups = me.selectedFilterValues['GROUPNAME'];
+        if( _.isArray(selectedGroups)){
+            var groups = [];
+            for(var i=0;i<selectedGroups.length;i++){
+                groups.push({name:selectedGroups[i]});
+            }
+            Ext.Ajax.request({
+                url: '/api/yfn/cachegroups/dynamic',
+                method: 'POST',
+                async: false,
+                jsonData:{
+                    total:groups.length,
+                    groups:groups
+                },
+                success: function () {
+                    var href = '#/reports/view?reportUUID='+me.selectedReportUUID+'&filter='+encodeURIComponent(Ext.JSON.encode(me.selectedFilterValues));
+                    link.getEl().dom.href = href;
+                    link.getEl().dom.target = '_blank';
+                    link.getEl().dom.click();
+                    Ext.util.History.back();
+                },
+                failure: function(response, opts) {
+                    //console.log('server-side failure with status code ' + response.status);
+                }
+            });
+
+        }
+
     },
 
     cancelClick: function () {
@@ -699,7 +725,9 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         defaultValue = Ext.isString(defaultValue) && defaultValue.split(', ') || defaultValue ;
         defaultValue = _.isArray(defaultValue) && _.compact(defaultValue) || defaultValue;
 
-        var store =  Ext.create('Yfn.store.ReportFilterListItems',{});
+        var store =  filterName.toUpperCase() == 'GROUPNAME'
+            ? Ext.create('Yfn.store.DeviceGroupInfos',{})
+            : Ext.create('Yfn.store.ReportFilterListItems',{});
         store.getProxy().setExtraParam('reportUUID', me.selectedReportUUID);
         store.getProxy().setExtraParam('filterId', filterRecord.get('id'));
 
@@ -711,7 +739,8 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                 store.add(
                     {
                         value1: defaultValue[i],
-                        value2: defaultValue[i]
+                        value2: defaultValue[i],
+                        name: defaultValue[i]
                     });
             }
         }
@@ -751,7 +780,10 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         var filterType = filterRecord.get('filterType');
         var filterName = filterRecord.get('filterName');
 
-        var store =  Ext.create('Yfn.store.ReportFilterListItems',{});
+        var store =  filterName.toUpperCase() == 'GROUPNAME'
+            ? Ext.create('Yfn.store.DeviceGroupInfos',{})
+            : Ext.create('Yfn.store.ReportFilterListItems',{});
+
         store.getProxy().setExtraParam('reportUUID', me.selectedReportUUID);
         store.getProxy().setExtraParam('filterId', filterRecord.get('id'));
         var controls =
