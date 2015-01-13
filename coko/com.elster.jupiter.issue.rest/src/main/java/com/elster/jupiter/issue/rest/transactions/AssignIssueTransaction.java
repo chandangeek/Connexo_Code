@@ -39,8 +39,6 @@ public class AssignIssueTransaction  implements Transaction<ActionInfo> {
                 }
                 if (issue == null) {
                     response.addFail(getString(ISSUE_DOES_NOT_EXIST, thesaurus), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
-                } else if (issueRef.getVersion() != issue.getVersion()){
-                    response.addFail(getString(ISSUE_WAS_ALREADY_CHANGED, thesaurus), issueRef.getId(), issue.getTitle());
                 } else {
                     issue.assignTo(request.getAssignee().getType(), request.getAssignee().getId());
                     issue.addComment(request.getComment(), author);
