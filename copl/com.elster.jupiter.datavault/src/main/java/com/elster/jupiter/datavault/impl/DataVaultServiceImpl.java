@@ -13,6 +13,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import java.util.Arrays;
 import java.util.List;
+import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -29,6 +30,16 @@ public class DataVaultServiceImpl implements DataVaultService, InstallService {
     private volatile NlsService nlsService;
 
     public DataVaultServiceImpl() {
+    }
+
+    @Inject
+    public DataVaultServiceImpl(NlsService nlsService, OrmService ormService){
+        setNlsService(nlsService);
+        setOrmService(ormService);
+        activate();
+        if (!dataModel.isInstalled()){
+            install();
+        }
     }
 
     @Reference
@@ -73,7 +84,7 @@ public class DataVaultServiceImpl implements DataVaultService, InstallService {
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "NLS");
+        return Arrays.asList(OrmService.COMPONENTNAME, NlsService.COMPONENTNAME);
     }
 
     @Override
