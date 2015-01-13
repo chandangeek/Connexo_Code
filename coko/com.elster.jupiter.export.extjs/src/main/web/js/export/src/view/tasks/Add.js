@@ -15,7 +15,7 @@ Ext.define('Dxp.view.tasks.Add', {
     setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
-            this.down('#add-button').setText(Uni.I18n.translate('general.edit', 'DES', 'Edit'));
+            this.down('#add-button').setText(Uni.I18n.translate('general.save', 'DES', 'Save'));
             this.down('#add-button').action = 'editTask';
         } else {
             this.edit = edit;

@@ -804,7 +804,7 @@ Ext.define('Dxp.controller.Tasks', {
                         me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks').forward();
                     }
                     if (button.action === 'editTask') {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editDataExportTask.successMsg', 'DES', 'Data export task edited'));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editDataExportTask.successMsg.saved', 'DES', 'Data export task saved'));
                     } else {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('addDataExportTask.successMsg', 'DES', 'Data export task added'));
                     }
