@@ -8,6 +8,11 @@
 //        background-image: url('images/shared/icon-confirm.png');
     }
 
+  .#{$prefix}dlg-icon{
+    font-size: 22px;
+    color: #eb5642;
+  }
+
   *[class*='#{$prefix}window-'] {
         .#{$prefix}header-text {
           font-weight: bold;
