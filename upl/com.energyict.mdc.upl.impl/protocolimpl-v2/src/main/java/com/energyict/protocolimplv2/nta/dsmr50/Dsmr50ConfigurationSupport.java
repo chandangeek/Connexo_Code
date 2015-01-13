@@ -26,8 +26,11 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.*;
  */
 public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
 
-    private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
     private static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
+    private static final String CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME = "CheckNumberOfBlocksDuringFirmwareResume";
+
+    private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
+    private static final boolean DEFAULT_CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME = true;
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
@@ -50,7 +53,9 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
                 this.aarqRetriesPropertySpec(),
                 this.cumulativeCaptureTimeChannelPropertySpec(),
                 this.nodeAddressPropertySpec(),
-                this.callHomeIdPropertySpec());
+                this.callHomeIdPropertySpec(),
+                this.checkNumberOfBlocksDuringFirmwareResumePropertySpec()
+        );
     }
 
     protected PropertySpec nodeAddressPropertySpec() {
@@ -59,6 +64,10 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
 
     protected PropertySpec callHomeIdPropertySpec() {
         return PropertySpecFactory.stringPropertySpec(CALL_HOME_ID_PROPERTY_NAME);
+    }
+
+    private PropertySpec checkNumberOfBlocksDuringFirmwareResumePropertySpec() {
+        return PropertySpecFactory.notNullableBooleanPropertySpec(CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, DEFAULT_CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME);
     }
 
     protected PropertySpec timeZonePropertySpec() {

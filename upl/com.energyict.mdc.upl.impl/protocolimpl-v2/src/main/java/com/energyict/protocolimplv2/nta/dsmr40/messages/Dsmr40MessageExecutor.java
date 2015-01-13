@@ -253,7 +253,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
     }
 
-    private void upgradeFirmwareWithActivationDateAndImageIdentifier(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected void upgradeFirmwareWithActivationDateAndImageIdentifier(OfflineDeviceMessage pendingMessage) throws IOException {
         String userFile = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
         String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName).getDeviceMessageAttributeValue();   // Will return empty string if the MessageAttribute could not be found
         String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue(); // Will return empty string if the MessageAttribute could not be found
@@ -310,7 +310,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         return false;
     }
 
-    private boolean isTemporaryFailure(DataAccessResultException e) {
+    protected boolean isTemporaryFailure(DataAccessResultException e) {
         return (e.getDataAccessResult() == DataAccessResultCode.TEMPORARY_FAILURE.getResultCode());
     }
 

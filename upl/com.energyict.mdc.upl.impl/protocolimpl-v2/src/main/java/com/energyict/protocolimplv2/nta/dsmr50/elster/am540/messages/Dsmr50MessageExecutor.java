@@ -4,14 +4,20 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40MessageExecutor;
+import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.DSMR50Properties;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.logging.Level;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
@@ -37,6 +43,51 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
     @Override
     protected boolean isResume(OfflineDeviceMessage pendingMessage) {
         return (pendingMessage.getTrackingId() != null) && (pendingMessage.getTrackingId().toLowerCase().contains(RESUME));
+    }
+
+    @Override
+    protected void upgradeFirmwareWithActivationDateAndImageIdentifier(OfflineDeviceMessage pendingMessage) throws IOException {
+        String userFile = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
+        String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName).getDeviceMessageAttributeValue();   // Will return empty string if the MessageAttribute could not be found
+        String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue(); // Will return empty string if the MessageAttribute could not be found
+        byte[] image = ProtocolTools.getBytesFromHexString(userFile, "");
+
+        ImageTransfer it = getCosemObjectFactory().getImageTransfer();
+        if (isResume(pendingMessage)) {
+            int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
+            if (lastTransferredBlockNumber > 0) {
+                it.setStartIndex(lastTransferredBlockNumber - 1);
+            }
+        }
+
+        it.setBooleanValue(getBooleanValue());
+        it.setUsePollingVerifyAndActivate(true);    //Poll verification
+        it.setPollingDelay(10000);
+        it.setPollingRetries(30);
+        it.setDelayBeforeSendingBlocks(5000);
+        it.setCheckNumberOfBlocksInPreviousSession(((DSMR50Properties)getProtocol().getDlmsSessionProperties()).getCheckNumberOfBlocksDuringFirmwareResume());
+        if (imageIdentifier.isEmpty()) {
+            it.upgrade(image, false);
+        } else {
+            it.upgrade(image, false, imageIdentifier, false);
+        }
+
+        if (activationDate.isEmpty()) {
+            try {
+                it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
+                it.imageActivation();
+            } catch (DataAccessResultException e) {
+                if (isTemporaryFailure(e)) {
+                    getProtocol().getLogger().log(Level.INFO, "Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");
+                } else {
+                    throw e;
+                }
+            }
+        } else {
+            SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
+            Array dateArray = convertActivationDateEpochToDateTimeArray(activationDate);
+            sas.writeExecutionTime(dateArray);
+        }
     }
 
     @Override
