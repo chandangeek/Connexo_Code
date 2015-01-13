@@ -161,7 +161,7 @@ public class MdcPropertyUtils {
             isExchaustive = propertySpec.getPossibleValues().isExhaustive();
         }
 
-        if (possibleValues == null) {
+        if (possibleValues == null || possibleValues.isEmpty()) {
             return null;
         }
 
