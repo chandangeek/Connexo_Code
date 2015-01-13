@@ -3,12 +3,11 @@ Ext.define('Uni.property.view.DefaultButton', {
     xtype: 'uni-default-button',
 
     border: 0,
-//    icon: '../sky/build/resources/images/form/restore.png',
-    html: '<img style="margin-left: -2px" src="../sky/build/resources/images/form/restore.png">',
+    iconCls: 'icon-spinner12',
+    iconAlign: 'center',
     height: 28,
     width: 28,
-    scale: 'small',
     action: 'delete',
-    margin: '0 0 5 5',
-    hidden: true
+    margin: '0 0 0 5',
+    hidden: false
 });

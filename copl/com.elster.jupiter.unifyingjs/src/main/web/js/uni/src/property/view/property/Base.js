@@ -19,7 +19,7 @@ Ext.define('Uni.property.view.property.Base', {
     ],
 
     width: 320,
-    resetButtonHidden: false,
+//    resetButtonHidden: false,
     translationKey: 'UNI',
 
     layout: 'hbox',
@@ -28,7 +28,8 @@ Ext.define('Uni.property.view.property.Base', {
 
     items: [
         {
-            xtype: 'uni-default-button'
+            xtype: 'uni-default-button',
+            visible: true
         }
     ],
 
@@ -112,16 +113,20 @@ Ext.define('Uni.property.view.property.Base', {
      * Updates the reset button state and tooltip
      */
     updateResetButton: function () {
-        var resetButtonHidden = this.resetButtonHidden;
         var button = this.getResetButton();
 
-        if (!resetButtonHidden && this.isEdit) {
-            button.setTooltip(
-                    Uni.I18n.translate('general.restoreDefaultValue', this.translationKey, 'Restore to default value')
-                    + ' &quot; ' + this.getProperty().get('default') + '&quot;'
-            );
+        if (this.isEdit) {
+            if(!this.getProperty().get('isInheritedOrDefaultValue')){
+                button.setTooltip(
+                        Uni.I18n.translate('general.restoreDefaultValue', this.translationKey, 'Restore to default value')
+                        + ' &quot; ' + this.getProperty().get('default') + '&quot;'
+                );
 
-            button.setVisible(!this.getProperty().get('isInheritedOrDefaultValue'));
+                button.setDisabled(false);
+            } else {
+                button.setTooltip('bla');
+                button.setDisabled(true);
+            }
         }
         this.fireEvent('checkRestoreAll', this);
     },
