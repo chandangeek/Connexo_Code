@@ -30,120 +30,120 @@
     </build>
 
     <dependencies>
-    	<dependency>
+        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
         </dependency>
         <dependency>
-        	<groupId>org.apache.felix</groupId>
-        	<artifactId>org.apache.felix.scr</artifactId>
-        	<version>1.6.2</version>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr</artifactId>
+            <version>1.6.2</version>
         </dependency>
         <dependency>
-        	<groupId>org.apache.felix</groupId>
-        	<artifactId>org.apache.felix.http.jetty</artifactId>
-        	<version>2.2.1</version>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.http.jetty</artifactId>
+            <version>2.2.1</version>
         </dependency>
         <dependency>
-        	<groupId>org.apache.felix</groupId>
-        	<artifactId>org.apache.felix.configadmin</artifactId>
-        	<version>1.6.0</version>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.configadmin</artifactId>
+            <version>1.6.0</version>
         </dependency>
         <dependency>
-        	<groupId>org.apache.felix</groupId>
-        	<artifactId>org.apache.felix.metatype</artifactId>
-        	<version>1.0.8</version>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.metatype</artifactId>
+            <version>1.0.8</version>
         </dependency>
         <dependency>
-        	<groupId>org.apache.felix</groupId>
-        	<artifactId>org.apache.felix.log</artifactId>
-        	<version>1.0.1</version>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.log</artifactId>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
-        	<groupId>org.apache.felix</groupId>
-        	<artifactId>org.apache.felix.eventadmin</artifactId>
-        	<version>1.3.2</version>
-        </dependency>
-		<dependency>
-        	<groupId>com.elster.jupiter</groupId>
-        	<artifactId>org.apache.felix.webconsole.all</artifactId>
-        	<version>4.2.0</version>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.eventadmin</artifactId>
+            <version>1.3.2</version>
         </dependency>
         <dependency>
-        	<groupId>org.apache.felix</groupId>
-        	<artifactId>org.apache.felix.webconsole.plugins.ds</artifactId>
-        	<version>1.0.0</version>
-        </dependency>
-    	<dependency>
-        	<groupId>org.apache.felix</groupId>
-        	<artifactId>org.apache.felix.webconsole.plugins.memoryusage</artifactId>
-        	<version>1.0.4</version>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>org.apache.felix.webconsole.all</artifactId>
+            <version>4.2.0</version>
         </dependency>
         <dependency>
-        	<groupId>org.apache.felix</groupId>
-        	<artifactId>org.apache.felix.webconsole.plugins.event</artifactId>
-        	<version>1.1.0</version>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.webconsole.plugins.ds</artifactId>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
-        	<groupId>org.apache.felix</groupId>
-        	<artifactId>org.apache.felix.gogo.shell</artifactId>
-        	<version>0.10.0</version>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.webconsole.plugins.memoryusage</artifactId>
+            <version>1.0.4</version>
         </dependency>
         <dependency>
-        	<groupId>org.apache.felix</groupId>
-        	<artifactId>org.apache.felix.gogo.runtime</artifactId>
-        	<version>0.10.0</version>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.webconsole.plugins.event</artifactId>
+            <version>1.1.0</version>
         </dependency>
         <dependency>
-        	<groupId>org.apache.felix</groupId>
-        	<artifactId>org.apache.felix.gogo.command</artifactId>
-        	<version>0.12.0</version>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.gogo.shell</artifactId>
+            <version>0.10.0</version>
         </dependency>
         <dependency>
-    		<groupId>javax.ws.rs</groupId>    		
-    		<artifactId>javax.ws.rs-api</artifactId>
-   		</dependency>
-        <dependency>
-    		<groupId>org.glassfish.jersey.containers</groupId>    		
-    		<artifactId>jersey-container-servlet-core</artifactId>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.gogo.runtime</artifactId>
+            <version>0.10.0</version>
         </dependency>
         <dependency>
-    		<groupId>org.glassfish.jersey.core</groupId>
-    		<artifactId>jersey-server</artifactId>
-    		<exclusions>
-        		<exclusion> 
-          			<groupId>org.glassfish.hk2.external</groupId>
-          			<artifactId>asm-all-repackaged</artifactId>
-        		</exclusion>
-      		</exclusions> 
-		</dependency>
-		<dependency>
-    		<groupId>org.glassfish.jersey.core</groupId>
-    		<artifactId>jersey-client</artifactId>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.gogo.command</artifactId>
+            <version>0.12.0</version>
         </dependency>
         <dependency>
-    		<groupId>org.glassfish.jersey.media</groupId>
-    		<artifactId>jersey-media-json-jackson</artifactId>
-		</dependency>
-		<dependency>
-    		<groupId>joda-time</groupId>
-    		<artifactId>joda-time</artifactId>
-		</dependency>
-		<dependency>
-    		<groupId>com.google.guava</groupId>
-    		<artifactId>guava</artifactId>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
         <dependency>
-    		<groupId>javax.annotation</groupId>
-    		<artifactId>javax.annotation-api</artifactId>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet-core</artifactId>
         </dependency>
         <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>                
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-server</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.glassfish.hk2.external</groupId>
+                    <artifactId>asm-all-repackaged</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>                
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -190,27 +190,27 @@
             <artifactId>metering</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.extjs</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.rest</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>orm</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>parties</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>pubsub</artifactId>
             <version>1.0.0-SNAPSHOT</version>
@@ -220,12 +220,12 @@
             <artifactId>rest.util</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>rest.whiteboard</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>security.thread</artifactId>
             <version>1.0.0-SNAPSHOT</version>
@@ -285,15 +285,15 @@
             <artifactId>events</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>osgi.goodies</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -301,6 +301,6 @@
             <artifactId>jupiter-oracle</artifactId>
             <version>1.11.2.03</version>
         </dependency>
-      
-	 </dependencies>
+
+    </dependencies>
 </project>
