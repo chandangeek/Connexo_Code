@@ -45,11 +45,11 @@ public class IssueRuleFactory extends NamedFactory<IssueRuleFactory, CreationRul
         rule.setName(getName());
         rule.setReason(getReasonForRule());
         rule.setTemplateUuid(Constants.CreationRuleTemplate.BASIC_DATA_COLLECTION_UUID);
-        rule.setDueInType(DueInType.MONTH);
+        rule.setDueInType(DueInType.WEEK);
         rule.setDueInValue(1);
         rule.setContent(getCreationRuleTemplate().getContent());
         rule.addParameter("eventType", type);
-        rule.addParameter("autoResolution", "false");
+        rule.addParameter("autoResolution", "true");
         rule.validate();
         rule.save();
         store.add(CreationRule.class, rule);

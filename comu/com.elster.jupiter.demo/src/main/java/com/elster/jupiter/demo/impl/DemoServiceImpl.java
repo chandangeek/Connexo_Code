@@ -10,10 +10,9 @@ import com.elster.jupiter.demo.impl.factories.DynamicKpiFactory;
 import com.elster.jupiter.demo.impl.factories.InboundComPortPoolFactory;
 import com.elster.jupiter.demo.impl.factories.IssueCommentFactory;
 import com.elster.jupiter.demo.impl.factories.IssueFactory;
-import com.elster.jupiter.demo.impl.factories.IssueReasonFactory;
 import com.elster.jupiter.demo.impl.factories.IssueRuleFactory;
 import com.elster.jupiter.demo.impl.factories.OutboundTCPComPortFactory;
-import com.elster.jupiter.demo.impl.factories.OutboundTCPComPortPoollFactory;
+import com.elster.jupiter.demo.impl.factories.OutboundTCPComPortPoolFactory;
 import com.elster.jupiter.demo.impl.factories.UserFactory;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -61,7 +60,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
@@ -69,7 +67,6 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -94,17 +91,16 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @Component(name = "com.elster.jupiter.demo", service = {DemoService.class, DemoServiceImpl.class}, property = {
         "osgi.command.scope=demo",
         "osgi.command.function=createDemoData",
         "osgi.command.function=createUsers",
+        "osgi.command.function=createIssues",
         "osgi.command.function=createAppServer",
         "osgi.command.function=createCollectRemoteDataSetup",
         "osgi.command.function=createValidationRules"
@@ -273,7 +269,6 @@ public class DemoServiceImpl implements DemoService {
         });
     }
 
-
     @Override
     public void createUsers(){
         executeTransaction(new VoidTransaction() {
@@ -293,6 +288,17 @@ public class DemoServiceImpl implements DemoService {
             }
         });
     }
+
+    @Override
+    public void createIssues(){
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                createIssuesImpl();
+            }
+        });
+    }
+
     private void createCollectRemoteDataSetupImpl(final String comServerName, final String host){
         Optional<License> license = licenseService.getLicenseForApplication("MDC");
         if (!license.isPresent() || !License.Status.ACTIVE.equals(license.get().getStatus())) {
@@ -312,8 +318,6 @@ public class DemoServiceImpl implements DemoService {
         createCommunicationSchedules(store);
         createDeviceTypes(store);
         createDeviceGroups();
-
-        createIssueReasons();
         createCreationRule();
         createKpi();
     }
@@ -322,17 +326,18 @@ public class DemoServiceImpl implements DemoService {
         injector.getInstance(IssueRuleFactory.class)
                 .withName(Constants.CreationRule.CONNECTION_LOST)
                 .withType(Constants.IssueCreationRule.TYPE_CONNECTION_LOST)
-                .withReason(Constants.IssueReason.CONNECTION_FAILED.getKey())
+                .withReason(Constants.IssueReason.CONNECTION_FAILED)
                 .get();
         injector.getInstance(IssueRuleFactory.class)
                 .withName(Constants.CreationRule.COMMUNICATION_FAILED)
                 .withType(Constants.IssueCreationRule.TYPE_COMMUNICATION_FAILED)
-                .withReason(Constants.IssueReason.COMMUNICATION_FAILED.getKey())
+                .withReason(Constants.IssueReason.COMMUNICATION_FAILED)
                 .get();
-    }
-
-    private void createIssueReasons(){
-        injector.getInstance(IssueReasonFactory.class).get(); // TODO split reasons!
+        injector.getInstance(IssueRuleFactory.class)
+                .withName(Constants.CreationRule.CONNECTION_SETUP_LOST)
+                .withType(Constants.IssueCreationRule.TYPE_CONNECTION_SETUP_LOST)
+                .withReason(Constants.IssueReason.CONNECTION_SETUP_FAILED)
+                .get();
     }
 
     private void createDeviceGroups(){
@@ -357,25 +362,12 @@ public class DemoServiceImpl implements DemoService {
     private void createComPortsAndPools() {
         ComServer comServer = store.getLast(ComServer.class).orElseThrow(() -> new UnableToCreate("Unable to find ComServer"));
         injector.getInstance(OutboundTCPComPortFactory.class).withName(Constants.OutboundTcpComPort.DEFAULT).withComServer(comServer).get();
-        injector.getInstance(OutboundTCPComPortPoollFactory.class).withName(Constants.ComPortPool.VODAFONE).withComPorts(Constants.OutboundTcpComPort.DEFAULT).get();
-        injector.getInstance(OutboundTCPComPortPoollFactory.class).withName(Constants.ComPortPool.ORANGE).withComPorts(Constants.OutboundTcpComPort.DEFAULT).get();
+        injector.getInstance(OutboundTCPComPortPoolFactory.class).withName(Constants.ComPortPool.VODAFONE).withComPorts(Constants.OutboundTcpComPort.DEFAULT).get();
+        injector.getInstance(OutboundTCPComPortPoolFactory.class).withName(Constants.ComPortPool.ORANGE).withComPorts(Constants.OutboundTcpComPort.DEFAULT).get();
         injector.getInstance(InboundComPortPoolFactory.class).withName(Constants.ComPortPool.INBOUND_SERVLET_POOL).get();
     }
 
-    private OutboundComPortPool createOutboundTcpComPortPool(String name, OutboundComPort... comPorts) {
-        System.out.println("==> Creating Outbound TCP Port Pool '" + name + "'...");
-        OutboundComPortPool outboundComPortPool = engineConfigurationService.newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(0, TimeDuration.TimeUnit.SECONDS));
-        outboundComPortPool.setActive(true);
-        if (comPorts != null) {
-            for (OutboundComPort comPort : comPorts) {
-                outboundComPortPool.addOutboundComPort(comPort);
-            }
-        }
-        outboundComPortPool.save();
-        return outboundComPortPool;
-    }
-
-  private void findRegisterTypes(Store store) {
+    private void findRegisterTypes(Store store) {
         System.out.println("==> Finding Register Types...");
         store.getRegisterTypes().put(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_1_K_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.3.72.0"));
         store.getRegisterTypes().put(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_1_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0"));
@@ -423,10 +415,7 @@ public class DemoServiceImpl implements DemoService {
 
     private void createLoadProfiles(Store store) {
         System.out.println("==> Creating Load Profiles Types...");
-
         LoadProfileType dailyElectrisity = createLoadProfile(Constants.LoadProfileType.DAILY_ELECTRICITY, "1.0.99.2.0.255", new TimeDuration(1, TimeDuration.TimeUnit.DAYS));
-        List<ReadingType> types = meteringService.getAvailableReadingTypes().stream().sorted(Comparator.comparing(ReadingType::getMRID)).collect(Collectors.toList());
-
         dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_1_WH));
         dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_2_WH));
         dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_1_WH));
@@ -760,7 +749,7 @@ public class DemoServiceImpl implements DemoService {
         connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
     }
 
-    private void createIssues(){
+    public void createIssuesImpl(){
         List<Device> devices = deviceService.findAllDevices(Condition.TRUE).find();
         for (Device device : devices) {
             IssueFactory issueGenerator = injector.getInstance(IssueFactory.class);
@@ -769,7 +758,7 @@ public class DemoServiceImpl implements DemoService {
             } else if (device.getmRID().equals(Constants.Device.DABF_12)) {
                 issueGenerator.withDevice(device)
                         .withDueDate(Instant.now().plus(12, ChronoUnit.DAYS))
-                        .withIssueReason(Constants.IssueReason.DAILY_BILLING_READ_FAILED.getKey())
+                        .withIssueReason(Constants.IssueReason.CONNECTION_FAILED)
                         .withAssignee(Constants.User.SAM)
                         .get();
 
@@ -782,7 +771,7 @@ public class DemoServiceImpl implements DemoService {
             } else if (device.getmRID().equals(Constants.Device.DABF_13)){
                 issueGenerator.withDevice(device)
                         .withDueDate(Instant.now().plus(10, ChronoUnit.DAYS))
-                        .withIssueReason(Constants.IssueReason.SUSPECT_VALUES.getKey())
+                        .withIssueReason(Constants.IssueReason.COMMUNICATION_FAILED)
                         .withAssignee(Constants.User.SAM)
                         .get();
                 store.getLast(IssueDataCollection.class).ifPresent(

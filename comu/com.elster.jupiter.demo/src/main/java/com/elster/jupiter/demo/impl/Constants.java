@@ -1,15 +1,11 @@
 package com.elster.jupiter.demo.impl;
 
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.util.exception.MessageSeed;
-
-import java.util.logging.Level;
-
 public final class Constants {
     private Constants() {}
 
     public static final class IssueCreationRule {
         public static final String TYPE_CONNECTION_LOST = "CONNECTION_LOST";
+        public static final String TYPE_CONNECTION_SETUP_LOST = "UNABLE_TO_CONNECT";
         public static final String TYPE_COMMUNICATION_FAILED = "DEVICE_COMMUNICATION_FAILURE";
 
         private IssueCreationRule() {}
@@ -22,8 +18,9 @@ public final class Constants {
     }
 
     public static final class CreationRule {
-        public static final String CONNECTION_LOST = "Connection lost rule";
-        public static final String COMMUNICATION_FAILED = "Communication failed rule";
+        public static final String CONNECTION_LOST = "Connection failed";
+        public static final String CONNECTION_SETUP_LOST = "Connection setup failed";
+        public static final String COMMUNICATION_FAILED = "Device communication failed";
 
         private CreationRule() {}
     }
@@ -181,48 +178,11 @@ public final class Constants {
         }
     }
 
-    public static enum IssueReason implements MessageSeed {
-        DAILY_BILLING_READ_FAILED(1, "reason.demo", "Daily billing read failed", Level.INFO),
-        SUSPECT_VALUES(2, "reason.demo.loadprofile", "Suspect values", Level.INFO),
-        CONNECTION_FAILED(3, "reason.connection.failed", "", Level.INFO),
-        COMMUNICATION_FAILED(4, "reason.failed.to.communicate", "", Level.INFO),
-        ;
+    public static class IssueReason {
+        public static final String CONNECTION_FAILED = "reason.connection.failed";
+        public static final String CONNECTION_SETUP_FAILED = "reason.connection.setup.failed";
+        public static final String COMMUNICATION_FAILED = "reason.failed.to.communicate";
 
-        private final int number;
-        private final String key;
-        private final String defaultFormat;
-        private final Level level;
-
-        IssueReason(int number, String key, String defaultFormat, Level level) {
-            this.number = number;
-            this.key = key;
-            this.defaultFormat = defaultFormat;
-            this.level = level;
-        }
-
-        @Override
-        public String getModule() {
-            return IssueService.COMPONENT_NAME;
-        }
-
-        @Override
-        public int getNumber() {
-            return this.number;
-        }
-
-        @Override
-        public String getKey() {
-            return this.key;
-        }
-
-        @Override
-        public String getDefaultFormat() {
-            return this.defaultFormat;
-        }
-
-        @Override
-        public Level getLevel() {
-            return this.level;
-        }
+        private IssueReason() {}
     }
 }

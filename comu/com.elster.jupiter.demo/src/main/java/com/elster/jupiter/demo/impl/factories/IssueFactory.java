@@ -55,7 +55,7 @@ public class IssueFactory implements Factory<IssueDataCollection> {
         this.meteringService = meteringService;
         this.userService = userService;
         this.issueDataCollectionService = issueDataCollectionService;
-        this.issueReason = Constants.IssueReason.CONNECTION_FAILED.getKey();
+        this.issueReason = Constants.IssueReason.CONNECTION_FAILED;
     }
 
     public IssueFactory withDevice(Device device) {
