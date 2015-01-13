@@ -10,7 +10,7 @@ import java.util.List;
  */
 public enum DlmsAuthenticationLevelMessageValues {
 
-    NO_AUTHENTICATION("No authentiction", 0),
+    NO_AUTHENTICATION("No authentication", 0),
     LOW_LEVEL("Low level authentication", 1),
     MANUFACTURER_SPECIFIC("Manufacturer specific", 2),
     HIGH_LEVEL_MD5("High level authentication - MD5", 3),

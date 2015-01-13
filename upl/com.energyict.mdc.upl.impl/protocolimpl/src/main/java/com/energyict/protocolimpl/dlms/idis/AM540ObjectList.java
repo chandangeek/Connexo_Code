@@ -241,6 +241,7 @@ public class AM540ObjectList {
                 new UniversalObject(ObisCode.fromString("1.2.0.2.0.255"), DLMSClassId.findById(1)),
                 new UniversalObject(ObisCode.fromString("1.2.0.2.8.255"), DLMSClassId.findById(1)),
                 new UniversalObject(ObisCode.fromString("1.3.0.2.8.255"), DLMSClassId.findById(1)),
+                new UniversalObject(ObisCode.fromString("1.0.16.7.0.255"), DLMSClassId.findById(3)),
 
                 // Objects concerning disconnector.
                 new UniversalObject(ObisCode.fromString("0.0.15.0.1.255"), DLMSClassId.findById(22)),
@@ -252,7 +253,7 @@ public class AM540ObjectList {
                 new UniversalObject(ObisCode.fromString("1.0.31.4.0.255"), DLMSClassId.findById(5)),
                 new UniversalObject(ObisCode.fromString("1.0.51.4.0.255"), DLMSClassId.findById(5)),
                 new UniversalObject(ObisCode.fromString("1.0.71.4.0.255"), DLMSClassId.findById(5)),
-                new UniversalObject(ObisCode.fromString("1.0.16.24.0.255"), DLMSClassId.findById(5)),
+                new UniversalObject(ObisCode.fromString("1.0.16.24.0.255"), DLMSClassId.findById(5))
         };
     }
 }
