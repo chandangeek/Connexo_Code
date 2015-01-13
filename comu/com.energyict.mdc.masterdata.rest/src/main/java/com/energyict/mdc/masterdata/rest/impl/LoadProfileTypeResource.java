@@ -1,6 +1,7 @@
 package com.energyict.mdc.masterdata.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -14,8 +15,13 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-
+import java.util.Set;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -32,21 +38,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import static java.util.stream.Collectors.toList;
 
 @Path("/loadprofiles")
-public class LoadProfileResource {
+public class LoadProfileTypeResource {
 
     private final MasterDataService masterDataService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final Thesaurus thesaurus;
 
     @Inject
-    public LoadProfileResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus) {
+    public LoadProfileTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus) {
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.thesaurus = thesaurus;
@@ -91,13 +94,16 @@ public class LoadProfileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     public Response addNewLoadProfileType(LoadProfileTypeInfo request, @Context UriInfo uriInfo) {
-        LoadProfileType loadProfileType = masterDataService.newLoadProfileType(request.name, request.obisCode, request.timeDuration);
         boolean all = getBoolean(uriInfo, "all");
+        List<RegisterType> registerTypes = Collections.emptyList();
         if (all) {
-            addAllChannelTypesToLoadProfileType(loadProfileType);
+            registerTypes = masterDataService.findAllRegisterTypes().find();
         } else {
-            addChannelTypesToLoadProfileType(loadProfileType, request);
+            if (request.registerTypes != null) {
+                registerTypes = request.registerTypes.stream().map(info -> masterDataService.findRegisterType(info.id)).flatMap(Functions.asStream()).collect(toList());
+            }
         }
+        LoadProfileType loadProfileType = masterDataService.newLoadProfileType(request.name, request.obisCode, request.timeDuration, registerTypes);
         loadProfileType.save();
         return Response.ok(LoadProfileTypeInfo.from(loadProfileType, false)).build();
     }
@@ -145,17 +151,6 @@ public class LoadProfileResource {
         return loadProfileTypeRef.get();
     }
 
-
-    private void addChannelTypesToLoadProfileType(LoadProfileType loadProfileType, LoadProfileTypeInfo request) {
-        if (request.registerTypes != null) {
-            for (RegisterTypeInfo registerTypeInfo : request.registerTypes) {
-                Optional<RegisterType> registerType = masterDataService.findRegisterType(registerTypeInfo.id);
-                if (registerType.isPresent()) {
-                    loadProfileType.createChannelTypeForRegisterType(registerType.get());
-                }
-            }
-        }
-    }
 
     private void addAllChannelTypesToLoadProfileType(LoadProfileType loadProfileType) {
         Set<Long> alreadyAdded = new HashSet<>();

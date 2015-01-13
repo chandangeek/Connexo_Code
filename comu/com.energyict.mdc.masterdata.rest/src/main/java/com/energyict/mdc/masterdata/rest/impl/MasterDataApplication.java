@@ -51,7 +51,7 @@ public class MasterDataApplication extends Application implements TranslationKey
         return ImmutableSet.of(
                 ReadingTypeResource.class,
                 LogBookTypeResource.class,
-                LoadProfileResource.class,
+                LoadProfileTypeResource.class,
                 PhenomenonResource.class,
                 TransactionWrapper.class,
                 ExceptionLogger.class,

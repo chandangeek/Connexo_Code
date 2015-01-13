@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class LoadProfileResourceTest extends MasterDataApplicationJerseyTest {
+public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest {
 
     @Test
     public void testIntervalsList() throws Exception {
