@@ -16,9 +16,8 @@ import javax.ws.rs.core.Application;
 import java.util.HashSet;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.yellowfin.rest" , service=Application.class , immediate = true , property = {"alias=/yfn", "app=YFN", "name=" + YellowfinApplication.COMPONENT_NAME} )
+@Component(name = "com.elster.jupiter.yellowfin.rest" , service=Application.class , immediate = true , property = {"alias=/yfn", "app=SYS", "name=" + YellowfinApplication.COMPONENT_NAME} )
 public class YellowfinApplication extends Application implements BinderProvider{
-    public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "YFN";
 
     private final Set<Class<?>> classes = new HashSet<>();
@@ -28,7 +27,6 @@ public class YellowfinApplication extends Application implements BinderProvider{
 
     private volatile YellowfinService yellowfinService;
     private volatile YellowfinGroupsService yellowfinGroupsService;
-    private volatile License license;
 
     public YellowfinApplication() {
     }
@@ -57,11 +55,6 @@ public class YellowfinApplication extends Application implements BinderProvider{
     @Reference
     public void setYellowfinGroupsService(YellowfinGroupsService yellowfinGroupsService) {
         this.yellowfinGroupsService = yellowfinGroupsService;
-    }
-
-    @Reference(target="(com.elster.jupiter.license.rest.key=" + APP_KEY  + ")")
-      public void setLicense(License license) {
-        this.license = license;
     }
 
     @Override

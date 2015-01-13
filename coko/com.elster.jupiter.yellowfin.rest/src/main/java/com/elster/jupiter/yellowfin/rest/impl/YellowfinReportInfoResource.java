@@ -4,7 +4,6 @@ package com.elster.jupiter.yellowfin.rest.impl;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.yellowfin.YellowfinService;
 import com.elster.jupiter.yellowfin.security.Privileges;
-import com.hof.mi.web.service.ReportRow;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
