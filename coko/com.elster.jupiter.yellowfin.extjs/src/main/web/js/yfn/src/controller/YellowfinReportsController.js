@@ -165,6 +165,11 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
                     var filterDescription = filterRecord.get('filterDisplayName') || filterName;
                     me.filterValues[filterRecord.get('id')] = me.getFilterValue(filterRecord, me.reportFilters[filterName]);
 
+                    var value =  me.filterValues[filterRecord.get('id')];
+                    if(value && value.toString().indexOf("__##SEARCH_RESULTS##__")!=-1){
+                        value = Uni.I18n.translate('generatereport.searchResults', 'YFN', 'Search results')
+                    }
+
                     if(!filterOmittable){
                         reportPromptsContainer.setVisible(true);
                         reportPromptsContainer.add({
@@ -173,7 +178,7 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
                             labelWidth:150,
                             width:300,
                             fieldLabel: filterRecord.get('filterDisplayName') + ' ' + wizard.translateFilterType(filterRecord.get('filterType')),
-                            value: me.reportFilters[filterName]
+                            value: value//me.reportFilters[filterName]
                         });
                     }
                     else{
@@ -184,8 +189,8 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
                             {
                                 xtype: 'displayfield',
                                 labelAlign: 'left',
-                            labelWidth: 200,
-                            fieldLabel: filterDescription + ' ' + wizard.translateFilterType(filterType)
+                                labelWidth: 200,
+                                fieldLabel: filterDescription + ' ' + wizard.translateFilterType(filterType)
                             });
 
                         var fieldContainer = {

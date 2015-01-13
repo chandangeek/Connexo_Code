@@ -322,7 +322,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                 Ext.each(records, function (filterRecord) {
                     var filterType = filterRecord.get('filterType');
                     var filterName = filterRecord.get('filterName');
-                    var filterOmittable = filterRecord.get('filterOmittable') || filterName == 'GROUPNAME';
+                    var filterOmittable = filterRecord.get('filterOmittable');// && filterName != 'GROUPNAME';
                     var filterDescription = filterRecord.get('filterDisplayName') || filterName;
                     var initialValue = me.reportFilters[filterName];
 
@@ -735,7 +735,11 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                         return this.getValue();
                     },
                     getFieldDisplayValue : function(){
-                        return this.getFieldValue();
+                        var value = this.getFieldValue();
+                        if(value && value.toString().indexOf("__##SEARCH_RESULTS##__")!=-1){
+                            return Uni.I18n.translate('generatereport.searchResults', 'YFN', 'Search results')
+                        }
+                        return value;
                     }
                 }
             ];
