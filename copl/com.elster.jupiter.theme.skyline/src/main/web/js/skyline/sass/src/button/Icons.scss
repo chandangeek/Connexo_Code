@@ -3,18 +3,21 @@
         &.#{$prefix}btn-#{$ui}-small {
             .#{$prefix}btn-icon-el {
                 font-size: 15px;
+                margin: auto;
             }
         }
 
         &.#{$prefix}btn-#{$ui}-medium {
             .#{$prefix}btn-icon-el {
                 font-size: 22px;
+              margin: auto;
             }
         }
 
         &.#{$prefix}btn-#{$ui}-large {
             .#{$prefix}btn-icon-el {
                 font-size: 31px;
+                margin: auto;
             }
         }
     }
