@@ -108,7 +108,7 @@ public class DeviceValidationResource {
       if (status) {
     	  validationService.activate(activation, ruleSet);
       } else {
-    	  validationService.activate(activation, ruleSet);
+    	  validationService.deactivate(activation, ruleSet);
       }
     }
 
