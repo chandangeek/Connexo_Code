@@ -86,7 +86,7 @@ Ext.define('Dsh.controller.ConnectionOverview', {
                         var reportUUID = record.get('reportUUID');
                         quickLinks.push({
                             link: reportName,
-                            href: '#/reports/view?reportUUID=' + reportUUID + (filter ? '&filter=' + filter : ''),
+                            href: '#/administration/generatereport?reportUUID=' + reportUUID + (filter ? '&filter=' + filter : ''),
                             target: '_blank'
                         });
                     });

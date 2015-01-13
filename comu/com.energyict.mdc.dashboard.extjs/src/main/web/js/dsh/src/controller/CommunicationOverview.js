@@ -88,10 +88,10 @@ Ext.define('Dsh.controller.CommunicationOverview', {
                     Ext.each(records, function (record) {
                         var reportName = record.get('name');
                         var reportUUID = record.get('reportUUID');
+
                         quickLinks.push({
                             link: reportName,
-                            href: '#/reports/view?reportUUID=' + reportUUID + (filter ? '&filter=' + filter : ''),
-                            target: '_blank'
+                            href: '#/administration/generatereport?reportUUID=' + reportUUID + (filter ? '&filter=' + filter : '')
                         });
                     });
 
