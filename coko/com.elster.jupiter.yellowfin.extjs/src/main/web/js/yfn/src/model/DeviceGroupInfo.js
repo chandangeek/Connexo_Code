@@ -10,7 +10,11 @@ Ext.define('Yfn.model.DeviceGroupInfo', {
             name: 'value1',
             type: 'string',
             convert: function(v, record){
-                return record.get('name');
+                v = record.get('name');
+                if(v.indexOf("__##SEARCH_RESULTS##__")!=-1){
+                    return Uni.I18n.translate('generatereport.searchResults', 'YFN', 'Search results')
+                }
+                return v;
             }
         },
         {
