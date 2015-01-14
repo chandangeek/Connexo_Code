@@ -116,10 +116,14 @@ Ext.define('Uni.property.view.property.Base', {
         var button = this.getResetButton();
 
         if (!resetButtonHidden && this.isEdit) {
-            button.setTooltip(
+            if (!this.getProperty().get('default')) {
+                button.setTooltip(Uni.I18n.translate('general.clearAll', 'UNI', 'Clear all'));
+            } else {
+                button.setTooltip(
                     Uni.I18n.translate('general.restoreDefaultValue', this.translationKey, 'Restore to default value')
-                    + ' &quot; ' + this.getProperty().get('default') + '&quot;'
-            );
+                        + ' &quot; ' + this.getProperty().get('default') + '&quot;'
+                );
+            }
 
             button.setVisible(!this.getProperty().get('isInheritedOrDefaultValue'));
         }
