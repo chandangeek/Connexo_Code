@@ -1,9 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.idis.properties;
 
 import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 
 import java.util.Arrays;
@@ -35,13 +32,5 @@ public class IDISGatewayConfigurationSupport extends DlmsConfigurationSupport {
                 this.timeZonePropertySpec(),
                 this.validateInvokeIdPropertySpec()
         );
-    }
-
-    public PropertySpec callingAPTitlePropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(IDIS.CALLING_AP_TITLE, IDIS.CALLING_AP_TITLE_DEFAULT);
-    }
-
-    public PropertySpec nodeAddressPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(MeterProtocol.NODEID, "");
     }
 }

@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.nta.dsmr50;
 
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.TimeDuration;
+import com.energyict.comserver.adapters.common.AdapterDeviceProtocolProperties;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.protocol.MeterProtocol;
@@ -26,7 +27,6 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.*;
  */
 public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
 
-    private static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
     private static final String CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME = "CheckNumberOfBlocksDuringFirmwareResume";
 
     private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
@@ -63,7 +63,7 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
     }
 
     protected PropertySpec callHomeIdPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(CALL_HOME_ID_PROPERTY_NAME);
+        return PropertySpecFactory.stringPropertySpec(AdapterDeviceProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
     }
 
     private PropertySpec checkNumberOfBlocksDuringFirmwareResumePropertySpec() {

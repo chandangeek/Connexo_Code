@@ -646,6 +646,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
 
         MessageCategorySpec cat3 = new MessageCategorySpec("Alarm configuration");
         cat3.addMessageSpec(addBasicMsg("Reset all alarm bits", "ResetAllAlarmBits", false));
+        cat3.addMessageSpec(addBasicMsg("Reset all error bits", "ResetAllErrorBits", false));
         cat3.addMessageSpec(addBasicMsgWithAttributes("Write alarm filter", "WriteAlarmFilter", false, "Alarm filter (decimal value)"));
         theCategories.add(cat3);
 

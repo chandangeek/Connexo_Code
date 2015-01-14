@@ -32,4 +32,12 @@ public class AbstractDlmsMessaging {
             throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
         }
     }
+
+    protected String convertSpecialDaysCodeTableToXML(Code messageAttribute) {
+        try {
+            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 1, "");
+        } catch (ParserConfigurationException e) {
+            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+        }
+    }
 }

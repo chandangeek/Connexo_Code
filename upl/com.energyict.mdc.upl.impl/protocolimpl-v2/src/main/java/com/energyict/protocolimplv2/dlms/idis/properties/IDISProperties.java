@@ -1,0 +1,40 @@
+package com.energyict.protocolimplv2.dlms.idis.properties;
+
+import com.energyict.protocolimpl.dlms.idis.IDIS;
+import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
+
+import java.math.BigDecimal;
+
+/**
+ * Copyrights EnergyICT
+ *
+ * @author khe
+ * @since 19/12/2014 - 16:39
+ */
+public class IDISProperties extends DlmsProperties {
+
+    public static final String READCACHE_PROPERTY = "ReadCache";
+
+    /**
+     * Property indicating to read the cache out (useful because there's no config change state)
+     */
+    public boolean isReadCache() {
+        return getProperties().<Boolean>getTypedProperty(READCACHE_PROPERTY, false);
+    }
+
+    @Override
+    public byte[] getSystemIdentifier() {
+        //Property CallingAPTitle is used as system identifier in the AARQ
+        return ProtocolTools.getBytesFromHexString(getProperties().getTypedProperty(IDIS.CALLING_AP_TITLE, IDIS.CALLING_AP_TITLE_DEFAULT).trim(), "");
+    }
+
+    @Override
+    public boolean isSwitchAddresses() {
+        return getProperties().<Boolean>getTypedProperty(IDISConfigurationSupport.SWAP_SERVER_AND_CLIENT_ADDRESS_PROPERTY, true);
+    }
+
+    public long getLimitMaxNrOfDays() {
+        return getProperties().getTypedProperty(IDISConfigurationSupport.LIMIT_MAX_NR_OF_DAYS_PROPERTY, BigDecimal.ZERO).longValue();
+    }
+}

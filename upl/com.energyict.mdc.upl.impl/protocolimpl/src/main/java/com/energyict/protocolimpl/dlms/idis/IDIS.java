@@ -222,12 +222,6 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
         String callingAPTitle = properties.getProperty(CALLING_AP_TITLE, CALLING_AP_TITLE_DEFAULT).trim();
         setCallingAPTitle(callingAPTitle);
         loadProfileObisCode = ObisCode.fromString(properties.getProperty(LOAD_PROFILE_OBIS_CODE_PROPERTY, OBISCODE_LOAD_PROFILE1).trim());
-
-        String oldMacAddress = properties.getProperty(DlmsProtocolProperties.SERVER_MAC_ADDRESS, "1:17");
-        String nodeAddress = properties.getProperty(AbstractDLMSProtocol.NODEID, "");
-        String updatedMacAddress = oldMacAddress.replaceAll("x", nodeAddress);
-        properties.setProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, updatedMacAddress.split(":").length > 2 ? updatedMacAddress.split(":")[1] : "17");
-        properties.setProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, updatedMacAddress.split(":").length > 1 ? updatedMacAddress.split(":")[0] : "1");
     }
 
     private boolean isReadCache() {

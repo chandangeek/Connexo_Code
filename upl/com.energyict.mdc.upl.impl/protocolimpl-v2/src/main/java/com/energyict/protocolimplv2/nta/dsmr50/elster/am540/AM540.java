@@ -194,7 +194,7 @@ public class AM540 extends AbstractDlmsProtocol {
                         getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                     }
                     try {
-                        ((ApplicationServiceObjectV2) getDlmsSession().getAso()).releaseAssociation();
+                        getDlmsSession().getAso().releaseAssociation();
                     } catch (ComServerRuntimeException e) {
                         // Absorb exception: in 99% of the cases we expect an exception here ...
                     }

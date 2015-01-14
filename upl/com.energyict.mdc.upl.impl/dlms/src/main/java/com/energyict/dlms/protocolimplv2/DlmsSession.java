@@ -77,7 +77,7 @@ public class DlmsSession implements ProtocolLink {
         }
     }
 
-    public ApplicationServiceObject getAso() {
+    public ApplicationServiceObjectV2 getAso() {
         return aso;
     }
 

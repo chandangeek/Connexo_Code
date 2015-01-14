@@ -23,6 +23,7 @@ import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.dlms.idis.properties.IDISConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.events.IDISGatewayEvents;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.messages.IDISGatewayMessages;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.properties.IDISGatewayConfigurationSupport;
@@ -51,6 +52,7 @@ public class RtuPlusServer implements DeviceProtocol {
     private IDISGatewayRegisters idisGatewayRegisters;
     private IDISGatewayProperties dlmsSessionProperties;
     private IDISGatewayConfigurationSupport configurationSupport;
+    private IDISConfigurationSupport meterConfigurationSupport;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -182,20 +184,31 @@ public class RtuPlusServer implements DeviceProtocol {
                 deviceTopology.addAdditionalCollectedDeviceInfo(
                         MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                                 slaveDeviceIdentifier,
-                                getConfigurationSupport().callingAPTitlePropertySpec(),
+                                getMeterConfigurationSupport().callingAPTitlePropertySpec(),
                                 getDlmsSessionProperties().getDeviceId()    // The DeviceID of the gateway
                         )
                 );
                 deviceTopology.addAdditionalCollectedDeviceInfo(
                         MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                                 slaveDeviceIdentifier,
-                                getConfigurationSupport().nodeAddressPropertySpec(),
+                                getMeterConfigurationSupport().serverUpperMacAddressPropertySpec(),
                                 Integer.toString(sapAssignmentItem.getSap())
                         )
                 );
             }
         }
         return deviceTopology;
+    }
+
+    /**
+     * Properties of the IDIS e-meter.
+     * Some of them are used in this protocol, their values are updated when executing the topology task.
+     */
+    private IDISConfigurationSupport getMeterConfigurationSupport() {
+        if (meterConfigurationSupport == null) {
+            meterConfigurationSupport = new IDISConfigurationSupport();
+        }
+        return meterConfigurationSupport;
     }
 
     private boolean isGatewayNode(SAPAssignmentItem sapAssignmentItem) {
