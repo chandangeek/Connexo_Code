@@ -146,9 +146,11 @@ Ext.define('Dxp.controller.Tasks', {
 
         me.fromDetails = false;
         me.getApplication().fireEvent('changecontentevent', view);
-        Ext.Array.each(Ext.ComponentQuery.query('#run'), function (item) {
-            item.show();
-        });
+        if (Uni.Auth.hasPrivilege('privilege.run.dataExportTask')) {
+            Ext.Array.each(Ext.ComponentQuery.query('#run'), function (item) {
+                item.show();
+            });
+        }
     },
 
     showTaskDetailsView: function (currentTaskId) {
@@ -177,7 +179,9 @@ Ext.define('Dxp.controller.Tasks', {
                     if (record.get('status') === 'Failed') {
                         view.down('#reason-field').show();
                     }
-                    view.down('#run').show();
+                    if (Uni.Auth.hasPrivilege('privilege.run.dataExportTask')) {
+                        view.down('#run').show();
+                    }
                 }
                 if (record.properties() && record.properties().count()) {
                     propertyForm.loadRecord(record);
@@ -469,9 +473,11 @@ Ext.define('Dxp.controller.Tasks', {
             } else {
                 previewForm.down('#reason-field').hide();
             }
-            Ext.Array.each(Ext.ComponentQuery.query('#run'), function (item) {
-                item.show();
-            });
+            if (Uni.Auth.hasPrivilege('privilege.run.dataExportTask')) {
+                Ext.Array.each(Ext.ComponentQuery.query('#run'), function (item) {
+                    item.show();
+                });
+            }
         }
         preview.setTitle(record.get('name'));
         previewForm.loadRecord(record);
