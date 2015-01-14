@@ -6,7 +6,7 @@ Ext.define('MdcApp.controller.Main', {
 
     applicationTitle: 'Connexo MultiSense',
     applicationKey: 'MDC',
-    defaultToken: '#/dashboard',
+    defaultToken: '/dashboard',
     searchEnabled: Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
     onlineHelpEnabled: true,
     privileges: ['privilege.close.issue','privilege.comment.issue','privilege.view.issue','privilege.assign.issue','privilege.action.issue','privilege.view.creationRule','privilege.administrate.creationRule','privilege.view.assignmentRule'
