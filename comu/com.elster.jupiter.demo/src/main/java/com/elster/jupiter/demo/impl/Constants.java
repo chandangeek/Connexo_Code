@@ -47,6 +47,8 @@ public final class Constants {
         public static final String KURT = "Kurt";
         public static final String EDUARDO = "Eduardo";
 
+
+
         private User() {}
     }
 
@@ -54,12 +56,13 @@ public final class Constants {
         public static final String ADMINISTRATORS = "Administrators";
         public static final String METER_EXPERT = "Meter expert";
         public static final String METER_OPERATOR = "Meter operator";
+        public static final String SECURITY_EXPERT = "Security expert";
+        public static final String SECURITY_EXPERT_DESCRIPTION = "Manage security sets and keys";
 
         private UserRoles() {}
     }
 
     public static final class RegisterGroup {
-        public static final String DEFAULT_GROUP = "Default group";
         public static final String TARIFF_1 = "Tariff 1";
         public static final String TARIFF_2 = "Tariff 2";
         public static final String DEVICE_DATA = "Device data";
@@ -69,8 +72,6 @@ public final class Constants {
 
     public static final class LogBookType {
         public static final String DEFAULT_LOGBOOK = "Default Logbook";
-        public static final String POWER_FAILURES = "Power Failures";
-        public static final String FRAUD_DETECTIONS = "Fraud Detections";
 
         private LogBookType() {}
     }
@@ -93,17 +94,14 @@ public final class Constants {
 
     public static final class CommunicationSchedules {
         public static final String DAILY_READ_ALL = "Daily read all";
-        public static final String MONTHLY_BILLING_DATA = "Monthly billing data";
 
         private CommunicationSchedules() {}
     }
 
     public static final class CommunicationTask{
         public static final String READ_ALL = "Read all";
-        public static final String FORCE_CLOCK = "Force clock";
-        public static final String READ_DAILY = "Read daily";
         public static final String TOPOLOGY = "Topology";
-        public static final String READ_REGISTER_BILLING_DATA = "Read register billing data";
+        public static final String READ_REGISTER_DATA = "Read register data";
         public static final String READ_LOAD_PROFILE_DATA = "Read load profile data";
         public static final String READ_LOG_BOOK_DATA = "Read logbook data";
 
@@ -112,14 +110,18 @@ public final class Constants {
 
     public static final class Device{
         public static final String STANDARD_PREFIX = "SPE";
-        public static final String MOCKED_VALIDATION_DEVICE = "DME";
+        public static final String MOCKED_VALIDATION_DEVICE = "VPB";
         public static final String A3WIC16499990 = "A3WIC16499990";
 
         private Device() {}
     }
 
     public static final class Validation {
+        public static final String RULE_SET_NAME = "Residential customers";
+        public static final String RULE_SET_DESCRIPTION = "Set with rules regarding residential customers";
         public static final String DETECT_MISSING_VALUES = "Detect missing values";
+        public static final String REGISTER_INCREASE = "Register increase";
+        public static final String DETECT_THRESHOLD_VIOLATION = "Detect threshold violation";
 
         private Validation() {}
     }
@@ -131,36 +133,30 @@ public final class Constants {
     }
 
     public static class OutboundTcpComPort {
-        public static final String DEFAULT = "Outbound TCP";
+        public static final String TCP_1 = "Outbound TCP 1";
+        public static final String TCP_2 = "Outbound TCP 2";
 
         private OutboundTcpComPort() {}
     }
 
     public static final class RegisterTypes {
-        public static final String BULK_A_FORWARD_ALL_PHASES_TOU_1_K_WH = "Active Energy Import Tariff 1 (kWh)";
-        public static final String BULK_A_FORWARD_ALL_PHASES_TOU_1_WH = "Active Energy Import Tariff 1 (Wh)";
-        public static final String BULK_A_FORWARD_ALL_PHASES_TOU_2_K_WH = "Active Energy Import Tariff 2 (kWh)";
-        public static final String BULK_A_FORWARD_ALL_PHASES_TOU_2_WH = "Active Energy Import Tariff 2 (Wh)";
-        public static final String BULK_A_REVERSE_ALL_PHASES_TOU_1_K_WH = "Active Energy Export Tariff 1 (kWh)";
-        public static final String BULK_A_REVERSE_ALL_PHASES_TOU_1_WH = "Active Energy Export Tariff 1 (Wh)";
-        public static final String BULK_A_REVERSE_ALL_PHASES_TOU_2_K_WH = "Active Energy Export Tariff 2 (kWh)";
-        public static final String BULK_A_REVERSE_ALL_PHASES_TOU_2_WH = "Active Energy Export Tariff 2 (Wh)";
-        public static final String BULK_A_FORWARD_ALL_PHASES_TOU_0_WH = "Active Energy Import Total (Wh)";
-        public static final String BULK_A_REVERSE_ALL_PHASES_TOU_0_WH = "Active Energy Export Total (Wh)";
-        public static final String ALARM_REGISTER = "Alarm register";
-        public static final String AMR_PROFILE_STATUS_CODE = "AMR Profile status code";
-        public static final String ACTIVE_FIRMWARE_VERSION = "Active firmware version";
+        public static final String B_F_E_S_M_E = "Active Energy Import Tariff 1 (kWh)";
+        public static final String B_R_E_S_M_E = "Active Energy Import Tariff 1 (Wh)";
+        public static final String B_F_E_S_M_E_T1 = "Active Energy Import Tariff 2 (kWh)";
+        public static final String B_F_E_S_M_E_T2 = "Active Energy Import Tariff 2 (Wh)";
+        public static final String B_R_E_S_M_E_T1 = "Active Energy Export Tariff 1 (kWh)";
+        public static final String B_R_E_S_M_E_T2 = "Active Energy Export Tariff 1 (Wh)";
 
         private RegisterTypes() {}
     }
 
     public static enum DeviceType {
-        Elster_AS1440 ("Elster AS1440", 245),
-        Elster_AS3000 ("Elster AS3000", 352),
-        Landis_Gyr_ZMD ("Landis+Gyr ZMD", 73),
-        Actaris_SL7000 ("Actaris SL7000", 110),
-        Siemens_7ED ("Siemens 7ED", 96),
-        Iskra_38 ("Iskra 382", 84),
+        Elster_AS1440 ("Elster AS1440", 1 /*245*/),
+        Elster_AS3000 ("Elster AS3000", 1 /*352*/),
+        Landis_Gyr_ZMD ("Landis+Gyr ZMD", 1 /*73*/),
+        Actaris_SL7000 ("Actaris SL7000", 1 /*110*/),
+        Siemens_7ED ("Siemens 7ED", 1 /*96*/),
+        Iskra_38 ("Iskra 382", 1 /*84*/),
         Alpha_A3 ("ALPHA_A3", 1),
         ;
 

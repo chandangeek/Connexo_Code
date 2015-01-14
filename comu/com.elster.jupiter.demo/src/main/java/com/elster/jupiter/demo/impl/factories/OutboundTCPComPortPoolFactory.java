@@ -2,7 +2,6 @@ package com.elster.jupiter.demo.impl.factories;
 
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.Store;
-import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OutboundComPort;
@@ -39,10 +38,11 @@ public class OutboundTCPComPortPoolFactory extends NamedFactory<OutboundTCPComPo
         OutboundComPortPool outboundComPortPool = engineConfigurationService.newOutboundComPortPool(getName(), ComPortType.TCP, new TimeDuration(0, TimeDuration.TimeUnit.SECONDS));
         outboundComPortPool.setActive(true);
         if (comPorts != null) {
-            List<OutboundComPort> ourComPorts = store.get(OutboundComPort.class);
-            for (String comPort : comPorts) {
-                OutboundComPort outboundComPort = ourComPorts.stream().filter(p -> p.getName().equals(comPort)).findFirst().orElseThrow(() -> new UnableToCreate("Unknown comPort"));
-                outboundComPortPool.addOutboundComPort(outboundComPort);
+            List<OutboundComPort> createdComPorts = store.get(OutboundComPort.class);
+            for (OutboundComPort comPort : createdComPorts) {
+                if (comPorts.contains(comPort.getName())){
+                    outboundComPortPool.addOutboundComPort(comPort);
+                }
             }
         }
         outboundComPortPool.save();

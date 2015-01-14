@@ -13,11 +13,19 @@ public class ComServerFactory extends NamedFactory<ComServerFactory, ComServer> 
     private final EngineConfigurationService engineModelService;
     private final Store store;
 
+    private boolean isActive;
+
     @Inject
     public ComServerFactory(EngineConfigurationService engineModelService, Store store) {
         super(ComServerFactory.class);
         this.engineModelService = engineModelService;
         this.store = store;
+        this.isActive = true;
+    }
+
+    public ComServerFactory withActiveStatus(boolean status){
+        this.isActive = status;
+        return this;
     }
 
     @Override
@@ -25,13 +33,13 @@ public class ComServerFactory extends NamedFactory<ComServerFactory, ComServer> 
         Log.write(this);
         OnlineComServer comServer = engineModelService.newOnlineComServerInstance();
         comServer.setName(getName().toUpperCase());
-        comServer.setActive(true);
-        comServer.setServerLogLevel(ComServer.LogLevel.INFO);
-        comServer.setCommunicationLogLevel(ComServer.LogLevel.INFO);
+        comServer.setActive(this.isActive);
+        comServer.setServerLogLevel(ComServer.LogLevel.WARN);
+        comServer.setCommunicationLogLevel(ComServer.LogLevel.WARN);
         comServer.setChangesInterPollDelay(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES));
         comServer.setSchedulingInterPollDelay(new TimeDuration(60, TimeDuration.TimeUnit.SECONDS));
         comServer.setStoreTaskQueueSize(50);
-        comServer.setNumberOfStoreTaskThreads(1);
+        comServer.setNumberOfStoreTaskThreads(5);
         comServer.setStoreTaskThreadPriority(5);
         comServer.save();
         store.add(ComServer.class, comServer);

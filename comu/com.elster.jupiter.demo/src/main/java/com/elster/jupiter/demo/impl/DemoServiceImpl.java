@@ -13,6 +13,7 @@ import com.elster.jupiter.demo.impl.factories.IssueRuleFactory;
 import com.elster.jupiter.demo.impl.factories.OutboundTCPComPortFactory;
 import com.elster.jupiter.demo.impl.factories.OutboundTCPComPortPoolFactory;
 import com.elster.jupiter.demo.impl.factories.UserFactory;
+import com.elster.jupiter.demo.impl.factories.ValidationRuleSetFactory;
 import com.elster.jupiter.demo.impl.finders.ComTaskFinder;
 import com.elster.jupiter.demo.impl.finders.LogBookFinder;
 import com.elster.jupiter.demo.impl.finders.OutboundComPortPoolFinder;
@@ -23,6 +24,8 @@ import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -38,8 +41,6 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.validation.ValidationAction;
-import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.BaseUnit;
@@ -98,10 +99,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.demo", service = {DemoService.class, DemoServiceImpl.class}, property = {
         "osgi.command.scope=demo",
@@ -324,8 +326,7 @@ public class DemoServiceImpl implements DemoService {
         }
         store.addProperty("host", host);
 
-        createComServer("Deitvs099");
-        createComServer(comServerName);
+        createComServers(comServerName);
 
         createComPortsAndPools();
         findRegisterTypes(store);
@@ -338,6 +339,11 @@ public class DemoServiceImpl implements DemoService {
         createDeviceGroups();
         createCreationRule();
         createKpi();
+    }
+
+    private void createComServers(String comServerName) {
+        injector.getInstance(ComServerFactory.class).withName("Deitvs099").withActiveStatus(false).get();
+        injector.getInstance(ComServerFactory.class).withName(comServerName).get();
     }
 
     private void createCreationRule(){
@@ -373,34 +379,25 @@ public class DemoServiceImpl implements DemoService {
                 .get();
     }
 
-    private void createComServer(String name) {
-        injector.getInstance(ComServerFactory.class).withName(name).get();
-    }
-
     private void createComPortsAndPools() {
-        ComServer comServer = store.getLast(ComServer.class).orElseThrow(() -> new UnableToCreate("Unable to find ComServer"));
-        injector.getInstance(OutboundTCPComPortFactory.class).withName(Constants.OutboundTcpComPort.DEFAULT).withComServer(comServer).get();
-        injector.getInstance(OutboundTCPComPortPoolFactory.class).withName(Constants.ComPortPool.VODAFONE).withComPorts(Constants.OutboundTcpComPort.DEFAULT).get();
-        injector.getInstance(OutboundTCPComPortPoolFactory.class).withName(Constants.ComPortPool.ORANGE).withComPorts(Constants.OutboundTcpComPort.DEFAULT).get();
+        for (ComServer comServer : store.get(ComServer.class)) {
+            injector.getInstance(OutboundTCPComPortFactory.class).withName(Constants.OutboundTcpComPort.TCP_1).withComServer(comServer).get();
+            injector.getInstance(OutboundTCPComPortFactory.class).withName(Constants.OutboundTcpComPort.TCP_2).withComServer(comServer).get();
+        }
+        injector.getInstance(OutboundTCPComPortPoolFactory.class).withName(Constants.ComPortPool.VODAFONE).withComPorts(Constants.OutboundTcpComPort.TCP_1, Constants.OutboundTcpComPort.TCP_2).get();
+        injector.getInstance(OutboundTCPComPortPoolFactory.class).withName(Constants.ComPortPool.ORANGE).withComPorts(Constants.OutboundTcpComPort.TCP_1, Constants.OutboundTcpComPort.TCP_2).get();
         injector.getInstance(InboundComPortPoolFactory.class).withName(Constants.ComPortPool.INBOUND_SERVLET_POOL).get();
     }
 
     private void findRegisterTypes(Store store) {
         System.out.println("==> Finding Register Types...");
-        store.getRegisterTypes().put(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_1_K_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.3.72.0"));
-        store.getRegisterTypes().put(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_1_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0"));
-        store.getRegisterTypes().put(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_2_K_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.3.72.0"));
-        store.getRegisterTypes().put(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_2_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0"));
-        store.getRegisterTypes().put(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_1_K_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.3.72.0"));
-        store.getRegisterTypes().put(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_1_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0"));
-        store.getRegisterTypes().put(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_2_K_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.3.72.0"));
-        store.getRegisterTypes().put(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_2_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0"));
-        store.getRegisterTypes().put(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_0_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0"));
-        store.getRegisterTypes().put(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_0_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"));
 
-        store.getRegisterTypes().put(Constants.RegisterTypes.ACTIVE_FIRMWARE_VERSION, findOrCreateRegisterType("0.0.0.0.0.41.92.0.0.0.0.0.0.0.0.0.114.0", "1.0.0.2.8.255"));
-        store.getRegisterTypes().put(Constants.RegisterTypes.AMR_PROFILE_STATUS_CODE, findOrCreateRegisterType("0.0.0.0.0.41.123.0.0.0.0.0.0.0.0.0.110.0", "0.0.96.10.2.255"));
-        store.getRegisterTypes().put(Constants.RegisterTypes.ALARM_REGISTER, findOrCreateRegisterType("0.0.0.0.0.41.118.0.0.0.0.0.0.0.0.0.110.0", "0.0.97.98.0.255"));
+        store.getRegisterTypes().put(Constants.RegisterTypes.B_F_E_S_M_E, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0"));
+        store.getRegisterTypes().put(Constants.RegisterTypes.B_R_E_S_M_E, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"));
+        store.getRegisterTypes().put(Constants.RegisterTypes.B_F_E_S_M_E_T1, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0"));
+        store.getRegisterTypes().put(Constants.RegisterTypes.B_F_E_S_M_E_T2, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0"));
+        store.getRegisterTypes().put(Constants.RegisterTypes.B_R_E_S_M_E_T1, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0"));
+        store.getRegisterTypes().put(Constants.RegisterTypes.B_R_E_S_M_E_T2, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0"));
     }
 
     private RegisterType findRegisterType(String mRid) {
@@ -434,26 +431,26 @@ public class DemoServiceImpl implements DemoService {
     private void createLoadProfiles(Store store) {
         System.out.println("==> Creating Load Profiles Types...");
         RegisterType[] dailyRegisterTypes = {
-                store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_1_WH),
-                store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_2_WH),
-                store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_1_WH),
-                store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_2_WH)
+                store.getRegisterTypes().get(Constants.RegisterTypes.B_F_E_S_M_E_T1),
+                store.getRegisterTypes().get(Constants.RegisterTypes.B_F_E_S_M_E_T2),
+                store.getRegisterTypes().get(Constants.RegisterTypes.B_R_E_S_M_E_T1),
+                store.getRegisterTypes().get(Constants.RegisterTypes.B_R_E_S_M_E_T2)
         };
         LoadProfileType dailyElectrisity = createLoadProfile(Constants.LoadProfileType.DAILY_ELECTRICITY, "1.0.99.2.0.255", new TimeDuration(1, TimeDuration.TimeUnit.DAYS), Arrays.asList(dailyRegisterTypes));
         store.getLoadProfileTypes().put(Constants.LoadProfileType.DAILY_ELECTRICITY, dailyElectrisity);
 
         RegisterType[] monthlyRegisterTypes = {
-                store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_1_WH),
-                store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_2_WH),
-                store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_1_WH),
-                store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_2_WH)
+                store.getRegisterTypes().get(Constants.RegisterTypes.B_F_E_S_M_E_T1),
+                store.getRegisterTypes().get(Constants.RegisterTypes.B_F_E_S_M_E_T2),
+                store.getRegisterTypes().get(Constants.RegisterTypes.B_R_E_S_M_E_T1),
+                store.getRegisterTypes().get(Constants.RegisterTypes.B_R_E_S_M_E_T2)
         };
         LoadProfileType monthlyElectricity = createLoadProfile(Constants.LoadProfileType.MONTHLY_ELECTRICITY, "0.0.98.1.0.255", new TimeDuration(1, TimeDuration.TimeUnit.MONTHS), Arrays.asList(monthlyRegisterTypes));
         store.getLoadProfileTypes().put(Constants.LoadProfileType.MONTHLY_ELECTRICITY, monthlyElectricity);
 
         RegisterType[] _15minRegisterTypes = {
-                store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_0_WH),
-                store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_0_WH)
+                store.getRegisterTypes().get(Constants.RegisterTypes.B_F_E_S_M_E),
+                store.getRegisterTypes().get(Constants.RegisterTypes.B_R_E_S_M_E)
         };
         LoadProfileType _15minElectricity = createLoadProfile(Constants.LoadProfileType._15_MIN_ELECTRICITY, "1.0.99.1.0.255", new TimeDuration(15, TimeDuration.TimeUnit.MINUTES), Arrays.asList(_15minRegisterTypes));
         store.getLoadProfileTypes().put(Constants.LoadProfileType._15_MIN_ELECTRICITY, _15minElectricity);
@@ -468,41 +465,32 @@ public class DemoServiceImpl implements DemoService {
     private void createRegisterGroups(Store store) {
         System.out.println("==> Creating Register Groups...");
 
-        RegisterGroup defaultRegisterGroup = masterDataService.newRegisterGroup(Constants.RegisterGroup.DEFAULT_GROUP);
+        RegisterGroup defaultRegisterGroup = masterDataService.newRegisterGroup(Constants.RegisterGroup.DEVICE_DATA);
         defaultRegisterGroup.save();
-        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_0_WH));
-        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_0_WH));
-        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_1_WH));
-        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_2_WH));
-        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_1_WH));
-        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_2_WH));
-        store.getRegisterGroups().put(Constants.RegisterGroup.DEFAULT_GROUP, defaultRegisterGroup);
+        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.B_F_E_S_M_E));
+        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.B_R_E_S_M_E));
+        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.B_F_E_S_M_E_T1));
+        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.B_F_E_S_M_E_T2));
+        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.B_R_E_S_M_E_T1));
+        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.B_R_E_S_M_E_T2));
+        store.getRegisterGroups().put(Constants.RegisterGroup.DEVICE_DATA, defaultRegisterGroup);
 
         RegisterGroup tariff1 = masterDataService.newRegisterGroup(Constants.RegisterGroup.TARIFF_1);
         tariff1.save();
-        tariff1.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_1_WH));
-        tariff1.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_1_WH));
+        tariff1.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.B_F_E_S_M_E_T1));
+        tariff1.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.B_R_E_S_M_E_T1));
         store.getRegisterGroups().put(Constants.RegisterGroup.TARIFF_1, tariff1);
 
         RegisterGroup tariff2 = masterDataService.newRegisterGroup(Constants.RegisterGroup.TARIFF_2);
         tariff2.save();
-        tariff2.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_2_WH));
-        tariff2.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_2_WH));
+        tariff2.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.B_F_E_S_M_E_T2));
+        tariff2.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.B_R_E_S_M_E_T2));
         store.getRegisterGroups().put(Constants.RegisterGroup.TARIFF_2, tariff2);
-
-        RegisterGroup deviceDataRegisterGroup = masterDataService.newRegisterGroup(Constants.RegisterGroup.DEVICE_DATA);
-        deviceDataRegisterGroup.save();
-        deviceDataRegisterGroup.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.ACTIVE_FIRMWARE_VERSION));
-        deviceDataRegisterGroup.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.AMR_PROFILE_STATUS_CODE));
-        deviceDataRegisterGroup.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.ALARM_REGISTER));
-        store.getRegisterGroups().put(Constants.RegisterGroup.DEVICE_DATA, deviceDataRegisterGroup);
     }
 
     private void createLogbookTypes(Store store) {
         System.out.println("==> Creating Log Book Types...");
         createLogBookType(store, Constants.LogBookType.DEFAULT_LOGBOOK, "0.0.99.98.0.255");
-        createLogBookType(store, Constants.LogBookType.POWER_FAILURES, "1.0.99.97.0.255");
-        createLogBookType(store, Constants.LogBookType.FRAUD_DETECTIONS, "0.0.99.98.1.255");
     }
 
     private void createLogBookType(Store store, String logBookTypeName, String obisCode) {
@@ -514,59 +502,44 @@ public class DemoServiceImpl implements DemoService {
     private void createCommunicationTasks(Store store) {
         System.out.println("==> Creating Communication Tasks...");
 
+        RegisterGroup[] registerGroupsForReadAll = {
+                store.getRegisterGroups().get(Constants.RegisterGroup.DEVICE_DATA)
+        };
         ComTask readAll = taskService.newComTask(Constants.CommunicationTask.READ_ALL);
         readAll.createLoadProfilesTask().loadProfileTypes(new ArrayList<>(store.getLoadProfileTypes().values())).add();
-        RegisterGroup[] registerGroupsForReadAll = {store.getRegisterGroups().get(Constants.RegisterGroup.DEFAULT_GROUP), store.getRegisterGroups().get(Constants.RegisterGroup.DEVICE_DATA)};
         readAll.createRegistersTask().registerGroups(Arrays.asList(registerGroupsForReadAll)).add();
         readAll.createLogbooksTask().logBookTypes(new ArrayList<>(store.getLogBookTypes().values())).add();
+        readAll.createClockTask(ClockTaskType.SETCLOCK).minimumClockDifference(TimeDuration.minutes(5)).maximumClockDifference(TimeDuration.hours(1)).add();
         readAll.save();
         store.getComTasks().put(Constants.CommunicationTask.READ_ALL, readAll);
-
-        ComTask forceClock = taskService.newComTask(Constants.CommunicationTask.FORCE_CLOCK);
-        forceClock.createClockTask(ClockTaskType.FORCECLOCK).add();
-        forceClock.save();
-        store.getComTasks().put(Constants.CommunicationTask.FORCE_CLOCK, forceClock);
-
-        ComTask readDaily = taskService.newComTask(Constants.CommunicationTask.READ_DAILY);
-        readDaily.createClockTask(ClockTaskType.SETCLOCK)
-                .minimumClockDifference(new TimeDuration(5, TimeDuration.TimeUnit.SECONDS))
-                .maximumClockDifference(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES)).add();
-        LoadProfileType[] loadProfileTypesForReadDayly = {store.getLoadProfileTypes().get(Constants.LoadProfileType.DAILY_ELECTRICITY), store.getLoadProfileTypes().get(Constants.LoadProfileType._15_MIN_ELECTRICITY)};
-        readDaily.createLoadProfilesTask().loadProfileTypes(Arrays.asList(loadProfileTypesForReadDayly)).add();
-        readDaily.createLogbooksTask().logBookTypes(Collections.singletonList(store.getLogBookTypes().get(Constants.LogBookType.DEFAULT_LOGBOOK))).add();
-        RegisterGroup[] registerGroupsForReadDayly = {store.getRegisterGroups().get(Constants.RegisterGroup.TARIFF_1), store.getRegisterGroups().get(Constants.RegisterGroup.TARIFF_2)};
-        readDaily.createRegistersTask().registerGroups(Arrays.asList(registerGroupsForReadDayly)).add();
-        readDaily.save();
-        store.getComTasks().put(Constants.CommunicationTask.READ_DAILY, readDaily);
-
-        ComTask topology = taskService.newComTask(Constants.CommunicationTask.TOPOLOGY);
-        topology.createTopologyTask(TopologyAction.VERIFY);
-        topology.save();
-        store.getComTasks().put(Constants.CommunicationTask.TOPOLOGY, topology);
-
-        ComTask readRegisterData = taskService.newComTask(Constants.CommunicationTask.READ_REGISTER_BILLING_DATA);
-        List<RegisterGroup> regGroupsToComTask = new ArrayList<>(2);
-        regGroupsToComTask.add(store.getRegisterGroups().get(Constants.RegisterGroup.TARIFF_1));
-        regGroupsToComTask.add(store.getRegisterGroups().get(Constants.RegisterGroup.TARIFF_2));
-        readRegisterData.createRegistersTask().registerGroups(regGroupsToComTask).add();
-        readRegisterData.save();
-        store.getComTasks().put(Constants.CommunicationTask.READ_REGISTER_BILLING_DATA, readRegisterData);
 
         ComTask readLoadProfileData = taskService.newComTask(Constants.CommunicationTask.READ_LOAD_PROFILE_DATA);
         readLoadProfileData.createLoadProfilesTask().loadProfileTypes(new ArrayList<>(store.getLoadProfileTypes().values())).add();
         readLoadProfileData.save();
         store.getComTasks().put(Constants.CommunicationTask.READ_LOAD_PROFILE_DATA, readLoadProfileData);
 
+        RegisterGroup[] registerGroupsForRegisterData = {
+                store.getRegisterGroups().get(Constants.RegisterGroup.DEVICE_DATA)
+        };
+        ComTask readRegisterData = taskService.newComTask(Constants.CommunicationTask.READ_REGISTER_DATA);
+        readRegisterData.createRegistersTask().registerGroups(Arrays.asList(registerGroupsForRegisterData)).add();
+        readRegisterData.save();
+        store.getComTasks().put(Constants.CommunicationTask.READ_REGISTER_DATA, readRegisterData);
+
         ComTask readLogBookData = taskService.newComTask(Constants.CommunicationTask.READ_LOG_BOOK_DATA);
         readLogBookData.createLogbooksTask().logBookTypes(new ArrayList<>(store.getLogBookTypes().values())).add();
         readLogBookData.save();
         store.getComTasks().put(Constants.CommunicationTask.READ_LOG_BOOK_DATA, readLogBookData);
+
+        ComTask topology = taskService.newComTask(Constants.CommunicationTask.TOPOLOGY);
+        topology.createTopologyTask(TopologyAction.VERIFY);
+        topology.save();
+        store.getComTasks().put(Constants.CommunicationTask.TOPOLOGY, topology);
     }
 
     private void createCommunicationSchedules(Store store){
         System.out.println("==> Creating Communication Schedules...");
         createCommunicationSchedule(store, Constants.CommunicationSchedules.DAILY_READ_ALL, Constants.CommunicationTask.READ_ALL, TimeDuration.days(1));
-        createCommunicationSchedule(store, Constants.CommunicationSchedules.MONTHLY_BILLING_DATA, Constants.CommunicationTask.READ_REGISTER_BILLING_DATA, TimeDuration.months(1));
     }
 
     private void createCommunicationSchedule(Store store, String comScheduleName, String taskName, TimeDuration every) {
@@ -591,22 +564,16 @@ public class DemoServiceImpl implements DemoService {
             throw new IllegalStateException("Unable to retrieve the WebRTU KP protocol. Please check that license was correctly installed and that indexing process was finished for protocols.");
         }
         DeviceType deviceType = deviceConfigurationService.newDeviceType(Constants.DeviceType.values()[deviceTypeCount].getName(), webRTUProtocols.get(0));
-        deviceType.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_0_WH));
-        deviceType.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_1_WH));
-        deviceType.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_2_WH));
-        deviceType.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_0_WH));
-        deviceType.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_1_WH));
-        deviceType.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_2_WH));
-        deviceType.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.ALARM_REGISTER));
-        deviceType.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.AMR_PROFILE_STATUS_CODE));
-        deviceType.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.ACTIVE_FIRMWARE_VERSION));
+        deviceType.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.B_F_E_S_M_E));
+        deviceType.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.B_R_E_S_M_E));
+        deviceType.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.B_F_E_S_M_E_T1));
+        deviceType.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.B_F_E_S_M_E_T2));
+        deviceType.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.B_R_E_S_M_E_T1));
+        deviceType.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.B_R_E_S_M_E_T2));
         deviceType.addLoadProfileType(store.getLoadProfileTypes().get(Constants.LoadProfileType.DAILY_ELECTRICITY));
         deviceType.addLoadProfileType(store.getLoadProfileTypes().get(Constants.LoadProfileType.MONTHLY_ELECTRICITY));
         deviceType.addLoadProfileType(store.getLoadProfileTypes().get(Constants.LoadProfileType._15_MIN_ELECTRICITY));
-
         deviceType.addLogBookType(store.getLogBookTypes().get(Constants.LogBookType.DEFAULT_LOGBOOK));
-        deviceType.addLogBookType(store.getLogBookTypes().get(Constants.LogBookType.FRAUD_DETECTIONS));
-        deviceType.addLogBookType(store.getLogBookTypes().get(Constants.LogBookType.POWER_FAILURES));
         deviceType.save();
 
         createDeviceConfiguration(store, deviceType);
@@ -615,29 +582,29 @@ public class DemoServiceImpl implements DemoService {
     private void createDeviceConfiguration(Store store, DeviceType deviceType) {
         System.out.println("==> Creating Default Device Configuration...");
         DeviceType.DeviceConfigurationBuilder configBuilder = deviceType.newConfiguration(Constants.DeviceConfiguration.DEFAULT);
-        configBuilder.description("A complex configuration that is closely matched to the DSMR 2.3 Devices");
+        configBuilder.description("Default configuration for device type: " + deviceType.getName());
         configBuilder.canActAsGateway(true);
         configBuilder.gatewayType(GatewayType.HOME_AREA_NETWORK);
         configBuilder.isDirectlyAddressable(true);
 
         addRegisterSpecsToDeviceConfiguration(configBuilder, store,
-                Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_0_WH, Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_1_WH,
-                Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_2_WH, Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_0_WH,
-                Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_1_WH, Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_2_WH,
-                Constants.RegisterTypes.ALARM_REGISTER, Constants.RegisterTypes.AMR_PROFILE_STATUS_CODE);
-        configBuilder.newTextualRegisterSpec(store.getRegisterTypes().get(Constants.RegisterTypes.ACTIVE_FIRMWARE_VERSION));
+                Constants.RegisterTypes.B_F_E_S_M_E,
+                Constants.RegisterTypes.B_R_E_S_M_E,
+                Constants.RegisterTypes.B_F_E_S_M_E_T1,
+                Constants.RegisterTypes.B_F_E_S_M_E_T2,
+                Constants.RegisterTypes.B_R_E_S_M_E_T1,
+                Constants.RegisterTypes.B_R_E_S_M_E_T2
+        );
         configBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(Constants.LoadProfileType._15_MIN_ELECTRICITY));
         configBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(Constants.LoadProfileType.DAILY_ELECTRICITY));
         configBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(Constants.LoadProfileType.MONTHLY_ELECTRICITY));
         configBuilder.newLogBookSpec(store.getLogBookTypes().get(Constants.LogBookType.DEFAULT_LOGBOOK));
-        configBuilder.newLogBookSpec(store.getLogBookTypes().get(Constants.LogBookType.POWER_FAILURES));
-        configBuilder.newLogBookSpec(store.getLogBookTypes().get(Constants.LogBookType.FRAUD_DETECTIONS));
         DeviceConfiguration configuration = configBuilder.add();
 
         addConnectionMethodToDeviceConfiguration(store, configuration);
         createSecurityPropertySetForDeviceConfiguration(configuration);
         setProtocolDialectConfigurationProperties(configuration);
-        enableComTasksOnDeviceConfiguration(configuration, Constants.CommunicationTask.READ_DAILY, Constants.CommunicationTask.TOPOLOGY, Constants.CommunicationTask.READ_REGISTER_BILLING_DATA, Constants.CommunicationTask.READ_ALL);
+        enableComTasksOnDeviceConfiguration(configuration, Constants.CommunicationTask.READ_ALL, Constants.CommunicationTask.READ_LOAD_PROFILE_DATA, Constants.CommunicationTask.READ_REGISTER_DATA, Constants.CommunicationTask.READ_LOG_BOOK_DATA, Constants.CommunicationTask.TOPOLOGY);
         configureChannelsForLoadProfileSpec(configuration);
         configuration.activate();
         configuration.save();
@@ -684,7 +651,18 @@ public class DemoServiceImpl implements DemoService {
 
     private SecurityPropertySet createSecurityPropertySetForDeviceConfiguration(DeviceConfiguration configuration) {
         SecurityPropertySet securityPropertySet = configuration.createSecurityPropertySet("No security").authenticationLevel(0).encryptionLevel(0).build();
+        securityPropertySet.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
+        securityPropertySet.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
+        securityPropertySet.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1);
+        securityPropertySet.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2);
         securityPropertySet.update();
+
+        SecurityPropertySet strongSecSet = configuration.createSecurityPropertySet("High level authentication (MD5) and encryption").authenticationLevel(3).encryptionLevel(3).build();
+        securityPropertySet.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
+        securityPropertySet.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
+        securityPropertySet.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1);
+        securityPropertySet.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2);
+        strongSecSet.update();
         return securityPropertySet;
     }
 
@@ -695,6 +673,7 @@ public class DemoServiceImpl implements DemoService {
                 .comPortPool(store.get(OutboundComPortPool.class, Constants.ComPortPool.ORANGE))
                 .addProperty("host", store.getProperty("host"))
                 .addProperty("portNumber", new BigDecimal(4059))
+                .addProperty("connectionTimeout", TimeDuration.minutes(1))
                 .asDefault(true).build();
     }
 
@@ -702,7 +681,7 @@ public class DemoServiceImpl implements DemoService {
         for (LoadProfileSpec loadProfileSpec : devConfiguration.getLoadProfileSpecs()) {
             List<ChannelType> availableChannelTypes = loadProfileSpec.getLoadProfileType().getChannelTypes();
             for (ChannelType channelType : availableChannelTypes) {
-                devConfiguration.createChannelSpec(channelType, channelType.getPhenomenon(), loadProfileSpec).setMultiplier(new BigDecimal(1)).setOverflow(new BigDecimal(1)).add();
+                devConfiguration.createChannelSpec(channelType, channelType.getPhenomenon(), loadProfileSpec).setMultiplier(new BigDecimal(1)).setOverflow(new BigDecimal(9999999999L)).setNbrOfFractionDigits(2).add();
             }
         }
     }
@@ -716,7 +695,7 @@ public class DemoServiceImpl implements DemoService {
             String mrid = Constants.Device.STANDARD_PREFIX +  serialNumber;
             createDevice(store, configuration, mrid, serialNumber);
         }
-        if (Constants.DeviceType.Landis_Gyr_ZMD.getName().equals(deviceTypeName)){
+        if (Constants.DeviceType.Elster_AS1440.getName().equals(deviceTypeName)){
             String serialNumber = "010000010001";
             createDevice(store, configuration, Constants.Device.MOCKED_VALIDATION_DEVICE + serialNumber, serialNumber);
         }
@@ -727,7 +706,7 @@ public class DemoServiceImpl implements DemoService {
                 .withMrid(mrid)
                 .withSerialNumber(serialNumber)
                 .withDeviceConfiguration(configuration)
-                .withComSchedules(Constants.CommunicationSchedules.DAILY_READ_ALL, Constants.CommunicationSchedules.MONTHLY_BILLING_DATA)
+                .withComSchedules(Constants.CommunicationSchedules.DAILY_READ_ALL)
                 .get();
         addConnectionMethodToDevice(store, configuration, device);
     }
@@ -762,6 +741,10 @@ public class DemoServiceImpl implements DemoService {
     }
 
     public void createUserManagementImpl(){
+        if (!userService.findGroup(Constants.UserRoles.SECURITY_EXPERT).isPresent()){
+            userService.createGroup(Constants.UserRoles.SECURITY_EXPERT, Constants.UserRoles.SECURITY_EXPERT_DESCRIPTION);
+        }
+
         injector.getInstance(UserFactory.class).withName(Constants.User.MELISSA).withRoles(Constants.UserRoles.METER_EXPERT).get();
         injector.getInstance(UserFactory.class).withName(Constants.User.SAM).withLanguage(Locale.US.toLanguageTag()).withRoles(Constants.UserRoles.ADMINISTRATORS).get();
         injector.getInstance(UserFactory.class).withName(Constants.User.PIETER).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
@@ -772,31 +755,14 @@ public class DemoServiceImpl implements DemoService {
         injector.getInstance(UserFactory.class).withName(Constants.User.VEERLE).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
         injector.getInstance(UserFactory.class).withName(Constants.User.KURT).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
         injector.getInstance(UserFactory.class).withName(Constants.User.EDUARDO).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
+
     }
 
     public void createValidationSetupImpl(){
-        System.out.println("==> Creating validation rules");
-        if (validationService.getValidationRuleSet(Constants.Validation.DETECT_MISSING_VALUES).isPresent()){
-            System.out.println("==> Validation rule set " + Constants.Validation.DETECT_MISSING_VALUES + " already exists, skip step.");
-        }
-        ValidationRuleSet ruleSet = validationService.createValidationRuleSet(Constants.Validation.DETECT_MISSING_VALUES);
-        ValidationRule rule = ruleSet.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.impl.MissingValuesValidator", Constants.Validation.DETECT_MISSING_VALUES);
-        // 15min Electricity
-        rule.addReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
-        rule.addReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
-        // Daily Electricity
-        rule.addReadingType("11.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
-        rule.addReadingType("11.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0");
-        rule.addReadingType("11.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0");
-        rule.addReadingType("11.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0");
-        // Monthly Electricity
-        rule.addReadingType("13.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
-        rule.addReadingType("13.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0");
-        rule.addReadingType("13.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0");
-        rule.addReadingType("13.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0");
-        rule.activate();
-
-        ruleSet.save();
+        ValidationRuleSet ruleSet = injector.getInstance(ValidationRuleSetFactory.class)
+                .withName(Constants.Validation.RULE_SET_NAME)
+                .withDescription(Constants.Validation.RULE_SET_DESCRIPTION)
+                .get();
 
         List<DeviceConfiguration> configurations = deviceConfigurationService.getLinkableDeviceConfigurations(ruleSet);
         for (DeviceConfiguration configuration : configurations) {
@@ -804,12 +770,24 @@ public class DemoServiceImpl implements DemoService {
             configuration.addValidationRuleSet(ruleSet);
             configuration.save();
         }
+
+        Condition devicesForActivation = where("mRID").like(Constants.Device.STANDARD_PREFIX + "%");
+        List<Meter> meters = meteringService.getMeterQuery().select(devicesForActivation);
+        for (Meter meter : meters) {
+            Optional<? extends MeterActivation> meterActivation= meter.getCurrentMeterActivation();
+            if (meterActivation.isPresent()){
+                validationService.activate(meterActivation.get(), ruleSet);
+            } else {
+                MeterActivation activate = meter.activate(Instant.now());
+                validationService.activate(activate, ruleSet);
+            }
+            validationService.activateValidation(meter);
+        }
     }
 
     public void createKpi(){
         injector.getInstance(DynamicKpiFactory.class).withGroup(store.get(EndDeviceGroup.class, gr -> gr.getName().equals(Constants.DeviceGroup.NORTH_REGION))).get();
         injector.getInstance(DynamicKpiFactory.class).withGroup(store.get(EndDeviceGroup.class, gr -> gr.getName().equals(Constants.DeviceGroup.SOUTH_REGION))).get();
-
     }
 
     public void createApplicationServerImpl(final String appServerName){
@@ -846,7 +824,7 @@ public class DemoServiceImpl implements DemoService {
                 Constants.CommunicationTask.READ_ALL,
                 Constants.CommunicationTask.READ_LOAD_PROFILE_DATA,
                 Constants.CommunicationTask.READ_LOG_BOOK_DATA,
-                Constants.CommunicationTask.READ_REGISTER_BILLING_DATA);
+                Constants.CommunicationTask.READ_REGISTER_DATA);
 //        configuration.getDeviceProtocolProperties().setProperty("deviceTimeZone", "GMT-5");
         configuration.activate();
         configuration.save();
