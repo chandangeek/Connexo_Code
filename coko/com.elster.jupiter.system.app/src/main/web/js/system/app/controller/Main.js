@@ -5,7 +5,7 @@ Ext.define('SystemApp.controller.Main', {
     extend: 'Uni.controller.AppController',
 
     applicationTitle: 'Connexo Admin',
-    defaultToken: '#/administration',
+    defaultToken: '/administration',
     searchEnabled: false,
     onlineHelpEnabled: true,
     privileges: ['privilege.administrate.userAndRole','privilege.view.userAndRole','privilege.view.license','privilege.upload.license',
