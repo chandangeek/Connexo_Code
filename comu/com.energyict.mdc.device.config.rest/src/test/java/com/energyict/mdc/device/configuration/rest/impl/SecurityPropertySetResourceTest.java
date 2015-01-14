@@ -56,7 +56,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         assertThat(jsonModel.<String>get("$.data[0].encryptionLevel.name")).isEqualTo("Encrypt1");
         assertThat(jsonModel.<List>get("$.data[0].executionLevels")).hasSize(2);
         assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].id")).isEqualTo(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1.getPrivilege());
-        assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].name")).isEqualTo("Edit device security properties (level 1)");
+        assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].name")).isEqualTo("Edit device security settings (level 1)");
         assertThat(jsonModel.<List>get("$.data[0].executionLevels[0].userRoles")).hasSize(3);
         assertThat(jsonModel.<Integer>get("$.data[0].executionLevels[0].userRoles[0].id")).isEqualTo(67);
         assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].userRoles[0].name")).isEqualTo("A - user group 2");
@@ -65,12 +65,12 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         assertThat(jsonModel.<Integer>get("$.data[0].executionLevels[0].userRoles[2].id")).isEqualTo(66);
         assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].userRoles[2].name")).isEqualTo("Z - user group 1");
         assertThat(jsonModel.<String>get("$.data[0].executionLevels[1].id")).isEqualTo(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2.getPrivilege());
-        assertThat(jsonModel.<String>get("$.data[0].executionLevels[1].name")).isEqualTo("Edit device security properties (level 2)");
+        assertThat(jsonModel.<String>get("$.data[0].executionLevels[1].name")).isEqualTo("Edit device security settings (level 2)");
 
         assertThat(jsonModel.<String>get("$.data[1].executionLevels[0].id")).isEqualTo(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1.getPrivilege());
-        assertThat(jsonModel.<String>get("$.data[1].executionLevels[0].name")).isEqualTo("Edit device security properties (level 1)");
+        assertThat(jsonModel.<String>get("$.data[1].executionLevels[0].name")).isEqualTo("Edit device security settings (level 1)");
         assertThat(jsonModel.<String>get("$.data[1].executionLevels[1].id")).isEqualTo(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1.getPrivilege());
-        assertThat(jsonModel.<String>get("$.data[1].executionLevels[1].name")).isEqualTo("View device security properties (level 1)");
+        assertThat(jsonModel.<String>get("$.data[1].executionLevels[1].name")).isEqualTo("View device security settings (level 1)");
     }
 
     @Test

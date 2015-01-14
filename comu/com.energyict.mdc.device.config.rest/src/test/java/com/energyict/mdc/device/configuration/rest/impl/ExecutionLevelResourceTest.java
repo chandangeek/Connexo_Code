@@ -124,7 +124,7 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
         assertThat(jsonModel.<List>get("$.executionLevels[*].id"))
                 .hasSize(4)
                 .containsExactly(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1.getPrivilege(), DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2.getPrivilege(), DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3.getPrivilege(), DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4.getPrivilege());
-        assertThat(jsonModel.<List>get("$.executionLevels[*].name")).containsExactly("Edit device security properties (level 1)", "Edit device security properties (level 2)", "Edit device security properties (level 3)", "Edit device security properties (level 4)");
+        assertThat(jsonModel.<List>get("$.executionLevels[*].name")).containsExactly("Edit device security settings (level 1)", "Edit device security settings (level 2)", "Edit device security settings (level 3)", "Edit device security settings (level 4)");
     }
     @Test
     public void testGetExecutionLevels() throws Exception {
@@ -147,7 +147,7 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
         assertThat(jsonModel.<List>get("$.executionLevels[*].id"))
                 .hasSize(2)
                 .containsExactly(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1.getPrivilege(), DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2.getPrivilege());
-        assertThat(jsonModel.<List>get("$.executionLevels[*].name")).containsExactly("View device security properties (level 1)", "View device security properties (level 2)");
+        assertThat(jsonModel.<List>get("$.executionLevels[*].name")).containsExactly("View device security settings (level 1)", "View device security settings (level 2)");
         assertThat(jsonModel.<List>get("$.executionLevels[0].userRoles")).hasSize(3);
         assertThat(jsonModel.<List<String>>get("$.executionLevels[0].userRoles[*].name")).isSortedAccordingTo((n1,n2)->n1.compareToIgnoreCase(n2));
     }
