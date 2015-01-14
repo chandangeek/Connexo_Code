@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.engine.impl.core.ComJob;
@@ -295,7 +296,24 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public synchronized boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
+        ComServer alreadyLockingComServer = this.connectionTaskLocking.get(connectionTask);
+        if (alreadyLockingComServer == null || !comServer.equals(alreadyLockingComServer)) {
+            this.connectionTaskLocking.put(connectionTask, comServer);
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    @Override
     public void unlock (ScheduledConnectionTask connectionTask) {
+        this.connectionTaskLocking.remove(connectionTask);
+    }
+
+    @Override
+    public void unlock (OutboundConnectionTask connectionTask) {
         this.connectionTaskLocking.remove(connectionTask);
     }
 

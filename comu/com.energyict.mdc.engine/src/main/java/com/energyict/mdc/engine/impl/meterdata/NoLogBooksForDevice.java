@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.meterdata;
 import com.energyict.mdc.engine.impl.commands.store.CreateNoLogBooksForDeviceEvent;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.NoLogBooksCollectedData;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
@@ -27,8 +26,8 @@ public class NoLogBooksForDevice extends CollectedDeviceData implements NoLogBoo
     }
 
     @Override
-    public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
-        return new CreateNoLogBooksForDeviceEvent(this);
+    public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
+        return new CreateNoLogBooksForDeviceEvent(this, serviceProvider);
     }
 
     @Override

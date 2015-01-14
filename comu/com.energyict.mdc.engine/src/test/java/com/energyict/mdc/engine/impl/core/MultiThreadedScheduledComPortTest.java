@@ -20,24 +20,22 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.core.verification.CounterVerifierFactory;
-import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
-import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
-import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
-import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitorImplMBean;
-import com.energyict.mdc.engine.impl.monitor.ScheduledComPortOperationalStatistics;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundCapableComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.verification.CounterVerifierFactory;
+import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
+import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitorImplMBean;
+import com.energyict.mdc.engine.impl.monitor.ScheduledComPortOperationalStatistics;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ComPortType;
@@ -215,9 +213,10 @@ public class MultiThreadedScheduledComPortTest {
     private ScheduledComPortOperationalStatistics operationalStatistics;
     @Mock
     private IdentificationService identificationService;
+    @Mock
+    private ScheduledComPortImpl.ServiceProvider serviceProvider;
 
     private Clock clock = Clock.systemUTC();
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private ComPortRelatedComChannel comChannel;
     private CounterVerifierFactory counterVerifierFactory;
 
@@ -233,20 +232,19 @@ public class MultiThreadedScheduledComPortTest {
     }
 
     public void setupServiceProvider() {
-        ServiceProvider.instance.set(this.serviceProvider);
-        this.serviceProvider.setEventPublisher(this.eventPublisher);
-        this.serviceProvider.setEventService(this.eventService);
-        this.serviceProvider.setIdentificationService(this.identificationService);
-        this.serviceProvider.setIssueService(this.issueService);
-        this.serviceProvider.setUserService(this.userService);
-        this.serviceProvider.setClock(this.clock);
-        this.serviceProvider.setTransactionService(new FakeTransactionService());
-        this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
-        this.serviceProvider.setDeviceService(this.deviceService);
-        this.serviceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
-        this.serviceProvider.setEngineService(engineService);
-        this.serviceProvider.setThreadPrincipalService(threadPrincipalService);
-        this.serviceProvider.setManagementBeanFactory(this.managementBeanFactory);
+        when(this.serviceProvider.eventPublisher()).thenReturn(this.eventPublisher);
+        when(this.serviceProvider.eventService()).thenReturn(this.eventService);
+        when(this.serviceProvider.identificationService()).thenReturn(this.identificationService);
+        when(this.serviceProvider.issueService()).thenReturn(this.issueService);
+        when(this.serviceProvider.userService()).thenReturn(this.userService);
+        when(this.serviceProvider.clock()).thenReturn(this.clock);
+        when(this.serviceProvider.transactionService()).thenReturn(new FakeTransactionService());
+        when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
+        when(this.serviceProvider.deviceService()).thenReturn(this.deviceService);
+        when(this.serviceProvider.deviceConfigurationService()).thenReturn(this.deviceConfigurationService);
+        when(this.serviceProvider.engineService()).thenReturn(engineService);
+        when(this.serviceProvider.threadPrincipalService()).thenReturn(threadPrincipalService);
+        when(this.serviceProvider.managementBeanFactory()).thenReturn(this.managementBeanFactory);
         when(this.managementBeanFactory.findOrCreateFor(any(ScheduledComPort.class))).thenReturn(this.scheduledComPortMonitor);
         ScheduledComPortMonitor comPortMonitor = (ScheduledComPortMonitor) this.scheduledComPortMonitor;
         when(comPortMonitor.getOperationalStatistics()).thenReturn(this.operationalStatistics);
@@ -256,10 +254,6 @@ public class MultiThreadedScheduledComPortTest {
         when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), any(DeviceConfiguration.class))).thenReturn(Optional.empty());
         when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
         when(comSessionBuilder.addComTaskExecutionSession(Matchers.<ComTaskExecution>any(), any(ComTask.class), any(Device.class), any(Instant.class))).thenReturn(comTaskExecutionSessionBuilder);
-    }
-
-    public void resetServiceProvider() {
-        ServiceProvider.instance.set(null);
     }
 
     @Before
@@ -272,11 +266,6 @@ public class MultiThreadedScheduledComPortTest {
                 return counter++;
             }
         });
-    }
-
-    @After
-    public void resetEventPublisher() {
-        this.resetServiceProvider();
     }
 
     @Before

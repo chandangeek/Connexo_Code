@@ -1,13 +1,15 @@
 package com.energyict.mdc.engine.impl.core.factories;
 
-import com.elster.jupiter.time.TimeDuration;
-
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl;
 import com.energyict.mdc.engine.impl.core.ComPortListener;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ComServerThreadFactory;
@@ -16,15 +18,12 @@ import com.energyict.mdc.engine.impl.core.ServletInboundComPortListener;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComPortListener;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
-import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactoryImpl;
-import com.energyict.mdc.issues.IssueService;
-
 import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+
+import com.elster.jupiter.time.TimeDuration;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -67,15 +66,14 @@ public class ComPortListenerFactoryImplTest {
     private EngineConfigurationService engineConfigurationService;
     @Mock
     private DeviceService deviceService;
+    @Mock
+    private ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider;
 
     private ThreadFactory threadFactory;
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
     @Before
-    public void setUpServiceProvider () throws IOException {
-        this.serviceProvider.setIssueService(mock(IssueService.class));
+    public void initializeMocks() throws IOException {
         when(this.socketService.newInboundTCPSocket(anyInt())).thenReturn(this.serverSocket);
-        this.serviceProvider.setSocketService(this.socketService);
         WebSocketEventPublisherFactoryImpl webSocketEventPublisherFactory =
                 new WebSocketEventPublisherFactoryImpl(
                         this.connectionTaskService,
@@ -84,7 +82,10 @@ public class ComPortListenerFactoryImplTest {
                         this.engineConfigurationService,
                         this.identificationService,
                         this.eventPublisher);
-        this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
+        when(this.serviceProvider.issueService()).thenReturn(mock(IssueService.class));
+        when(this.serviceProvider.socketService()).thenReturn(this.socketService);
+        when(this.serviceProvider.embeddedWebServerFactory()).thenReturn(new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
+        when(this.serviceProvider.socketService()).thenReturn(socketService);
     }
 
     @Before
@@ -95,7 +96,6 @@ public class ComPortListenerFactoryImplTest {
 
     @Before
     public void setupSocketService() {
-        serviceProvider.setSocketService(socketService);
     }
 
     @Test

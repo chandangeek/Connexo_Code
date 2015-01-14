@@ -1,22 +1,21 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.io.ReadEvent;
 import com.energyict.mdc.engine.impl.events.io.WriteEvent;
-import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.protocol.api.services.HexService;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.time.Clock;
 
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.time.Clock;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -45,25 +44,11 @@ public class ComChannelReadWriteEventPublisherTest {
     private HexService hexService;
 
     private Clock clock = Clock.systemDefaultZone();
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private byte[] expectedBytes;
 
     @Before
     public void initializeMocksAndFactories () throws IOException {
         this.initializeExpectedBytes();
-    }
-
-    @Before
-    public void setupServiceProvider () {
-        this.serviceProvider.setClock(this.clock);
-        this.serviceProvider.setHexService(this.hexService);
-        this.serviceProvider.setEventPublisher(this.eventPublisher);
-        ServiceProvider.instance.set(this.serviceProvider);
-    }
-
-    @After
-    public void resetServiceProvider () {
-        ServiceProvider.instance.set(null);
     }
 
     private void initializeExpectedBytes () throws IOException {

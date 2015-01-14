@@ -5,10 +5,9 @@ import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.StatusInformationCommand;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.junit.*;
 
 import static org.mockito.Mockito.mock;
 
@@ -23,7 +22,7 @@ public class StatusInformationCommandImplTest extends AbstractComCommandExecuteT
     @Test
     public void commandTypeTest() {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, AbstractComCommandExecuteTest.newTestExecutionContext(), (ServiceProvider) serviceProvider);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, this.newTestExecutionContext(), this.commandRootServiceProvider);
         StatusInformationCommand statusInformationCommand = new StatusInformationCommandImpl(offlineDevice, commandRoot, null);
 
         // asserts

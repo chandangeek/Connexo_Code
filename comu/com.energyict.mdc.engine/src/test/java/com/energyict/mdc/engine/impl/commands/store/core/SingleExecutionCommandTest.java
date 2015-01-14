@@ -1,10 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import java.time.Clock;
-import java.time.ZoneId;
-
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
@@ -14,14 +10,19 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 
 import org.joda.time.DateTime;
-import org.junit.Test;
-import org.mockito.Matchers;
 
+import java.time.Clock;
+import java.time.ZoneId;
 import java.util.Date;
+
+import org.junit.*;
+import org.mockito.Matchers;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the SimpleComCommand component
@@ -57,7 +58,7 @@ public class SingleExecutionCommandTest extends CommonCommandImplTests {
     @Test
     public void executionTest() {
         Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
-        ((FakeServiceProvider) serviceProvider).setClock(frozenClock);
+        when(commandRootServiceProvider.clock()).thenReturn(frozenClock);
         final long timeDifferenceInMillis = 1000L;
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
 
@@ -94,7 +95,7 @@ public class SingleExecutionCommandTest extends CommonCommandImplTests {
     @Test
     public void multipleExecutionTest(){
         Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
-        ((FakeServiceProvider) serviceProvider).setClock(frozenClock);
+        when(commandRootServiceProvider.clock()).thenReturn(frozenClock);
         final long timeDifferenceInMillis = 1000L;
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
 

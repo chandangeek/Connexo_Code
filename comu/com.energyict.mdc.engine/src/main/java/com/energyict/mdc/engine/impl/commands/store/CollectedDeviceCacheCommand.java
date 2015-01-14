@@ -2,10 +2,10 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
@@ -22,8 +22,8 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl {
 
     private final UpdatedDeviceCache deviceCache;
 
-    public CollectedDeviceCacheCommand(UpdatedDeviceCache deviceCache) {
-        super();
+    public CollectedDeviceCacheCommand(UpdatedDeviceCache deviceCache, ServiceProvider serviceProvider) {
+        super(serviceProvider);
         this.deviceCache = deviceCache;
     }
 
@@ -34,14 +34,14 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl {
         if (collectedDeviceCache != null && collectedDeviceCache.contentChanged()) {
             DeviceIdentifier<?> deviceIdentifier = this.deviceCache.getDeviceIdentifier();
             Device device = (Device) deviceIdentifier.findDevice();
-            Optional<DeviceCache> deviceCache = getEngineService().findDeviceCacheByDevice(device);
+            Optional<DeviceCache> deviceCache = this.getEngineService().findDeviceCacheByDevice(device);
             if (deviceCache.isPresent()) {
                 DeviceCache actualDeviceCache = deviceCache.get();
                 actualDeviceCache.setCacheObject(collectedDeviceCache);
                 actualDeviceCache.update();
             }
             else {
-                DeviceCache actualDeviceCache = getEngineService().newDeviceCache(device, collectedDeviceCache);
+                DeviceCache actualDeviceCache = this.getEngineService().newDeviceCache(device, collectedDeviceCache);
                 actualDeviceCache.save();
             }
         }

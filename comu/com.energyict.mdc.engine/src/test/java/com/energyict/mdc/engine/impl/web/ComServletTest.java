@@ -1,31 +1,27 @@
 package com.energyict.mdc.engine.impl.web;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.engine.FakeServiceProvider;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
-import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
+import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
+import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.Clock;
 import java.util.Collections;
-
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -52,8 +48,9 @@ public class ComServletTest {
     private static final long COMSERVER_ID = 1;
     private static final long COMPORT_POOL_ID = COMSERVER_ID + 1;
     private static final long COMPORT_ID = COMPORT_POOL_ID + 1;
-    private FakeServiceProvider serviceProvider;
 
+    @Mock
+    private InboundCommunicationHandler.ServiceProvider serviceProvider;
     @Mock
     private ProtocolPluggableService protocolPluggableService;
     @Mock
@@ -61,18 +58,11 @@ public class ComServletTest {
     private Clock clock = Clock.systemDefaultZone();
 
     @Before
-    public void setupEventPublisher () {
-        serviceProvider = new FakeServiceProvider();
-        serviceProvider.setClock(this.clock);
-        serviceProvider.setProtocolPluggableService(protocolPluggableService);
-        serviceProvider.setEventPublisher(this.eventPublisher);
+    public void initializeMocks() {
+        when(serviceProvider.clock()).thenReturn(this.clock);
+        when(serviceProvider.protocolPluggableService()).thenReturn(this.protocolPluggableService);
+        when(serviceProvider.eventPublisher()).thenReturn(this.eventPublisher);
         when(protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(anyString())).thenReturn(Collections.<InboundDeviceProtocolPluggableClass>emptyList());
-        ServiceProvider.instance.set(serviceProvider);
-    }
-
-    @After
-    public void resetServiceProvider() {
-        ServiceProvider.instance.set(null);
     }
 
     @Test

@@ -9,6 +9,7 @@ import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.engine.impl.EngineModule;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.impl.MdcIOModule;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -103,7 +104,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
     private static TransactionService transactionService;
 
     @BeforeClass
-    public static void setupEnvironment() {
+    public static void initializeDatabase() {
         initializeClock();
         BundleContext bundleContext = mock(BundleContext.class);
         Principal principal = mock(Principal.class);
@@ -174,7 +175,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
     }
 
     @AfterClass
-    public static void tearDownEnvironment() {
+    public static void tearDown() {
         bootstrapModule.deactivate();
     }
 
@@ -251,6 +252,34 @@ public abstract class AbstractCollectedDataIntegrationTest {
             bind(LogService.class).toInstance(mock(LogService.class));
         }
 
+    }
+
+    protected class MdcReadingTypeUtilServiceAndClock implements DeviceCommand.ServiceProvider {
+
+        @Override
+        public EventService eventService() {
+            return null;
+        }
+
+        @Override
+        public IssueService issueService() {
+            return null;
+        }
+
+        @Override
+        public Clock clock() {
+            return clock;
+        }
+
+        @Override
+        public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
+            return getMdcReadingTypeUtilService();
+        }
+
+        @Override
+        public EngineService engineService() {
+            return null;
+        }
     }
 
 }

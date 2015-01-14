@@ -44,7 +44,6 @@ import java.util.logging.Logger;
  */
 public final class ComServerLauncher {
 
-    private static final String LOG4J_PROPERTIES_FILE_NAME = "./comserver-log4j.properties";
     private final RunningComServerImpl.ServiceProvider serviceProvider;
 
     private ComServerLauncherLogger logger;

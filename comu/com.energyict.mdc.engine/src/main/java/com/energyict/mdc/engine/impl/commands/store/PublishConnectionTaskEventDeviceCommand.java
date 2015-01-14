@@ -18,14 +18,12 @@ import com.elster.jupiter.events.EventService;
  */
 public abstract class PublishConnectionTaskEventDeviceCommand extends DeviceCommandImpl {
 
-    private final EventService eventService;
     private final ConnectionTask connectionTask;
     private final ComPort comPort;
     private CreateComSessionDeviceCommand createComSessionDeviceCommand;
 
-    public PublishConnectionTaskEventDeviceCommand(EventService eventService, ConnectionTask connectionTask, ComPort comPort) {
-        super();
-        this.eventService = eventService;
+    public PublishConnectionTaskEventDeviceCommand(ConnectionTask connectionTask, ComPort comPort, ServiceProvider serviceProvider) {
+        super(serviceProvider);
         this.connectionTask = connectionTask;
         this.comPort = comPort;
     }
@@ -36,7 +34,7 @@ public abstract class PublishConnectionTaskEventDeviceCommand extends DeviceComm
 
     @Override
     protected void doExecute(ComServerDAO comServerDAO) {
-        this.doExecute(comServerDAO, this.eventService, this.connectionTask, this.comPort, this.createComSessionDeviceCommand.getComSession());
+        this.doExecute(comServerDAO, this.getEventService(), this.connectionTask, this.comPort, this.createComSessionDeviceCommand.getComSession());
     }
 
     protected abstract void doExecute(ComServerDAO comServerDAO, EventService eventService, ConnectionTask connectionTask, ComPort comPort, ComSession comSession);

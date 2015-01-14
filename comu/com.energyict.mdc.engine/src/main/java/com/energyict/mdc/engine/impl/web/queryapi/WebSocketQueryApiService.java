@@ -1,18 +1,21 @@
 package com.energyict.mdc.engine.impl.web.queryapi;
 
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.exceptions.DataAccessException;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.core.remote.QueryMethod;
-import com.energyict.mdc.engine.exceptions.DataAccessException;
-import com.energyict.mdc.engine.config.OnlineComServer;
+
+import com.elster.jupiter.transaction.TransactionService;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
-
 import org.eclipse.jetty.websocket.WebSocket;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,12 +34,22 @@ import java.util.Map;
  */
 public class WebSocketQueryApiService implements WebSocket.OnTextMessage {
 
-    private RunningOnlineComServer comServer;
+    private final RunningOnlineComServer comServer;
+    private final ComServerDAO comServerDAO;
+    private final EngineConfigurationService engineConfigurationService;
+    private final ConnectionTaskService connectionTaskService;
+    private final CommunicationTaskService communicationTaskService;
+    private final TransactionService transactionService;
     private Connection connection;
 
-    public WebSocketQueryApiService (RunningOnlineComServer comServer) {
+    public WebSocketQueryApiService(RunningOnlineComServer comServer, ComServerDAO comServerDAO, EngineConfigurationService engineConfigurationService, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, TransactionService transactionService) {
         super();
         this.comServer = comServer;
+        this.comServerDAO = comServerDAO;
+        this.engineConfigurationService = engineConfigurationService;
+        this.connectionTaskService = connectionTaskService;
+        this.communicationTaskService = communicationTaskService;
+        this.transactionService = transactionService;
     }
 
     public OnlineComServer getComServer () {
@@ -85,7 +98,7 @@ public class WebSocketQueryApiService implements WebSocket.OnTextMessage {
         mapper.enable(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS);
         mapper.disable(MapperFeature.AUTO_DETECT_GETTERS);
         mapper.setSerializationInclusion(Include.NON_EMPTY);
-        Object queryResultValue = queryMethod.execute(parameters, new ComServerDAOImpl(ServiceProvider.instance.get()));
+        Object queryResultValue = queryMethod.execute(parameters, new QueryMethodServiceProvider());
         mapper.writeValue(
                 writer,
                 QueryResult.forResult(
@@ -136,6 +149,34 @@ public class WebSocketQueryApiService implements WebSocket.OnTextMessage {
 
     private boolean isConnected () {
         return this.connection != null;
+    }
+
+    private class QueryMethodServiceProvider implements QueryMethod.ServiceProvider {
+
+        @Override
+        public ComServerDAO comServerDAO() {
+            return comServerDAO;
+        }
+
+        @Override
+        public EngineConfigurationService engineConfigurationService() {
+            return engineConfigurationService;
+        }
+
+        @Override
+        public ConnectionTaskService connectionTaskService() {
+            return connectionTaskService;
+        }
+
+        @Override
+        public CommunicationTaskService communicationTaskService() {
+            return communicationTaskService;
+        }
+
+        @Override
+        public TransactionService transactionService() {
+            return transactionService;
+        }
     }
 
 }

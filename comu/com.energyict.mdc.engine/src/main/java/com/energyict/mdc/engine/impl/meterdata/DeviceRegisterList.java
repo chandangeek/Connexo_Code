@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.meterdata;
 import com.energyict.mdc.engine.impl.commands.store.CollectedRegisterListDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
@@ -41,8 +40,8 @@ public class DeviceRegisterList extends CompositeCollectedData<CollectedRegister
 
 
     @Override
-    public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
-        return new CollectedRegisterListDeviceCommand(this, meterDataStoreCommand);
+    public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
+        return new CollectedRegisterListDeviceCommand(this, meterDataStoreCommand, serviceProvider);
     }
 
     @Override

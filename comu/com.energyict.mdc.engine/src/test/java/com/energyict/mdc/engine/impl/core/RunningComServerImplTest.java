@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.InboundComPort;
@@ -65,9 +64,10 @@ public class RunningComServerImplTest {
     private ComServerMonitorImplMBean comServerMonitor;
     @Mock
     private EventAPIStatistics eventApiStatistics;
+    @Mock
+    private RunningComServerImpl.ServiceProvider serviceProvider;
 
     private Clock clock = Clock.systemDefaultZone();
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
     @Before
     public void setupManagementBeanFactory() {
@@ -78,18 +78,11 @@ public class RunningComServerImplTest {
 
     @Before
     public void setupServiceProvider() {
-        this.serviceProvider.setClock(this.clock);
-        this.serviceProvider.setEngineConfigurationService(this.engineConfigurationService);
-        this.serviceProvider.setEngineService(this.engineService);
-        this.serviceProvider.setDeviceService(this.deviceService);
-        this.serviceProvider.setManagementBeanFactory(this.managementBeanFactory);
-        this.serviceProvider.setEmbeddedWebServerFactory(this.embeddedWebServerFactory);
-        ServiceProvider.instance.set(this.serviceProvider);
-    }
-
-    @After
-    public void resetServiceProvider() {
-        ServiceProvider.instance.set(null);
+        when(this.serviceProvider.clock()).thenReturn(this.clock);
+        when(this.serviceProvider.engineConfigurationService()).thenReturn(this.engineConfigurationService);
+        when(this.serviceProvider.engineService()).thenReturn(this.engineService);
+        when(this.serviceProvider.deviceService()).thenReturn(this.deviceService);
+        when(this.serviceProvider.managementBeanFactory()).thenReturn(this.managementBeanFactory);
     }
 
     @Test

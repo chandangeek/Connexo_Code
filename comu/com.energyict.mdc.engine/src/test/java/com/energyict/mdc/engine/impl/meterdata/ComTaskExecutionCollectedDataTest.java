@@ -2,8 +2,8 @@ package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.tasks.ComTask;
@@ -36,7 +36,7 @@ public class ComTaskExecutionCollectedDataTest {
     @Mock
     private TransactionService transactionService;
     @Mock
-    private IssueService issueService;
+    private DeviceCommand.ServiceProvider serviceProvider;
 
     @Test
     public void testPostProcessDelegatesToContainedCollectedData () {
@@ -140,12 +140,12 @@ public class ComTaskExecutionCollectedDataTest {
 
         // Business method
         MeterDataStoreCommand meterDataStoreCommand = mock(MeterDataStoreCommand.class);
-        collectedData.toDeviceCommand(this.issueService, meterDataStoreCommand);
+        collectedData.toDeviceCommand(meterDataStoreCommand, serviceProvider);
 
         // Asserts
-        verify(cd1).toDeviceCommand(this.issueService, meterDataStoreCommand);
-        verify(cd2).toDeviceCommand(this.issueService, meterDataStoreCommand);
-        verify(cd3).toDeviceCommand(this.issueService, meterDataStoreCommand);
+        verify(cd1).toDeviceCommand(meterDataStoreCommand, serviceProvider);
+        verify(cd2).toDeviceCommand(meterDataStoreCommand, serviceProvider);
+        verify(cd3).toDeviceCommand(meterDataStoreCommand, serviceProvider);
     }
 
     @Test
@@ -153,7 +153,7 @@ public class ComTaskExecutionCollectedDataTest {
         ComTask comTask = mock(ComTask.class, withSettings().extraInterfaces(DataCollectionConfiguration.class));
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
-        ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(comTaskExecution, new ArrayList<ServerCollectedData>(0));
+        ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(comTaskExecution, new ArrayList<>(0));
 
         // Business method
         boolean configuredIn = collectedData.isConfiguredIn((DataCollectionConfiguration) comTask);
@@ -168,7 +168,7 @@ public class ComTaskExecutionCollectedDataTest {
         ComTask otherComTask = mock(ComTask.class, withSettings().extraInterfaces(DataCollectionConfiguration.class));
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
-        ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(comTaskExecution, new ArrayList<ServerCollectedData>(0));
+        ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(comTaskExecution, new ArrayList<>(0));
 
         // Business method
         boolean configuredIn = collectedData.isConfiguredIn((DataCollectionConfiguration) otherComTask);

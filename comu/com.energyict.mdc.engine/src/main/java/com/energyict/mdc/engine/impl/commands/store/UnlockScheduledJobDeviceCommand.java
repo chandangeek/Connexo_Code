@@ -18,8 +18,8 @@ public class UnlockScheduledJobDeviceCommand extends DeviceCommandImpl {
 
     private final ScheduledJob scheduledJob;
 
-    public UnlockScheduledJobDeviceCommand(ScheduledJob scheduledJob) {
-        super();
+    public UnlockScheduledJobDeviceCommand(ScheduledJob scheduledJob, ServiceProvider serviceProvider) {
+        super(serviceProvider);
         this.scheduledJob = scheduledJob;
     }
 

@@ -17,9 +17,12 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.GenericDeviceProtocol;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -28,17 +31,14 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.DeviceProtocolCommandCreator;
-import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
@@ -149,36 +149,53 @@ public class JobExecutionTest {
     private NlsService nlsService;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private MdcReadingTypeUtilService mdcReadingTypeUtilService;
+    @Mock
+    private ExecutionContext.ServiceProvider serviceProvider;
+    @Mock
+    private JobExecution.ServiceProvider jobExecutionServiceProvider;
+    @Mock
+    private CommandRoot.ServiceProvider commandRootServiceProvider;
 
-    private FakeServiceProvider serviceProvider;
     private IssueService issueService = new FakeIssueService();
     private CommandRootImpl root;
 
-    public void setupServiceProvider() {
+    public void setupServiceProviders() {
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
         when(this.thesaurus.getString(anyString(), anyString())).thenReturn("Translation not supported in unit testing");
-        this.serviceProvider = new FakeServiceProvider();
-        this.serviceProvider.setEventPublisher(this.eventPublisher);
-        this.serviceProvider.setIssueService(this.issueService);
-        this.serviceProvider.setTransactionService(new FakeTransactionService());
-        this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
-        this.serviceProvider.setDeviceService(this.deviceService);
-        this.serviceProvider.setEngineService(this.engineService);
-        this.serviceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
-        this.serviceProvider.setNlsService(this.nlsService);
-        this.serviceProvider.setClock(this.clock);
-        ServiceProvider.instance.set(this.serviceProvider);
-    }
+        when(this.serviceProvider.eventPublisher()).thenReturn(this.eventPublisher);
+        when(this.serviceProvider.issueService()).thenReturn(this.issueService);
+        when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
+        when(this.serviceProvider.deviceService()).thenReturn(this.deviceService);
+        when(this.serviceProvider.engineService()).thenReturn(this.engineService);
+        when(this.serviceProvider.nlsService()).thenReturn(this.nlsService);
+        when(this.serviceProvider.clock()).thenReturn(this.clock);
 
-    @After
-    public void restServiceProvider() {
-        ServiceProvider.instance.set(null);
+        when(this.jobExecutionServiceProvider.transactionService()).thenReturn(new FakeTransactionService());
+        when(this.jobExecutionServiceProvider.clock()).thenReturn(this.clock);
+        when(this.jobExecutionServiceProvider.nlsService()).thenReturn(this.nlsService);
+        when(this.jobExecutionServiceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
+        when(this.jobExecutionServiceProvider.hexService()).thenReturn(new HexServiceImpl());
+        when(this.jobExecutionServiceProvider.eventPublisher()).thenReturn(this.eventPublisher);
+        when(this.jobExecutionServiceProvider.issueService()).thenReturn(this.issueService);
+        when(this.jobExecutionServiceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
+        when(this.jobExecutionServiceProvider.deviceConfigurationService()).thenReturn(this.deviceConfigurationService);
+        when(this.jobExecutionServiceProvider.deviceService()).thenReturn(this.deviceService);
+        when(this.jobExecutionServiceProvider.engineService()).thenReturn(this.engineService);
+        when(this.jobExecutionServiceProvider.mdcReadingTypeUtilService()).thenReturn(this.mdcReadingTypeUtilService);
+
+        when(this.commandRootServiceProvider.transactionService()).thenReturn(new FakeTransactionService());
+        when(this.commandRootServiceProvider.clock()).thenReturn(this.clock);
+        when(this.commandRootServiceProvider.issueService()).thenReturn(this.issueService);
+        when(this.commandRootServiceProvider.deviceService()).thenReturn(this.deviceService);
+        when(this.commandRootServiceProvider.mdcReadingTypeUtilService()).thenReturn(this.mdcReadingTypeUtilService);
     }
 
     @Before
     public void setupEventPublisher() {
     	when(clock.instant()).thenReturn(Instant.now());
-        this.setupServiceProvider();
+        this.setupServiceProviders();
     }
 
     @Before
@@ -223,8 +240,8 @@ public class JobExecutionTest {
         when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
 
         ExecutionContext executionContext = newTestExecutionContext();
-        root = spy(new CommandRootImpl(offlineDevice, executionContext, (ServiceProvider) this.serviceProvider));
-        CommandRootImpl root2 = spy(new CommandRootImpl(offlineDevice, executionContext, (ServiceProvider) this.serviceProvider));
+        root = spy(new CommandRootImpl(offlineDevice, executionContext, this.commandRootServiceProvider));
+        CommandRootImpl root2 = spy(new CommandRootImpl(offlineDevice, executionContext, this.commandRootServiceProvider));
         doNothing().when(root).execute(any(DeviceProtocol.class), any(ExecutionContext.class));
         doNothing().when(root2).execute(any(DeviceProtocol.class), any(ExecutionContext.class));
         when(genericDeviceProtocol.organizeComCommands(root)).thenReturn(root2);
@@ -236,7 +253,7 @@ public class JobExecutionTest {
         when(preparedComTaskExecution.getComTaskExecution()).thenReturn(comTaskExecution);
         when(preparedComTaskExecution.getCommandRoot()).thenReturn(root);
         OutboundComPort outboundComPort = mock(OutboundComPort.class);
-        ScheduledComTaskExecutionGroup jobExecution = spy(new MockScheduledComTaskExecutionGroup(outboundComPort, comServerDAO, this.deviceCommandExecutor, this.serviceProvider, connectionTask));
+        ScheduledComTaskExecutionGroup jobExecution = spy(new MockScheduledComTaskExecutionGroup(outboundComPort, comServerDAO, this.deviceCommandExecutor, this.jobExecutionServiceProvider, connectionTask));
         ExecutionContext executionContext = newTestExecutionContext();
         when(jobExecution.getExecutionContext()).thenReturn(executionContext);
         when(preparedComTaskExecution.getDeviceProtocol()).thenReturn(genericDeviceProtocol);
@@ -258,7 +275,7 @@ public class JobExecutionTest {
         when(preparedComTaskExecution.getComTaskExecution()).thenReturn(comTaskExecution);
         when(preparedComTaskExecution.getCommandRoot()).thenReturn(root);
         OutboundComPort outboundComPort = mock(OutboundComPort.class);
-        ScheduledComTaskExecutionGroup jobExecution = spy(new MockScheduledComTaskExecutionGroup(outboundComPort, comServerDAO, this.deviceCommandExecutor, this.serviceProvider, connectionTask));
+        ScheduledComTaskExecutionGroup jobExecution = spy(new MockScheduledComTaskExecutionGroup(outboundComPort, comServerDAO, this.deviceCommandExecutor, this.jobExecutionServiceProvider, connectionTask));
         ExecutionContext executionContext = newTestExecutionContext();
         when(jobExecution.getExecutionContext()).thenReturn(executionContext);
         when(preparedComTaskExecution.getDeviceProtocol()).thenReturn(deviceProtocol);
@@ -457,7 +474,7 @@ public class JobExecutionTest {
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         OutboundComPort outboundComPort = mock(OutboundComPort.class);
         when(outboundComPort.getComServer()).thenReturn(this.comServer);
-        return new ScheduledComTaskExecutionGroup(outboundComPort, this.comServerDAO, this.deviceCommandExecutor, connectionTask, this.serviceProvider);
+        return new ScheduledComTaskExecutionGroup(outboundComPort, this.comServerDAO, this.deviceCommandExecutor, connectionTask, this.jobExecutionServiceProvider);
     }
 
     private ExecutionContext newTestExecutionContext() {

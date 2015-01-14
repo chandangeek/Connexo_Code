@@ -4,6 +4,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
@@ -143,6 +144,8 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      */
     public ScheduledConnectionTask attemptLock (ScheduledConnectionTask connectionTask, ComServer comServer);
 
+    public boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer);
+
     /**
      * Unlocks the ScheduledConnectionTask, basically undoing the effect
      * of the attemptLock method providing that was successful.
@@ -150,6 +153,14 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param connectionTask The OutboundConnectionTask
      */
     public void unlock (ScheduledConnectionTask connectionTask);
+
+    /**
+     * Unlocks the OutboundConnectionTask, basically undoing the effect
+     * of the attemptLock method providing that was successful.
+     *
+     * @param connectionTask The OutboundConnectionTask
+     */
+    public void unlock (OutboundConnectionTask connectionTask);
 
     /**
      * Attempts to lock the ComTaskExecution for

@@ -1,9 +1,16 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+
+import com.elster.jupiter.events.EventService;
+
+import java.time.Clock;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -31,7 +38,7 @@ public class DeviceCommandImplExecutionLoggingTest {
 
     @Test
     public void testExecuted () {
-        ForTestingPurposesOnly command = new ForTestingPurposesOnly(issueService);
+        ForTestingPurposesOnly command = new ForTestingPurposesOnly();
         command.logExecutionWith(this.executionLogger);
 
          // Business method
@@ -43,7 +50,7 @@ public class DeviceCommandImplExecutionLoggingTest {
 
     @Test
     public void testLoggedAfterExecuted () {
-        DeviceCommand command = new ForTestingPurposesOnly(issueService);
+        DeviceCommand command = new ForTestingPurposesOnly();
         command.logExecutionWith(this.executionLogger);
 
          // Business method
@@ -56,8 +63,8 @@ public class DeviceCommandImplExecutionLoggingTest {
     private class ForTestingPurposesOnly extends DeviceCommandImpl {
         private boolean executed;
 
-        public ForTestingPurposesOnly(IssueService issueService) {
-            super();
+        private ForTestingPurposesOnly() {
+            super(new IssueServiceOnly());
         }
 
         @Override
@@ -70,6 +77,33 @@ public class DeviceCommandImplExecutionLoggingTest {
             builder.addLabel("For Testing purposes only");
         }
 
+    }
+
+    private class IssueServiceOnly implements DeviceCommand.ServiceProvider {
+        @Override
+        public IssueService issueService() {
+            return issueService;
+        }
+
+        @Override
+        public Clock clock() {
+            return null;
+        }
+
+        @Override
+        public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
+            return null;
+        }
+
+        @Override
+        public EngineService engineService() {
+            return null;
+        }
+
+        @Override
+        public EventService eventService() {
+            return null;
+        }
     }
 
 }

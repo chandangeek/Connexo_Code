@@ -1,10 +1,18 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+
+import com.elster.jupiter.events.EventService;
+
+import java.time.Clock;
 
 /**
  * Models the behavior of a command component
@@ -49,6 +57,23 @@ public interface DeviceCommand {
 
     }
 
+    /**
+     * The list of all services that are required by
+     * the different types {@link DeviceCommand}s.
+     */
+    public interface ServiceProvider {
+
+        public EventService eventService();
+
+        public IssueService issueService();
+
+        public Clock clock();
+
+        public MdcReadingTypeUtilService mdcReadingTypeUtilService();
+
+        public EngineService engineService();
+
+    }
     /**
      * Executes this DeviceCommand.<br>
      * Note that this may throw all of the runtime exceptions

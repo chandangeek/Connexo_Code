@@ -1,23 +1,23 @@
 package com.energyict.mdc.engine.impl.web;
 
-import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
+import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
+
 import org.eclipse.jetty.server.Server;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
@@ -37,15 +37,17 @@ public class EmbeddedJettyServerTest {
 
     @Mock
     private WebSocketEventPublisherFactory webSocketEventPublisherFactory;
+    @Mock
+    private InboundCommunicationHandler.ServiceProvider inboundCommunicationHandlerServiceProvider;
+    @Mock
+    private EmbeddedJettyServer.ServiceProvider embeddedJettyServerServiceProvider;
 
     private EmbeddedJettyServer embeddedJettyServer;
     private Server jettyServer;
-    private FakeServiceProvider serviceProvider;
 
     @Before
     public void setupServiceProvider () {
-        this.serviceProvider = new FakeServiceProvider();
-        this.serviceProvider.setWebSocketEventPublisherFactory(this.webSocketEventPublisherFactory);
+        when(this.embeddedJettyServerServiceProvider.webSocketEventPublisherFactory()).thenReturn(this.webSocketEventPublisherFactory);
     }
 
     @After
@@ -71,7 +73,7 @@ public class EmbeddedJettyServerTest {
         ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
         when(comPort.getPortNumber()).thenReturn(PORT_NUMBER);
         when(comPort.getContextPath()).thenReturn("/embeddedJettyTest");
-        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.serviceProvider);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.inboundCommunicationHandlerServiceProvider);
 
         // Business method
         this.embeddedJettyServer.start();
@@ -85,7 +87,7 @@ public class EmbeddedJettyServerTest {
         ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
         when(comPort.getPortNumber()).thenReturn(PORT_NUMBER);
         when(comPort.getContextPath()).thenReturn(null);    // Note that business actually validates that the context path of a com port is not null
-        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.serviceProvider);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.inboundCommunicationHandlerServiceProvider);
 
         // Business method
         this.embeddedJettyServer.start();
@@ -99,7 +101,7 @@ public class EmbeddedJettyServerTest {
         ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
         when(comPort.getPortNumber()).thenReturn(PORT_NUMBER);
         when(comPort.getContextPath()).thenReturn("");    // Note that business actually validates that the context path of a com port is not empty
-        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.serviceProvider);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.inboundCommunicationHandlerServiceProvider);
 
         // Business method
         this.embeddedJettyServer.start();
@@ -113,7 +115,7 @@ public class EmbeddedJettyServerTest {
         ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
         when(comPort.getPortNumber()).thenReturn(PORT_NUMBER);
         when(comPort.getContextPath()).thenReturn("embeddedJettyTest");
-        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.serviceProvider);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.inboundCommunicationHandlerServiceProvider);
 
         // Business method
         this.embeddedJettyServer.start();
@@ -135,7 +137,7 @@ public class EmbeddedJettyServerTest {
         ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
         when(comPort.getPortNumber()).thenReturn(PORT_NUMBER);
         when(comPort.getContextPath()).thenReturn("/embeddedJettyTest");
-        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.serviceProvider);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.inboundCommunicationHandlerServiceProvider);
 
         // Business method
         this.embeddedJettyServer.start();
@@ -147,7 +149,7 @@ public class EmbeddedJettyServerTest {
     @Test
     public void testInboundShutdown () {
         ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
-        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.serviceProvider);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.inboundCommunicationHandlerServiceProvider);
         this.embeddedJettyServer.start();
 
         // Business method
@@ -160,7 +162,7 @@ public class EmbeddedJettyServerTest {
     @Test
     public void testInboundShutdownImmediate () {
         ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
-        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.serviceProvider);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.inboundCommunicationHandlerServiceProvider);
         this.embeddedJettyServer.start();
 
         // Business method
@@ -172,7 +174,7 @@ public class EmbeddedJettyServerTest {
 
     @Test
     public void testEventsStart () throws URISyntaxException {
-        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:46000/remote/events"), this.serviceProvider);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:46000/remote/events"), this.embeddedJettyServerServiceProvider);
 
         // Business method
         this.embeddedJettyServer.start();
@@ -191,7 +193,7 @@ public class EmbeddedJettyServerTest {
             e.printStackTrace(System.err);
             fail("Failed to start server on port " + PORT_NUMBER + " so testing that starting a second because the port is already in use does not make sense.");
         }
-        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:" + PORT_NUMBER + "/remote/events"), this.serviceProvider);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:" + PORT_NUMBER + "/remote/events"), this.embeddedJettyServerServiceProvider);
 
         // Business method
         this.embeddedJettyServer.start();
@@ -202,7 +204,7 @@ public class EmbeddedJettyServerTest {
 
     @Test
     public void testEventsShutdown () throws URISyntaxException {
-        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:8082/remote/events"), this.serviceProvider);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:8082/remote/events"), this.embeddedJettyServerServiceProvider);
         this.embeddedJettyServer.start();
 
         // Business method
@@ -214,7 +216,7 @@ public class EmbeddedJettyServerTest {
 
     @Test
     public void testEventsShutdownImmediate () throws URISyntaxException {
-        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:8083/remote/events"), this.serviceProvider);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:8083/remote/events"), this.embeddedJettyServerServiceProvider);
         this.embeddedJettyServer.start();
 
         // Business method

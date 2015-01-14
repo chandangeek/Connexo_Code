@@ -1,48 +1,47 @@
 package com.energyict.mdc.engine.impl.core.remote;
 
-import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.BusinessException;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
-import com.energyict.mdc.engine.impl.core.ServerProcess;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
-import java.util.Optional;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
+import com.energyict.mdc.engine.impl.core.ServerProcess;
 
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.TransactionService;
 import org.joda.time.DateTime;
-import java.time.Instant;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link com.energyict.mdc.engine.impl.core.remote.QueryMethod} component.
@@ -66,22 +65,14 @@ public class QueryMethodTest {
     private EngineConfigurationService engineConfigurationService;
 
     private TransactionService transactionService;
-    private FakeServiceProvider serviceProvider;
 
     @Before
-    public void setupServiceProvider() {
+    public void fakeTransactionService() {
         this.transactionService = new FakeTransactionService();
-        this.serviceProvider = new FakeServiceProvider();
-        this.serviceProvider.setTransactionService(this.transactionService);
-        this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
-        this.serviceProvider.setCommunicationTaskService(this.communicationTaskService);
-        this.serviceProvider.setEngineConfigurationService(this.engineConfigurationService);
-        ServiceProvider.instance.set(this.serviceProvider);
     }
 
     private void mockTransactionService() {
         this.transactionService = mock(TransactionService.class);
-        this.serviceProvider.setTransactionService(this.transactionService);
     }
 
     @Test
@@ -102,10 +93,12 @@ public class QueryMethodTest {
 
     @Test
     public void testGetThisComServerDelegation() throws IOException {
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
+        when(serviceProvider.comServerDAO()).thenReturn(comServerDAO);
 
         // Business method
-        QueryMethod.GetThisComServer.execute(new HashMap<String, Object>(), comServerDAO);
+        QueryMethod.GetThisComServer.execute(new HashMap<>(), serviceProvider);
 
         // Asserts
         verify(comServerDAO).getThisComServer();
@@ -113,13 +106,14 @@ public class QueryMethodTest {
 
     @Test
     public void testGetComServerDelegation() throws IOException {
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
 
         // Business method
         Map<String, Object> parameters = new HashMap<>();
         String hostName = "testGetComServerDelegation";
         parameters.put(RemoteComServerQueryJSonPropertyNames.HOSTNAME, hostName);
-        QueryMethod.GetComServer.execute(parameters, comServerDAO);
+        QueryMethod.GetComServer.execute(parameters, serviceProvider);
 
         // Asserts
         verify(comServerDAO).getComServer(hostName);
@@ -128,7 +122,8 @@ public class QueryMethodTest {
     @Test
     public void testRefreshComServerWithoutModifications() throws IOException {
         Instant now = Instant.now();
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
         when(comServer.getModificationDate()).thenReturn(now);
@@ -138,7 +133,7 @@ public class QueryMethodTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, COMSERVER_ID);
         parameters.put(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE, now.toEpochMilli());
-        Object refreshed = QueryMethod.RefreshComServer.execute(parameters, comServerDAO);
+        Object refreshed = QueryMethod.RefreshComServer.execute(parameters, serviceProvider);
 
         // Asserts
         assertThat(refreshed).isNull();
@@ -148,7 +143,8 @@ public class QueryMethodTest {
     public void testRefreshComServerWithModifications() throws IOException {
         Instant modificationDateBeforeChanges = new DateTime(2013, 4, 29, 11, 56, 8, 0).toDate().toInstant();
         Instant modificationDateAfterChanges = new DateTime(2013, 4, 29, 12, 13, 59, 0).toDate().toInstant();
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
         when(comServer.getModificationDate()).thenReturn(modificationDateAfterChanges);
@@ -158,7 +154,7 @@ public class QueryMethodTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, COMSERVER_ID);
         parameters.put(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE, modificationDateBeforeChanges.toEpochMilli());
-        Object refreshed = QueryMethod.RefreshComServer.execute(parameters, comServerDAO);
+        Object refreshed = QueryMethod.RefreshComServer.execute(parameters, serviceProvider);
 
         // Asserts
         assertThat(refreshed).isNotNull();
@@ -168,7 +164,8 @@ public class QueryMethodTest {
     @Test
     public void testRefreshComPortWithoutModifications() throws IOException {
         Date now = new Date();
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         OutboundComPort comPort = mock(OutboundComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);
         when(comPort.getModificationDate()).thenReturn(now.toInstant());
@@ -178,7 +175,7 @@ public class QueryMethodTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, COMPORT_ID);
         parameters.put(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE, now.getTime());
-        Object refreshed = QueryMethod.RefreshComPort.execute(parameters, comServerDAO);
+        Object refreshed = QueryMethod.RefreshComPort.execute(parameters, serviceProvider);
 
         // Asserts
         assertThat(refreshed).isNull();
@@ -188,7 +185,8 @@ public class QueryMethodTest {
     public void testRefreshComPortWithModifications() throws IOException {
         Date modificationDateBeforeChanges = new DateTime(2013, 4, 29, 11, 56, 8, 0).toDate();
         Date modificationDateAfterChanges = new DateTime(2013, 4, 29, 12, 13, 59, 0).toDate();
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         OutboundComPort comPort = mock(OutboundComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);
         when(comPort.getModificationDate()).thenReturn(modificationDateAfterChanges.toInstant());
@@ -198,7 +196,7 @@ public class QueryMethodTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, COMPORT_ID);
         parameters.put(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE, modificationDateBeforeChanges.getTime());
-        Object refreshed = QueryMethod.RefreshComPort.execute(parameters, comServerDAO);
+        Object refreshed = QueryMethod.RefreshComPort.execute(parameters, serviceProvider);
 
         // Asserts
         assertThat(refreshed).isNotNull();
@@ -207,7 +205,8 @@ public class QueryMethodTest {
 
     @Test
     public void testComTaskExecutionStarted() throws IOException {
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         OutboundComPort comPort = mock(OutboundComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);
         doReturn(Optional.of(comPort)).when(this.engineConfigurationService).findComPort(COMPORT_ID);
@@ -219,7 +218,7 @@ public class QueryMethodTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, COMTASKEXECUTION_ID);
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, COMPORT_ID);
-        QueryMethod.ExecutionStarted.execute(parameters, comServerDAO);
+        QueryMethod.ExecutionStarted.execute(parameters, serviceProvider);
 
         // Asserts
         verify(comServerDAO).executionStarted(comTaskExecution, comPort);
@@ -228,7 +227,8 @@ public class QueryMethodTest {
     @Test
     public void testComTaskExecutionStartedRunsInTransaction() throws IOException, SQLException, BusinessException {
         this.mockTransactionService();
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         OutboundComPort comPort = mock(OutboundComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);
         doReturn(Optional.of(comPort)).when(this.engineConfigurationService).findComPort(COMPORT_ID);
@@ -240,7 +240,7 @@ public class QueryMethodTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, COMTASKEXECUTION_ID);
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, COMPORT_ID);
-        QueryMethod.ExecutionStarted.execute(parameters, comServerDAO);
+        QueryMethod.ExecutionStarted.execute(parameters, serviceProvider);
 
         // Asserts
         verify(transactionService).execute(any());
@@ -248,7 +248,8 @@ public class QueryMethodTest {
 
     @Test
     public void testAttemptLockOfComTaskExecution() throws IOException {
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         OutboundComPort comPort = mock(OutboundComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);
         doReturn(Optional.of(comPort)).when(this.engineConfigurationService).findComPort(COMPORT_ID);
@@ -260,7 +261,7 @@ public class QueryMethodTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, COMTASKEXECUTION_ID);
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, COMPORT_ID);
-        QueryMethod.AttemptLock.execute(parameters, comServerDAO);
+        QueryMethod.AttemptLock.execute(parameters, serviceProvider);
 
         // Asserts
         verify(comServerDAO).attemptLock(comTaskExecution, comPort);
@@ -269,7 +270,8 @@ public class QueryMethodTest {
     @Test
     public void testAttemptLockOfComTaskExecutionRunsInTransaction() throws IOException, SQLException, BusinessException {
         this.mockTransactionService();
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         OutboundComPort comPort = mock(OutboundComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);
         doReturn(Optional.of(comPort)).when(this.engineConfigurationService).findComPort(COMPORT_ID);
@@ -281,7 +283,7 @@ public class QueryMethodTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, COMTASKEXECUTION_ID);
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, COMPORT_ID);
-        QueryMethod.AttemptLock.execute(parameters, comServerDAO);
+        QueryMethod.AttemptLock.execute(parameters, serviceProvider);
 
         // Asserts
         verify(transactionService).execute(any());
@@ -289,7 +291,8 @@ public class QueryMethodTest {
 
     @Test
     public void testUnlockOfComTaskExecution() throws IOException {
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(COMTASKEXECUTION_ID);
         when(this.communicationTaskService.findComTaskExecution(COMTASKEXECUTION_ID)).thenReturn(Optional.of(comTaskExecution));
@@ -297,7 +300,7 @@ public class QueryMethodTest {
         // Business method
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, COMTASKEXECUTION_ID);
-        QueryMethod.Unlock.execute(parameters, comServerDAO);
+        QueryMethod.Unlock.execute(parameters, serviceProvider);
 
         // Asserts
         verify(comServerDAO).unlock(comTaskExecution);
@@ -306,7 +309,8 @@ public class QueryMethodTest {
     @Test
     public void testUnlockOfComTaskExecutionRunsInTransaction() throws IOException, SQLException, BusinessException {
         this.mockTransactionService();
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(COMTASKEXECUTION_ID);
         when(this.communicationTaskService.findComTaskExecution(COMTASKEXECUTION_ID)).thenReturn(Optional.of(comTaskExecution));
@@ -314,7 +318,7 @@ public class QueryMethodTest {
         // Business method
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, COMTASKEXECUTION_ID);
-        QueryMethod.Unlock.execute(parameters, comServerDAO);
+        QueryMethod.Unlock.execute(parameters, serviceProvider);
 
         // Asserts
         verify(transactionService).execute(any());
@@ -322,7 +326,8 @@ public class QueryMethodTest {
 
     @Test
     public void testConnectionTaskExecutionStarted() throws IOException {
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         ComServer comServer = mock(ComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
         when(this.engineConfigurationService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(comServer));
@@ -334,7 +339,7 @@ public class QueryMethodTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, COMSERVER_ID);
         parameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, CONNECTIONTASK_ID);
-        QueryMethod.ExecutionStarted.execute(parameters, comServerDAO);
+        QueryMethod.ExecutionStarted.execute(parameters, serviceProvider);
 
         // Asserts
         verify(comServerDAO).executionStarted(connectionTask, comServer);
@@ -343,7 +348,8 @@ public class QueryMethodTest {
     @Test
     public void testConnectionTaskExecutionStartedRunsInTransaction() throws IOException, SQLException, BusinessException {
         this.mockTransactionService();
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         ComServer comServer = mock(ComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
         when(this.engineConfigurationService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(comServer));
@@ -355,7 +361,7 @@ public class QueryMethodTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, COMSERVER_ID);
         parameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, CONNECTIONTASK_ID);
-        QueryMethod.ExecutionStarted.execute(parameters, comServerDAO);
+        QueryMethod.ExecutionStarted.execute(parameters, serviceProvider);
 
         // Asserts
         verify(transactionService).execute(any());
@@ -363,7 +369,8 @@ public class QueryMethodTest {
 
     @Test
     public void testAttemptLockOfConnectionTask() throws IOException {
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         ComServer comServer = mock(ComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
         when(this.engineConfigurationService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(comServer));
@@ -375,7 +382,7 @@ public class QueryMethodTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, COMSERVER_ID);
         parameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, CONNECTIONTASK_ID);
-        QueryMethod.AttemptLock.execute(parameters, comServerDAO);
+        QueryMethod.AttemptLock.execute(parameters, serviceProvider);
 
         // Asserts
         verify(comServerDAO).attemptLock(connectionTask, comServer);
@@ -384,7 +391,8 @@ public class QueryMethodTest {
     @Test
     public void testAttemptLockOfConnectionTaskRunsInTransaction() throws IOException, SQLException, BusinessException {
         this.mockTransactionService();
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         ComServer comServer = mock(ComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
         when(this.engineConfigurationService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(comServer));
@@ -396,7 +404,7 @@ public class QueryMethodTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, COMSERVER_ID);
         parameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, CONNECTIONTASK_ID);
-        QueryMethod.AttemptLock.execute(parameters, comServerDAO);
+        QueryMethod.AttemptLock.execute(parameters, serviceProvider);
 
         // Asserts
         verify(transactionService).execute(any());
@@ -404,7 +412,8 @@ public class QueryMethodTest {
 
     @Test
     public void testUnlockOfConnectionTask() throws IOException {
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         OutboundConnectionTask connectionTask = mock(OutboundConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTIONTASK_ID);
         when(this.connectionTaskService.findOutboundConnectionTask(CONNECTIONTASK_ID)).thenReturn(Optional.of(connectionTask));
@@ -412,7 +421,7 @@ public class QueryMethodTest {
         // Business method
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, CONNECTIONTASK_ID);
-        QueryMethod.Unlock.execute(parameters, comServerDAO);
+        QueryMethod.Unlock.execute(parameters, serviceProvider);
 
         // Asserts
         verify(comServerDAO).unlock(connectionTask);
@@ -421,7 +430,8 @@ public class QueryMethodTest {
     @Test
     public void testUnlockOfConnectionTaskRunsInTransaction() throws IOException, SQLException, BusinessException {
         this.mockTransactionService();
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         ComServer comServer = mock(ComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
         when(this.engineConfigurationService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(comServer));
@@ -432,7 +442,7 @@ public class QueryMethodTest {
         // Business method
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, CONNECTIONTASK_ID);
-        QueryMethod.Unlock.execute(parameters, comServerDAO);
+        QueryMethod.Unlock.execute(parameters, serviceProvider);
 
         // Asserts
         verify(transactionService).execute(any());
@@ -440,7 +450,8 @@ public class QueryMethodTest {
 
     @Test
     public void testComTaskExecutionCompleted() throws IOException {
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(COMTASKEXECUTION_ID);
         when(this.communicationTaskService.findComTaskExecution(COMTASKEXECUTION_ID)).thenReturn(Optional.of(comTaskExecution));
@@ -448,7 +459,7 @@ public class QueryMethodTest {
         // Business method
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, COMTASKEXECUTION_ID);
-        QueryMethod.ExecutionCompleted.execute(parameters, comServerDAO);
+        QueryMethod.ExecutionCompleted.execute(parameters, serviceProvider);
 
         // Asserts
         verify(comServerDAO).executionCompleted(comTaskExecution);
@@ -457,7 +468,8 @@ public class QueryMethodTest {
     @Test
     public void testComTaskExecutionCompletedRunsInTransaction() throws IOException, SQLException, BusinessException {
         this.mockTransactionService();
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(COMTASKEXECUTION_ID);
         when(this.communicationTaskService.findComTaskExecution(COMTASKEXECUTION_ID)).thenReturn(Optional.of(comTaskExecution));
@@ -465,7 +477,7 @@ public class QueryMethodTest {
         // Business method
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, COMTASKEXECUTION_ID);
-        QueryMethod.ExecutionCompleted.execute(parameters, comServerDAO);
+        QueryMethod.ExecutionCompleted.execute(parameters, serviceProvider);
 
         // Asserts
         verify(transactionService).execute(any());
@@ -473,7 +485,8 @@ public class QueryMethodTest {
 
     @Test
     public void testComTaskExecutionFailed() throws IOException {
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(COMTASKEXECUTION_ID);
         when(this.communicationTaskService.findComTaskExecution(COMTASKEXECUTION_ID)).thenReturn(Optional.of(comTaskExecution));
@@ -481,7 +494,7 @@ public class QueryMethodTest {
         // Business method
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, COMTASKEXECUTION_ID);
-        QueryMethod.ExecutionFailed.execute(parameters, comServerDAO);
+        QueryMethod.ExecutionFailed.execute(parameters, serviceProvider);
 
         // Asserts
         verify(comServerDAO).executionFailed(comTaskExecution);
@@ -490,7 +503,8 @@ public class QueryMethodTest {
     @Test
     public void testComTaskExecutionFailedRunsInTransaction() throws IOException, SQLException, BusinessException {
         this.mockTransactionService();
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(COMTASKEXECUTION_ID);
         when(this.communicationTaskService.findComTaskExecution(COMTASKEXECUTION_ID)).thenReturn(Optional.of(comTaskExecution));
@@ -498,7 +512,7 @@ public class QueryMethodTest {
         // Business method
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, COMTASKEXECUTION_ID);
-        QueryMethod.ExecutionFailed.execute(parameters, comServerDAO);
+        QueryMethod.ExecutionFailed.execute(parameters, serviceProvider);
 
         // Asserts
         verify(transactionService).execute(any());
@@ -506,7 +520,8 @@ public class QueryMethodTest {
 
     @Test
     public void testConnectionTaskExecutionCompleted() throws IOException {
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTIONTASK_ID);
         when(this.connectionTaskService.findConnectionTask(CONNECTIONTASK_ID)).thenReturn(Optional.of(connectionTask));
@@ -514,7 +529,7 @@ public class QueryMethodTest {
         // Business method
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, CONNECTIONTASK_ID);
-        QueryMethod.ExecutionCompleted.execute(parameters, comServerDAO);
+        QueryMethod.ExecutionCompleted.execute(parameters, serviceProvider);
 
         // Asserts
         verify(comServerDAO).executionCompleted(connectionTask);
@@ -523,7 +538,8 @@ public class QueryMethodTest {
     @Test
     public void testConnectionTaskExecutionCompletedRunsInTransaction() throws IOException, SQLException, BusinessException {
         this.mockTransactionService();
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTIONTASK_ID);
         when(this.connectionTaskService.findConnectionTask(CONNECTIONTASK_ID)).thenReturn(Optional.of(connectionTask));
@@ -531,7 +547,7 @@ public class QueryMethodTest {
         // Business method
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, CONNECTIONTASK_ID);
-        QueryMethod.ExecutionCompleted.execute(parameters, comServerDAO);
+        QueryMethod.ExecutionCompleted.execute(parameters, serviceProvider);
 
         // Asserts
         verify(transactionService).execute(any());
@@ -539,7 +555,8 @@ public class QueryMethodTest {
 
     @Test
     public void testConnectionTaskExecutionFailed() throws IOException {
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         OutboundConnectionTask connectionTask = mock(OutboundConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTIONTASK_ID);
         when(this.connectionTaskService.findConnectionTask(CONNECTIONTASK_ID)).thenReturn(Optional.<ConnectionTask>of(connectionTask));
@@ -547,7 +564,7 @@ public class QueryMethodTest {
         // Business method
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, CONNECTIONTASK_ID);
-        QueryMethod.ExecutionFailed.execute(parameters, comServerDAO);
+        QueryMethod.ExecutionFailed.execute(parameters, serviceProvider);
 
         // Asserts
         verify(comServerDAO).executionFailed(connectionTask);
@@ -556,7 +573,8 @@ public class QueryMethodTest {
     @Test
     public void testConnectionTaskExecutionFailedRunsInTransaction() throws IOException, SQLException, BusinessException {
         this.mockTransactionService();
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         OutboundConnectionTask connectionTask = mock(OutboundConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTIONTASK_ID);
         when(this.connectionTaskService.findConnectionTask(CONNECTIONTASK_ID)).thenReturn(Optional.<ConnectionTask>of(connectionTask));
@@ -564,7 +582,7 @@ public class QueryMethodTest {
         // Business method
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, CONNECTIONTASK_ID);
-        QueryMethod.ExecutionFailed.execute(parameters, comServerDAO);
+        QueryMethod.ExecutionFailed.execute(parameters, serviceProvider);
 
         // Asserts
         verify(transactionService).execute(any());
@@ -572,7 +590,8 @@ public class QueryMethodTest {
 
     @Test
     public void testReleaseInterruptedComTasks() throws IOException {
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
         when(this.engineConfigurationService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(comServer));
@@ -580,7 +599,7 @@ public class QueryMethodTest {
         // Business method
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, COMSERVER_ID);
-        QueryMethod.ReleaseInterruptedComTasks.execute(parameters, comServerDAO);
+        QueryMethod.ReleaseInterruptedComTasks.execute(parameters, serviceProvider);
 
         // Asserts
         verify(comServerDAO).releaseInterruptedTasks(comServer);
@@ -588,7 +607,8 @@ public class QueryMethodTest {
 
     @Test
     public void testReleaseTimedOutComTasks() throws IOException {
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
         when(this.engineConfigurationService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(comServer));
@@ -597,10 +617,20 @@ public class QueryMethodTest {
         // Business method
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, COMSERVER_ID);
-        QueryMethod.ReleaseTimedOutComTasks.execute(parameters, comServerDAO);
+        QueryMethod.ReleaseTimedOutComTasks.execute(parameters, serviceProvider);
 
         // Asserts
         verify(comServerDAO).releaseTimedOutTasks(comServer);
+    }
+
+    private QueryMethod.ServiceProvider newServiceProvider(ComServerDAO comServerDAO) {
+        QueryMethod.ServiceProvider serviceProvider = mock(QueryMethod.ServiceProvider.class);
+        when(serviceProvider.comServerDAO()).thenReturn(comServerDAO);
+        when(serviceProvider.engineConfigurationService()).thenReturn(engineConfigurationService);
+        when(serviceProvider.connectionTaskService()).thenReturn(connectionTaskService);
+        when(serviceProvider.communicationTaskService()).thenReturn(communicationTaskService);
+        when(serviceProvider.transactionService()).thenReturn(transactionService);
+        return serviceProvider;
     }
 
     private List<Method> getComServerDAOMethods() {

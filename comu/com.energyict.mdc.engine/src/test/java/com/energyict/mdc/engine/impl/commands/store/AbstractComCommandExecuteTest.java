@@ -7,34 +7,30 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.engine.FakeServiceProvider;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
-import com.energyict.mdc.engine.impl.commands.store.core.CommandRootServiceProviderAdapter;
-import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.engine.impl.core.JobExecution;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.tasks.ComTask;
 
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.logging.Logger;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Clock;
-import java.util.logging.Logger;
-
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Provides code reuse opportunities for ComCommand execute tests.
@@ -52,8 +48,10 @@ public abstract class AbstractComCommandExecuteTest {
     private static final long COM_TASK_EXECUTION_ID = DEVICE_ID + 1;
     private static final long PROTOCOL_DIALECT_CONFIG_PROPS_ID = 6516;
 
-    protected static final FakeServiceProvider serviceProvider = new FakeServiceProvider();
-    protected static CommandRoot.ServiceProvider commandRootServiceProvider = new CommandRootServiceProviderAdapter(serviceProvider);
+    @Mock
+    protected ExecutionContext.ServiceProvider executionContextServiceProvider;
+    @Mock
+    protected CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
 
     @Mock
     private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
@@ -65,18 +63,23 @@ public abstract class AbstractComCommandExecuteTest {
 
     @Before
     public void setupServiceProvider() {
-        serviceProvider.setDeviceConfigurationService(deviceConfigurationService);
-        serviceProvider.setClock(this.clock);
-        serviceProvider.setIssueService(new IssueServiceImpl(this.clock));
-        serviceProvider.setConnectionTaskService(mock(ConnectionTaskService.class, RETURNS_DEEP_STUBS));
-        serviceProvider.setDeviceService(mock(DeviceService.class, RETURNS_DEEP_STUBS));
-        ServiceProvider.instance.set(serviceProvider);
+        DeviceService deviceService = mock(DeviceService.class, RETURNS_DEEP_STUBS);
+        IssueServiceImpl issueService = new IssueServiceImpl(this.clock);
+        when(executionContextServiceProvider.clock()).thenReturn(this.clock);
+        when(executionContextServiceProvider.issueService()).thenReturn(issueService);
+        when(executionContextServiceProvider.connectionTaskService()).thenReturn(mock(ConnectionTaskService.class, RETURNS_DEEP_STUBS));
+        when(executionContextServiceProvider.deviceService()).thenReturn(deviceService);
+        when(executionContextServiceProvider.eventPublisher()).thenReturn(this.eventPublisher);
+
+        when(commandRootServiceProvider.clock()).thenReturn(this.clock);
+        when(commandRootServiceProvider.issueService()).thenReturn(issueService);
+        when(commandRootServiceProvider.deviceService()).thenReturn(deviceService);
     }
 
     @After
     public void resetServiceProvider() {
-        serviceProvider.setClock(Clock.systemDefaultZone());
-        ServiceProvider.instance.set(null);
+        when(executionContextServiceProvider.clock()).thenReturn(Clock.systemDefaultZone());
+        when(commandRootServiceProvider.clock()).thenReturn(Clock.systemDefaultZone());
     }
 
     @Before
@@ -85,11 +88,11 @@ public abstract class AbstractComCommandExecuteTest {
         when(deviceConfigurationService.getProtocolDialectConfigurationProperties(PROTOCOL_DIALECT_CONFIG_PROPS_ID)).thenReturn(Optional.of(protocolDialectConfigurationProperties));
     }
 
-    protected static ExecutionContext newTestExecutionContext() {
+    protected ExecutionContext newTestExecutionContext() {
         return newTestExecutionContext(Logger.getAnonymousLogger());
     }
 
-    protected static ExecutionContext newTestExecutionContext(Logger logger) {
+    protected ExecutionContext newTestExecutionContext(Logger logger) {
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(DEVICE_ID);
         ComTask comTask = mock(ComTask.class);
@@ -115,7 +118,7 @@ public abstract class AbstractComCommandExecuteTest {
                         mock(JobExecution.class),
                         connectionTask,
                         comPort,
-                        serviceProvider);
+                        executionContextServiceProvider);
         executionContext.setLogger(logger);
         executionContext.start(comTaskExecution, comTask);
         return executionContext;

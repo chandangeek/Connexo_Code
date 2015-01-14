@@ -20,7 +20,7 @@ public abstract class RescheduleExecutionDeviceCommand extends DeviceCommandImpl
     private final ScheduledJob scheduledJob;
 
     public RescheduleExecutionDeviceCommand(ScheduledJob scheduledJob) {
-        super();
+        super(new NoDeviceCommandServices());
         this.scheduledJob = scheduledJob;
     }
 

@@ -1,10 +1,9 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 
 import java.util.List;
 
@@ -21,24 +20,21 @@ public interface DeviceCommandFactory {
      * Creates a {@link CompositeDeviceCommand} for all
      * the specified {@link ServerCollectedData}.
      *
-     *
-     *
      * @param collectedData The ServerCollectedData
      * @param communicationLogLevel
-     * @param issueService
+     * @param serviceProvider The {@link DeviceCommand.ServiceProvider}
      * @param builder
      * @return The CompositeDeviceCommand
      */
-    public CompositeDeviceCommand newCompositeForAll(List<ServerCollectedData> collectedData, ComServer.LogLevel communicationLogLevel, IssueService issueService, ComTaskExecutionSessionBuilder builder);
+    public CompositeDeviceCommand newCompositeForAll(List<ServerCollectedData> collectedData, ComServer.LogLevel communicationLogLevel, DeviceCommand.ServiceProvider serviceProvider, ComTaskExecutionSessionBuilder builder);
 
     /**
      * Creates a {@link DeviceCommand} for every {@link ServerCollectedData}.
      *
-     *
      * @param collectedData The List of ServerCollectedData
-     * @param issueService
+     * @param serviceProvider The {@link DeviceCommand.ServiceProvider}
      * @return The List of DeviceCommands
      */
-    public List<DeviceCommand> newForAll(List<ServerCollectedData> collectedData, IssueService issueService);
+    public List<DeviceCommand> newForAll(List<ServerCollectedData> collectedData, DeviceCommand.ServiceProvider serviceProvider);
 
 }

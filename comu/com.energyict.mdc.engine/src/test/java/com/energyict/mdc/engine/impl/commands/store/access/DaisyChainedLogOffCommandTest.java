@@ -1,24 +1,21 @@
 package com.energyict.mdc.engine.impl.commands.store.access;
 
-import java.time.Clock;
-
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import java.time.Clock;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.*;
+
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,19 +32,15 @@ public class DaisyChainedLogOffCommandTest extends AbstractComCommandExecuteTest
     @Before
     public void setUp() {
         EventPublisherImpl eventPublisher = mock(EventPublisherImpl.class);
-        serviceProvider.setClock(Clock.systemDefaultZone());
-        serviceProvider.setEventPublisher(eventPublisher);
-    }
-
-    @After
-    public void tearDown() {
-        ServiceProvider.instance.set(null);
+        when(executionContextServiceProvider.clock()).thenReturn(Clock.systemDefaultZone());
+        when(executionContextServiceProvider.eventPublisher()).thenReturn(eventPublisher);
+        when(commandRootServiceProvider.clock()).thenReturn(Clock.systemDefaultZone());
     }
 
     @Test
     public void testCommandType(){
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, AbstractComCommandExecuteTest.newTestExecutionContext(), (ServiceProvider) serviceProvider);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, this.newTestExecutionContext(), this.commandRootServiceProvider);
         DaisyChainedLogOffCommand daisyChainedLogOffCommand = new DaisyChainedLogOffCommand(commandRoot);
 
         assertEquals(ComCommandTypes.DAISY_CHAINED_LOGOFF, daisyChainedLogOffCommand.getCommandType());
@@ -55,9 +48,9 @@ public class DaisyChainedLogOffCommandTest extends AbstractComCommandExecuteTest
 
     @Test
     public void validateAdapterCallForMeterProtocol () {
-        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
+        ExecutionContext executionContext = this.newTestExecutionContext();
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, (ServiceProvider) serviceProvider);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, this.commandRootServiceProvider);
         CommandFactory.createDaisyChainedLogOffCommand(commandRoot, null);
         MeterProtocolAdapter meterProtocolAdapter = mock(MeterProtocolAdapter.class);
 
@@ -71,9 +64,9 @@ public class DaisyChainedLogOffCommandTest extends AbstractComCommandExecuteTest
 
     @Test
     public void validateAdapterCallForSmartMeterProtocol () {
-        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
+        ExecutionContext executionContext = this.newTestExecutionContext();
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, (ServiceProvider) serviceProvider);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, this.commandRootServiceProvider);
         CommandFactory.createDaisyChainedLogOffCommand(commandRoot, null);
         SmartMeterProtocolAdapter smartMeterProtocolAdapter = mock(SmartMeterProtocolAdapter.class);
 

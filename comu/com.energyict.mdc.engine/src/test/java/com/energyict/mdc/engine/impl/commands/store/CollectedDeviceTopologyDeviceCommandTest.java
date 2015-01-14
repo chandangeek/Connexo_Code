@@ -2,10 +2,8 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
 import com.energyict.mdc.engine.impl.events.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.engine.impl.meterdata.DeviceTopology;
@@ -19,7 +17,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,15 +62,14 @@ public class CollectedDeviceTopologyDeviceCommandTest {
     private ComServerDAO comServerDAO;
     @Mock
     private ComTaskExecution comTaskExecution;
-
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
+    @Mock
+    private DeviceCommand.ServiceProvider serviceProvider;
 
     @Before
     public void setUp () {
         when(slave1Identifier.getIdentifier()).thenReturn(SLAVE_1_SERIAL_NUMBER);
         when(slave2Identifier.getIdentifier()).thenReturn(SLAVE_2_SERIAL_NUMBER);
-        ServiceProvider.instance.set(serviceProvider);
-        serviceProvider.setIssueService(issueService);
+        when(serviceProvider.issueService()).thenReturn(issueService);
         when(comServerDAO.findOfflineDevice(eq(deviceIdentifier), any(OfflineDeviceContext.class))).thenReturn(offlineDevice);
         when(comServerDAO.findOfflineDevice(deviceIdentifier)).thenReturn(offlineDevice);
         when(deviceIdentifier.findDevice()).thenReturn(device);
@@ -82,11 +78,6 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         when(offlineSlave_1.getSerialNumber()).thenReturn(SLAVE_1_SERIAL_NUMBER);
         when(offlineSlave_2.getSerialNumber()).thenReturn(SLAVE_2_SERIAL_NUMBER);
-    }
-
-    @After
-    public void tearDown() {
-        ServiceProvider.instance.set(null);
     }
 
     /**
@@ -117,7 +108,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.UPDATE);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommand());
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommand(this.serviceProvider), this.serviceProvider);
         DeviceCommand.ExecutionLogger mockedExecutionLogger = mock(DeviceCommand.ExecutionLogger.class);
         command.logExecutionWith(mockedExecutionLogger);
 
@@ -158,7 +149,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.VERIFY);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommand());
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommand(this.serviceProvider), this.serviceProvider);
         DeviceCommand.ExecutionLogger mockedExecutionLogger = mock(DeviceCommand.ExecutionLogger.class);
         command.logExecutionWith(mockedExecutionLogger);
 
@@ -200,7 +191,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.VERIFY);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommand());
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommand(this.serviceProvider), this.serviceProvider);
         DeviceCommand.ExecutionLogger mockedExecutionLogger = mock(DeviceCommand.ExecutionLogger.class);
         command.logExecutionWith(mockedExecutionLogger);
 
@@ -239,7 +230,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.UPDATE);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommand());
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommand(this.serviceProvider), this.serviceProvider);
         DeviceCommand.ExecutionLogger mockedExecutionLogger = mock(DeviceCommand.ExecutionLogger.class);
         command.logExecutionWith(mockedExecutionLogger);
         // Business method
@@ -276,7 +267,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.VERIFY);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommand());
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommand(this.serviceProvider), this.serviceProvider);
         DeviceCommand.ExecutionLogger mockedExecutionLogger = mock(DeviceCommand.ExecutionLogger.class);
         command.logExecutionWith(mockedExecutionLogger);
         // Business method
@@ -299,7 +290,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         DeviceTopology deviceTopology = new DeviceTopology(this.deviceIdentifier, slaveDeviceIdentifiers);
         TopologyAction topologyAction = TopologyAction.VERIFY;
         deviceTopology.setTopologyAction(topologyAction);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommand());
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommand(this.serviceProvider), this.serviceProvider);
 
         // Business method
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);

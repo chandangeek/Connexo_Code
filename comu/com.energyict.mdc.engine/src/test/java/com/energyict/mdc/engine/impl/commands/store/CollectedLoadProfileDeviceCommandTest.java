@@ -52,17 +52,21 @@ import static org.mockito.Mockito.when;
  */
 public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTest {
 
-    @Rule
-    public TimeZoneNeutral weAreInAntarctica = Using.timeZoneOfMcMurdo();
-
     private static final long DEVICE_ID = 1;
     private static final int CHANNEL1_ID = 2;
     private static final int CHANNEL2_ID = CHANNEL1_ID + 1;
     private static final int CHANNEL_INFO_ID = CHANNEL1_ID + 1;
     private static final String OBIS_CODE = "1.33.1.8.0.255";
+
+    @Rule
+    public TimeZoneNeutral weAreInAntarctica = Using.timeZoneOfMcMurdo();
+
+    @Mock
+    private DeviceService deviceService;
+
     private TimeZone toReset;
 
-    private MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommand();
+    private MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommand(new NoDeviceCommandServices());
 
     @Before
     public void setUp() {
@@ -71,18 +75,15 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
     }
 
     @After
-    public void tearDown() {
+    public void restoreDefaultTimeZone() {
         TimeZone.setDefault(toReset);
     }
-
-    @Mock
-    private DeviceService deviceService;
 
     @Test
     @Transactional
     public void testToJournalMessageDescriptionWithoutCollectedData() {
         DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(new LoadProfileIdentifierByObisCodeAndDevice(ObisCode.fromString(OBIS_CODE), new DeviceIdentifierById(DEVICE_ID, deviceService)));
-        CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, meterDataStoreCommand);
+        CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
 
         // Business method
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
@@ -102,7 +103,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         List<IntervalData> intervalData = Arrays.asList(new IntervalData(now));
         List<ChannelInfo> channelInfo = Arrays.asList(new ChannelInfo(CHANNEL_INFO_ID, CHANNEL1_ID, "testToStringWithOneInterval", Unit.get("kWh")));
         deviceLoadProfile.setCollectedData(intervalData, channelInfo);
-        CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, meterDataStoreCommand);
+        CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
 
         // Business method
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
@@ -132,7 +133,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
                                 "testToStringWithMultipleIntervalsFromOneChannel",
                                 Unit.get("kWh")));
         deviceLoadProfile.setCollectedData(intervalData, channelInfo);
-        CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, meterDataStoreCommand);
+        CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
 
         // Business method
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
@@ -167,7 +168,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
                                 "Channel-2",
                                 Unit.get("kWh")));
         deviceLoadProfile.setCollectedData(intervalData, channelInfo);
-        CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, meterDataStoreCommand);
+        CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
 
         // Business method
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
@@ -188,7 +189,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
 
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
 
-        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand);
+        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
         OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
 
         final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
@@ -232,7 +233,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         long deviceId = device.getId();
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
 
-        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand);
+        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
         OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
 
         final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
@@ -274,7 +275,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         long deviceId = device.getId();
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfileWithDeltaData(device.getLoadProfiles().get(0));
 
-        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand);
+        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
         OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
 
         final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
@@ -310,7 +311,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         long deviceId = device.getId();
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
 
-        CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand);
+        CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
         OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
 
         final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
@@ -329,8 +330,8 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         updatedCollectedIntervalData.add(new IntervalData(intervalEndTime3, 0, 0, 0, updatedIntervalList));
         when(collectedLoadProfile.getCollectedIntervalData()).thenReturn(updatedCollectedIntervalData);
 
-        meterDataStoreCommand = new MeterDataStoreCommand();
-        collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand);
+        meterDataStoreCommand = new MeterDataStoreCommand(new NoDeviceCommandServices());
+        collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
         // Business method
         collectedLoadProfileDeviceCommand.execute(comServerDAO);
         meterDataStoreCommand.execute(comServerDAO);
@@ -367,7 +368,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(loadProfile);
 
-        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand);
+        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
         OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
 
         final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);

@@ -7,28 +7,27 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.ConfigurableReadComChannel;
-import com.energyict.mdc.engine.impl.core.ScheduledComTaskExecutionJob;
-import com.energyict.mdc.engine.impl.core.ScheduledJobImpl;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.impl.core.SystemOutComChannel;
-import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.ConfigurableReadComChannel;
+import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ScheduledComTaskExecutionJob;
+import com.energyict.mdc.engine.impl.core.ScheduledJobImpl;
+import com.energyict.mdc.engine.impl.core.SystemOutComChannel;
+import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
-
 import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
+
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 
@@ -73,8 +72,8 @@ public class InboundCommunicationHandlerStatisticsTest {
     private ComSessionBuilder comSessionBuilder;
     @Mock
     private EventPublisherImpl eventPublisher;
-
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
+    @Mock
+    private JobExecution.ServiceProvider serviceProvider;
 
     @Before
     public void initializeMocksAndFactories() {
@@ -83,21 +82,15 @@ public class InboundCommunicationHandlerStatisticsTest {
     }
 
     @Before
-    public void setupServiceProvider() {
+    public void initializeMocks() {
         Clock clock = Clock.systemDefaultZone();
-        this.serviceProvider.setEventPublisher(this.eventPublisher);
-        this.serviceProvider.setClock(clock);
-        this.serviceProvider.setIssueService(new IssueServiceImpl(clock));
-        this.serviceProvider.setHexService(new HexServiceImpl());
-        this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
-        this.serviceProvider.setTransactionService(new FakeTransactionService());
+        when(this.serviceProvider.eventPublisher()).thenReturn(this.eventPublisher);
+        when(this.serviceProvider.clock()).thenReturn(clock);
+        when(this.serviceProvider.issueService()).thenReturn(new IssueServiceImpl(clock));
+        when(this.serviceProvider.hexService()).thenReturn(new HexServiceImpl());
+        when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
+        when(this.serviceProvider.transactionService()).thenReturn(new FakeTransactionService());
         when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Instant.class))).thenReturn(comSessionBuilder);
-        ServiceProvider.instance.set(this.serviceProvider);
-    }
-
-    @After
-    public void resetServiceProvider() {
-        ServiceProvider.instance.set(null);
     }
 
     @Test

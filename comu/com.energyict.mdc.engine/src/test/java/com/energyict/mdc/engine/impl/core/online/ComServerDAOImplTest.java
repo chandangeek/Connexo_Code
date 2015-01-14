@@ -8,14 +8,13 @@ import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OutboundCapableComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import com.elster.jupiter.transaction.TransactionService;
@@ -75,23 +74,19 @@ public class ComServerDAOImplTest {
     private ServerCommunicationTaskService communicationTaskService;
     @Mock
     private TopologyService topologyService;
+    @Mock
+    private ComServerDAOImpl.ServiceProvider serviceProvider;
 
-    private final FakeServiceProvider serviceProvider = new FakeServiceProvider();
-    private TransactionService transactionService;
-
-    private ComServerDAO comServerDAO = new ComServerDAOImpl(serviceProvider);
-
-    public ComServerDAOImplTest() {
-    }
+    private ComServerDAO comServerDAO;
 
     @Before
-    public void setupServiceProvider() {
-        this.transactionService = new FakeTransactionService();
-        this.serviceProvider.setTransactionService(this.transactionService);
-        this.serviceProvider.setEngineConfigurationService(this.engineConfigurationService);
-        this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
-        this.serviceProvider.setCommunicationTaskService(this.communicationTaskService);
-        this.serviceProvider.setTopologyService(this.topologyService);
+    public void initializeMocks() {
+        TransactionService transactionService = new FakeTransactionService();
+        when(this.serviceProvider.transactionService()).thenReturn(transactionService);
+        when(this.serviceProvider.engineConfigurationService()).thenReturn(this.engineConfigurationService);
+        when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
+        when(this.serviceProvider.communicationTaskService()).thenReturn(this.communicationTaskService);
+        when(this.serviceProvider.topologyService()).thenReturn(this.topologyService);
         when(this.engineConfigurationService.findComServerBySystemName()).thenReturn(Optional.<ComServer>of(this.comServer));
         when(this.engineConfigurationService.findComServer(COMSERVER_ID)).thenReturn(Optional.<ComServer>of(this.comServer));
         doReturn(Optional.of(this.comPort)).when(this.engineConfigurationService).findComPort(COMPORT_ID);
@@ -99,15 +94,11 @@ public class ComServerDAOImplTest {
         when(this.comServer.getId()).thenReturn(COMSERVER_ID);
         when(this.comPort.getId()).thenReturn(COMPORT_ID);
         when(this.scheduledComTask.getId()).thenReturn(SCHEDULED_COMTASK_ID);
-    }
-
-    @Before
-    public void initializeMocks() throws SQLException, BusinessException {
         when(this.comServer.getId()).thenReturn(Long.valueOf(COMSERVER_ID));
         when(this.comPort.getId()).thenReturn(Long.valueOf(COMPORT_ID));
         when(this.scheduledComTask.getId()).thenReturn(SCHEDULED_COMTASK_ID);
+        this.comServerDAO = new ComServerDAOImpl(this.serviceProvider);
     }
-
 
     @Test
     public void testGetThisComServer() {

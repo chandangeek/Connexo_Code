@@ -6,12 +6,12 @@ import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTes
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.*;
+
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -27,7 +27,7 @@ public class DeviceProtocolTerminateCommandTest extends AbstractComCommandExecut
     @Test
     public void commandTypeTest(){
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, AbstractComCommandExecuteTest.newTestExecutionContext(), (ServiceProvider) serviceProvider);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, this.newTestExecutionContext(), this.commandRootServiceProvider);
         DeviceProtocolTerminateCommand deviceProtocolTerminateCommand = new DeviceProtocolTerminateCommand(commandRoot);
 
         assertEquals(ComCommandTypes.DEVICE_PROTOCOL_TERMINATE, deviceProtocolTerminateCommand.getCommandType());
@@ -37,8 +37,8 @@ public class DeviceProtocolTerminateCommandTest extends AbstractComCommandExecut
     public void validateTerminateCallTest(){
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, (ServiceProvider) serviceProvider);
+        ExecutionContext executionContext = this.newTestExecutionContext();
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, this.commandRootServiceProvider);
         CommandFactory.createDeviceProtocolTerminate(commandRoot, null);
 
         // business method

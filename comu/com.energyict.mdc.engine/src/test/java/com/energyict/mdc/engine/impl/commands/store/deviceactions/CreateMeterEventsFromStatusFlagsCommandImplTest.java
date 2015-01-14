@@ -1,11 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-
-import java.time.Clock;
-import java.time.ZoneId;
-
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -13,7 +7,10 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
-import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
@@ -24,10 +21,6 @@ import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.ConnectionException;
@@ -41,27 +34,33 @@ import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-import java.util.Optional;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.time.Clock;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.logging.Logger;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Logger;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author sva
@@ -92,18 +91,29 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     private ConnectionTaskService connectionTaskService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private IdentificationService identificationService;
+    @Mock
+    private ExecutionContext.ServiceProvider executionContextServiceProvider;
+    @Mock
+    private JobExecution.ServiceProvider jobExecutionServiceProvider;
+    @Mock
+    private CommandRoot.ServiceProvider commandRootServiceProvider;
 
     private Clock clock = Clock.systemUTC();
     private Clock frozenClock;
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
     @Before
     public void setup() {
-        serviceProvider.setClock(clock);
-        serviceProvider.setConnectionTaskService(this.connectionTaskService);
-        serviceProvider.setDeviceService(this.deviceService);
-        serviceProvider.setIdentificationService(this.identificationService);
-        when(this.commandRoot.getServiceProvider()).thenReturn(this.serviceProvider);
+        when(this.executionContextServiceProvider.clock()).thenReturn(clock);
+        when(this.executionContextServiceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
+        when(this.executionContextServiceProvider.deviceService()).thenReturn(this.deviceService);
+        when(this.jobExecutionServiceProvider.clock()).thenReturn(clock);
+        when(this.jobExecutionServiceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
+        when(this.jobExecutionServiceProvider.deviceService()).thenReturn(this.deviceService);
+        when(this.jobExecutionServiceProvider.identificationService()).thenReturn(this.identificationService);
+        when(this.commandRootServiceProvider.clock()).thenReturn(clock);
+        when(this.commandRootServiceProvider.deviceService()).thenReturn(this.deviceService);
+        when(this.commandRootServiceProvider.identificationService()).thenReturn(this.identificationService);
+        when(this.commandRoot.getServiceProvider()).thenReturn(this.commandRootServiceProvider);
         List<CollectedData> collectedDataList = new ArrayList<>();
         collectedDataList.add(deviceLoadProfile);
         when(loadProfileCommand.getCollectedData()).thenReturn(collectedDataList);
@@ -114,12 +124,6 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
         when(loadProfileCommand.getOfflineDevice()).thenReturn(device);
         when(device.getId()).thenReturn(DEVICE_ID);
-    }
-
-    @After
-    public void initAfter() {
-        serviceProvider.setClock(null);
-        serviceProvider.setDeviceService(null);
     }
 
     private void initializeDeviceLoadProfileWith(int intervalStateBit) {
@@ -161,7 +165,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         ComPort comPort = mock(ComPort.class);
         when(comPort.getComServer()).thenReturn(comServer);
-        ExecutionContext executionContext = new ExecutionContext(new MockJobExecution(), connectionTask, comPort, this.serviceProvider);
+        ExecutionContext executionContext = new ExecutionContext(new MockJobExecution(), connectionTask, comPort, this.executionContextServiceProvider);
 
         verifyDeviceError(command, executionContext);
         verifyPowerDown(command, executionContext);
@@ -290,7 +294,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     private class MockJobExecution extends JobExecution {
 
         private MockJobExecution() {
-            super(mock(ComPort.class), mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), serviceProvider);
+            super(mock(ComPort.class), mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), jobExecutionServiceProvider);
         }
 
         @Override

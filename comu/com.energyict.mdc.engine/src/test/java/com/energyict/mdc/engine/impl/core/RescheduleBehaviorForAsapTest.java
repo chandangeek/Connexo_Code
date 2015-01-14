@@ -13,15 +13,13 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.FakeServiceProvider;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
-import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
-import com.energyict.mdc.engine.impl.commands.store.core.CommandRootServiceProviderAdapter;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.tasks.ComTask;
@@ -78,8 +76,8 @@ public class RescheduleBehaviorForAsapTest {
     private Device device;
     @Mock
     private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
-    private final CommandRoot.ServiceProvider commandRootServiceProvider = new CommandRootServiceProviderAdapter(serviceProvider);
+    @Mock
+    private ExecutionContext.ServiceProvider serviceProvider;
     @Mock
     private IssueService issueService;
     @Mock
@@ -91,15 +89,11 @@ public class RescheduleBehaviorForAsapTest {
     @Before
     public void setUp() {
         when(this.protocolDialectConfigurationProperties.getId()).thenReturn(PROTOCOL_DIALECT_CONFIG_PROPS_ID);
-//        when(this.protocolDialectConfigurationPropertiesFactory.find((int) PROTOCOL_DIALECT_CONFIG_PROPS_ID)).thenReturn(this.protocolDialectConfigurationProperties);
-//        when(this.manager.getProtocolDialectConfigurationPropertiesFactory()).thenReturn(this.protocolDialectConfigurationPropertiesFactory);
-//        when(this.manager.getProtocolDialectPropertiesFactory()).thenReturn(this.protocolDialectPropertiesFactory);
-//        ManagerFactory.setCurrent(this.manager);
         when(device.getId()).thenReturn(DEVICE_ID);
         when(connectionTask.getDevice()).thenReturn(device);
-        serviceProvider.setConnectionTaskService(this.connectionTaskService);
-        serviceProvider.setIssueService(this.issueService);
-        serviceProvider.setClock(clock);
+        when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
+        when(this.serviceProvider.issueService()).thenReturn(this.issueService);
+        when(this.serviceProvider.clock()).thenReturn(clock);
         when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Instant.class))).thenReturn(comSessionBuilder);
     }
 

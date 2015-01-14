@@ -27,7 +27,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.Ranges;
-import com.elster.jupiter.util.time.Interval;
 import org.joda.time.DateTime;
 
 import java.math.BigDecimal;
@@ -89,8 +88,9 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
 
         DeviceRegisterList collectedRegisterList = new DeviceRegisterList(deviceIdentifier);
         collectedRegisterList.addCollectedRegister(collectedRegister);
-        MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommand();
-        CollectedRegisterListDeviceCommand collectedRegisterListDeviceCommand = new CollectedRegisterListDeviceCommand(collectedRegisterList, meterDataStoreCommand);
+        MdcReadingTypeUtilServiceAndClock serviceProvider = new MdcReadingTypeUtilServiceAndClock();
+        MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommand(serviceProvider);
+        CollectedRegisterListDeviceCommand collectedRegisterListDeviceCommand = new CollectedRegisterListDeviceCommand(collectedRegisterList, meterDataStoreCommand, serviceProvider);
 
         OfflineRegister offlineRegister = mock(OfflineRegister.class);
         when(offlineRegister.getOverFlowValue()).thenReturn(new BigDecimal(Double.MAX_VALUE));

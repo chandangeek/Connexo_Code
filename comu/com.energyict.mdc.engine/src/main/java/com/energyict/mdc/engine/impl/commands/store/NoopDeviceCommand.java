@@ -11,7 +11,7 @@ import com.energyict.mdc.engine.config.ComServer;
 public class NoopDeviceCommand extends DeviceCommandImpl {
 
     public NoopDeviceCommand() {
-        super();
+        super(new NoDeviceCommandServices());
     }
 
     @Override
@@ -37,4 +37,5 @@ public class NoopDeviceCommand extends DeviceCommandImpl {
     @Override
     protected void toJournalMessageDescription(DescriptionBuilder builder, ComServer.LogLevel serverLogLevel) {
     }
+
 }

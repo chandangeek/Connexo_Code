@@ -1,12 +1,13 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.elster.jupiter.transaction.TransactionService;
-import java.time.Clock;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -14,25 +15,25 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.meterdata.ComTaskExecutionCollectedData;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.tasks.ComTask;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import com.elster.jupiter.transaction.TransactionService;
+
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link ComTaskExecutionComCommandImpl} component.
@@ -57,16 +58,16 @@ public class ComTaskExecutionComCommandImplTest {
     private DeviceService deviceService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ConnectionTaskService connectionTaskService;
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
-    private CommandRoot.ServiceProvider commandRootServiceProvider = new CommandRootServiceProviderAdapter(serviceProvider);
+    @Mock
+    private ExecutionContext.ServiceProvider serviceProvider;
     @Mock
     private TransactionService transactionService;
 
     @Before
     public void initializeMocks() {
-        serviceProvider.setClock(clock);
-        serviceProvider.setConnectionTaskService(this.connectionTaskService);
-        serviceProvider.setDeviceService(this.deviceService);
+        when(this.serviceProvider.clock()).thenReturn(clock);
+        when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
+        when(this.serviceProvider.deviceService()).thenReturn(this.deviceService);
         when(this.comTask.getName()).thenReturn(ComTaskExecutionComCommandImplTest.class.getSimpleName());
         when(this.comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
         when(this.comTaskExecution.getComTasks()).thenReturn(Arrays.asList(this.comTask));
@@ -84,8 +85,8 @@ public class ComTaskExecutionComCommandImplTest {
 
     @After
     public void initAfter() {
-        serviceProvider.setClock(null);
-        serviceProvider.setDeviceService(null);
+        when(this.serviceProvider.clock()).thenReturn(null);
+        when(this.serviceProvider.deviceService()).thenReturn(null);
     }
 
     @Test

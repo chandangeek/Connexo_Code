@@ -27,12 +27,12 @@ public class PublishConnectionCompletionEvent extends PublishConnectionTaskEvent
     private final List<ComTaskExecution> notExecutedComTaskExecutions;
 
     public PublishConnectionCompletionEvent(
-                EventService eventService,
                 ConnectionTask connectionTask, ComPort comPort,
                 List<ComTaskExecution> successfulComTaskExecutions,
                 List<ComTaskExecution> failedComTaskExecutions,
-                List<ComTaskExecution> notExecutedComTaskExecutions) {
-        super(eventService, connectionTask, comPort);
+                List<ComTaskExecution> notExecutedComTaskExecutions,
+                ServiceProvider serviceProvider) {
+        super(connectionTask, comPort, serviceProvider);
         this.successfulComTaskExecutions = Collections.unmodifiableList(successfulComTaskExecutions);
         this.failedComTaskExecutions = Collections.unmodifiableList(failedComTaskExecutions);
         this.notExecutedComTaskExecutions = Collections.unmodifiableList(notExecutedComTaskExecutions);

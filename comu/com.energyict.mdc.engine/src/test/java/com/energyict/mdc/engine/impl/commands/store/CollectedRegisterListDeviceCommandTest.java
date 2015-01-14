@@ -1,42 +1,42 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.metering.readings.Reading;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
+import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceImpl;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.google.common.collect.Range;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.Reading;
+import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the execution of the CollectedRegisterListDeviceCommand
@@ -68,7 +68,7 @@ public class CollectedRegisterListDeviceCommandTest {
     @Mock
     private DeviceService deviceService;
     @Mock
-    private ServiceProvider serviceProvider;
+    private DeviceCommand.ServiceProvider serviceProvider;
 
     @Before
     public void initializeMocksAndFactories() {
@@ -91,14 +91,13 @@ public class CollectedRegisterListDeviceCommandTest {
         when(registerIdentifier.getObisCode()).thenReturn(REGISTER_OBIS);
         when(this.collectedRegister.getRegisterIdentifier()).thenReturn(registerIdentifier);
         when(this.device.getId()).thenReturn(DEVICE_ID);
-        ServiceProvider.instance.set(serviceProvider);
         when(serviceProvider.mdcReadingTypeUtilService()).thenReturn(new MdcReadingTypeUtilServiceImpl());
     }
 
     @Test
     public void testExecutionOfDeviceCommand() {
-        MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommand();
-        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), meterDataStoreCommand);
+        MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommand(this.serviceProvider);
+        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), meterDataStoreCommand, this.serviceProvider);
         command.logExecutionWith(this.executionLogger);
 
         // Business methods
@@ -120,7 +119,7 @@ public class CollectedRegisterListDeviceCommandTest {
 
     @Test
     public void testToJournalMessageDescription() {
-        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), new MeterDataStoreCommand());
+        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), new MeterDataStoreCommand(this.serviceProvider), this.serviceProvider);
         command.logExecutionWith(this.executionLogger);
 
         // Business methods

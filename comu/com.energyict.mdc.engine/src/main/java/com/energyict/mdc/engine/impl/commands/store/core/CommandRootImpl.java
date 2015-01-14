@@ -98,13 +98,6 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
         this.serviceProvider = serviceProvider;
     }
 
-    public CommandRootImpl(OfflineDevice offlineDevice, ExecutionContext executionContext, com.energyict.mdc.engine.impl.core.ServiceProvider serviceProvider) {
-        super(null);
-        this.offlineDevice = offlineDevice;
-        this.executionContext = executionContext;
-        this.serviceProvider = new CommandRootServiceProviderAdapter(serviceProvider);
-    }
-
     @Override
     public ExecutionContext getExecutionContext () {
         return this.executionContext;

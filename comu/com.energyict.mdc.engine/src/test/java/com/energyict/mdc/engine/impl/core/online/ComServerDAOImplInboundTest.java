@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.core.online;
 
-import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TypedProperties;
@@ -13,33 +12,39 @@ import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDAO;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.ComTask;
-import java.util.Collections;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+
+import com.elster.jupiter.transaction.TransactionService;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the methods of the {@link ComServerDAOImpl}
@@ -57,21 +62,18 @@ public class ComServerDAOImplInboundTest {
     private DeviceIdentifier deviceIdentifier;
     @Mock
     private CommunicationTaskService communicationTaskService;
+    @Mock
+    private ComServerDAOImpl.ServiceProvider serviceProvider;
 
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
-    private TransactionService transactionService;
-    private ComServerDAO comServerDAO = new ComServerDAOImpl(serviceProvider);
-
-    @Before
-    public void setupServiceProvider() {
-        this.transactionService = new FakeTransactionService();
-        this.serviceProvider.setTransactionService(this.transactionService);
-        this.serviceProvider.setCommunicationTaskService(this.communicationTaskService);
-    }
+    private ComServerDAO comServerDAO;
 
     @Before
     public void initializeMocksAndFactories() throws SQLException, BusinessException {
+        TransactionService transactionService = new FakeTransactionService();
+        when(this.serviceProvider.transactionService()).thenReturn(transactionService);
+        when(this.serviceProvider.communicationTaskService()).thenReturn(this.communicationTaskService);
         when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+        this.comServerDAO = new ComServerDAOImpl(this.serviceProvider);
     }
 
     /**

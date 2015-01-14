@@ -19,17 +19,19 @@ import static org.fest.assertions.api.Assertions.assertThat;
 public class UpdateDeviceIpAddressTest {
 
 
-    private final long DEVICE_ID = 1;
-    private final String ipAddress = "10.0.1.50:4059";
+    private static final long DEVICE_ID = 1;
+    private static final String IP_ADDRESS = "10.0.1.50:4059";
     private final String connectionTaskPropertyName = "connectionTaskPropertyName";
     @Mock
     private DeviceService deviceService;
+    @Mock
+    private DeviceCommand.ServiceProvider serviceProvider;
 
     @Test
     public void testToJournalMessageDescription() throws Exception {
         final DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
-        final DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, ipAddress, connectionTaskPropertyName);
-        UpdateDeviceIpAddress command = new UpdateDeviceIpAddress(deviceIpAddress);
+        final DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, connectionTaskPropertyName);
+        UpdateDeviceIpAddress command = new UpdateDeviceIpAddress(deviceIpAddress, serviceProvider);
 
         // Business method
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
@@ -37,4 +39,5 @@ public class UpdateDeviceIpAddressTest {
         // Asserts
         assertThat(journalMessage).isEqualTo(UpdateDeviceIpAddress.class.getSimpleName() + " {deviceIdentifier: id 1; IP address: 10.0.1.50:4059}");
     }
+
 }

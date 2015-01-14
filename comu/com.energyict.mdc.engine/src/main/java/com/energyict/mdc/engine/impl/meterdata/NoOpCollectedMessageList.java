@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.meterdata;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.engine.impl.commands.store.NoopDeviceCommand;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
@@ -29,7 +28,7 @@ public class NoOpCollectedMessageList extends CollectedDeviceData implements Col
     }
 
     @Override
-    public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
+    public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
         return new NoopDeviceCommand();
     }
 
@@ -37,4 +36,5 @@ public class NoOpCollectedMessageList extends CollectedDeviceData implements Col
     public boolean isConfiguredIn(DataCollectionConfiguration configuration) {
         return false;
     }
+
 }

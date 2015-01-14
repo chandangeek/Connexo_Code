@@ -27,7 +27,7 @@ public class CreateNoLogBooksForDeviceEventTest {
     public void testToJournalMessageDescription() throws Exception {
         final DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, this.deviceService);
         NoLogBooksForDevice noLogBooksForDevice = new NoLogBooksForDevice(deviceIdentifier);
-        CreateNoLogBooksForDeviceEvent command = new CreateNoLogBooksForDeviceEvent(noLogBooksForDevice);
+        CreateNoLogBooksForDeviceEvent command = new CreateNoLogBooksForDeviceEvent(noLogBooksForDevice, new NoDeviceCommandServices());
 
         // Business method
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);

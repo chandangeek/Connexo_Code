@@ -2,9 +2,9 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 /**
@@ -20,7 +20,7 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl {
     private ComServerDAO comServerDAO;
 
     public CollectedLogBookDeviceCommand(DeviceLogBook deviceLogBook, MeterDataStoreCommand meterDataStoreCommand) {
-        super();
+        super(meterDataStoreCommand.getServiceProvider());
         this.deviceLogBook = deviceLogBook;
         this.meterDataStoreCommand = meterDataStoreCommand;
     }
@@ -28,13 +28,13 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl {
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
         this.comServerDAO = comServerDAO;
-        PreStoreLogBook logBookPreStorer = new PreStoreLogBook(getClock(), comServerDAO);
+        PreStoreLogBook logBookPreStorer = new PreStoreLogBook(this.getClock(), comServerDAO);
         PreStoreLogBook.LocalLogBook localLogBook = logBookPreStorer.preStore(this.deviceLogBook);
         updateMeterDataStorer(localLogBook);
     }
 
     private void updateMeterDataStorer(final PreStoreLogBook.LocalLogBook localLogBook) {
-        if (localLogBook.getEndDeviceEvents().size() > 0) {
+        if (!localLogBook.getEndDeviceEvents().isEmpty()) {
             DeviceIdentifier<Device> deviceIdentifier = this.comServerDAO.getDeviceIdentifierFor(this.deviceLogBook.getLogBookIdentifier());
             this.meterDataStoreCommand.addEventReadings(deviceIdentifier, localLogBook.getEndDeviceEvents());
             this.meterDataStoreCommand.addLastLogBookUpdater(this.deviceLogBook.getLogBookIdentifier(), localLogBook.getLastLogbook());

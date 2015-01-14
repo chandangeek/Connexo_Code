@@ -1,18 +1,17 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.elster.jupiter.util.Ranges;
-import com.google.common.collect.Range;
-
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.store.CollectedLoadProfileDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+
+import com.elster.jupiter.util.Ranges;
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -55,8 +54,8 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
     private boolean doStoreOlderValues = false;
 
     @Override
-    public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
-        return new CollectedLoadProfileDeviceCommand(this, meterDataStoreCommand);
+    public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
+        return new CollectedLoadProfileDeviceCommand(this, meterDataStoreCommand, serviceProvider);
     }
 
     /**

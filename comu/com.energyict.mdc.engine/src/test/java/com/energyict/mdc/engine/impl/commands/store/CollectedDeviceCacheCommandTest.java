@@ -3,30 +3,36 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+
+import com.elster.jupiter.events.EventService;
+
+import java.io.Serializable;
+import java.sql.SQLException;
+import java.time.Clock;
 import java.util.Optional;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.Serializable;
-import java.sql.SQLException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link CollectedDeviceCacheCommand} component
@@ -48,19 +54,6 @@ public class CollectedDeviceCacheCommandTest {
     private DeviceService deviceService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private EngineService engineService;
-    @Mock
-    private ServiceProvider serviceProvider;
-
-    @Before
-    public void setupServiceProvider() {
-        when(this.serviceProvider.engineService()).thenReturn(this.engineService);
-        ServiceProvider.instance.set(this.serviceProvider);
-    }
-
-    @After
-    public void initAfter() {
-        ServiceProvider.instance.set(null);
-    }
 
     @Test
     public void updateWithoutChangeTest() throws BusinessException, SQLException {
@@ -68,7 +61,7 @@ public class CollectedDeviceCacheCommandTest {
         DeviceProtocolCache protocolCache = new SimpleDeviceProtocolCache();
         updatedDeviceCache.setCollectedDeviceCache(protocolCache);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        CollectedDeviceCacheCommand deviceCacheCommand = new CollectedDeviceCacheCommand(updatedDeviceCache);
+        CollectedDeviceCacheCommand deviceCacheCommand = new CollectedDeviceCacheCommand(updatedDeviceCache, new EngineServiceOnly());
         deviceCacheCommand.logExecutionWith(this.executionLogger);
 
         // Business method
@@ -86,7 +79,7 @@ public class CollectedDeviceCacheCommandTest {
         protocolCache.updateChangedState(true);
         protocolCache.updateDescription(newDescription);
         updatedDeviceCache.setCollectedDeviceCache(protocolCache);
-        CollectedDeviceCacheCommand deviceCacheCommand = new CollectedDeviceCacheCommand(updatedDeviceCache);
+        CollectedDeviceCacheCommand deviceCacheCommand = new CollectedDeviceCacheCommand(updatedDeviceCache, new EngineServiceOnly());
         deviceCacheCommand.logExecutionWith(this.executionLogger);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
@@ -104,7 +97,7 @@ public class CollectedDeviceCacheCommandTest {
     public void testToJournalMessageDescription() {
         final DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
         UpdatedDeviceCache updatedDeviceCache = new UpdatedDeviceCache(deviceIdentifier);
-        CollectedDeviceCacheCommand command = new CollectedDeviceCacheCommand(updatedDeviceCache);
+        CollectedDeviceCacheCommand command = new CollectedDeviceCacheCommand(updatedDeviceCache, new EngineServiceOnly());
 
         // Business method
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
@@ -144,6 +137,33 @@ public class CollectedDeviceCacheCommandTest {
 
         protected String getDescription() {
             return this.description;
+        }
+    }
+
+    private class EngineServiceOnly implements DeviceCommand.ServiceProvider {
+        @Override
+        public EventService eventService() {
+            return null;
+        }
+
+        @Override
+        public IssueService issueService() {
+            return null;
+        }
+
+        @Override
+        public Clock clock() {
+            return null;
+        }
+
+        @Override
+        public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
+            return null;
+        }
+
+        @Override
+        public EngineService engineService() {
+            return engineService;
         }
     }
 

@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.meterdata;
 import com.energyict.mdc.engine.impl.commands.store.CollectedLoadProfileDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
@@ -65,7 +64,8 @@ public class DeviceProtocolMessageWithCollectedLoadProfileData extends Collected
     }
 
     @Override
-    public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
-        return new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand);
+    public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
+        return new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand, serviceProvider);
     }
+
 }

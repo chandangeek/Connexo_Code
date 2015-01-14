@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
@@ -158,7 +159,23 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
+        Map<String, Object> queryParameters = new HashMap<>();
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, comServer.getId());
+        JSONObject response = this.post(QueryMethod.AttemptLock, queryParameters);
+        return true; // TODO properly implement using orm's locking mechanism
+    }
+
+    @Override
     public void unlock (ScheduledConnectionTask connectionTask) {
+        Map<String, Object> queryParameters = new HashMap<>();
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
+        this.post(QueryMethod.Unlock, queryParameters);
+    }
+
+    @Override
+    public void unlock (OutboundConnectionTask connectionTask) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
         this.post(QueryMethod.Unlock, queryParameters);

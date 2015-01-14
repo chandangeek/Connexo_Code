@@ -4,14 +4,13 @@ import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
 import com.energyict.mdc.engine.impl.events.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.engine.impl.meterdata.CollectedDeviceData;
-import com.energyict.mdc.engine.impl.meterdata.DeviceTopology;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
@@ -54,8 +53,8 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
      */
     private List<DeviceCommand> collectedDeviceInfoCommands;
 
-    public CollectedDeviceTopologyDeviceCommand(CollectedTopology deviceTopology, ComTaskExecution comTaskExecution, MeterDataStoreCommand meterDataStoreCommand) {
-        super();
+    public CollectedDeviceTopologyDeviceCommand(CollectedTopology deviceTopology, ComTaskExecution comTaskExecution, MeterDataStoreCommand meterDataStoreCommand, ServiceProvider serviceProvider) {
+        super(serviceProvider);
         this.deviceTopology = deviceTopology;
         this.comTaskExecution = comTaskExecution;
         this.meterDataStoreCommand = meterDataStoreCommand;
@@ -234,7 +233,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
     }
 
     private DeviceCommand toDeviceCommand(CollectedDeviceData collectedDeviceInfo) {
-        return collectedDeviceInfo.toDeviceCommand(getIssueService(), meterDataStoreCommand);
+        return collectedDeviceInfo.toDeviceCommand(meterDataStoreCommand, this.getServiceProvider());
     }
 
     /**

@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.meterdata;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 
 /**
@@ -21,10 +20,11 @@ public interface ServerCollectedData extends CollectedData {
      * once the communication session is complete.
      *
      * @return The DeviceCommand
-     * @param issueService The IssueService
      * @param meterDataStoreCommand The MeterDataStoreCommand
+     * @param serviceProvider The ServiceProvider
      */
-    public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand);
+
+    public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider);
 
     /**
      * Injects the {@link ConnectionTask} that was used to communicate

@@ -1,34 +1,37 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import java.time.Clock;
-import java.time.ZoneId;
-
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
-import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.tasks.ClockTask;
 
+import com.elster.jupiter.time.TimeDuration;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Clock;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static junit.framework.Assert.assertEquals;
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -55,8 +58,10 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockCommand.getClockTask()).thenReturn(clockTask);
         CommandRoot commandRoot = mock(CommandRoot.class);
         CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
-        when(commandRootServiceProvider.issueService()).thenReturn(serviceProvider.issueService());
-        when(commandRootServiceProvider.clock()).thenReturn(serviceProvider.clock());
+        IssueService issueService = executionContextServiceProvider.issueService();
+        when(commandRootServiceProvider.issueService()).thenReturn(issueService);
+        Clock clock = executionContextServiceProvider.clock();
+        when(commandRootServiceProvider.clock()).thenReturn(clock);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
         when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
         SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
@@ -76,14 +81,16 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
         CommandRoot commandRoot = mock(CommandRoot.class);
         CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
-        when(commandRootServiceProvider.issueService()).thenReturn(serviceProvider.issueService());
-        when(commandRootServiceProvider.clock()).thenReturn(serviceProvider.clock());
+        IssueService issueService = executionContextServiceProvider.issueService();
+        when(commandRootServiceProvider.issueService()).thenReturn(issueService);
+        Clock clock = executionContextServiceProvider.clock();
+        when(commandRootServiceProvider.clock()).thenReturn(clock);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
         when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
         SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
 
         // business method
-        command.execute(deviceProtocol, AbstractComCommandExecuteTest.newTestExecutionContext());
+        command.execute(deviceProtocol, this.newTestExecutionContext());
 
         assertThat(command.getIssues()).hasSize(1);
         assertThat(command.getWarnings()).hasSize(1);
@@ -94,7 +101,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
     @Test
     public void smallerThanMaxClockShiftTest() {
         Clock currentTime = Clock.fixed(new DateTime(2013, 9, 2, 10, 10, 10, 0).toDate().toInstant(), ZoneId.systemDefault());
-        ((FakeServiceProvider) serviceProvider).setClock(currentTime);
+        when(executionContextServiceProvider.clock()).thenReturn(currentTime);
         TimeDuration maxClockDifference = new TimeDuration(111);
         TimeDuration maxClockShift = new TimeDuration(50);
         TimeDuration minClockDifference = new TimeDuration(1);
@@ -110,14 +117,16 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
         CommandRoot commandRoot = mock(CommandRoot.class);
         CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
-        when(commandRootServiceProvider.issueService()).thenReturn(serviceProvider.issueService());
-        when(commandRootServiceProvider.clock()).thenReturn(serviceProvider.clock());
+        IssueService issueService = executionContextServiceProvider.issueService();
+        when(commandRootServiceProvider.issueService()).thenReturn(issueService);
+        Clock clock = executionContextServiceProvider.clock();
+        when(commandRootServiceProvider.clock()).thenReturn(clock);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
         when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
         SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
 
         // business method
-        command.execute(deviceProtocol, AbstractComCommandExecuteTest.newTestExecutionContext());
+        command.execute(deviceProtocol, this.newTestExecutionContext());
 
         assertThat(command.getIssues()).isEmpty();
         assertThat(command.getWarnings()).isEmpty();
@@ -128,7 +137,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
     @Test
     public void largerThanMaxShiftSmallerThanMaxDiffTest() {
         Clock currentTime = Clock.fixed(new DateTime(2013, DateTimeConstants.SEPTEMBER, 2, 10, 10, 10, 0).toDate().toInstant(), ZoneId.systemDefault());
-        ((FakeServiceProvider) serviceProvider).setClock(currentTime);
+        when(executionContextServiceProvider.clock()).thenReturn(currentTime);
         TimeDuration maxClockDifference = new TimeDuration(111);
         TimeDuration maxClockShift = new TimeDuration(50);
         TimeDuration minClockDifference = new TimeDuration(1);
@@ -144,14 +153,16 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
         CommandRoot commandRoot = mock(CommandRoot.class);
         CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
-        when(commandRootServiceProvider.issueService()).thenReturn(serviceProvider.issueService());
-        when(commandRootServiceProvider.clock()).thenReturn(serviceProvider.clock());
+        IssueService issueService = executionContextServiceProvider.issueService();
+        when(commandRootServiceProvider.issueService()).thenReturn(issueService);
+        Clock clock = executionContextServiceProvider.clock();
+        when(commandRootServiceProvider.clock()).thenReturn(clock);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
         when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
         SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
 
         // business method
-        command.execute(deviceProtocol, AbstractComCommandExecuteTest.newTestExecutionContext());
+        command.execute(deviceProtocol, this.newTestExecutionContext());
 
         assertThat(command.getIssues()).isEmpty();
         assertThat(command.getWarnings()).isEmpty();
@@ -162,7 +173,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
     @Test
     public void largerThanMaxShiftSmallerThanMaxDiffButNegativeTest() {
         Clock currentTime = Clock.fixed(new DateTime(2013, 9, 2, 10, 10, 10, 0).toDate().toInstant(), ZoneId.systemDefault());
-        ((FakeServiceProvider) serviceProvider).setClock(currentTime);
+        when(executionContextServiceProvider.clock()).thenReturn(currentTime);
         TimeDuration maxClockDifference = new TimeDuration(111);
         TimeDuration maxClockShift = new TimeDuration(50);
         TimeDuration minClockDifference = new TimeDuration(1);
@@ -178,14 +189,16 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
         CommandRoot commandRoot = mock(CommandRoot.class);
         CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
-        when(commandRootServiceProvider.issueService()).thenReturn(serviceProvider.issueService());
-        when(commandRootServiceProvider.clock()).thenReturn(serviceProvider.clock());
+        IssueService issueService = executionContextServiceProvider.issueService();
+        when(commandRootServiceProvider.issueService()).thenReturn(issueService);
+        Clock clock = executionContextServiceProvider.clock();
+        when(commandRootServiceProvider.clock()).thenReturn(clock);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
         when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
         SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
 
         // business method
-        command.execute(deviceProtocol, AbstractComCommandExecuteTest.newTestExecutionContext());
+        command.execute(deviceProtocol, this.newTestExecutionContext());
 
         assertThat(command.getIssues()).isEmpty();
         assertThat(command.getProblems()).isEmpty();
@@ -196,7 +209,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
     @Test
     public void largerThanMaxShiftLargerThanMaxDiffButNegativeTest() {
         Clock currentTime = Clock.fixed(new DateTime(2013, DateTimeConstants.SEPTEMBER, 2, 10, 10, 10, 0).toDate().toInstant(), ZoneId.systemDefault());
-        ((FakeServiceProvider) serviceProvider).setClock(currentTime);
+        when(executionContextServiceProvider.clock()).thenReturn(currentTime);
         TimeDuration maxClockDifference = new TimeDuration(111);
         TimeDuration maxClockShift = new TimeDuration(50);
         TimeDuration minClockDifference = new TimeDuration(1);
@@ -212,14 +225,16 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
         CommandRoot commandRoot = mock(CommandRoot.class);
         CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
-        when(commandRootServiceProvider.issueService()).thenReturn(serviceProvider.issueService());
-        when(commandRootServiceProvider.clock()).thenReturn(serviceProvider.clock());
+        IssueService issueService = executionContextServiceProvider.issueService();
+        when(commandRootServiceProvider.issueService()).thenReturn(issueService);
+        Clock clock = executionContextServiceProvider.clock();
+        when(commandRootServiceProvider.clock()).thenReturn(clock);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
         when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
         SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
 
         // business method
-        command.execute(deviceProtocol, AbstractComCommandExecuteTest.newTestExecutionContext());
+        command.execute(deviceProtocol, this.newTestExecutionContext());
 
         assertThat(command.getIssues()).hasSize(1);
         assertThat(command.getWarnings()).hasSize(1);
@@ -244,14 +259,16 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
         CommandRoot commandRoot = mock(CommandRoot.class);
         CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
-        when(commandRootServiceProvider.issueService()).thenReturn(serviceProvider.issueService());
-        when(commandRootServiceProvider.clock()).thenReturn(serviceProvider.clock());
+        IssueService issueService = executionContextServiceProvider.issueService();
+        when(commandRootServiceProvider.issueService()).thenReturn(issueService);
+        Clock clock = executionContextServiceProvider.clock();
+        when(commandRootServiceProvider.clock()).thenReturn(clock);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
         when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
         SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
 
         // business method
-        command.execute(deviceProtocol, AbstractComCommandExecuteTest.newTestExecutionContext());
+        command.execute(deviceProtocol, this.newTestExecutionContext());
 
         assertThat(command.getIssues()).hasSize(1);
         assertThat(command.getIssues().get(0).getDescription()).isNotEmpty();

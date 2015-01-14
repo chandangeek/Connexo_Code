@@ -381,6 +381,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         return 1;
     }
 
+    @Override
     public boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
         return getConnectionTaskService().attemptLockConnectionTask(connectionTask, comServer) != null;
     }

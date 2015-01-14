@@ -95,7 +95,13 @@ public class RunningOnlineComServerImpl extends RunningComServerImpl implements 
 
     @Override
     public WebSocketQueryApiService newWebSocketQueryApiService() {
-        return this.getServiceProvider().webSocketQueryApiServiceFactory().newWebSocketQueryApiService(this);
+        return new WebSocketQueryApiService(
+                this,
+                this.getComServerDAO(),
+                this.getServiceProvider().engineConfigurationService(),
+                this.getServiceProvider().connectionTaskService(),
+                this.getServiceProvider().communicationTaskService(),
+                this.getServiceProvider().transactionService());
     }
 
     @Override

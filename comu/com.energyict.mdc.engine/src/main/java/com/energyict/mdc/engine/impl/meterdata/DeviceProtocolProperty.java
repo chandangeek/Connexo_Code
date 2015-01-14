@@ -1,15 +1,15 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceProtocolProperty;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+
+import com.elster.jupiter.properties.PropertySpec;
 
 /**
  * Provides an implementation for the {@link CollectedDeviceInfo} interface
@@ -50,8 +50,8 @@ public class DeviceProtocolProperty extends CollectedDeviceData implements Colle
     }
 
     @Override
-    public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
-        return new UpdateDeviceProtocolProperty(this, issueService, comTaskExecution);
+    public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
+        return new UpdateDeviceProtocolProperty(this, comTaskExecution, serviceProvider);
     }
 
     @Override

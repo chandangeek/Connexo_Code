@@ -6,21 +6,22 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.FakeServiceProvider;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
+import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 import com.energyict.mdc.protocol.api.services.HexService;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
-import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -77,11 +78,11 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     private DeviceService deviceService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ComSessionBuilder comSessionBuilder;
+    @Mock
+    private JobExecution.ServiceProvider serviceProvider;
 
     private Clock clock = Clock.fixed(Instant.ofEpochMilli(514851820000L), ZoneId.systemDefault()); // what happened in GMT+3 ?
-    private final FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private HexService hexService;
-
     private String expectedMessageRead;
     private String expectedMessageWritten;
     private MockJobExecution jobExecution;
@@ -92,20 +93,14 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     @Before
-    public void setupServiceProvider() {
-        serviceProvider.setClock(clock);
-        serviceProvider.setIssueService(new IssueServiceImpl(this.clock));
+    public void initializeMocks() {
         this.hexService = new HexServiceImpl();
-        serviceProvider.setHexService(this.hexService);
-        serviceProvider.setConnectionTaskService(this.connectionTaskService);
-        serviceProvider.setDeviceService(this.deviceService);
+        when(this.serviceProvider.clock()).thenReturn(this.clock);
+        when(this.serviceProvider.issueService()).thenReturn(new IssueServiceImpl());
+        when(this.serviceProvider.hexService()).thenReturn(this.hexService);
+        when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
+        when(this.serviceProvider.deviceService()).thenReturn(this.deviceService);
         when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Instant.class))).thenReturn(comSessionBuilder);
-        ServiceProvider.instance.set(this.serviceProvider);
-    }
-
-    @After
-    public void resetServiceProvider() {
-        ServiceProvider.instance.set(null);
     }
 
     private void initializeExpectedMessage() throws IOException {
@@ -472,6 +467,15 @@ public class ComChannelBasedComPortListenerStatisticsTest {
             return serviceProvider.deviceService();
         }
 
+        @Override
+        public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
+            return serviceProvider.mdcReadingTypeUtilService();
+        }
+
+        @Override
+        public EngineService engineService() {
+            return serviceProvider.engineService();
+        }
     }
 
     private class MockJobExecution extends JobExecution {

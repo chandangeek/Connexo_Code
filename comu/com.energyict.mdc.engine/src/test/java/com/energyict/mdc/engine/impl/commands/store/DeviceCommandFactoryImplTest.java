@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.energyict.mdc.engine.impl.meterdata.DeviceCommandFactory;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +26,7 @@ import static org.mockito.Mockito.*;
 public class DeviceCommandFactoryImplTest {
 
     @Mock
-    private IssueService issueService;
+    private DeviceCommand.ServiceProvider serviceProvider;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ComTaskExecutionSessionBuilder builder;
 
@@ -36,7 +35,7 @@ public class DeviceCommandFactoryImplTest {
         DeviceCommandFactory factory = new DeviceCommandFactoryImpl();
 
         // Business method
-        CompositeDeviceCommand compositeDeviceCommand = factory.newCompositeForAll(new ArrayList<ServerCollectedData>(0), ComServer.LogLevel.INFO, issueService, builder);
+        CompositeDeviceCommand compositeDeviceCommand = factory.newCompositeForAll(new ArrayList<ServerCollectedData>(0), ComServer.LogLevel.INFO, serviceProvider, builder);
 
         // Asserts
         assertThat(compositeDeviceCommand).isNotNull();
@@ -49,12 +48,12 @@ public class DeviceCommandFactoryImplTest {
         ServerCollectedData collectedData = mockCollectedData();
 
         // Business method
-        CompositeDeviceCommand compositeDeviceCommand = factory.newCompositeForAll(Arrays.asList(collectedData), ComServer.LogLevel.INFO, issueService, builder);
+        CompositeDeviceCommand compositeDeviceCommand = factory.newCompositeForAll(Arrays.asList(collectedData), ComServer.LogLevel.INFO, serviceProvider, builder);
 
         // Asserts
         assertThat(compositeDeviceCommand).isNotNull();
         assertThat(compositeDeviceCommand.getChildren()).hasSize(2);
-        verify(collectedData).toDeviceCommand(any(IssueService.class), any(MeterDataStoreCommand.class));
+        verify(collectedData).toDeviceCommand(any(MeterDataStoreCommand.class), eq(serviceProvider));
     }
 
     @Test
@@ -62,16 +61,16 @@ public class DeviceCommandFactoryImplTest {
         DeviceCommandFactory factory = new DeviceCommandFactoryImpl();
         DeviceCommand deviceCommand1 = mock(DeviceCommand.class);
         ServerCollectedData collectedData1 = mockCollectedData(deviceCommand1);
-        when(collectedData1.toDeviceCommand(any(IssueService.class), any(MeterDataStoreCommand.class))).thenReturn(deviceCommand1);
+        when(collectedData1.toDeviceCommand(any(MeterDataStoreCommand.class), eq(serviceProvider))).thenReturn(deviceCommand1);
         DeviceCommand deviceCommand2 = mock(DeviceCommand.class);
         ServerCollectedData collectedData2 = mockCollectedData(deviceCommand2);
-        when(collectedData2.toDeviceCommand(any(IssueService.class), any(MeterDataStoreCommand.class))).thenReturn(deviceCommand2);
+        when(collectedData2.toDeviceCommand(any(MeterDataStoreCommand.class), eq(serviceProvider))).thenReturn(deviceCommand2);
         DeviceCommand deviceCommand3 = mock(DeviceCommand.class);
         ServerCollectedData collectedData3 = mockCollectedData(deviceCommand3);
-        when(collectedData3.toDeviceCommand(any(IssueService.class), any(MeterDataStoreCommand.class))).thenReturn(deviceCommand3);
+        when(collectedData3.toDeviceCommand(any(MeterDataStoreCommand.class), eq(serviceProvider))).thenReturn(deviceCommand3);
 
         // Business method
-        CompositeDeviceCommand compositeDeviceCommand = factory.newCompositeForAll(Arrays.asList(collectedData1, collectedData2, collectedData3), ComServer.LogLevel.INFO, issueService, builder);
+        CompositeDeviceCommand compositeDeviceCommand = factory.newCompositeForAll(Arrays.asList(collectedData1, collectedData2, collectedData3), ComServer.LogLevel.INFO, serviceProvider, builder);
 
         // Asserts
         assertThat(compositeDeviceCommand).isNotNull();
@@ -86,7 +85,7 @@ public class DeviceCommandFactoryImplTest {
     private ServerCollectedData mockCollectedData (DeviceCommand deviceCommand) {
         ServerCollectedData mock = mock(ServerCollectedData.class);
         MeterDataStoreCommand meterDataStoreCommand = mock(MeterDataStoreCommand.class);
-        when(mock.toDeviceCommand(issueService, meterDataStoreCommand)).thenReturn(deviceCommand);
+        when(mock.toDeviceCommand(meterDataStoreCommand, serviceProvider)).thenReturn(deviceCommand);
         return mock;
     }
 

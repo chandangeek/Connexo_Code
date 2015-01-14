@@ -36,6 +36,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import static org.mockito.Mockito.mock;
+
 /**
  * Dummy DeviceProtocol for PluggableClassTestUsages
  * <p/>
@@ -217,8 +219,7 @@ public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
      */
     @Override
     public CommandRoot organizeComCommands(CommandRoot commandRoot) {
-        CommandRoot.ServiceProvider serviceProvider = new FakeServiceProvider();
-        CommandRoot resultRoot = new CommandRootImpl(offlineDevice, commandRoot.getExecutionContext(), serviceProvider);
+        CommandRoot resultRoot = new CommandRootImpl(offlineDevice, commandRoot.getExecutionContext(), mock(CommandRoot.ServiceProvider.class));
         resultRoot.getCommands().putAll(commandRoot.getCommands());
         resultRoot.getCommands().remove(ComCommandTypes.READ_REGISTERS_COMMAND);
         return resultRoot;

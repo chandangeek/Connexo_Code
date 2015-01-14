@@ -2,15 +2,15 @@ package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.store.ComTaskExecutionRootDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.tasks.ComTask;
-import java.util.ArrayList;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implemenation for the {@link com.energyict.mdc.protocol.api.device.data.CollectedData} interface
@@ -32,9 +32,7 @@ public class ComTaskExecutionCollectedData extends CompositeCollectedData<Server
         super();
         this.comTaskExecution = comTaskExecution;
         this.communicationLogLevel = communicationLogLevel;
-        for (ServerCollectedData collectedData : relatedCollectedData) {
-            this.add(collectedData);
-        }
+        relatedCollectedData.forEach(this::add);
     }
 
     @Override
@@ -51,16 +49,16 @@ public class ComTaskExecutionCollectedData extends CompositeCollectedData<Server
                 return true;
             }
         }
-
         return false;
     }
 
     @Override
-    public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
-        List<DeviceCommand> nestedCommands = new ArrayList<>(this.getElements().size());
-        for (ServerCollectedData collectedData : this.getElements()) {
-            nestedCommands.add(collectedData.toDeviceCommand(issueService, meterDataStoreCommand));
-        }
+    public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
+        List<DeviceCommand> nestedCommands =
+                this.getElements()
+                        .stream()
+                        .map(collectedData -> collectedData.toDeviceCommand(meterDataStoreCommand, serviceProvider))
+                        .collect(Collectors.toList());
         return new ComTaskExecutionRootDeviceCommand(this.comTaskExecution, this.communicationLogLevel, nestedCommands);
     }
 

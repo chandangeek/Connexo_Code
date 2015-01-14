@@ -1,27 +1,27 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.BusinessException;
-import com.elster.jupiter.time.TimeDuration;
-
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.InboundCapableComServer;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedJettyServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundCapableComServer;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactoryImpl;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
+import com.elster.jupiter.time.TimeDuration;
+
 import org.junit.*;
-import org.junit.runner.RunWith;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -58,8 +58,8 @@ public class ServletInboundComPortListenerTest {
     private DeviceService deviceService;
     @Mock
     private EventPublisher eventPublisher;
-
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
+    @Mock
+    private InboundCommunicationHandler.ServiceProvider inboundCommunicationHandlerServiceProvider;
 
     @Before
     public void setupServiceProvider () {
@@ -71,8 +71,8 @@ public class ServletInboundComPortListenerTest {
                         this.engineConfigurationService,
                         this.identificationService,
                         this.eventPublisher);
-        this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
-        this.serviceProvider.setEventPublisher(this.eventPublisher);
+        when(this.inboundCommunicationHandlerServiceProvider.embeddedWebServerFactory()).thenReturn(new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
+        when(this.inboundCommunicationHandlerServiceProvider.eventPublisher()).thenReturn(this.eventPublisher);
     }
 
     @Test(timeout = 10000)
@@ -81,7 +81,7 @@ public class ServletInboundComPortListenerTest {
         when(inboundComPort.getNumberOfSimultaneousConnections()).thenReturn(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
         final ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
-        ServletInboundComPortListener servletInboundComPortListener = new ServletInboundComPortListener(inboundComPort, comServerDAO, deviceCommandExecutor, this.serviceProvider);
+        ServletInboundComPortListener servletInboundComPortListener = new ServletInboundComPortListener(inboundComPort, comServerDAO, deviceCommandExecutor, this.inboundCommunicationHandlerServiceProvider);
 
         int addedCapacity = 10;
         InboundComPort newComPort = mockComPort("newComPort");
@@ -101,7 +101,7 @@ public class ServletInboundComPortListenerTest {
         when(inboundComPort.getNumberOfSimultaneousConnections()).thenReturn(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
         final ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
-        ServletInboundComPortListener servletInboundComPortListener = new ServletInboundComPortListener(inboundComPort, comServerDAO, deviceCommandExecutor, this.serviceProvider);
+        ServletInboundComPortListener servletInboundComPortListener = new ServletInboundComPortListener(inboundComPort, comServerDAO, deviceCommandExecutor, this.inboundCommunicationHandlerServiceProvider);
 
         final ServletBasedInboundComPort newComPort = mockComPort("newComPort");
         when(newComPort.getPortNumber()).thenReturn(80);
@@ -111,7 +111,7 @@ public class ServletInboundComPortListenerTest {
                 findOrCreateFor(
                     any(ServletBasedInboundComPort.class),
                     any(ComServerDAO.class),
-                    any(DeviceCommandExecutor.class), eq(serviceProvider))).
+                    any(DeviceCommandExecutor.class), eq(this.inboundCommunicationHandlerServiceProvider))).
         thenReturn(mockedJetty);
         servletInboundComPortListener.applyChanges(newComPort, inboundComPort);
     }

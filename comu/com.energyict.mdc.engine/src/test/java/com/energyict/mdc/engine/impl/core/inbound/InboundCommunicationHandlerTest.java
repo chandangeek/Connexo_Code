@@ -17,8 +17,12 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
@@ -29,23 +33,16 @@ import com.energyict.mdc.engine.impl.commands.store.RescheduleSuccessfulExecutio
 import com.energyict.mdc.engine.impl.commands.store.UnlockScheduledJobDeviceCommand;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.services.HexService;
@@ -141,9 +138,10 @@ public class InboundCommunicationHandlerTest {
     private HexService hexService;
     @Mock
     private IdentificationService identificationService;
+    @Mock
+    private InboundCommunicationHandler.ServiceProvider serviceProvider;
 
     private FakeTransactionService transactionService = new FakeTransactionService();
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private InboundCommunicationHandler handler;
     private Clock clock = Clock.systemDefaultZone();
     private EventPublisherImpl eventPublisher;
@@ -151,13 +149,12 @@ public class InboundCommunicationHandlerTest {
     @Before
     public void setup() {
         this.eventPublisher = mock(EventPublisherImpl.class);
-        ServiceProvider.instance.set(serviceProvider);
-        serviceProvider.setClock(clock);
-        serviceProvider.setEventService(eventService);
-        serviceProvider.setEventPublisher(eventPublisher);
-        serviceProvider.setIdentificationService(identificationService);
-        serviceProvider.setConnectionTaskService(connectionTaskService);
-        serviceProvider.setHexService(this.hexService);
+        when(this.serviceProvider.clock()).thenReturn(clock);
+        when(this.serviceProvider.eventService()).thenReturn(eventService);
+        when(this.serviceProvider.eventPublisher()).thenReturn(eventPublisher);
+        when(this.serviceProvider.identificationService()).thenReturn(identificationService);
+        when(this.serviceProvider.connectionTaskService()).thenReturn(connectionTaskService);
+        when(this.serviceProvider.hexService()).thenReturn(this.hexService);
         when(connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Instant.class))).
                 thenReturn(this.comSessionBuilder);
         when(this.comSessionBuilder.addSentBytes(anyLong())).thenReturn(this.comSessionBuilder);
@@ -166,13 +163,13 @@ public class InboundCommunicationHandlerTest {
         when(this.comSessionBuilder.addReceivedPackets(anyLong())).thenReturn(this.comSessionBuilder);
         this.comTaskExecutionSessionBuilder = mock(ComTaskExecutionSessionBuilder.class);
         when(this.comSessionBuilder.addComTaskExecutionSession(any(ComTaskExecution.class), any(ComTask.class), any(Device.class), any(Instant.class))).thenReturn(comTaskExecutionSessionBuilder);
-        this.serviceProvider.setProtocolPluggableService(this.protocolPluggableService);
-        this.serviceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
+        when(this.serviceProvider.protocolPluggableService()).thenReturn(this.protocolPluggableService);
+        when(this.serviceProvider.deviceConfigurationService()).thenReturn(this.deviceConfigurationService);
         // The following prohibits the execution of every ComTask on all devices
         when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), any(DeviceConfiguration.class))).thenReturn(Optional.empty());
-        this.serviceProvider.setEngineService(this.engineService);
+        when(this.serviceProvider.engineService()).thenReturn(this.engineService);
         when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
-        this.serviceProvider.setTransactionService(this.transactionService);
+        when(this.serviceProvider.transactionService()).thenReturn(this.transactionService);
         when(this.protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(anyString())).thenReturn(Collections.<InboundDeviceProtocolPluggableClass>emptyList());
         when(this.comServer.getId()).thenReturn(Long.valueOf(COMSERVER_ID));
         when(this.comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
@@ -185,11 +182,6 @@ public class InboundCommunicationHandlerTest {
 
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
         when(this.deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(this.comTaskEnablement));
-    }
-
-    @After
-    public void tearDown() {
-        ServiceProvider.instance.set(null);
     }
 
     // Todo (JP-3084)

@@ -7,20 +7,19 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.FakeServiceProvider;
-import com.energyict.mdc.engine.events.Category;
-import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.events.Category;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -65,16 +64,16 @@ public class RequestParserTest {
     private EngineConfigurationService engineConfigurationService;
     @Mock
     private IdentificationService identificationService;
-
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
+    @Mock
+    private RequestParser.ServiceProvider serviceProvider;
 
     @Before
     public void initializeServiceProvider() {
-        this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
-        this.serviceProvider.setCommunicationTaskService(this.communicationTaskService);
-        this.serviceProvider.setDeviceService(this.deviceService);
-        this.serviceProvider.setEngineConfigurationService(this.engineConfigurationService);
-        this.serviceProvider.setIdentificationService(this.identificationService);
+        when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
+        when(this.serviceProvider.communicationTaskService()).thenReturn(this.communicationTaskService);
+        when(this.serviceProvider.deviceService()).thenReturn(this.deviceService);
+        when(this.serviceProvider.engineConfigurationService()).thenReturn(this.engineConfigurationService);
+        when(this.serviceProvider.identificationService()).thenReturn(this.identificationService);
     }
 
     @Test(expected = UnexpectedRequestFormatException.class)

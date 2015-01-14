@@ -1,10 +1,10 @@
 package com.energyict.mdc.engine.impl.core.factories;
 
-import com.energyict.mdc.engine.FakeServiceProvider;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.ScheduledComPortImpl;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
@@ -40,14 +40,14 @@ public class ScheduledComPortFactoryImplTest {
     private UserService userService;
     @Mock
     private ThreadPrincipalService threadPrincipalService;
-
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
+    @Mock
+    private ScheduledComPortImpl.ServiceProvider serviceProvider;
 
     @Before
     public void initBefore() {
         when(this.userService.findUser(anyString())).thenReturn(Optional.of(user));
-        serviceProvider.setUserService(userService);
-        serviceProvider.setThreadPrincipalService(threadPrincipalService);
+        when(this.serviceProvider.userService()).thenReturn(userService);
+        when(this.serviceProvider.threadPrincipalService()).thenReturn(threadPrincipalService);
     }
 
     @Test

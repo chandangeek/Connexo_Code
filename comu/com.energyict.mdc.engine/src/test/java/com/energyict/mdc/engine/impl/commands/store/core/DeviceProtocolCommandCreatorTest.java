@@ -1,12 +1,14 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import java.time.Clock;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOffCommand;
 import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOnCommand;
@@ -21,32 +23,32 @@ import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComTaskExecutionConnectionSteps;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.logging.Logger;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Answers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.logging.Logger;
-
 import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the DeviceProtocolCommandCreator
@@ -62,15 +64,18 @@ public class DeviceProtocolCommandCreatorTest {
     private static final long COMPORT_ID = COMPORT_POOL_ID + 1;
     private static final long CONNECTION_TASK_ID = COMPORT_ID + 1;
 
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
-
+    @Mock
+    private CommandRoot.ServiceProvider commandRootServiceProvider;
+    @Mock
+    private ExecutionContext.ServiceProvider executionContextServiceProvider;
     @Mock
     private IssueService issueService;
-    private Clock clock = Clock.systemDefaultZone();
     @Mock
     private DeviceService deviceService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ConnectionTaskService connectionTaskService;
+
+    private Clock clock = Clock.systemDefaultZone();
 
     private ComTaskExecutionConnectionSteps createSingleDeviceComTaskExecutionSteps() {
         return new ComTaskExecutionConnectionSteps(ComTaskExecutionConnectionSteps.SIGNON, ComTaskExecutionConnectionSteps.SIGNOFF);
@@ -86,22 +91,17 @@ public class DeviceProtocolCommandCreatorTest {
 
     @Before
     public void initBefore() {
-        this.serviceProvider.setClock(clock);
-        this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
-        this.serviceProvider.setDeviceService(this.deviceService);
-    }
-
-    @After
-    public void initAfter() {
-        this.serviceProvider.setClock(null);
-        this.serviceProvider.setDeviceService(null);
-        this.serviceProvider.setConnectionTaskService(null);
+        when(this.executionContextServiceProvider.clock()).thenReturn(clock);
+        when(this.executionContextServiceProvider.deviceService()).thenReturn(this.deviceService);
+        when(this.executionContextServiceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
+        when(this.commandRootServiceProvider.clock()).thenReturn(clock);
+        when(this.commandRootServiceProvider.deviceService()).thenReturn(this.deviceService);
     }
 
     @Test
     public void testCommandCreationOrder() {
         OfflineDevice device = mock(OfflineDevice.class);
-        CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), (ServiceProvider) serviceProvider));
+        CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), this.commandRootServiceProvider));
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
@@ -130,7 +130,7 @@ public class DeviceProtocolCommandCreatorTest {
     @Test
     public void testMiddleStateCreationOrder() {
         OfflineDevice device = mock(OfflineDevice.class);
-        CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), (ServiceProvider) serviceProvider));
+        CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), this.commandRootServiceProvider));
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
@@ -161,7 +161,7 @@ public class DeviceProtocolCommandCreatorTest {
     @Test
     public void testLastStateCreationOrder() {
         OfflineDevice device = mock(OfflineDevice.class);
-        CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), (ServiceProvider) serviceProvider));
+        CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), this.commandRootServiceProvider));
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
@@ -206,7 +206,7 @@ public class DeviceProtocolCommandCreatorTest {
                         mock(JobExecution.class),
                         connectionTask,
                         comPort,
-                        this.serviceProvider);
+                        this.executionContextServiceProvider);
         executionContext.setLogger(logger);
         return executionContext;
     }

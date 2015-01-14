@@ -3,8 +3,8 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
@@ -22,8 +22,8 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
     private final MeterDataStoreCommand meterDataStoreCommand;
     private ComServerDAO comServerDAO;
 
-    public CollectedLoadProfileDeviceCommand(CollectedLoadProfile collectedLoadProfile, MeterDataStoreCommand meterDataStoreCommand) {
-        super();
+    public CollectedLoadProfileDeviceCommand(CollectedLoadProfile collectedLoadProfile, MeterDataStoreCommand meterDataStoreCommand, ServiceProvider serviceProvider) {
+        super(serviceProvider);
         this.collectedLoadProfile = collectedLoadProfile;
         this.meterDataStoreCommand = meterDataStoreCommand;
     }
@@ -31,7 +31,7 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
     @Override
     public void doExecute (ComServerDAO comServerDAO) {
         this.comServerDAO = comServerDAO;
-        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(this.getClock(), this.getMdcReadingTypeUtilService(), comServerDAO);
         PreStoreLoadProfile.LocalLoadProfile localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
         updateMeterDataStorer(localLoadProfile);
     }

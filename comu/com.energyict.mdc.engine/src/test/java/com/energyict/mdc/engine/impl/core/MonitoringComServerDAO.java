@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
@@ -160,7 +161,17 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
+        return this.actual.attemptLock(connectionTask, comServer);
+    }
+
+    @Override
     public void unlock (ScheduledConnectionTask connectionTask) {
+        this.actual.unlock(connectionTask);
+    }
+
+    @Override
+    public void unlock (OutboundConnectionTask connectionTask) {
         this.actual.unlock(connectionTask);
     }
 
@@ -389,7 +400,17 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
+        public boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
+            return true;
+        }
+
+        @Override
         public void unlock (ScheduledConnectionTask connectionTask) {
+            // No implementation required so far
+        }
+
+        @Override
+        public void unlock (OutboundConnectionTask connectionTask) {
             // No implementation required so far
         }
 

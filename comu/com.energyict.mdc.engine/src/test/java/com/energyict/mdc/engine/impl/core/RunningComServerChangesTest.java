@@ -1,13 +1,14 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.time.TimeDuration;
-import java.time.Clock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactory;
 import com.energyict.mdc.engine.impl.core.mocks.MockComServerDAO;
@@ -21,30 +22,29 @@ import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
 import com.energyict.mdc.engine.impl.monitor.ComServerOperationalStatistics;
 import com.energyict.mdc.engine.impl.monitor.EventAPIStatistics;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
-import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactoryImpl;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import com.elster.jupiter.time.TimeDuration;
 
 import java.sql.SQLException;
+import java.time.Clock;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertTrue;
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests how the {@link com.energyict.mdc.engine.impl.core.RunningComServerImpl} component picks up on changes
@@ -78,19 +78,19 @@ public class RunningComServerChangesTest {
     private ConnectionTaskService connectionTaskService;
     @Mock
     private CommunicationTaskService communicationTaskService;
+    @Mock
+    private RunningComServerImpl.ServiceProvider serviceProvider;
 
     private Clock clock = Clock.systemDefaultZone();
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private EventPublisher eventPublisher;
 
     @Before
     public void setupServiceProvider() {
-        this.serviceProvider.setClock(this.clock);
-        this.serviceProvider.setEngineService(this.engineService);
-        this.serviceProvider.setEngineConfigurationService(this.engineConfigurationService);
-        this.serviceProvider.setDeviceService(this.deviceService);
-        this.serviceProvider.setManagementBeanFactory(this.managementBeanFactory);
-        ServiceProvider.instance.set(this.serviceProvider);
+        when(this.serviceProvider.clock()).thenReturn(this.clock);
+        when(this.serviceProvider.engineService()).thenReturn(this.engineService);
+        when(this.serviceProvider.engineConfigurationService()).thenReturn(this.engineConfigurationService);
+        when(this.serviceProvider.deviceService()).thenReturn(this.deviceService);
+        when(this.serviceProvider.managementBeanFactory()).thenReturn(this.managementBeanFactory);
     }
 
     @Before
@@ -99,28 +99,6 @@ public class RunningComServerChangesTest {
         ComServerMonitor comServerMonitor = (ComServerMonitor) this.comServerMonitor;
         when(comServerMonitor.getEventApiStatistics()).thenReturn(this.eventApiStatistics);
         when(comServerMonitor.getOperationalStatistics()).thenReturn(this.comServerOperationalStatistics);
-    }
-
-    @After
-    public void resetServiceProvider() {
-        ServiceProvider.instance.set(null);
-    }
-
-    @Before
-    public void initializeEmbeddedWebServerFactory() {
-        this.serviceProvider.setEmbeddedWebServerFactory(this.embeddedWebServerFactory);
-    }
-
-    @After
-    public void resetEmbeddedWebServerFactory() {
-        WebSocketEventPublisherFactoryImpl webSocketEventPublisherFactory =
-                new WebSocketEventPublisherFactoryImpl(
-                        this.connectionTaskService,
-                        this.communicationTaskService,
-                        this.deviceService,
-                        this.engineConfigurationService,
-                        this.identificationService, this.eventPublisher);
-        this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
     }
 
     public void initializeEventPublisher(RunningComServer comServer) {

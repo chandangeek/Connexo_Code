@@ -1,9 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.elster.jupiter.time.TimeDuration;
-import java.time.Clock;
-
-import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
@@ -11,11 +7,15 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.exceptions.TimeDifferenceExceededException;
 import com.energyict.mdc.tasks.BasicCheckTask;
-import org.joda.time.DateTime;
-import org.junit.Test;
 
+import com.elster.jupiter.time.TimeDuration;
+import org.joda.time.DateTime;
+
+import java.time.Clock;
 import java.util.Date;
 import java.util.Optional;
+
+import org.junit.*;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -44,7 +44,7 @@ public class VerifyTimeDifferenceCommandImplTest extends CommonCommandImplTests 
         Date meterTime = new DateTime(2013, 9, 18, 16, 0, 0, 0).toDate();
         Clock systemTime = mock(Clock.class);
         when(systemTime.instant()).thenReturn(new DateTime(2013, 9, 18, 15, 0, 0, 0).toDate().toInstant());
-        ((FakeServiceProvider) serviceProvider).setClock(systemTime);
+        when(executionContextServiceProvider.clock()).thenReturn(systemTime);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getTime()).thenReturn(meterTime);
         BasicCheckCommand basicCheckCommand = mock(BasicCheckCommand.class);
@@ -53,6 +53,7 @@ public class VerifyTimeDifferenceCommandImplTest extends CommonCommandImplTests 
         when(basicCheckCommand.getBasicCheckTask()).thenReturn(basicCheckTask);
         when(basicCheckTask.getMaximumClockDifference()).thenReturn(Optional.of(TimeDuration.seconds(1)));
         VerifyTimeDifferenceCommandImpl verifyTimeDifferenceCommand = new VerifyTimeDifferenceCommandImpl(basicCheckCommand, createCommandRoot());
-        verifyTimeDifferenceCommand.execute(deviceProtocol, AbstractComCommandExecuteTest.newTestExecutionContext());
+        verifyTimeDifferenceCommand.execute(deviceProtocol, this.newTestExecutionContext());
     }
+
 }

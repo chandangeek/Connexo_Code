@@ -38,7 +38,7 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
         this(comPort, comServerDAO, deviceCommandExecutor, threadFactory, new InboundComPortExecutorFactoryImpl(serviceProvider), eventPublisher, serviceProvider);
     }
 
-    protected MultiThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, InboundComPortExecutorFactory inboundComPortExecutorFactory, EventPublisher eventPublisher, com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider) {
+    protected MultiThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, InboundComPortExecutorFactory inboundComPortExecutorFactory, EventPublisher eventPublisher, ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider) {
         this(comPort,
                 comServerDAO,
                 deviceCommandExecutor,

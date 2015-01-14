@@ -19,8 +19,13 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -33,14 +38,8 @@ import com.energyict.mdc.engine.impl.commands.store.PublishConnectionCompletionE
 import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailureEvent;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -152,36 +151,29 @@ public class ScheduledJobImplTest {
     private IdentificationService identificationService;
     @Mock
     private ThreadPrincipalService threadprincipalService;
+    @Mock
+    private JobExecution.ServiceProvider serviceProvider;
 
     private Clock clock = Clock.systemDefaultZone();
     private TransactionService transactionService = new FakeTransactionService();
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
     @Before
     public void setupServiceProvider() {
-        ServiceProvider.instance.set(this.serviceProvider);
-        this.serviceProvider.setEventPublisher(this.eventPublisher);
-        this.serviceProvider.setEventService(this.eventService);
-        this.serviceProvider.setIdentificationService(this.identificationService);
-        this.serviceProvider.setIssueService(this.issueService);
-        this.serviceProvider.setUserService(this.userService);
-        this.serviceProvider.setClock(this.clock);
-        this.serviceProvider.setTransactionService(this.transactionService);
-        this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
-        this.serviceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
-        this.serviceProvider.setEngineService(engineService);
-        this.serviceProvider.setThreadPrincipalService(threadPrincipalService);
+        when(this.serviceProvider.eventPublisher()).thenReturn(this.eventPublisher);
+        when(this.serviceProvider.eventService()).thenReturn(this.eventService);
+        when(this.serviceProvider.identificationService()).thenReturn(this.identificationService);
+        when(this.serviceProvider.issueService()).thenReturn(this.issueService);
+        when(this.serviceProvider.clock()).thenReturn(this.clock);
+        when(this.serviceProvider.transactionService()).thenReturn(this.transactionService);
+        when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
+        when(this.serviceProvider.deviceConfigurationService()).thenReturn(this.deviceConfigurationService);
+        when(this.serviceProvider.engineService()).thenReturn(engineService);
         when(this.userService.findUser(anyString())).thenReturn(Optional.of(user));
         when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Instant.class))).
                 thenReturn(comSessionBuilder);
         when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), any(DeviceConfiguration.class))).thenReturn(Optional.empty());
         when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
         when(comSessionBuilder.addComTaskExecutionSession(Matchers.<ComTaskExecution>any(), any(ComTask.class), any(Device.class), any(Instant.class))).thenReturn(comTaskExecutionSessionBuilder);
-    }
-
-    @After
-    public void resetServiceProvider() {
-        ServiceProvider.instance.set(null);
     }
 
     @Before

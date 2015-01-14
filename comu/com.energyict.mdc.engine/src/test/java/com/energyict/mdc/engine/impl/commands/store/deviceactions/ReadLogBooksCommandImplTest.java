@@ -63,7 +63,7 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
     public void testExecuteCommand() throws Exception {
         OfflineDevice device = mock(OfflineDevice.class);
         LogBooksTask logBooksTask = mock(LogBooksTask.class);
-        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
+        ExecutionContext executionContext = this.newTestExecutionContext();
         CommandRoot commandRoot = new CommandRootImpl(device, executionContext, commandRootServiceProvider);
         LogBooksCommand logBooksCommand = commandRoot.getLogBooksCommand(logBooksTask, commandRoot, comTaskExecution);
         ReadLogBooksCommand readLogBooksCommand = commandRoot.getReadLogBooksCommand(logBooksCommand, comTaskExecution);
@@ -112,7 +112,7 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
         LogBookReader logBookReader3 = new LogBookReader(this.clock, logBookObisCode3, Optional.of(lastLogBookDate3), logBookIdentifier3, new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER));
 
         OfflineDevice device = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(device, AbstractComCommandExecuteTest.newTestExecutionContext(), commandRootServiceProvider);
+        CommandRoot commandRoot = new CommandRootImpl(device, this.newTestExecutionContext(), commandRootServiceProvider);
         ReadLogBooksCommand readLogBooksCommand = commandRoot.getReadLogBooksCommand(mock(LogBooksCommand.class), comTaskExecution);
         readLogBooksCommand.addLogBooks(Arrays.asList(logBookReader1, logBookReader2, logBookReader3, logBookReader1, logBookReader2));
 

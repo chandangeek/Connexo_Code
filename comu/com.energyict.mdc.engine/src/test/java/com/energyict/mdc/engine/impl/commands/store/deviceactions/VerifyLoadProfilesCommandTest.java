@@ -7,6 +7,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfileConfiguration;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
@@ -18,6 +19,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -374,10 +376,12 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
     }
 
     private CommandRoot mockCommandRoot() {
+        IssueService issueService = executionContextServiceProvider.issueService();
+        Clock clock = executionContextServiceProvider.clock();
         CommandRoot commandRoot = mock(CommandRoot.class);
         CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
-        when(commandRootServiceProvider.issueService()).thenReturn(serviceProvider.issueService());
-        when(commandRootServiceProvider.clock()).thenReturn(serviceProvider.clock());
+        when(commandRootServiceProvider.issueService()).thenReturn(issueService);
+        when(commandRootServiceProvider.clock()).thenReturn(clock);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
         return commandRoot;
     }

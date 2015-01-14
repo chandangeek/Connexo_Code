@@ -4,6 +4,10 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
+
+import com.elster.jupiter.nls.NlsService;
+
 import java.util.Optional;
 
 import java.io.Serializable;
@@ -18,6 +22,10 @@ import java.io.Serializable;
 public interface EngineService {
 
     public static String COMPONENTNAME = "CES";
+
+    public IdentificationService identificationService();
+
+    public NlsService nlsService();
 
     public DeviceCache newDeviceCache(Device device, DeviceProtocolCache deviceProtocolCache);
 

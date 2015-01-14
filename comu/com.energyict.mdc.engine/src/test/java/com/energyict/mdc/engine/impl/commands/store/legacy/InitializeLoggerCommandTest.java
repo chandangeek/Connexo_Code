@@ -34,7 +34,7 @@ public class InitializeLoggerCommandTest extends AbstractComCommandExecuteTest {
     @Test
     public void commandTypeTest() {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, AbstractComCommandExecuteTest.newTestExecutionContext(), commandRootServiceProvider);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, this.newTestExecutionContext(), commandRootServiceProvider);
         InitializeLoggerCommand initializeLoggerCommand = new InitializeLoggerCommand(commandRoot);
 
         assertEquals(ComCommandTypes.INIT_LOGGER_COMMAND, initializeLoggerCommand.getCommandType());
@@ -44,7 +44,7 @@ public class InitializeLoggerCommandTest extends AbstractComCommandExecuteTest {
     public void validateAdapterCallForMeterProtocol () {
         Logger logger = Logger.getLogger("MyTestLogger");
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext(logger);
+        ExecutionContext executionContext = this.newTestExecutionContext(logger);
         CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, commandRootServiceProvider);
         CommandFactory.createLegacyInitLoggerCommand(commandRoot, null);
         MeterProtocolAdapter meterProtocolAdapter = mock(MeterProtocolAdapter.class);
@@ -60,7 +60,7 @@ public class InitializeLoggerCommandTest extends AbstractComCommandExecuteTest {
     public void validateAdapterCallForSmartMeterProtocol () {
         Logger logger = Logger.getLogger("MyTestLogger");
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext(logger);
+        ExecutionContext executionContext = this.newTestExecutionContext(logger);
         CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, commandRootServiceProvider);
         CommandFactory.createLegacyInitLoggerCommand(commandRoot, null);
         SmartMeterProtocolAdapter smartMeterProtocolAdapter = mock(SmartMeterProtocolAdapter.class);
@@ -76,7 +76,7 @@ public class InitializeLoggerCommandTest extends AbstractComCommandExecuteTest {
     public void validateIllegalDeviceProtocolTest() {
         Logger logger = Logger.getLogger("MyTestLogger");
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext(logger);
+        ExecutionContext executionContext = this.newTestExecutionContext(logger);
         CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, commandRootServiceProvider);
         CommandFactory.createLegacyInitLoggerCommand(commandRoot, null);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);

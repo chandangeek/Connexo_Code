@@ -17,8 +17,8 @@ public class UpdateDeviceMessage extends DeviceCommandImpl {
     private DeviceMessageStatus deviceMessageStatus;
     private String protocolInfo;
 
-    public UpdateDeviceMessage(DeviceProtocolMessageAcknowledgement messageAcknowledgement) {
-        super();
+    public UpdateDeviceMessage(DeviceProtocolMessageAcknowledgement messageAcknowledgement, ServiceProvider serviceProvider) {
+        super(serviceProvider);
         this.messageIdentifier = messageAcknowledgement.getMessageIdentifier();
         this.deviceMessageStatus = messageAcknowledgement.getDeviceMessageStatus();
         this.protocolInfo = messageAcknowledgement.getProtocolInfo();

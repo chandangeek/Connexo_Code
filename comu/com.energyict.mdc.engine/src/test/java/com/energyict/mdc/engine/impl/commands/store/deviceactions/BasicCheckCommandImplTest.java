@@ -1,11 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import java.time.Clock;
-import java.time.ZoneId;
-
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
@@ -15,20 +11,25 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.tasks.BasicCheckTask;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
+import com.elster.jupiter.time.TimeDuration;
 import org.joda.time.DateTime;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Clock;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the BasicCheckCommandImpl component
@@ -38,9 +39,6 @@ import static org.mockito.Mockito.*;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class BasicCheckCommandImplTest extends CommonCommandImplTests {
-
-//    @ClassRule
-//    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
 
     @Mock
     private DeviceProtocol deviceProtocol;
@@ -89,7 +87,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
     @Test
     public void verifyTimeDifferenceWithinBoundariesTest() {
         Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(),ZoneId.systemDefault());
-        ((FakeServiceProvider) serviceProvider).setClock(frozenClock);
+        when(commandRootServiceProvider.clock()).thenReturn(frozenClock);
         final long timeDifferenceInMillis = 3000L;
         long deviceTime = frozenClock.millis() - timeDifferenceInMillis;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 3 seconds time difference
@@ -116,7 +114,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
     @Test
     public void verifyTimeDifferenceOutsideBoundariesTest() {
         Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
-        ((FakeServiceProvider) serviceProvider).setClock(frozenClock);
+        when(commandRootServiceProvider.clock()).thenReturn(frozenClock);
         long timeDifferenceInMillis = 60000L;
         long deviceTime = frozenClock.millis() - timeDifferenceInMillis;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 60 seconds time difference

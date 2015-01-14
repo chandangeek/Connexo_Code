@@ -21,6 +21,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -52,6 +53,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.common.ComServerRuntimeException;
@@ -61,13 +63,13 @@ import com.energyict.mdc.tasks.ComTask;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static com.energyict.mdc.device.data.tasks.history.ComSession.SuccessIndicator.Broken;
 import static com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession.SuccessIndicator.Success;
@@ -96,6 +98,10 @@ public final class ExecutionContext implements JournalEntryFactory {
         public DeviceService deviceService();
 
         public EventPublisher eventPublisher();
+
+        public MdcReadingTypeUtilService mdcReadingTypeUtilService();
+
+        public EngineService engineService();
 
     }
 
@@ -497,10 +503,10 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.connectionFailed = true;
         this.getStoreCommand().add(
                 new PublishConnectionSetupFailureEvent(
-                        this.serviceProvider.eventService(),
                         connectionTask,
                         this.comPort,
-                        this.jobExecution.getComTaskExecutions()));
+                        this.jobExecution.getComTaskExecutions(),
+                        getDeviceCommandServiceProvider()));
         this.publish(new CannotEstablishConnectionEvent(new ComServerEventServiceProvider(), this.getComPort(), connectionTask, e));
         this.connectionLogger.cannotEstablishConnection(e, this.getJob().getThreadName());
     }
@@ -612,11 +618,12 @@ public final class ExecutionContext implements JournalEntryFactory {
 
     private List<DeviceCommand> toDeviceCommands(ComTaskExecutionComCommand commandRoot) {
         List<CollectedData> collectedData = commandRoot.getCollectedData();
-        List<ServerCollectedData> serverCollectedData = new ArrayList<>(collectedData.size());
-        for (CollectedData data : collectedData) {
-            serverCollectedData.add((ServerCollectedData) data);
-        }
-        return new DeviceCommandFactoryImpl().newForAll(serverCollectedData, this.serviceProvider.issueService());
+        List<ServerCollectedData> serverCollectedData = collectedData.stream().map(ServerCollectedData.class::cast).collect(Collectors.toList());
+        return new DeviceCommandFactoryImpl().newForAll(serverCollectedData, getDeviceCommandServiceProvider());
+    }
+
+    public DeviceCommandServiceProvider getDeviceCommandServiceProvider() {
+        return new DeviceCommandServiceProvider();
     }
 
     private void publish (ComServerEvent event) {
@@ -649,6 +656,34 @@ public final class ExecutionContext implements JournalEntryFactory {
         public Clock clock() {
             return serviceProvider.clock();
         }
+    }
+
+    private class DeviceCommandServiceProvider implements DeviceCommand.ServiceProvider {
+        @Override
+        public IssueService issueService() {
+            return serviceProvider.issueService();
+        }
+
+        @Override
+        public Clock clock() {
+            return serviceProvider.clock();
+        }
+
+        @Override
+        public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
+            return serviceProvider.mdcReadingTypeUtilService();
+        }
+
+        @Override
+        public EngineService engineService() {
+            return serviceProvider.engineService();
+        }
+
+        @Override
+        public EventService eventService() {
+            return serviceProvider.eventService();
+        }
+
     }
 
 }

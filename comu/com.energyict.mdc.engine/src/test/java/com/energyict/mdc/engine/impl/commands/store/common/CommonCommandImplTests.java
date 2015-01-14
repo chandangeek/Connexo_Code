@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.commands.store.common;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 
 import org.junit.runner.*;
@@ -20,12 +19,12 @@ import static org.mockito.Mockito.mock;
 @RunWith(MockitoJUnitRunner.class)
 public abstract class CommonCommandImplTests extends AbstractComCommandExecuteTest {
 
-    public static CommandRoot createCommandRoot() {
-        return new CommandRootImpl(mock(OfflineDevice.class), AbstractComCommandExecuteTest.newTestExecutionContext(), (ServiceProvider) serviceProvider);
+    public CommandRoot createCommandRoot() {
+        return new CommandRootImpl(mock(OfflineDevice.class), this.newTestExecutionContext(), this.commandRootServiceProvider);
     }
 
-    public static CommandRoot createCommandRoot(final OfflineDevice offlineDevice){
-        return new CommandRootImpl(offlineDevice, AbstractComCommandExecuteTest.newTestExecutionContext(), (ServiceProvider) serviceProvider);
+    public CommandRoot createCommandRoot(final OfflineDevice offlineDevice){
+        return new CommandRootImpl(offlineDevice, this.newTestExecutionContext(), this.commandRootServiceProvider);
     }
 
 }

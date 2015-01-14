@@ -9,7 +9,6 @@ import com.energyict.mdc.engine.impl.commands.collect.ReadLoadProfileDataCommand
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -50,7 +49,7 @@ public class ReadLoadProfileDataCommandImplTest extends CommonCommandImplTests {
         when(loadProfileType.getObisCode()).thenReturn(ObisCode.fromString("1.1.1.1.1.1"));
         when(loadProfilesTask.getLoadProfileTypes()).thenReturn(Arrays.asList(loadProfileType));
         ExecutionContext executionContext = newTestExecutionContext();
-        CommandRoot commandRoot = new CommandRootImpl(mock(OfflineDevice.class), executionContext, (ServiceProvider) serviceProvider);
+        CommandRoot commandRoot = new CommandRootImpl(mock(OfflineDevice.class), executionContext, this.commandRootServiceProvider);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         LoadProfileCommand loadProfileCommand = commandRoot.getLoadProfileCommand(loadProfilesTask, commandRoot, comTaskExecution);
         ReadLoadProfileDataCommand readLoadProfileDataCommand = commandRoot.getReadLoadProfileDataCommand(loadProfileCommand, comTaskExecution);

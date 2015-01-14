@@ -1,21 +1,20 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
-
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolProperty;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
+
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface
@@ -27,16 +26,13 @@ import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
  */
 public class UpdateDeviceProtocolProperty extends DeviceCommandImpl {
 
-
     private final DeviceIdentifier deviceIdentifier;
     private final PropertySpec propertySpec;
     private final Object propertyValue;
-    private final IssueService issueService;
     private final ComTaskExecution comTaskExecution;
 
-    public UpdateDeviceProtocolProperty(DeviceProtocolProperty deviceProtocolProperty, IssueService issueService, ComTaskExecution comTaskExecution) {
-        super();
-        this.issueService = issueService;
+    public UpdateDeviceProtocolProperty(DeviceProtocolProperty deviceProtocolProperty, ComTaskExecution comTaskExecution, ServiceProvider serviceProvider) {
+        super(serviceProvider);
         this.comTaskExecution = comTaskExecution;
         this.deviceIdentifier = deviceProtocolProperty.getDeviceIdentifier();
         this.propertySpec = deviceProtocolProperty.getPropertySpec();
@@ -54,13 +50,13 @@ public class UpdateDeviceProtocolProperty extends DeviceCommandImpl {
                 } catch (InvalidValueException | DeviceProtocolPropertyException e) {
                     getExecutionLogger().addIssue(
                             CompletionCode.ConfigurationWarning,
-                            getIssueService().newWarning(this, MessageSeeds.PROPERTY_VALIDATION_FAILED.getKey(), propertySpec.getName(), propertyValue), comTaskExecution);
+                            this.getIssueService().newWarning(this, MessageSeeds.PROPERTY_VALIDATION_FAILED.getKey(), propertySpec.getName(), propertyValue), comTaskExecution);
                 }
             }
         } catch (CanNotFindForIdentifier e) {
             getExecutionLogger().addIssue(
                     CompletionCode.ConfigurationWarning,
-                    getIssueService().newWarning(deviceIdentifier, e.getMessageSeed().getKey()), comTaskExecution);
+                    this.getIssueService().newWarning(deviceIdentifier, e.getMessageSeed().getKey()), comTaskExecution);
         }
     }
 
@@ -72,4 +68,5 @@ public class UpdateDeviceProtocolProperty extends DeviceCommandImpl {
             builder.addProperty("value").append(propertySpec.getValueFactory().toStringValue(propertyValue));
         }
     }
+
 }

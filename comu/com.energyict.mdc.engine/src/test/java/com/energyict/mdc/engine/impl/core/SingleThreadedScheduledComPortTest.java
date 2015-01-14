@@ -19,8 +19,13 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.InboundCapableComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
@@ -30,12 +35,6 @@ import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitorImplMBean;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortOperationalStatistics;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundCapableComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ComPortType;
@@ -187,9 +186,10 @@ public class SingleThreadedScheduledComPortTest {
     private ScheduledComPortOperationalStatistics operationalStatistics;
     @Mock
     private IdentificationService identificationService;
+    @Mock
+    private ScheduledComPortImpl.ServiceProvider serviceProvider;
 
     private Clock clock = Clock.systemUTC();
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private ComPortRelatedComChannel comChannel;
     private ConnectionStrategy connectionStrategy = ConnectionStrategy.AS_SOON_AS_POSSIBLE;
 
@@ -205,20 +205,19 @@ public class SingleThreadedScheduledComPortTest {
     }
 
     public void setupServiceProvider() {
-        ServiceProvider.instance.set(this.serviceProvider);
-        this.serviceProvider.setHexService(this.hexService);
-        this.serviceProvider.setEventPublisher(this.eventPublisher);
-        this.serviceProvider.setIssueService(this.issueService);
-        this.serviceProvider.setUserService(this.userService);
-        this.serviceProvider.setClock(this.clock);
-        this.serviceProvider.setTransactionService(new FakeTransactionService());
-        this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
-        this.serviceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
-        this.serviceProvider.setEngineService(engineService);
-        this.serviceProvider.setThreadPrincipalService(threadPrincipalService);
-        this.serviceProvider.setManagementBeanFactory(this.managementBeanFactory);
-        this.serviceProvider.setEventService(this.eventService);
-        this.serviceProvider.setIdentificationService(this.identificationService);
+        when(this.serviceProvider.hexService()).thenReturn(this.hexService);
+        when(this.serviceProvider.eventPublisher()).thenReturn(this.eventPublisher);
+        when(this.serviceProvider.issueService()).thenReturn(this.issueService);
+        when(this.serviceProvider.userService()).thenReturn(this.userService);
+        when(this.serviceProvider.clock()).thenReturn(this.clock);
+        when(this.serviceProvider.transactionService()).thenReturn(new FakeTransactionService());
+        when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
+        when(this.serviceProvider.deviceConfigurationService()).thenReturn(this.deviceConfigurationService);
+        when(this.serviceProvider.engineService()).thenReturn(engineService);
+        when(this.serviceProvider.threadPrincipalService()).thenReturn(threadPrincipalService);
+        when(this.serviceProvider.managementBeanFactory()).thenReturn(this.managementBeanFactory);
+        when(this.serviceProvider.eventService()).thenReturn(this.eventService);
+        when(this.serviceProvider.identificationService()).thenReturn(this.identificationService);
         when(this.managementBeanFactory.findOrCreateFor(any(ScheduledComPort.class))).thenReturn(this.scheduledComPortMonitor);
         ScheduledComPortMonitor comPortMonitor = (ScheduledComPortMonitor) this.scheduledComPortMonitor;
         when(comPortMonitor.getOperationalStatistics()).thenReturn(this.operationalStatistics);
@@ -240,11 +239,6 @@ public class SingleThreadedScheduledComPortTest {
                 return counter++;
             }
         });
-    }
-
-    @After
-    public void resetServiceProvider() {
-        ServiceProvider.instance.set(null);
     }
 
     @Before
@@ -578,7 +572,7 @@ public class SingleThreadedScheduledComPortTest {
         Date now = new DateTime(2013, 8, 22, 9, 0, 0, 0).toDate();    // It's now 9 am
         this.clock = mock(Clock.class);
         when(this.clock.instant()).thenReturn(now.toInstant());
-        this.serviceProvider.setClock(this.clock);
+        when(this.serviceProvider.clock()).thenReturn(this.clock);
         ComWindow comWindow = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR * 4, DateTimeConstants.SECONDS_PER_HOUR * 6); // Window is from 4 am to 6 am
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneOutsideComWindow");
@@ -627,7 +621,7 @@ public class SingleThreadedScheduledComPortTest {
         Date now = new DateTime(2013, Calendar.AUGUST, 22, 9, 1, 0, 0).toDate();    // It's now 09:01 am
         this.clock = mock(Clock.class);
         when(this.clock.instant()).thenReturn(now.toInstant());
-        this.serviceProvider.setClock(this.clock);
+        when(this.serviceProvider.clock()).thenReturn(this.clock);
         ComWindow comWindow = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR * 4, DateTimeConstants.SECONDS_PER_HOUR * 9); // Window is from 4 am to 9 am
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneOutsideComWindow");

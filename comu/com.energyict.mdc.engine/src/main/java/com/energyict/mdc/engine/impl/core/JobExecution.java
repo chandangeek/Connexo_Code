@@ -186,12 +186,12 @@ public abstract class JobExecution implements ScheduledJob {
         if (!this.getExecutionContext().connectionFailed()) {
             this.getExecutionContext().getStoreCommand().add(
                     new PublishConnectionCompletionEvent(
-                            this.serviceProvider.eventService(),
                             this.getConnectionTask(),
                             this.getComPort(),
                             this.getSuccessfulComTaskExecutions(),
                             this.getFailedComTaskExecutions(),
-                            this.getNotExecutedComTaskExecutions()));
+                            this.getNotExecutedComTaskExecutions(),
+                            this.executionContext.getDeviceCommandServiceProvider()));
         }
     }
 
@@ -203,14 +203,14 @@ public abstract class JobExecution implements ScheduledJob {
     protected void completeFailedComSession(Throwable t, ExecutionFailureReason reason) {
         this.getExecutionContext().fail(t, this.getFailureIndicatorFor(reason.toRescheduleReason()));
         this.getExecutionContext().getStoreCommand().add(new RescheduleFailedExecution(this, t, reason));
-        this.getExecutionContext().getStoreCommand().add(new UnlockScheduledJobDeviceCommand(this));
+        this.getExecutionContext().getStoreCommand().add(new UnlockScheduledJobDeviceCommand(this, this.executionContext.getDeviceCommandServiceProvider()));
         this.getDeviceCommandExecutor().execute(this.getExecutionContext().getStoreCommand(), getToken());
     }
 
     protected void completeSuccessfulComSession() {
         this.getExecutionContext().complete();
         this.getExecutionContext().getStoreCommand().add(new RescheduleSuccessfulExecution(this));
-        this.getExecutionContext().getStoreCommand().add(new UnlockScheduledJobDeviceCommand(this));
+        this.getExecutionContext().getStoreCommand().add(new UnlockScheduledJobDeviceCommand(this, this.executionContext.getDeviceCommandServiceProvider()));
         this.getDeviceCommandExecutor().execute(this.getExecutionContext().getStoreCommand(), getToken());
     }
 

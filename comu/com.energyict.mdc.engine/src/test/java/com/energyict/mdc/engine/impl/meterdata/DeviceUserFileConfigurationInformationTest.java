@@ -4,11 +4,11 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -31,7 +31,7 @@ public class DeviceUserFileConfigurationInformationTest {
     @Mock
     private DeviceService deviceService;
     @Mock
-    private IssueService issueService;
+    private DeviceCommand.ServiceProvider serviceProvider;
 
     @Test
     public void testConstructorDoesNotThrowExceptions() {
@@ -62,7 +62,7 @@ public class DeviceUserFileConfigurationInformationTest {
         DeviceUserFileConfigurationInformation deviceIpAddress = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
 
         // Business method
-        DeviceCommand command = deviceIpAddress.toDeviceCommand(issueService, new MeterDataStoreCommand());
+        DeviceCommand command = deviceIpAddress.toDeviceCommand(new MeterDataStoreCommand(serviceProvider), serviceProvider);
 
         // Asserts
         assertThat(command).isNotNull();

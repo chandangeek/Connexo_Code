@@ -1,12 +1,13 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.metering.readings.Reading;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+
+import com.elster.jupiter.metering.readings.Reading;
 
 import java.util.List;
 
@@ -22,17 +23,17 @@ public class CollectedRegisterListDeviceCommand extends DeviceCommandImpl {
     private final CollectedRegisterList collectedRegisterList;
     private final MeterDataStoreCommand meterDataStoreCommand;
 
-    public CollectedRegisterListDeviceCommand(CollectedRegisterList collectedRegisterList, MeterDataStoreCommand meterDataStoreCommand) {
-        super();
+    public CollectedRegisterListDeviceCommand(CollectedRegisterList collectedRegisterList, MeterDataStoreCommand meterDataStoreCommand, ServiceProvider serviceProvider) {
+        super(serviceProvider);
         this.collectedRegisterList = collectedRegisterList;
         this.meterDataStoreCommand = meterDataStoreCommand;
     }
 
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
-        PreStoreRegisters preStoreRegisters = new PreStoreRegisters(getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreRegisters preStoreRegisters = new PreStoreRegisters(this.getMdcReadingTypeUtilService(), comServerDAO);
         List<Reading> readings = preStoreRegisters.preStore(collectedRegisterList);
-        if(readings.size() > 0){
+        if (!readings.isEmpty()) {
             this.meterDataStoreCommand.addReadings(getDeviceIdentifier(), readings);
         }
     }

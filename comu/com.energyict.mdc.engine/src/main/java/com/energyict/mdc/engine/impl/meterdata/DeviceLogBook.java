@@ -5,7 +5,6 @@ import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.store.CollectedLogBookDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
@@ -24,7 +23,6 @@ import java.util.List;
  * @since 4/04/12 - 8:27
  */
 public class DeviceLogBook extends CollectedDeviceData implements CollectedLogBook {
-
 
     /**
      * This is the <i>generic</i> ObisCode that will be used for migrating <i>old</i> devices.
@@ -47,7 +45,7 @@ public class DeviceLogBook extends CollectedDeviceData implements CollectedLogBo
     }
 
     @Override
-    public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
+    public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
         return new CollectedLogBookDeviceCommand(this, meterDataStoreCommand);
     }
 

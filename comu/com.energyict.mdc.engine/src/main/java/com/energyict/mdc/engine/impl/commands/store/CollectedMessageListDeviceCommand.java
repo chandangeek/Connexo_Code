@@ -27,8 +27,8 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl {
     private final List<OfflineDeviceMessage> allDeviceMessages;
     private final MeterDataStoreCommand meterDataStoreCommand;
 
-    public CollectedMessageListDeviceCommand(DeviceProtocolMessageList deviceProtocolMessageList, List<OfflineDeviceMessage> allDeviceMessages, MeterDataStoreCommand meterDataStoreCommand) {
-        super();
+    public CollectedMessageListDeviceCommand(DeviceProtocolMessageList deviceProtocolMessageList, List<OfflineDeviceMessage> allDeviceMessages, MeterDataStoreCommand meterDataStoreCommand, ServiceProvider serviceProvider) {
+        super(serviceProvider);
         this.deviceProtocolMessageList = deviceProtocolMessageList;
         this.allDeviceMessages = allDeviceMessages;
         this.meterDataStoreCommand = meterDataStoreCommand;
@@ -46,7 +46,7 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl {
                 }
 
                 if (CollectedDeviceData.class.isAssignableFrom(collectedMessage.getClass())) {
-                    DeviceCommand deviceCommand = ((CollectedDeviceData) collectedMessage).toDeviceCommand(getIssueService(), meterDataStoreCommand);
+                    DeviceCommand deviceCommand = ((CollectedDeviceData) collectedMessage).toDeviceCommand(meterDataStoreCommand, meterDataStoreCommand.getServiceProvider());
                     deviceCommand.execute(comServerDAO);
                 }
             }

@@ -29,6 +29,10 @@ public class MeterDataStoreCommand extends DeviceCommandImpl {
     private final Map<LoadProfileIdentifier, Instant> lastReadings = new HashMap<>();
     private final Map<LogBookIdentifier, Instant> lastLogBooks = new HashMap<>();
 
+    public MeterDataStoreCommand(DeviceCommand.ServiceProvider serviceProvider) {
+        super(serviceProvider);
+    }
+
     @Override
     protected void doExecute(ComServerDAO comServerDAO) {
         for (Map.Entry<String, Pair<DeviceIdentifier<Device>, MeterReadingImpl>> deviceMeterReadingEntry : meterReadings.entrySet()) {

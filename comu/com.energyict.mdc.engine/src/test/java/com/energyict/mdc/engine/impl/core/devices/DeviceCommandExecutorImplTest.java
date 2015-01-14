@@ -1,14 +1,8 @@
 package com.energyict.mdc.engine.impl.core.devices;
 
-import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
-import com.elster.jupiter.devtools.tests.rules.Using;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
-import java.time.Clock;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
@@ -17,31 +11,39 @@ import com.energyict.mdc.engine.impl.commands.store.NoResourcesAcquiredException
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ComServerThreadFactory;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
-import com.energyict.mdc.engine.config.ComServer;
-import java.util.Optional;
+
+import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
+import com.elster.jupiter.devtools.tests.rules.Using;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import org.joda.time.DateTimeConstants;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.sql.SQLException;
+import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadFactory;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ThreadFactory;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link DeviceCommandExecutorImpl} component.
@@ -59,8 +61,6 @@ public class DeviceCommandExecutorImplTest {
     private static final int NUMBER_OF_THREADS = 1;
     private static final int THREAD_PRIORITY = Thread.NORM_PRIORITY;
 
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
-
     private Clock clock = Clock.systemDefaultZone();
 
     @Mock
@@ -75,18 +75,9 @@ public class DeviceCommandExecutorImplTest {
     private ConnectionTaskService connectionTaskService;
 
     @Before
-    public void setupComServer() {
-        ServiceProvider.instance.set(serviceProvider);
-        serviceProvider.setClock(clock);
-        serviceProvider.setConnectionTaskService(this.connectionTaskService);
-        serviceProvider.setEventPublisher(this.eventPublisher);
+    public void initializeMocks() {
         when(userService.findUser(anyString())).thenReturn(Optional.of(user));
         when(this.comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
-    }
-
-    @After
-    public void tearDown() {
-        ServiceProvider.instance.set(null);
     }
 
     @Test

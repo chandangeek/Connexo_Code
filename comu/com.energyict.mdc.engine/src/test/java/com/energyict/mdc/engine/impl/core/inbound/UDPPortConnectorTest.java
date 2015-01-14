@@ -1,10 +1,8 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
-import com.energyict.mdc.engine.FakeServiceProvider;
-import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
+import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
+import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.InboundCommunicationException;
 import com.energyict.mdc.io.InboundUdpSession;
@@ -64,7 +62,6 @@ public class UDPPortConnectorTest {
     private InboundUdpSession inboundUdpSession;
 
     private SocketService socketService;
-    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private Clock clock = Clock.systemDefaultZone();
 
     @Before
@@ -75,18 +72,6 @@ public class UDPPortConnectorTest {
 
     private void useRealSocketService() {
         this.socketService = new SocketServiceImpl();
-    }
-
-    @Before
-    public void setupServiceProvider() {
-        this.serviceProvider.setClock(this.clock);
-        this.serviceProvider.setEventPublisher(this.eventPublisher);
-        ServiceProvider.instance.set(this.serviceProvider);
-    }
-
-    @After
-    public void resetServiceProvider() {
-        ServiceProvider.instance.set(null);
     }
 
     @Before

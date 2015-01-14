@@ -1,16 +1,17 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import java.time.Clock;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+
+import com.elster.jupiter.events.EventService;
+
+import java.time.Clock;
 
 /**
  * Serves as the root for all components that intend to implement
@@ -23,9 +24,15 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDescriptionTitle {
 
     private ExecutionLogger logger;
+    private final ServiceProvider serviceProvider;
 
-    public DeviceCommandImpl() {
+    public DeviceCommandImpl(ServiceProvider serviceProvider) {
         super();
+        this.serviceProvider = serviceProvider;
+    }
+
+    protected ServiceProvider getServiceProvider() {
+        return serviceProvider;
     }
 
     @Override
@@ -42,23 +49,23 @@ public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDesc
     protected abstract void doExecute(ComServerDAO comServerDAO);
 
     protected IssueService getIssueService() {
-        return ServiceProvider.instance.get().issueService();
+        return this.serviceProvider.issueService();
     }
 
     protected Clock getClock() {
-        return ServiceProvider.instance.get().clock();
-    }
-
-    protected DeviceService getDeviceDataService() {
-        return ServiceProvider.instance.get().deviceService();
+        return this.serviceProvider.clock();
     }
 
     protected MdcReadingTypeUtilService getMdcReadingTypeUtilService() {
-        return ServiceProvider.instance.get().mdcReadingTypeUtilService();
+        return this.serviceProvider.mdcReadingTypeUtilService();
     }
 
     protected EngineService getEngineService() {
-        return ServiceProvider.instance.get().engineService();
+        return this.serviceProvider.engineService();
+    }
+
+    protected EventService getEventService() {
+        return this.serviceProvider.eventService();
     }
 
     @Override

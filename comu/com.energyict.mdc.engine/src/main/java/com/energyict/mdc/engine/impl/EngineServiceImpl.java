@@ -1,5 +1,40 @@
 package com.energyict.mdc.engine.impl;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
+import com.energyict.mdc.engine.impl.cache.DeviceCache;
+import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.status.StatusService;
+import com.energyict.mdc.io.LibraryType;
+import com.energyict.mdc.io.ModemType;
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
+import com.energyict.mdc.protocol.api.device.BaseLogBook;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -12,46 +47,23 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
-import java.time.Clock;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LogBookService;
-import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
-import com.energyict.mdc.engine.impl.cache.DeviceCache;
-import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
-import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiServiceFactory;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.status.StatusService;
-import com.energyict.mdc.io.LibraryType;
-import com.energyict.mdc.io.ModemType;
-import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.services.HexService;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.io.SocketService;
-import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Copyrights EnergyICT
@@ -78,14 +90,13 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private volatile StatusService statusService;
     private volatile ManagementBeanFactory managementBeanFactory;
-    private volatile WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory;
     private volatile UserService userService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile SocketService socketService;
-    private volatile SerialComponentService serialComponentService;
+    private volatile SerialComponentService serialATComponentService;
     private volatile NlsService nlsService;
-    private volatile IdentificationService identificationService;
+    private OptionalIdentificationService identificationService = new OptionalIdentificationService();
 
     private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
 
@@ -100,9 +111,8 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
             ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, LogBookService logBookService, DeviceService deviceService, TopologyService topologyService,
             ProtocolPluggableService protocolPluggableService, StatusService statusService,
             ManagementBeanFactory managementBeanFactory,
-            WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory,
             SocketService socketService,
-            SerialComponentService serialComponentService,
+            SerialComponentService serialATComponentService,
             IdentificationService identificationService) {
         this();
         this.setOrmService(ormService);
@@ -124,11 +134,10 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         this.setDeviceConfigurationService(deviceConfigurationService);
         this.setProtocolPluggableService(protocolPluggableService);
         this.setSocketService(socketService);
-        this.setSerialComponentService(serialComponentService);
+        this.setSerialATComponentService(serialATComponentService);
         this.setStatusService(statusService);
         this.setManagementBeanFactory(managementBeanFactory);
-        this.setWebSocketQueryApiServiceFactory(webSocketQueryApiServiceFactory);
-        this.setIdentificationService(identificationService);
+        this.addIdentificationService(identificationService);
         this.install();
         activate();
     }
@@ -214,14 +223,14 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     }
 
     @Reference
-    public void setWebSocketQueryApiServiceFactory(WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory) {
-        this.webSocketQueryApiServiceFactory = webSocketQueryApiServiceFactory;
-    }
-
-    @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
+    }
+
+    @Override
+    public NlsService nlsService() {
+        return this.nlsService;
     }
 
     @Override
@@ -274,13 +283,23 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     }
 
     @Reference(target = "(&(library=" + LibraryType.Target.SERIALIO + ")(modem-type=" + ModemType.Target.AT + "))")
-    public void setSerialComponentService(SerialComponentService serialComponentService) {
-        this.serialComponentService = serialComponentService;
+    public void setSerialATComponentService(SerialComponentService serialATComponentService) {
+        this.serialATComponentService = serialATComponentService;
     }
 
-    @Reference
-    public void setIdentificationService(IdentificationService identificationService) {
-        this.identificationService = identificationService;
+    @Override
+    public IdentificationService identificationService() {
+        return this.identificationService;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    public void addIdentificationService(IdentificationService identificationService) {
+        this.identificationService.set(identificationService);
+    }
+
+    @SuppressWarnings("unused")
+    public void removeIdentificationService(IdentificationService identificationService) {
+        this.identificationService.clear();
     }
 
     Thesaurus getThesaurus() {
@@ -297,7 +316,6 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(StatusService.class).toInstance(statusService);
-                bind(WebSocketQueryApiServiceFactory.class).toInstance(webSocketQueryApiServiceFactory);
                 bind(ManagementBeanFactory.class).toInstance(managementBeanFactory);
             }
         };
@@ -306,14 +324,11 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-        ServiceProvider serviceProvider = new ServiceProviderImpl();
-        ServiceProvider.instance.set(serviceProvider);
     }
 
     @Deactivate
     public void deactivate() {
         this.deactivationNotificationListeners.forEach(EngineService.DeactivationNotificationListener::engineServiceDeactivationStarted);
-        ServiceProvider.instance.set(null);
     }
 
     @Override
@@ -336,123 +351,149 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         return Arrays.asList("ORM", "EVT", "NLS", "DDC", "MIO");
     }
 
-    private class ServiceProviderImpl implements ServiceProvider {
+    private class OptionalIdentificationService implements IdentificationService {
+        private AtomicReference<Optional<IdentificationService>> identificationService = new AtomicReference<>(Optional.empty());
 
-        @Override
-        public Clock clock() {
-            return clock;
+        private void set(IdentificationService identificationService) {
+            this.identificationService.set(Optional.of(identificationService));
+        }
+
+        private void clear() {
+            this.identificationService.set(Optional.<IdentificationService>empty());
         }
 
         @Override
-        public DeviceConfigurationService deviceConfigurationService() {
-            return deviceConfigurationService;
+        public DeviceIdentifier createDeviceIdentifierByDatabaseId(long id) {
+            return this.identificationService
+                        .get()
+                        .map(s -> s.createDeviceIdentifierByDatabaseId(id))
+                        .orElseThrow(IdentificationServiceMissingException::new);
         }
 
         @Override
-        public ConnectionTaskService connectionTaskService() {
-            return connectionTaskService;
+        public DeviceIdentifier createDeviceIdentifierByMRID(String mRID) {
+            return this.identificationService
+                    .get()
+                    .map(s -> s.createDeviceIdentifierByMRID(mRID))
+                    .orElseThrow(IdentificationServiceMissingException::new);
         }
 
         @Override
-        public CommunicationTaskService communicationTaskService() {
-            return communicationTaskService;
+        public DeviceIdentifier createDeviceIdentifierBySerialNumber(String serialNumber) {
+            return this.identificationService
+                    .get()
+                    .map(s -> s.createDeviceIdentifierBySerialNumber(serialNumber))
+                    .orElseThrow(IdentificationServiceMissingException::new);
         }
 
         @Override
-        public LogBookService logBookService() {
-            return logBookService;
+        public DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(BaseDevice device) {
+            return this.identificationService
+                    .get()
+                    .map(s -> s.createDeviceIdentifierForAlreadyKnownDevice(device))
+                    .orElseThrow(IdentificationServiceMissingException::new);
         }
 
         @Override
-        public DeviceService deviceService() {
-            return deviceService;
+        public DeviceIdentifier createDeviceIdentifierByProperty(String propertyName, String propertyValue) {
+            return this.identificationService
+                    .get()
+                    .map(s -> s.createDeviceIdentifierByProperty(propertyName, propertyValue))
+                    .orElseThrow(IdentificationServiceMissingException::new);
         }
 
         @Override
-        public TopologyService topologyService() {
-            return topologyService;
+        public DeviceIdentifier createDeviceIdentifierByConnectionTaskProperty(Class<? extends ConnectionType> connectionTypeClass, String propertyName, String propertyValue) {
+            return this.identificationService
+                    .get()
+                    .map(s -> s.createDeviceIdentifierByConnectionTaskProperty(connectionTypeClass, propertyName, propertyValue))
+                    .orElseThrow(IdentificationServiceMissingException::new);
         }
 
         @Override
-        public EngineConfigurationService engineConfigurationService() {
-            return engineConfigurationService;
+        public LoadProfileIdentifier createLoadProfileIdentifierByDatabaseId(long id) {
+            return this.identificationService
+                    .get()
+                    .map(s -> s.createLoadProfileIdentifierByDatabaseId(id))
+                    .orElseThrow(IdentificationServiceMissingException::new);
         }
 
         @Override
-        public EngineService engineService() {
-            return EngineServiceImpl.this;
+        public LoadProfileIdentifier createLoadProfileIdentifierForAlreadyKnownLoadProfile(BaseLoadProfile loadProfile) {
+            return this.identificationService
+                    .get()
+                    .map(s -> s.createLoadProfileIdentifierForAlreadyKnownLoadProfile(loadProfile))
+                    .orElseThrow(IdentificationServiceMissingException::new);
         }
 
         @Override
-        public NlsService nlsService() {
-            return nlsService;
+        public LoadProfileIdentifier createLoadProfileIdentifierByObisCodeAndDeviceIdentifier(ObisCode loadProfileObisCode, DeviceIdentifier deviceIdentifier) {
+            return this.identificationService
+                    .get()
+                    .map(s -> s.createLoadProfileIdentifierByObisCodeAndDeviceIdentifier(loadProfileObisCode, deviceIdentifier))
+                    .orElseThrow(IdentificationServiceMissingException::new);
         }
 
         @Override
-        public EventService eventService() {
-            return eventService;
+        public LoadProfileIdentifier createLoadProfileIdentifierForFirstLoadProfileOnDevice(DeviceIdentifier deviceIdentifier) {
+            return this.identificationService
+                    .get()
+                    .map(s -> s.createLoadProfileIdentifierForFirstLoadProfileOnDevice(deviceIdentifier))
+                    .orElseThrow(IdentificationServiceMissingException::new);
         }
 
         @Override
-        public IdentificationService identificationService() {
-            return identificationService;
+        public LogBookIdentifier createLogbookIdentifierByDatabaseId(long id) {
+            return this.identificationService
+                    .get()
+                    .map(s -> s.createLogbookIdentifierByDatabaseId(id))
+                    .orElseThrow(IdentificationServiceMissingException::new);
         }
 
         @Override
-        public HexService hexService() {
-            return hexService;
+        public LogBookIdentifier createLogbookIdentifierByObisCodeAndDeviceIdentifier(ObisCode logbookObisCode, DeviceIdentifier deviceIdentifier) {
+            return this.identificationService
+                    .get()
+                    .map(s -> s.createLogbookIdentifierByObisCodeAndDeviceIdentifier(logbookObisCode, deviceIdentifier))
+                    .orElseThrow(IdentificationServiceMissingException::new);
         }
 
         @Override
-        public IssueService issueService() {
-            return issueService;
+        public LogBookIdentifier createLogbookIdentifierForAlreadyKnownLogbook(BaseLogBook logBook) {
+            return this.identificationService
+                    .get()
+                    .map(s -> s.createLogbookIdentifierForAlreadyKnownLogbook(logBook))
+                    .orElseThrow(IdentificationServiceMissingException::new);
         }
 
         @Override
-        public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
-            return mdcReadingTypeUtilService;
+        public MessageIdentifier createMessageIdentifierByDatabaseId(long id) {
+            return this.identificationService
+                    .get()
+                    .map(s -> s.createMessageIdentifierByDatabaseId(id))
+                    .orElseThrow(IdentificationServiceMissingException::new);
         }
 
         @Override
-        public ThreadPrincipalService threadPrincipalService() {
-            return threadPrincipalService;
+        public MessageIdentifier createMessageIdentifierForAlreadyKnownMessage(DeviceMessage deviceMessage) {
+            return this.identificationService
+                    .get()
+                    .map(s -> s.createMessageIdentifierForAlreadyKnownMessage(deviceMessage))
+                    .orElseThrow(IdentificationServiceMissingException::new);
         }
 
         @Override
-        public TransactionService transactionService() {
-            return transactionService;
+        public MessageIdentifier createMessageIdentifierByDeviceAndProtocolInfoParts(DeviceIdentifier deviceIdentifier, String... messageProtocolInfoParts) {
+            return this.identificationService
+                    .get()
+                    .map(s -> s.createMessageIdentifierByDeviceAndProtocolInfoParts(deviceIdentifier, messageProtocolInfoParts))
+                    .orElseThrow(IdentificationServiceMissingException::new);
         }
-
-        @Override
-        public UserService userService() {
-            return userService;
-        }
-
-        @Override
-        public ProtocolPluggableService protocolPluggableService() {
-            return protocolPluggableService;
-        }
-
-        @Override
-        public SocketService socketService() {
-            return socketService;
-        }
-
-        @Override
-        public SerialComponentService serialAtComponentService() {
-            return serialComponentService;
-        }
-
-        @Override
-        public ManagementBeanFactory managementBeanFactory() {
-            return managementBeanFactory;
-        }
-
-        @Override
-        public WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory() {
-            return webSocketQueryApiServiceFactory;
-        }
-
     }
 
+    private class IdentificationServiceMissingException extends RuntimeException {
+        private IdentificationServiceMissingException() {
+            super("IdentificationService missing in EngineService");
+        }
+    }
 }

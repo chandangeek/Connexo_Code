@@ -5,7 +5,10 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.access.LogOffCommand;
 import com.energyict.mdc.engine.impl.commands.store.access.LogOnCommand;
@@ -21,10 +24,6 @@ import com.energyict.mdc.engine.impl.core.ComTaskExecutionConnectionSteps;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.ServerSerialPort;
 import com.energyict.mdc.issues.IssueService;
@@ -61,8 +60,10 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
     private static final long COMPORT_ID = COMPORT_POOL_ID + 1;
     private static final long CONNECTION_TASK_ID = COMPORT_ID + 1;
 
-    private final FakeServiceProvider serviceProvider = new FakeServiceProvider();
-    private CommandRoot.ServiceProvider commandRootServiceProvider = new CommandRootServiceProviderAdapter(serviceProvider);
+    @Mock
+    private ExecutionContext.ServiceProvider serviceProvider;
+    @Mock
+    private CommandRoot.ServiceProvider commandRootServiceProvider;
 
     @Mock
     private IssueService issueService;
@@ -74,15 +75,11 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
 
     @Before
     public void initBefore() {
-        serviceProvider.setClock(clock);
-        serviceProvider.setDeviceService(this.deviceService);
-        serviceProvider.setConnectionTaskService(this.connectionTaskService);
-    }
-
-    @After
-    public void initAfter() {
-        serviceProvider.setClock(null);
-        serviceProvider.setDeviceService(null);
+        when(this.serviceProvider.clock()).thenReturn(clock);
+        when(this.serviceProvider.deviceService()).thenReturn(this.deviceService);
+        when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
+        when(this.commandRootServiceProvider.clock()).thenReturn(clock);
+        when(this.commandRootServiceProvider.deviceService()).thenReturn(this.deviceService);
     }
 
     private ComTaskExecutionConnectionSteps createSingleDeviceComTaskExecutionSteps() {

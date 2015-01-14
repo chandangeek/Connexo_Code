@@ -73,7 +73,7 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
     @Test
     public void readRegistersTest() {
         OfflineDevice device = mock(OfflineDevice.class);
-        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
+        ExecutionContext executionContext = this.newTestExecutionContext();
         CommandRoot commandRoot = new CommandRootImpl(device, executionContext, commandRootServiceProvider);
         ReadRegistersCommand readRegistersCommand = commandRoot.getReadRegistersCommand(commandRoot, comTaskExecution);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
@@ -103,7 +103,7 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         Register reg3 = createMockedRegisters(regObisCode3);
         Register reg4 = createMockedRegisters(regObisCode4);
 
-        CommandRoot commandRoot = new CommandRootImpl(device, AbstractComCommandExecuteTest.newTestExecutionContext(), commandRootServiceProvider);
+        CommandRoot commandRoot = new CommandRootImpl(device, this.newTestExecutionContext(), commandRootServiceProvider);
         ReadRegistersCommandImpl readRegistersCommand = (ReadRegistersCommandImpl) commandRoot.getReadRegistersCommand(commandRoot, comTaskExecution);
         OfflineRegister register1 = new OfflineRegisterImpl(reg1, this.identificationService);
         OfflineRegister register2 = new OfflineRegisterImpl(reg2, identificationService);
@@ -139,7 +139,7 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         String collectedText = "ThisIsMyCollectedText";
         OfflineDevice device = mock(OfflineDevice.class);
         ReadingType readingType = mock(ReadingType.class);
-        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
+        ExecutionContext executionContext = this.newTestExecutionContext();
         CommandRoot commandRoot = new CommandRootImpl(device, executionContext, commandRootServiceProvider);
         RegistersTask registersTask = mock(RegistersTask.class);
         RegisterCommand registerCommand = commandRoot.getRegisterCommand(registersTask, commandRoot, comTaskExecution);
@@ -169,7 +169,7 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         Quantity quantity = new Quantity("123654", Unit.get("kWh"));
         OfflineDevice device = mock(OfflineDevice.class);
         ReadingType readingType = mock(ReadingType.class);
-        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
+        ExecutionContext executionContext = this.newTestExecutionContext();
         CommandRoot commandRoot = new CommandRootImpl(device, executionContext, commandRootServiceProvider);
         RegistersTask registersTask = mock(RegistersTask.class);
         RegisterCommand registerCommand = commandRoot.getRegisterCommand(registersTask, commandRoot, comTaskExecution);

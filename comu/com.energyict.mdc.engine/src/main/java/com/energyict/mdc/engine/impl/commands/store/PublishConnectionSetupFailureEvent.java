@@ -26,10 +26,10 @@ public class PublishConnectionSetupFailureEvent extends PublishConnectionTaskEve
     private final List<ComTaskExecution> comTaskExecutions;
 
     public PublishConnectionSetupFailureEvent(
-                EventService eventService,
                 ConnectionTask connectionTask, ComPort comPort,
-                List<ComTaskExecution> comTaskExecutions) {
-        super(eventService, connectionTask, comPort);
+                List<ComTaskExecution> comTaskExecutions,
+                ServiceProvider serviceProvider) {
+        super(connectionTask, comPort, serviceProvider);
         this.comTaskExecutions = Collections.unmodifiableList(comTaskExecutions);
     }
 
