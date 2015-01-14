@@ -317,7 +317,7 @@ public abstract class JobExecution implements ScheduledJob {
             }
             else {
                 successIndicator = Failure;
-                this.executionContext.comTaskExecutionFailure(this, preparedComTaskExecution.getComTaskExecution());
+                this.executionContext.comTaskExecutionFailureDueToProblemsOfComTasks(this, preparedComTaskExecution.getComTaskExecution());
             }
             return noProblems;
         } catch (Throwable t) {
