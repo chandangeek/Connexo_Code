@@ -181,7 +181,7 @@ public class IDISProfileDataReader {
         return channelInfos;
     }
 
-    private Map<ObisCode, Unit> readUnits(List<ObisCode> channelObisCodes) {
+    public Map<ObisCode, Unit> readUnits(List<ObisCode> channelObisCodes) {
         Map<ObisCode, Unit> result = new HashMap<>();
 
         Map<ObisCode, DLMSAttribute> channelAttributes = new HashMap<>();

@@ -29,6 +29,7 @@ import com.energyict.protocolimplv2.dlms.idis.profiledata.IDISProfileDataReader;
 import com.energyict.protocolimplv2.dlms.idis.properties.IDISConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.properties.IDISProperties;
 import com.energyict.protocolimplv2.dlms.idis.registers.IDISRegisterFactory;
+import com.energyict.protocolimplv2.dlms.idis.registers.IDISStoredValues;
 import com.energyict.protocolimplv2.dlms.idis.topology.MeterTopology;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 
@@ -51,6 +52,7 @@ public class AM500 extends AbstractDlmsProtocol {
     private IDISLogBookFactory idisLogBookFactory = null;
     private IDISProfileDataReader idisProfileDataReader = null;
     private IDISMessaging idisMessaging = null;
+    private IDISStoredValues storedValues = null;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -189,7 +191,7 @@ public class AM500 extends AbstractDlmsProtocol {
         return getIDISProfileDataReader().getLoadProfileData(loadProfiles);
     }
 
-    private IDISProfileDataReader getIDISProfileDataReader() {
+    public IDISProfileDataReader getIDISProfileDataReader() {
         if (idisProfileDataReader == null) {
             idisProfileDataReader = new IDISProfileDataReader(this);
         }
@@ -250,6 +252,13 @@ public class AM500 extends AbstractDlmsProtocol {
             this.registerFactory = new IDISRegisterFactory(this);
         }
         return registerFactory;
+    }
+
+    public IDISStoredValues getStoredValues() {
+        if (storedValues == null) {
+            storedValues = new IDISStoredValues(this);
+        }
+        return storedValues;
     }
 
     @Override

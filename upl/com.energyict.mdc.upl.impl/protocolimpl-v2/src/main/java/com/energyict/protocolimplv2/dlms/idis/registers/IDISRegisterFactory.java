@@ -13,6 +13,7 @@ import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.DLMSAttributeMapper;
@@ -86,11 +87,23 @@ public class IDISRegisterFactory implements DeviceRegisterSupport {
                     continue;   //Move on, read out the next register
                 }
 
+                //Read billing registers
+                if (obisCode.getF() != 255) {
+                    try {
+                        HistoricalValue historicalValue = AM500.getStoredValues().getHistoricalValue(obisCode);
+                        RegisterValue registerValue = new RegisterValue(obisCode, historicalValue.getQuantityValue(), historicalValue.getEventTime());
+                        result.add(createCollectedRegister(registerValue, offlineRegister));
+                    } catch (NoSuchRegisterException e) {
+                        result.add(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
+                    }
+                    continue;
+                }
+
                 final UniversalObject uo;
                 try {
                     uo = AM500.getDlmsSession().getMeterConfig().findObject(obisCode);
                 } catch (ProtocolException e) {
-                    result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage()));
+                    result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible));
                     continue;   //Move on, read out the next register
                 }
 
@@ -151,7 +164,7 @@ public class IDISRegisterFactory implements DeviceRegisterSupport {
         if (resultType == ResultType.InCompatible) {
             collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(register.getObisCode(), "registerXissue", register.getObisCode(), errorMessage));
         } else {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode(), errorMessage));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
         }
         return collectedRegister;
     }
