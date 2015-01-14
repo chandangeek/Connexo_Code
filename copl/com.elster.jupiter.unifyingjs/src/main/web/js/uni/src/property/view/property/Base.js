@@ -124,9 +124,11 @@ Ext.define('Uni.property.view.property.Base', {
 
                 button.setDisabled(false);
             } else {
-                button.setTooltip('bla');
+                button.setTooltip(null);
                 button.setDisabled(true);
             }
+        } else {
+            button.setVisible(false);
         }
         this.fireEvent('checkRestoreAll', this);
     },
