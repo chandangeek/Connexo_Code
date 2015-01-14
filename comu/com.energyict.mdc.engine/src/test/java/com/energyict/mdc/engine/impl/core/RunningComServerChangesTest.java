@@ -3,6 +3,8 @@ package com.energyict.mdc.engine.impl.core;
 import com.elster.jupiter.time.TimeDuration;
 import java.time.Clock;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.FakeServiceProvider;
@@ -12,6 +14,7 @@ import com.energyict.mdc.engine.impl.core.mocks.MockComServerDAO;
 import com.energyict.mdc.engine.impl.core.mocks.MockOnlineComServer;
 import com.energyict.mdc.engine.impl.core.mocks.MockOutboundComPort;
 import com.energyict.mdc.engine.impl.core.mocks.MockTCPInboundComPort;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.monitor.ComServerMonitor;
 import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
@@ -25,6 +28,9 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactoryImpl;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +44,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
@@ -67,9 +72,16 @@ public class RunningComServerChangesTest {
     private EventAPIStatistics eventApiStatistics;
     @Mock
     private ComServerOperationalStatistics comServerOperationalStatistics;
+    @Mock
+    private IdentificationService identificationService;
+    @Mock
+    private ConnectionTaskService connectionTaskService;
+    @Mock
+    private CommunicationTaskService communicationTaskService;
 
     private Clock clock = Clock.systemDefaultZone();
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
+    private EventPublisher eventPublisher;
 
     @Before
     public void setupServiceProvider() {
@@ -101,16 +113,18 @@ public class RunningComServerChangesTest {
 
     @After
     public void resetEmbeddedWebServerFactory() {
-        this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory());
+        WebSocketEventPublisherFactoryImpl webSocketEventPublisherFactory =
+                new WebSocketEventPublisherFactoryImpl(
+                        this.connectionTaskService,
+                        this.communicationTaskService,
+                        this.deviceService,
+                        this.engineConfigurationService,
+                        this.identificationService, this.eventPublisher);
+        this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
     }
 
     public void initializeEventPublisher(RunningComServer comServer) {
-        EventPublisherImpl.setInstance(new EventPublisherImpl(comServer, this.clock));
-    }
-
-    @After
-    public void resetEventPublisher() {
-        EventPublisherImpl.setInstance(null);
+        this.eventPublisher = new EventPublisherImpl(comServer);
     }
 
     @Test

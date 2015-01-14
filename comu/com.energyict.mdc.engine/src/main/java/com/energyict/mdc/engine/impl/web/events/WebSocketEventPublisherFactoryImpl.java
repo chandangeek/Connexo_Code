@@ -3,11 +3,10 @@ package com.energyict.mdc.engine.impl.web.events;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.web.events.commands.RequestParser;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * Provides an implementation for the {@link WebSocketEventPublisherFactory} interface.
@@ -15,43 +14,27 @@ import org.osgi.service.component.annotations.Reference;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-09 (13:03)
  */
-@Component(name = "com.energyict.mdc.engine.eventapi.publisher.factory", service = WebSocketEventPublisherFactory.class, immediate = true)
 public class WebSocketEventPublisherFactoryImpl implements WebSocketEventPublisherFactory {
 
-    private volatile ConnectionTaskService connectionTaskService;
-    private volatile CommunicationTaskService communicationTaskService;
-    private volatile DeviceService deviceService;
-    private volatile EngineConfigurationService engineConfigurationService;
-    private volatile IdentificationService identificationService;
+    private final ConnectionTaskService connectionTaskService;
+    private final CommunicationTaskService communicationTaskService;
+    private final DeviceService deviceService;
+    private final EngineConfigurationService engineConfigurationService;
+    private final IdentificationService identificationService;
+    private final EventPublisher eventPublisher;
+
+    public WebSocketEventPublisherFactoryImpl(ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, DeviceService deviceService, EngineConfigurationService engineConfigurationService, IdentificationService identificationService, EventPublisher eventPublisher) {
+        this.connectionTaskService = connectionTaskService;
+        this.communicationTaskService = communicationTaskService;
+        this.deviceService = deviceService;
+        this.engineConfigurationService = engineConfigurationService;
+        this.identificationService = identificationService;
+        this.eventPublisher = eventPublisher;
+    }
 
     @Override
     public WebSocketEventPublisher newWebSocketEventPublisher(WebSocketCloseEventListener closeEventListener) {
-        return new WebSocketEventPublisher(new ServiceProvider(), closeEventListener);
-    }
-
-    @Reference
-    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
-        this.connectionTaskService = connectionTaskService;
-    }
-
-    @Reference
-    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
-        this.communicationTaskService = communicationTaskService;
-    }
-
-    @Reference
-    public void setDeviceService(DeviceService deviceService) {
-        this.deviceService = deviceService;
-    }
-
-    @Reference
-    public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
-        this.engineConfigurationService = engineConfigurationService;
-    }
-
-    @Reference
-    public void setIdentificationService(IdentificationService identificationService) {
-        this.identificationService = identificationService;
+        return new WebSocketEventPublisher(new ServiceProvider(), this.eventPublisher, closeEventListener);
     }
 
     private class ServiceProvider implements RequestParser.ServiceProvider {

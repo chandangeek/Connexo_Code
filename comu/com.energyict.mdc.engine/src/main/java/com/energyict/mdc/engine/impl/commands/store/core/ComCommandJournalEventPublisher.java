@@ -4,7 +4,7 @@ import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.logging.ComCommandLoggingEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
@@ -21,8 +21,15 @@ import java.time.Clock;
  */
 class ComCommandJournalEventPublisher {
 
+    private final EventPublisher eventPublisher;
+
+    ComCommandJournalEventPublisher(EventPublisher eventPublisher) {
+        super();
+        this.eventPublisher = eventPublisher;
+    }
+
     void executionCompleted(ComCommand comCommand, ExecutionContext executionContext) {
-        EventPublisherImpl.getInstance().publish(this.toEvent(executionContext, comCommand));
+        this.eventPublisher.publish(this.toEvent(executionContext, comCommand));
     }
 
     private ComServerEvent toEvent(ExecutionContext executionContext, ComCommand comCommand) {

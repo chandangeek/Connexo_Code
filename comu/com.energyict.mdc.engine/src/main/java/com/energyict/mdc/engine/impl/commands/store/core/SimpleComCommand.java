@@ -27,7 +27,6 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 import java.io.IOException;
 import java.time.Clock;
-import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -232,7 +231,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     }
 
     private void publishExecutionCompletedEvent(ExecutionContext executionContext) {
-        new ComCommandJournalEventPublisher().executionCompleted(this, executionContext);
+        new ComCommandJournalEventPublisher(executionContext.eventPublisher()).executionCompleted(this, executionContext);
     }
 
     private LogLevel getServerLogLevel (ExecutionContext executionContext) {

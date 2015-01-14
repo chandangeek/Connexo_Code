@@ -9,10 +9,19 @@ import com.energyict.mdc.engine.impl.concurrent.ResizeableSemaphore;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.impl.events.DeviceCommandExecutorLogHandler;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
+import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+
+import java.time.Clock;
+import java.util.Arrays;
 import java.util.Optional;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 
@@ -27,6 +36,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Provides a default implementation for the {@link DeviceCommandExecutor} interface
@@ -41,17 +52,22 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
 
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
     private final PriorityConfigurableThreadFactory threadFactory;
+    private final Clock clock;
     private final UserService userService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final EventPublisher eventPublisher;
     private int numberOfThreads;
     private final WorkQueue workQueue;
     private ExecutorService executorService;
     private final ComServer.LogLevel logLevel;
     private ComServerDAO comServerDAO;
     private String name;
+    private CompositeDeviceCommandExecutorLogger logger;
 
-    public DeviceCommandExecutorImpl(String comServerName, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ThreadFactory threadFactory, ComServerDAO comServerDAO, ThreadPrincipalService threadPrincipalService, UserService userService) {
+    public DeviceCommandExecutorImpl(String comServerName, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ThreadFactory threadFactory, Clock clock, ComServerDAO comServerDAO, EventPublisher eventPublisher, ThreadPrincipalService threadPrincipalService, UserService userService) {
         super();
+        this.clock = clock;
+        this.eventPublisher = eventPublisher;
         this.workQueue = new WorkQueue(queueCapacity);
         this.threadFactory = new PriorityConfigurableThreadFactory(threadFactory, threadPriority, name);
         this.numberOfThreads = numberOfThreads;
@@ -60,6 +76,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
         this.name = "Device command executor for " + comServerName;
         this.threadPrincipalService = threadPrincipalService;
         this.userService = userService;
+        this.initializeLogging();
     }
 
     @Override
@@ -79,6 +96,33 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
         this.status = ServerProcessStatus.STARTED;
     }
 
+    private void initializeLogging() {
+        this.logger = new CompositeDeviceCommandExecutorLogger(this.newNormalLogger(), this.newEventLogger());
+    }
+
+    private DeviceCommandExecutorLogger newNormalLogger() {
+        return LoggerFactory.getLoggerFor(DeviceCommandExecutorLogger.class, this.toLogLevel(this.getLogLevel()));
+    }
+
+    private DeviceCommandExecutorLogger newEventLogger() {
+        return LoggerFactory.getLoggerFor(DeviceCommandExecutorLogger.class, this.getAnonymousLogger());
+    }
+
+    private Logger getAnonymousLogger () {
+        Logger logger = Logger.getAnonymousLogger();
+        logger.setLevel(Level.FINEST);
+        logger.addHandler(new DeviceCommandExecutorLogHandler(this.eventPublisher, new ComServerEventServiceProvider()));
+        return logger;
+    }
+
+    private LogLevel toLogLevel(ComServer.LogLevel logLevel) {
+        return LogLevelMapper.forComServerLogLevel().toLogLevel(logLevel);
+    }
+
+    private void logCurrentQueueSize() {
+        this.logger.logCurrentQueueSize(this.getCurrentSize(), this.getCapacity());
+    }
+
     private void startExecutorService() {
         this.executorService = Executors.newFixedThreadPool(this.numberOfThreads, this.threadFactory);
     }
@@ -94,6 +138,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     }
 
     private void shutdown(boolean immediate) {
+        this.logger.shuttingDown(this);
         this.status = ServerProcessStatus.SHUTTINGDOWN;
         this.shutdownExecutorService(immediate);
         this.status = ServerProcessStatus.SHUTDOWN;
@@ -119,18 +164,38 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     @Override
     public synchronized List<DeviceCommandExecutionToken> tryAcquireTokens(int numberOfCommands) {
         if (this.isRunning()) {
-            return this.workQueue.tryAcquire(numberOfCommands);
+            List<DeviceCommandExecutionToken> acquiredTokens = this.workQueue.tryAcquire(numberOfCommands);
+            this.logTryAcquiredTokensResult(numberOfCommands, acquiredTokens);
+            return acquiredTokens;
         } else {
-            throw this.shouldBeRunning();
+            IllegalStateException illegalStateException = this.shouldBeRunning();
+            this.logger.cannotPrepareWhenNotRunning(illegalStateException, this);
+            throw illegalStateException;
         }
+    }
+
+    private void logTryAcquiredTokensResult(int numberOfCommands, List<DeviceCommandExecutionToken> acquiredTokens) {
+        if (acquiredTokens.isEmpty()) {
+            this.logger.preparationFailed(this, numberOfCommands);
+        }
+        else {
+            this.logger.preparationCompleted(this, numberOfCommands);
+        }
+        this.logCurrentQueueSize();
     }
 
     @Override
     public List<DeviceCommandExecutionToken> acquireTokens(int numberOfCommands) throws InterruptedException {
         if (this.isRunning()) {
+            this.logCurrentQueueSize();
+            if (this.getCurrentSize() == this.getCapacity()) {
+                this.logger.preparationFailed(this, numberOfCommands);
+            }
             return this.workQueue.acquire(numberOfCommands);
         } else {
-            throw this.shouldBeRunning();
+            IllegalStateException illegalStateException = this.shouldBeRunning();
+            this.logger.cannotPrepareWhenNotRunning(illegalStateException, this);
+            throw illegalStateException;
         }
     }
 
@@ -146,8 +211,11 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     public void execute(DeviceCommand command, DeviceCommandExecutionToken token) {
         if (this.isRunning()) {
             this.doExecute(command, token);
+            this.logger.executionQueued(this, command);
         } else {
-            throw this.shouldBeRunning();
+            IllegalStateException illegalStateException = this.shouldBeRunning();
+            this.logger.cannotExecuteWhenNotRunning(illegalStateException, this, command);
+            throw illegalStateException;
         }
     }
 
@@ -192,7 +260,14 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     }
 
     private void commandCompleted(DeviceCommand command) {
+        if (command instanceof FreeUnusedTokenDeviceCommand) {
+            this.logger.tokenReleased(this);
+        }
+        else {
+            this.logger.commandCompleted(this, command);
+        }
         this.workQueue.commandCompleted(command);
+        this.logCurrentQueueSize();
     }
 
     /**
@@ -207,7 +282,9 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     }
 
     private void commandFailed(DeviceCommand command, Throwable t) {
+        this.logger.commandFailed(t, this, command);
         this.workQueue.commandFailed(command);
+        this.logCurrentQueueSize();
     }
 
     public int getThreadPriority() {
@@ -216,6 +293,9 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
 
     @Override
     public void changeThreadPriority(int newPriority) {
+        if (this.getThreadPriority() != newPriority) {
+            this.logger.threadPriorityChanged(this, this.getThreadPriority(), newPriority);
+        }
         this.threadFactory.setPriority(newPriority);
     }
 
@@ -225,6 +305,9 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
 
     @Override
     public synchronized void changeQueueCapacity(int newCapacity) {
+        if (this.getQueueCapacity() != newCapacity) {
+            this.logger.queueCapacityChanged(this, this.getQueueCapacity(), newCapacity);
+        }
         this.workQueue.changeCapacity(newCapacity);
     }
 
@@ -235,6 +318,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     @Override
     public synchronized void changeNumberOfThreads(int newNumberOfThreads) {
         if (this.numberOfThreads != newNumberOfThreads) {
+            this.logger.numberOfThreadsChanged(this, this.numberOfThreads, newNumberOfThreads);
             this.numberOfThreads = newNumberOfThreads;
             ThreadPoolExecutor executor = (ThreadPoolExecutor) this.executorService;
             executor.setCorePoolSize(newNumberOfThreads);
@@ -480,6 +564,98 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
 
         private boolean extendingCapacity(int newCapacity) {
             return this.capacity < newCapacity;
+        }
+    }
+
+    /**
+     * Provides an implementation for the {@link DeviceCommandExecutorLogger} interface
+     * that acts as a composite for a collection of loggers
+     * that delegates all calls to each separate logger.
+     */
+    private class CompositeDeviceCommandExecutorLogger implements DeviceCommandExecutorLogger {
+        private List<DeviceCommandExecutorLogger> loggers;
+
+        private CompositeDeviceCommandExecutorLogger(DeviceCommandExecutorLogger... loggers) {
+            super();
+            this.loggers = Arrays.asList(loggers);
+        }
+
+        @Override
+        public void started(DeviceCommandExecutor deviceCommandExecutor) {
+            this.loggers.forEach(each -> each.started(deviceCommandExecutor));
+        }
+
+        @Override
+        public void shuttingDown(DeviceCommandExecutor deviceCommandExecutor) {
+            this.loggers.forEach(each -> each.shuttingDown(deviceCommandExecutor));
+        }
+
+        @Override
+        public void preparationCompleted(DeviceCommandExecutor deviceCommandExecutor, int numberOfCommands) {
+            this.loggers.forEach(each -> each.preparationCompleted(deviceCommandExecutor, numberOfCommands));
+        }
+
+        @Override
+        public void preparationFailed(DeviceCommandExecutor deviceCommandExecutor, int numberOfCommands) {
+            this.loggers.forEach(each -> each.preparationFailed(deviceCommandExecutor, numberOfCommands));
+        }
+
+        @Override
+        public void cannotPrepareWhenNotRunning(IllegalStateException e, DeviceCommandExecutor deviceCommandExecutor) {
+            this.loggers.forEach(each -> each.cannotPrepareWhenNotRunning(e, deviceCommandExecutor));
+        }
+
+        @Override
+        public void executionQueued(DeviceCommandExecutor deviceCommandExecutor, DeviceCommand deviceCommand) {
+            this.loggers.forEach(each -> each.executionQueued(deviceCommandExecutor, deviceCommand));
+        }
+
+        @Override
+        public void cannotExecuteWhenNotRunning(IllegalStateException e, DeviceCommandExecutor deviceCommandExecutor, DeviceCommand command) {
+            this.loggers.forEach(each -> each.cannotExecuteWhenNotRunning(e, deviceCommandExecutor, command));
+        }
+
+        @Override
+        public void commandCompleted(DeviceCommandExecutor deviceCommandExecutor, DeviceCommand deviceCommand) {
+            this.loggers.forEach(each -> each.commandCompleted(deviceCommandExecutor, deviceCommand));
+        }
+
+        @Override
+        public void commandFailed(Throwable t, DeviceCommandExecutor deviceCommandExecutor, DeviceCommand deviceCommand) {
+            this.loggers.forEach(each -> each.commandFailed(t, deviceCommandExecutor, deviceCommand));
+        }
+
+        @Override
+        public void tokenReleased(DeviceCommandExecutor deviceCommandExecutor) {
+            this.loggers.forEach(each -> each.tokenReleased(deviceCommandExecutor));
+        }
+
+        @Override
+        public void logCurrentQueueSize(int queueSize, int capacity) {
+            this.loggers.forEach(each -> each.logCurrentQueueSize(queueSize, capacity));
+        }
+
+        @Override
+        public void threadPriorityChanged(DeviceCommandExecutor deviceCommandExecutor, int oldPriority, int newPriority) {
+            this.loggers.forEach(each -> each.threadPriorityChanged(deviceCommandExecutor, oldPriority, newPriority));
+        }
+
+        @Override
+        public void numberOfThreadsChanged(DeviceCommandExecutor deviceCommandExecutor, int oldNumberOfThreads, int newNumberOfThreads) {
+            this.loggers.forEach(each -> each.numberOfThreadsChanged(deviceCommandExecutor, oldNumberOfThreads, newNumberOfThreads));
+        }
+
+        @Override
+        public void queueCapacityChanged(DeviceCommandExecutor deviceCommandExecutor, int oldCapacity, int newCapacity) {
+            this.loggers.forEach(each -> each.queueCapacityChanged(deviceCommandExecutor, oldCapacity, newCapacity));
+        }
+
+    }
+
+    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
+        @Override
+        public Clock clock() {
+            return clock;
         }
     }
 

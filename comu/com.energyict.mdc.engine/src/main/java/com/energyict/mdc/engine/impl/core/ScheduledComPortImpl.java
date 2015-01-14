@@ -3,7 +3,14 @@ package com.energyict.mdc.engine.impl.core;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.events.ComPortLogHandler;
+import com.energyict.mdc.engine.impl.core.logging.ComPortOperationsLogger;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
+import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
 import com.energyict.mdc.engine.config.ComPort;
@@ -13,11 +20,16 @@ import com.elster.jupiter.users.UserService;
 
 import org.joda.time.DateTimeConstants;
 
+import java.time.Clock;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Provides an implementation for the {@link ScheduledComPort} interface.
@@ -52,6 +64,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     private DeviceCommandExecutor deviceCommandExecutor;
     private TimeDuration schedulingInterpollDelay;
     private ScheduledComPortMonitor operationalMonitor;
+    private LoggerHolder loggerHolder;
 
     public ScheduledComPortImpl(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         this(comPort, comServerDAO, deviceCommandExecutor, Executors.defaultThreadFactory(), serviceProvider);
@@ -66,6 +79,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         this.threadFactory = threadFactory;
         this.deviceCommandExecutor = deviceCommandExecutor;
         this.schedulingInterpollDelay = comPort.getComServer().getSchedulingInterPollDelay();
+        this.loggerHolder = new LoggerHolder(comPort);
     }
 
     protected abstract void setThreadPrinciple();
@@ -119,7 +133,8 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     @Override
     public final void start () {
-        doStart();
+        this.doStart();
+        this.getLogger().started(this.getThreadName());
     }
 
     protected void doStart () {
@@ -130,6 +145,10 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         self.setName(this.getThreadName());
         self.start();
         this.status = ServerProcessStatus.STARTED;
+    }
+
+    protected ComPortOperationsLogger getLogger() {
+        return this.loggerHolder.get();
     }
 
     private void registerAsMBean() {
@@ -143,6 +162,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     @Override
     public void shutdown () {
         this.doShutdown();
+        this.getLogger().shuttingDown(this.getThreadName());
     }
 
     private void doShutdown () {
@@ -195,6 +215,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     protected final void executeTasks () {
+        this.getLogger().lookingForWork(this.getThreadName());
         List<ComJob> jobs = this.getComServerDAO().findExecutableOutboundComTasks(this.getComPort());
         this.queriedForTasks();
         scheduleAll(jobs);
@@ -206,8 +227,10 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     private void scheduleAll(List<ComJob> jobs) {
         if (jobs.isEmpty()) {
+            this.getLogger().noWorkFound(this.getThreadName());
             reschedule();
         } else {
+            this.getLogger().workFound(this.getThreadName(), jobs.size());
             this.getJobScheduler().scheduleAll(jobs);
         }
     }
@@ -215,8 +238,10 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     protected abstract JobScheduler getJobScheduler ();
 
     public void checkAndApplyChanges () {
-        ComPort newVersion = this.getComServerDAO().refreshComPort(this.getComPort());
-        this.setComPort(this.applyChanges((OutboundComPort) newVersion, this.getComPort()));
+        this.getLogger().monitoringChanges(this.getComPort());
+        OutboundComPort newVersion = (OutboundComPort) this.getComServerDAO().refreshComPort(this.getComPort());
+        this.loggerHolder.reset(newVersion);
+        this.setComPort(this.applyChanges(newVersion, this.getComPort()));
     }
 
     private OutboundComPort applyChanges (OutboundComPort newVersion, OutboundComPort comPort) {
@@ -253,6 +278,116 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     ServiceProvider getServiceProvider() {
         return serviceProvider;
+    }
+
+    private class LoggerHolder {
+        private OutboundComPort comPort;
+        private ComPortOperationsLogger logger;
+
+        private LoggerHolder(OutboundComPort comPort) {
+            super();
+            this.reset(comPort);
+        }
+
+        private ComPortOperationsLogger get() {
+            return logger;
+        }
+
+        private ComPortOperationsLogger newLogger (OutboundComPort comPort) {
+            return new CompositeComPortOperationsLogger(
+                    LoggerFactory.getLoggerFor(ComPortOperationsLogger.class, this.getServerLogLevel(comPort)),
+                    LoggerFactory.getLoggerFor(
+                            ComPortOperationsLogger.class,
+                            this.getAnonymousLogger(new ComPortLogHandler(comPort, serviceProvider.eventPublisher(), new ComServerEventServiceProvider())))
+            );
+        }
+
+        private LogLevel getServerLogLevel (ComPort comPort) {
+            return this.getServerLogLevel(comPort.getComServer());
+        }
+
+        private LogLevel getServerLogLevel (ComServer comServer) {
+            return LogLevelMapper.forComServerLogLevel().toLogLevel(comServer.getServerLogLevel());
+        }
+
+        private Logger getAnonymousLogger (Handler handler) {
+            Logger logger = Logger.getAnonymousLogger();
+            logger.setLevel(Level.FINEST);
+            logger.addHandler(handler);
+            return logger;
+        }
+
+        public void reset(OutboundComPort comPort) {
+            this.comPort = comPort;
+            this.logger = this.newLogger(comPort);
+        }
+
+    }
+
+    /**
+     * Provides an implementation for the {@link ComPortOperationsLogger} interface
+     * that delegates to a collection of actual ComPortOperationsLoggers.
+     */
+    private class CompositeComPortOperationsLogger implements ComPortOperationsLogger {
+        private List<ComPortOperationsLogger> loggers;
+
+        private CompositeComPortOperationsLogger(ComPortOperationsLogger... loggers) {
+            super();
+            this.loggers = Arrays.asList(loggers);
+        }
+
+        @Override
+        public void started(String threadName) {
+            this.loggers.forEach(each -> each.started(threadName));
+        }
+
+        @Override
+        public void shuttingDown(String threadName) {
+            this.loggers.forEach(each -> each.shuttingDown(threadName));
+        }
+
+        @Override
+        public void monitoringChanges(ComPort comPort) {
+            this.loggers.forEach(each -> each.monitoringChanges(comPort));
+        }
+
+        @Override
+        public void lookingForWork(String comPortThreadName) {
+            this.loggers.forEach(each -> each.lookingForWork(comPortThreadName));
+        }
+
+        @Override
+        public void noWorkFound(String comPortThreadName) {
+            this.loggers.forEach(each -> each.noWorkFound(comPortThreadName));
+        }
+
+        @Override
+        public void workFound(String comPortThreadName, int numberOfJobs) {
+            this.loggers.forEach(each -> each.workFound(comPortThreadName, numberOfJobs));
+        }
+
+        @Override
+        public void alreadyScheduled(String comPortThreadName, ComTaskExecution comTaskExecution) {
+            this.loggers.forEach(each -> each.alreadyScheduled(comPortThreadName, comTaskExecution));
+        }
+
+        @Override
+        public void cannotSchedule(String comPortThreadName, ComTaskExecution comTaskExecution) {
+            this.loggers.forEach(each -> each.cannotSchedule(comPortThreadName, comTaskExecution));
+        }
+
+        @Override
+        public void unexpectedError(Throwable unexpected, String comPortThreadName) {
+            this.loggers.forEach(each -> each.unexpectedError(unexpected, comPortThreadName));
+        }
+
+    }
+
+    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
+        @Override
+        public Clock clock() {
+            return serviceProvider.clock();
+        }
     }
 
 }

@@ -11,9 +11,6 @@ import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -23,23 +20,12 @@ import java.net.URISyntaxException;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-11 (10:17)
  */
-@Component(name = "com.energyict.mdc.engine.web.embedded.server", service = EmbeddedWebServerFactory.class, immediate = true)
 public final class DefaultEmbeddedWebServerFactory implements EmbeddedWebServerFactory {
 
-    private volatile WebSocketEventPublisherFactory webSocketEventPublisherFactory;
+    private final WebSocketEventPublisherFactory webSocketEventPublisherFactory;
 
-    public DefaultEmbeddedWebServerFactory() {
-        super();
-    }
-
-    // For testing purposes only
     public DefaultEmbeddedWebServerFactory(WebSocketEventPublisherFactory webSocketEventPublisherFactory) {
         super();
-        this.webSocketEventPublisherFactory = webSocketEventPublisherFactory;
-    }
-
-    @Reference
-    public void setWebSocketEventPublisherFactory(WebSocketEventPublisherFactory webSocketEventPublisherFactory) {
         this.webSocketEventPublisherFactory = webSocketEventPublisherFactory;
     }
 

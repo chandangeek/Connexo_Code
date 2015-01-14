@@ -80,22 +80,13 @@ public class UDPPortConnectorTest {
     @Before
     public void setupServiceProvider() {
         this.serviceProvider.setClock(this.clock);
+        this.serviceProvider.setEventPublisher(this.eventPublisher);
         ServiceProvider.instance.set(this.serviceProvider);
     }
 
     @After
     public void resetServiceProvider() {
         ServiceProvider.instance.set(null);
-    }
-
-    @Before
-    public void setupEventPublisher() {
-        EventPublisherImpl.setInstance(this.eventPublisher);
-    }
-
-    @After
-    public void resetEventPublisher() {
-        EventPublisherImpl.setInstance(null);
     }
 
     @Before
@@ -129,7 +120,7 @@ public class UDPPortConnectorTest {
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
 
-        UDPPortConnector udpPortConnector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService);
+        UDPPortConnector udpPortConnector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock);
 
         // Business method
         ComChannel accept = udpPortConnector.accept();
@@ -151,7 +142,7 @@ public class UDPPortConnectorTest {
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
 
-        UDPPortConnector udpPortConnector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService);
+        UDPPortConnector udpPortConnector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock);
 
         try {
             // Business method
@@ -175,7 +166,7 @@ public class UDPPortConnectorTest {
         List<String> receivedResponses = new ArrayList<>();   // received from the client
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
-        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService);
+        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock);
 
         final UdpClient udpClient = new UdpClient(answerCounter);
         Thread udpClientThread = new Thread(udpClient);
@@ -222,7 +213,7 @@ public class UDPPortConnectorTest {
         List<String> receivedResponses = new ArrayList<>();   // received from the client
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
-        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService);
+        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock);
 
         final UdpClient udpClient = new UdpClient(answerCounter);
         Thread udpClientThread = new Thread(udpClient);
@@ -269,7 +260,7 @@ public class UDPPortConnectorTest {
         List<String> receivedResponses = new ArrayList<>();   // received from the client
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
-        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService);
+        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock);
 
         UdpClient udpClient = new UdpClient(answerCounter);
         Thread udpClientThread = new Thread(udpClient);
@@ -327,7 +318,7 @@ public class UDPPortConnectorTest {
         List<String> receivedResponses = new ArrayList<>();   // received from the client
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
-        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService);
+        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock);
 
         final UdpClient udpClient = new UdpClient(answerCounter);
         Thread udpClientThread = new Thread(udpClient);

@@ -1,9 +1,19 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.time.TimeDuration;
+
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.impl.core.logging.ComServerLogger;
 import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactoryImpl;
@@ -12,10 +22,15 @@ import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactoryImpl;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
+import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.monitor.ComServerMonitor;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
+import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactoryImpl;
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiServiceFactory;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundCapable;
@@ -25,9 +40,18 @@ import com.energyict.mdc.engine.config.OutboundCapable;
 import com.energyict.mdc.engine.config.OutboundCapableComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.RemoteComServer;
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import org.joda.time.DateTimeConstants;
 
 import java.sql.SQLException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -44,22 +68,33 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class RunningComServerImpl implements RunningComServer, Runnable, EngineService.DeactivationNotificationListener {
 
-    public interface ServiceProvider
-        extends
-            ScheduledComPortImpl.ServiceProvider,
-            ComChannelBasedComPortListenerImpl.ServiceProvider,
-            ComServerDAOImpl.ServiceProvider {
+    public interface ServiceProvider extends ComServerDAOImpl.ServiceProvider {
+
+        public DeviceConfigurationService deviceConfigurationService();
+
+        public LogBookService logBookService();
+
+        public MdcReadingTypeUtilService mdcReadingTypeUtilService();
+
+        public IssueService issueService();
 
         public ManagementBeanFactory managementBeanFactory();
 
         public WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory();
 
-        public EmbeddedWebServerFactory embeddedWebServerFactory();
-
         public ThreadPrincipalService threadPrincipalService();
 
         public UserService userService();
 
+        public NlsService nlsService();
+
+        public ProtocolPluggableService protocolPluggableService();
+
+        public SocketService socketService();
+
+        public HexService hexService();
+
+        public SerialComponentService serialAtComponentService();
     }
 
     /**
@@ -97,11 +132,35 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     private CleanupDuringStartup cleanupDuringStartup;
     private TimeOutMonitor timeOutMonitor;
     private ComServerMonitor operationalMonitor;
+    private LoggerHolder loggerHolder;
 
     protected RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
         super();
         this.serviceProvider = serviceProvider;
-        this.initialize(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup);
+        this.comServer = comServer;
+        EventPublisher eventPublisher = new EventPublisherImpl(this);
+        WebSocketEventPublisherFactoryImpl webSocketEventPublisherFactory =
+                new WebSocketEventPublisherFactoryImpl(
+                        serviceProvider.connectionTaskService(),
+                        serviceProvider.communicationTaskService(),
+                        serviceProvider.deviceService(),
+                        serviceProvider.engineConfigurationService(),
+                        serviceProvider.identificationService(),
+                        eventPublisher);
+        this.eventMechanism = new EventMechanism(eventPublisher, new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
+        this.initialize(comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup);
+        this.initializeDeviceCommandExecutor(comServer);
+        this.initializeTimeoutMonitor(comServer);
+        this.addOutboundComPorts(comServer.getOutboundComPorts());
+        this.addInboundComPorts(comServer.getInboundComPorts());
+    }
+
+    protected RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, EmbeddedWebServerFactory embeddedWebServerFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
+        super();
+        this.serviceProvider = serviceProvider;
+        this.comServer = comServer;
+        this.eventMechanism = new EventMechanism(embeddedWebServerFactory);
+        this.initialize(comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup);
         this.initializeDeviceCommandExecutor(comServer);
         this.initializeTimeoutMonitor(comServer);
         this.addOutboundComPorts(comServer.getOutboundComPorts());
@@ -111,20 +170,47 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     protected RunningComServerImpl(RemoteComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
         super();
         this.serviceProvider = serviceProvider;
-        this.initialize(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup);
+        this.comServer = comServer;
+        EventPublisher eventPublisher = new EventPublisherImpl(this);
+        WebSocketEventPublisherFactoryImpl webSocketEventPublisherFactory =
+                new WebSocketEventPublisherFactoryImpl(
+                        serviceProvider.connectionTaskService(),
+                        serviceProvider.communicationTaskService(),
+                        serviceProvider.deviceService(),
+                        serviceProvider.engineConfigurationService(),
+                        serviceProvider.identificationService(),
+                        eventPublisher);
+        this.eventMechanism = new EventMechanism(eventPublisher, new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
+        this.initialize(comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup);
         this.initializeDeviceCommandExecutor(comServer.getName(), comServer.getServerLogLevel(), DEFAULT_STORE_TASK_QUEUE_SIZE, DEFAULT_NUMBER_OF_THREADS, Thread.NORM_PRIORITY);
         this.initializeTimeoutMonitor(comServer);
         this.addOutboundComPorts(comServer.getOutboundComPorts());
         this.addInboundComPorts(comServer.getInboundComPorts());
     }
 
-    private void initialize(ComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup) {
+    protected RunningComServerImpl(RemoteComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, EmbeddedWebServerFactory embeddedWebServerFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
+        super();
+        this.serviceProvider = serviceProvider;
         this.comServer = comServer;
+        this.eventMechanism = new EventMechanism(embeddedWebServerFactory);
+        this.initialize(comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup);
+        this.initializeDeviceCommandExecutor(comServer.getName(), comServer.getServerLogLevel(), DEFAULT_STORE_TASK_QUEUE_SIZE, DEFAULT_NUMBER_OF_THREADS, Thread.NORM_PRIORITY);
+        this.initializeTimeoutMonitor(comServer);
+        this.addOutboundComPorts(comServer.getOutboundComPorts());
+        this.addInboundComPorts(comServer.getInboundComPorts());
+    }
+
+    private void initialize(ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup) {
+        this.loggerHolder = new LoggerHolder(comServer);
         this.comServerDAO = comServerDAO;
         this.scheduledComPortFactory = scheduledComPortFactory;
         this.comPortListenerFactory = comPortListenerFactory;
         this.threadFactory = threadFactory;
         this.cleanupDuringStartup = cleanupDuringStartup;
+    }
+
+    protected EmbeddedWebServerFactory getEmbeddedWebServerFactory() {
+        return this.eventMechanism.embeddedWebServerFactory;
     }
 
     protected ComServerDAO getComServerDAO() {
@@ -155,7 +241,12 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
 
     private ScheduledComPortFactory getScheduledComPortFactory() {
         if (this.scheduledComPortFactory == null) {
-            this.scheduledComPortFactory = new ScheduledComPortFactoryImpl(this.comServerDAO, this.deviceCommandExecutor, this.getThreadFactory(), this.serviceProvider);
+            this.scheduledComPortFactory =
+                    new ScheduledComPortFactoryImpl(
+                            this.comServerDAO,
+                            this.deviceCommandExecutor,
+                            this.getThreadFactory(),
+                            new ScheduledComPortFactoryServiceProvider());
         }
         return this.scheduledComPortFactory;
     }
@@ -167,7 +258,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
      * @param comPort The OutboundComPort that is ignored
      */
     private void ignored(OutboundComPort comPort) {
-        // No implementation required yet
+        this.getLogger().ignoredOutbound(comPort.getName());
     }
 
     private ScheduledComPort add(ScheduledComPort scheduledComPort) {
@@ -199,7 +290,12 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         this.deviceCommandExecutor =
                 new DeviceCommandExecutorImpl(
                         comServerName, queueSize, numberOfThreads, threadPriority, logLevel,
-                        this.threadFactory, this.comServerDAO, this.serviceProvider.threadPrincipalService(), this.serviceProvider.userService());
+                        this.threadFactory,
+                        this.serviceProvider.clock(),
+                        this.comServerDAO,
+                        this.eventMechanism.getEventPublisher(),
+                        this.serviceProvider.threadPrincipalService(),
+                        this.serviceProvider.userService());
     }
 
     /**
@@ -209,7 +305,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
      * @param comPort The InboundComPort that is ignored
      */
     private void ignored(InboundComPort comPort) {
-        // No implementation required yet
+        this.getLogger().ignoredInbound(comPort.getName());
     }
 
     private ComPortListener add(ComPortListener comPortListener) {
@@ -236,12 +332,14 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
 
     private void cleanupFailed() {
         this.status = ServerProcessStatus.SHUTDOWN;
+        this.getLogger().started(this.getComServer());
     }
 
     private void continueStartupAfterCleanup() {
         try {
             this.startComServerDAO();
             this.continueStartupAfterDAOStart();
+            this.getLogger().started(this.getComServer());
         } catch (RuntimeException e) {
             this.comServerDAOStartFailed(e);
         }
@@ -308,13 +406,10 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     }
 
     private void startInboundComPorts() {
-        for (ComPortListener comPortListener : this.comPortListeners) {
-            comPortListener.start();
-        }
+        this.comPortListeners.forEach(ComPortListener::start);
     }
 
     private void startEventMechanism() {
-        this.eventMechanism = new EventMechanism();
         this.eventMechanism.start();
     }
 
@@ -324,6 +419,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
 
     @Override
     public final void shutdown() {
+        this.getLogger().shuttingDown(this.getComServer());
         this.shutdown(false);
     }
 
@@ -446,6 +542,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     private void monitorChanges() {
         try {
             Thread.sleep(this.getChangesInterPollDelayMillis());
+            this.getLogger().monitoringChanges(this.getComServer());
             ComServer newVersion = this.comServerDAO.refreshComServer(this.comServer);
             this.operationalMonitor.getOperationalStatistics().setLastCheckForChangesTimestamp(Date.from(this.serviceProvider.clock().instant()));
             if (newVersion == null) {
@@ -458,6 +555,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
                     // ComServer is no longer active, shutdown
                     this.shutdown();
                 } else {
+                    this.resetLoggerHolder(newVersion);
                     this.applyChanges((InboundCapable) newVersion);
                     this.applyChanges((OutboundCapable) newVersion);
                     this.applyDelayChanges(newVersion);
@@ -468,6 +566,10 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+    }
+
+    private void resetLoggerHolder(ComServer newVersion) {
+        this.loggerHolder.reset(newVersion);
     }
 
     private void applyDelayChanges(ComServer newVersion) {
@@ -559,6 +661,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
                 changed.add(inboundComPort);
             }
         }
+        this.getLogger().inboundComPortChangesDetected(changed.size());
         return changed;
     }
 
@@ -580,6 +683,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
                 newlyActivated.add(inboundComPort);
             }
         }
+        this.getLogger().newInboundComPortsDetected(newlyActivated.size());
         return newlyActivated;
     }
 
@@ -614,6 +718,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
                 deactivated.add(inboundComPort);
             }
         }
+        this.getLogger().inboundComPortsDeactivated(deactivated.size());
         return deactivated;
     }
 
@@ -666,6 +771,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
                 changed.add(outboundComPort);
             }
         }
+        this.getLogger().outboundComPortChangesDetected(changed.size());
         return changed;
     }
 
@@ -687,6 +793,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
                 newlyActivated.add(outboundComPort);
             }
         }
+        this.getLogger().newOutboundComPortsDetected(newlyActivated.size());
         return newlyActivated;
     }
 
@@ -721,6 +828,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
                 deactivated.add(outboundComPort);
             }
         }
+        this.getLogger().outboundComPortsDeactivated(deactivated.size());
         return deactivated;
     }
 
@@ -743,7 +851,13 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
 
     private ComPortListenerFactory getComPortListenerFactory() {
         if (this.comPortListenerFactory == null) {
-            this.comPortListenerFactory = new ComPortListenerFactoryImpl(this.comServerDAO, this.deviceCommandExecutor, this.threadFactory, this.serviceProvider);
+            this.comPortListenerFactory =
+                    new ComPortListenerFactoryImpl(
+                            this.comServerDAO,
+                            this.deviceCommandExecutor,
+                            this.threadFactory,
+                            this.eventMechanism.getEventPublisher(),
+                            new ComPortListenerServiceProvider());
         }
         return this.comPortListenerFactory;
     }
@@ -805,33 +919,280 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         monitor.getEventApiStatistics().eventWasPublished();
     }
 
+    private ComServerLogger getLogger () {
+        return this.loggerHolder.get();
+    }
+
     protected ComServerMonitor getOperationalMonitor() {
         return this.operationalMonitor;
     }
 
     private class EventMechanism {
-        private EmbeddedWebServer eventMechanism;
-        private EventPublisher eventPublisher;
+        private final EmbeddedWebServerFactory embeddedWebServerFactory;
+        private final EmbeddedWebServer embeddedWebServer;
+        private final EventPublisher eventPublisher;
 
-        private EventMechanism() {
+        private EventMechanism(EmbeddedWebServerFactory embeddedWebServerFactory) {
+            this(new EventPublisherImpl(RunningComServerImpl.this), embeddedWebServerFactory);
+        }
+
+        private EventMechanism(EventPublisher eventPublisher, EmbeddedWebServerFactory embeddedWebServerFactory) {
             super();
-            this.eventMechanism = serviceProvider.embeddedWebServerFactory().findOrCreateEventWebServer(comServer);
-            this.eventPublisher = new EventPublisherImpl(RunningComServerImpl.this, serviceProvider.clock());
+            this.eventPublisher = eventPublisher;
+            this.embeddedWebServerFactory = embeddedWebServerFactory;
+            this.embeddedWebServer = this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer);
+        }
+
+        private EmbeddedWebServerFactory getEmbeddedWebServerFactory() {
+            return embeddedWebServerFactory;
+        }
+
+        private EventPublisher getEventPublisher() {
+            return eventPublisher;
         }
 
         private void start() {
-            this.eventMechanism.start();
+            this.embeddedWebServer.start();
         }
 
         private void shutdown(boolean immediate) {
-            if (immediate) {
-                this.eventMechanism.shutdownImmediate();
-            } else {
-                this.eventMechanism.shutdown();
-            }
             this.eventPublisher.shutdown();
+            if (immediate) {
+                this.embeddedWebServer.shutdownImmediate();
+            } else {
+                this.embeddedWebServer.shutdown();
+            }
         }
 
     }
 
+    private class LoggerHolder {
+        private ComServer comServer;
+        private ComServerLogger logger;
+        private LogLevel lastLogLevel;
+
+        private LoggerHolder(ComServer comServer) {
+            super();
+            this.comServer = comServer;
+        }
+
+        private ComServerLogger get() {
+            if (this.logger == null || this.logLevelChanged()) {
+                this.lastLogLevel = this.getServerLogLevel(this.comServer);
+                this.logger = this.newLogger(this.lastLogLevel);
+            }
+            return this.logger;
+        }
+
+        private boolean logLevelChanged() {
+            return !this.lastLogLevel.equals(this.getServerLogLevel(this.comServer));
+        }
+
+        private ComServerLogger newLogger (LogLevel logLevel) {
+            return LoggerFactory.getLoggerFor(ComServerLogger.class, logLevel);
+        }
+
+        private LogLevel getServerLogLevel (ComServer comServer) {
+            return LogLevelMapper.forComServerLogLevel().toLogLevel(comServer.getServerLogLevel());
+        }
+
+        public void reset(ComServer newVersion) {
+            this.comServer = newVersion;
+            this.logger = null;
+            this.lastLogLevel = null;
+        }
+
+    }
+
+    private class ComPortListenerServiceProvider implements ComChannelBasedComPortListenerImpl.ServiceProvider {
+
+        @Override
+        public SerialComponentService serialAtComponentService() {
+            return serviceProvider.serialAtComponentService();
+        }
+
+        @Override
+        public SocketService socketService() {
+            return serviceProvider.socketService();
+        }
+
+        @Override
+        public EmbeddedWebServerFactory embeddedWebServerFactory() {
+            return eventMechanism.getEmbeddedWebServerFactory();
+        }
+
+        @Override
+        public ProtocolPluggableService protocolPluggableService() {
+            return serviceProvider.protocolPluggableService();
+        }
+
+        @Override
+        public EventPublisher eventPublisher() {
+            return eventMechanism.getEventPublisher();
+        }
+
+        @Override
+        public DeviceConfigurationService deviceConfigurationService() {
+            return serviceProvider.deviceConfigurationService();
+        }
+
+        @Override
+        public ConnectionTaskService connectionTaskService() {
+            return serviceProvider.connectionTaskService();
+        }
+
+        @Override
+        public LogBookService logBookService() {
+            return serviceProvider.logBookService();
+        }
+
+        @Override
+        public DeviceService deviceService() {
+            return serviceProvider.deviceService();
+        }
+
+        @Override
+        public TopologyService topologyService() {
+            return serviceProvider.topologyService();
+        }
+
+        @Override
+        public EngineService engineService() {
+            return serviceProvider.engineService();
+        }
+
+        @Override
+        public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
+            return serviceProvider.mdcReadingTypeUtilService();
+        }
+
+        @Override
+        public HexService hexService() {
+            return serviceProvider.hexService();
+        }
+
+        @Override
+        public TransactionService transactionService() {
+            return serviceProvider.transactionService();
+        }
+
+        @Override
+        public EventService eventService() {
+            return serviceProvider.eventService();
+        }
+
+        @Override
+        public IdentificationService identificationService() {
+            return serviceProvider.identificationService();
+        }
+
+        @Override
+        public Clock clock() {
+            return serviceProvider.clock();
+        }
+
+        @Override
+        public NlsService nlsService() {
+            return serviceProvider.nlsService();
+        }
+
+        @Override
+        public IssueService issueService() {
+            return serviceProvider.issueService();
+        }
+
+    }
+
+    private class ScheduledComPortFactoryServiceProvider implements ScheduledComPortImpl.ServiceProvider {
+        @Override
+        public UserService userService() {
+            return serviceProvider.userService();
+        }
+
+        @Override
+        public ThreadPrincipalService threadPrincipalService() {
+            return serviceProvider.threadPrincipalService();
+        }
+
+        @Override
+        public ManagementBeanFactory managementBeanFactory() {
+            return serviceProvider.managementBeanFactory();
+        }
+
+        @Override
+        public DeviceConfigurationService deviceConfigurationService() {
+            return serviceProvider.deviceConfigurationService();
+        }
+
+        @Override
+        public ConnectionTaskService connectionTaskService() {
+            return serviceProvider.connectionTaskService();
+        }
+
+        @Override
+        public LogBookService logBookService() {
+            return serviceProvider.logBookService();
+        }
+
+        @Override
+        public DeviceService deviceService() {
+            return serviceProvider.deviceService();
+        }
+
+        @Override
+        public TopologyService topologyService() {
+            return serviceProvider.topologyService();
+        }
+
+        @Override
+        public EngineService engineService() {
+            return serviceProvider.engineService();
+        }
+
+        @Override
+        public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
+            return serviceProvider.mdcReadingTypeUtilService();
+        }
+
+        @Override
+        public HexService hexService() {
+            return serviceProvider.hexService();
+        }
+
+        @Override
+        public TransactionService transactionService() {
+            return serviceProvider.transactionService();
+        }
+
+        @Override
+        public EventService eventService() {
+            return serviceProvider.eventService();
+        }
+
+        @Override
+        public IdentificationService identificationService() {
+            return serviceProvider.identificationService();
+        }
+
+        @Override
+        public Clock clock() {
+            return serviceProvider.clock();
+        }
+
+        @Override
+        public NlsService nlsService() {
+            return serviceProvider.nlsService();
+        }
+
+        @Override
+        public IssueService issueService() {
+            return serviceProvider.issueService();
+        }
+
+        @Override
+        public EventPublisher eventPublisher() {
+            return eventMechanism.getEventPublisher();
+        }
+
+    }
 }

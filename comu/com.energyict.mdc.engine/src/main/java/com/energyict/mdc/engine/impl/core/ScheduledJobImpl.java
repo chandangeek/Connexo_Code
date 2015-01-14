@@ -5,15 +5,20 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.commands.store.RescheduleToNextComWindow;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.core.logging.ComPortConnectionLogger;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionFailureException;
 
+import java.time.Clock;
 import java.util.Calendar;
 
 /**
@@ -51,7 +56,9 @@ public abstract class ScheduledJobImpl extends JobExecution {
         return new ComPortRelatedComChannelImpl(
                 getConnectionTask().connect(getComPort(), propertyProvider.getProperties()),
                 getComPort(),
-                getServiceProvider().hexService());
+                getServiceProvider().clock(),
+                getServiceProvider().hexService(),
+                getServiceProvider().eventPublisher());
     }
 
     @Override
@@ -121,7 +128,14 @@ public abstract class ScheduledJobImpl extends JobExecution {
     }
 
     boolean establishConnection() {
-        return this.getExecutionContext().connect();
+        boolean connected = this.getExecutionContext().connect();
+        if (connected) {
+            this.publish(new EstablishConnectionEvent(new ComServerEventServiceProvider(), this.getComPort(), this.getConnectionTask()));
+            ExecutionContext executionContext = this.getExecutionContext();
+            ComPortConnectionLogger logger = executionContext.getConnectionLogger();
+            logger.connectionEstablished(this.getThreadName(), this.getComPort().getName());
+        }
+        return connected;
     }
 
     public void createExecutionContext () {
@@ -144,6 +158,17 @@ public abstract class ScheduledJobImpl extends JobExecution {
             catch (ConnectionException e) {
                 throw new ConnectionFailureException(MessageSeeds.CONNECTION_FAILURE, e);
             }
+        }
+    }
+
+    private void publish (ComServerEvent event) {
+        this.getServiceProvider().eventPublisher().publish(event);
+    }
+
+    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
+        @Override
+        public Clock clock() {
+            return getServiceProvider().clock();
         }
     }
 

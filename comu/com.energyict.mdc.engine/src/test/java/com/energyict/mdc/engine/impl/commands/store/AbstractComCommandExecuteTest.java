@@ -15,7 +15,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.CommandRootServiceProvi
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -56,7 +56,7 @@ public abstract class AbstractComCommandExecuteTest {
     private static final long COM_TASK_EXECUTION_ID = DEVICE_ID + 1;
     private static final long PROTOCOL_DIALECT_CONFIG_PROPS_ID = 6516;
 
-    protected static final ServiceProvider serviceProvider = new FakeServiceProvider();
+    protected static final FakeServiceProvider serviceProvider = new FakeServiceProvider();
     protected static CommandRoot.ServiceProvider commandRootServiceProvider = new CommandRootServiceProviderAdapter(serviceProvider);
 
     @Mock
@@ -64,45 +64,31 @@ public abstract class AbstractComCommandExecuteTest {
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
-    private EventPublisherImpl eventPublisher;
+    protected EventPublisherImpl eventPublisher;
     @Mock
     private NlsService nlsService;
     @Mock
     private Thesaurus thesaurus;
+    
+    private Clock clock = Clock.systemDefaultZone();
 
     @Before
-    public void setupEventPublisher() {
+    public void setupServiceProvider() {
+        serviceProvider.setDeviceConfigurationService(deviceConfigurationService);
+        serviceProvider.setClock(this.clock);
+        serviceProvider.setIssueService(new IssueServiceImpl(this.clock));
+        serviceProvider.setConnectionTaskService(mock(ConnectionTaskService.class, RETURNS_DEEP_STUBS));
+        serviceProvider.setDeviceService(mock(DeviceService.class, RETURNS_DEEP_STUBS));
+        serviceProvider.setNlsService(nlsService);
+        ServiceProvider.instance.set(serviceProvider);
         when(nlsService.getThesaurus(any(), any())).thenReturn(thesaurus);
         when(thesaurus.getStringBeyondComponent(any(), any())).thenAnswer(invocationOnMock -> (String) invocationOnMock.getArguments()[0]);
-        this.setupServiceProvider();
-        EventPublisherImpl.setInstance(this.eventPublisher);
-        when(this.eventPublisher.serviceProvider()).thenReturn(this.comServerEventServiceProviderAdapter());
-    }
 
-    private void setupServiceProvider() {
-        FakeServiceProvider fakeServiceProvider = (FakeServiceProvider) serviceProvider;
-        fakeServiceProvider.setDeviceConfigurationService(deviceConfigurationService);
-        Clock clock = Clock.systemDefaultZone();
-        fakeServiceProvider.setClock(clock);
-        fakeServiceProvider.setIssueService(new IssueServiceImpl(clock, nlsService));
-        fakeServiceProvider.setConnectionTaskService(mock(ConnectionTaskService.class, RETURNS_DEEP_STUBS));
-        fakeServiceProvider.setDeviceService(mock(DeviceService.class, RETURNS_DEEP_STUBS));
-        fakeServiceProvider.setNlsService(nlsService);
-        ServiceProvider.instance.set(fakeServiceProvider);
-    }
-
-    protected ComServerEventServiceProviderAdapter comServerEventServiceProviderAdapter() {
-        return new ComServerEventServiceProviderAdapter();
     }
 
     @After
-    public void resetEventPublisher() {
-        this.resetServiceProvider();
-        EventPublisherImpl.setInstance(null);
-    }
-
-    private void resetServiceProvider() {
-        ((FakeServiceProvider) serviceProvider).setClock(Clock.systemDefaultZone());
+    public void resetServiceProvider() {
+        serviceProvider.setClock(Clock.systemDefaultZone());
         ServiceProvider.instance.set(null);
     }
 

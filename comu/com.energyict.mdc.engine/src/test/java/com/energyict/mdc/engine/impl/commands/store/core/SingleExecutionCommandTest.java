@@ -42,7 +42,7 @@ public class SingleExecutionCommandTest extends CommonCommandImplTests {
     @Test(expected = CodingException.class)
     public void noDeviceProtocolTest () {
         TimeDifferenceCommandImpl timeDifferenceCommand = new TimeDifferenceCommandImpl(getMockedCommandRoot());
-        timeDifferenceCommand.execute(null, this.newTestExecutionContext());
+        timeDifferenceCommand.execute(null, newTestExecutionContext());
         // should have gotten the codingException
     }
 

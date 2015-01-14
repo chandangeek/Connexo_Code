@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.core.inbound;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -31,7 +30,7 @@ import com.energyict.mdc.engine.impl.commands.store.UnlockScheduledJobDeviceComm
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.engine.config.ComPort;
@@ -147,18 +146,18 @@ public class InboundCommunicationHandlerTest {
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private InboundCommunicationHandler handler;
     private Clock clock = Clock.systemDefaultZone();
+    private EventPublisherImpl eventPublisher;
 
     @Before
     public void setup() {
+        this.eventPublisher = mock(EventPublisherImpl.class);
         ServiceProvider.instance.set(serviceProvider);
         serviceProvider.setClock(clock);
         serviceProvider.setEventService(eventService);
+        serviceProvider.setEventPublisher(eventPublisher);
         serviceProvider.setIdentificationService(identificationService);
         serviceProvider.setConnectionTaskService(connectionTaskService);
         serviceProvider.setHexService(this.hexService);
-        EventPublisherImpl eventPublisher = mock(EventPublisherImpl.class);
-        when(eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
-        EventPublisherImpl.setInstance(eventPublisher);
         when(connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Instant.class))).
                 thenReturn(this.comSessionBuilder);
         when(this.comSessionBuilder.addSentBytes(anyLong())).thenReturn(this.comSessionBuilder);
@@ -190,7 +189,6 @@ public class InboundCommunicationHandlerTest {
 
     @After
     public void tearDown() {
-        EventPublisherImpl.setInstance(null);
         ServiceProvider.instance.set(null);
     }
 
@@ -664,7 +662,16 @@ public class InboundCommunicationHandlerTest {
     }
 
     private InboundDiscoveryContextImpl newBinaryInboundDiscoveryContext() {
-        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(this.comPort, new ComPortRelatedComChannelImpl(mock(ComChannel.class), this.comPort, this.hexService), this.connectionTaskService);
+        InboundDiscoveryContextImpl context =
+                new InboundDiscoveryContextImpl(
+                        this.comPort,
+                        new ComPortRelatedComChannelImpl(
+                                mock(ComChannel.class),
+                                this.comPort,
+                                this.clock,
+                                this.hexService,
+                                this.eventPublisher),
+                        this.connectionTaskService);
         this.initializeInboundDiscoveryContext(context);
         return context;
     }

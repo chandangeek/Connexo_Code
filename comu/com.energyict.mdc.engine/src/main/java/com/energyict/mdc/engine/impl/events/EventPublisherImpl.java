@@ -10,7 +10,6 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 
-import java.time.Clock;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,43 +23,23 @@ import java.util.Set;
  */
 public class EventPublisherImpl implements EventPublisher {
 
-    private static EventPublisherImpl soleInstance;
-
-    private final Clock clock;
     private final RunningComServer comServer;
     private FilteringEventReceiverFactory factory;
     private List<FilteringEventReceiver> filters = new LinkedList<>();
 
-    public EventPublisherImpl(RunningComServer comServer, Clock clock) {
-        this(comServer, clock, new FilteringEventReceiverFactoryImpl());
+    public EventPublisherImpl(RunningComServer comServer) {
+        this(comServer, new FilteringEventReceiverFactoryImpl());
     }
 
-    public EventPublisherImpl(RunningComServer comServer, Clock clock, FilteringEventReceiverFactory factory) {
+    public EventPublisherImpl(RunningComServer comServer, FilteringEventReceiverFactory factory) {
         super();
         this.comServer = comServer;
-        this.clock = clock;
         this.factory = factory;
-        /* Todo: Every RunningComServer should have its own publisher
-         *       so avoid setting the one and only publisher.
-         *       This will require refactoring in AOP code though. */
-        setInstance(this);
-    }
-
-    public static synchronized EventPublisherImpl getInstance() {
-        return soleInstance;
-    }
-
-    public static synchronized void setInstance(EventPublisherImpl eventPublisher) {
-        soleInstance = eventPublisher;
-    }
-
-    public AbstractComServerEventImpl.ServiceProvider serviceProvider() {
-        return new ServiceProviderForEvents();
     }
 
     @Override
     public void shutdown() {
-
+        // Nothing to shutdown
     }
 
     @Override
@@ -226,13 +205,6 @@ public class EventPublisherImpl implements EventPublisher {
                 filter.receive(event);
             }
             this.notifyEventWasPublished();
-        }
-    }
-
-    private class ServiceProviderForEvents implements AbstractComServerEventImpl.ServiceProvider {
-        @Override
-        public Clock clock() {
-            return clock;
         }
     }
 

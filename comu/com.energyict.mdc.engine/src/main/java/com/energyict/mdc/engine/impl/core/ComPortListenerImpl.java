@@ -1,9 +1,15 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.time.TimeDuration;
+
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.impl.core.logging.InboundComPortLogger;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
+import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.io.CommunicationException;
 
 import java.util.concurrent.Executors;
@@ -31,6 +37,7 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
     private AtomicBoolean continueRunning;
     private DeviceCommandExecutor deviceCommandExecutor;
     private TimeDuration changesInterpollDelay;
+    private LoggerHolder loggerHolder;
 
     /**
      * Do the actual work for this Listener
@@ -50,6 +57,7 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
 
     protected ComPortListenerImpl(InboundComPort comPort, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor) {
         super();
+        this.loggerHolder = new LoggerHolder(comPort);
         this.doSetComPort(comPort);
         this.threadName = "ComPort listener for " + comPort.getName();
         this.comServerDAO = comServerDAO;
@@ -110,6 +118,7 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
     @Override
     public final void start () {
         this.doStart();
+        this.getLogger().started(this.getThreadName());
     }
 
     protected void doStart () {
@@ -126,6 +135,7 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
 
     @Override
     public final void shutdown () {
+        this.getLogger().shuttingDown(this.getThreadName());
         this.doShutdown();
     }
 
@@ -155,7 +165,7 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
     }
 
     /**
-     * Nicely wait after a {@link CommunicationException} so things can get back to normal
+     * Nicely wait after a {@link CommunicationException} so things can get back to normal.
      */
     private void waitAfterCommunicationTimeOut() {
         try {
@@ -168,8 +178,10 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
 
     @Override
     public void checkAndApplyChanges() {
-        ComPort newVersion = this.getComServerDAO().refreshComPort(this.getComPort());
-        this.setComPort(this.applyChanges((InboundComPort) newVersion, this.getComPort()));
+        this.getLogger().monitoringChanges(this.getComPort());
+        InboundComPort newVersion = (InboundComPort) this.getComServerDAO().refreshComPort(this.getComPort());
+        this.loggerHolder.reset(newVersion);
+        this.setComPort(this.applyChanges(newVersion, this.getComPort()));
     }
 
     protected InboundComPort applyChanges (InboundComPort newVersion, InboundComPort comPort) {
@@ -188,6 +200,10 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
 
     protected ThreadFactory getThreadFactory() {
         return threadFactory;
+    }
+
+    protected InboundComPortLogger getLogger() {
+        return this.loggerHolder.get();
     }
 
     /**
@@ -227,4 +243,37 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
             this.running.set(false);
         }
     }
+
+    private class LoggerHolder {
+        private InboundComPort comPort;
+        private InboundComPortLogger logger;
+
+        private LoggerHolder(InboundComPort comPort) {
+            super();
+            this.reset(comPort);
+        }
+
+        private InboundComPortLogger get() {
+            return logger;
+        }
+
+        private InboundComPortLogger newLogger (ComPort comPort) {
+            return LoggerFactory.getLoggerFor(InboundComPortLogger.class, this.getServerLogLevel(comPort));
+        }
+
+        private LogLevel getServerLogLevel (ComPort comPort) {
+            return this.getServerLogLevel(comPort.getComServer());
+        }
+
+        private LogLevel getServerLogLevel (ComServer comServer) {
+            return LogLevelMapper.forComServerLogLevel().toLogLevel(comServer.getServerLogLevel());
+        }
+
+        public void reset(InboundComPort comPort) {
+            this.comPort = comPort;
+            this.logger = this.newLogger(comPort);
+        }
+
+    }
+
 }

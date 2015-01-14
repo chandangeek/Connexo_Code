@@ -57,7 +57,7 @@ public class SingleThreadedComPortListenerTest {
     private HexService hexService;
     @Mock
     private EventPublisherImpl eventPublisher;
-
+    private Clock clock = Clock.systemDefaultZone();
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
     private Thread mockedThread() {
@@ -68,20 +68,10 @@ public class SingleThreadedComPortListenerTest {
     public void setupServiceProvider () throws IOException {
         this.serviceProvider.setIssueService(this.issueService);
         this.serviceProvider.setSocketService(this.socketService);
-        this.serviceProvider.setClock(Clock.systemDefaultZone());
+        this.serviceProvider.setClock(this.clock);
         ServiceProvider.instance.set(this.serviceProvider);
         when(this.socketService.newInboundTCPSocket(anyInt())).thenReturn(mock(ServerSocket.class));
         when(this.socketService.newSocketComChannel(any(Socket.class))).thenReturn(new SystemOutComChannel());
-    }
-
-    @Before
-    public void setupEventPublisher () {
-        EventPublisherImpl.setInstance(this.eventPublisher);
-    }
-
-    @After
-    public void resetEventPublisher () {
-        EventPublisherImpl.setInstance(null);
     }
 
     @Test
@@ -203,7 +193,7 @@ public class SingleThreadedComPortListenerTest {
 
         protected ComPortRelatedComChannel doAccept() {
             // Unit testing commands typically don't do anything useful
-            return new ComPortRelatedComChannelImpl(new VoidTestComChannel(), this.comPort, hexService);
+            return new ComPortRelatedComChannelImpl(new VoidTestComChannel(), this.comPort, clock, hexService, eventPublisher);
         }
     }
 

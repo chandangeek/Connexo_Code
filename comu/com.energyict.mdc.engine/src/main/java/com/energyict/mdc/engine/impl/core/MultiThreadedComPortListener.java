@@ -6,6 +6,7 @@ import com.energyict.mdc.engine.impl.concurrent.ResizeableSemaphore;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactory;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
 import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,15 +30,15 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
     private int numberOfThreads;
     private InboundComPortExecutorFactory inboundComPortExecutorFactory;
 
-    public MultiThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider) {
-        this(comPort, comServerDAO, deviceCommandExecutor, new ComServerThreadFactory(comPort.getComServer()), new InboundComPortExecutorFactoryImpl(serviceProvider), serviceProvider);
+    public MultiThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, EventPublisher eventPublisher, com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider) {
+        this(comPort, comServerDAO, deviceCommandExecutor, new ComServerThreadFactory(comPort.getComServer()), new InboundComPortExecutorFactoryImpl(serviceProvider), eventPublisher, serviceProvider);
     }
 
-    public MultiThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider) {
-        this(comPort, comServerDAO, deviceCommandExecutor, threadFactory, new InboundComPortExecutorFactoryImpl(serviceProvider), serviceProvider);
+    public MultiThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, EventPublisher eventPublisher, com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider) {
+        this(comPort, comServerDAO, deviceCommandExecutor, threadFactory, new InboundComPortExecutorFactoryImpl(serviceProvider), eventPublisher, serviceProvider);
     }
 
-    protected MultiThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, InboundComPortExecutorFactory inboundComPortExecutorFactory, com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider) {
+    protected MultiThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, InboundComPortExecutorFactory inboundComPortExecutorFactory, EventPublisher eventPublisher, com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider) {
         this(comPort,
                 comServerDAO,
                 deviceCommandExecutor,
@@ -46,7 +47,9 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
                 new InboundComPortConnectorFactoryImpl(
                         serviceProvider.serialAtComponentService(),
                         serviceProvider.socketService(),
-                        serviceProvider.hexService())
+                        serviceProvider.hexService(),
+                        eventPublisher,
+                        serviceProvider.clock())
         );
     }
 

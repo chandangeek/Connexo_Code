@@ -1,7 +1,12 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.engine.impl.core.aspects.logging.ComChannelLogger;
+import com.energyict.mdc.engine.events.ComServerEvent;
+import com.energyict.mdc.engine.impl.core.logging.ComChannelLogger;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
+import com.energyict.mdc.engine.impl.events.io.ReadEvent;
+import com.energyict.mdc.engine.impl.events.io.WriteEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
@@ -15,6 +20,7 @@ import com.elster.jupiter.util.time.StopWatch;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Clock;
 import java.time.Duration;
 
 /**
@@ -27,7 +33,9 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
 
     private static final long NANOS_IN_MILLI = 1000000L;
 
+    private final Clock clock;
     private final HexService hexService;
+    private final EventPublisher eventPublisher;
     private ComChannel comChannel;
     private ComChannelLogger logger;
     private ComPort comPort;
@@ -37,10 +45,12 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
     private final Counters sessionCounters = new Counters();
     private final Counters taskSessionCounters = new Counters();
 
-    public ComPortRelatedComChannelImpl(ComChannel comChannel, ComPort comPort, HexService hexService) {
+    public ComPortRelatedComChannelImpl(ComChannel comChannel, ComPort comPort, Clock clock, HexService hexService, EventPublisher eventPublisher) {
         super();
         this.comChannel = comChannel;
+        this.clock = clock;
         this.hexService = hexService;
+        this.eventPublisher = eventPublisher;
         this.talking = new StopWatch(false);  // No cpu required;
         this.talking.stop();
         this.comPort = comPort;
@@ -255,27 +265,35 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
     }
 
     private void logBytesWrittenIfAny () {
-        if (this.bytesWrittenForLogging != null && this.logger != null) {
+        if (this.bytesWrittenForLogging != null) {
             this.logBytesWrittenAndReset();
             this.bytesWrittenForLogging = null;
         }
     }
 
     private void logBytesWrittenAndReset() {
-        String hexBytes = this.hexService.toHexString(this.bytesWrittenForLogging.toByteArray());
-        this.logger.bytesWritten(hexBytes);
+        byte[] bytesWrittenForLogging = this.bytesWrittenForLogging.toByteArray();
+        if (this.logger != null) {
+            String hexBytes = this.hexService.toHexString(bytesWrittenForLogging);
+            this.logger.bytesWritten(hexBytes);
+        }
+        this.publish(new WriteEvent(new ComServerEventServiceProvider(), this.comPort, bytesWrittenForLogging));
     }
 
     private void logBytesReadIfAny () {
-        if (this.bytesReadForLogging != null && this.logger != null) {
+        if (this.bytesReadForLogging != null) {
             this.logBytesReadAndReset();
             this.bytesReadForLogging = null;
         }
     }
 
     private void logBytesReadAndReset() {
-        String hexBytes = this.hexService.toHexString(this.bytesReadForLogging.toByteArray());
-        this.logger.bytesRead(hexBytes);
+        byte[] bytesReadForLogging = this.bytesReadForLogging.toByteArray();
+        if (this.logger != null) {
+            String hexBytes = this.hexService.toHexString(bytesReadForLogging);
+            this.logger.bytesRead(hexBytes);
+        }
+        this.publish(new ReadEvent(new ComServerEventServiceProvider(), this.comPort, bytesReadForLogging));
     }
 
     @Override
@@ -291,6 +309,17 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
     @Override
     public Counters getTaskSessionCounters() {
         return this.taskSessionCounters;
+    }
+
+    private void publish (ComServerEvent event) {
+        this.eventPublisher.publish(event);
+    }
+
+    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
+        @Override
+        public Clock clock() {
+            return clock;
+        }
     }
 
 }

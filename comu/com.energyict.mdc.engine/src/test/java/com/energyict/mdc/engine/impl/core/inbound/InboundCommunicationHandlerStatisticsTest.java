@@ -88,6 +88,7 @@ public class InboundCommunicationHandlerStatisticsTest {
     @Before
     public void setupServiceProvider() {
         Clock clock = Clock.systemDefaultZone();
+        this.serviceProvider.setEventPublisher(this.eventPublisher);
         this.serviceProvider.setClock(clock);
         this.serviceProvider.setIssueService(new IssueServiceImpl(clock, nlsService));
         this.serviceProvider.setHexService(new HexServiceImpl());
@@ -100,16 +101,6 @@ public class InboundCommunicationHandlerStatisticsTest {
     @After
     public void resetServiceProvider() {
         ServiceProvider.instance.set(null);
-    }
-
-    @Before
-    public void setupEventPublisher() {
-        EventPublisherImpl.setInstance(this.eventPublisher);
-    }
-
-    @After
-    public void resetEventPublisher() {
-        EventPublisherImpl.setInstance(null);
     }
 
     @Test

@@ -6,6 +6,7 @@ import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.io.InboundCommunicationException;
 import com.energyict.mdc.protocol.api.services.HexService;
@@ -15,6 +16,7 @@ import com.energyict.mdc.io.SocketService;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Clock;
 
 /**
  * Implementation of an {@link InboundComPortConnector} for a {@link ComPort} of the type {@link ComPortType#TCP}.
@@ -31,13 +33,17 @@ public class TCPPortConnector implements InboundComPortConnector {
     private final ServerSocket serverSocket;
     private final SocketService socketService;
     private final HexService hexService;
+    private final EventPublisher eventPublisher;
+    private final Clock clock;
     private final InboundComPort comPort;
 
-    public TCPPortConnector(TCPBasedInboundComPort comPort, SocketService socketService, HexService hexService) {
+    public TCPPortConnector(TCPBasedInboundComPort comPort, SocketService socketService, HexService hexService, EventPublisher eventPublisher, Clock clock) {
         super();
         this.comPort = comPort;
         this.hexService = hexService;
         this.socketService = socketService;
+        this.eventPublisher = eventPublisher;
+        this.clock = clock;
         try {
             this.serverSocket = socketService.newInboundTCPSocket(comPort.getPortNumber());
         }
@@ -50,7 +56,7 @@ public class TCPPortConnector implements InboundComPortConnector {
     public ComPortRelatedComChannel accept() {
         try {
             final Socket socket = this.serverSocket.accept();
-            return new ComPortRelatedComChannelImpl(this.getSocketService().newSocketComChannel(socket), this.comPort, this.hexService);
+            return new ComPortRelatedComChannelImpl(this.getSocketService().newSocketComChannel(socket), this.comPort, this.clock, this.hexService, eventPublisher);
         }
         catch (IOException e) {
             throw new InboundCommunicationException(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION, e);

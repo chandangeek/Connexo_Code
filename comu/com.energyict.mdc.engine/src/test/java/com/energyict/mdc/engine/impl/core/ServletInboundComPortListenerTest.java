@@ -2,8 +2,14 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.BusinessException;
 import com.elster.jupiter.time.TimeDuration;
+
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedJettyServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
@@ -11,6 +17,8 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundCapableComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactoryImpl;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -38,12 +46,33 @@ public class ServletInboundComPortListenerTest {
 
     @Mock
     private DeviceCommandExecutor deviceCommandExecutor;
+    @Mock
+    private ConnectionTaskService connectionTaskService;
+    @Mock
+    private CommunicationTaskService communicationTaskService;
+    @Mock
+    private IdentificationService identificationService;
+    @Mock
+    private EngineConfigurationService engineConfigurationService;
+    @Mock
+    private DeviceService deviceService;
+    @Mock
+    private EventPublisher eventPublisher;
 
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
     @Before
     public void setupServiceProvider () {
-        this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory());
+        WebSocketEventPublisherFactoryImpl webSocketEventPublisherFactory =
+                new WebSocketEventPublisherFactoryImpl(
+                        this.connectionTaskService,
+                        this.communicationTaskService,
+                        this.deviceService,
+                        this.engineConfigurationService,
+                        this.identificationService,
+                        this.eventPublisher);
+        this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
+        this.serviceProvider.setEventPublisher(this.eventPublisher);
     }
 
     @Test(timeout = 10000)

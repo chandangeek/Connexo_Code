@@ -16,8 +16,10 @@ import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
+import com.energyict.mdc.engine.impl.core.ScheduledComPortImpl;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedJettyServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
@@ -47,7 +49,8 @@ public class FakeServiceProvider
         RequestParser.ServiceProvider,
         EmbeddedJettyServer.ServiceProvider,
         RunningComServerImpl.ServiceProvider,
-        CommandRoot.ServiceProvider {
+        CommandRoot.ServiceProvider,
+        ScheduledComPortImpl.ServiceProvider {
 
     private EventService eventService;
     private TransactionService transactionService;
@@ -74,6 +77,16 @@ public class FakeServiceProvider
     private WebSocketEventPublisherFactory webSocketEventPublisherFactory;
     private EmbeddedWebServerFactory embeddedWebServerFactory;
     private IdentificationService identificationService;
+    private EventPublisher eventPublisher;
+
+    @Override
+    public EventPublisher eventPublisher() {
+        return this.eventPublisher;
+    }
+
+    public void setEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
 
     @Override
     public EventService eventService() {

@@ -28,7 +28,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.DeviceProtocolCommandCreator;
-import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
@@ -150,23 +150,23 @@ public class JobExecutionTest {
     @Mock
     private Thesaurus thesaurus;
 
-    private ServiceProvider serviceProvider;
+    private FakeServiceProvider serviceProvider;
     private IssueService issueService = new FakeIssueService();
     private CommandRootImpl root;
 
     public void setupServiceProvider() {
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
         when(this.thesaurus.getString(anyString(), anyString())).thenReturn("Translation not supported in unit testing");
-        FakeServiceProvider fakeServiceProvider = new FakeServiceProvider();
-        fakeServiceProvider.setIssueService(this.issueService);
-        fakeServiceProvider.setTransactionService(new FakeTransactionService());
-        fakeServiceProvider.setConnectionTaskService(this.connectionTaskService);
-        fakeServiceProvider.setDeviceService(this.deviceService);
-        fakeServiceProvider.setEngineService(this.engineService);
-        fakeServiceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
-        fakeServiceProvider.setNlsService(this.nlsService);
-        fakeServiceProvider.setClock(this.clock);
-        this.serviceProvider = fakeServiceProvider;
+        this.serviceProvider = new FakeServiceProvider();
+        this.serviceProvider.setEventPublisher(this.eventPublisher);
+        this.serviceProvider.setIssueService(this.issueService);
+        this.serviceProvider.setTransactionService(new FakeTransactionService());
+        this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
+        this.serviceProvider.setDeviceService(this.deviceService);
+        this.serviceProvider.setEngineService(this.engineService);
+        this.serviceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
+        this.serviceProvider.setNlsService(this.nlsService);
+        this.serviceProvider.setClock(this.clock);
         ServiceProvider.instance.set(this.serviceProvider);
     }
 
@@ -179,13 +179,6 @@ public class JobExecutionTest {
     public void setupEventPublisher() {
     	when(clock.instant()).thenReturn(Instant.now());
         this.setupServiceProvider();
-        EventPublisherImpl.setInstance(this.eventPublisher);
-        when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
-    }
-
-    @After
-    public void resetEventPublisher() {
-        EventPublisherImpl.setInstance(null);
     }
 
     @Before
@@ -230,8 +223,8 @@ public class JobExecutionTest {
         when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
 
         ExecutionContext executionContext = newTestExecutionContext();
-        root = spy(new CommandRootImpl(offlineDevice, executionContext, this.serviceProvider));
-        CommandRootImpl root2 = spy(new CommandRootImpl(offlineDevice, executionContext, this.serviceProvider));
+        root = spy(new CommandRootImpl(offlineDevice, executionContext, (ServiceProvider) this.serviceProvider));
+        CommandRootImpl root2 = spy(new CommandRootImpl(offlineDevice, executionContext, (ServiceProvider) this.serviceProvider));
         doNothing().when(root).execute(any(DeviceProtocol.class), any(ExecutionContext.class));
         doNothing().when(root2).execute(any(DeviceProtocol.class), any(ExecutionContext.class));
         when(genericDeviceProtocol.organizeComCommands(root)).thenReturn(root2);

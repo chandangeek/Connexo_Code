@@ -54,7 +54,7 @@ public class GenericDeviceProtocolTest {
     @Mock
     SetClockCommand setClockCommand;
 
-    private ServiceProvider serviceProvider;
+    private FakeServiceProvider serviceProvider;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DeviceService deviceService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -76,7 +76,7 @@ public class GenericDeviceProtocolTest {
         fakeServiceProvider.setConnectionTaskService(connectionTaskService);
         fakeServiceProvider.setDeviceService(deviceService);
         this.serviceProvider = fakeServiceProvider;
-        CommandRootImpl root = new CommandRootImpl(offlineDevice, newTestExecutionContext(this.serviceProvider), this.serviceProvider);
+        CommandRootImpl root = new CommandRootImpl(offlineDevice, newTestExecutionContext(this.serviceProvider), (ServiceProvider) this.serviceProvider);
         root.addCommand(readRegistersCommand, null);
         root.addCommand(setClockCommand, null);
 

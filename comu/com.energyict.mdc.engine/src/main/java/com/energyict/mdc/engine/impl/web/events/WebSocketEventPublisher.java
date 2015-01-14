@@ -6,7 +6,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.EventReceiver;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.web.events.commands.Request;
@@ -31,18 +30,14 @@ import java.util.Set;
 public class WebSocketEventPublisher implements EventReceiver, EventPublisher, WebSocket.OnTextMessage {
 
     private final WebSocketCloseEventListener closeEventListener;
-    private EventPublisher systemWideEventPublisher;
+    private EventPublisher eventPublisher;
     private Connection connection;
     private RequestParser parser;
 
-    public WebSocketEventPublisher(RequestParser.ServiceProvider serviceProvider, WebSocketCloseEventListener closeEventListener) {
-        this(serviceProvider, EventPublisherImpl.getInstance(), closeEventListener);
-    }
-
-    public WebSocketEventPublisher(RequestParser.ServiceProvider serviceProvider, EventPublisher systemWideEventPublisher, WebSocketCloseEventListener closeEventListener) {
+    public WebSocketEventPublisher(RequestParser.ServiceProvider serviceProvider, EventPublisher eventPublisher, WebSocketCloseEventListener closeEventListener) {
         super();
         this.closeEventListener = closeEventListener;
-        this.systemWideEventPublisher = systemWideEventPublisher;
+        this.eventPublisher = eventPublisher;
         this.parser = new RequestParser(serviceProvider);
     }
 
@@ -102,7 +97,7 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
     @Override
     public void onClose (int closeCode, String message) {
         this.connection = null;
-        this.systemWideEventPublisher.unregisterAllInterests(this);
+        this.eventPublisher.unregisterAllInterests(this);
         this.closeEventListener.closedFrom(this);
     }
 
@@ -118,72 +113,72 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
 
     @Override
     public void registerInterest (EventReceiver receiver) {
-        this.systemWideEventPublisher.registerInterest(this);
+        this.eventPublisher.registerInterest(this);
     }
 
     @Override
     public void narrowInterestToCategories (EventReceiver receiver, Set<Category> categories) {
-        this.systemWideEventPublisher.narrowInterestToCategories(this, categories);
+        this.eventPublisher.narrowInterestToCategories(this, categories);
     }
 
     @Override
     public void narrowInterestToDevices (EventReceiver receiver, List<Device> devices) {
-        this.systemWideEventPublisher.narrowInterestToDevices(this, devices);
+        this.eventPublisher.narrowInterestToDevices(this, devices);
     }
 
     @Override
     public void widenInterestToAllDevices (EventReceiver receiver) {
-        this.systemWideEventPublisher.widenInterestToAllDevices(this);
+        this.eventPublisher.widenInterestToAllDevices(this);
     }
 
     @Override
     public void narrowInterestToConnectionTasks (EventReceiver receiver, List<ConnectionTask> connectionTasks) {
-        this.systemWideEventPublisher.narrowInterestToConnectionTasks(this, connectionTasks);
+        this.eventPublisher.narrowInterestToConnectionTasks(this, connectionTasks);
     }
 
     @Override
     public void widenInterestToAllConnectionTasks (EventReceiver receiver) {
-        this.systemWideEventPublisher.widenInterestToAllConnectionTasks(this);
+        this.eventPublisher.widenInterestToAllConnectionTasks(this);
     }
 
     @Override
     public void narrowInterestToComTaskExecutions (EventReceiver receiver, List<ComTaskExecution> comTaskExecutions) {
-        this.systemWideEventPublisher.narrowInterestToComTaskExecutions(this, comTaskExecutions);
+        this.eventPublisher.narrowInterestToComTaskExecutions(this, comTaskExecutions);
     }
 
     @Override
     public void widenInterestToAllComTaskExecutions (EventReceiver receiver) {
-        this.systemWideEventPublisher.widenInterestToAllComTaskExecutions(this);
+        this.eventPublisher.widenInterestToAllComTaskExecutions(this);
     }
 
     @Override
     public void narrowInterestToComPorts (EventReceiver receiver, List<ComPort> comPorts) {
-        this.systemWideEventPublisher.narrowInterestToComPorts(this, comPorts);
+        this.eventPublisher.narrowInterestToComPorts(this, comPorts);
     }
 
     @Override
     public void widenInterestToAllComPorts (EventReceiver receiver) {
-        this.systemWideEventPublisher.widenInterestToAllComPorts(this);
+        this.eventPublisher.widenInterestToAllComPorts(this);
     }
 
     @Override
     public void narrowInterestToComPortPools (EventReceiver receiver, List<ComPortPool> comPortPools) {
-        this.systemWideEventPublisher.narrowInterestToComPortPools(this, comPortPools);
+        this.eventPublisher.narrowInterestToComPortPools(this, comPortPools);
     }
 
     @Override
     public void widenInterestToAllComPortPools (EventReceiver receiver) {
-        this.systemWideEventPublisher.widenInterestToAllComPortPools(this);
+        this.eventPublisher.widenInterestToAllComPortPools(this);
     }
 
     @Override
     public void narrowInterestToLogLevel (EventReceiver receiver, LogLevel logLevel) {
-        this.systemWideEventPublisher.narrowInterestToLogLevel(this, logLevel);
+        this.eventPublisher.narrowInterestToLogLevel(this, logLevel);
     }
 
     @Override
     public void widenToAllLogLevels (EventReceiver receiver) {
-        this.systemWideEventPublisher.widenToAllLogLevels(this);
+        this.eventPublisher.widenToAllLogLevels(this);
     }
 
 }

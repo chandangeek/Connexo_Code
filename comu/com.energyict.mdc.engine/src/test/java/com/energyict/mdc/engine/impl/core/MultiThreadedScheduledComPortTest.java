@@ -25,8 +25,8 @@ import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.core.verification.CounterVerifierFactory;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
@@ -234,6 +234,7 @@ public class MultiThreadedScheduledComPortTest {
 
     public void setupServiceProvider() {
         ServiceProvider.instance.set(this.serviceProvider);
+        this.serviceProvider.setEventPublisher(this.eventPublisher);
         this.serviceProvider.setEventService(this.eventService);
         this.serviceProvider.setIdentificationService(this.identificationService);
         this.serviceProvider.setIssueService(this.issueService);
@@ -264,8 +265,6 @@ public class MultiThreadedScheduledComPortTest {
     @Before
     public void setupEventPublisher() {
         this.setupServiceProvider();
-        EventPublisherImpl.setInstance(this.eventPublisher);
-        when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
         when(comTask.getId()).thenAnswer(new Answer<Long>() {
             long counter = 0;
             @Override
@@ -278,7 +277,6 @@ public class MultiThreadedScheduledComPortTest {
     @After
     public void resetEventPublisher() {
         this.resetServiceProvider();
-        EventPublisherImpl.setInstance(null);
     }
 
     @Before
@@ -404,7 +402,7 @@ public class MultiThreadedScheduledComPortTest {
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
-        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, this.hexService);
+        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
         when(this.simultaneousConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
         final List<ComJob> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
@@ -496,7 +494,7 @@ public class MultiThreadedScheduledComPortTest {
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
-        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, this.hexService);
+        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
         when(this.serialConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
         final List<ComTaskExecution> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
@@ -590,7 +588,7 @@ public class MultiThreadedScheduledComPortTest {
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
-        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, this.hexService);
+        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
         when(this.simultaneousConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
         final List<ComJob> noWork = new ArrayList<>(0);
         final List<ComJob> work = new ArrayList<>();
@@ -638,7 +636,7 @@ public class MultiThreadedScheduledComPortTest {
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
-        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, this.hexService);
+        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
         when(this.serialConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
         final List<ComTaskExecution> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
@@ -690,7 +688,7 @@ public class MultiThreadedScheduledComPortTest {
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyLong())).thenReturn(false);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(false);
-        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, this.hexService);
+        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
         when(this.simultaneousConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
         final List<ComJob> noWork = new ArrayList<>(0);
         final List<ComJob> work = new ArrayList<>();
@@ -735,7 +733,7 @@ public class MultiThreadedScheduledComPortTest {
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyLong())).thenReturn(false);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(false);
-        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, this.hexService);
+        this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
         when(this.serialConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
         final List<ComTaskExecution> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {

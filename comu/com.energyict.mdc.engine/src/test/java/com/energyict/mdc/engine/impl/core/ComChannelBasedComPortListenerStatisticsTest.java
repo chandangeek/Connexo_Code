@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -107,16 +108,6 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     @After
     public void resetServiceProvider() {
         ServiceProvider.instance.set(null);
-    }
-
-    @Before
-    public void initializeEventPublisher() {
-        EventPublisherImpl.setInstance(this.eventPublisher);
-    }
-
-    @After
-    public void resetEventPublisher() {
-        EventPublisherImpl.setInstance(null);
     }
 
     private void initializeExpectedMessage() throws IOException {
@@ -399,7 +390,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
         comChannel.whenRead(singleByte);
         comChannel.whenReadFromBuffer(FIRST_SERIES_OF_BYTES);
         comChannel.whenReadFromBufferWithOffset(SECOND_SERIES_OF_BYTES, SECOND_SERIES_OF_BYTES_OFFSET, SECOND_SERIES_OF_BYTES_LENGTH);
-        ComPortRelatedComChannel comPortRelatedComChannel = new ComPortRelatedComChannelImpl(comChannel, comPort, this.hexService);
+        ComPortRelatedComChannel comPortRelatedComChannel = new ComPortRelatedComChannelImpl(comChannel, comPort, clock, this.hexService, eventPublisher);
         this.jobExecution = new MockJobExecution(comPort, comPortRelatedComChannel, serviceProvider);
         this.jobExecution.getExecutionContext().connect();   // Should initialize the communication statistics
         return comPortRelatedComChannel;
@@ -431,7 +422,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
         when(comServer.getCommunicationLogLevel()).thenReturn(comServerLogLevel);
         ComPort comPort = mock(ComPort.class);
         when(comPort.getComServer()).thenReturn(comServer);
-        ComPortRelatedComChannel comChannel = new ComPortRelatedComChannelImpl(new SystemOutComChannel(), comPort, this.hexService);
+        ComPortRelatedComChannel comChannel = new ComPortRelatedComChannelImpl(new SystemOutComChannel(), comPort, clock, this.hexService, eventPublisher);
         this.jobExecution = new MockJobExecution(comPort, comChannel, serviceProvider);
         this.jobExecution.getExecutionContext().connect();
         comChannel.setComPort(this.comPort);
@@ -439,11 +430,18 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     private static class ExecutionContextServiceProvider implements ExecutionContext.ServiceProvider {
+        private final EventPublisher eventPublisher;
         private final JobExecution.ServiceProvider serviceProvider;
 
-        private ExecutionContextServiceProvider(JobExecution.ServiceProvider serviceProvider) {
+        private ExecutionContextServiceProvider(EventPublisher eventPublisher, JobExecution.ServiceProvider serviceProvider) {
             super();
+            this.eventPublisher = eventPublisher;
             this.serviceProvider = serviceProvider;
+        }
+
+        @Override
+        public EventPublisher eventPublisher() {
+            return this.eventPublisher;
         }
 
         @Override
@@ -488,7 +486,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
             ComPortPool comPortPool = mock(ComPortPool.class);
             when(comPortPool.getId()).thenReturn((long) COMPORT_POOL_ID);
             when(connectionTask.getComPortPool()).thenReturn(comPortPool);
-            this.setExecutionContext(new ExecutionContext(this, connectionTask, comPort, new ExecutionContextServiceProvider(serviceProvider)));
+            this.setExecutionContext(new ExecutionContext(this, connectionTask, comPort, new ExecutionContextServiceProvider(eventPublisher, serviceProvider)));
         }
 
         @Override

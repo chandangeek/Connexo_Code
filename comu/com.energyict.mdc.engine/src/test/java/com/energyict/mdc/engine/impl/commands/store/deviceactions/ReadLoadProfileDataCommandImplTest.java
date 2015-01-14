@@ -9,6 +9,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ReadLoadProfileDataCommand
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -19,18 +20,16 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-import junit.framework.Assert;
-import org.junit.Test;
-import org.mockito.Matchers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static junit.framework.Assert.assertTrue;
+import org.junit.*;
+import org.mockito.Matchers;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -51,7 +50,7 @@ public class ReadLoadProfileDataCommandImplTest extends CommonCommandImplTests {
         when(loadProfileType.getObisCode()).thenReturn(ObisCode.fromString("1.1.1.1.1.1"));
         when(loadProfilesTask.getLoadProfileTypes()).thenReturn(Arrays.asList(loadProfileType));
         ExecutionContext executionContext = newTestExecutionContext();
-        CommandRoot commandRoot = new CommandRootImpl(mock(OfflineDevice.class), executionContext, serviceProvider);
+        CommandRoot commandRoot = new CommandRootImpl(mock(OfflineDevice.class), executionContext, (ServiceProvider) serviceProvider);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         LoadProfileCommand loadProfileCommand = commandRoot.getLoadProfileCommand(loadProfilesTask, commandRoot, comTaskExecution);
         ReadLoadProfileDataCommand readLoadProfileDataCommand = commandRoot.getReadLoadProfileDataCommand(loadProfileCommand, comTaskExecution);
@@ -59,10 +58,10 @@ public class ReadLoadProfileDataCommandImplTest extends CommonCommandImplTests {
         assertThat(readLoadProfileDataCommand.toJournalMessageDescription(LogLevel.ERROR)).startsWith("ReadLoadProfileDataCommandImpl {loadProfileObisCodes: 1.1.1.1.1.1");
 
         // asserts
-        assertNotNull("There should be some collected data", loadProfileCommand.getCollectedData());
-        Assert.assertEquals("There should be 1 collected data object in the list", 1, loadProfileCommand.getCollectedData().size());
-        assertTrue("The collected data should be CollectedLoadProfile", loadProfileCommand.getCollectedData().get(0) instanceof CollectedLoadProfile);
-        Assert.assertEquals("Should have 10 intervals", 10, ((CollectedLoadProfile) loadProfileCommand.getCollectedData().get(0)).getCollectedIntervalData().size());
+        assertThat(loadProfileCommand.getCollectedData()).isNotNull();
+        assertThat(loadProfileCommand.getCollectedData()).hasSize(1);
+        assertThat(loadProfileCommand.getCollectedData().get(0)).isInstanceOf(CollectedLoadProfile.class);
+        assertThat(((CollectedLoadProfile) loadProfileCommand.getCollectedData().get(0)).getCollectedIntervalData()).hasSize(10);
     }
 
     private static DeviceLoadProfile createDeviceCollectedLoadProfile() {

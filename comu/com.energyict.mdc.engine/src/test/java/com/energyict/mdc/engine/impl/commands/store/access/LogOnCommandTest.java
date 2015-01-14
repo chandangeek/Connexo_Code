@@ -2,7 +2,6 @@ package com.energyict.mdc.engine.impl.commands.store.access;
 
 import java.time.Clock;
 
-import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
@@ -10,7 +9,6 @@ import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
@@ -37,21 +35,18 @@ public class LogOnCommandTest extends AbstractComCommandExecuteTest {
     @Before
     public void setUp() {
         EventPublisherImpl eventPublisher = mock(EventPublisherImpl.class);
-        when(eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
-        EventPublisherImpl.setInstance(eventPublisher);
-        ((FakeServiceProvider) serviceProvider).setClock(Clock.systemDefaultZone());
+        serviceProvider.setClock(Clock.systemDefaultZone());
     }
 
     @After
     public void tearDown() {
-        EventPublisherImpl.setInstance(null);
         ServiceProvider.instance.set(null);
     }
 
     @Test
     public void commandTypeTest(){
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, AbstractComCommandExecuteTest.newTestExecutionContext(), serviceProvider);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, AbstractComCommandExecuteTest.newTestExecutionContext(), (ServiceProvider) serviceProvider);
         LogOnCommand logOnCommand = new LogOnCommand(commandRoot);
 
         assertEquals(ComCommandTypes.LOGON, logOnCommand.getCommandType());
@@ -61,7 +56,7 @@ public class LogOnCommandTest extends AbstractComCommandExecuteTest {
     public void validateAdapterCallForMeterProtocol () {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, serviceProvider);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, (ServiceProvider) serviceProvider);
         CommandFactory.createLogOnCommand(commandRoot, null);
         MeterProtocolAdapter meterProtocolAdapter = mock(MeterProtocolAdapter.class);
 
@@ -76,7 +71,7 @@ public class LogOnCommandTest extends AbstractComCommandExecuteTest {
     public void validateAdapterCallForSmartMeterProtocol () {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, serviceProvider);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, (ServiceProvider) serviceProvider);
         CommandFactory.createLogOnCommand(commandRoot, null);
         SmartMeterProtocolAdapter smartMeterProtocolAdapter = mock(SmartMeterProtocolAdapter.class);
 

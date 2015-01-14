@@ -178,6 +178,7 @@ public abstract class JobExecution implements ScheduledJob {
 
     @Override
     public void reschedule(ComServerDAO comServerDAO, Throwable t, RescheduleBehavior.RescheduleReason rescheduleReason) {
+        this.getExecutionContext().reschedule(this, this.getFailedComTaskExecutions());
         this.doReschedule(comServerDAO, rescheduleReason);
     }
 
@@ -307,13 +308,18 @@ public abstract class JobExecution implements ScheduledJob {
         ComTaskExecutionSession.SuccessIndicator successIndicator = Success;
         try {
             this.start(preparedComTaskExecution.getComTaskExecution());
-
             CommandRoot commandRoot = preparedComTaskExecution.getCommandRoot();
             this.executionContext.setCommandRoot(commandRoot);
             commandRoot.executeFor(preparedComTaskExecution, this.executionContext);
-            boolean hasProblems = executionContext.getCommandRoot().getProblems().isEmpty();
-            successIndicator = hasProblems ? Success : Failure;
-            return hasProblems;
+            boolean noProblems = executionContext.getCommandRoot().getProblems().isEmpty();
+            if (noProblems) {
+                successIndicator = Success;
+            }
+            else {
+                successIndicator = Failure;
+                this.executionContext.comTaskExecutionFailure(this, preparedComTaskExecution.getComTaskExecution());
+            }
+            return noProblems;
         } catch (Throwable t) {
             this.failure(preparedComTaskExecution.getComTaskExecution(), t);
             successIndicator = Failure;
@@ -348,7 +354,7 @@ public abstract class JobExecution implements ScheduledJob {
      * @param successIndicator The SuccessIndicator
      */
     private void completeExecutedComTask(ComTaskExecution comTaskExecution, ComTaskExecutionSession.SuccessIndicator successIndicator) {
-        this.getExecutionContext().comTaskExecutionCompleted(comTaskExecution, successIndicator);
+        this.getExecutionContext().comTaskExecutionCompleted(this, comTaskExecution, successIndicator);
     }
 
     void connected(ComPortRelatedComChannel comChannel) {
@@ -363,7 +369,7 @@ public abstract class JobExecution implements ScheduledJob {
      * @param t                The failure
      */
     private void failure(ComTaskExecution comTaskExecution, Throwable t) {
-        this.getExecutionContext().comTaskExecutionFailure(comTaskExecution, t);
+        this.getExecutionContext().comTaskExecutionFailure(this, comTaskExecution, t);
     }
 
     private CommandRoot.ServiceProvider getComCommandServiceProvider() {
@@ -500,9 +506,9 @@ public abstract class JobExecution implements ScheduledJob {
      * @param comTaskExecution The ComTaskExecution
      */
     private void start(ComTaskExecution comTaskExecution) {
-        this.getExecutionContext().prepareStart(comTaskExecution);
+        this.getExecutionContext().prepareStart(this, comTaskExecution);
         this.getComServerDAO().executionStarted(comTaskExecution, this.getComPort());
-        this.getExecutionContext().initializeJournalist();
+        this.getExecutionContext().executionStarted(comTaskExecution);
     }
 
     enum BasicCheckTasks implements Comparator<ProtocolTask> {

@@ -11,7 +11,6 @@ import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
-import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -68,22 +67,6 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
     private InputStream inputStream;
 
     private ComChannelPlaceHolder comChannelPlaceHolder;
-
-    @Mock
-    private EventPublisherImpl eventPublisher;
-
-    @Before
-    public void setupEventPublisher () {
-        super.setupEventPublisher();
-        EventPublisherImpl.setInstance(this.eventPublisher);
-        when(this.eventPublisher.serviceProvider()).thenReturn(this.comServerEventServiceProviderAdapter());
-    }
-
-    @After
-    public void resetEventPublisher () {
-        super.resetEventPublisher();
-        EventPublisherImpl.setInstance(null);
-    }
 
     @Before
     public void initMocks() {
