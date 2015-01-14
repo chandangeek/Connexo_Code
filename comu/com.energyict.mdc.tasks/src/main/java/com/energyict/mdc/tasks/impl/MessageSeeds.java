@@ -24,7 +24,7 @@ public enum MessageSeeds implements MessageSeed {
     PROTOCOL_TASK_REQUIRED(11, Keys.COMTASK_WITHOUT_PROTOCOLTASK, "You have to add at least one command or you have to select at least one message category", Level.SEVERE),
     FIELD_SIZE_INCORRECT(12, Keys.FIELD_TOO_LONG, "Field size should be exceed {max} characters", Level.SEVERE),
     DUPLICATE_PROTOCOL_TASK_TYPE_IN_COMTASK(13, Keys.DUPLICATE_PROTOCOL_TASK_TYPE_IN_COM_TASK, "ComTask contains multiple ProtocolTasks of the same type", Level.SEVERE),
-    VETO_LOG_BOOK_TYPE_DELETION(14, Keys.VETO_LOG_BOOK_TYPE_DELETION, "Log book type '{0}' is still in use by the following communication task(s): '{1}'", Level.SEVERE),
+    VETO_LOG_BOOK_TYPE_DELETION(14, Keys.VETO_LOG_BOOK_TYPE_DELETION, "Log book type ''{0}'' is still in use by the following communication task(s): ''{1}''", Level.SEVERE),
     VALUE_NOT_IN_RANGE(999, Keys.VALUE_NOT_IN_RANGE, "{value} not in range {min} to {max}", Level.SEVERE);
 
     private final int number;
