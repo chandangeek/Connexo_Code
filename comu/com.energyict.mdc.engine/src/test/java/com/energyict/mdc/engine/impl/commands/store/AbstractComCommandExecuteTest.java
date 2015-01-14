@@ -10,32 +10,27 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.tasks.ComTask;
-
-import java.util.Arrays;
-import java.util.Optional;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.time.Clock;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import static org.mockito.Mockito.*;
@@ -74,15 +69,16 @@ public abstract class AbstractComCommandExecuteTest {
 
     @Before
     public void setupServiceProvider() {
+        when(nlsService.getThesaurus(any(), any())).thenReturn(thesaurus);
+        when(thesaurus.getStringBeyondComponent(any(), any())).thenAnswer(invocationOnMock -> (String) invocationOnMock.getArguments()[0]);
         serviceProvider.setDeviceConfigurationService(deviceConfigurationService);
         serviceProvider.setClock(this.clock);
-        serviceProvider.setIssueService(new IssueServiceImpl(this.clock));
+        serviceProvider.setIssueService(new IssueServiceImpl(this.clock, nlsService));
         serviceProvider.setConnectionTaskService(mock(ConnectionTaskService.class, RETURNS_DEEP_STUBS));
         serviceProvider.setDeviceService(mock(DeviceService.class, RETURNS_DEEP_STUBS));
         serviceProvider.setNlsService(nlsService);
+        serviceProvider.setEventPublisher(this.eventPublisher);
         ServiceProvider.instance.set(serviceProvider);
-        when(nlsService.getThesaurus(any(), any())).thenReturn(thesaurus);
-        when(thesaurus.getStringBeyondComponent(any(), any())).thenAnswer(invocationOnMock -> (String) invocationOnMock.getArguments()[0]);
 
     }
 
