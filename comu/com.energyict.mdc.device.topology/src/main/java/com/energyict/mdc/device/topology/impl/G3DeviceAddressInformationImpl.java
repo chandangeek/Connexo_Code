@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.common.ImplField;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.G3DeviceAddressInformation;
@@ -62,7 +63,7 @@ public class G3DeviceAddressInformationImpl implements G3DeviceAddressInformatio
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
     private Interval interval;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
-    @Size(min = 1, max = 30, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(min = 1, max = Table.SHORT_DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String ipv6StringAddress;
     private InetAddress ipv6Address;
     private int ipv6ShortAddress;

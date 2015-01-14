@@ -129,7 +129,7 @@ public enum TableSpecs {
             Column device = table.column("DEVICE").notNull().number().conversion(NUMBER2LONG).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             table.addAuditColumns();
-            table.column("IPV6ADDRESS").varChar().notNull().map(G3DeviceAddressInformationImpl.Field.IPV6_ADDRESS.fieldName()).add();
+            table.column("IPV6ADDRESS").varChar(Table.SHORT_DESCRIPTION_LENGTH).notNull().map(G3DeviceAddressInformationImpl.Field.IPV6_ADDRESS.fieldName()).add();
             table.column("SHORTIPV6ADDRESS").number().conversion(NUMBER2INT).notNull().map(G3DeviceAddressInformationImpl.Field.IPV6_SHORT_ADDRESS.fieldName()).add();
             table.column("LOGICALDEVICEID").number().conversion(NUMBER2INT).notNull().map(G3DeviceAddressInformationImpl.Field.LOGICAL_DEVICE_ID.fieldName()).add();
             table.primaryKey("PK_DTL_G3ADDRESSINFO").on(device, intervalColumns.get(0)).add();
