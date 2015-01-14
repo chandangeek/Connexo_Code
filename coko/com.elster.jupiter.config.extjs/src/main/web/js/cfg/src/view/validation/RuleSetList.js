@@ -18,7 +18,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
             { header: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'), dataIndex: 'name', flex: 0.3, sortable: false, fixed: true,
 
                 renderer: function (value, metaData, record) {
-                    metaData.tdAttr = 'data-qtip="' + record.get('description') + '"';
+                    metaData.tdAttr = 'data-qtip="' + record.get('description').replace(/(?:\r\n|\r|\n)/g, '<br />') + '"';
                     return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>'
                 }
             },

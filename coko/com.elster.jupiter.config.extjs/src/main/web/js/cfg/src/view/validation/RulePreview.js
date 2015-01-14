@@ -98,7 +98,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
         Ext.suspendLayouts();
         this.down('#readingTypesArea').removeAll();
         for (var i = 0; i < selectedRule.data.readingTypes.length; i++) {
-            var fieldlabel = i > 0 ? '&nbsp' : Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading type(s)'),
+            var fieldlabel = i > 0 ? '&nbsp' : Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading types'),
                 readingType = selectedRule.data.readingTypes[i];
 
             this.down('#readingTypesArea').add(

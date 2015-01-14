@@ -388,11 +388,7 @@ Ext.define('Cfg.controller.Validation', {
             selection = grid.getView().getSelectionModel().getSelection(),
             existedReadingTypes = me.validationRuleRecord.get('readingTypes');
 
-        if (grid.isAllSelected()) {
-            grid.getStore().each(function (record) {
-                existedReadingTypes.push(record.get('readingType'));
-            })
-        } else if (selection.length > 0) {
+        if (selection.length > 0) {
             Ext.each(selection, function (record) {
                 existedReadingTypes.push(record.get('readingType'));
             });
