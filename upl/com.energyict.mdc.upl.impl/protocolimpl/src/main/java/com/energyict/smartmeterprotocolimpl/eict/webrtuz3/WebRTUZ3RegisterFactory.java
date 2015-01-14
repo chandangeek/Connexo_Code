@@ -2,17 +2,30 @@ package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.BulkRegisterProtocol;
+import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -27,6 +40,10 @@ public class WebRTUZ3RegisterFactory implements BulkRegisterProtocol {
     public static final ObisCode ALARM_REGISTER = ObisCode.fromString("0.0.97.98.0.255");
     public static final ObisCode ACTIVE_TARIFF_REGISTER = ObisCode.fromString("0.0.96.14.0.255");
     public static final ObisCode ACTIVITY_CALENDAR = ObisCode.fromString("0.0.13.0.0.255");
+
+    public static final ObisCode MBUS_CLIENT = ObisCode.fromString("0.0.24.1.0.255");
+    public static final ObisCode MBUS_CLIENT_STATUS = ObisCode.fromString("0.0.24.1.11.255");
+    public static final ObisCode MBUS_CLIENT_ALARM = ObisCode.fromString("0.0.24.1.12.255");
 
     private final WebRTUZ3 meterProtocol;
 
@@ -128,7 +145,27 @@ public class WebRTUZ3RegisterFactory implements BulkRegisterProtocol {
                         dlmsAttributes.add(this.registerMap.get(register));
                     }
                 } else {
-                    this.meterProtocol.getLogger().log(Level.INFO, "Register with ObisCode " + rObisCode + " is not supported.");
+                    if (rObisCode.equals(MBUS_CLIENT_STATUS)) {
+                        this.registerMap.put(register,
+                                new DLMSAttribute(
+                                        getCorrectedRegisterObisCode(MBUS_CLIENT, register.getSerialNumber()),
+                                        MbusClientAttributes.STATUS.getAttributeNumber(),
+                                        DLMSClassId.MBUS_CLIENT.getClassId()
+                                )
+                        );
+                        dlmsAttributes.add(this.registerMap.get(register));
+                    } else if (rObisCode.equals(MBUS_CLIENT_ALARM)) {
+                        this.registerMap.put(register,
+                                new DLMSAttribute(
+                                        getCorrectedRegisterObisCode(MBUS_CLIENT, register.getSerialNumber()),
+                                        MbusClientAttributes.ALARM.getAttributeNumber(),
+                                        DLMSClassId.MBUS_CLIENT.getClassId()
+                                )
+                        );
+                        dlmsAttributes.add(this.registerMap.get(register));
+                    } else {
+                        this.meterProtocol.getLogger().log(Level.INFO, "Register with ObisCode " + rObisCode + " is not supported.");
+                    }
                 }
             }
             return new ComposedCosemObject(this.meterProtocol.getDlmsSession(), supportsBulkRequest, dlmsAttributes);
@@ -140,13 +177,17 @@ public class WebRTUZ3RegisterFactory implements BulkRegisterProtocol {
         return this.meterProtocol.getPhysicalAddressCorrectedObisCode(register.getObisCode(), register.getSerialNumber());
     }
 
-    private RegisterValue convertCustomAbstractObjectsToRegisterValues(Register register, AbstractDataType abstractDataType) throws UnsupportedException {
+    public ObisCode getCorrectedRegisterObisCode(ObisCode obisCode, String serialNumber) {
+        return this.meterProtocol.getPhysicalAddressCorrectedObisCode(obisCode, serialNumber);
+    }
 
-        //TODO need to check if register needs to be build with value AND text or just one of the two.
-        //TODO loop over the ObisCodeMapper list of the webrtu.common.ObisCodeMapper, we should support all of them ...
+    private RegisterValue convertCustomAbstractObjectsToRegisterValues(Register register, AbstractDataType abstractDataType) throws UnsupportedException {
         ObisCode rObisCode = getCorrectedRegisterObisCode(register);
         if (isSupportedByProtocol(rObisCode)) {
             return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.getUndefined()), null, null, null, new Date(), 0, String.valueOf(abstractDataType.longValue()));
+        } else if (rObisCode.equalsIgnoreBChannel(MBUS_CLIENT_STATUS) || rObisCode.equalsIgnoreBChannel(MBUS_CLIENT_ALARM)) {
+            long value = abstractDataType.longValue();
+            return new RegisterValue(register, new Quantity(value, Unit.getUndefined()), null, null, null, new Date(), 0, String.format("0x%02X", value));
         } else {
             throw new UnsupportedException("Register with obisCode " + rObisCode + " is not supported.");
         }

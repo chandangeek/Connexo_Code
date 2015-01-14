@@ -33,9 +33,7 @@ public class MbusDevice extends SlaveMeter implements MessageProtocol{
     }
 
     /**
-     * Returns the implementation version
-     *
-     * @return a version string
+     * Returns the implementation version date
      */
     public String getVersion() {
         return "$Date$";
