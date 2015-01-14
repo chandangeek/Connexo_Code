@@ -81,7 +81,12 @@ Ext.define('Uni.view.window.Confirmation', {
     show: function (config) {
         if (!Ext.isDefined(config.icon)) {
             Ext.apply(config, {
-                icon: Ext.MessageBox.ERROR
+                icon: 'icon-warning'
+            });
+        }
+        if (!Ext.isDefined(config.closable)) {
+            Ext.apply(config, {
+                closable: true
             });
         }
 
