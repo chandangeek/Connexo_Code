@@ -40,6 +40,7 @@ public class ThesaurusImplTest {
         when(dataModel.isInstalled()).thenReturn(true);
 
         NlsKeyImpl key = new NlsKeyImpl(dataModel).init(COMPONENT, Layer.DOMAIN, "coat");
+        key.setDefaultMessage("coat");
         key.add(Locale.ITALY, "cappotto");
 
         when(queryExecutor.select(any(Condition.class))).thenReturn(Arrays.asList(key));
@@ -65,6 +66,13 @@ public class ThesaurusImplTest {
     @Test
     public void testGetStringNoKey() throws Exception {
         assertThat(thesaurus.getString("noKey", "default")).isEqualTo("default");
+    }
+
+    @Test
+    public void testKeyButNoEntry() throws Exception {
+        when(threadPrincipalService.getLocale()).thenReturn(Locale.ENGLISH);
+        String translation = thesaurus.getString("coat", "WRONG");
+        assertThat(translation).isEqualTo("coat");
     }
 
     @Test
