@@ -22,6 +22,7 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
+                        itemId: 'ctr-no-validation-rule-set',
                         title: Uni.I18n.translate('validation.empty.title', 'CFG', 'No validation rule sets found'),
                         reasons: [
                             Uni.I18n.translate('validation.empty.list.item1', 'CFG', 'No validation rule sets have been added yet.')

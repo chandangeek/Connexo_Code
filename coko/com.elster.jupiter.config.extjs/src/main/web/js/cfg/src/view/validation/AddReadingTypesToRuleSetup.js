@@ -30,8 +30,8 @@ Ext.define('Cfg.view.validation.AddReadingTypesToRuleSetup', {
                     xtype: 'filter-top-panel',
                     itemId: 'filterReadingTypes',
                     margin: '0 0 20 0',
-                    name: 'filter',
-                    emptyText: Uni.I18n.translate('general.none', 'CFG', 'None')
+                    name: 'filter'/*,
+                    emptyText: Uni.I18n.translate('general.none', 'CFG', 'None')*/
                 },
                 {
                     xtype: 'container',
@@ -48,10 +48,12 @@ Ext.define('Cfg.view.validation.AddReadingTypesToRuleSetup', {
 
                             text: Uni.I18n.translate('general.add', 'CFG', 'Add'),
                             name: 'add',
+                            itemId: 'btn-add-reading-types',
                             ui: 'action'
                         },
                         {
                             name: 'cancel',
+                            itemId: 'lnk-cancel-add-reading-types',
                             text: Uni.I18n.translate('general.add', 'CFG', 'Cancel'),
                             ui: 'link'
                         }

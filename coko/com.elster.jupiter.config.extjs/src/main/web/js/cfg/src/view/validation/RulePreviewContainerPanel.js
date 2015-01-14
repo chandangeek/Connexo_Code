@@ -26,6 +26,7 @@ Ext.define('Cfg.view.validation.RulePreviewContainerPanel', {
                 },
                 emptyComponent: {
                     xtype: 'no-items-found-panel',
+                    itemId: 'ctr-no-validation-rule',
                     title: Uni.I18n.translate('validation.empty.rules.title', 'CFG', 'No validation rules found'),
                     reasons: [
                         Uni.I18n.translate('validation.empty.rules.list.item1', 'CFG', 'No validation rules have been added yet.')
