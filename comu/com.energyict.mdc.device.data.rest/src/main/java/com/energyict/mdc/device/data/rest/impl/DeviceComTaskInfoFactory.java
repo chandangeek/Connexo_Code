@@ -6,6 +6,7 @@ import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 
@@ -18,11 +19,13 @@ import java.util.stream.Collectors;
 
 public class DeviceComTaskInfoFactory {
     private final Thesaurus thesaurus;
+    private final TopologyService topologyService;
     private final TaskStatusAdapter taskStatusAdapter = new TaskStatusAdapter();
 
     @Inject
-    public DeviceComTaskInfoFactory(Thesaurus thesaurus) {
+    public DeviceComTaskInfoFactory(Thesaurus thesaurus, TopologyService topologyService) {
         this.thesaurus = thesaurus;
+        this.topologyService = topologyService;
     }
 
     public List<DeviceComTaskInfo> from(List<ComTaskExecution> comTaskExecutions, List<ComTaskEnablement> comTaskEnablements, Device device) {
@@ -150,7 +153,7 @@ public class DeviceComTaskInfoFactory {
             if(comTaskEnablement.getPartialConnectionTask().isPresent()){
                 PartialConnectionTask partialConnectionTask = comTaskEnablement.getPartialConnectionTask().get();
 
-                Optional<ConnectionTask<?, ?>> deviceConnectionTaskOptional = device.getConnectionTasks().stream().filter(connectionTask -> connectionTask.isDefault()).findFirst();
+                Optional<ConnectionTask> deviceConnectionTaskOptional = findDefaultConnectionTaskInCompleteTopology(device);
                 if (deviceConnectionTaskOptional.isPresent()) {
                     deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT.getKey(),MessageSeeds.DEFAULT.getKey()) +
                             " (" + deviceConnectionTaskOptional.get().getName() + ")";
@@ -170,7 +173,7 @@ public class DeviceComTaskInfoFactory {
                 }
 
             } else {
-                Optional<ConnectionTask<?, ?>> deviceConnectionTaskOptional = device.getConnectionTasks().stream().filter(connectionTask -> connectionTask.isDefault()).findFirst();
+                Optional<ConnectionTask> deviceConnectionTaskOptional = findDefaultConnectionTaskInCompleteTopology(device);
                 if(deviceConnectionTaskOptional.isPresent()){
                     deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT.getKey(),MessageSeeds.DEFAULT.getKey()) +
                             " (" + deviceConnectionTaskOptional.get().getName() + ")";
@@ -211,6 +214,10 @@ public class DeviceComTaskInfoFactory {
             deviceComTasksInfo.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
         }
         return deviceComTasksInfo;
+    }
+
+    private Optional<ConnectionTask> findDefaultConnectionTaskInCompleteTopology(Device device) {
+        return this.topologyService.findDefaultConnectionTaskForTopology(device);
     }
 
     private enum ScheduleTypeKey{
