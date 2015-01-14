@@ -168,7 +168,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                     } else {
                         me.dataValidationLastChecked = new Date();
                     }
-                    confirmationWindow.add(me.getValidationContent());
+                    confirmationWindow.insert(1,me.getValidationContent());
                     confirmationWindow.show({
                         title: Uni.I18n.translatePlural('deviceregisterconfiguration.validation.validateNow', record.get('name'), 'MDC', 'Validate data of register {0}?'),
                         msg: ''

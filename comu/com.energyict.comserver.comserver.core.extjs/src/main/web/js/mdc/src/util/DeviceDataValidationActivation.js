@@ -64,7 +64,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                     me.dataValidationLastChecked = new Date();
                 }
                 if (res.hasValidation) {
-                    confirmationWindow.add(me.getActivationConfirmationContent());
+                    confirmationWindow.insert(1,me.getActivationConfirmationContent());
                     confirmationWindow.show({
                         title: Uni.I18n.translatePlural('device.dataValidation.activateConfirmation.title', me.mRID, 'MDC', 'Activate data validation on device {0}?'),
                         msg: ''
