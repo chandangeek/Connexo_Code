@@ -626,7 +626,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         this.post();    // update myself!
     }
 
-    protected void doExecutionStarted(ComPort comPort) {
+    private void doExecutionStarted(ComPort comPort) {
         Instant now = clock.instant();
         this.setExecutionStartedTimestamp(now);
         this.lastExecutionTimestamp = clock.instant();
