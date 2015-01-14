@@ -7286,21 +7286,38 @@ h6 {
   background-image: url("images/grid/defaultItem.png");
 }
 
-/* line 9, ../../sass/src/Component.scss */
+/* line 1, ../../sass/src/grid/ValidationStatusColumn.scss */
+.icon-validation-cell {
+  background-repeat: no-repeat;
+  background-position: 100% 50%;
+  padding: 0px 8px 0 0;
+}
+
+/* line 7, ../../sass/src/grid/ValidationStatusColumn.scss */
+.icon-validation-black {
+  background-image: url("images/shared/Not-validated.png");
+}
+
+/* line 11, ../../sass/src/grid/ValidationStatusColumn.scss */
+.icon-validation-red {
+  background-image: url("images/shared/Suspect.png");
+}
+
+/* line 10, ../../sass/src/Component.scss */
 .uni-icon-delete {
   background-image: url("images/button/ico_delete.png") !important;
   width: 16px !important;
   height: 16px !important;
 }
 
-/* line 15, ../../sass/src/Component.scss */
+/* line 16, ../../sass/src/Component.scss */
 .uni-icon-delete:hover {
   background-image: url("images/button/ico_deleteA.png") !important;
   width: 16px !important;
   height: 16px !important;
 }
 
-/* line 21, ../../sass/src/Component.scss */
+/* line 22, ../../sass/src/Component.scss */
 .force-no-border *[class*='x-grid-'] {
   border: none !important;
 }
@@ -7893,12 +7910,10 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 /* line 11, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-default-medium .x-btn-icon-el {
   font-size: 22px;
-  margin: auto;
 }
-/* line 18, ../../sass/src/button/Icons.scss */
+/* line 17, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-default-large .x-btn-icon-el {
   font-size: 31px;
-  margin: auto;
 }
 
 /* line 4, ../../sass/src/button/Icons.scss */
@@ -7909,12 +7924,10 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 /* line 11, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-action-medium .x-btn-icon-el {
   font-size: 22px;
-  margin: auto;
 }
-/* line 18, ../../sass/src/button/Icons.scss */
+/* line 17, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-action-large .x-btn-icon-el {
   font-size: 31px;
-  margin: auto;
 }
 
 /* line 4, ../../sass/src/button/Icons.scss */
@@ -7925,12 +7938,10 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 /* line 11, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-remove-medium .x-btn-icon-el {
   font-size: 22px;
-  margin: auto;
 }
-/* line 18, ../../sass/src/button/Icons.scss */
+/* line 17, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-remove-large .x-btn-icon-el {
   font-size: 31px;
-  margin: auto;
 }
 
 /* line 4, ../../sass/src/button/Icons.scss */
@@ -7941,27 +7952,25 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 /* line 11, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-link-medium .x-btn-icon-el {
   font-size: 22px;
-  margin: auto;
 }
-/* line 18, ../../sass/src/button/Icons.scss */
+/* line 17, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-link-large .x-btn-icon-el {
   font-size: 31px;
-  margin: auto;
 }
 
-/* line 32, ../../sass/src/button/Icons.scss */
+/* line 30, ../../sass/src/button/Icons.scss */
 .x-btn .x-btn-icon-el {
   color: white;
 }
-/* line 37, ../../sass/src/button/Icons.scss */
+/* line 35, ../../sass/src/button/Icons.scss */
 .x-btn:hover .x-btn-icon-el {
   color: white;
 }
-/* line 45, ../../sass/src/button/Icons.scss */
+/* line 43, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-link-small .x-btn-icon-el, .x-btn.x-btn-link-medium .x-btn-icon-el, .x-btn.x-btn-link-large .x-btn-icon-el {
   color: #686868;
 }
-/* line 50, ../../sass/src/button/Icons.scss */
+/* line 48, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-link-small:hover .x-btn-icon-el, .x-btn.x-btn-link-medium:hover .x-btn-icon-el, .x-btn.x-btn-link-large:hover .x-btn-icon-el {
   color: #75a6bb;
 }
@@ -16790,14 +16799,4 @@ a:hover, a.x-btn:hover {
 .x-nlg .x-btn-action-toolbar-small-menu-active,
 .x-nlg .x-btn-action-toolbar-small-pressed {
   background-image: url(images/btn/btn-action-toolbar-small-pressed-bg.gif);
-}
-
-/* line 699, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-nlg .x-btn-action-toolbar-small-disabled {
-  background-image: url(images/btn/btn-action-toolbar-small-disabled-bg.gif);
-}
-
-/* line 707, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-nbr .x-btn-action-toolbar-small {
-  background-image: none;
 }

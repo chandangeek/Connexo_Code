@@ -1,3 +1,35 @@
+/* line 16, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-filter-outer-border-r {
+  border-right-color: none !important;
+  border-right-width: 0 !important;
+}
+
+/* line 20, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-filter-outer-border-rl {
+  border-right-color: none !important;
+  border-right-width: 0 !important;
+  border-left-color: none !important;
+  border-left-width: 0 !important;
+}
+
+/* line 26, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-filter-outer-border-rb {
+  border-right-color: none !important;
+  border-right-width: 0 !important;
+  border-bottom-color: none !important;
+  border-bottom-width: 0 !important;
+}
+
+/* line 32, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-filter-outer-border-rbl {
+  border-right-color: none !important;
+  border-right-width: 0 !important;
+  border-bottom-color: none !important;
+  border-bottom-width: 0 !important;
+  border-left-color: none !important;
+  border-left-width: 0 !important;
+}
+
 /* line 40, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
 .x-panel-filter-outer-border-t {
   border-top-color: none !important;
@@ -11533,18 +11565,23 @@ div.x-form-spinner-down {
   background-position: center;
 }
 
-/* line 12, ../../sass/src/window/Confirmation.scss */
+/* line 11, ../../sass/src/window/Confirmation.scss */
+.uni-confirmation-window .x-dlg-icon {
+  font-size: 22px;
+  color: #eb5642;
+}
+/* line 17, ../../sass/src/window/Confirmation.scss */
 .uni-confirmation-window *[class*='x-window-'] .x-header-text {
   font-weight: bold;
   font-size: 16px;
   color: #eb5642;
 }
-/* line 18, ../../sass/src/window/Confirmation.scss */
+/* line 23, ../../sass/src/window/Confirmation.scss */
 .uni-confirmation-window *[class*='x-window-'] .x-form-display-field {
   margin-top: 16px;
   color: #686868;
 }
-/* line 23, ../../sass/src/window/Confirmation.scss */
+/* line 28, ../../sass/src/window/Confirmation.scss */
 .uni-confirmation-window *[class*='x-window-'] *[class*='x-message-box-'] {
   background-position: 12px 4px;
 }
