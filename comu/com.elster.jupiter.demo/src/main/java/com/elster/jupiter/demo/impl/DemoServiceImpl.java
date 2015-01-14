@@ -8,7 +8,6 @@ import com.elster.jupiter.demo.impl.factories.DeviceFactory;
 import com.elster.jupiter.demo.impl.factories.DeviceGroupFactory;
 import com.elster.jupiter.demo.impl.factories.DynamicKpiFactory;
 import com.elster.jupiter.demo.impl.factories.InboundComPortPoolFactory;
-import com.elster.jupiter.demo.impl.factories.IssueCommentFactory;
 import com.elster.jupiter.demo.impl.factories.IssueFactory;
 import com.elster.jupiter.demo.impl.factories.IssueRuleFactory;
 import com.elster.jupiter.demo.impl.factories.OutboundTCPComPortFactory;
@@ -69,11 +68,11 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
-import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
@@ -107,12 +106,12 @@ import java.util.Optional;
 @Component(name = "com.elster.jupiter.demo", service = {DemoService.class, DemoServiceImpl.class}, property = {
         "osgi.command.scope=demo",
         "osgi.command.function=createDemoData",
-        "osgi.command.function=createUsers",
+        "osgi.command.function=createUserManagement",
         "osgi.command.function=createIssues",
-        "osgi.command.function=createAppServer",
+        "osgi.command.function=createApplicationServer",
         "osgi.command.function=createA3Device",
         "osgi.command.function=createCollectRemoteDataSetup",
-        "osgi.command.function=createValidationRules"
+        "osgi.command.function=createValidationSetup"
 }, immediate = true)
 public class DemoServiceImpl implements DemoService {
     private final boolean rethrowExceptions;
@@ -144,6 +143,7 @@ public class DemoServiceImpl implements DemoService {
 
     private Store store;
     private Injector injector;
+    private int deviceCounter = 0;
 
     // For OSGi framework
     @SuppressWarnings("unused")
@@ -251,9 +251,9 @@ public class DemoServiceImpl implements DemoService {
             @Override
             protected void doPerform() {
                 createCollectRemoteDataSetupImpl(comServerName, host);
-                createUsersImpl();
-                createValidationRulesImpl();
-                createAppServerImpl(comServerName); // the same name as for comserver
+                createUserManagementImpl();
+                createValidationSetupImpl();
+                createApplicationServerImpl(comServerName); // the same name as for comserver
             }
         });
     }
@@ -269,31 +269,31 @@ public class DemoServiceImpl implements DemoService {
     }
 
     @Override
-    public void createAppServer(final String appServerName){
+    public void createApplicationServer(final String appServerName){
         executeTransaction(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                createAppServerImpl(appServerName);
+                createApplicationServerImpl(appServerName);
             }
         });
     }
 
     @Override
-    public void createUsers(){
+    public void createUserManagement(){
         executeTransaction(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                createUsersImpl();
+                createUserManagementImpl();
             }
         });
     }
 
     @Override
-    public void createValidationRules(){
+    public void createValidationSetup(){
         executeTransaction(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                createValidationRulesImpl();
+                createValidationSetupImpl();
             }
         });
     }
@@ -468,7 +468,7 @@ public class DemoServiceImpl implements DemoService {
     private void createRegisterGroups(Store store) {
         System.out.println("==> Creating Register Groups...");
 
-        com.energyict.mdc.masterdata.RegisterGroup defaultRegisterGroup = masterDataService.newRegisterGroup(Constants.RegisterGroup.DEFAULT_GROUP);
+        RegisterGroup defaultRegisterGroup = masterDataService.newRegisterGroup(Constants.RegisterGroup.DEFAULT_GROUP);
         defaultRegisterGroup.save();
         defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_0_WH));
         defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_0_WH));
@@ -478,19 +478,19 @@ public class DemoServiceImpl implements DemoService {
         defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_2_WH));
         store.getRegisterGroups().put(Constants.RegisterGroup.DEFAULT_GROUP, defaultRegisterGroup);
 
-        com.energyict.mdc.masterdata.RegisterGroup tariff1 = masterDataService.newRegisterGroup(Constants.RegisterGroup.TARIFF_1);
+        RegisterGroup tariff1 = masterDataService.newRegisterGroup(Constants.RegisterGroup.TARIFF_1);
         tariff1.save();
         tariff1.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_1_WH));
         tariff1.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_1_WH));
         store.getRegisterGroups().put(Constants.RegisterGroup.TARIFF_1, tariff1);
 
-        com.energyict.mdc.masterdata.RegisterGroup tariff2 = masterDataService.newRegisterGroup(Constants.RegisterGroup.TARIFF_2);
+        RegisterGroup tariff2 = masterDataService.newRegisterGroup(Constants.RegisterGroup.TARIFF_2);
         tariff2.save();
         tariff2.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_2_WH));
         tariff2.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_2_WH));
         store.getRegisterGroups().put(Constants.RegisterGroup.TARIFF_2, tariff2);
 
-        com.energyict.mdc.masterdata.RegisterGroup deviceDataRegisterGroup = masterDataService.newRegisterGroup(Constants.RegisterGroup.DEVICE_DATA);
+        RegisterGroup deviceDataRegisterGroup = masterDataService.newRegisterGroup(Constants.RegisterGroup.DEVICE_DATA);
         deviceDataRegisterGroup.save();
         deviceDataRegisterGroup.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.ACTIVE_FIRMWARE_VERSION));
         deviceDataRegisterGroup.addRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.AMR_PROFILE_STATUS_CODE));
@@ -516,7 +516,7 @@ public class DemoServiceImpl implements DemoService {
 
         ComTask readAll = taskService.newComTask(Constants.CommunicationTask.READ_ALL);
         readAll.createLoadProfilesTask().loadProfileTypes(new ArrayList<>(store.getLoadProfileTypes().values())).add();
-        com.energyict.mdc.masterdata.RegisterGroup[] registerGroupsForReadAll = {store.getRegisterGroups().get(Constants.RegisterGroup.DEFAULT_GROUP), store.getRegisterGroups().get(Constants.RegisterGroup.DEVICE_DATA)};
+        RegisterGroup[] registerGroupsForReadAll = {store.getRegisterGroups().get(Constants.RegisterGroup.DEFAULT_GROUP), store.getRegisterGroups().get(Constants.RegisterGroup.DEVICE_DATA)};
         readAll.createRegistersTask().registerGroups(Arrays.asList(registerGroupsForReadAll)).add();
         readAll.createLogbooksTask().logBookTypes(new ArrayList<>(store.getLogBookTypes().values())).add();
         readAll.save();
@@ -534,7 +534,7 @@ public class DemoServiceImpl implements DemoService {
         LoadProfileType[] loadProfileTypesForReadDayly = {store.getLoadProfileTypes().get(Constants.LoadProfileType.DAILY_ELECTRICITY), store.getLoadProfileTypes().get(Constants.LoadProfileType._15_MIN_ELECTRICITY)};
         readDaily.createLoadProfilesTask().loadProfileTypes(Arrays.asList(loadProfileTypesForReadDayly)).add();
         readDaily.createLogbooksTask().logBookTypes(Collections.singletonList(store.getLogBookTypes().get(Constants.LogBookType.DEFAULT_LOGBOOK))).add();
-        com.energyict.mdc.masterdata.RegisterGroup[] registerGroupsForReadDayly = {store.getRegisterGroups().get(Constants.RegisterGroup.TARIFF_1), store.getRegisterGroups().get(Constants.RegisterGroup.TARIFF_2)};
+        RegisterGroup[] registerGroupsForReadDayly = {store.getRegisterGroups().get(Constants.RegisterGroup.TARIFF_1), store.getRegisterGroups().get(Constants.RegisterGroup.TARIFF_2)};
         readDaily.createRegistersTask().registerGroups(Arrays.asList(registerGroupsForReadDayly)).add();
         readDaily.save();
         store.getComTasks().put(Constants.CommunicationTask.READ_DAILY, readDaily);
@@ -545,7 +545,7 @@ public class DemoServiceImpl implements DemoService {
         store.getComTasks().put(Constants.CommunicationTask.TOPOLOGY, topology);
 
         ComTask readRegisterData = taskService.newComTask(Constants.CommunicationTask.READ_REGISTER_BILLING_DATA);
-        List<com.energyict.mdc.masterdata.RegisterGroup> regGroupsToComTask = new ArrayList<>(2);
+        List<RegisterGroup> regGroupsToComTask = new ArrayList<>(2);
         regGroupsToComTask.add(store.getRegisterGroups().get(Constants.RegisterGroup.TARIFF_1));
         regGroupsToComTask.add(store.getRegisterGroups().get(Constants.RegisterGroup.TARIFF_2));
         readRegisterData.createRegistersTask().registerGroups(regGroupsToComTask).add();
@@ -609,13 +609,12 @@ public class DemoServiceImpl implements DemoService {
         deviceType.addLogBookType(store.getLogBookTypes().get(Constants.LogBookType.POWER_FAILURES));
         deviceType.save();
 
-        createSimpleDeviceConfiguration(store, deviceType);
-        createExtendedDeviceConfiguration(store, deviceType);
+        createDeviceConfiguration(store, deviceType);
     }
 
-    private void createExtendedDeviceConfiguration(Store store, DeviceType deviceType) {
-        System.out.println("==> Creating Extended Device Configuration...");
-        DeviceType.DeviceConfigurationBuilder configBuilder = deviceType.newConfiguration(Constants.DeviceConfiguration.EXTENDED_CONFIG);
+    private void createDeviceConfiguration(Store store, DeviceType deviceType) {
+        System.out.println("==> Creating Default Device Configuration...");
+        DeviceType.DeviceConfigurationBuilder configBuilder = deviceType.newConfiguration(Constants.DeviceConfiguration.DEFAULT);
         configBuilder.description("A complex configuration that is closely matched to the DSMR 2.3 Devices");
         configBuilder.canActAsGateway(true);
         configBuilder.gatewayType(GatewayType.HOME_AREA_NETWORK);
@@ -683,32 +682,6 @@ public class DemoServiceImpl implements DemoService {
                 .setNumberOfFractionDigits(0);
     }
 
-    private void createSimpleDeviceConfiguration(Store store, DeviceType deviceType) {
-        System.out.println("==> Creating Simple Device Configuration...");
-        DeviceType.DeviceConfigurationBuilder configBuilder = deviceType.newConfiguration("Default");
-        configBuilder.description("A simple device configuration which contains one LoadProfile and a minimal set of Registers.");
-        configBuilder.canActAsGateway(true);
-        configBuilder.gatewayType(GatewayType.HOME_AREA_NETWORK);
-        configBuilder.isDirectlyAddressable(true);
-        addRegisterSpecsToDeviceConfiguration(configBuilder, store,
-                Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_0_WH, Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_0_WH,
-                Constants.RegisterTypes.ALARM_REGISTER, Constants.RegisterTypes.AMR_PROFILE_STATUS_CODE);
-        configBuilder.newTextualRegisterSpec(store.getRegisterTypes().get(Constants.RegisterTypes.ACTIVE_FIRMWARE_VERSION));
-        configBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(Constants.LoadProfileType._15_MIN_ELECTRICITY));
-        configBuilder.newLogBookSpec(store.getLogBookTypes().get(Constants.LogBookType.DEFAULT_LOGBOOK));
-        DeviceConfiguration configuration = configBuilder.add();
-
-        addConnectionMethodToDeviceConfiguration(store, configuration);
-
-        createSecurityPropertySetForDeviceConfiguration(configuration);
-        setProtocolDialectConfigurationProperties(configuration);
-        enableComTasksOnDeviceConfiguration(configuration, Constants.CommunicationTask.READ_ALL, Constants.CommunicationTask.READ_DAILY, Constants.CommunicationTask.READ_REGISTER_BILLING_DATA);
-        configureChannelsForLoadProfileSpec(configuration);
-        configuration.activate();
-        configuration.save();
-        createDevicesForDeviceConfiguration(store, configuration);
-    }
-
     private SecurityPropertySet createSecurityPropertySetForDeviceConfiguration(DeviceConfiguration configuration) {
         SecurityPropertySet securityPropertySet = configuration.createSecurityPropertySet("No security").authenticationLevel(0).encryptionLevel(0).build();
         securityPropertySet.update();
@@ -736,16 +709,16 @@ public class DemoServiceImpl implements DemoService {
 
     private void createDevicesForDeviceConfiguration(Store store, DeviceConfiguration configuration){
         System.out.println("==> Creating Devices for Configuration...");
-        for (int i = 1; i < 9; i++) {
-            // 8 devices for each configuration
-            String serialNumber = String.format("%04d", configuration.getId()) + String.format("%04d", i);
+        String deviceTypeName = configuration.getDeviceType().getName();
+        for (int i = 1; i <= Constants.DeviceType.from(deviceTypeName).get().getDeviceCount(); i++) {
+            deviceCounter++;
+            String serialNumber = "01000001" + String.format("%04d", deviceCounter);
             String mrid = Constants.Device.STANDARD_PREFIX +  serialNumber;
             createDevice(store, configuration, mrid, serialNumber);
         }
-        if (Constants.DeviceType.Landis_Gyr_ZMD.getName().equals(configuration.getDeviceType().getName())
-                && Constants.DeviceConfiguration.EXTENDED_CONFIG.equals(configuration.getName())){
-            createDevice(store, configuration, Constants.Device.DABF_12, "410005812");
-            createDevice(store, configuration, Constants.Device.DABF_13, "410005813");
+        if (Constants.DeviceType.Landis_Gyr_ZMD.getName().equals(deviceTypeName)){
+            String serialNumber = "010000010001";
+            createDevice(store, configuration, Constants.Device.MOCKED_VALIDATION_DEVICE + serialNumber, serialNumber);
         }
     }
 
@@ -784,36 +757,11 @@ public class DemoServiceImpl implements DemoService {
             IssueFactory issueGenerator = injector.getInstance(IssueFactory.class);
             if (device.getmRID().startsWith(Constants.Device.STANDARD_PREFIX)){
                 issueGenerator.withDevice(device).withAssignee(device.getId() % 7 == 0 ? Constants.User.SAM : null).get();
-            } else if (device.getmRID().equals(Constants.Device.DABF_12)) {
-                issueGenerator.withDevice(device)
-                        .withDueDate(Instant.now().plus(12, ChronoUnit.DAYS))
-                        .withIssueReason(Constants.IssueReason.CONNECTION_FAILED)
-                        .withAssignee(Constants.User.SAM)
-                        .get();
-
-                store.getLast(IssueDataCollection.class).ifPresent(
-                        i -> injector.getInstance(IssueCommentFactory.class)
-                                .withIssue(i)
-                                .withUser(Constants.User.SAM)
-                                .withComment("System check: Missing data occurred on this channel: <a href=index.html#/devices/" + Constants.Device.DABF_12 + "/channels/" + device.getChannels().get(0).getId() + "/table?filter=%7B%22intervalStart%22%3A%222014-12-18T13%3A00%3A00%22%2C%22duration%22%3A%222weeks%22%2C%22onlySuspect%22%3Atrue%2C%22onlyNonSuspect%22%3Afalse%7D>Bulk A+ all phases (Wh)</a>")
-                                .get());
-            } else if (device.getmRID().equals(Constants.Device.DABF_13)){
-                issueGenerator.withDevice(device)
-                        .withDueDate(Instant.now().plus(10, ChronoUnit.DAYS))
-                        .withIssueReason(Constants.IssueReason.COMMUNICATION_FAILED)
-                        .withAssignee(Constants.User.SAM)
-                        .get();
-                store.getLast(IssueDataCollection.class).ifPresent(
-                        i -> injector.getInstance(IssueCommentFactory.class)
-                                .withIssue(i)
-                                .withUser(Constants.User.SAM)
-                                .withComment("System check: Peak detected on this channel: <a href=index.html#/devices/" + Constants.Device.DABF_13 + "/channels/"+ device.getChannels().get(0).getId() + "/graph?filter=%7B%22intervalStart%22%3A%222014-07-30T20%3A00%3A00%22%2C%22duration%22%3A%222weeks%22%2C%22onlySuspect%22%3Afalse%2C%22onlyNonSuspect%22%3Afalse%2C%22id%22%3Anull%7D>Bulk A+ all phases (Wh)</a>")
-                                .get());
             }
         }
     }
 
-    public void createUsersImpl(){
+    public void createUserManagementImpl(){
         injector.getInstance(UserFactory.class).withName(Constants.User.MELISSA).withRoles(Constants.UserRoles.METER_EXPERT).get();
         injector.getInstance(UserFactory.class).withName(Constants.User.SAM).withLanguage(Locale.US.toLanguageTag()).withRoles(Constants.UserRoles.ADMINISTRATORS).get();
         injector.getInstance(UserFactory.class).withName(Constants.User.PIETER).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
@@ -826,7 +774,7 @@ public class DemoServiceImpl implements DemoService {
         injector.getInstance(UserFactory.class).withName(Constants.User.EDUARDO).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
     }
 
-    public void createValidationRulesImpl(){
+    public void createValidationSetupImpl(){
         System.out.println("==> Creating validation rules");
         if (validationService.getValidationRuleSet(Constants.Validation.DETECT_MISSING_VALUES).isPresent()){
             System.out.println("==> Validation rule set " + Constants.Validation.DETECT_MISSING_VALUES + " already exists, skip step.");
@@ -864,7 +812,7 @@ public class DemoServiceImpl implements DemoService {
 
     }
 
-    public void createAppServerImpl(final String appServerName){
+    public void createApplicationServerImpl(final String appServerName){
         injector.getInstance(AppServerFactory.class).withName(appServerName).get();
     }
 

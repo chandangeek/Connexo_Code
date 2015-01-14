@@ -59,7 +59,7 @@ public class DeviceFactory implements Factory<Device> {
         Log.write(this);
         Device device = deviceService.newDevice(deviceConfiguration, mrid, mrid);
         device.setSerialNumber(serialNumber);
-        device.setYearOfCertification(LocalDateTime.of(2014, 1, 1, 0, 0).toInstant(ZoneOffset.UTC));
+        device.setYearOfCertification(LocalDateTime.of(2013, 1, 1, 0, 0).toInstant(ZoneOffset.UTC));
         if (comSchedules != null) {
             for (String comSchedule : comSchedules) {
                 device.newScheduledComTaskExecution(scheduleFinderProvider.get().withName(comSchedule).find()).add();

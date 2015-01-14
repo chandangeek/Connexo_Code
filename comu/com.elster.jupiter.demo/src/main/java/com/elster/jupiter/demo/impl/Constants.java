@@ -1,5 +1,7 @@
 package com.elster.jupiter.demo.impl;
 
+import java.util.Optional;
+
 public final class Constants {
     private Constants() {}
 
@@ -109,9 +111,8 @@ public final class Constants {
     }
 
     public static final class Device{
-        public static final String STANDARD_PREFIX = "ZABF0100";
-        public static final String DABF_12 = "DABF410005812";
-        public static final String DABF_13 = "DABF410005813";
+        public static final String STANDARD_PREFIX = "SPE";
+        public static final String MOCKED_VALIDATION_DEVICE = "DME";
         public static final String A3WIC16499990 = "A3WIC16499990";
 
         private Device() {}
@@ -124,7 +125,7 @@ public final class Constants {
     }
 
     public static final class DeviceConfiguration{
-        public static final String EXTENDED_CONFIG = "Extended Config";
+        public static final String DEFAULT = "Default";
 
         private DeviceConfiguration() {}
     }
@@ -154,23 +155,38 @@ public final class Constants {
     }
 
     public static enum DeviceType {
-        Elster_AS1440 ("Elster AS1440"),
-        Elster_AS3000 ("Elster AS3000"),
-        Landis_Gyr_ZMD ("Landis+Gyr ZMD"),
-        Actaris_SL7000 ("Actaris SL7000"),
-        Siemens_7ED ("Siemens 7ED"),
-        Iskra_38 ("Iskra 382"),
-        Alpha_A3 ("ALPHA_A3"),
+        Elster_AS1440 ("Elster AS1440", 245),
+        Elster_AS3000 ("Elster AS3000", 352),
+        Landis_Gyr_ZMD ("Landis+Gyr ZMD", 73),
+        Actaris_SL7000 ("Actaris SL7000", 110),
+        Siemens_7ED ("Siemens 7ED", 96),
+        Iskra_38 ("Iskra 382", 84),
+        Alpha_A3 ("ALPHA_A3", 1),
         ;
 
         private String name;
+        private int deviceCount;
 
-        private DeviceType(String name) {
+        private DeviceType(String name, int deviceCount) {
+            this.deviceCount = deviceCount;
             this.name = name;
         }
 
         public String getName(){
             return this.name;
+        }
+
+        public int getDeviceCount() {
+            return deviceCount;
+        }
+
+        public static Optional<DeviceType> from(String name){
+            for (DeviceType deviceType : DeviceType.values()) {
+                if (deviceType.getName().equals(name)){
+                    return Optional.of(deviceType);
+                }
+            }
+            return Optional.empty();
         }
     }
 

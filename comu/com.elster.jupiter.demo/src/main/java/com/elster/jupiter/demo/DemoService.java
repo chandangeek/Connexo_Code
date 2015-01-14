@@ -2,10 +2,10 @@ package com.elster.jupiter.demo;
 
 public interface DemoService {
     void createDemoData(String comServerName, String host);
-    void createAppServer(String appServerName);
-    void createUsers();
+    void createApplicationServer(String appServerName);
+    void createUserManagement();
     void createIssues();
     void createA3Device();
-    void createValidationRules();
+    void createValidationSetup();
     void createCollectRemoteDataSetup(String comServerName, String host);
 }
