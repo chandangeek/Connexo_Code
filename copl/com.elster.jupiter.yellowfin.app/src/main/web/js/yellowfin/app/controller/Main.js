@@ -5,7 +5,7 @@ Ext.define('YellowfinApp.controller.Main', {
     extend: 'Uni.controller.AppController',
     applicationTitle: 'Connexo Facts',
     privileges: [],
-    defaultToken:"#/error/launch",
+    defaultToken:"/error/launch",
     controllers: [
         'Yfn.controller.YellowfinReportsController',
         'Yfn.controller.history.YellowfinReports'],
