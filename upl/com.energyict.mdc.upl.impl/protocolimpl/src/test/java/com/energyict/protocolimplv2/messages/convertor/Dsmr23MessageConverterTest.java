@@ -26,7 +26,18 @@ import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadProfileMessage;
+import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
+import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
 import org.junit.Before;
 import org.junit.Test;
@@ -214,7 +225,7 @@ public class Dsmr23MessageConverterTest {
         when(authenticationAttribute.getName()).thenReturn(authenticationLevelAttributeName);
 
         // business method
-        final String noAuthentication = dsmr23MessageConverter.format(authenticationAttribute, "No authentiction");
+        final String noAuthentication = dsmr23MessageConverter.format(authenticationAttribute, "No authentication");
         final String lowLevelAuthentication = dsmr23MessageConverter.format(authenticationAttribute, "Low level authentication");
         final String manufacturerAuthentication = dsmr23MessageConverter.format(authenticationAttribute, "Manufacturer specific");
         final String highLevelMd5 = dsmr23MessageConverter.format(authenticationAttribute, "High level authentication - MD5");
