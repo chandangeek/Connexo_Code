@@ -270,9 +270,9 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     Ext.iterate(record.get('channelData'), function (key, value) {
                         if (channelDataArrays[key]) {
                             if (value) {
-                                channelDataArrays[key].unshift([record.get('interval').end, parseFloat(value)]);
+                                channelDataArrays[key].unshift([record.get('interval').start, parseFloat(value)]);
                             } else {
-                                channelDataArrays[key].unshift([record.get('interval').end, null]);
+                                channelDataArrays[key].unshift([record.get('interval').start, null]);
                             }
                         }
                     });

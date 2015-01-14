@@ -26,7 +26,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
         this.control({
             '#deviceDataValidationRulesSetGrid': {
                 afterrender: this.onRulesSetGridAfterRender,
-                itemclick: this.onRulesSetGridItemClick,
+                //itemclick: this.onRulesSetGridItemClick,
                 selectionchange: this.onRulesSetGridSelectionChange
             },
             '#deviceDataValidationRulesGrid': {
@@ -90,8 +90,13 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                 height: 750
             });
         this.getRulesSetPreviewCt().add(rulesSetPreview);
+        var menuItem = this.getChangeRuleSetStateActionMenuItem();
+        menuItem.setText(validationRuleSet.get('isActive') ?
+            Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
+            Uni.I18n.translate('general.activate', 'MDC', 'Activate'))
     },
-    onRulesSetGridItemClick: function (gridView, record, el, idx, e) {
+
+    /*onRulesSetGridItemClick: function (gridView, record, el, idx, e) {
         var target = e.getTarget(null, null, true);
         if (target.hasCls('x-action-col-icon')) {
             var menuItem = this.getChangeRuleSetStateActionMenuItem();
@@ -99,7 +104,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                 Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
                 Uni.I18n.translate('general.activate', 'MDC', 'Activate'))
         }
-    },
+    },*/
     onRulesGridAfterRender: function (grid) {
         var ruleSetId = this.getRulesSetGrid().getSelectionModel().getLastSelected().get('id');
         grid.store.load({
@@ -141,7 +146,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
 
         rulePreview.down('#readingTypesArea').removeAll();
         for (var i = 0; i < readingTypes.length; i++) {
-            var fieldlabel = i > 0 ? '&nbsp' : Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading type(s)'),
+            var fieldlabel = i > 0 ? '&nbsp' : Uni.I18n.translate('general.readingTypes', 'MDC', 'Reading types'),
                 readingType = readingTypes[i];
 
             rulePreview.down('#readingTypesArea').add(

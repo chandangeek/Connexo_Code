@@ -260,8 +260,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             router = me.getController('Uni.controller.history.Router');
 
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('deviceconfiguration.deleteDeviceConfiguration', 'MDC', 'The device configuration will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + deviceConfigurationToDelete.get('name') + '?',
+            msg: Uni.I18n.translate('deviceconfiguration.removeDeviceConfiguration', 'MDC', 'This device configuration will no longer be available.'),
+            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + " '" + deviceConfigurationToDelete.get('name') + "'?",
             config: {
                 registerConfigurationToDelete: deviceConfigurationToDelete,
                 me: me
@@ -422,12 +422,16 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             record.set(values);
             if (!record.get('canBeGateway')) {
                 record.set('gatewayType', 'NONE')
-            };
+            }
             record.getProxy().setExtraParam('deviceType', this.deviceTypeId);
             record.save({
                 success: function (record) {
                     router.getRoute('administration/devicetypes/view/deviceconfigurations').forward();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.acknowledgment.saved', 'MDC', 'Device configuration saved'));
+                    if (btn.action === 'createDeviceConfiguration') {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.acknowledgment.added', 'MDC', 'Device configuration added'));
+                    } else {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.acknowledgment.saved', 'MDC', 'Device configuration saved'));
+                    }
                     editForm.setLoading(false);
                 },
                 failure: function (record, operation) {
@@ -487,7 +491,11 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         var me = this,
             model = Ext.ModelManager.getModel('Mdc.model.DeviceType'),
             deviceConfigModel = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration'),
-            store = Ext.data.StoreManager.lookup('LogbookConfigurations');
+            store = Ext.data.StoreManager.lookup('LogbookConfigurations'),
+            widget = Ext.widget('add-logbook-configurations', {
+                deviceTypeId: deviceTypeId,
+                deviceConfigurationId: deviceConfigurationId
+            });
         store.getProxy().setExtraParam('deviceType', deviceTypeId);
         store.getProxy().setExtraParam('available', true);
         store.getProxy().setExtraParam('deviceConfiguration', deviceConfigurationId);
@@ -495,12 +503,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         store.load(
             {
                 callback: function () {
-                    var self = this,
-                        widget = Ext.widget('add-logbook-configurations', {
-                            deviceTypeId: deviceTypeId,
-                            deviceConfigurationId: deviceConfigurationId
-                        });
                     me.getApplication().fireEvent('changecontentevent', widget);
+                    if (!this.getCount()) { widget.down('button[action=add]').disable(); }
                     widget.setLoading(true);
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
@@ -513,13 +517,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             });
                         }
                     });
-                    var numberOfLogbooksLabel = Ext.ComponentQuery.query('add-logbook-configurations toolbar #LogBookCount')[0],
+                    var numberOfLogbooksLabel = Ext.ComponentQuery.query('add-logbook-configurations #logbook-count')[0],
                         grid = Ext.ComponentQuery.query('add-logbook-configurations grid')[0];
-                    numberOfLogbooksLabel.setText('No logbooks selected');
-                    if (self.getCount() < 1) {
-                        grid.hide();
-                        grid.next().show();
-                    }
+                    numberOfLogbooksLabel.setText(Uni.I18n.translate('logbookConfiguration.noSelected', 'MDC', 'No logbook configurations selected'));
                 }
             }
         );
