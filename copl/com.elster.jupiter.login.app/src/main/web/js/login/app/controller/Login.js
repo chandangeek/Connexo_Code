@@ -43,7 +43,7 @@ Ext.define('Login.controller.Login', {
         var params = Ext.urlDecode(location.search.substring(1));
         if (typeof params.expired !== 'undefined') {
             var error = this.getLoginForm().down('#errorLabel');
-            error.setValue('Session expired.');
+            error.setValue('Your session has expired.');
             error.show();
         }
     },
