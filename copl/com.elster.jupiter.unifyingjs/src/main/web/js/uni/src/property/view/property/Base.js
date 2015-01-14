@@ -19,7 +19,6 @@ Ext.define('Uni.property.view.property.Base', {
     ],
 
     width: 320,
-//    resetButtonHidden: false,
     translationKey: 'UNI',
 
     layout: 'hbox',
@@ -117,10 +116,14 @@ Ext.define('Uni.property.view.property.Base', {
 
         if (this.isEdit) {
             if(!this.getProperty().get('isInheritedOrDefaultValue')){
-                button.setTooltip(
-                        Uni.I18n.translate('general.restoreDefaultValue', this.translationKey, 'Restore to default value')
-                        + ' &quot; ' + this.getProperty().get('default') + '&quot;'
-                );
+                if (!this.getProperty().get('default')) {
+                    button.setTooltip(Uni.I18n.translate('general.clearAll', 'UNI', 'Clear all'));
+                } else {
+                    button.setTooltip(
+                            Uni.I18n.translate('general.restoreDefaultValue', this.translationKey, 'Restore to default value')
+                            + ' &quot; ' + this.getProperty().get('default') + '&quot;'
+                    );
+                }
 
                 button.setDisabled(false);
             } else {
@@ -130,6 +133,7 @@ Ext.define('Uni.property.view.property.Base', {
         } else {
             button.setVisible(false);
         }
+        
         this.fireEvent('checkRestoreAll', this);
     },
 

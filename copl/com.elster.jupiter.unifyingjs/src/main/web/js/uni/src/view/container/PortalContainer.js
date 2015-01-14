@@ -39,6 +39,7 @@ Ext.define('Uni.view.container.PortalContainer', {
             title = model.get('title'),
             items = model.get('items'),
             itemId = model.get('itemId'),
+            afterrender = model.get('afterrender'),
             widget;
 
         itemId = (Ext.isString(itemId) && itemId.length) ? itemId : undefined;
@@ -52,6 +53,7 @@ Ext.define('Uni.view.container.PortalContainer', {
             itemId:itemId,
             columnWidth: 1 / me.columnCount,
             height: 256,
+            overflowY:true,
             items: [
                 {
                     xtype: 'menu',
@@ -63,10 +65,16 @@ Ext.define('Uni.view.container.PortalContainer', {
             refresh : function (items) {
                 var me = this;
                 var menu = me.down('menu');
-                menu.removeAll();
-                menu.add(items);
+                if(menu) {
+                    menu.removeAll();
+                    menu.add(items);
+                }
             }
         });
+
+        if(afterrender){
+            widget.on('afterrender',afterrender );
+        }
 
         return widget;
     }

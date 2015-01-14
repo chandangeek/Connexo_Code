@@ -125,7 +125,7 @@ Ext.define('Uni.controller.history.Router', {
 
     getQueryString: function () {
         var token = Ext.util.History.getToken() || document.location.href.split('?')[1],
-            queryStringIndex = token.indexOf('?');
+            queryStringIndex = token?token.indexOf('?'):-1;
         return queryStringIndex < 0 ? '' : token.substring(queryStringIndex + 1);
     },
 
@@ -219,7 +219,6 @@ Ext.define('Uni.controller.history.Router', {
                 );
 
                 var routeArguments = _.values(_.extend(me.arguments, params));
-
                 if (Ext.isDefined(config.redirect)) {
                     // perform redirect on route match
                     if (Ext.isObject(config.redirect)) {
@@ -235,6 +234,10 @@ Ext.define('Uni.controller.history.Router', {
                     var controller = me.getController(config.controller);
 
                     var dispatch = function () {
+                        if (Ext.isArray(config.privileges) && !Uni.Auth.hasAnyPrivilege(config.privileges)) {
+                            crossroads.parse("/error/notfound");
+                            return;
+                        }
                         me.fireEvent('routematch', me);
                         controller[action].apply(controller, routeArguments);
                     };
@@ -257,9 +260,6 @@ Ext.define('Uni.controller.history.Router', {
         // handle child items
         if (config.items) {
             _.each(config.items, function (item, itemKey) {
-                if (Ext.isArray(item.privileges) && !Uni.Auth.hasAnyPrivilege(item.privileges)) {
-                    return;
-                }
 
                 var path = key + '/' + itemKey;
                 me.initRoute(path, item, route);
