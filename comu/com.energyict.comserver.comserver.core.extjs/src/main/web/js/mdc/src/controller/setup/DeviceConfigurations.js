@@ -480,7 +480,11 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         var me = this,
             model = Ext.ModelManager.getModel('Mdc.model.DeviceType'),
             deviceConfigModel = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration'),
-            store = Ext.data.StoreManager.lookup('LogbookConfigurations');
+            store = Ext.data.StoreManager.lookup('LogbookConfigurations'),
+            widget = Ext.widget('add-logbook-configurations', {
+                deviceTypeId: deviceTypeId,
+                deviceConfigurationId: deviceConfigurationId
+            });
         store.getProxy().setExtraParam('deviceType', deviceTypeId);
         store.getProxy().setExtraParam('available', true);
         store.getProxy().setExtraParam('deviceConfiguration', deviceConfigurationId);
@@ -488,12 +492,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         store.load(
             {
                 callback: function () {
-                    var self = this,
-                        widget = Ext.widget('add-logbook-configurations', {
-                            deviceTypeId: deviceTypeId,
-                            deviceConfigurationId: deviceConfigurationId
-                        });
                     me.getApplication().fireEvent('changecontentevent', widget);
+                    if (!this.getCount()) { widget.down('button[action=add]').disable(); }
                     widget.setLoading(true);
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
@@ -506,13 +506,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             });
                         }
                     });
-                    var numberOfLogbooksLabel = Ext.ComponentQuery.query('add-logbook-configurations toolbar #LogBookCount')[0],
+                    var numberOfLogbooksLabel = Ext.ComponentQuery.query('add-logbook-configurations #logbook-count')[0],
                         grid = Ext.ComponentQuery.query('add-logbook-configurations grid')[0];
-                    numberOfLogbooksLabel.setText('No logbooks selected');
-                    if (self.getCount() < 1) {
-                        grid.hide();
-                        grid.next().show();
-                    }
+                    numberOfLogbooksLabel.setText(Uni.I18n.translate('logbookConfiguration.noSelected', 'MDC', 'No logbook configurations selected'));
                 }
             }
         );

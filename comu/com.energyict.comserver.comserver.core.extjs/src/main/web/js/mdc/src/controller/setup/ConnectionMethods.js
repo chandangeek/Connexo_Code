@@ -18,7 +18,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         'ConnectionMethodsOfDeviceConfiguration',
         'ConnectionTypes',
         'ConnectionStrategies',
-        'TimeUnits'
+        'TimeUnits',
+        'ComPortPools'
     ],
 
     refs: [
