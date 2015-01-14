@@ -65,7 +65,7 @@ public class DeviceIdentifierByPropertyValue implements DeviceIdentifier, FindMu
 
     @Override
     public String toString() {
-        return "device with property '" + this.propertyName + "' and value '" + this.propertyValue + "'";
+        return "a device with property '" + this.propertyName + "' and value '" + this.propertyValue + "'";
     }
 
     @XmlElement(name = "type")
