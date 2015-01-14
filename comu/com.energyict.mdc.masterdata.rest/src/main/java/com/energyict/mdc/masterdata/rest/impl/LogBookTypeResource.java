@@ -1,6 +1,5 @@
 package com.energyict.mdc.masterdata.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -9,7 +8,10 @@ import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.LogBookTypeInfo;
-
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -24,23 +26,17 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 @Path("/logbooktypes")
 public class LogBookTypeResource {
 
     private final MasterDataService masterDataService;
     private final DeviceConfigurationService deviceConfigurationService;
-    private final Thesaurus thesaurus;
 
     @Inject
-    public LogBookTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus) {
+    public LogBookTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService) {
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
-        this.thesaurus = thesaurus;
     }
 
     @GET
