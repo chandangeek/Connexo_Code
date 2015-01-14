@@ -358,7 +358,7 @@ Ext.define('Idc.controller.BulkChangeIssues', {
     },
 
     onWizardCancelledEvent: function (wizard) {
-        window.location.href = '#/workspace/datacollection/issues/'
+        this.getController('Uni.controller.history.Router').getRoute('workspace/datacollectionissues').forward();
     },
 
     setBulkActionListActiveItem: function (wizard) {
