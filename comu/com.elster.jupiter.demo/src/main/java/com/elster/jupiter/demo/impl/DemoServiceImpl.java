@@ -63,7 +63,6 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.ComServer;
@@ -77,7 +76,6 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -100,6 +98,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -112,7 +111,6 @@ import java.util.Optional;
         "osgi.command.function=createIssues",
         "osgi.command.function=createAppServer",
         "osgi.command.function=createA3Device",
-        "osgi.command.function=dd",
         "osgi.command.function=createCollectRemoteDataSetup",
         "osgi.command.function=createValidationRules"
 }, immediate = true)
@@ -435,31 +433,34 @@ public class DemoServiceImpl implements DemoService {
 
     private void createLoadProfiles(Store store) {
         System.out.println("==> Creating Load Profiles Types...");
-        LoadProfileType dailyElectrisity = createLoadProfile(Constants.LoadProfileType.DAILY_ELECTRICITY, "1.0.99.2.0.255", new TimeDuration(1, TimeDuration.TimeUnit.DAYS));
-        dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_1_WH));
-        dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_2_WH));
-        dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_1_WH));
-        dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_2_WH));
-        dailyElectrisity.save();
+        RegisterType[] dailyRegisterTypes = {
+                store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_1_WH),
+                store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_2_WH),
+                store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_1_WH),
+                store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_2_WH)
+        };
+        LoadProfileType dailyElectrisity = createLoadProfile(Constants.LoadProfileType.DAILY_ELECTRICITY, "1.0.99.2.0.255", new TimeDuration(1, TimeDuration.TimeUnit.DAYS), Arrays.asList(dailyRegisterTypes));
         store.getLoadProfileTypes().put(Constants.LoadProfileType.DAILY_ELECTRICITY, dailyElectrisity);
 
-        LoadProfileType monthlyElectricity = createLoadProfile(Constants.LoadProfileType.MONTHLY_ELECTRICITY, "0.0.98.1.0.255", new TimeDuration(1, TimeDuration.TimeUnit.MONTHS));
-        monthlyElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_1_WH));
-        monthlyElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_2_WH));
-        monthlyElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_1_WH));
-        monthlyElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_2_WH));
-        monthlyElectricity.save();
+        RegisterType[] monthlyRegisterTypes = {
+                store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_1_WH),
+                store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_2_WH),
+                store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_1_WH),
+                store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_2_WH)
+        };
+        LoadProfileType monthlyElectricity = createLoadProfile(Constants.LoadProfileType.MONTHLY_ELECTRICITY, "0.0.98.1.0.255", new TimeDuration(1, TimeDuration.TimeUnit.MONTHS), Arrays.asList(monthlyRegisterTypes));
         store.getLoadProfileTypes().put(Constants.LoadProfileType.MONTHLY_ELECTRICITY, monthlyElectricity);
 
-        LoadProfileType _15minElectricity = createLoadProfile(Constants.LoadProfileType._15_MIN_ELECTRICITY, "1.0.99.1.0.255", new TimeDuration(15, TimeDuration.TimeUnit.MINUTES));
-        _15minElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_0_WH));
-        _15minElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_0_WH));
-        _15minElectricity.save();
+        RegisterType[] _15minRegisterTypes = {
+                store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_FORWARD_ALL_PHASES_TOU_0_WH),
+                store.getRegisterTypes().get(Constants.RegisterTypes.BULK_A_REVERSE_ALL_PHASES_TOU_0_WH)
+        };
+        LoadProfileType _15minElectricity = createLoadProfile(Constants.LoadProfileType._15_MIN_ELECTRICITY, "1.0.99.1.0.255", new TimeDuration(15, TimeDuration.TimeUnit.MINUTES), Arrays.asList(_15minRegisterTypes));
         store.getLoadProfileTypes().put(Constants.LoadProfileType._15_MIN_ELECTRICITY, _15minElectricity);
     }
 
-    private LoadProfileType createLoadProfile(String name, String obisCode, TimeDuration duartion) {
-        LoadProfileType loadProfileType = masterDataService.newLoadProfileType(name, ObisCode.fromString(obisCode), duartion);
+    private LoadProfileType createLoadProfile(String name, String obisCode, TimeDuration duartion, Collection<RegisterType> registerTypes) {
+        LoadProfileType loadProfileType = masterDataService.newLoadProfileType(name, ObisCode.fromString(obisCode), duartion, registerTypes);
         loadProfileType.save();
         return loadProfileType;
     }
@@ -934,18 +935,6 @@ public class DemoServiceImpl implements DemoService {
         device.setProtocolDialectProperty(device.getProtocolDialects().get(0).getDeviceProtocolDialectName(), "SecurityLevel", "2");
         device.setProtocolProperty("deviceTimeZone", "GMT-5");
         device.save();
-    }
-
-    public void dd(String mrid){
-        executeTransaction(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                Device device = deviceService.findByUniqueMrid(mrid);
-                if (device != null) {
-                    device.delete();
-                }
-            }
-        });
     }
 
     @Reference

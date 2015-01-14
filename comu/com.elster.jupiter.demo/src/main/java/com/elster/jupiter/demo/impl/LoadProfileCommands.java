@@ -94,11 +94,7 @@ public class LoadProfileCommands {
     }
 
     public void createLoadProfileType(String name, String obisCode, TimeDuration duration, RegisterType[] registerTypes, DeviceType deviceType) {
-        LoadProfileType loadProfileType = masterDataService.newLoadProfileType(name, ObisCode.fromString(obisCode), duration);
-
-        for (RegisterType registerType : registerTypes) {
-            loadProfileType.createChannelTypeForRegisterType(registerType);
-        }
+        LoadProfileType loadProfileType = masterDataService.newLoadProfileType(name, ObisCode.fromString(obisCode), duration, Arrays.asList(registerTypes));
         loadProfileType.save();
         deviceType.addLoadProfileType(loadProfileType);
         deviceType.save();

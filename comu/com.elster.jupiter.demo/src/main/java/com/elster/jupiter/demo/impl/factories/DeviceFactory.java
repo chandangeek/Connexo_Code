@@ -1,6 +1,5 @@
 package com.elster.jupiter.demo.impl.factories;
 
-import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.Store;
 import com.elster.jupiter.demo.impl.finders.ComScheduleFinder;
