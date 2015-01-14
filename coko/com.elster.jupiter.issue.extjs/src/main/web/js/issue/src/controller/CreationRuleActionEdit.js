@@ -57,6 +57,9 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
             },
             'issues-creation-rules-edit-action button[action=actionOperation]': {
                 click: this.saveAction
+            },
+            'issues-creation-rules-edit-action #phasesRadioGroup': {
+                change: this.updateActionList
             }
         });
     },
@@ -114,8 +117,6 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
             }
         };
 
-        actionTypesStore.getProxy().setExtraParam('issueType', me.getStore('Isu.store.Clipboard').get('issuesCreationRuleState').get('issueType').uid);
-        actionTypesStore.load(checkLoadedStores);
         actionTypesPhases.load(function (records) {
             var phasesRadioGroup = me.getPhasesRadioGroup();
 
@@ -128,6 +129,10 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
                     checked: !index
                 });
             });
+            actionTypesStore.getProxy().setExtraParam('issueType', me.getStore('Isu.store.Clipboard').get('issuesCreationRuleState').get('issueType').uid);
+            actionTypesStore.getProxy().setExtraParam('reason', me.getStore('Isu.store.Clipboard').get('issuesCreationRuleState').get('reason').id);
+            actionTypesStore.getProxy().setExtraParam('phase', records[0].get('uuid'));
+            actionTypesStore.load(checkLoadedStores);
             checkLoadedStores();
         });
     },
@@ -159,7 +164,7 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
     setActionTypeDetails: function (combo, newValue) {
         var me = this,
             actionTypesStore = me.getStore('Isu.store.CreationRuleActions'),
-            parameters = actionTypesStore.getById(newValue).get('parameters'),
+            parameters = newValue ? actionTypesStore.getById(newValue).get('parameters') : [],
             actionTypeDetails = me.getActionTypeDetails();
 
         actionTypeDetails.removeAll();
@@ -207,5 +212,20 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
         } else {
             router.getRoute('administration/creationrules').forward();
         }
+    },
+    
+    updateActionList: function (radionGroup, newValue) {
+    	var me = this,
+    	    actionField = me.getActionForm().down('[name=actionType]'),
+    	    actionTypesStore = me.getStore('Isu.store.CreationRuleActions');
+    	
+    	actionTypesStore.getProxy().setExtraParam('phase', newValue);
+        actionTypesStore.load(function(records, operation, success) {
+            var action = actionTypesStore.getById(actionField.getValue());
+            if (!action) {
+            	actionField.reset();
+            	me.getActionTypeDetails().removeAll();
+            }
+        });
     }
 });
