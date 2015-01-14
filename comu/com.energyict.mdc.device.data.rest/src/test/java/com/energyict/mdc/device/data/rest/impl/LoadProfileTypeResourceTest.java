@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-public class LoadProfileResourceTest extends DeviceDataRestApplicationJerseyTest {
+public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     public static final String BATTERY_LOW = "BATTERY_LOW";
     public static final Instant NOW = Instant.ofEpochMilli(1410786205000L);
@@ -73,7 +73,7 @@ public class LoadProfileResourceTest extends DeviceDataRestApplicationJerseyTest
     @Mock
     private ValidationEvaluator evaluator;
 
-    public LoadProfileResourceTest() {
+    public LoadProfileTypeResourceTest() {
     }
 
     @Before
