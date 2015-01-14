@@ -46,8 +46,7 @@ public final class Constants {
         public static final String VEERLE = "Veerle";
         public static final String KURT = "Kurt";
         public static final String EDUARDO = "Eduardo";
-
-
+        public static final String BOB = "Bob";
 
         private User() {}
     }

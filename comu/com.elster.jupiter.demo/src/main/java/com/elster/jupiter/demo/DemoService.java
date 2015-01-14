@@ -4,6 +4,7 @@ public interface DemoService {
     void createDemoData(String comServerName, String host);
     void createApplicationServer(String appServerName);
     void createUserManagement();
+    void createDeliverDataSetup();
     void createIssues();
     void createA3Device();
     void createValidationSetup();

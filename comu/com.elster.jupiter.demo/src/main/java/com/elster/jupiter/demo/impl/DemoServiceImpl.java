@@ -4,6 +4,7 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.demo.DemoService;
 import com.elster.jupiter.demo.impl.factories.AppServerFactory;
 import com.elster.jupiter.demo.impl.factories.ComServerFactory;
+import com.elster.jupiter.demo.impl.factories.DataExportTaskFactory;
 import com.elster.jupiter.demo.impl.factories.DeviceFactory;
 import com.elster.jupiter.demo.impl.factories.DeviceGroupFactory;
 import com.elster.jupiter.demo.impl.factories.DynamicKpiFactory;
@@ -18,6 +19,8 @@ import com.elster.jupiter.demo.impl.finders.ComTaskFinder;
 import com.elster.jupiter.demo.impl.finders.LogBookFinder;
 import com.elster.jupiter.demo.impl.finders.OutboundComPortPoolFinder;
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataExportTaskBuilder;
+import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
@@ -32,10 +35,13 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.UserService;
@@ -112,6 +118,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         "osgi.command.function=createIssues",
         "osgi.command.function=createApplicationServer",
         "osgi.command.function=createA3Device",
+        "osgi.command.function=createDeliverDataSetup",
         "osgi.command.function=createCollectRemoteDataSetup",
         "osgi.command.function=createValidationSetup"
 }, immediate = true)
@@ -142,6 +149,7 @@ public class DemoServiceImpl implements DemoService {
     private volatile MessageService messageService;
     private volatile DataExportService dataExportService;
     private volatile CronExpressionParser cronExpressionParser;
+    private volatile TimeService timeService;
 
     private Store store;
     private Injector injector;
@@ -180,7 +188,8 @@ public class DemoServiceImpl implements DemoService {
             AppService appService,
             MessageService messageService,
             DataExportService dataExportService,
-            CronExpressionParser cronExpressionParser) {
+            CronExpressionParser cronExpressionParser,
+            TimeService timeService) {
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
         setValidationService(validationService);
@@ -206,6 +215,7 @@ public class DemoServiceImpl implements DemoService {
         setMessageService(messageService);
         setDataExportService(dataExportService);
         setCronExpressionParser(cronExpressionParser);
+        setTimeService(timeService);
         rethrowExceptions = true;
 
         activate();
@@ -243,6 +253,7 @@ public class DemoServiceImpl implements DemoService {
                 bind(MessageService.class).toInstance(messageService);
                 bind(DataExportService.class).toInstance(dataExportService);
                 bind(CronExpressionParser.class).toInstance(cronExpressionParser);
+                bind(TimeService.class).toInstance(timeService);
             }
         });
     }
@@ -255,6 +266,7 @@ public class DemoServiceImpl implements DemoService {
                 createCollectRemoteDataSetupImpl(comServerName, host);
                 createUserManagementImpl();
                 createValidationSetupImpl();
+                createDeliverDataSetupImpl();
                 createApplicationServerImpl(comServerName); // the same name as for comserver
             }
         });
@@ -296,6 +308,16 @@ public class DemoServiceImpl implements DemoService {
             @Override
             protected void doPerform() {
                 createValidationSetupImpl();
+            }
+        });
+    }
+
+    @Override
+    public void createDeliverDataSetup(){
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                createDeliverDataSetupImpl();
             }
         });
     }
@@ -658,10 +680,10 @@ public class DemoServiceImpl implements DemoService {
         securityPropertySet.update();
 
         SecurityPropertySet strongSecSet = configuration.createSecurityPropertySet("High level authentication (MD5) and encryption").authenticationLevel(3).encryptionLevel(3).build();
-        securityPropertySet.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
-        securityPropertySet.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
-        securityPropertySet.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1);
-        securityPropertySet.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2);
+        strongSecSet.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
+        strongSecSet.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
+        strongSecSet.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1);
+        strongSecSet.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2);
         strongSecSet.update();
         return securityPropertySet;
     }
@@ -754,7 +776,8 @@ public class DemoServiceImpl implements DemoService {
         injector.getInstance(UserFactory.class).withName(Constants.User.SEBASTIEN).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
         injector.getInstance(UserFactory.class).withName(Constants.User.VEERLE).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
         injector.getInstance(UserFactory.class).withName(Constants.User.KURT).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
-        injector.getInstance(UserFactory.class).withName(Constants.User.EDUARDO).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
+        injector.getInstance(UserFactory.class).withName(Constants.User.EDUARDO).withLanguage(Locale.US.toLanguageTag()).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
+        injector.getInstance(UserFactory.class).withName(Constants.User.BOB).withLanguage(Locale.US.toLanguageTag()).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
 
     }
 
@@ -783,6 +806,11 @@ public class DemoServiceImpl implements DemoService {
             }
             validationService.activateValidation(meter);
         }
+    }
+
+    public void createDeliverDataSetupImpl(){
+        injector.getInstance(DataExportTaskFactory.class).withName(Constants.DeviceGroup.NORTH_REGION).get();
+        injector.getInstance(DataExportTaskFactory.class).withName(Constants.DeviceGroup.SOUTH_REGION).get();
     }
 
     public void createKpi(){
@@ -836,12 +864,13 @@ public class DemoServiceImpl implements DemoService {
                 .get();
         PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
         ScheduledConnectionTask deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
-                .setComPortPool(injector.getInstance(OutboundComPortPoolFinder.class).withName(Constants.ComPortPool.ORANGE).find())
+                .setComPortPool(injector.getInstance(OutboundComPortPoolFinder.class).withName(Constants.ComPortPool.VODAFONE).find())
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .setNextExecutionSpecsFrom(null)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
                 .setProperty("host", "166.150.216.131")
                 .setProperty("portNumber", new BigDecimal(1153))
+                .setProperty("connectionTimeout", TimeDuration.minutes(1))
                 .setSimultaneousConnectionsAllowed(false)
                 .add();
         connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
@@ -1012,6 +1041,13 @@ public class DemoServiceImpl implements DemoService {
     public final void setCronExpressionParser(CronExpressionParser cronExpressionParser) {
         this.cronExpressionParser = cronExpressionParser;
     }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public final void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
+    }
+
     private <T> T executeTransaction(Transaction<T> transaction) {
         setPrincipal();
         try {

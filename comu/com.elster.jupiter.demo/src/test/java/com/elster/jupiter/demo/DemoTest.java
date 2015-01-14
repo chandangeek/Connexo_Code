@@ -6,7 +6,10 @@ import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.impl.DataExportServiceImpl;
 import com.elster.jupiter.export.impl.ExportModule;
+import com.elster.jupiter.export.processor.impl.StandardCsvDataProcessorFactory;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.service.InstallServiceImpl;
@@ -219,13 +222,17 @@ public class DemoTest {
     }
 
     @Test
-    public void testDemoSetup(){
+    public void testDemoSetup() {
         doPreparations();
-        DemoService demoService = injector.getInstance(DemoService.class);
-        try {
+        DemoService demoService = null;
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            demoService = injector.getInstance(DemoService.class);
+            ctx.commit();
+        }
+        try{
             demoService.createDemoData("DemoTestComServer", "host");
             demoService.createA3Device();
-        } catch (Exception e){
+        } catch (Exception e) {
             fail("The demo command shouldn't produce errors");
         }
     }
@@ -284,6 +291,7 @@ public class DemoTest {
         ((ValidationServiceImpl)injector.getInstance(ValidationService.class)).addResource(defaultValidatorFactory);
 
         ((DeviceConfigurationServiceImpl)injector.getInstance(DeviceConfigurationService.class)).setQueryService(injector.getInstance(QueryService.class));
+        ((DataExportServiceImpl)injector.getInstance(DataExportService.class)).addResource(injector.getInstance(StandardCsvDataProcessorFactory.class));
 
         injector.getInstance(InstallServiceImpl.class);
         injector.getInstance(IssueDataCollectionService.class);

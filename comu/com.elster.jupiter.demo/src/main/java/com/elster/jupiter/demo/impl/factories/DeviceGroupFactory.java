@@ -60,7 +60,6 @@ public class DeviceGroupFactory extends NamedFactory<DeviceGroupFactory, EndDevi
         for (String deviceType : deviceTypes) {
             condition = condition.or(where("deviceConfiguration.deviceType.name").isEqualTo(deviceType));
         }
-        condition = condition.and(where("mRID").like(Constants.Device.STANDARD_PREFIX + "%"));
-        return condition;
+        return condition.and(where("mRID").like(Constants.Device.STANDARD_PREFIX + "%"));
     }
 }
