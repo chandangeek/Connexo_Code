@@ -212,19 +212,33 @@ public class DeviceApplication extends Application implements InstallService, Tr
 
     @Override
     public List<TranslationKey> getKeys() {
+        Set<String> uniqueIds = new HashSet<>();
         List<TranslationKey> keys = new ArrayList<>();
-        keys.addAll(Arrays.asList(MessageSeeds.values()));
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+            if (uniqueIds.add(messageSeed.getKey())) {
+                keys.add(messageSeed);
+            }
+        }
+
         for (EndDeviceType type : EndDeviceType.values()) {
-            keys.add(new SimpleTranslationKey(type.toString(), type.getMnemonic()));
+            if (uniqueIds.add(type.toString())) {
+                keys.add(new SimpleTranslationKey(type.toString(), type.getMnemonic()));
+            }
         }
         for (EndDeviceDomain domain : EndDeviceDomain.values()) {
-            keys.add(new SimpleTranslationKey(domain.toString(), domain.getMnemonic()));
+            if (uniqueIds.add(domain.toString())) {
+                keys.add(new SimpleTranslationKey(domain.toString(), domain.getMnemonic()));
+            }
         }
         for (EndDeviceSubDomain subDomain : EndDeviceSubDomain.values()) {
-            keys.add(new SimpleTranslationKey(subDomain.toString(), subDomain.getMnemonic()));
+            if (uniqueIds.add(subDomain.toString())) {
+                keys.add(new SimpleTranslationKey(subDomain.toString(), subDomain.getMnemonic()));
+            }
         }
         for (EndDeviceEventorAction eventOrAction : EndDeviceEventorAction.values()) {
-            keys.add(new SimpleTranslationKey(eventOrAction.toString(), eventOrAction.getMnemonic()));
+            if (uniqueIds.add(eventOrAction.toString())) {
+                keys.add(new SimpleTranslationKey(eventOrAction.toString(), eventOrAction.getMnemonic()));
+            }
         }
         return keys;
     }
