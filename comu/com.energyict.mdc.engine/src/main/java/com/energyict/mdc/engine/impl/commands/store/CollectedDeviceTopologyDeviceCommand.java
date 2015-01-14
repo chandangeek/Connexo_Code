@@ -12,6 +12,7 @@ import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
 import com.energyict.mdc.engine.impl.events.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.engine.impl.meterdata.CollectedDeviceData;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -81,7 +82,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
             } catch (CanNotFindForIdentifier e) {
                 getExecutionLogger().addIssue(
                         CompletionCode.ConfigurationWarning,
-                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), e),
+                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), e.getMessageArguments()),
                         comTaskExecution);
             }
 
@@ -98,6 +99,21 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
             doExecuteCollectedDeviceInfoCommands(comServerDAO);
             doStorePathSegments(comServerDAO);
             doStoreNeighbours(comServerDAO);
+            doStoreG3DeviceAddressInformation(comServerDAO);
+        }
+    }
+
+    private void doStoreG3DeviceAddressInformation(ComServerDAO comServerDAO) {
+        G3TopologyDeviceAddressInformation g3TopologyDeviceAddressInformation = this.deviceTopology.getG3TopologyDeviceAddressInformation();
+        if(g3TopologyDeviceAddressInformation != null){
+            try {
+                comServerDAO.storeG3IdentificationInformation(g3TopologyDeviceAddressInformation);
+            } catch (CanNotFindForIdentifier e) {
+                getExecutionLogger().addIssue(
+                        CompletionCode.ConfigurationWarning,
+                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), g3TopologyDeviceAddressInformation.getDeviceIdentifier()),
+                        comTaskExecution);
+            }
         }
     }
 
@@ -177,9 +193,17 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
         Set<String> actualSerialNumbers = new HashSet<>(actualSlavesByDeviceId.keySet());
         actualSerialNumbers.removeAll(oldSlavesBySerialNumber.keySet());
         for (String actualSerialNumber : actualSerialNumbers) {
-            this.handleMoveOfSlave(comServerDAO, actualSlavesByDeviceId.get(actualSerialNumber));
-            this.knownSerialNumbersAddedToTopology.add(actualSerialNumber);
-            this.topologyChanged = true;
+            DeviceIdentifier movedSlave = actualSlavesByDeviceId.get(actualSerialNumber);
+            try {
+                this.handleMoveOfSlave(comServerDAO, movedSlave);
+                this.knownSerialNumbersAddedToTopology.add(actualSerialNumber);
+                this.topologyChanged = true;
+            } catch (CanNotFindForIdentifier e) {
+                getExecutionLogger().addIssue(
+                        CompletionCode.ConfigurationWarning,
+                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), movedSlave),
+                        comTaskExecution);
+            }
         }
     }
 
@@ -187,9 +211,17 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
         Set<String> oldSerialNumbers = new HashSet<>(oldSlavesBySerialNumber.keySet());
         oldSerialNumbers.removeAll(actualSlavesByDeviceId.keySet());
         for (String oldSerialNumber : oldSerialNumbers) {
-            this.handleRemovalOfSlave(comServerDAO, oldSlavesBySerialNumber.get(oldSerialNumber));
-            this.serialNumbersRemovedFromTopology.add(oldSerialNumber);
-            this.topologyChanged = true;
+            OfflineDevice offlineRemovedSlave = oldSlavesBySerialNumber.get(oldSerialNumber);
+            try {
+                this.handleRemovalOfSlave(comServerDAO, offlineRemovedSlave);
+                this.serialNumbersRemovedFromTopology.add(oldSerialNumber);
+                this.topologyChanged = true;
+            } catch (CanNotFindForIdentifier e) {
+                getExecutionLogger().addIssue(
+                        CompletionCode.ConfigurationWarning,
+                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), offlineRemovedSlave.getDeviceIdentifier()),
+                        comTaskExecution);
+            }
         }
     }
 
@@ -197,7 +229,15 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
         Map<String, DeviceIdentifier> actualSlavesByDeviceId = new HashMap<>();
         List<DeviceIdentifier> actualSlaveDevices = deviceTopology.getSlaveDeviceIdentifiers();
         for (DeviceIdentifier slaveId : actualSlaveDevices) {
-            OfflineDevice slave = comServerDAO.findOfflineDevice(slaveId, new DeviceOfflineFlags(SLAVE_DEVICES_FLAG));
+            OfflineDevice slave = null;
+            try {
+                slave = comServerDAO.findOfflineDevice(slaveId, new DeviceOfflineFlags(SLAVE_DEVICES_FLAG));
+            } catch (CanNotFindForIdentifier e) {
+                getExecutionLogger().addIssue(
+                        CompletionCode.ConfigurationWarning,
+                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), slaveId),
+                        comTaskExecution);
+            }
             if (slave != null) {
                 actualSlavesByDeviceId.put(slave.getSerialNumber(), slaveId);
             }

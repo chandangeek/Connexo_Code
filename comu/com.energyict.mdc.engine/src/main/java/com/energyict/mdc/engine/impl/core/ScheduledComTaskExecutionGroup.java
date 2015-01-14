@@ -6,6 +6,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -93,7 +94,7 @@ public class ScheduledComTaskExecutionGroup extends ScheduledJobImpl {
         boolean connectionOk = false;
         try {
             List<PreparedComTaskExecution> preparedComTaskExecutions = prepare();
-            if (this.establishConnection()) {
+            if (establishConnectionFor(preparedComTaskExecutions)) {
                 connectionOk = true;
                 preparedComTaskExecutions.forEach(this::performPreparedComTaskExecution);
             }
@@ -105,6 +106,23 @@ public class ScheduledComTaskExecutionGroup extends ScheduledJobImpl {
                 this.completeConnection();
             }
             this.closeConnection();
+        }
+    }
+
+    /**
+     * Forwards the establishConnection.
+     * If a setup error occurs, then we properly log the number of not executed comtasks...
+     *
+     * @param preparedComTaskExecutions the comTasks which we will execute after the connection establishment succeeds
+     *
+     * @return true if the establishment succeeded, false otherwise
+     */
+    private boolean establishConnectionFor(List<PreparedComTaskExecution> preparedComTaskExecutions){
+        try {
+            return this.establishConnection();
+        } catch (ConnectionSetupException e) {
+            this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks(preparedComTaskExecutions.size());
+            throw e;
         }
     }
 

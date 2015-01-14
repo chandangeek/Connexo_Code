@@ -5,6 +5,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,6 +83,10 @@ public class ScheduledComTaskExecutionJob extends ScheduledJobImpl {
                 connectionOk = true;
                 performPreparedComTaskExecution(preparedComTaskExecution);
             }
+        } catch (ConnectionSetupException e){
+            this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks();
+            connectionOk = false;
+            throw e;
         } catch (CommunicationException e) {
             connectionOk = false;
             throw e;

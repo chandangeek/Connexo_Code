@@ -295,7 +295,7 @@ public enum QueryMethod {
         this.executeTransaction(serviceProvider, new VoidTransaction() {
             @Override
             public void doPerform() {
-                serviceProvider.comServerDAO().executionStarted(comTaskExecution, comPort);
+                serviceProvider.comServerDAO().executionStarted(comTaskExecution, comPort, true);
             }
         });
     }

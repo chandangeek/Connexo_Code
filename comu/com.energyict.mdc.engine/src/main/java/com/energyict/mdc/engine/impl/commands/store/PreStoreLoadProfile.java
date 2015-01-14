@@ -61,7 +61,7 @@ public class PreStoreLoadProfile {
             IntervalBlock intervalBlock = intervalBlockChannelInfoPair.getFirst();
             ChannelInfo channelInfo = intervalBlockChannelInfoPair.getLast();
 
-            Unit configuredUnit = this.mdcReadingTypeUtilService.getReadingTypeInformationFor(channelInfo.getReadingTypeMRID()).getUnit();
+            Unit configuredUnit = this.mdcReadingTypeUtilService.getMdcUnitFor(channelInfo.getReadingTypeMRID());
             int scaler = getScaler(channelInfo.getUnit(), configuredUnit);
             BigDecimal channelOverFlowValue = getChannelOverFlowValue(channelInfo, offlineLoadProfile);
             IntervalBlockImpl processingBlock = IntervalBlockImpl.of(intervalBlock.getReadingTypeCode());

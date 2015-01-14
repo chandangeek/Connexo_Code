@@ -15,6 +15,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
 import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
@@ -204,9 +205,9 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void executionStarted (ComTaskExecution comTaskExecution, ComPort comPort) {
+    public void executionStarted(ComTaskExecution comTaskExecution, ComPort comPort, boolean executeInTransaction) {
         this.comTaskExecutionStarted.increment();
-        this.actual.executionStarted(comTaskExecution, comPort);
+        this.actual.executionStarted(comTaskExecution, comPort, true);
     }
 
     @Override
@@ -274,6 +275,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
     @Override
     public void storeNeighbours(DeviceIdentifier sourceDeviceIdentifier, List<TopologyNeighbour> topologyNeighbours) {
         this.actual.storeNeighbours(sourceDeviceIdentifier, topologyNeighbours);
+    }
+
+    @Override
+    public void storeG3IdentificationInformation(G3TopologyDeviceAddressInformation topologyDeviceAddressInformation) {
+        this.actual.storeG3IdentificationInformation(topologyDeviceAddressInformation);
     }
 
     @Override
@@ -351,6 +357,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
         @Override
         public void storeNeighbours(DeviceIdentifier sourceDeviceIdentifier, List<TopologyNeighbour> topologyNeighbours) {
+
+        }
+
+        @Override
+        public void storeG3IdentificationInformation(G3TopologyDeviceAddressInformation topologyDeviceAddressInformation) {
 
         }
 
@@ -440,7 +451,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void executionStarted (ComTaskExecution comTaskExecution, ComPort comPort) {
+        public void executionStarted(ComTaskExecution comTaskExecution, ComPort comPort, boolean executeInTransaction) {
             this.verifier.verify(comTaskExecutionStarted);
         }
 

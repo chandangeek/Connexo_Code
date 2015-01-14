@@ -468,7 +468,7 @@ public class MultiThreadedScheduledComPortTest {
 
             // Asserts
             comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).findExecutableOutboundComTasks(comPort);
-            comServerDAO.verify(this.counterVerifierFactory.never()).executionStarted(mock(ComTaskExecution.class), comPort);
+            comServerDAO.verify(this.counterVerifierFactory.never()).executionStarted(mock(ComTaskExecution.class), comPort, true);
             verify(this.deviceCommandExecutor, atLeastOnce()).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
             verify(this.deviceCommandExecutor, atMost(NUMBER_OF_TASKS)).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
         } finally {
@@ -562,7 +562,7 @@ public class MultiThreadedScheduledComPortTest {
 
             // Asserts
             comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).findExecutableOutboundComTasks(comPort);
-            comServerDAO.verify(this.counterVerifierFactory.never()).executionStarted(mock(ComTaskExecution.class), comPort);
+            comServerDAO.verify(this.counterVerifierFactory.never()).executionStarted(mock(ComTaskExecution.class), comPort, true);
             verify(this.deviceCommandExecutor).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
         } finally {
             this.shutdown(scheduledComPort);
@@ -608,7 +608,7 @@ public class MultiThreadedScheduledComPortTest {
 
             // Asserts
             comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).findExecutableOutboundComTasks(comPort);
-            comServerDAO.verify(this.counterVerifierFactory.never()).executionStarted(mock(ComTaskExecution.class), comPort);
+            comServerDAO.verify(this.counterVerifierFactory.never()).executionStarted(mock(ComTaskExecution.class), comPort, true);
             comServerDAO.verify(this.counterVerifierFactory.never()).executionCompleted(mock(ComTaskExecution.class));
             comServerDAO.verify(this.counterVerifierFactory.never()).executionCompleted(this.simultaneousConnectionTask1);
             verify(this.deviceCommandExecutor, never()).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
@@ -660,7 +660,7 @@ public class MultiThreadedScheduledComPortTest {
 
             // Asserts
             comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).findExecutableOutboundComTasks(comPort);
-            comServerDAO.verify(this.counterVerifierFactory.never()).executionStarted(mock(ComTaskExecution.class), comPort);
+            comServerDAO.verify(this.counterVerifierFactory.never()).executionStarted(mock(ComTaskExecution.class), comPort, true);
             comServerDAO.verify(this.counterVerifierFactory.never()).executionCompleted(mock(ComTaskExecution.class));
             comServerDAO.verify(this.counterVerifierFactory.never()).executionCompleted(this.serialConnectionTask1);
             verify(this.deviceCommandExecutor, never()).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
@@ -708,7 +708,7 @@ public class MultiThreadedScheduledComPortTest {
 
             // Asserts
             comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).findExecutableOutboundComTasks(comPort);
-            comServerDAO.verify(this.counterVerifierFactory.never()).executionStarted(mock(ComTaskExecution.class), comPort);
+            comServerDAO.verify(this.counterVerifierFactory.never()).executionStarted(mock(ComTaskExecution.class), comPort, true);
             verify(this.deviceCommandExecutor, never()).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
         } finally {
             this.shutdown(scheduledComPort);
@@ -754,7 +754,7 @@ public class MultiThreadedScheduledComPortTest {
 
             // Asserts
             comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).findExecutableOutboundComTasks(comPort);
-            comServerDAO.verify(this.counterVerifierFactory.never()).executionStarted(mock(ComTaskExecution.class), comPort);
+            comServerDAO.verify(this.counterVerifierFactory.never()).executionStarted(mock(ComTaskExecution.class), comPort, true);
             comServerDAO.verify(this.counterVerifierFactory.never()).executionCompleted(mock(ComTaskExecution.class));
             comServerDAO.verify(this.counterVerifierFactory.never()).executionCompleted(this.serialConnectionTask1);
             verify(this.deviceCommandExecutor, never()).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));

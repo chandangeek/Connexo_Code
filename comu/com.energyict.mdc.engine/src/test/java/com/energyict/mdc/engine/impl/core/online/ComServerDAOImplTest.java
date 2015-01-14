@@ -200,7 +200,7 @@ public class ComServerDAOImplTest {
     @Test
     public void testExecutionStarted() throws SQLException {
         // Business method
-        this.comServerDAO.executionStarted(this.scheduledComTask, this.comPort);
+        this.comServerDAO.executionStarted(this.scheduledComTask, this.comPort, true);
 
         // Asserts
         verify(this.communicationTaskService).executionStartedFor(this.scheduledComTask, this.comPort);

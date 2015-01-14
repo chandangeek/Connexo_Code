@@ -221,7 +221,7 @@ public class QueryMethodTest {
         QueryMethod.ExecutionStarted.execute(parameters, serviceProvider);
 
         // Asserts
-        verify(comServerDAO).executionStarted(comTaskExecution, comPort);
+        verify(comServerDAO).executionStarted(comTaskExecution, comPort, true);
     }
 
     @Test

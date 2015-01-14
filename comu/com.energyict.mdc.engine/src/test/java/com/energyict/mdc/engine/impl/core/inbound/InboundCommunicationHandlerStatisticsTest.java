@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -74,6 +75,8 @@ public class InboundCommunicationHandlerStatisticsTest {
     private EventPublisherImpl eventPublisher;
     @Mock
     private JobExecution.ServiceProvider serviceProvider;
+    @Mock
+    private NlsService nlsService;
 
     @Before
     public void initializeMocksAndFactories() {
@@ -86,7 +89,7 @@ public class InboundCommunicationHandlerStatisticsTest {
         Clock clock = Clock.systemDefaultZone();
         when(this.serviceProvider.eventPublisher()).thenReturn(this.eventPublisher);
         when(this.serviceProvider.clock()).thenReturn(clock);
-        when(this.serviceProvider.issueService()).thenReturn(new IssueServiceImpl(clock));
+        when(this.serviceProvider.issueService()).thenReturn(new IssueServiceImpl(clock, nlsService));
         when(this.serviceProvider.hexService()).thenReturn(new HexServiceImpl());
         when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
         when(this.serviceProvider.transactionService()).thenReturn(new FakeTransactionService());

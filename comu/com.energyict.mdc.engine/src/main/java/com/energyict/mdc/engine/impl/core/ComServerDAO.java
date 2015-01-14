@@ -13,6 +13,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
 import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
@@ -212,11 +213,11 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     /**
     * Notifies that execution of the specified ComTaskExecution has been started
     * on the specified ComPort.
-    *
-     * @param comTaskExecution The ComTaskExecution
-     * @param comPort The ComPort that has started the execution of the ComTaskExecution
+    *  @param comTaskExecution The ComTaskExecution
+    * @param comPort The ComPort that has started the execution of the ComTaskExecution
+     * @param executeInTransaction
      */
-    public void executionStarted (ComTaskExecution comTaskExecution, ComPort comPort);
+    public void executionStarted(ComTaskExecution comTaskExecution, ComPort comPort, boolean executeInTransaction);
 
     /**
      * Notifies that execution of the specified ComTaskExecution completed.
@@ -426,4 +427,6 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     public void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegments);
 
     public void storeNeighbours(DeviceIdentifier sourceDeviceIdentifier, List<TopologyNeighbour> topologyNeighbours);
-}
+
+    public void storeG3IdentificationInformation(G3TopologyDeviceAddressInformation topologyDeviceAddressInformation);
+    }

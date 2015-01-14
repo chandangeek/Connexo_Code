@@ -71,8 +71,10 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Implementation for the {@link CommandRoot} interface.
@@ -117,11 +119,11 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     @Override
     public List<Issue> getIssues () {
-        List<Issue> issues = super.getIssues();
+        Set<Issue> uniqueIssues = new HashSet<>(super.getIssues());
         for (ComCommand child : this) {
-            issues.addAll(child.getIssues());
+            uniqueIssues.addAll(child.getIssues());
         }
-        return issues;
+        return new ArrayList<>(uniqueIssues);
     }
 
     /**

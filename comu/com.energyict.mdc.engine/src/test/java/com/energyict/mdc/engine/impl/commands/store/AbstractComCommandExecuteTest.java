@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -59,10 +61,17 @@ public abstract class AbstractComCommandExecuteTest {
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
     protected EventPublisherImpl eventPublisher;
+    @Mock
+    private NlsService nlsService;
+    @Mock
+    private Thesaurus thesaurus;
+
     private Clock clock = Clock.systemDefaultZone();
 
     @Before
     public void setupServiceProvider() {
+        when(nlsService.getThesaurus(any(), any())).thenReturn(thesaurus);
+        when(thesaurus.getStringBeyondComponent(any(), any())).thenAnswer(invocationOnMock -> (String) invocationOnMock.getArguments()[0]);
         DeviceService deviceService = mock(DeviceService.class, RETURNS_DEEP_STUBS);
         IssueServiceImpl issueService = new IssueServiceImpl(this.clock);
         when(executionContextServiceProvider.clock()).thenReturn(this.clock);

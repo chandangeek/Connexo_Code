@@ -317,7 +317,7 @@ public abstract class JobExecution implements ScheduledJob {
             }
             else {
                 successIndicator = Failure;
-                this.executionContext.comTaskExecutionFailure(this, preparedComTaskExecution.getComTaskExecution());
+                this.executionContext.comTaskExecutionFailureDueToProblemsOfComTasks(this, preparedComTaskExecution.getComTaskExecution());
             }
             return noProblems;
         } catch (Throwable t) {
@@ -507,7 +507,7 @@ public abstract class JobExecution implements ScheduledJob {
      */
     private void start(ComTaskExecution comTaskExecution) {
         this.getExecutionContext().prepareStart(this, comTaskExecution);
-        this.getComServerDAO().executionStarted(comTaskExecution, this.getComPort());
+        this.getComServerDAO().executionStarted(comTaskExecution, this.getComPort(), true);
         this.getExecutionContext().executionStarted(comTaskExecution);
     }
 

@@ -56,7 +56,7 @@ public class UpdateDeviceProtocolProperty extends DeviceCommandImpl {
         } catch (CanNotFindForIdentifier e) {
             getExecutionLogger().addIssue(
                     CompletionCode.ConfigurationWarning,
-                    this.getIssueService().newWarning(deviceIdentifier, e.getMessageSeed().getKey()), comTaskExecution);
+                    this.getIssueService().newWarning(deviceIdentifier, e.getMessageSeed().getKey(), deviceIdentifier), comTaskExecution);
         }
     }
 

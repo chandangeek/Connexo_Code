@@ -539,7 +539,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.currentTaskExecutionBuilder.ifPresent(b -> b.addComTaskExecutionMessageJournalEntry(now(), logLevel, message, ""));
     }
 
-    void comTaskExecutionFailure(JobExecution job, ComTaskExecution comTaskExecution) {
+    void comTaskExecutionFailureDueToProblemsOfComTasks(JobExecution job, ComTaskExecution comTaskExecution) {
         this.publish(
                 new ComTaskExecutionFailureEvent(
                         new ComServerEventServiceProvider(),

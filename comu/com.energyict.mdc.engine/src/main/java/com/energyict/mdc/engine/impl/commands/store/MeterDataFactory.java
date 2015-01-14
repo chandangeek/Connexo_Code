@@ -86,7 +86,7 @@ public final class MeterDataFactory {
     public static List<IntervalBlock> createIntervalBlocksFor(CollectedLoadProfile collectedLoadProfile) {
         List<IntervalBlockImpl> intervalBlock = createIntervalBlocks(collectedLoadProfile);
         for (IntervalData intervalData : collectedLoadProfile.getCollectedIntervalData()) {
-            for (Pair<IntervalBlockImpl, IntervalValue> pair : DualIterable.endWithLongest(intervalBlock, intervalData.getIntervalValues())) {
+            for (Pair<IntervalBlockImpl, IntervalValue> pair : DualIterable.endWithShortest(intervalBlock, intervalData.getIntervalValues())) {
                 // safest way to convert from Number to BigDecimal -> using the Number#toString()
                 pair.getFirst().addIntervalReading(IntervalReadingImpl.of(intervalData.getEndTime().toInstant(), new BigDecimal(pair.getLast().getNumber().toString())));
             }

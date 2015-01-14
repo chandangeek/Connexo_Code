@@ -7,6 +7,7 @@ import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
+import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
 import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
@@ -50,6 +51,7 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
 
     private List<TopologyPathSegment> topologyPathSegments;
     private List<TopologyNeighbour> topologyNeighbours;
+    private G3TopologyDeviceAddressInformation g3IDeviceAddressInformation;
 
     /**
      * Default constructor
@@ -146,5 +148,15 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
     @Override
     public List<TopologyNeighbour> getTopologyNeighbours() {
         return this.topologyNeighbours;
+    }
+
+    @Override
+    public void addG3IdentificationInformation(String formattedIPv6Address, int ipv6ShortAddress, int logicalDeviceId) {
+        this.g3IDeviceAddressInformation = new G3TopologyDeviceAddressInformation(this.deviceIdentifier, formattedIPv6Address, ipv6ShortAddress, logicalDeviceId);
+    }
+
+    @Override
+    public G3TopologyDeviceAddressInformation getG3TopologyDeviceAddressInformation() {
+        return g3IDeviceAddressInformation;
     }
 }
