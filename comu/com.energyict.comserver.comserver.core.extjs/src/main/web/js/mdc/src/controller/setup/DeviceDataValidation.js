@@ -145,7 +145,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
 
         rulePreview.down('#readingTypesArea').removeAll();
         for (var i = 0; i < readingTypes.length; i++) {
-            var fieldlabel = i > 0 ? '&nbsp' : Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading type(s)'),
+            var fieldlabel = i > 0 ? '&nbsp' : Uni.I18n.translate('general.readingTypes', 'MDC', 'Reading types'),
                 readingType = readingTypes[i];
 
             rulePreview.down('#readingTypesArea').add(
