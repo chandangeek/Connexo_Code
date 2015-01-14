@@ -12,6 +12,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
@@ -49,6 +50,7 @@ import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
+import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
 import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
@@ -647,7 +649,7 @@ public class ComServerDAOImpl implements ComServerDAO {
             } else {
                 return null;
             }
-        } catch (NotFoundException e) {
+        } catch (CanNotFindForIdentifier e) {
             return null;
         }
     }
@@ -678,12 +680,18 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegments) {
         TopologyService.G3CommunicationPathSegmentBuilder g3CommunicationPathSegmentBuilder = serviceProvider.topologyService().addCommunicationSegments(((Device) sourceDeviceIdentifier.findDevice()));
-        topologyPathSegments.stream().forEach(topologyPathSegment -> g3CommunicationPathSegmentBuilder.add(
-                ((Device) topologyPathSegment.getTarget().findDevice()),
-                ((Device) topologyPathSegment.getIntermediateHop().findDevice()),
-                topologyPathSegment.getTimeToLive(),
-                topologyPathSegment.getCost()
-        ));
+        topologyPathSegments.stream().forEach(topologyPathSegment -> {
+            Optional<Device> target = getOptionalDeviceByIdentifier(topologyPathSegment.getTarget());
+            Optional<Device> intermediateHop = getOptionalDeviceByIdentifier(topologyPathSegment.getIntermediateHop());
+            if(target.isPresent() && intermediateHop.isPresent()){
+                g3CommunicationPathSegmentBuilder.add(
+                        target.get(),
+                        intermediateHop.get(),
+                        topologyPathSegment.getTimeToLive(),
+                        topologyPathSegment.getCost()
+                );
+            }
+        });
         g3CommunicationPathSegmentBuilder.complete();
     }
 
@@ -691,16 +699,40 @@ public class ComServerDAOImpl implements ComServerDAO {
     public void storeNeighbours(DeviceIdentifier sourceDeviceIdentifier, List<TopologyNeighbour> topologyNeighbours) {
         TopologyService.G3NeighborhoodBuilder g3NeighborhoodBuilder = serviceProvider.topologyService().buildG3Neighborhood((Device) sourceDeviceIdentifier.findDevice());
         topologyNeighbours.stream().forEach(topologyNeighbour -> {
-            TopologyService.G3NeighborBuilder g3NeighborBuilder = g3NeighborhoodBuilder.addNeighbor(((Device) topologyNeighbour.getNeighbour().findDevice()), ModulationScheme.fromId(topologyNeighbour.getModulationSchema()), Modulation.fromOrdinal(topologyNeighbour.getModulation()), PhaseInfo.fromId(topologyNeighbour.getPhaseDifferential()));
-            g3NeighborBuilder.linkQualityIndicator(topologyNeighbour.getLqi());
-            g3NeighborBuilder.timeToLiveSeconds(topologyNeighbour.getNeighbourValidTime());
-            g3NeighborBuilder.toneMap(topologyNeighbour.getToneMap());
-            g3NeighborBuilder.toneMapTimeToLiveSeconds(topologyNeighbour.getTmrValidTime());
-            g3NeighborBuilder.txCoefficient(topologyNeighbour.getTxCoeff());
-            g3NeighborBuilder.txGain(topologyNeighbour.getTxGain());
-            g3NeighborBuilder.txResolution(topologyNeighbour.getTxRes());
+            Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(topologyNeighbour.getNeighbour());
+            if(optionalDevice.isPresent()){
+                TopologyService.G3NeighborBuilder g3NeighborBuilder = g3NeighborhoodBuilder.addNeighbor(optionalDevice.get(), ModulationScheme.fromId(topologyNeighbour.getModulationSchema()), Modulation.fromOrdinal(topologyNeighbour.getModulation()), PhaseInfo.fromId(topologyNeighbour.getPhaseDifferential()));
+                g3NeighborBuilder.linkQualityIndicator(topologyNeighbour.getLqi());
+                g3NeighborBuilder.timeToLiveSeconds(topologyNeighbour.getNeighbourValidTime());
+                g3NeighborBuilder.toneMap(topologyNeighbour.getToneMap());
+                g3NeighborBuilder.toneMapTimeToLiveSeconds(topologyNeighbour.getTmrValidTime());
+                g3NeighborBuilder.txCoefficient(topologyNeighbour.getTxCoeff());
+                g3NeighborBuilder.txGain(topologyNeighbour.getTxGain());
+                g3NeighborBuilder.txResolution(topologyNeighbour.getTxRes());
+            }
         });
         g3NeighborhoodBuilder.complete();
+    }
+
+    public void storeG3IdentificationInformation(G3TopologyDeviceAddressInformation topologyDeviceAddressInformation){
+        Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(topologyDeviceAddressInformation.getDeviceIdentifier());
+        if(optionalDevice.isPresent()){
+            serviceProvider.topologyService().setG3DeviceAddressInformation(
+                    optionalDevice.get(),
+                    topologyDeviceAddressInformation.getFullIPv6Address(),
+                    topologyDeviceAddressInformation.getIpv6ShortAddress(),
+                    topologyDeviceAddressInformation.getLogicalDeviceId());
+        }
+    }
+
+    private Optional<Device> getOptionalDeviceByIdentifier(DeviceIdentifier topologyNeighbour) {
+        Device device = null;
+        try {
+            device = (Device) topologyNeighbour.findDevice();
+        } catch (CanNotFindForIdentifier e) {
+            // ignore
+        }
+        return Optional.ofNullable(device);
     }
 
     @Override

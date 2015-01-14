@@ -13,6 +13,7 @@ import com.energyict.mdc.engine.impl.meterdata.CollectedDeviceData;
 import com.energyict.mdc.engine.impl.meterdata.DeviceTopology;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -99,6 +100,21 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
             doExecuteCollectedDeviceInfoCommands(comServerDAO);
             doStorePathSegments(comServerDAO);
             doStoreNeighbours(comServerDAO);
+            doStoreG3DeviceAddressInformation(comServerDAO);
+        }
+    }
+
+    private void doStoreG3DeviceAddressInformation(ComServerDAO comServerDAO) {
+        G3TopologyDeviceAddressInformation g3TopologyDeviceAddressInformation = this.deviceTopology.getG3TopologyDeviceAddressInformation();
+        if(g3TopologyDeviceAddressInformation != null){
+            try {
+                comServerDAO.storeG3IdentificationInformation(g3TopologyDeviceAddressInformation);
+            } catch (CanNotFindForIdentifier e) {
+                getExecutionLogger().addIssue(
+                        CompletionCode.ConfigurationWarning,
+                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), g3TopologyDeviceAddressInformation.getDeviceIdentifier()),
+                        comTaskExecution);
+            }
         }
     }
 
