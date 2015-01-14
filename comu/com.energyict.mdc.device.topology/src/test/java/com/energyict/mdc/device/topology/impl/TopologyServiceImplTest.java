@@ -1057,7 +1057,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         device.save();
 
         // Business method
-        topologyService.setG3DeviceAddressInformation(device, "createG3AddressInformationWithVeryLongIPv6Address", 0x417A, 13);
+        topologyService.setG3DeviceAddressInformation(device, "createG3AddressInformationWithVeryLongIPv6AddresscreateG3AddressInformationWithVeryLongIPv6AddresscreateG3AddressInformationWithVeryLongIPv6AddresscreateG3AddressInformationWithVeryLongIPv6AddresscreateG3AddressInformationWithVeryLongIPv6AddresscreateG3AddressInformationWithVeryLongIPv6AddresscreateG3AddressInformationWithVeryLongIPv6AddresscreateG3AddressInformationWithVeryLongIPv6Address", 0x417A, 13);
 
         // Asserts: see expected constraint violation rule
     }
