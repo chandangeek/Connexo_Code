@@ -690,7 +690,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
         @Override
         public UpdateStrategy connectionStrategyChanged(ConnectionStrategy oldConnectionStrategy, ConnectionStrategy newConnectionStrategy) {
-            if (newConnectionStrategy.equals(oldConnectionStrategy)) {
+            if (newConnectionStrategy.equals(oldConnectionStrategy) || oldConnectionStrategy==null) {
                 return this;
             } else {
                 return new StrategyChanged(oldConnectionStrategy);
@@ -699,7 +699,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
         @Override
         public UpdateStrategy schedulingChanged(TemporalExpression temporalExpression) {
-            return new Reschule(temporalExpression);
+            return new Reschedule(temporalExpression);
         }
 
         @Override
@@ -764,9 +764,9 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
      * Represents the state where we already had {@link NextExecutionSpecs}
      * but the {@link TemporalExpression} changed and we will therefore need to reschedule.
      */
-    private class Reschule extends DefaultStrategy {
+    private class Reschedule extends DefaultStrategy {
 
-        private Reschule(TemporalExpression temporalExpression) {
+        private Reschedule(TemporalExpression temporalExpression) {
             super();
             this.getNextExecutionSpecs().setTemporalExpression(temporalExpression);
         }
@@ -790,7 +790,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
         @Override
         public UpdateStrategy schedulingChanged(TemporalExpression temporalExpression) {
-            return new Reschule(temporalExpression);
+            return new Reschedule(temporalExpression);
         }
 
         @Override

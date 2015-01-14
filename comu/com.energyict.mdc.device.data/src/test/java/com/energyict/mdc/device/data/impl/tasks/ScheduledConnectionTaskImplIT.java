@@ -4,11 +4,11 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.SqlBuilder;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -35,23 +35,18 @@ import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionException;
-
 import com.google.common.collect.Range;
-import org.joda.time.DateTimeConstants;
-import org.junit.After;
-import org.junit.Test;
-import com.elster.jupiter.time.TemporalExpression;
-
 import java.sql.SQLException;
 import java.time.Instant;
-import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
+import org.joda.time.DateTimeConstants;
+import org.junit.After;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -651,6 +646,34 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Asserts
         assertThat(connectionTask).isNotNull();
         assertThat(connectionTask.getName()).isEqualTo(name);
+        assertThat(connectionTask.getNextExecutionSpecs()).isNotNull();
+        assertThat(connectionTask.getNextExecutionSpecs().getTemporalExpression()).isNotNull();
+        assertThat(connectionTask.getNextExecutionSpecs().getTemporalExpression().getEvery()).isEqualTo(frequency);
+        assertThat(connectionTask.getNextExecutionSpecs().getTemporalExpression().getOffset()).isEqualTo(offset);
+    }
+
+    @Test
+    @Transactional
+    public void createWithOffset() {
+        String name = "createWithOffset";
+        PartialScheduledConnectionTask partial = deviceConfiguration.newPartialScheduledConnectionTask(name, outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.MINIMIZE_CONNECTIONS).nextExecutionSpec().temporalExpression(TimeDuration.days(1)).set().build();
+        partial.save();
+        // Set it to execute every week, at 01:30 (am) of the second day of the week
+        TimeDuration frequency = new TimeDuration(1, TimeDuration.TimeUnit.MONTHS);
+        TimeDuration offset = new TimeDuration(DateTimeConstants.SECONDS_PER_MINUTE * 30, TimeDuration.TimeUnit.SECONDS);
+        ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) this.device.getScheduledConnectionTaskBuilder(partial)
+                .setComPortPool(outboundTcpipComPortPool)
+                .setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .setNextExecutionSpecsFrom(new TemporalExpression(frequency, offset))
+                .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE)
+                .setSimultaneousConnectionsAllowed(false)
+                .add();
+
+        // Business method
+        connectionTask.save();
+
+        // Asserts
+        assertThat(connectionTask).isNotNull();
         assertThat(connectionTask.getNextExecutionSpecs()).isNotNull();
         assertThat(connectionTask.getNextExecutionSpecs().getTemporalExpression()).isNotNull();
         assertThat(connectionTask.getNextExecutionSpecs().getTemporalExpression().getEvery()).isEqualTo(frequency);
