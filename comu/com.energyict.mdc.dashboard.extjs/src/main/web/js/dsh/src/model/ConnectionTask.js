@@ -39,5 +39,24 @@ Ext.define('Dsh.model.ConnectionTask', {
         { name: 'nextExecution', type: 'date', dateFormat: 'time'},
         { name: 'comPort', type: 'auto'},
         { name: 'comSessionId', type: 'auto'}
-    ]
+    ],
+
+    run: function(callback) {
+        Ext.Ajax.request({
+            method: 'PUT',
+            url: this.proxy.url + '/{id}/run'.replace('{id}', this.getId()),
+            success: callback
+        });
+    },
+
+    proxy: {
+        type: 'rest',
+        url: '/api/dsr/connections',
+        reader: {
+            type: 'json',
+            root: 'connectionTasks',
+            totalProperty: 'total'
+        }
+    }
+
 });
