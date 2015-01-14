@@ -2,7 +2,6 @@ package com.energyict.mdc.engine.impl.core.online;
 
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
@@ -11,6 +10,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
@@ -80,7 +80,7 @@ public class ComServerDAOImplInboundTest {
     @Ignore // Enable when messages are being implemented
     @Test(expected = DataAccessException.class)
     public void testConfirmSentMessagesAndGetPendingForNonExistingDevice() {
-        doThrow(NotFoundException.class).when(this.deviceIdentifier).findDevice();
+        doThrow(CanNotFindForIdentifier.class).when(this.deviceIdentifier).findDevice();
         comServerDAO.confirmSentMessagesAndGetPending(this.deviceIdentifier, 10);
     }
 
@@ -101,10 +101,10 @@ public class ComServerDAOImplInboundTest {
         assertThat(pendingMessages).isEmpty();
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test(expected = CanNotFindForIdentifier.class)
     public void testGetDeviceProtocolSecurityPropertiesWhenDeviceDoesNotExist() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        doThrow(NotFoundException.class).when(deviceIdentifier).findDevice();
+        doThrow(CanNotFindForIdentifier.class).when(deviceIdentifier).findDevice();
 
         // Business method
         this.comServerDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, mock(InboundComPort.class));
@@ -203,10 +203,10 @@ public class ComServerDAOImplInboundTest {
         verify(device).getSecurityProperties(securityPropertySet);
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test(expected = CanNotFindForIdentifier.class)
     public void testGetDeviceConnectionTypePropertiesWhenDeviceDoesNotExist() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        doThrow(NotFoundException.class).when(deviceIdentifier).findDevice();
+        doThrow(CanNotFindForIdentifier.class).when(deviceIdentifier).findDevice();
 
         // Business method
         this.comServerDAO.getDeviceConnectionTypeProperties(deviceIdentifier, mock(InboundComPort.class));
@@ -284,7 +284,7 @@ public class ComServerDAOImplInboundTest {
     @Test
     public void testGetDeviceProtocolPropertiesForDeviceIdentifierThatThrowsNotFoundExceptionWhenDeviceDoesNotExist() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        doThrow(NotFoundException.class).when(deviceIdentifier).findDevice();
+        doThrow(CanNotFindForIdentifier.class).when(deviceIdentifier).findDevice();
 
         // Business method
         TypedProperties protocolProperties = this.comServerDAO.getDeviceProtocolProperties(deviceIdentifier);
