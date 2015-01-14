@@ -45,30 +45,20 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                 minWidth: 150,
                 flex: 1,
                 renderer: function (data, metaData, record) {
-                    var validationFlag = '';
                     if (record.data.channelValidationData && record.data.channelValidationData[channel.id]) {
-                        switch (record.data.channelValidationData[channel.id].validationResult) {
-                            case 'validationStatus.notValidated':
-                                validationFlag = '<span class="icon-validation icon-validation-black"></span>';
-                                break;
-                            case 'validationStatus.ok':
-                                validationFlag = '&nbsp;&nbsp;&nbsp;&nbsp;';
-                                break;
-                            case 'validationStatus.suspect':
-                                validationFlag = '<span class="icon-validation icon-validation-red"></span>';
-                                break;
-                            default:
-                                validationFlag = '';
-                                break;
+                        var result = record.data.channelValidationData[channel.id].validationResult,
+                            status = result.split('.')[1],
+                            cls = 'icon-validation-cell';
+                        if (status === 'suspect') {
+                            cls +=  ' icon-validation-red'
                         }
+                        if (status === 'notValidated') {
+                            cls +=  ' icon-validation-black'
+                        }
+                        metaData.tdCls = cls;
                     }
-
-                    if (Ext.isEmpty(data[channel.id]) && !Ext.isEmpty(validationFlag)) {
-                        return validationFlag;
-                    } else if (!Ext.isEmpty(data[channel.id])) {
-                        return '<span class="validation-column-align">' + data[channel.id] + ' ' + validationFlag + '</span>';
-                    } else {
-                        return '<span class="icon-validation icon-validation-black"></span>';
+                    if (!Ext.isEmpty(data[channel.id])) {
+                        return  data[channel.id] ;
                     }
                 }
             });

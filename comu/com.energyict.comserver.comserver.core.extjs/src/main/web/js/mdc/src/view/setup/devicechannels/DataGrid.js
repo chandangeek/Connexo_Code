@@ -45,11 +45,23 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dataIndex: 'value',
                 flex: 1,
                 align: 'right',
-                renderer: function (v) {
-                if(!Ext.isEmpty(v)) {
-                    var value = Uni.Number.formatNumber(v, -1);
-                    return !Ext.isEmpty(value)? value : '';
-                }
+                renderer: function (v, metaData, record) {
+                    if (record.get('validationResult')) {
+                        var result = record.get('validationResult'),
+                            status = result.split('.')[1],
+                            cls = 'icon-validation-cell';
+                        if (status === 'suspect') {
+                            cls +=  ' icon-validation-red'
+                        }
+                        if (status === 'notValidated') {
+                            cls +=  ' icon-validation-black'
+                        }
+                        metaData.tdCls = cls;
+                    }
+                    if (!Ext.isEmpty(v)) {
+                        var value = Uni.Number.formatNumber(v, -1);
+                        return !Ext.isEmpty(value) ? value : '';
+                    }
                 },
                 editor: {
                     xtype: 'textfield',
@@ -58,34 +70,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                     validateOnChange: true,
                     fieldStyle: 'text-align: right'
                 }
-            },
-            {
-                header: '',
-                xtype: 'templatecolumn',
-                width: 30,
-                align: 'right',
-                tpl: new Ext.XTemplate(
-                    '{[this.checkValidationResult(values.validationResult)]}',
-                    {
-                        checkValidationResult: function (validationResult) {
-                            var result = '';
-
-                            switch (validationResult) {
-                                case 'validationStatus.notValidated':
-                                    result = '<span class="validation-column-align"><span class="icon-validation icon-validation-black"></span>';
-                                    break;
-                                case 'validationStatus.ok':
-                                    result = '<span class="validation-column-align"><span class="icon-validation"></span>';
-                                    break;
-                                case 'validationStatus.suspect':
-                                    result = '<span class="validation-column-align"><span class="icon-validation icon-validation-red"></span>';
-                                    break;
-                            }
-
-                            return result;
-                        }
-                    }
-                )
             },
             {
                 xtype: 'edited-column',
@@ -100,11 +84,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 align: 'right',
                 hidden: Ext.isEmpty(calculatedReadingType),
                 renderer: function (v) {
-                    if(!Ext.isEmpty(v)) {
+                    if (!Ext.isEmpty(v)) {
                         var value = Uni.Number.formatNumber(v, -1);
-                        return !Ext.isEmpty(value)? value : '';
+                        return !Ext.isEmpty(value) ? value : '';
                     }
-            }}
+                }}
             ,
             {
                 xtype: 'interval-flags-column',
@@ -129,8 +113,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                         itemId: 'device-load-profile-channel-data-edit-readings-button',
                         text: Uni.I18n.translate('deviceloadprofilechannels.data.editReadings', 'MDC', 'Edit readings'),
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceData'),
-                        href:  typeof me.router.getRoute('devices/device/channels/channeltableData/editreadings') !== 'undefined'
-                                ? me.router.getRoute('devices/device/channels/channeltableData/editreadings').buildUrl(me.router.arguments, me.router.queryParams) : null
+                        href: typeof me.router.getRoute('devices/device/channels/channeltableData/editreadings') !== 'undefined'
+                            ? me.router.getRoute('devices/device/channels/channeltableData/editreadings').buildUrl(me.router.arguments, me.router.queryParams) : null
 
 
                     }
