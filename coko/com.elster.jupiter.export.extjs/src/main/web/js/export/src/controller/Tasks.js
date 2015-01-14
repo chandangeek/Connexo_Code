@@ -525,7 +525,7 @@ Ext.define('Dxp.controller.Tasks', {
                 }
             });
 
-        confirmationWindow.add(
+        confirmationWindow.insert(1,
             {
                 xtype: 'panel',
                 itemId: 'date-errors',
