@@ -1,3 +1,13 @@
+/* line 699, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-action-toolbar-small-disabled {
+  background-image: url(images/btn/btn-action-toolbar-small-disabled-bg.gif);
+}
+
+/* line 707, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
+.x-nbr .x-btn-action-toolbar-small {
+  background-image: none;
+}
+
 /* line 722, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-toolbar-small .x-btn-split-right {
   background-image: url(images/button/action-toolbar-small-s-arrow.png);
@@ -15398,38 +15408,6 @@
 
 /* line 10, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
 .x-panel-filter-outer-border-bl {
-  border-bottom-color: none !important;
-  border-bottom-width: 0 !important;
-  border-left-color: none !important;
-  border-left-width: 0 !important;
-}
-
-/* line 16, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
-.x-panel-filter-outer-border-r {
-  border-right-color: none !important;
-  border-right-width: 0 !important;
-}
-
-/* line 20, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
-.x-panel-filter-outer-border-rl {
-  border-right-color: none !important;
-  border-right-width: 0 !important;
-  border-left-color: none !important;
-  border-left-width: 0 !important;
-}
-
-/* line 26, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
-.x-panel-filter-outer-border-rb {
-  border-right-color: none !important;
-  border-right-width: 0 !important;
-  border-bottom-color: none !important;
-  border-bottom-width: 0 !important;
-}
-
-/* line 32, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
-.x-panel-filter-outer-border-rbl {
-  border-right-color: none !important;
-  border-right-width: 0 !important;
   border-bottom-color: none !important;
   border-bottom-width: 0 !important;
   border-left-color: none !important;

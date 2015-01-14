@@ -1,3 +1,35 @@
+/* line 16, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-filter-outer-border-r {
+  border-right-color: none !important;
+  border-right-width: 0 !important;
+}
+
+/* line 20, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-filter-outer-border-rl {
+  border-right-color: none !important;
+  border-right-width: 0 !important;
+  border-left-color: none !important;
+  border-left-width: 0 !important;
+}
+
+/* line 26, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-filter-outer-border-rb {
+  border-right-color: none !important;
+  border-right-width: 0 !important;
+  border-bottom-color: none !important;
+  border-bottom-width: 0 !important;
+}
+
+/* line 32, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-filter-outer-border-rbl {
+  border-right-color: none !important;
+  border-right-width: 0 !important;
+  border-bottom-color: none !important;
+  border-bottom-width: 0 !important;
+  border-left-color: none !important;
+  border-left-width: 0 !important;
+}
+
 /* line 40, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
 .x-panel-filter-outer-border-t {
   border-top-color: none !important;
