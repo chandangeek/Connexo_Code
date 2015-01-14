@@ -150,7 +150,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         return false;
     }
 
-    private boolean isTemporaryFailure(DataAccessResultException e) {
+    protected boolean isTemporaryFailure(DataAccessResultException e) {
         return (e.getDataAccessResult() == DataAccessResultCode.TEMPORARY_FAILURE.getResultCode());
     }
 

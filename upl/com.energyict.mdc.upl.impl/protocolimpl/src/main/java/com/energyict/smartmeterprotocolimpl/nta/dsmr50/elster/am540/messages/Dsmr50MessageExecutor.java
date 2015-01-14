@@ -6,16 +6,22 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.CodeCalendar;
 import com.energyict.mdw.core.CodeDayType;
+import com.energyict.mdw.core.UserFile;
 import com.energyict.protocol.MessageEntry;
+import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExecutor;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.Dsmr50Properties;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -183,6 +189,61 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
         } catch (NumberFormatException e) {
             e.printStackTrace();
             throw new IOException("Could not parse " + strDate + " to a long value");
+        }
+    }
+
+    protected void doFirmwareUpgrade(MessageHandler messageHandler, MessageEntry messageEntry) throws IOException, InterruptedException {
+        log(Level.INFO, "Handling message Firmware upgrade");
+
+        String userFileID = messageHandler.getUserFileId();
+        if (!ParseUtils.isInteger(userFileID)) {
+            String str = "Not a valid entry for the userFile.";
+            throw new IOException(str);
+        }
+        UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
+        if (uf == null) {
+            String str = "Not a valid entry for the userfileID " + userFileID;
+            throw new IOException(str);
+        }
+
+        byte[] imageData = uf.loadFileInByteArray();
+        ImageTransfer it = getCosemObjectFactory().getImageTransfer();
+        if (isResume(messageEntry)) {
+            int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
+            if (lastTransferredBlockNumber > 0) {
+                it.setStartIndex(lastTransferredBlockNumber - 1);
+            }
+        }
+
+        it.setBooleanValue(getBooleanValue());
+        it.setUsePollingVerifyAndActivate(true);    //Poll verification
+        it.setPollingDelay(10000);
+        it.setPollingRetries(30);
+        it.setDelayBeforeSendingBlocks(5000);
+        it.setCheckNumberOfBlocksInPreviousSession(((Dsmr50Properties)getProtocol().getProperties()).getCheckNumberOfBlocksDuringFirmwareResume());
+        String imageIdentifier = messageHandler.getImageIdentifier();
+        if (imageIdentifier != null && imageIdentifier.length() > 0) {
+            it.upgrade(imageData, false, imageIdentifier, false);
+        } else {
+            it.upgrade(imageData, false);
+        }
+        if (messageHandler.getActivationDate().equalsIgnoreCase("")) { // Do an execute now
+            try {
+                it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
+                log(Level.INFO, "Activating the image");
+                it.imageActivation();
+            } catch (DataAccessResultException e) {
+                if (isTemporaryFailure(e)) {
+                    log(Level.INFO, "Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");
+                } else {
+                    throw e;
+                }
+            }
+        } else if (!messageHandler.getActivationDate().equalsIgnoreCase("")) {
+            SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
+            String strDate = messageHandler.getActivationDate();
+            Array dateArray = convertActivationDateUnixToDateTimeArray(strDate);
+            sas.writeExecutionTime(dateArray);
         }
     }
 }

@@ -17,6 +17,8 @@ import java.util.List;
  */
 public class Dsmr50Properties extends Dsmr40Properties {
 
+    private static final String CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME = "CheckNumberOfBlocksDuringFirmwareResume";
+
     private G3SecurityProvider g3SecurityProvider;
 
     @Override
@@ -26,6 +28,7 @@ public class Dsmr50Properties extends Dsmr40Properties {
         optionals.add(G3Properties.AARQ_RETRIES);
         optionals.add(G3Properties.AARQ_TIMEOUT);
         optionals.add(G3Properties.PSK);
+        optionals.add(CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME);
         return optionals;
     }
 
@@ -52,6 +55,10 @@ public class Dsmr50Properties extends Dsmr40Properties {
 
     public int getAARQTimeout() {
         return getIntProperty(G3Properties.AARQ_TIMEOUT, G3Properties.DEFAULT_AARQ_TIMEOUT);
+    }
+
+    public boolean getCheckNumberOfBlocksDuringFirmwareResume() {
+        return getBooleanProperty(CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, "1");
     }
 
 }
