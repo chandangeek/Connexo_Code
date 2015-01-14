@@ -52,11 +52,14 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
     }
 
     @Inject
-    public InboundDeviceProtocolServiceImpl(MdcReadingTypeUtilService readingTypeUtilService, PropertySpecService propertySpecService, Clock clock, NlsService nlsService) {
+    public InboundDeviceProtocolServiceImpl(MdcReadingTypeUtilService readingTypeUtilService, PropertySpecService propertySpecService, Clock clock, NlsService nlsService, CollectedDataFactory collectedDataFactory, IssueService issueService, IdentificationService identificationService) {
         setReadingTypeUtilService(readingTypeUtilService);
         setPropertySpecService(propertySpecService);
         setClock(clock);
         setNlsService(nlsService);
+        setCollectedDataFactory(collectedDataFactory);
+        setIssueService(issueService);
+        setIdentificationService(identificationService);
 
         activate();
     }

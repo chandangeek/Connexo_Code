@@ -43,6 +43,7 @@ public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageSe
     public DeviceProtocolMessageServiceImpl(TopologyService topologyService, IdentificationService identificationService) {
         this();
         this.setTopologyService(topologyService);
+        this.setIdentificationService(identificationService);
         this.activate();
     }
 
