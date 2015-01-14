@@ -171,7 +171,6 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         }).show({
             msg: Uni.I18n.translate('deviceCommand.overview.revokeMsg', 'MDC', 'This command will no longer be able to send'),
             title: title,
-            closable: false,
             fn: function (btnId) {
                 if (btnId == 'confirm') {
                     record.set('status', {value: 'CommandRevoked'});

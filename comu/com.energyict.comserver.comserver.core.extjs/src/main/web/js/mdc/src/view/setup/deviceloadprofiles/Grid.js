@@ -20,7 +20,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Grid', {
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute('devices/device/loadprofiles/loadprofiledata').buildUrl({mRID: me.mRID, loadProfileId: record.get('id')});
-                    return '<a href="' + url + '">' + value + '</a>';
+                    return '<a href="{url}">{value}</a>'.replace('{url}', url).replace('{value}', value);
                 },
                 flex: 1
             },
