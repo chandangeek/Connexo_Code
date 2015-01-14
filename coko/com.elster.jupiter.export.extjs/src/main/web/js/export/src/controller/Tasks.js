@@ -146,9 +146,11 @@ Ext.define('Dxp.controller.Tasks', {
 
         me.fromDetails = false;
         me.getApplication().fireEvent('changecontentevent', view);
-        Ext.Array.each(Ext.ComponentQuery.query('#run'), function (item) {
-            item.show();
-        });
+        if (Uni.Auth.hasPrivilege('privilege.run.dataExportTask')) {
+            Ext.Array.each(Ext.ComponentQuery.query('#run'), function (item) {
+                item.show();
+            });
+        }
     },
 
     showTaskDetailsView: function (currentTaskId) {
@@ -177,7 +179,9 @@ Ext.define('Dxp.controller.Tasks', {
                     if (record.get('status') === 'Failed') {
                         view.down('#reason-field').show();
                     }
-                    view.down('#run').show();
+                    if (Uni.Auth.hasPrivilege('privilege.run.dataExportTask')) {
+                        view.down('#run').show();
+                    }
                 }
                 if (record.properties() && record.properties().count()) {
                     propertyForm.loadRecord(record);
@@ -389,7 +393,7 @@ Ext.define('Dxp.controller.Tasks', {
                             var schedule = record.get('schedule');
                             me.taskModel = record;
                             me.getApplication().fireEvent('dataexporttaskload', record);
-                            taskForm.setTitle(Uni.I18n.translate('general.edit', 'DES', 'Edit') + ' ' + record.get('name'));
+                            taskForm.setTitle(Uni.I18n.translate('general.edit', 'DES', 'Edit') + " '" + record.get('name') + "'");
                             if (localStorage.getItem('addDataExportTaskValues')) {
                                 me.setFormValues(view);
                             } else {
@@ -418,9 +422,11 @@ Ext.define('Dxp.controller.Tasks', {
                                     taskForm.down('tasks-property-form').loadRecord(record);
                                 }
                             }
+                            view.setLoading(false);
                         }
                     });
                     me.getApplication().fireEvent('changecontentevent', view);
+                    view.setLoading();
                 });
             });
         });
@@ -467,9 +473,11 @@ Ext.define('Dxp.controller.Tasks', {
             } else {
                 previewForm.down('#reason-field').hide();
             }
-            Ext.Array.each(Ext.ComponentQuery.query('#run'), function (item) {
-                item.show();
-            });
+            if (Uni.Auth.hasPrivilege('privilege.run.dataExportTask')) {
+                Ext.Array.each(Ext.ComponentQuery.query('#run'), function (item) {
+                    item.show();
+                });
+            }
         }
         preview.setTitle(record.get('name'));
         previewForm.loadRecord(record);
@@ -802,7 +810,7 @@ Ext.define('Dxp.controller.Tasks', {
                         me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks').forward();
                     }
                     if (button.action === 'editTask') {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editDataExportTask.successMsg', 'DES', 'Data export task edited'));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editDataExportTask.successMsg.saved', 'DES', 'Data export task saved'));
                     } else {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('addDataExportTask.successMsg', 'DES', 'Data export task added'));
                     }

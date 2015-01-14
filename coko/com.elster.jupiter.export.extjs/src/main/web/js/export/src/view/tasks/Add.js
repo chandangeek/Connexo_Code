@@ -15,7 +15,7 @@ Ext.define('Dxp.view.tasks.Add', {
     setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
-            this.down('#add-button').setText(Uni.I18n.translate('general.edit', 'DES', 'Edit'));
+            this.down('#add-button').setText(Uni.I18n.translate('general.save', 'DES', 'Save'));
             this.down('#add-button').action = 'editTask';
         } else {
             this.edit = edit;
@@ -54,7 +54,6 @@ Ext.define('Dxp.view.tasks.Add', {
                         width: 500,
                         required: true,
                         //maskRe: /[^:\\/*?"<>|]/,
-                        emptyText: Uni.I18n.translate('general.emptyTextName', 'DES', 'Enter a name'),
                         fieldLabel: Uni.I18n.translate('general.name', 'DES', 'Name'),
                         allowBlank: false,
                         enforceMaxLength: true,
@@ -78,6 +77,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 store: 'Dxp.store.DeviceGroups',
                                 editable: false,
                                 disabled: false,
+                                emptyText: Uni.I18n.translate('addDataExportTask.deviceGroupPrompt', 'DES', 'Select a device group...'),
                                 allowBlank: false,
                                 queryMode: 'local',
                                 displayField: 'name',
@@ -333,7 +333,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 editable: false,
                                 disabled: false,
                                 allowBlank: false,
-                                emptyText: Uni.I18n.translate('general.emptyTextExportPeriod', 'DES', 'Select an extra period'),
+                                emptyText: Uni.I18n.translate('addDataExportTask.exportPeriodPrompt', 'DES', 'Select an export period...'),
                                 displayField: 'name',
                                 valueField: 'id'
                             },
