@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.Reading;
@@ -28,11 +29,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -69,6 +72,8 @@ public class CollectedRegisterListDeviceCommandTest {
     private DeviceService deviceService;
     @Mock
     private ServiceProvider serviceProvider;
+    @Mock
+    private MeteringService meteringService;
 
     @Before
     public void initializeMocksAndFactories() {
@@ -92,7 +97,8 @@ public class CollectedRegisterListDeviceCommandTest {
         when(this.collectedRegister.getRegisterIdentifier()).thenReturn(registerIdentifier);
         when(this.device.getId()).thenReturn(DEVICE_ID);
         ServiceProvider.instance.set(serviceProvider);
-        when(serviceProvider.mdcReadingTypeUtilService()).thenReturn(new MdcReadingTypeUtilServiceImpl());
+        when(meteringService.getReadingType(Matchers.<String>any())).thenReturn(Optional.ofNullable(null));
+        when(serviceProvider.mdcReadingTypeUtilService()).thenReturn(new MdcReadingTypeUtilServiceImpl(meteringService));
     }
 
     @Test
