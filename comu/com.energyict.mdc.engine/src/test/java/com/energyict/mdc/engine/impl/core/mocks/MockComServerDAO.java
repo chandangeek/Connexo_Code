@@ -333,7 +333,7 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void executionStarted (ComTaskExecution comTaskExecution, ComPort comPort) {
+    public void executionStarted(ComTaskExecution comTaskExecution, ComPort comPort, boolean executeInTransaction) {
         this.comTaskExecutionLocking.put(comTaskExecution, comPort);
     }
 

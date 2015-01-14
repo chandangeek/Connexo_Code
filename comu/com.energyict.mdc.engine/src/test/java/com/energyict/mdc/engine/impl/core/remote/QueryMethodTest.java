@@ -10,7 +10,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
-import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
 import com.energyict.mdc.engine.impl.core.ServerProcess;
@@ -222,7 +221,7 @@ public class QueryMethodTest {
         QueryMethod.ExecutionStarted.execute(parameters, comServerDAO);
 
         // Asserts
-        verify(comServerDAO).executionStarted(comTaskExecution, comPort);
+        verify(comServerDAO).executionStarted(comTaskExecution, comPort, true);
     }
 
     @Test

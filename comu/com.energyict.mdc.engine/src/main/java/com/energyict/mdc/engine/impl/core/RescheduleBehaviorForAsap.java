@@ -120,6 +120,9 @@ public class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implem
                         .getComTasks()
                         .stream()
                         .forEach(ct -> {
+                            this.executionContext.prepareStart(this.executionContext.getJob(), notExecutedComTaskExecution);
+                            this.getComServerDAO().executionStarted(notExecutedComTaskExecution, this.executionContext.getComPort(), false);
+                            this.executionContext.executionStarted(notExecutedComTaskExecution);
                             this.executionContext.start(notExecutedComTaskExecution, ct);
                             this.executionContext.markComTaskExecutionForConnectionSetupError(reason);
                             this.executionContext.failForRetryAsapComTaskExec(notExecutedComTaskExecution, t); // I know we just started it, but the start creates the proper shadow for the ComTaskExecution

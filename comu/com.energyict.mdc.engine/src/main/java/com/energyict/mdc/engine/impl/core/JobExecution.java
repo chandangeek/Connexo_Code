@@ -507,7 +507,7 @@ public abstract class JobExecution implements ScheduledJob {
      */
     private void start(ComTaskExecution comTaskExecution) {
         this.getExecutionContext().prepareStart(this, comTaskExecution);
-        this.getComServerDAO().executionStarted(comTaskExecution, this.getComPort());
+        this.getComServerDAO().executionStarted(comTaskExecution, this.getComPort(), true);
         this.getExecutionContext().executionStarted(comTaskExecution);
     }
 

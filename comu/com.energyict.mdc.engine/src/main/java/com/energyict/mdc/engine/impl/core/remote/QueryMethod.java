@@ -276,7 +276,7 @@ public enum QueryMethod {
         this.executeTransaction(new VoidTransaction() {
             @Override
             public void doPerform() {
-                comServerDAO.executionStarted(comTaskExecution, comPort);
+                comServerDAO.executionStarted(comTaskExecution, comPort, true);
             }
         });
     }

@@ -202,11 +202,11 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     /**
     * Notifies that execution of the specified ComTaskExecution has been started
     * on the specified ComPort.
-    *
-     * @param comTaskExecution The ComTaskExecution
-     * @param comPort The ComPort that has started the execution of the ComTaskExecution
+    *  @param comTaskExecution The ComTaskExecution
+    * @param comPort The ComPort that has started the execution of the ComTaskExecution
+     * @param executeInTransaction
      */
-    public void executionStarted (ComTaskExecution comTaskExecution, ComPort comPort);
+    public void executionStarted(ComTaskExecution comTaskExecution, ComPort comPort, boolean executeInTransaction);
 
     /**
      * Notifies that execution of the specified ComTaskExecution completed.

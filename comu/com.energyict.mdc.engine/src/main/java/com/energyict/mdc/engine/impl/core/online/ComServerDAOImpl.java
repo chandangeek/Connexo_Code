@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.core.online;
 
-import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -420,11 +419,19 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void executionStarted(final ComTaskExecution comTaskExecution, final ComPort comPort) {
-        this.executeTransaction(() -> {
-            getCommunicationTaskService().executionStartedFor(comTaskExecution, comPort);
-            return null;
-        });
+    public void executionStarted(final ComTaskExecution comTaskExecution, final ComPort comPort, boolean executeInTransaction) {
+        if(executeInTransaction){
+            this.executeTransaction(() -> {
+                markComTaskForExecutionStarted(comTaskExecution, comPort);
+                return null;
+            });
+        } else {
+            markComTaskForExecutionStarted(comTaskExecution, comPort);
+        }
+    }
+
+    private void markComTaskForExecutionStarted(ComTaskExecution comTaskExecution, ComPort comPort) {
+        getCommunicationTaskService().executionStartedFor(comTaskExecution, comPort);
     }
 
     @Override

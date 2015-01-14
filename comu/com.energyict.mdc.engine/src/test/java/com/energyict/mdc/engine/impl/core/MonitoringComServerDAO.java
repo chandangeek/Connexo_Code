@@ -194,9 +194,9 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void executionStarted (ComTaskExecution comTaskExecution, ComPort comPort) {
+    public void executionStarted(ComTaskExecution comTaskExecution, ComPort comPort, boolean executeInTransaction) {
         this.comTaskExecutionStarted.increment();
-        this.actual.executionStarted(comTaskExecution, comPort);
+        this.actual.executionStarted(comTaskExecution, comPort, true);
     }
 
     @Override
@@ -430,7 +430,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void executionStarted (ComTaskExecution comTaskExecution, ComPort comPort) {
+        public void executionStarted(ComTaskExecution comTaskExecution, ComPort comPort, boolean executeInTransaction) {
             this.verifier.verify(comTaskExecutionStarted);
         }
 
