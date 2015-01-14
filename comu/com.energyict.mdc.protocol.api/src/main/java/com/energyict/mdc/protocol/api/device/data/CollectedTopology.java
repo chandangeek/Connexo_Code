@@ -64,7 +64,11 @@ public interface CollectedTopology extends CollectedData {
 
     public void addTopologyNeighbour(DeviceIdentifier neighbour, int modulationSchema, long toneMap, int modulation, int txGain, int txRes, int txCoeff, int lqi, int phaseDifferential, int tmrValidTime, int neighbourValidTime);
 
+    public void addG3IdentificationInformation(String formattedIPv6Address, int ipv6ShortAddress, int logicalDeviceId);
+
     public List<TopologyPathSegment> getTopologyPathSegments();
 
     public List<TopologyNeighbour> getTopologyNeighbours();
+
+    public G3TopologyDeviceAddressInformation getG3TopologyDeviceAddressInformation();
 }
