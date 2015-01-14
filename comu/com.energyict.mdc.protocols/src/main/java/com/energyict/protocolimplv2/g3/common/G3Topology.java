@@ -16,17 +16,17 @@ import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Will serve functionality for G3 topology related actions
  */
-public class G3Topology {
+public abstract class G3Topology {
 
     private final DeviceIdentifier masterDeviceIdentifier;
     private final IdentificationService identificationService;
@@ -47,35 +47,40 @@ public class G3Topology {
         this.collectedDataFactory = collectedDataFactory;
     }
 
-    public CollectedTopology collectTopology() {
-        CollectedTopology deviceTopology = getDeviceTopology();
+    public abstract CollectedTopology collectTopology();
 
-        collectAndUpdateMacAddresses(deviceTopology);
-        collectAndUpdateShortAddresses(deviceTopology);
-        collectAndUpdatePathSegments(deviceTopology);
-        collectAndUpdateNeighbours(deviceTopology);
-        collectAndUpdateG3IdentificationInformation(deviceTopology);
+//    public CollectedTopology collectTopology() {
+//        CollectedTopology deviceTopology = getDeviceTopology();
+//
+//        collectAndUpdateMacAddresses(deviceTopology);
+//        collectAndUpdateShortAddresses(deviceTopology);
+//        collectAndUpdatePathSegments(deviceTopology);
+//        collectAndUpdateNeighbours(deviceTopology);
+//        collectAndUpdateG3IdentificationInformation(deviceTopology);
+//
+//        return deviceTopology;
+//    }
 
-        return deviceTopology;
-    }
-
-    private void collectAndUpdateG3IdentificationInformation(CollectedTopology deviceTopology) {
+    protected void collectAndUpdateG3IdentificationInformation(CollectedTopology deviceTopology) {
         try {
             Array unicastIPv6Addresses = getDlmsSession().getCosemObjectFactory().getIPv6Setup().getUnicastIPv6Addresses();
-            System.out.println(unicastIPv6Addresses);
+            deviceTopology.addG3IdentificationInformation(
+                    getDlmsSession().getCosemObjectFactory().getIPv6Setup().getFormattedIPv6Address(((OctetString) unicastIPv6Addresses.getDataType(0))),
+                    ((BigDecimal) g3Properties.getProperties().getProperty(G3Properties.G3_SHORT_ADDRESS_PROP_NAME)).intValue(),
+                    ((BigDecimal) g3Properties.getProperties().getProperty(G3Properties.G3_LOGICAL_DEVICE_ID_PROP_NAME)).intValue());
         } catch (IOException e) {
             deviceTopology.setFailureInformation(ResultType.Supported, issueService.newWarning("getIPv6Setup", e.getMessage()));
         }
     }
 
-    private CollectedTopology getDeviceTopology() {
+    protected CollectedTopology getDeviceTopology() {
         if (collectedTopology == null) {
             collectedTopology = this.collectedDataFactory.createCollectedTopology(masterDeviceIdentifier);
         }
         return collectedTopology;
     }
 
-    private void collectAndUpdateNeighbours(CollectedTopology deviceTopology) {
+    protected void collectAndUpdateNeighbours(CollectedTopology deviceTopology) {
         try {
             Array neighbourTable = (Array) getDlmsSession().getCosemObjectFactory().getPLCOFDMType2MACSetup().readNeighbourTable();
             for (AbstractDataType neighbour : neighbourTable) {
@@ -108,7 +113,7 @@ public class G3Topology {
         }
     }
 
-    private void collectAndUpdatePathSegments(CollectedTopology deviceTopology) {
+    protected void collectAndUpdatePathSegments(CollectedTopology deviceTopology) {
         try {
             Array adpRoutingTable = getDlmsSession().getCosemObjectFactory().getSixLowPanAdaptationLayerSetup().readAdpRoutingTable();
 
@@ -135,7 +140,7 @@ public class G3Topology {
         }
     }
 
-    private void collectAndUpdateShortAddresses(CollectedTopology deviceTopology) {
+    protected void collectAndUpdateShortAddresses(CollectedTopology deviceTopology) {
         try {
             Array nodeList = this.getDlmsSession().getCosemObjectFactory().getG3NetworkManagement().getNodeList();
             for (AbstractDataType abstractDataType : nodeList) {
@@ -149,16 +154,16 @@ public class G3Topology {
                 }
             }
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
+            deviceTopology.setFailureInformation(ResultType.Supported, issueService.newWarning("getG3NetworkManagement", e.getMessage()));
         }
     }
 
-    private void collectAndUpdateMacAddresses(CollectedTopology deviceTopology) {
-        List<SAPAssignmentItem> sapAssignmentList;      //List that contains the SAP id's and the MAC addresses of all logical devices (= gateway + slaves)
+    protected void collectAndUpdateMacAddresses(CollectedTopology deviceTopology) {
+        List<SAPAssignmentItem> sapAssignmentList = Collections.emptyList();      //List that contains the SAP id's and the MAC addresses of all logical devices (= gateway + slaves)
         try {
             sapAssignmentList = this.getDlmsSession().getCosemObjectFactory().getSAPAssignment().getSapAssignmentList();
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
+            deviceTopology.setFailureInformation(ResultType.Supported, issueService.newWarning("getSAPAssignment", e.getMessage()));
         }
         for (SAPAssignmentItem sapAssignmentItem : sapAssignmentList) {
             if (!isGatewayNode(sapAssignmentItem)) {

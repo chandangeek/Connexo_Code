@@ -247,7 +247,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     public G3Topology getG3Topology() {
         if (g3Topology == null) {
-            g3Topology = new G3Topology(this.offlineDevice.getDeviceIdentifier(), identificationService, issueService, propertySpecService, getDlmsSession(), getDynamicProperties(), collectedDataFactory);
+            g3Topology = new RtuPlusServerTopology(this.offlineDevice.getDeviceIdentifier(), identificationService, issueService, propertySpecService, getDlmsSession(), getDynamicProperties(), collectedDataFactory);
         }
         return g3Topology;
     }

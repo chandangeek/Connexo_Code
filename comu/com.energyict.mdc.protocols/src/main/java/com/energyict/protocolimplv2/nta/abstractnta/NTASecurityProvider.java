@@ -4,6 +4,7 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
@@ -74,7 +75,7 @@ public class NTASecurityProvider implements SecurityProvider {
      */
     public byte[] getHLSSecret() {
         if (this.hlsSecret == null) {
-            String passwordString = properties.<String>getTypedProperty(SecurityPropertySpecName.PASSWORD.toString());
+            String passwordString = properties.<Password>getTypedProperty(SecurityPropertySpecName.PASSWORD.toString()).getValue();
             byte[] passwordBytes = new byte[passwordString.length()];
             for (int i = 0; i < passwordString.length(); i++) {
                 passwordBytes[i] = (byte) passwordString.charAt(i);

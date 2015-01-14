@@ -9,6 +9,7 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.attributes.Ipv6SetupAttributes;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 
@@ -167,6 +168,18 @@ public class IPv6Setup extends AbstractCosemObject {
             return readUnicastIpv6Addresses();
         }
         return this.unicastIPv6Addresses;
+    }
+
+    public String getFormattedIPv6Address(OctetString ipv6Address){
+        String unformatted = ProtocolUtils.outputHexString(ipv6Address.getOctetStr());
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < 32; i=i+4) {
+            if(i>0){
+                stringBuilder.append(":");
+            }
+            stringBuilder.append(unformatted.substring(i, i+4));
+        }
+        return stringBuilder.toString();
     }
 
     /**

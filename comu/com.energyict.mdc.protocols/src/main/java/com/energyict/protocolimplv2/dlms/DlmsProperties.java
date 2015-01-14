@@ -259,7 +259,7 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
 
     @Override
     public SecurityProvider getSecurityProvider() {
-        if (securityProvider == null) {
+        if (securityProvider == null && securityPropertySet != null) {
             securityProvider = new NTASecurityProvider(properties, securityPropertySet.getAuthenticationDeviceAccessLevel());
         }
         return securityProvider;

@@ -31,11 +31,16 @@ public class G3Properties extends DlmsProperties {
     }
 
     public PropertySpec getShortAddressPropertySpec() {
-        return getPropertySpecService().bigDecimalPropertySpec(G3_SHORT_ADDRESS_PROP_NAME, false, BigDecimal.ZERO);
+        return getPropertySpecService().bigDecimalPropertySpec(G3_SHORT_ADDRESS_PROP_NAME, false, BigDecimal.valueOf(-1));
     }
 
     public PropertySpec getLogicalDeviceIdPropertySpec() {
         return getPropertySpecService().bigDecimalPropertySpec(G3_LOGICAL_DEVICE_ID_PROP_NAME, false, BigDecimal.ZERO);
+    }
+
+    @Override
+    public int getServerUpperMacAddress() {
+        return parseBigDecimalProperty(G3_LOGICAL_DEVICE_ID_PROP_NAME, DEFAULT_UPPER_SERVER_MAC_ADDRESS);
     }
 
     @Override

@@ -291,7 +291,7 @@ public class AM540 extends AbstractDlmsProtocol {
 
     public G3Topology getG3Topology() {
         if (g3Topology == null) {
-            g3Topology = new G3Topology(this.offlineDevice.getDeviceIdentifier(), getIdentificationService(), getIssueService(), getPropertySpecService(), getDlmsSession(), getDlmsProperties(), getCollectedDataFactory());
+            g3Topology = new AM540Topology(this.offlineDevice.getDeviceIdentifier(), getIdentificationService(), getIssueService(), getPropertySpecService(), getDlmsSession(), getDlmsProperties(), getCollectedDataFactory());
         }
         return g3Topology;
     }
