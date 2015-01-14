@@ -152,7 +152,7 @@ enum ReadingTypeUnitMapping {
 
     public static Unit getMdcUnitFor(ReadingTypeUnit readingTypeUnit, MetricMultiplier metricMultiplier){
         for (ReadingTypeUnitMapping readingTypeUnitMapping : values()) {
-            if(readingTypeUnitMapping.cimUnit.equals(readingTypeUnit) && readingTypeUnitMapping.metricMultiplier.equals(metricMultiplier)){
+            if(readingTypeUnitMapping.cimUnit.equals(readingTypeUnit)){
                 return Unit.get(readingTypeUnitMapping.mdcUnit, metricMultiplier.getMultiplier());
             }
         }

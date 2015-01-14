@@ -15,6 +15,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
@@ -135,7 +136,12 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
     }
 
     @Override
-    public Unit getMdcUnitFor(ReadingType readingType) {
-        return ReadingTypeUnitMapping.getMdcUnitFor(readingType.getUnit(), readingType.getMultiplier());
+    public Unit getMdcUnitFor(String readingTypeStr) {
+        Optional<ReadingType> readingType = this.meteringService.getReadingType(readingTypeStr);
+        if(readingType.isPresent()){
+                return ReadingTypeUnitMapping.getMdcUnitFor(readingType.get().getUnit(), readingType.get().getMultiplier());
+        } else {
+            return Unit.getUndefined();
+        }
     }
 }
