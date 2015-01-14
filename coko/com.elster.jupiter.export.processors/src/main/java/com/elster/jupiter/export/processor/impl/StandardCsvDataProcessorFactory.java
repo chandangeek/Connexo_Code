@@ -16,6 +16,7 @@ import com.elster.jupiter.validation.ValidationService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -41,6 +42,20 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
     private volatile ValidationService validationService;
     private volatile AppService appService;
     private volatile Thesaurus thesaurus;
+
+    //OSGI
+    public StandardCsvDataProcessorFactory() {
+    }
+
+    // Tests
+    @Inject
+    public StandardCsvDataProcessorFactory(PropertySpecService propertySpecService, DataExportService dataExportService, ValidationService validationService, AppService appService, NlsService nlsService) {
+        setPropertySpecService(propertySpecService);
+        setDataExportService(dataExportService);
+        setValidationService(validationService);
+        setAppService(appService);
+        setThesaurus(nlsService);
+    }
 
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
