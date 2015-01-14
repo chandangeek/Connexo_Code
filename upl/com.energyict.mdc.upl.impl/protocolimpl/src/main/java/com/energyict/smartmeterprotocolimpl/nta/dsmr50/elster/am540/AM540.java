@@ -225,6 +225,9 @@ public class AM540 extends E350 {
         return messageProtocol;
     }
 
+    /**
+     * The protocol version date
+     */
     @Override
     public String getVersion() {
         return "$Date$";
