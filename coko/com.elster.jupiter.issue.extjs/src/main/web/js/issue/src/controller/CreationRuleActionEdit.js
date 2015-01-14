@@ -148,7 +148,8 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
         });
         Ext.Array.each(form.down('[name=actionTypeDetails]').query(), function (formItem) {
             if (formItem.isFormField) {
-                parameters[formItem.name] = formItem.getValue();
+                if (!parameters[formItem.name])
+                     parameters[formItem.name] = formItem.getValue() ? formItem.getValue() : "";
             }
         });
         model.set('parameters', parameters);
