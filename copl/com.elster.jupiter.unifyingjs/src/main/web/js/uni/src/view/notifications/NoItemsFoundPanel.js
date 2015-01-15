@@ -114,6 +114,9 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
         var me = this;
 
         me.callParent(arguments);
+
+        Ext.suspendLayouts();
+
         var wrapper = me.down('#wrapper');
 
         wrapper.setTitle(me.title);
@@ -142,6 +145,8 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
                 wrapper.add(me.createSteps(me.stepItems));
             }
         }
+
+        Ext.resumeLayouts();
     },
 
     formatReasons: function (reasons) {
@@ -176,7 +181,7 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
                 margin: '0 8px 0 0'
             }
         });
-
+        Ext.suspendLayouts();
         if (Ext.isArray(stepItems)) {
             Ext.Array.each(stepItems, function (stepItem) {
                 container.add(Ext.clone(stepItem));
@@ -184,7 +189,7 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
         } else if (Ext.isString(stepItems)) {
             container.add(Ext.clone(stepItems));
         }
-
+        Ext.resumeLayouts();
         return container;
     }
 });

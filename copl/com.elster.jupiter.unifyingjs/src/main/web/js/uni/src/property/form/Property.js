@@ -110,7 +110,7 @@ Ext.define('Uni.property.form.Property', {
 
         Ext.resumeLayouts();
 
-        this.initialised = true;
+        me.initialised = true;
     },
 
     useInheritedValues: function () {

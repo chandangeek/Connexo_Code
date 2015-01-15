@@ -25,6 +25,9 @@ Ext.define('Uni.util.FormErrorMessage', {
 
     renew: function () {
         var me = this;
+
+        Ext.suspendLayouts();
+
         me.removeAll(true);
         me.add([
             {
@@ -39,6 +42,9 @@ Ext.define('Uni.util.FormErrorMessage', {
                 html: me.text
             }
         ]);
+
+
+        Ext.resumeLayouts();
     },
 
     setText: function (text) {

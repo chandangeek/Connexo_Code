@@ -40,13 +40,13 @@ Ext.define('Uni.property.view.property.DateTime', {
             var date = new Date(value);
             dateValue = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
             timeValue = new Date(1970, 0, 1, date.getHours(), date.getMinutes(), date.getSeconds(), 0);
-        }
 
-        if (!this.isEdit) {
-            this.callParent([date.toLocaleString()]);
-        } else {
-            this.callParent([dateValue]);
-            this.getTimeField().setValue(timeValue);
+            if (!this.isEdit) {
+                this.callParent([date.toLocaleString()]);
+            } else {
+                this.callParent([dateValue]);
+                this.getTimeField().setValue(timeValue);
+            }
         }
     },
 

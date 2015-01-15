@@ -2,21 +2,19 @@ Ext.define('Uni.grid.column.ValidationFlag', {
     extend: 'Ext.grid.column.Column',
     xtype: 'validation-flag-column',
     header: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
-
     renderer: function (value, metaData, record) {
-        switch (record.get('validationResult')) {
-            case 'validationStatus.notValidated':
-                return '<span class="validation-column-align"><span class="uni-icon-validation uni-icon-validation-black"></span>';
-                break;
-            case 'validationStatus.ok':
-                return '<span class="validation-column-align"><span class="uni-icon-validation"></span>';
-                break;
-            case 'validationStatus.suspect':
-                return '<span class="validation-column-align"><span class="uni-icon-validation uni-icon-validation-red"></span>';
-                break;
-            default:
-                return '';
-                break;
+        if (record.get('validationResult')) {
+            var result = record.get('validationResult'),
+                status = result.split('.')[1],
+                cls = 'icon-validation-cell ';
+            if (status === 'suspect') {
+                cls += 'icon-validation-red'
+            }
+            if (status === 'notValidated') {
+                cls += 'icon-validation-black'
+            }
+            metaData.tdCls = cls;
+            return !Ext.isEmpty(value) ? value : '';
         }
     }
 });

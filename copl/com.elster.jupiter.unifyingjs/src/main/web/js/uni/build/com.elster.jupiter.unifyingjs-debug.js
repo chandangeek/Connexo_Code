@@ -1500,7 +1500,6 @@ Ext.define('Uni.override.GridPanelOverride', {
 Ext.define('Uni.override.grid.Panel', {
     override: 'Ext.grid.Panel',
 
-    bodyBorder: true,
     enableColumnHide: false,
     enableColumnMove: false,
     enableColumnResize: false,
@@ -1542,24 +1541,23 @@ Ext.define('Uni.override.view.Table', {
 
 Ext.define('Uni.override.grid.plugin.BufferedRenderer', {
     override: 'Ext.grid.plugin.BufferedRenderer',
+    rowHeight: 29, // comes from skyline theme
 
-    rowHeight: 29 // Comes from the Skyline theme.
+    init: function(grid) {
+        this.callParent(arguments);
 
-//    init: function(grid) {
-//        this.callParent(arguments);
-//
-//        // grid height calculated before the toolbar is on layouts, it causes the bug: JP-3817
-//        grid.on('boxready', function() {
-//            grid.view.refresh();
-//        })
-//    },
-//
-//    bindStore: function(store) {
-//        var me = this;
-//        me.trailingBufferZone = 0;
-//        me.leadingBufferZone = store.pageSize;
-//        this.callParent(arguments);
-//    }
+        // grid height calculated before the toolbar is on layouts, it causes the bug: JP-3817
+        grid.on('boxready', function() {
+            grid.view.refresh();
+        })
+    },
+
+    bindStore: function(store) {
+        var me = this;
+        me.trailingBufferZone = 0; // No idea why this needs to be 0, without it some grids don't work.
+        me.leadingBufferZone = store.pageSize;
+        me.callParent(arguments);
+    }
 });
 
 Ext.define('Uni.override.menu.Item', {
@@ -2657,7 +2655,7 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
                 margin: '0 8px 0 0'
             }
         });
-
+        Ext.suspendLayouts();
         if (Ext.isArray(stepItems)) {
             Ext.Array.each(stepItems, function (stepItem) {
                 container.add(Ext.clone(stepItem));
@@ -2665,7 +2663,7 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
         } else if (Ext.isString(stepItems)) {
             container.add(Ext.clone(stepItems));
         }
-
+        Ext.resumeLayouts();
         return container;
     }
 });
@@ -3565,7 +3563,7 @@ Ext.define('Uni.controller.Navigation', {
     searchEnabled: Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
     onlineHelpEnabled: false,
 
-    init: function () {
+    init: function (app) {
         var me = this;
 
         Ext.util.History.addListener('change', function () {
@@ -3590,9 +3588,11 @@ Ext.define('Uni.controller.Navigation', {
             }
         });
 
-        me.getApplication().on('changemaincontentevent', me.showContent, me);
-        me.getApplication().on('changemainbreadcrumbevent', me.initTitle, me);
-        me.getApplication().on('changemainbreadcrumbevent', me.setBreadcrumb, me);
+        me.getApplication().on('changemaincontentevent', me.showContent,me);
+        me.getApplication().on('changemainbreadcrumbevent', me.setBreadcrumb,me);
+        me.getApplication().on('onnavigationtitlechanged', me.onNavigationTitleChanged,me);
+        me.getApplication().on('onnavigationtogglesearch', me.onNavigationToggleSearch,me);
+        me.getApplication().on('ononlinehelpenabled', me.onOnlineHelpEnabled,me);
 
         me.getController('Uni.controller.history.Router').on('routematch', me.initBreadcrumbs, me);
         me.getController('Uni.controller.history.Router').on('routechange', me.initBreadcrumbs, me);
@@ -3600,6 +3600,17 @@ Ext.define('Uni.controller.Navigation', {
 
     initApps: function () {
         Uni.store.Apps.load();
+    },
+
+    onNavigationTitleChanged: function(title){
+        this.applicationTitle = title;
+    },
+    onNavigationToggleSearch: function(enabled){
+        this.searchEnabled = enabled;
+    },
+
+    onOnlineHelpEnabled: function(enabled){
+       this.onlineHelpEnabled = enabled;
     },
 
     initTitle: function (breadcrumbItem) {
@@ -3675,7 +3686,7 @@ Ext.define('Uni.controller.Navigation', {
                             },
                             callback: function () {
                                 helpBtn.show();
-                            },
+                            }
                         });
                     } else {
                         helpBtn.show();
@@ -4559,6 +4570,9 @@ Ext.define('Uni.view.panel.FilterToolbar', {
             items: {
                 itemId: 'Reset',
                 xtype: 'button',
+                style: {
+                    marginRight: '0px !important'
+                },
                 text: 'Clear all',
                 action: 'clear'
             }
@@ -5673,17 +5687,20 @@ Ext.define('Uni.controller.AppController', {
      */
     packages: [],
 
-    init: function () {
+    init: function (app) {
 
         var me = this;
         me.initCrossroads();
 
-        me.getController('Uni.controller.Navigation').applicationTitle = me.applicationTitle;
-        me.getController('Uni.controller.Navigation').searchEnabled = me.searchEnabled;
-        me.getController('Uni.controller.Navigation').onlineHelpEnabled = me.onlineHelpEnabled;
+        me.getController('Uni.controller.Navigation');
+        me.getApplication().fireEvent('onnavigationtitlechanged', me.applicationTitle);
+        me.getApplication().fireEvent('onnavigationtogglesearch', me.searchEnabled);
+        me.getApplication().fireEvent('ononlinehelpenabled', me.onlineHelpEnabled);
+
         me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
         me.getApplication().on('changecontentevent', me.showContent, me);
         me.getApplication().on('sessionexpired', me.redirectToLogin, me);
+        
         if (Uni.Auth.hasAnyPrivilege(me.privileges)) {
             me.checkLicenseStatus();
             me.loadControllers();
@@ -5722,30 +5739,32 @@ Ext.define('Uni.controller.AppController', {
         panel.add(widget);
 
         Ext.resumeLayouts();
+
+        panel.doComponentLayout();
     },
 
     checkLicenseStatus: function () {
         var me = this;
-        if (typeof me.applicationKey !== 'undefined' && me.applicationKey !== 'SYS'){
+        if (typeof me.applicationKey !== 'undefined' && me.applicationKey !== 'SYS') {
             Ext.Ajax.request({
-                url: '/api/apps/apps/status/'+me.applicationKey,
+                url: '/api/apps/apps/status/' + me.applicationKey,
                 method: 'GET',
                 async: false,
-                success: function(response){
+                success: function (response) {
                     me.licenseStatus = response.responseText;
                     if (me.licenseStatus === 'EXPIRED') {
                         me.controllers = [];
-                        me.getController('Uni.controller.Navigation').searchEnabled  = false;
+                        me.getController('Uni.controller.Navigation').searchEnabled = false;
                     }
                 },
-                failure: function(response) {
+                failure: function (response) {
                     me.licenseStatus = 'NO_LICENSE';
                 }
             });
         }
     },
 
-    showLicenseGraced : function () {
+    showLicenseGraced: function () {
         if (!isNaN(this.licenseStatus) && !Ext.state.Manager.get('licenseGraced')) {
             Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
             Ext.state.Manager.set('licenseGraced', 'Y');
@@ -9193,14 +9212,13 @@ Ext.define('Uni.property.view.DefaultButton', {
     xtype: 'uni-default-button',
 
     border: 0,
-//    icon: '../sky/build/resources/images/form/restore.png',
-    html: '<img style="margin-left: -2px" src="../sky/build/resources/images/form/restore.png">',
+    iconCls: 'icon-spinner12',
+    iconAlign: 'center',
     height: 28,
     width: 28,
-    scale: 'small',
     action: 'delete',
-    margin: '0 0 5 5',
-    hidden: true
+    margin: '0 0 0 5',
+    hidden: false
 });
 
 /**
@@ -9224,7 +9242,7 @@ Ext.define('Uni.property.view.property.Base', {
     ],
 
     width: 320,
-    resetButtonHidden: false,
+//    resetButtonHidden: false,
     translationKey: 'UNI',
 
     layout: 'hbox',
@@ -9233,7 +9251,8 @@ Ext.define('Uni.property.view.property.Base', {
 
     items: [
         {
-            xtype: 'uni-default-button'
+            xtype: 'uni-default-button',
+            visible: true
         }
     ],
 
@@ -9317,16 +9336,20 @@ Ext.define('Uni.property.view.property.Base', {
      * Updates the reset button state and tooltip
      */
     updateResetButton: function () {
-        var resetButtonHidden = this.resetButtonHidden;
         var button = this.getResetButton();
 
-        if (!resetButtonHidden && this.isEdit) {
-            button.setTooltip(
-                    Uni.I18n.translate('general.restoreDefaultValue', this.translationKey, 'Restore to default value')
-                    + ' &quot; ' + this.getProperty().get('default') + '&quot;'
-            );
+        if (this.isEdit) {
+            if(!this.getProperty().get('isInheritedOrDefaultValue')){
+                button.setTooltip(
+                        Uni.I18n.translate('general.restoreDefaultValue', this.translationKey, 'Restore to default value')
+                        + ' &quot; ' + this.getProperty().get('default') + '&quot;'
+                );
 
-            button.setVisible(!this.getProperty().get('isInheritedOrDefaultValue'));
+                button.setDisabled(false);
+            } else {
+                button.setTooltip('bla');
+                button.setDisabled(true);
+            }
         }
         this.fireEvent('checkRestoreAll', this);
     },
@@ -11085,6 +11108,7 @@ Ext.define('Uni.property.form.PropertyHydrator', {
         if (typeof record === 'undefined' || !record.properties()) {
             return false;
         }
+        record.beginEdit();
         record.properties().each(function (property) {
             var value,
                 propertyValue;
@@ -11110,6 +11134,7 @@ Ext.define('Uni.property.form.PropertyHydrator', {
             }
 
         });
+        record.endEdit();
     }
 });
 
@@ -11476,12 +11501,13 @@ Ext.define('Uni.property.model.Property', {
                 hasValue = propertyValue.get('propertyHasValue');
             }
         }
-
+        me.beginEdit();
         me.set('isInheritedOrDefaultValue', isInheritedValue);
         me.set('value', value);
         me.set('default', restoreValue);
         me.set('hasDefaultValue', hasDefaultValue);
         me.set('hasValue', hasValue);
+        me.endEdit();
     },
 
     initInheritedValues: function() {
@@ -12240,8 +12266,19 @@ Ext.define('Uni.view.user.Menu', {
     menu: [
         {
             text: 'Logout',
-            action: 'logout',
-            href: '/apps/login/index.html?logout=true'
+            listeners: {
+                'click': function () {
+                    Ext.Ajax.request({
+                        url: '/api/apps/apps/logout',
+                        method: 'POST',
+                        disableCaching: true,
+                        scope: this,
+                        success: function () {
+                            window.location.replace('/apps/login/index.html');
+                        }
+                    });
+                }
+            }
         }
     ]
 });
@@ -12665,12 +12702,13 @@ Ext.define('Uni.view.breadcrumb.Trail', {
 
     addBreadcrumbComponent: function (component) {
         var itemCount = this.items.getCount();
-
+        Ext.suspendLayouts();
         if (itemCount % 2 === 1) {
             this.add(Ext.widget('breadcrumbSeparator'));
         }
 
         this.add(component);
+        Ext.resumeLayouts();
     }
 });
 
@@ -13211,9 +13249,9 @@ Ext.define('Uni.view.form.CheckboxGroup', {
      */
     refresh: function () {
         var me = this;
-
+        
         Ext.suspendLayouts();
-
+        
         me.removeAll();
         me.store.each(function (record) {
             me.add({
@@ -13226,8 +13264,7 @@ Ext.define('Uni.view.form.CheckboxGroup', {
                 }
             });
         });
-
-
+        
         Ext.resumeLayouts();
     },
 
@@ -13276,10 +13313,6 @@ Ext.define('Uni.view.grid.SelectionGrid', {
     extend: 'Ext.grid.Panel',
     xtype: 'selection-grid',
 
-    requires: [
-        'Ext.grid.plugin.BufferedRenderer'
-    ],
-
     bottomToolbarHeight: 27,
 
     selType: 'checkboxmodel',
@@ -13288,33 +13321,10 @@ Ext.define('Uni.view.grid.SelectionGrid', {
         showHeaderCheckbox: false
     },
 
-//    overflowY: 'auto',
+    overflowY: 'auto',
     maxHeight: 450,
 
     extraTopToolbarComponent: undefined,
-
-//    plugins: [
-//        {
-//            ptype: 'bufferedrenderer',
-//            trailingBufferZone: 5,
-//            leadingBufferZone: 5,
-//            scrollToLoadBuffer: 10,
-//            onViewResize: function (view, width, height, oldWidth, oldHeight) {
-//                if (!oldHeight || height !== oldHeight) {
-//                    var me = this,
-//                        newViewSize,
-//                        scrollRange;
-//                    if (view.all.getCount()) {
-//                        delete me.rowHeight;
-//                    }
-//                    scrollRange = me.getScrollHeight();
-//                    newViewSize = 18;
-//                    me.viewSize = me.setViewSize(newViewSize);
-//                    me.stretchView(view, scrollRange);
-//                }
-//            }
-//        }
-//    ],
 
     /**
      * @cfg counterTextFn
@@ -13492,13 +13502,11 @@ Ext.define('Uni.view.grid.SelectionGrid', {
 Ext.define('Uni.view.grid.BulkSelection', {
     extend: 'Uni.view.grid.SelectionGrid',
     xtype: 'bulk-selection-grid',
-//    plugins: 'bufferedrenderer',
+
     loadMask: true,
     autoScroll: true,
     maxHeight: 600,
-//    requires: [
-//        'Ext.grid.plugin.BufferedRenderer'
-//    ],
+
     /**
      * @cfg allLabel
      *
@@ -13585,8 +13593,8 @@ Ext.define('Uni.view.grid.BulkSelection', {
      */
     bottomToolbarHidden: false,
 
-//    gridHeight: 0,
-//    gridHeaderHeight: 0,
+    gridHeight: 0,
+    gridHeaderHeight: 0,
 
     initComponent: function () {
         var me = this;
@@ -14290,7 +14298,7 @@ Ext.define('Uni.view.menu.SideMenu', {
 
     addMenuItems: function (menuItems) {
         var me = this;
-
+        Ext.suspendLayouts();
         for (var i = 0; i < menuItems.length; i++) {
             var item = menuItems[i],
                 subItems = item.items,
@@ -14318,6 +14326,7 @@ Ext.define('Uni.view.menu.SideMenu', {
 
             me.add(item);
         }
+        Ext.resumeLayouts();
     },
 
     applyMenuDefaults: function (config) {
@@ -14440,9 +14449,9 @@ Ext.define('Uni.view.menu.SideMenu', {
     },
 
     pickBestSelection: function (a, b) {
-        if (Ext.isDefined(a) && !Ext.isDefined(b)) {
+        if (!Ext.isDefined(b)) {
             return a;
-        } else if (!Ext.isDefined(a) && Ext.isDefined(b)) {
+        } else if (!Ext.isDefined(a)) {
             return b
         }
 
@@ -15540,28 +15549,36 @@ Ext.define('Uni.view.window.Confirmation', {
     initComponent: function () {
         var me = this;
 
-        me.buttons = [
-            {
-                xtype: 'button',
-                action: 'confirm',
-                name: 'confirm',
-                scope: me,
-                text: me.confirmText,
-                ui: me.confirmBtnUi,
-                handler: me.confirmation
-            },
-            {
-                xtype: 'button',
-                action: 'cancel',
-                name: 'cancel',
-                scope: me,
-                text: me.cancelText,
-                ui: 'link',
-                handler: me.cancellation
-            }
-        ];
-
         me.callParent(arguments);
+        me.add(
+            {
+                xtype: 'container',
+                layout: {
+                    type: 'hbox'
+                },
+                items: [
+                    {
+                        xtype: 'button',
+                        action: 'confirm',
+                        name: 'confirm',
+                        scope: me,
+                        text: me.confirmText,
+                        ui: me.confirmBtnUi,
+                        handler: me.confirmation,
+                        margin: '0 0 0 ' + me.iconWidth
+                    },
+                    {
+                        xtype: 'button',
+                        action: 'cancel',
+                        name: 'cancel',
+                        scope: me,
+                        text: me.cancelText,
+                        ui: 'link',
+                        handler: me.cancellation
+                    }
+                ]
+            }
+        );
     },
 
     show: function (config) {
@@ -15854,6 +15871,7 @@ Ext.define('Uni.view.window.Wizard', {
      * @param {String/Ext.Component} htmlOrCmp
      */
     setDescription: function (htmlOrCmp) {
+        Ext.suspendLayouts();
         this.getDescriptionCmp().removeAll();
 
         if (!(htmlOrCmp instanceof Ext.Component)) {
@@ -15862,6 +15880,7 @@ Ext.define('Uni.view.window.Wizard', {
         }
 
         this.getDescriptionCmp().add(htmlOrCmp);
+        Ext.resumeLayouts();
     },
 
     getTitleCmp: function () {
