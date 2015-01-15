@@ -17,10 +17,12 @@ import javax.ws.rs.core.Response;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.REASON;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.PHASE;
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -38,23 +40,31 @@ public class ActionResource extends BaseResource {
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getAllActionTypes(@BeanParam StandardParametersBean params){
         String issueTypeKey = params.getFirst(ISSUE_TYPE);
-        IssueType issueType = getIssueService().findIssueType(issueTypeKey).orElse(null);
+        Optional<IssueType> issueType = getIssueService().findIssueType(issueTypeKey);
 
         String issueReasonKey = params.getFirst(REASON);
-        IssueReason issueReason = getIssueService().findReason(issueReasonKey).orElse(null);
+        Optional<IssueReason> issueReason = getIssueService().findReason(issueReasonKey);
+        
+        String phaseKey = params.getFirst(PHASE);
+        Optional<CreationRuleActionPhase> phase = Optional.ofNullable(CreationRuleActionPhase.fromString(phaseKey));
 
         Query<IssueActionType> query = getIssueActionService().getActionTypeQuery();
-        Condition condition = Condition.TRUE;
-        if (issueReason != null){
-            condition = condition.and(where("issueReason").isEqualTo(issueReason));
-        } else {
-            condition = where("issueType").isNull();
-            if (issueType != null){
-                condition = condition.or(where("issueType").isEqualTo(issueType));
-            }
-        }
+
+        Condition typeCondition = buildCondition("issueType", issueType);
+        Condition reasonCondition = buildCondition("issueReason", issueReason);
+        Condition phaseCondition = buildCondition("phase", phase);
+        Condition condition = (typeCondition).and(reasonCondition).and(phaseCondition);
+        
         List<IssueActionType> ruleActionTypes = query.select(condition).stream().filter(at -> at.createIssueAction().isPresent()).collect(Collectors.toList());
         return entity(ruleActionTypes, CreationRuleActionTypeInfo.class).build();
+    }
+    
+    private Condition buildCondition(String field, Optional<?> value) {
+        Condition condition = where(field).isNull();
+        if (value.isPresent()) {
+            condition = condition.or(where(field).isEqualTo(value.get()));
+        }
+        return condition;
     }
 
     /**
