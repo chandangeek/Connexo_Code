@@ -1,3 +1,9 @@
+/* line 691, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-action-toolbar-small-menu-active,
+.x-nlg .x-btn-action-toolbar-small-pressed {
+  background-image: url(images/btn/btn-action-toolbar-small-pressed-bg.gif);
+}
+
 /* line 699, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-nlg .x-btn-action-toolbar-small-disabled {
   background-image: url(images/btn/btn-action-toolbar-small-disabled-bg.gif);

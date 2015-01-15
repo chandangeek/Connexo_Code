@@ -7901,6 +7901,10 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 .x-btn {
   margin-right: 8px !important;
 }
+/* line 32, ../../sass/src/button/Button.scss */
+.x-btn.x-item-disabled {
+  cursor: default;
+}
 
 /* line 4, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-default-small .x-btn-icon-el {
@@ -16793,10 +16797,4 @@ a:hover, a.x-btn:hover {
 /* line 682, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-nlg .x-btn-action-toolbar-small-over {
   background-image: url(images/btn/btn-action-toolbar-small-over-bg.gif);
-}
-
-/* line 691, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-nlg .x-btn-action-toolbar-small-menu-active,
-.x-nlg .x-btn-action-toolbar-small-pressed {
-  background-image: url(images/btn/btn-action-toolbar-small-pressed-bg.gif);
 }
