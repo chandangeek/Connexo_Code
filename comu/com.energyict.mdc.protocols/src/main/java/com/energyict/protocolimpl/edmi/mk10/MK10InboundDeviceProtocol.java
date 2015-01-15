@@ -143,7 +143,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     }
 
     public void setDeviceIdentifier(String serialNumber) {
-        this.deviceIdentifier = this.identificationService.createDeviceIdentifierBySerialNumber(serialNumber);
+        this.deviceIdentifier = this.identificationService.createDeviceIdentifierByCallHomeId(serialNumber);
     }
 
     @Override

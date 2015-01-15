@@ -4,6 +4,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
@@ -20,9 +21,6 @@ import java.util.List;
  */
 public class InboundProximusSmsConnectionType extends AbstractInboundSmsConnectionType {
 
-    public static final String DEVICE_PHONE_NUMBER_PROPERTY_NAME = "phoneNumber";
-    public static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
-
     private final PropertySpecService propertySpecService;
 
     @Inject
@@ -32,11 +30,11 @@ public class InboundProximusSmsConnectionType extends AbstractInboundSmsConnecti
     }
 
     private PropertySpec phoneNumberPropertySpec() {
-        return this.propertySpecService.basicPropertySpec(DEVICE_PHONE_NUMBER_PROPERTY_NAME, true, new StringFactory());
+        return this.propertySpecService.basicPropertySpec(DeviceProtocolProperty.phoneNumber.name(), true, new StringFactory());
     }
 
     private PropertySpec callHomeIdPropertySpec() {
-        return this.propertySpecService.basicPropertySpec(CALL_HOME_ID_PROPERTY_NAME, true, new StringFactory());
+        return this.propertySpecService.basicPropertySpec(DeviceProtocolProperty.callHomeId.name(), true, new StringFactory());
     }
 
     @Override
@@ -46,13 +44,14 @@ public class InboundProximusSmsConnectionType extends AbstractInboundSmsConnecti
 
     @Override
     public PropertySpec getPropertySpec(String name) {
-        switch (name) {
-            case DEVICE_PHONE_NUMBER_PROPERTY_NAME:
-                return this.phoneNumberPropertySpec();
-            case CALL_HOME_ID_PROPERTY_NAME:
-                return this.callHomeIdPropertySpec();
-            default:
-                return null;
+        if (DeviceProtocolProperty.phoneNumber.name().equals(name)) {
+            return this.phoneNumberPropertySpec();
+        }
+        else if (DeviceProtocolProperty.callHomeId.name().equals(name)) {
+            return this.callHomeIdPropertySpec();
+        }
+        else {
+            return null;
         }
     }
 

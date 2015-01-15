@@ -102,7 +102,7 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
     }
 
     protected void setSerialNumber (String serialNumber) {
-        setDeviceIdentifier(this.identificationService.createDeviceIdentifierBySerialNumber(serialNumber));
+        setDeviceIdentifier(this.identificationService.createDeviceIdentifierByCallHomeId(serialNumber));
     }
 
     protected void setDeviceIdentifier(DeviceIdentifier deviceIdentifier) {

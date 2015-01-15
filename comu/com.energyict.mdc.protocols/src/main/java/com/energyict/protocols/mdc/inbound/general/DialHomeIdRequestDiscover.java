@@ -5,9 +5,9 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
@@ -39,7 +39,7 @@ public class DialHomeIdRequestDiscover extends RequestDiscover {
     @Override
     protected void setSerialNumber(String callHomeId) {
         // The 'SerialId' field contains the unique devices Call Home Id.
-        setDeviceIdentifier(getIdentificationService().createDeviceIdentifierByProperty(BasicDynamicPropertySupport.CALL_HOME_ID_PROPERTY_NAME, callHomeId));
+        setDeviceIdentifier(getIdentificationService().createDeviceIdentifierByProperty(DeviceProtocolProperty.callHomeId.name(), callHomeId));
     }
 
     @Override

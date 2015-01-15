@@ -869,7 +869,7 @@ public class ObjectFactory {
                         setCurrentSlaveSerialNumber(currentSerialNumber);
                         getMBusBillingData().parse(mdElement);
                         for (RegisterValue registerValue : getMBusBillingData().getMrd().getRegisterValues()) {
-                            getAce4000().getCollectedMBusBillingRegisters().add(createCommonRegister(registerValue, this.identificationService.createDeviceIdentifierBySerialNumber(currentSerialNumber)));
+                            getAce4000().getCollectedMBusBillingRegisters().add(createCommonRegister(registerValue, this.identificationService.createDeviceIdentifierByCallHomeId(currentSerialNumber)));
                             getAce4000().addReceivedRegisterObisCode(registerValue.getObisCode());
                         }
                         updateRequestSuccess(new Tracker(RequestType.MBusBillingRegister));
@@ -878,7 +878,7 @@ public class ObjectFactory {
                         setCurrentSlaveSerialNumber(currentSerialNumber);
                         getMBusCurrentReadings().parse(mdElement);
                         for (RegisterValue registerValue : getMBusCurrentReadings().getMrd().getRegisterValues()) {
-                            getAce4000().getCollectedMBusCurrentRegisters().add(createCommonRegister(registerValue, this.identificationService.createDeviceIdentifierBySerialNumber(currentSerialNumber)));
+                            getAce4000().getCollectedMBusCurrentRegisters().add(createCommonRegister(registerValue, this.identificationService.createDeviceIdentifierByCallHomeId(currentSerialNumber)));
                             getAce4000().addReceivedRegisterObisCode(registerValue.getObisCode());
                         }
                         updateRequestSuccess(new Tracker(RequestType.MBusCurrentRegister));
