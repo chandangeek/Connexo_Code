@@ -22,18 +22,18 @@ public enum NrOfDataBits {
         BigDecimal[] typedValues = new BigDecimal[values().length];
         int i = 0;
         for (NrOfDataBits dataBits : values()) {
-            typedValues[i++] = dataBits.getNrOfDataBits();
+            typedValues[i++] = dataBits.value();
         }
         return typedValues;
     }
 
-    public BigDecimal getNrOfDataBits() {
+    public BigDecimal value() {
         return nrOfDataBits;
     }
 
     public static NrOfDataBits valueFor (BigDecimal numercialValue) {
         for (NrOfDataBits dataBitsValues : values()) {
-            if (dataBitsValues.getNrOfDataBits().equals(numercialValue)) {
+            if (dataBitsValues.value().equals(numercialValue)) {
                 return dataBitsValues;
             }
         }
@@ -42,7 +42,7 @@ public enum NrOfDataBits {
 
     @Override
     public String toString() {
-        return String.valueOf(getNrOfDataBits().intValue());
+        return String.valueOf(value().intValue());
     }
 
 }

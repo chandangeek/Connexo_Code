@@ -70,15 +70,15 @@ public class RxTxSerialPort implements ServerSerialPort {
 
     private void setSerialPortParameters() {
         try {
-            serialPort.setSerialPortParams(serialPortConfiguration.getBaudrate().getBaudrate().intValue(),
-                    getRxTxNrOfDataBits(serialPortConfiguration.getNrOfDataBits().getNrOfDataBits()),
-                    getRxTxNrOfStopBits(serialPortConfiguration.getNrOfStopBits().getNrOfStopBits()),
-                    getRxTxParity(serialPortConfiguration.getParity().getParity()));
+            serialPort.setSerialPortParams(serialPortConfiguration.getBaudrate().value().intValue(),
+                    getRxTxNrOfDataBits(serialPortConfiguration.getNrOfDataBits().value()),
+                    getRxTxNrOfStopBits(serialPortConfiguration.getNrOfStopBits().value()),
+                    getRxTxParity(serialPortConfiguration.getParity().value()));
         } catch (UnsupportedCommOperationException e) {
             throw new SerialPortException(MessageSeeds.SERIAL_PORT_LIBRARY_EXCEPTION, e);
         }
         try {
-            setFlowControlMode(serialPortConfiguration.getFlowControl().getFlowControl());
+            setFlowControlMode(serialPortConfiguration.getFlowControl().value());
         } catch (UnsupportedCommOperationException e) {
             throw new SerialPortException(MessageSeeds.SERIAL_PORT_LIBRARY_EXCEPTION, e);
         }
@@ -97,11 +97,11 @@ public class RxTxSerialPort implements ServerSerialPort {
      *          if a mode is not supported by the underlying OS
      */
     protected void setFlowControlMode(String flowControl) throws UnsupportedCommOperationException {
-        if (FlowControl.NONE.getFlowControl().equals(flowControl)) {
+        if (FlowControl.NONE.value().equals(flowControl)) {
             serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
             getSerialPortSignalController().setRTS(true);
             getSerialPortSignalController().setDTR(true);
-        } else if (FlowControl.RTSCTS.getFlowControl().equals(flowControl)) {
+        } else if (FlowControl.RTSCTS.value().equals(flowControl)) {
             serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN | SerialPort.FLOWCONTROL_RTSCTS_OUT);
             getSerialPortSignalController().setRTS(true);
 
@@ -110,7 +110,7 @@ public class RxTxSerialPort implements ServerSerialPort {
 //            serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
 //            serialPort.setRTS(true);
 //            serialPort.setDTR(true);
-        } else if (FlowControl.XONXOFF.getFlowControl().equals(flowControl)) {
+        } else if (FlowControl.XONXOFF.value().equals(flowControl)) {
             serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_XONXOFF_IN | SerialPort.FLOWCONTROL_XONXOFF_OUT);
             getSerialPortSignalController().setRTS(true);
             getSerialPortSignalController().setDTR(true);
@@ -120,15 +120,15 @@ public class RxTxSerialPort implements ServerSerialPort {
     }
 
     protected int getRxTxParity(String configParity) {
-        if (Parities.NONE.getParity().equals(configParity)) {
+        if (Parities.NONE.value().equals(configParity)) {
             return SerialPort.PARITY_NONE;
-        } else if (Parities.EVEN.getParity().equals(configParity)) {
+        } else if (Parities.EVEN.value().equals(configParity)) {
             return SerialPort.PARITY_EVEN;
-        } else if (Parities.ODD.getParity().equals(configParity)) {
+        } else if (Parities.ODD.value().equals(configParity)) {
             return SerialPort.PARITY_ODD;
-        } else if (Parities.MARK.getParity().equals(configParity)) {
+        } else if (Parities.MARK.value().equals(configParity)) {
             return SerialPort.PARITY_MARK;
-        } else if (Parities.SPACE.getParity().equals(configParity)) {
+        } else if (Parities.SPACE.value().equals(configParity)) {
             return SerialPort.PARITY_SPACE;
         }
         throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfiguration.PARITY_NAME, configParity);

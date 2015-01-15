@@ -104,7 +104,7 @@ public enum BaudrateValue {
         BigDecimal[] typedValues = new BigDecimal[values().length];
         int i = 0;
         for (BaudrateValue baudrate : values()) {
-            typedValues[i] = baudrate.getBaudrate();
+            typedValues[i] = baudrate.value();
             i++;
         }
         return typedValues;
@@ -112,7 +112,7 @@ public enum BaudrateValue {
 
     public static BaudrateValue valueFor (BigDecimal numercialValue) {
         for (BaudrateValue baudrateValue : values()) {
-            if (baudrateValue.getBaudrate().equals(numercialValue)) {
+            if (baudrateValue.value().equals(numercialValue)) {
                 return baudrateValue;
             }
         }
@@ -134,7 +134,7 @@ public enum BaudrateValue {
         }
     }
 
-    public BigDecimal getBaudrate() {
+    public BigDecimal value() {
         return baudrate;
     }
 
@@ -144,7 +144,7 @@ public enum BaudrateValue {
 
     @Override
     public String toString() {
-        return String.valueOf(getBaudrate().intValue());
+        return String.valueOf(value().intValue());
     }
 
     private class NotSupportedBySio extends RuntimeException {

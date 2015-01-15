@@ -25,7 +25,7 @@ public class BaudrateValueTest {
     @Test
     public void testValueForBigDecimalValue () {
         for (BaudrateValue baudrateValue : BaudrateValue.values()) {
-            BigDecimal baudrate = baudrateValue.getBaudrate();
+            BigDecimal baudrate = baudrateValue.value();
             assertThat(BaudrateValue.valueFor(baudrate)).
                     as("BaudrateValue::valueFor(BigDecimal) fails for " + baudrate + " returned by " + baudrateValue).
                     isEqualTo(baudrateValue);

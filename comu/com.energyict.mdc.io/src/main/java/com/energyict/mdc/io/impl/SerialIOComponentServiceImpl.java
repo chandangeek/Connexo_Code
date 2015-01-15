@@ -69,19 +69,19 @@ public abstract class SerialIOComponentServiceImpl extends AbstractSerialCompone
                 .markExhaustive()
                 .markRequired()
                 .addValues(
-                        BaudrateValue.BAUDRATE_150.getBaudrate(),
-                        BaudrateValue.BAUDRATE_300.getBaudrate(),
-                        BaudrateValue.BAUDRATE_600.getBaudrate(),
-                        BaudrateValue.BAUDRATE_1200.getBaudrate(),
-                        BaudrateValue.BAUDRATE_2400.getBaudrate(),
-                        BaudrateValue.BAUDRATE_4800.getBaudrate(),
-                        BaudrateValue.BAUDRATE_9600.getBaudrate(),
-                        BaudrateValue.BAUDRATE_19200.getBaudrate(),
-                        BaudrateValue.BAUDRATE_38400.getBaudrate(),
-                        BaudrateValue.BAUDRATE_57600.getBaudrate(),
-                        BaudrateValue.BAUDRATE_115200.getBaudrate(),
-                        BaudrateValue.BAUDRATE_230400.getBaudrate(),
-                        BaudrateValue.BAUDRATE_460800.getBaudrate())
+                        BaudrateValue.BAUDRATE_150.value(),
+                        BaudrateValue.BAUDRATE_300.value(),
+                        BaudrateValue.BAUDRATE_600.value(),
+                        BaudrateValue.BAUDRATE_1200.value(),
+                        BaudrateValue.BAUDRATE_2400.value(),
+                        BaudrateValue.BAUDRATE_4800.value(),
+                        BaudrateValue.BAUDRATE_9600.value(),
+                        BaudrateValue.BAUDRATE_19200.value(),
+                        BaudrateValue.BAUDRATE_38400.value(),
+                        BaudrateValue.BAUDRATE_57600.value(),
+                        BaudrateValue.BAUDRATE_115200.value(),
+                        BaudrateValue.BAUDRATE_230400.value(),
+                        BaudrateValue.BAUDRATE_460800.value())
                 .finish();
     }
 
@@ -89,7 +89,7 @@ public abstract class SerialIOComponentServiceImpl extends AbstractSerialCompone
         return this.getPropertySpecService().newPropertySpecBuilder(new StringFactory())
             .name(SerialPortConfiguration.PARITY_NAME)
             .markExhaustive()
-            .setDefaultValue(Parities.NONE.getParity())
+            .setDefaultValue(Parities.NONE.value())
             .addValues(Parities.getTypedValues())
             .markRequired()
             .finish();
@@ -101,9 +101,9 @@ public abstract class SerialIOComponentServiceImpl extends AbstractSerialCompone
                         name(SerialPortConfiguration.NR_OF_STOP_BITS_NAME).
                         markRequired().
                         markExhaustive().
-                        setDefaultValue(NrOfStopBits.ONE.getNrOfStopBits());
+                        setDefaultValue(NrOfStopBits.ONE.value());
         for (NrOfStopBits nrOfStopBits : EnumSet.complementOf(EnumSet.of(NrOfStopBits.ONE_AND_HALF))) {
-            builder.addValues(nrOfStopBits.getNrOfStopBits());
+            builder.addValues(nrOfStopBits.value());
         }
         return builder.finish();
     }
@@ -112,7 +112,7 @@ public abstract class SerialIOComponentServiceImpl extends AbstractSerialCompone
         return this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory())
             .name(SerialPortConfiguration.NR_OF_DATA_BITS_NAME)
             .markExhaustive()
-            .setDefaultValue(NrOfDataBits.EIGHT.getNrOfDataBits())
+            .setDefaultValue(NrOfDataBits.EIGHT.value())
             .addValues(NrOfDataBits.getTypedValues())
             .markRequired()
             .finish();
@@ -122,7 +122,7 @@ public abstract class SerialIOComponentServiceImpl extends AbstractSerialCompone
         return this.getPropertySpecService().newPropertySpecBuilder(new StringFactory())
             .name(SerialPortConfiguration.FLOW_CONTROL_NAME)
             .markExhaustive()
-            .setDefaultValue(FlowControl.NONE.getFlowControl())
+            .setDefaultValue(FlowControl.NONE.value())
             .addValues(FlowControl.getTypedValues())
             .finish();
     }

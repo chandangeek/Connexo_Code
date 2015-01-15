@@ -43,8 +43,8 @@ public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialCompo
         return this.getPropertySpecService().newPropertySpecBuilder(new StringFactory())
                 .name(SerialPortConfiguration.FLOW_CONTROL_NAME)
                 .markExhaustive()
-                .setDefaultValue(FlowControl.NONE.getFlowControl())
-                .addValues(FlowControl.RTSCTS.getFlowControl(), FlowControl.XONXOFF.getFlowControl())
+                .setDefaultValue(FlowControl.NONE.value())
+                .addValues(FlowControl.RTSCTS.value(), FlowControl.XONXOFF.value())
                 .finish();
     }
 
@@ -53,7 +53,7 @@ public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialCompo
         builder.
                 name(SerialPortConfiguration.NR_OF_DATA_BITS_NAME).
                 markExhaustive().
-                setDefaultValue(NrOfDataBits.EIGHT.getNrOfDataBits()).
+                setDefaultValue(NrOfDataBits.EIGHT.value()).
                 addValues(NrOfDataBits.getTypedValues());
         if (required) {
             builder.markRequired();
@@ -66,7 +66,7 @@ public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialCompo
         builder.
                 name(SerialPortConfiguration.NR_OF_STOP_BITS_NAME).
                 markExhaustive().
-                setDefaultValue(NrOfStopBits.ONE.getNrOfStopBits()).
+                setDefaultValue(NrOfStopBits.ONE.value()).
                 addValues(NrOfStopBits.getTypedValues());
         if (required) {
             builder.markRequired();
@@ -79,7 +79,7 @@ public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialCompo
         builder.
                 name(SerialPortConfiguration.PARITY_NAME).
                 markExhaustive().
-                setDefaultValue(Parities.NONE.getParity()).
+                setDefaultValue(Parities.NONE.value()).
                 addValues(Parities.getTypedValues());
         if (required) {
             builder.markRequired();
@@ -92,7 +92,7 @@ public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialCompo
         builder.
                 name(SerialPortConfiguration.BAUDRATE_NAME).
                 markExhaustive().
-                setDefaultValue(BaudrateValue.BAUDRATE_57600.getBaudrate()).
+                setDefaultValue(BaudrateValue.BAUDRATE_57600.value()).
                 addValues(BaudrateValue.getTypedValues());
         if (required) {
             builder.markRequired();

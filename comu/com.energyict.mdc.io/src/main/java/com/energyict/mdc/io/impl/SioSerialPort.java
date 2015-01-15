@@ -70,22 +70,22 @@ public class SioSerialPort implements ServerSerialPort {
         } else {
             serialConfig = new SerialConfig(serialPortConfiguration.getComPortName());
         }
-        serialConfig.setBitRate(getSioBaudrate(serialPortConfiguration.getBaudrate().getBaudrate()));
-        serialConfig.setDataBits(getSioDataBits(serialPortConfiguration.getNrOfDataBits().getNrOfDataBits()));
-        serialConfig.setStopBits(getSioStopBits(serialPortConfiguration.getNrOfStopBits().getNrOfStopBits()));
-        serialConfig.setParity(getSioParity(serialPortConfiguration.getParity().getParity()));
-        serialConfig.setHandshake(getSioFlowControl(serialPortConfiguration.getFlowControl().getFlowControl()));
+        serialConfig.setBitRate(getSioBaudrate(serialPortConfiguration.getBaudrate().value()));
+        serialConfig.setDataBits(getSioDataBits(serialPortConfiguration.getNrOfDataBits().value()));
+        serialConfig.setStopBits(getSioStopBits(serialPortConfiguration.getNrOfStopBits().value()));
+        serialConfig.setParity(getSioParity(serialPortConfiguration.getParity().value()));
+        serialConfig.setHandshake(getSioFlowControl(serialPortConfiguration.getFlowControl().value()));
         return serialConfig;
     }
 
     protected int getSioFlowControl(String flowControl) {
-        if (FlowControl.NONE.getFlowControl().equals(flowControl)) {
+        if (FlowControl.NONE.value().equals(flowControl)) {
             return SerialConfig.HS_NONE;
-        } else if (FlowControl.RTSCTS.getFlowControl().equals(flowControl)) {
+        } else if (FlowControl.RTSCTS.value().equals(flowControl)) {
             return SerialConfig.HS_CTSRTS;
-        } else if (FlowControl.DTRDSR.getFlowControl().equals(flowControl)) {
+        } else if (FlowControl.DTRDSR.value().equals(flowControl)) {
             return SerialConfig.HS_DSRDTR;
-        } else if (FlowControl.XONXOFF.getFlowControl().equals(flowControl)) {
+        } else if (FlowControl.XONXOFF.value().equals(flowControl)) {
             return SerialConfig.HS_XONXOFF;
         } else {
             throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfiguration.FLOW_CONTROL_NAME, flowControl);
@@ -93,15 +93,15 @@ public class SioSerialPort implements ServerSerialPort {
     }
 
     protected int getSioParity(String parity) {
-        if (Parities.NONE.getParity().equals(parity)) {
+        if (Parities.NONE.value().equals(parity)) {
             return SerialConfig.PY_NONE;
-        } else if (Parities.EVEN.getParity().equals(parity)) {
+        } else if (Parities.EVEN.value().equals(parity)) {
             return SerialConfig.PY_EVEN;
-        } else if (Parities.ODD.getParity().equals(parity)) {
+        } else if (Parities.ODD.value().equals(parity)) {
             return SerialConfig.PY_ODD;
-        } else if (Parities.MARK.getParity().equals(parity)) {
+        } else if (Parities.MARK.value().equals(parity)) {
             return SerialConfig.PY_MARK;
-        } else if (Parities.SPACE.getParity().equals(parity)) {
+        } else if (Parities.SPACE.value().equals(parity)) {
             return SerialConfig.PY_SPACE;
         } else {
             throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfiguration.PARITY_NAME, parity);

@@ -20,22 +20,22 @@ public enum FlowControl {
         String[] typedValues = new String[values().length];
         int i = 0;
         for (FlowControl flowControl : values()) {
-            typedValues[i++] = flowControl.getFlowControl();
+            typedValues[i++] = flowControl.value();
         }
         return typedValues;
     }
 
-    public String getFlowControl() {
+    public String value() {
         return flowControl;
     }
 
     public static FlowControl valueFor (String strValue) {
         for (FlowControl flowControl : values()) {
-            if (flowControl.getFlowControl().equals(strValue)) {
+            if (flowControl.value().equals(strValue)) {
                 return flowControl;
             }
         }
-        return null;
+        return FlowControl.NONE;    // The default
     }
 
 }

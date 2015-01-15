@@ -20,18 +20,18 @@ public enum NrOfStopBits {
         BigDecimal[] typedValues = new BigDecimal[values().length];
         int i = 0;
         for (NrOfStopBits stopBits : values()) {
-            typedValues[i++] = stopBits.getNrOfStopBits();
+            typedValues[i++] = stopBits.value();
         }
         return typedValues;
     }
 
-    public BigDecimal getNrOfStopBits() {
+    public BigDecimal value() {
         return nrOfStopBits;
     }
 
     public static NrOfStopBits valueFor (BigDecimal numercialValue) {
         for (NrOfStopBits stopBitsValue : values()) {
-            if (stopBitsValue.getNrOfStopBits().equals(numercialValue)) {
+            if (stopBitsValue.value().equals(numercialValue)) {
                 return stopBitsValue;
             }
         }
@@ -40,7 +40,7 @@ public enum NrOfStopBits {
 
     @Override
     public String toString() {
-        return String.valueOf(getNrOfStopBits());
+        return String.valueOf(value());
     }
 
 }

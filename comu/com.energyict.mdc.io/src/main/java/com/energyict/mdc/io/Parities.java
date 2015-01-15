@@ -22,12 +22,12 @@ public enum Parities {
         String[] typedValues = new String[values().length];
         int i = 0;
         for (Parities parity : values()) {
-            typedValues[i++] = parity.getParity();
+            typedValues[i++] = parity.value();
         }
         return typedValues;
     }
 
-    public String getParity() {
+    public String value() {
         return parity;
     }
 
@@ -37,7 +37,7 @@ public enum Parities {
 
     public static Parities valueFor (String strValue) {
         for (Parities parity : values()) {
-            if (parity.getParity().equals(strValue)) {
+            if (parity.value().equals(strValue)) {
                 return parity;
             }
         }

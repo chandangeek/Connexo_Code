@@ -32,7 +32,7 @@ public class RxTxSerialPortTest {
 
     private static final BigDecimal NR_OF_DATA_BITS_8 = new BigDecimal(SerialPort.DATABITS_8);
     private static final BigDecimal NR_OF_STOP_BITS_1 = BigDecimal.ONE;
-    private static final String PARITY_NONE = Parities.NONE.getParity();
+    private static final String PARITY_NONE = Parities.NONE.value();
 
     @Test
     public void getCorrectNrOfDataBitsTest() {
@@ -86,10 +86,10 @@ public class RxTxSerialPortTest {
         SerialPortConfiguration configuration = mock(SerialPortConfiguration.class);
         RxTxSerialPort serialPortRxTx = new RxTxSerialPort(configuration);
         assertEquals(SerialPort.PARITY_NONE, serialPortRxTx.getRxTxParity(PARITY_NONE));
-        assertEquals(SerialPort.PARITY_EVEN, serialPortRxTx.getRxTxParity(Parities.EVEN.getParity()));
-        assertEquals(SerialPort.PARITY_MARK, serialPortRxTx.getRxTxParity(Parities.MARK.getParity()));
-        assertEquals(SerialPort.PARITY_ODD, serialPortRxTx.getRxTxParity(Parities.ODD.getParity()));
-        assertEquals(SerialPort.PARITY_SPACE, serialPortRxTx.getRxTxParity(Parities.SPACE.getParity()));
+        assertEquals(SerialPort.PARITY_EVEN, serialPortRxTx.getRxTxParity(Parities.EVEN.value()));
+        assertEquals(SerialPort.PARITY_MARK, serialPortRxTx.getRxTxParity(Parities.MARK.value()));
+        assertEquals(SerialPort.PARITY_ODD, serialPortRxTx.getRxTxParity(Parities.ODD.value()));
+        assertEquals(SerialPort.PARITY_SPACE, serialPortRxTx.getRxTxParity(Parities.SPACE.value()));
     }
 
     @Test
@@ -113,13 +113,13 @@ public class RxTxSerialPortTest {
         RxTxSerialPort serialPortRxTx = new RxTxSerialPort(configuration);
         serialPortRxTx.setSerialPort(serialPort);
 
-        serialPortRxTx.setFlowControlMode(FlowControl.NONE.getFlowControl());
+        serialPortRxTx.setFlowControlMode(FlowControl.NONE.value());
         verify(serialPort).setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
 
-        serialPortRxTx.setFlowControlMode(FlowControl.RTSCTS.getFlowControl());
+        serialPortRxTx.setFlowControlMode(FlowControl.RTSCTS.value());
         verify(serialPort).setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN | SerialPort.FLOWCONTROL_RTSCTS_OUT);
 
-        serialPortRxTx.setFlowControlMode(FlowControl.XONXOFF.getFlowControl());
+        serialPortRxTx.setFlowControlMode(FlowControl.XONXOFF.value());
         verify(serialPort).setFlowControlMode(SerialPort.FLOWCONTROL_XONXOFF_IN | SerialPort.FLOWCONTROL_XONXOFF_OUT);
 
     }
@@ -132,7 +132,7 @@ public class RxTxSerialPortTest {
         serialPortRxTx.setSerialPort(serialPort);
 
         try {
-            serialPortRxTx.setFlowControlMode(FlowControl.DTRDSR.getFlowControl());
+            serialPortRxTx.setFlowControlMode(FlowControl.DTRDSR.value());
         } catch (SerialPortException e) {
             // we should get a configuration mismatch because currently we don't support the DTR/DSR type ...
             if (!e.getMessageSeed().equals(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH)) {

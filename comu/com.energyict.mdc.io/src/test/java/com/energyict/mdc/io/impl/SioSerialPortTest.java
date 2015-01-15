@@ -98,11 +98,11 @@ public class SioSerialPortTest {
         SerialPortConfiguration configuration = mock(SerialPortConfiguration.class);
         SioSerialPort serialPort = new SioSerialPort(configuration);
 
-        assertThat(serialPort.getSioParity(Parities.NONE.getParity())).isEqualTo(SerialConfig.PY_NONE);
-        assertThat(serialPort.getSioParity(Parities.ODD.getParity())).isEqualTo(SerialConfig.PY_ODD);
-        assertThat(serialPort.getSioParity(Parities.EVEN.getParity())).isEqualTo(SerialConfig.PY_EVEN);
-        assertThat(serialPort.getSioParity(Parities.MARK.getParity())).isEqualTo(SerialConfig.PY_MARK);
-        assertThat(serialPort.getSioParity(Parities.SPACE.getParity())).isEqualTo(SerialConfig.PY_SPACE);
+        assertThat(serialPort.getSioParity(Parities.NONE.value())).isEqualTo(SerialConfig.PY_NONE);
+        assertThat(serialPort.getSioParity(Parities.ODD.value())).isEqualTo(SerialConfig.PY_ODD);
+        assertThat(serialPort.getSioParity(Parities.EVEN.value())).isEqualTo(SerialConfig.PY_EVEN);
+        assertThat(serialPort.getSioParity(Parities.MARK.value())).isEqualTo(SerialConfig.PY_MARK);
+        assertThat(serialPort.getSioParity(Parities.SPACE.value())).isEqualTo(SerialConfig.PY_SPACE);
     }
 
     @Test
@@ -125,10 +125,10 @@ public class SioSerialPortTest {
         SerialPortConfiguration configuration = mock(SerialPortConfiguration.class);
         SioSerialPort serialPort = new SioSerialPort(configuration);
 
-        assertThat(serialPort.getSioFlowControl(FlowControl.NONE.getFlowControl())).isEqualTo(SerialConfig.HS_NONE);
-        assertThat(serialPort.getSioFlowControl(FlowControl.DTRDSR.getFlowControl())).isEqualTo(SerialConfig.HS_DSRDTR);
-        assertThat(serialPort.getSioFlowControl(FlowControl.RTSCTS.getFlowControl())).isEqualTo(SerialConfig.HS_CTSRTS);
-        assertThat(serialPort.getSioFlowControl(FlowControl.XONXOFF.getFlowControl())).isEqualTo(SerialConfig.HS_XONXOFF);
+        assertThat(serialPort.getSioFlowControl(FlowControl.NONE.value())).isEqualTo(SerialConfig.HS_NONE);
+        assertThat(serialPort.getSioFlowControl(FlowControl.DTRDSR.value())).isEqualTo(SerialConfig.HS_DSRDTR);
+        assertThat(serialPort.getSioFlowControl(FlowControl.RTSCTS.value())).isEqualTo(SerialConfig.HS_CTSRTS);
+        assertThat(serialPort.getSioFlowControl(FlowControl.XONXOFF.value())).isEqualTo(SerialConfig.HS_XONXOFF);
     }
 
     @Test
@@ -151,19 +151,19 @@ public class SioSerialPortTest {
         SerialPortConfiguration configuration = mock(SerialPortConfiguration.class);
         SioSerialPort serialPort = new SioSerialPort(configuration);
 
-        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_150.getBaudrate())).isEqualTo(SerialConfig.BR_150);
-        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_300.getBaudrate())).isEqualTo(SerialConfig.BR_300);
-        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_600.getBaudrate())).isEqualTo(SerialConfig.BR_600);
-        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_1200.getBaudrate())).isEqualTo(SerialConfig.BR_1200);
-        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_2400.getBaudrate())).isEqualTo(SerialConfig.BR_2400);
-        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_4800.getBaudrate())).isEqualTo(SerialConfig.BR_4800);
-        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_9600.getBaudrate())).isEqualTo(SerialConfig.BR_9600);
-        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_19200.getBaudrate())).isEqualTo(SerialConfig.BR_19200);
-        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_38400.getBaudrate())).isEqualTo(SerialConfig.BR_38400);
-        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_57600.getBaudrate())).isEqualTo(SerialConfig.BR_57600);
-        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_115200.getBaudrate())).isEqualTo(SerialConfig.BR_115200);
-        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_230400.getBaudrate())).isEqualTo(SerialConfig.BR_230400);
-        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_460800.getBaudrate())).isEqualTo(SerialConfig.BR_460800);
+        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_150.value())).isEqualTo(SerialConfig.BR_150);
+        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_300.value())).isEqualTo(SerialConfig.BR_300);
+        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_600.value())).isEqualTo(SerialConfig.BR_600);
+        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_1200.value())).isEqualTo(SerialConfig.BR_1200);
+        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_2400.value())).isEqualTo(SerialConfig.BR_2400);
+        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_4800.value())).isEqualTo(SerialConfig.BR_4800);
+        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_9600.value())).isEqualTo(SerialConfig.BR_9600);
+        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_19200.value())).isEqualTo(SerialConfig.BR_19200);
+        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_38400.value())).isEqualTo(SerialConfig.BR_38400);
+        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_57600.value())).isEqualTo(SerialConfig.BR_57600);
+        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_115200.value())).isEqualTo(SerialConfig.BR_115200);
+        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_230400.value())).isEqualTo(SerialConfig.BR_230400);
+        assertThat(serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_460800.value())).isEqualTo(SerialConfig.BR_460800);
     }
 
     /**
@@ -176,9 +176,9 @@ public class SioSerialPortTest {
         int exceptionCounter = 0;
 
         try {
-            serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_1800.getBaudrate());
+            serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_1800.value());
         } catch (ApplicationException e) {
-            if (!e.getMessage().equals("Baudrate " + BaudrateValue.BAUDRATE_1800.getBaudrate() + " is not supported by this driver.")) {
+            if (!e.getMessage().equals("Baudrate " + BaudrateValue.BAUDRATE_1800.value() + " is not supported by this driver.")) {
                 fail("Should have gotten an exception indicating that the given baudrate was not supported, but was " + e.getMessage());
             } else {
                 exceptionCounter++;
@@ -187,9 +187,9 @@ public class SioSerialPortTest {
         assertThat(exceptionCounter).isEqualTo(1);
 
         try {
-            serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_14400.getBaudrate());
+            serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_14400.value());
         } catch (ApplicationException e) {
-            if (!e.getMessage().equals("Baudrate " + BaudrateValue.BAUDRATE_14400.getBaudrate() + " is not supported by this driver.")) {
+            if (!e.getMessage().equals("Baudrate " + BaudrateValue.BAUDRATE_14400.value() + " is not supported by this driver.")) {
                 fail("Should have gotten an exception indicating that the given baudrate was not supported, but was " + e.getMessage());
             } else {
                 exceptionCounter++;
@@ -198,9 +198,9 @@ public class SioSerialPortTest {
         assertThat(exceptionCounter).isEqualTo(2);
 
         try {
-            serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_28800.getBaudrate());
+            serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_28800.value());
         } catch (ApplicationException e) {
-            if (!e.getMessage().equals("Baudrate " + BaudrateValue.BAUDRATE_28800.getBaudrate() + " is not supported by this driver.")) {
+            if (!e.getMessage().equals("Baudrate " + BaudrateValue.BAUDRATE_28800.value() + " is not supported by this driver.")) {
                 fail("Should have gotten an exception indicating that the given baudrate was not supported, but was " + e.getMessage());
             } else {
                 exceptionCounter++;
@@ -209,9 +209,9 @@ public class SioSerialPortTest {
         assertThat(exceptionCounter).isEqualTo(3);
 
         try {
-            serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_56000.getBaudrate());
+            serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_56000.value());
         } catch (ApplicationException e) {
-            if (!e.getMessage().equals("Baudrate " + BaudrateValue.BAUDRATE_56000.getBaudrate() + " is not supported by this driver.")) {
+            if (!e.getMessage().equals("Baudrate " + BaudrateValue.BAUDRATE_56000.value() + " is not supported by this driver.")) {
                 fail("Should have gotten an exception indicating that the given baudrate was not supported, but was " + e.getMessage());
             } else {
                 exceptionCounter++;
@@ -220,9 +220,9 @@ public class SioSerialPortTest {
         assertThat(exceptionCounter).isEqualTo(4);
 
         try {
-            serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_7200.getBaudrate());
+            serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_7200.value());
         } catch (ApplicationException e) {
-            if (!e.getMessage().equals("Baudrate " + BaudrateValue.BAUDRATE_7200.getBaudrate() + " is not supported by this driver.")) {
+            if (!e.getMessage().equals("Baudrate " + BaudrateValue.BAUDRATE_7200.value() + " is not supported by this driver.")) {
                 fail("Should have gotten an exception indicating that the given baudrate was not supported, but was " + e.getMessage());
             } else {
                 exceptionCounter++;
@@ -231,9 +231,9 @@ public class SioSerialPortTest {
         assertThat(exceptionCounter).isEqualTo(5);
 
         try {
-            serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_76800.getBaudrate());
+            serialPort.getSioBaudrate(BaudrateValue.BAUDRATE_76800.value());
         } catch (ApplicationException e) {
-            if (!e.getMessage().equals("Baudrate " + BaudrateValue.BAUDRATE_76800.getBaudrate() + " is not supported by this driver.")) {
+            if (!e.getMessage().equals("Baudrate " + BaudrateValue.BAUDRATE_76800.value() + " is not supported by this driver.")) {
                 fail("Should have gotten an exception indicating that the given baudrate was not supported, but was " + e.getMessage());
             } else {
                 exceptionCounter++;
