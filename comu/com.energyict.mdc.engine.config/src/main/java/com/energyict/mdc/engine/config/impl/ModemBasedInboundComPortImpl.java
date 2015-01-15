@@ -285,11 +285,11 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
         }
 
         public LegacySerialPortConfiguration(SerialPortConfiguration serialPortConfiguration) {
-            baudrate= serialPortConfiguration.getBaudrate().getBaudrate();
-            nrOfDataBits=serialPortConfiguration.getNrOfDataBits().getNrOfDataBits();
-            nrOfStopBits=serialPortConfiguration.getNrOfStopBits().getNrOfStopBits();
-            parity=serialPortConfiguration.getParity().getParity();
-            flowControl=serialPortConfiguration.getFlowControl().getFlowControl();
+            baudrate= serialPortConfiguration.getBaudrate().value();
+            nrOfDataBits=serialPortConfiguration.getNrOfDataBits().value();
+            nrOfStopBits=serialPortConfiguration.getNrOfStopBits().value();
+            parity=serialPortConfiguration.getParity().value();
+            flowControl=serialPortConfiguration.getFlowControl().value();
         }
 
         private BigDecimal getBaudrate() {
