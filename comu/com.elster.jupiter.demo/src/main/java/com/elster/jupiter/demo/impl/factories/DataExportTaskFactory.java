@@ -14,7 +14,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 
 import javax.inject.Inject;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
