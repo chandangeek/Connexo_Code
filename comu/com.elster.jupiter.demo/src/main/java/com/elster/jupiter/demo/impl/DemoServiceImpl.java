@@ -115,6 +115,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         "osgi.command.function=createApplicationServer",
         "osgi.command.function=createA3Device",
         "osgi.command.function=createMockedDataDevice",
+        "osgi.command.function=createValidationDevice",
         "osgi.command.function=createDeliverDataSetup",
         "osgi.command.function=createCollectRemoteDataSetup",
         "osgi.command.function=createValidationSetup"
@@ -355,6 +356,7 @@ public class DemoServiceImpl implements DemoService {
             @Override
             protected void doPerform() {
                 createMockedDataDeviceImpl(Constants.Device.MOCKED_VALIDATION_DEVICE, serialNumber);
+                activateValidation(Constants.Device.MOCKED_VALIDATION_DEVICE + serialNumber, Constants.Validation.RULE_SET_NAME);
             }
         });
     }
@@ -755,10 +757,11 @@ public class DemoServiceImpl implements DemoService {
     private void addConnectionMethodToDevice(Store store, DeviceConfiguration configuration, Device device) {
         PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
         int portNumber = 4059;
-        // We want two failing devices for 'Actaris SL7000' device type
+        /* We want two failing devices for 'Actaris SL7000' device type
         if (Constants.DeviceType.Actaris_SL7000.getName().equals(configuration.getDeviceType().getName()) && device.getmRID().endsWith("8")){
             portNumber = 5049;
         }
+        */
         ScheduledConnectionTask deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
                 .setComPortPool(store.get(OutboundComPortPool.class, (device.getId() & 1) == 1L ? Constants.ComPortPool.VODAFONE : Constants.ComPortPool.ORANGE))
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
@@ -822,15 +825,19 @@ public class DemoServiceImpl implements DemoService {
 
         List<Meter> meters = meteringService.getMeterQuery().select(devicesForActivation);
         for (Meter meter : meters) {
-            Optional<? extends MeterActivation> meterActivation= meter.getCurrentMeterActivation();
-            if (meterActivation.isPresent()){
-                validationService.activate(meterActivation.get(), ruleSet);
-            } else {
-                MeterActivation activate = meter.activate(Instant.now());
-                validationService.activate(activate, ruleSet);
-            }
-            validationService.activateValidation(meter);
+            activateValidationRuleSetOnMeter(ruleSet, meter);
         }
+    }
+
+    private void activateValidationRuleSetOnMeter(ValidationRuleSet ruleSet, Meter meter) {
+        Optional<? extends MeterActivation> meterActivation= meter.getCurrentMeterActivation();
+        if (meterActivation.isPresent()){
+            validationService.activate(meterActivation.get(), ruleSet);
+        } else {
+            MeterActivation activate = meter.activate(Instant.now());
+            validationService.activate(activate, ruleSet);
+        }
+        validationService.activateValidation(meter);
     }
 
     public void createDeliverDataSetupImpl(){
@@ -940,6 +947,18 @@ public class DemoServiceImpl implements DemoService {
                 .withDeviceConfiguration(deviceConfiguration.get())
                 .withSerialNumber(serialNumber)
                 .get();
+    }
+
+    private void activateValidation(String mrid, String ruleSetName){
+        Optional<ValidationRuleSet> existingRuleSet = validationService.getValidationRuleSet(ruleSetName);
+        if (!existingRuleSet.isPresent()){
+            throw new UnableToCreate("Unable to find validation ruleset with name" + ruleSetName);
+        }
+        Optional<Meter> meter = meteringService.findMeter(mrid);
+        if (!meter.isPresent()){
+            throw new UnableToCreate("Unable to find meter with mrid" + mrid);
+        }
+        activateValidationRuleSetOnMeter(existingRuleSet.get(), meter.get());
     }
 
     @Reference
