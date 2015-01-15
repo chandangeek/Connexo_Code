@@ -149,7 +149,9 @@ public class WhiteBoard extends Application implements BinderProvider {
     }
 
     public void removeApplication(App app) {
-        removeResource(app.getMainResource());
+        if(app.getMainResource() != null){
+            removeResource(app.getMainResource());
+        }
         apps.remove(app);
     }
 
