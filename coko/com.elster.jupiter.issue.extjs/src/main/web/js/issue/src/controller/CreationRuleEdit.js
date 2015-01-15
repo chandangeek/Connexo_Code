@@ -235,7 +235,7 @@ Ext.define('Isu.controller.CreationRuleEdit', {
             commentField = form.down('[name=comment]'),
             templateDetails = this.getTemplateDetails(),
             parameters = {};
-
+        ruleModel.beginEdit();
         ruleModel.set('name', nameField.getValue());
         ruleModel.set('issueType', {
             uid: issueTypeField.getValue()
@@ -260,7 +260,7 @@ Ext.define('Isu.controller.CreationRuleEdit', {
 
         ruleModel.set('parameters', parameters);
         this.loadActionsToModel(ruleModel);
-
+        ruleModel.endEdit();
         return ruleModel;
     },
 

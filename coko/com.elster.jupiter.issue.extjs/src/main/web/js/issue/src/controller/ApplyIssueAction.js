@@ -32,11 +32,13 @@ Ext.define('Isu.controller.ApplyIssueAction', {
         actionModel.load(actionId, {
             success: function (record) {
                 me.getApplication().fireEvent('issueActionLoad', record);
+                Ext.suspendLayouts();
                 form.setTitle(record.get('name'));
                 Ext.Object.each(record.get('parameters'), function(key, value) {
                     var formItem = me.createControl(value);
                     formItem && form.add(formItem);
                 });
+                Ext.resumeLayouts();
                 form.loadRecord(record);
                 widget.setLoading(false);
             }

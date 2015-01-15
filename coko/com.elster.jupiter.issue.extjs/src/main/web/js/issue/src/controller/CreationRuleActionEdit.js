@@ -119,7 +119,7 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
 
         actionTypesPhases.load(function (records) {
             var phasesRadioGroup = me.getPhasesRadioGroup();
-
+            Ext.suspendLayouts();
             Ext.Array.each(records, function (record, index) {
                 phasesRadioGroup.add({
                     boxLabel: record.get('title'),
@@ -133,6 +133,7 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
             actionTypesStore.getProxy().setExtraParam('reason', me.getStore('Isu.store.Clipboard').get('issuesCreationRuleState').get('reason').id);
             actionTypesStore.getProxy().setExtraParam('phase', records[0].get('uuid'));
             actionTypesStore.load(checkLoadedStores);
+            Ext.resumeLayouts();
             checkLoadedStores();
         });
     },
@@ -144,7 +145,7 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
             actionField = form.down('[name=actionType]'),
             action = actionStore.getById(actionField.getValue()),
             parameters = {};
-
+        model.beginEdit();
         model.set('type', action.getData());
         delete model.get('type').parameters;
         model.set('phase', {
@@ -157,7 +158,7 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
             }
         });
         model.set('parameters', parameters);
-
+        model.endEdit();
         return model;
     },
 
