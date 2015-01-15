@@ -112,7 +112,7 @@ public class SecurityPropertySetResource {
             .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1)
             .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2)
             .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1)
-            .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2)
+            .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2);
     }
 
     @PUT
