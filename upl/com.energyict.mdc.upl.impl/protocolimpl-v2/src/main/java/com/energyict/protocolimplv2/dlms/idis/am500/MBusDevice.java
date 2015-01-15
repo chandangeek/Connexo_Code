@@ -21,7 +21,7 @@ public class MBusDevice extends AbstractDlmsMbusProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "IDIS DLMS (IDIS P1) MBus slave V2";
+        return "AM500 DLMS (IDIS P1) MBus slave V2";
     }
 
     @Override
