@@ -7,7 +7,7 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.security.Privileges;
+
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -19,8 +19,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 
 @Path("/cachegroups")
 public class AdhocGroupResource {
@@ -55,7 +58,7 @@ public class AdhocGroupResource {
             condition = resourceHelper.getQueryConditionForDevice(params);
         }
         Finder<Device> allDevicesFinder = deviceService.findAllDevices(condition);
-        List<Device> allDevices = allDevicesFinder.from(queryParameters).find();
+        List<Long> allDevices = allDevicesFinder.from(queryParameters).find().stream().map(d -> d.getId()).collect(Collectors.toList());
 
         Optional<AdHocDeviceGroup>  adhocGroup = yellowfinGroupsService.cacheAdHocDeviceGroup(allDevices);
         if(adhocGroup.isPresent()){
