@@ -1,14 +1,23 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.users.Group;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.config.security.Privileges;
+import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.users.Group;
 import com.jayway.jsonpath.JsonModel;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -16,17 +25,59 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Test;
+
+import org.junit.*;
 import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
  * Created by bvn on 9/12/14.
  */
 public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicationJerseyTest {
+
+    @Test
+    public void addSecurityPropertySetAddsUserActions() throws Exception {
+        DeviceType deviceType = mock(DeviceType.class);
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(DeviceProtocolAuthenticationAccessLevels.values()));
+        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(DeviceProtocolEncryptionAccessLevels.values()));
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        SecurityPropertySetBuilder builder = mock(SecurityPropertySetBuilder.class);
+        when(builder.addUserAction(any(DeviceSecurityUserAction.class))).thenReturn(builder);
+        when(builder.authenticationLevel(anyInt())).thenReturn(builder);
+        when(builder.encryptionLevel(anyInt())).thenReturn(builder);
+        SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
+        when(securityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(DeviceProtocolAuthenticationAccessLevels.ONE);
+        when(securityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(DeviceProtocolEncryptionAccessLevels.ONE);
+        when(builder.build()).thenReturn(securityPropertySet);
+        when(deviceConfiguration.createSecurityPropertySet(anyString())).thenReturn(builder);
+        when(deviceConfiguration.getId()).thenReturn(456L);
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
+        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
+        SecurityPropertySetInfo securityPropertySetInfo = new SecurityPropertySetInfo();
+        securityPropertySetInfo.name = "addSecurityPropertySetAddDefaultPrivileges";
+        securityPropertySetInfo.authenticationLevel = SecurityLevelInfo.from(DeviceProtocolAuthenticationAccessLevels.ONE, this.thesaurus);
+        securityPropertySetInfo.authenticationLevelId = DeviceProtocolAuthenticationAccessLevels.ONE.getId();
+        securityPropertySetInfo.encryptionLevel = SecurityLevelInfo.from(DeviceProtocolEncryptionAccessLevels.ONE, this.thesaurus);
+        securityPropertySetInfo.encryptionLevelId = DeviceProtocolEncryptionAccessLevels.ONE.getId();
+
+        // Business method
+        target("/devicetypes/123/deviceconfigurations/456/securityproperties").request().post(Entity.json(securityPropertySetInfo));
+
+        // Asserts
+        verify(builder, atLeastOnce()).addUserAction(any(DeviceSecurityUserAction.class));
+    }
 
     @Test
     public void testGetSecurityPropertySet() throws Exception {
@@ -136,4 +187,57 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(mock.getUserActions()).thenReturn(userAction);
         return mock;
     }
+
+    private enum DeviceProtocolAuthenticationAccessLevels implements AuthenticationDeviceAccessLevel {
+        ONE {
+            @Override
+            public int getId() {
+                return 1;
+            }
+        },
+        TWO {
+            @Override
+            public int getId() {
+                return 2;
+            }
+        };
+
+        @Override
+        public String getTranslationKey() {
+            return "DeviceProtocolAuthenticationAccessLevels" + this.name();
+        }
+
+        @Override
+        public List<PropertySpec> getSecurityProperties() {
+            return Collections.emptyList();
+        }
+
+    }
+
+    private enum DeviceProtocolEncryptionAccessLevels implements EncryptionDeviceAccessLevel {
+        ONE {
+            @Override
+            public int getId() {
+                return 1;
+            }
+        },
+        TWO {
+            @Override
+            public int getId() {
+                return 2;
+            }
+        };
+
+        @Override
+        public String getTranslationKey() {
+            return "DeviceProtocolEncryptionAccessLevels" + this.name();
+        }
+
+        @Override
+        public List<PropertySpec> getSecurityProperties() {
+            return Collections.emptyList();
+        }
+
+    }
+
 }

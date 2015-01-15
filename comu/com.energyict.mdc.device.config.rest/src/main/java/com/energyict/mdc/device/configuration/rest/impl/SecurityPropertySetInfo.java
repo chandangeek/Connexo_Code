@@ -2,6 +2,8 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
+import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
@@ -28,12 +30,13 @@ public class SecurityPropertySetInfo {
     public void writeTo(SecurityPropertySet securityPropertySet) {
         securityPropertySet.setName(this.name);
         if (this.authenticationLevelId == null) {
-            this.authenticationLevelId = -1;
+            this.authenticationLevelId = DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
         }
         if (this.encryptionLevelId == null) {
-            this.encryptionLevelId = -1;
+            this.encryptionLevelId = DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
         }
         securityPropertySet.setAuthenticationLevel(this.authenticationLevelId);
         securityPropertySet.setEncryptionLevelId(this.encryptionLevelId);
     }
+
 }

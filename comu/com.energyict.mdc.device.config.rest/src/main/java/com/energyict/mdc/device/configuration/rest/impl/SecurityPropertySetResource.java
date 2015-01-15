@@ -5,13 +5,16 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
@@ -88,18 +91,28 @@ public class SecurityPropertySetResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
 
         if (securityPropertySetInfo.authenticationLevelId == null) {
-            securityPropertySetInfo.authenticationLevelId = -1;
+            securityPropertySetInfo.authenticationLevelId = DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
         }
         if (securityPropertySetInfo.encryptionLevelId == null) {
-            securityPropertySetInfo.encryptionLevelId = -1;
+            securityPropertySetInfo.encryptionLevelId = DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
         }
 
-        SecurityPropertySet securityPropertySet = deviceConfiguration.createSecurityPropertySet(securityPropertySetInfo.name)
-                                                  .authenticationLevel(securityPropertySetInfo.authenticationLevelId)
-                                                  .encryptionLevel(securityPropertySetInfo.encryptionLevelId)
-                                                  .build();
+        SecurityPropertySetBuilder builder = deviceConfiguration
+                .createSecurityPropertySet(securityPropertySetInfo.name)
+                .authenticationLevel(securityPropertySetInfo.authenticationLevelId)
+                .encryptionLevel(securityPropertySetInfo.encryptionLevelId);
+        this.addDefaultPrivileges(builder);
+        SecurityPropertySet securityPropertySet = builder.build();
 
         return Response.status(Response.Status.CREATED).entity(securityPropertySetInfoFactory.from(securityPropertySet)).build();
+    }
+
+    private void addDefaultPrivileges(SecurityPropertySetBuilder builder) {
+        builder
+            .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1)
+            .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2)
+            .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1)
+            .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2)
     }
 
     @PUT
@@ -164,4 +177,5 @@ public class SecurityPropertySetResource {
     public ExecutionLevelResource getExecutionLevelResource() {
         return executionLevelResourceProvider.get();
     }
+
 }
