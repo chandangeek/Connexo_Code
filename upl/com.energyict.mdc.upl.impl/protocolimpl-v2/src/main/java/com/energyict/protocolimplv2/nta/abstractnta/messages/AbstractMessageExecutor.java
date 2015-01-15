@@ -8,11 +8,7 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedMessage;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.DefaultDeviceRegister;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
@@ -133,9 +129,13 @@ public abstract class AbstractMessageExecutor {
         return deviceRegister;
     }
 
-    protected Array convertEpochToDateTimeArray(String strDate) {
+    protected Array convertEpochToDateTimeArray(String epoch) {
         Calendar cal = Calendar.getInstance(getProtocol().getTimeZone());
-        cal.setTimeInMillis(Long.parseLong(strDate));
+        cal.setTimeInMillis(Long.parseLong(epoch));
+        return convertDateToDLMSArray(cal);
+    }
+
+    protected Array convertDateToDLMSArray(Calendar cal) {
         byte[] dateBytes = new byte[5];
         dateBytes[0] = (byte) ((cal.get(Calendar.YEAR) >> 8) & 0xFF);
         dateBytes[1] = (byte) (cal.get(Calendar.YEAR) & 0xFF);

@@ -43,7 +43,19 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
             BigDecimal.valueOf(3),
             BigDecimal.valueOf(4)
     )),
-    Reset_MBus_Client(10, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.mbusSerialNumber));
+    Reset_MBus_Client(10, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.mbusSerialNumber)),
+    WriteCaptureDefinitionForAllInstances(11,
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.dibInstance1),
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.vibInstance1),
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.dibInstance2),
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.vibInstance2),
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.dibInstance3),
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.vibInstance3),
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.dibInstance4),
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.vibInstance4)
+    ),
+    WriteMBusCapturePeriod(12, PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.capturePeriodAttributeName));
+
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.MBUS_SETUP;
 

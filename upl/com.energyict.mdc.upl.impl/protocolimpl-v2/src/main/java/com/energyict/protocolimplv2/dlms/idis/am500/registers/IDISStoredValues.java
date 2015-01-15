@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.dlms.idis.registers;
+package com.energyict.protocolimplv2.dlms.idis.am500.registers;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DataContainer;
@@ -8,7 +8,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.dlms.idis.AM500;
+import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;

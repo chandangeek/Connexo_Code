@@ -23,7 +23,7 @@ import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.dlms.idis.properties.IDISConfigurationSupport;
+import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.events.IDISGatewayEvents;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.messages.IDISGatewayMessages;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.properties.IDISGatewayConfigurationSupport;

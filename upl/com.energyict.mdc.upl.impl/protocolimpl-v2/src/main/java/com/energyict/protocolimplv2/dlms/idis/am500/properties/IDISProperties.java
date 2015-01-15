@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.dlms.idis.properties;
+package com.energyict.protocolimplv2.dlms.idis.am500.properties;
 
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.utils.ProtocolTools;

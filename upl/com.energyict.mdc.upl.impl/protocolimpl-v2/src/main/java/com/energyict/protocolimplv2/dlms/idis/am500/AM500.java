@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.dlms.idis;
+package com.energyict.protocolimplv2.dlms.idis.am500;
 
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.comserver.exceptions.ComServerRuntimeException;
@@ -23,14 +23,14 @@ import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.dlms.idis.IDISObjectList;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
-import com.energyict.protocolimplv2.dlms.idis.events.IDISLogBookFactory;
-import com.energyict.protocolimplv2.dlms.idis.messages.IDISMessaging;
-import com.energyict.protocolimplv2.dlms.idis.profiledata.IDISProfileDataReader;
-import com.energyict.protocolimplv2.dlms.idis.properties.IDISConfigurationSupport;
-import com.energyict.protocolimplv2.dlms.idis.properties.IDISProperties;
-import com.energyict.protocolimplv2.dlms.idis.registers.IDISRegisterFactory;
-import com.energyict.protocolimplv2.dlms.idis.registers.IDISStoredValues;
-import com.energyict.protocolimplv2.dlms.idis.topology.MeterTopology;
+import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
+import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
+import com.energyict.protocolimplv2.dlms.idis.am500.profiledata.IDISProfileDataReader;
+import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISConfigurationSupport;
+import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
+import com.energyict.protocolimplv2.dlms.idis.am500.registers.IDISRegisterFactory;
+import com.energyict.protocolimplv2.dlms.idis.am500.registers.IDISStoredValues;
+import com.energyict.protocolimplv2.dlms.idis.am500.topology.IDISMeterTopology;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 
 import java.util.Arrays;
@@ -53,6 +53,8 @@ public class AM500 extends AbstractDlmsProtocol {
     private IDISProfileDataReader idisProfileDataReader = null;
     private IDISMessaging idisMessaging = null;
     private IDISStoredValues storedValues = null;
+    private IDISMeterTopology idisMeterTopology = null;
+    private String serialNumber = null;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -262,8 +264,23 @@ public class AM500 extends AbstractDlmsProtocol {
     }
 
     @Override
+    public String getSerialNumber() {
+        if (serialNumber == null) {
+            serialNumber = super.getSerialNumber();
+        }
+        return serialNumber;
+    }
+
+    @Override
     public CollectedTopology getDeviceTopology() {
-        return new MeterTopology(this).discoverMBusDevices();
+        return getIDISMeterTopology().discoverMBusDevices();
+    }
+
+    public IDISMeterTopology getIDISMeterTopology() {
+        if (idisMeterTopology == null) {
+            idisMeterTopology = new IDISMeterTopology(this);
+        }
+        return idisMeterTopology;
     }
 
     @Override

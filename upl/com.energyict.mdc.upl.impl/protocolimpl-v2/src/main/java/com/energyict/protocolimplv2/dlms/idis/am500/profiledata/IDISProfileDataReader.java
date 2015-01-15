@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.dlms.idis.profiledata;
+package com.energyict.protocolimplv2.dlms.idis.am500.profiledata;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
@@ -16,7 +16,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.dlms.idis.AM500;
+import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
@@ -25,6 +25,9 @@ import java.util.*;
 
 /**
  * Copyrights EnergyICT
+ * <p/>
+ * Supports both the e-meter and MBus meter load profiles
+ * Note that in EIServer, they should be configured on the proper master and slave devices.
  *
  * @author khe
  * @since 6/01/2015 - 10:35
@@ -33,40 +36,43 @@ public class IDISProfileDataReader {
 
     private static final ObisCode QUARTER_HOURLY_LOAD_PROFILE_OBISCODE = ObisCode.fromString("1.0.99.1.0.255");
     private static final ObisCode DAILY_LOAD_PROFILE_OBISCODE = ObisCode.fromString("1.0.99.2.0.255");
+    private static final ObisCode OBISCODE_MBUS_LOAD_PROFILE = ObisCode.fromString("0.x.24.3.0.255");
 
     private static final ObisCode OBISCODE_NR_OF_POWER_FAILURES = ObisCode.fromString("0.0.96.7.9.255");
 
-    private final AM500 AM500;
-    private final List<ObisCode> supportedLoadProfiles;
+    protected final AM500 protocol;
+    protected final List<ObisCode> supportedLoadProfiles;
     private Map<LoadProfileReader, List<ChannelInfo>> channelInfosMap;
 
-    public IDISProfileDataReader(AM500 AM500) {
-        this.AM500 = AM500;
-        supportedLoadProfiles = new ArrayList<>(2);
+    public IDISProfileDataReader(AM500 protocol) {
+        this.protocol = protocol;
+
+        supportedLoadProfiles = new ArrayList<>();
         supportedLoadProfiles.add(QUARTER_HOURLY_LOAD_PROFILE_OBISCODE);
         supportedLoadProfiles.add(DAILY_LOAD_PROFILE_OBISCODE);
+        supportedLoadProfiles.add(OBISCODE_MBUS_LOAD_PROFILE);
     }
 
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfileReaders) {
-        long limitMaxNrOfDays = AM500.getDlmsSessionProperties().getLimitMaxNrOfDays();
+        long limitMaxNrOfDays = protocol.getDlmsSessionProperties().getLimitMaxNrOfDays();
         List<CollectedLoadProfile> result = new ArrayList<>();
 
         for (LoadProfileReader loadProfileReader : loadProfileReaders) {
             CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId()));
 
             List<ChannelInfo> channelInfos = getChannelInfosMap().get(loadProfileReader);
-            if (supportedLoadProfiles.contains(loadProfileReader.getProfileObisCode()) && (channelInfos != null)) {
+            if (isSupported(loadProfileReader) && (channelInfos != null)) {
 
                 ProfileLimiter profileLimiter = new ProfileLimiter(loadProfileReader.getStartReadingTime(), loadProfileReader.getEndReadingTime(), (int) limitMaxNrOfDays);
-                Calendar fromCal = Calendar.getInstance(AM500.getTimeZone());
+                Calendar fromCal = Calendar.getInstance(protocol.getTimeZone());
                 fromCal.setTime(profileLimiter.getFromDate());
                 fromCal.set(Calendar.SECOND, 0);
-                Calendar toCal = Calendar.getInstance(AM500.getTimeZone());
+                Calendar toCal = Calendar.getInstance(protocol.getTimeZone());
                 toCal.setTime(profileLimiter.getToDate());
                 toCal.set(Calendar.SECOND, 0);
 
                 try {
-                    ProfileGeneric profileGeneric = AM500.getDlmsSession().getCosemObjectFactory().getProfileGeneric(loadProfileReader.getProfileObisCode());
+                    ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(getCorrectedLoadProfileObisCode(loadProfileReader));
                     DataContainer buffer = profileGeneric.getBuffer(fromCal, toCal);
                     Object[] loadProfileEntries = buffer.getRoot().getElements();
                     List<IntervalData> intervalDatas = new ArrayList<>();
@@ -74,7 +80,7 @@ public class IDISProfileDataReader {
 
                     for (int index = 0; index < loadProfileEntries.length; index++) {
                         DataStructure structure = buffer.getRoot().getStructure(index);
-                        Date timeStamp = structure.getOctetString(0).toDate(AM500.getTimeZone());
+                        Date timeStamp = structure.getOctetString(0).toDate(protocol.getTimeZone());
                         int status = structure.getInteger(1);
                         List<IntervalValue> values = new ArrayList<>();
                         for (int channel = 0; channel < channelInfos.size(); channel++) {
@@ -86,13 +92,13 @@ public class IDISProfileDataReader {
 
                     collectedLoadProfile.setCollectedIntervalData(intervalDatas, channelInfos);
                 } catch (IOException e) {
-                    if (IOExceptionHandler.isUnexpectedResponse(e, AM500.getDlmsSession())) {
-                        Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(loadProfileReader, "loadProfileXBlockingIssue", loadProfileReader.getProfileObisCode(), e.getMessage());
+                    if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
+                        Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(loadProfileReader, "loadProfileXBlockingIssue", getCorrectedLoadProfileObisCode(loadProfileReader), e.getMessage());
                         collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                     }
                 }
             } else {
-                Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addWarning(loadProfileReader, "loadProfileXnotsupported", loadProfileReader.getProfileObisCode());
+                Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addWarning(loadProfileReader, "loadProfileXnotsupported", getCorrectedLoadProfileObisCode(loadProfileReader));
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
             }
 
@@ -100,6 +106,10 @@ public class IDISProfileDataReader {
         }
 
         return result;
+    }
+
+    private ObisCode getCorrectedLoadProfileObisCode(LoadProfileReader loadProfileReader) {
+        return protocol.getIDISMeterTopology().getCorrectedObisCode(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber());
     }
 
     private int getEiServerStatus(int protocolStatus) {
@@ -131,12 +141,12 @@ public class IDISProfileDataReader {
                 List<ChannelInfo> channelInfos;
                 int interval;
                 try {
-                    ProfileGeneric profileGeneric = AM500.getDlmsSession().getCosemObjectFactory().getProfileGeneric(lpr.getProfileObisCode());
+                    ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(getCorrectedLoadProfileObisCode(lpr));
                     channelInfos = getChannelInfo(profileGeneric.getCaptureObjects());
                     getChannelInfosMap().put(lpr, channelInfos);    //Remember these, they are re-used in method #getLoadProfileData();
                     interval = profileGeneric.getCapturePeriod();
                 } catch (IOException e) {   //Object not found in IOL, should never happen
-                    throw IOExceptionHandler.handle(e, AM500.getDlmsSession());
+                    throw IOExceptionHandler.handle(e, protocol.getDlmsSession());
                 }
                 lpc.setChannelInfos(channelInfos);
                 lpc.setSupportedByMeter(true);
@@ -167,7 +177,7 @@ public class IDISProfileDataReader {
 
         Map<ObisCode, Unit> unitMap = readUnits(channelObisCodes);
 
-        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        List<ChannelInfo> channelInfos = new ArrayList<>();
         int counter = 0;
         for (ObisCode obisCode : channelObisCodes) {
             Unit unit = unitMap.get(obisCode);
@@ -186,7 +196,7 @@ public class IDISProfileDataReader {
 
         Map<ObisCode, DLMSAttribute> channelAttributes = new HashMap<>();
         for (ObisCode channelObisCode : channelObisCodes) {
-            UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.AM500.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), channelObisCode);
+            UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), channelObisCode);
             if (uo != null) {
                 DLMSAttribute unitAttribute = null;
                 if (uo.getDLMSClassId() == DLMSClassId.REGISTER) {
@@ -200,7 +210,7 @@ public class IDISProfileDataReader {
             }
         }
 
-        ComposedCosemObject composedCosemObject = new ComposedCosemObject(AM500.getDlmsSession(), AM500.getDlmsSessionProperties().isBulkRequest(), new ArrayList<>(channelAttributes.values()));
+        ComposedCosemObject composedCosemObject = new ComposedCosemObject(protocol.getDlmsSession(), protocol.getDlmsSessionProperties().isBulkRequest(), new ArrayList<>(channelAttributes.values()));
 
         for (ObisCode channelObisCode : channelObisCodes) {
             DLMSAttribute dlmsAttribute = channelAttributes.get(channelObisCode);
@@ -208,7 +218,7 @@ public class IDISProfileDataReader {
                 try {
                     result.put(channelObisCode, new ScalerUnit(composedCosemObject.getAttribute(dlmsAttribute)).getEisUnit());
                 } catch (IOException e) {
-                    if (IOExceptionHandler.isUnexpectedResponse(e, AM500.getDlmsSession())) {
+                    if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
                         result.put(channelObisCode, Unit.get(BaseUnit.UNITLESS));
                     }
                 }
@@ -248,6 +258,11 @@ public class IDISProfileDataReader {
     }
 
     private boolean isSupported(LoadProfileReader lpr) {
-        return supportedLoadProfiles.contains(lpr.getProfileObisCode());
+        for (ObisCode supportedLoadProfile : supportedLoadProfiles) {
+            if (lpr.getProfileObisCode().equalsIgnoreBChannel(supportedLoadProfile)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

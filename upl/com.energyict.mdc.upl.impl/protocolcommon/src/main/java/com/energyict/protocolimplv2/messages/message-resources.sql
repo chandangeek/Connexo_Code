@@ -27,3 +27,15 @@ insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('FirmwareDeviceMessage.image.identifier', 'Image identifier', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('MBusSetupDeviceMessage.mbusSerialNumber', 'MBus serial number', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('MBusSetupDeviceMessage.Reset_MBus_Client', 'Reset MBus client', 'L', 'Y', 'N', 'MDW', sysdate);
+
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('MBusSetupDeviceMessage.dibInstance1', 'DIB Instance 1', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('MBusSetupDeviceMessage.dibInstance2', 'DIB Instance 2', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('MBusSetupDeviceMessage.dibInstance3', 'DIB Instance 3', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('MBusSetupDeviceMessage.dibInstance4', 'DIB Instance 4', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('MBusSetupDeviceMessage.vibInstance1', 'VIB Instance 1', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('MBusSetupDeviceMessage.vibInstance2', 'VIB Instance 2', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('MBusSetupDeviceMessage.vibInstance3', 'VIB Instance 3', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('MBusSetupDeviceMessage.vibInstance4', 'VIB Instance 4', 'L', 'Y', 'N', 'MDW', sysdate);
+
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('MBusSetupDeviceMessage.WriteMBusCapturePeriod', 'Write MBus capture period', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('MBusSetupDeviceMessage.WriteCaptureDefinitionForAllInstances', 'Write MBus capture definitions', 'L', 'Y', 'N', 'MDW', sysdate);

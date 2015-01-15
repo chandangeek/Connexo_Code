@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.dlms.idis.events;
+package com.energyict.protocolimplv2.dlms.idis.am500.events;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.ProfileGeneric;
@@ -9,8 +9,8 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.idis.events.*;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,27 +19,31 @@ import java.util.List;
 
 /**
  * Copyrights EnergyICT
+ * <p/>
+ * Supports both the e-meter and MBus meter logbooks.
+ * Note that in EIServer, they should be configured on the proper master and slave devices.
  *
  * @author khe
  * @since 6/01/2015 - 9:42
  */
 public class IDISLogBookFactory implements DeviceLogBookSupport {
 
-    private AbstractDlmsProtocol protocol;
+    private AM500 protocol;
 
     private static ObisCode DISCONNECTOR_CONTROL_LOG = ObisCode.fromString("0.0.99.98.2.255");
     private static ObisCode STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.0.255");
     private static ObisCode FRAUD_DETECTION_LOG = ObisCode.fromString("0.0.99.98.1.255");
     private static ObisCode POWER_FAILURE_EVENT_LOG = ObisCode.fromString("1.0.99.97.0.255");
     private static ObisCode POWER_QUALITY_LOG = ObisCode.fromString("0.0.99.98.4.255");
-    private static ObisCode MBUS_EVENT_LOG = ObisCode.fromString("0.0.99.98.3.255");    //General MBus log, describing events for all slave meters
+    private static ObisCode MBUS_EVENT_LOG = ObisCode.fromString("0.0.99.98.3.255");    //General MBus log, describing events for all slave devices
+    private static ObisCode MBUS_CONTROL_LOG = ObisCode.fromString("0.x.24.5.0.255");   //Specific log for 1 MBus slave device
 
     /**
      * List of obiscodes of the supported log books
      */
     private final List<ObisCode> supportedLogBooks;
 
-    public IDISLogBookFactory(AbstractDlmsProtocol protocol) {
+    public IDISLogBookFactory(AM500 protocol) {
         this.protocol = protocol;
         supportedLogBooks = new ArrayList<>();
         supportedLogBooks.add(DISCONNECTOR_CONTROL_LOG);
@@ -48,6 +52,7 @@ public class IDISLogBookFactory implements DeviceLogBookSupport {
         supportedLogBooks.add(POWER_FAILURE_EVENT_LOG);
         supportedLogBooks.add(POWER_QUALITY_LOG);
         supportedLogBooks.add(MBUS_EVENT_LOG);
+        supportedLogBooks.add(MBUS_CONTROL_LOG);
     }
 
     @Override
@@ -64,10 +69,17 @@ public class IDISLogBookFactory implements DeviceLogBookSupport {
                 }
                 Calendar fromDate = getCalendar();
                 fromDate.setTime(logBookReader.getLastLogBook());
-                DataContainer dataContainer;
+
                 try {
-                    dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());
-                    collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode()));
+                    if (protocol.getIDISMeterTopology().getMBusChannelId(logBookReader.getMeterSerialNumber()) > 0) {
+                        //MBus slave logbook
+                        List<MeterEvent> mbusEvents = getMBusControlLog(fromDate, getCalendar(), logBookReader);
+                        collectedLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(mbusEvents));
+                    } else {
+                        //E-meter logbook
+                        DataContainer dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());
+                        collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode()));
+                    }
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
                         collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
@@ -101,12 +113,43 @@ public class IDISLogBookFactory implements DeviceLogBookSupport {
         return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
     }
 
+    private List<MeterEvent> getMBusControlLog(Calendar fromCal, Calendar toCal, LogBookReader logBookReader) throws IOException {
+        ObisCode mBusControlLogObisCode = getMBusControlLogObisCode(logBookReader.getMeterSerialNumber());
+        DataContainer mBusControlLogDC = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(mBusControlLogObisCode).getBuffer(fromCal, toCal);
+        AbstractEvent mBusControlLog;
+        switch (protocol.getIDISMeterTopology().getMBusChannelId(logBookReader.getMeterSerialNumber())) {
+            case 1:
+                mBusControlLog = new MBusControlLog1(protocol.getTimeZone(), mBusControlLogDC);
+                break;
+            case 2:
+                mBusControlLog = new MBusControlLog2(protocol.getTimeZone(), mBusControlLogDC);
+                break;
+            case 3:
+                mBusControlLog = new MBusControlLog3(protocol.getTimeZone(), mBusControlLogDC);
+                break;
+            case 4:
+                mBusControlLog = new MBusControlLog4(protocol.getTimeZone(), mBusControlLogDC);
+                break;
+            default:
+                return new ArrayList<>();
+        }
+        return mBusControlLog.getMeterEvents();
+    }
+
+    private ObisCode getMBusControlLogObisCode(String serialNumber) {
+        return protocol.getIDISMeterTopology().getCorrectedObisCode(MBUS_CONTROL_LOG, serialNumber);
+    }
+
     private boolean isSupported(LogBookReader logBookReader) {
-        return supportedLogBooks.contains(logBookReader.getLogBookObisCode());
+        for (ObisCode supportedLogBook : supportedLogBooks) {
+            if (supportedLogBook.equalsIgnoreBChannel(logBookReader.getLogBookObisCode())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Calendar getCalendar() {
         return ProtocolUtils.getCalendar(protocol.getTimeZone());
     }
-
 }

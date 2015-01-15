@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.dlms.idis.messages;
+package com.energyict.protocolimplv2.dlms.idis.am500.messages;
 
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
@@ -9,13 +9,12 @@ import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.enums.LoadControlActions;
 import com.energyict.protocolimplv2.messages.enums.MonitoredValue;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,7 +30,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
 
     private final static List<DeviceMessageSpec> supportedMessages;
-    protected final SimpleDateFormat europeanDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     static {
         supportedMessages = new ArrayList<>();
@@ -61,7 +59,7 @@ public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessag
 
     private final IDISMessageExecutor messageExecutor;
 
-    public IDISMessaging(AbstractDlmsProtocol protocol) {
+    public IDISMessaging(AM500 protocol) {
         super(protocol);
         this.messageExecutor = new IDISMessageExecutor(protocol);
     }

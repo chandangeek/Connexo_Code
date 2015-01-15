@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.dlms.idis.properties;
+package com.energyict.protocolimplv2.dlms.idis.am500.properties;
 
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.TimeDuration;
