@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.cep.IssueAction;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
@@ -28,6 +29,7 @@ public class IssueActionTypeImpl extends EntityImpl implements IssueActionType {
 
     private Reference<IssueType> issueType = ValueReference.absent();
     private Reference<IssueReason> issueReason = ValueReference.absent();
+    private CreationRuleActionPhase phase;
 
     private IssueActionService issueActionService;
     
@@ -37,23 +39,24 @@ public class IssueActionTypeImpl extends EntityImpl implements IssueActionType {
         this.issueActionService = issueActionService;
     }
 
-    public void init(String factoryId, String actionTypeClass, IssueReason issueReason){
+    public void init(String factoryId, String actionTypeClass, IssueReason issueReason, CreationRuleActionPhase phase){
         IssueType type = null;
         if (issueReason != null){
             type = issueReason.getIssueType();
         }
-        this.init(factoryId, actionTypeClass, issueReason, type);
+        this.init(factoryId, actionTypeClass, issueReason, type, phase);
     }
 
-    public void init(String factoryId, String actionTypeClass, IssueType issueType){
-        this.init(factoryId, actionTypeClass, null, issueType);
+    public void init(String factoryId, String actionTypeClass, IssueType issueType, CreationRuleActionPhase phase){
+        this.init(factoryId, actionTypeClass, null, issueType, phase);
     }
 
-    private void init(String factoryId, String actionTypeClass, IssueReason issueReason, IssueType issueType){
+    private void init(String factoryId, String actionTypeClass, IssueReason issueReason, IssueType issueType, CreationRuleActionPhase phase) {
         this.factoryId = factoryId;
         this.className = actionTypeClass;
         this.issueReason.set(issueReason);
         this.issueType.set(issueType);
+        this.phase = phase;
     }
 
     @Override
@@ -79,5 +82,10 @@ public class IssueActionTypeImpl extends EntityImpl implements IssueActionType {
     @Override
     public Optional<IssueAction> createIssueAction() {
         return issueActionService.createIssueAction(factoryId, className);
+    }
+    
+    @Override
+    public CreationRuleActionPhase getPhase() {
+        return phase;
     }
 }

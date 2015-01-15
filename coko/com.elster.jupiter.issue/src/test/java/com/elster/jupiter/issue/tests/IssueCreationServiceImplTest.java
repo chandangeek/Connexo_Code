@@ -105,7 +105,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
             CreationRule rule = getSimpleCreationRule();
 
             IssueActionTypeImpl actionType = getDataModel().getInstance(IssueActionTypeImpl.class);
-            actionType.init("some", "class", (IssueType) null);
+            actionType.init("some", "class", (IssueType) null, null);
             actionType.save();
 
             CreationRuleAction action = rule.addAction(actionType, CreationRuleActionPhase.CREATE);

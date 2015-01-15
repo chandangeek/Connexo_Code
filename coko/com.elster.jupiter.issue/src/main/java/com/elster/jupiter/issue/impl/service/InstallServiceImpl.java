@@ -6,6 +6,7 @@ import com.elster.jupiter.issue.impl.module.Installer;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
 import com.elster.jupiter.issue.security.Privileges;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.*;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -19,12 +20,14 @@ import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.users.UserService;
 import com.google.inject.AbstractModule;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -141,9 +144,9 @@ public class InstallServiceImpl implements InstallService, TranslationKeyProvide
         task.save();
     }
 
-    private void createActionTypes(){
+    private void createActionTypes() {
         IssueType type = null;
-        issueActionService.createActionType(IssueDefaultActionsFactory.ID, CloseIssueAction.class.getName(), type);
+        issueActionService.createActionType(IssueDefaultActionsFactory.ID, CloseIssueAction.class.getName(), type, CreationRuleActionPhase.OVERDUE);
         issueActionService.createActionType(IssueDefaultActionsFactory.ID, AssignIssueAction.class.getName(), type);
     }
 

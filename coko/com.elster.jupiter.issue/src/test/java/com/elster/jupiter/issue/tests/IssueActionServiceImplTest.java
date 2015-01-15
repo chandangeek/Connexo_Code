@@ -69,7 +69,7 @@ public class IssueActionServiceImplTest extends BaseTest {
             IssueActionType actionType = getIssueActionService().createActionType("factoryId1", "classname1", issueTypeRef.get());
             long id = actionType.getId();
             actionType = getIssueActionService().createActionType("factoryId1", "classname1", issueTypeRef.get());
-            assertThat(id).isEqualTo(actionType.getId());
+            assertThat(actionType.getId()).isEqualTo(id);
             // 2 default action types {@see InstallServiceImpl#createActionTypes} + 1 factoryId1 - classname1
             assertThat(getIssueActionService().getActionTypeQuery().select(Condition.TRUE).size()).isEqualTo(3);
         }
@@ -78,7 +78,7 @@ public class IssueActionServiceImplTest extends BaseTest {
             IssueActionType actionType = getIssueActionService().createActionType("factoryId1", "classname1", reasonRef.get());
             long id = actionType.getId();
             actionType = getIssueActionService().createActionType("factoryId1", "classname1", reasonRef.get());
-            assertThat(id).isEqualTo(actionType.getId());
+            assertThat(actionType.getId()).isEqualTo(id);
             // 2 default action types {@see InstallServiceImpl#createActionTypes} + 1 factoryId1 - classname1
             assertThat(getIssueActionService().getActionTypeQuery().select(Condition.TRUE).size()).isEqualTo(3);
         }

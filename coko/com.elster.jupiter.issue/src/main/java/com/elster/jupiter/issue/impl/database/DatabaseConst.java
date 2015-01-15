@@ -138,6 +138,7 @@ public final class DatabaseConst {
     public static final String RULE_ACTION_TYPE_FACTORY_ID = "FACTORY_ID";
     public static final String RULE_ACTION_TYPE_ISSUE_TYPE = "ISSUE_TYPE";
     public static final String RULE_ACTION_TYPE_REASON = "REASON";
+    public static final String RULE_ACTION_TYPE_PHASE = "PHASE";
 
     public static final String RULE_ACTION_TYPE_PK_NAME = "ISU_PK_ACT_TYPE";
     public static final String RULE_ACTION_TYPE_FK_TO_ISSUE_TYPE = "ISU_ACT_TYPE_FK_TO_ISSUE_TYPE";

@@ -1,5 +1,21 @@
 package com.elster.jupiter.issue.impl.service;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
@@ -8,7 +24,12 @@ import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.cep.IssueActionFactory;
 import com.elster.jupiter.issue.share.cep.IssueActionResult;
 import com.elster.jupiter.issue.share.cep.controls.DefaultActionResult;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
+import com.elster.jupiter.issue.share.entity.Entity;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueMappingService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -17,26 +38,8 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
-
-import java.util.Optional;
-
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-
-import javax.inject.Inject;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.issue.action", service = {IssueActionService.class}, immediate = true)
 public class IssueActionServiceImpl implements IssueActionService {
@@ -106,25 +109,38 @@ public class IssueActionServiceImpl implements IssueActionService {
 
     @Override
     public IssueActionType createActionType(String factoryId, String className, IssueType issueType) {
-        IssueActionTypeImpl type = findOrCreateActionType(factoryId, className);
-        type.init(factoryId, className, issueType);
-        type.save();
-        return type;
+        return this.createActionType(factoryId, className, issueType, null);//any phase
     }
-
-
+    
     @Override
     public IssueActionType createActionType(String factoryId, String className, IssueReason issueReason) {
-        IssueActionTypeImpl type = findOrCreateActionType(factoryId, className);
-        type.init(factoryId, className, issueReason);
+        return this.createActionType(factoryId, className, issueReason, null);//any phase
+    }
+    
+    @Override
+    public IssueActionType createActionType(String factoryId, String className, IssueType issueType, CreationRuleActionPhase phase) {
+        IssueActionTypeImpl type = findOrCreateActionType(factoryId, className, issueType, null);
+        type.init(factoryId, className, issueType, phase);
         type.save();
         return type;
     }
 
-    private IssueActionTypeImpl findOrCreateActionType(String factoryId, String className){
-        List<IssueActionType> actionTypes = query(IssueActionType.class).select(where("factoryId").isEqualTo(factoryId).and(where("className").isEqualTo(className)));
+    @Override
+    public IssueActionType createActionType(String factoryId, String className, IssueReason issueReason, CreationRuleActionPhase phase) {
+        IssueActionTypeImpl type = findOrCreateActionType(factoryId, className, issueReason.getIssueType(), issueReason);
+        type.init(factoryId, className, issueReason, phase);
+        type.save();
+        return type;
+    }
+    
+    private IssueActionTypeImpl findOrCreateActionType(String factoryId, String className, IssueType issueType, IssueReason issueReason) {
+        List<IssueActionType> actionTypes = query(IssueActionType.class).select(
+                    (where("factoryId").isEqualTo(factoryId))
+                .and(where("className").isEqualTo(className))
+                .and(issueType != null ? where("issueType").isEqualTo(issueType) : where("issueType").isNull())
+                .and(issueReason != null ? where("issueReason").isEqualTo(issueReason) : where("issueReason").isNull()));
         IssueActionTypeImpl actionType = null;
-        if (actionTypes.size() > 0){
+        if (actionTypes.size() > 0) {
             LOG.info("You are trying to create action type which is already presented in system");
             actionType = (IssueActionTypeImpl) actionTypes.get(0);
         } else {

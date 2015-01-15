@@ -10,5 +10,6 @@ public interface IssueActionType extends Entity {
     String getFactoryId();
     IssueType getIssueType();
     IssueReason getIssueReason();
+    CreationRuleActionPhase getPhase();
     Optional<IssueAction> createIssueAction();
 }
