@@ -180,7 +180,7 @@ public class AM500 extends AbstractDlmsProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "IDIS DLMS (IDIS P1) V2";
+        return "AM500 DLMS (IDIS P1) V2";
     }
 
     @Override
