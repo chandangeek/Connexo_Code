@@ -188,11 +188,15 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     },
 
     deleteRegisterTypeInDatabase: function (btn, text, opt) {
+        var me = this;
         if (btn === 'confirm') {
-            var registerTypeToDelete = opt.config.registerTypeToDelete;
+            var registerTypeToDelete = opt.config.registerTypeToDelete,
+                regTypeName = registerTypeToDelete.get('name');
             registerTypeToDelete.destroy({
-                callback: function () {
+                success: function () {
                     location.href = '#/administration/registertypes/';
+                    var ack = Uni.I18n.translate('registerType.removeAckMsg', 'MDC', "Register type '{name}' removed").replace('{name}', regTypeName);
+                    me.getApplication().fireEvent('acknowledge', ack);
                 }
             });
         }
@@ -295,13 +299,13 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     createEditRegisterType: function (btn) {
         var me = this,
             editView = me.getRegisterTypeEditView(),
-            values = this.getRegisterTypeEditForm().getValues(),
+            values = me.getRegisterTypeEditForm().getValues(),
             unitOfMeasureCombo = me.getUnitOfMeasureCombo(),
             readingTypeCombo = me.getReadingTypeCombo(),
             record;
 
         if (btn.action === 'editRegisterType') {
-            record = this.getRegisterTypeEditForm().getRecord();
+            record = me.getRegisterTypeEditForm().getRecord();
         } else {
             record = Ext.create(Mdc.model.RegisterType);
         }
@@ -313,10 +317,18 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 record.setReadingType(Ext.create(Mdc.model.ReadingType, readingTypeCombo.valueModels[0].getData()));
             }
             record.setUnitOfMeasure(unitOfMeasureCombo.findRecordByDisplay(unitOfMeasureCombo.getRawValue()));
+            var regTypeName = record.get('name');
             record.save({
                 success: function () {
+                    var ackMsg;
                     editView.setLoading(false);
                     location.href = '#/administration/registertypes/';
+                    if (btn.action === 'editRegisterType') {
+                        ackMsg =  Uni.I18n.translate('registerType.editAckMsg', 'MDC', "Register type '{name}' edited").replace('{name}', regTypeName);
+                    } else {
+                        ackMsg =  Uni.I18n.translate('registerType.addAckMsg', 'MDC', "Register type '{name}' added").replace('{name}', regTypeName);
+                    }
+                    me.getApplication().fireEvent('acknowledge', ackMsg);
                 },
                 failure: function (rec, operation) {
                     var json = Ext.decode(operation.response.responseText);
