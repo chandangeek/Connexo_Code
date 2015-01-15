@@ -364,6 +364,15 @@
 -keepnames class com.energyict.protocolimpl.dlms.idis.IDIS {
     public *;   # For usage in protocolimpl-v2
 }
+-keepnames class com.energyict.protocolimpl.dlms.idis.registers.* {
+    public *;
+}
+-keepnames class com.energyict.protocolimpl.dlms.idis.events.* {
+    public *;
+}
+-keepnames class com.energyict.protocolimpl.dlms.idis.IDISObjectList {
+    public *;
+}
 
 -keepnames class com.energyict.protocolimpl.dlms.idis.IDISMBus
 
