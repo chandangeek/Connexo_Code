@@ -409,7 +409,7 @@ public final class ExecutionContext implements JournalEntryFactory {
 
     public void prepareStart(JobExecution job, ComTaskExecution comTaskExecution) {
         this.connectionLogger.startingTask(job.getThreadName(), comTaskExecution.getComTasks().get(0).getName());
-        this.executing.start();
+        executionStopWatchStart();
         if (this.isConnected()) {
             Counters taskSessionCounters = this.comPortRelatedComChannel.getTaskSessionCounters();
             taskSessionCounters.resetBytesRead();
@@ -417,6 +417,13 @@ public final class ExecutionContext implements JournalEntryFactory {
             taskSessionCounters.resetPacketsRead();
             taskSessionCounters.resetPacketsSent();
         }
+    }
+
+    private void executionStopWatchStart() {
+        if(this.executing == null){
+            this.executing = new StopWatch();
+        }
+        this.executing.start();
     }
 
     public void executionStarted(ComTaskExecution comTaskExecution) {

@@ -351,7 +351,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         return Arrays.asList("ORM", "EVT", "NLS", "DDC", "MIO");
     }
 
-    private class OptionalIdentificationService implements IdentificationService {
+    private static class OptionalIdentificationService implements IdentificationService {
         private AtomicReference<Optional<IdentificationService>> identificationService = new AtomicReference<>(Optional.empty());
 
         private void set(IdentificationService identificationService) {
@@ -491,7 +491,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         }
     }
 
-    private class IdentificationServiceMissingException extends RuntimeException {
+    private static class IdentificationServiceMissingException extends RuntimeException {
         private IdentificationServiceMissingException() {
             super("IdentificationService missing in EngineService");
         }
