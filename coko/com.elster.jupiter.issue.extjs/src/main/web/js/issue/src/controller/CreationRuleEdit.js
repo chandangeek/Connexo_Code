@@ -342,8 +342,8 @@ Ext.define('Isu.controller.CreationRuleEdit', {
             icon = combo.templateDescriptionIcon;
 
         icon && icon.setXY([
-                comboEl.getX() + comboEl.getWidth(false) + 5,
-                comboEl.getY() + (comboEl.getHeight(false) - icon.getEl().getHeight(false)) / 2
+            comboEl.getX() + comboEl.getWidth(false) + 5,
+            comboEl.getY() + (comboEl.getHeight(false) - icon.getEl().getHeight(false)) / 2
         ]);
     },
 
@@ -437,7 +437,13 @@ Ext.define('Isu.controller.CreationRuleEdit', {
         var me = this,
             actionsGrid = me.getActionsGrid(),
             actionsStore = actionsGrid.getStore(),
-            actions = actionsStore.getRange();
+            actions;
+        //Remove unnecessary params which break BE functionality
+        actionsStore.each(function (record) {
+            delete record.data.type.parameters;
+        });
+
+        actions = actionsStore.getRange();
 
         model.actions().loadData(actions, false);
     },
