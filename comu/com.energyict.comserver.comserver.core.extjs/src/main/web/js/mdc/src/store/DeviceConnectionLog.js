@@ -3,8 +3,6 @@ Ext.define('Mdc.store.DeviceConnectionLog', {
     storeId: 'deviceConnectionLog',
     requires: ['Mdc.model.DeviceConnectionLog'],
     model: 'Mdc.model.DeviceConnectionLog',
-//    pageSize: 20,
-//    buffered: true,
     proxy: {
         type: 'rest',
         url: '../../api/ddr/devices/{mRID}/connectionmethods/{connectionId}/comsessions/{sessionId}/journals',

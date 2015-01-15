@@ -159,8 +159,10 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
             record = router.filter;
 
         if (key === 'eventDate') {
+            record.beginEdit();
             record.set('intervalStart', null);
             record.set('intervalEnd', null);
+            record.endEdit();
         } else {
             record.set(key, null);
         }

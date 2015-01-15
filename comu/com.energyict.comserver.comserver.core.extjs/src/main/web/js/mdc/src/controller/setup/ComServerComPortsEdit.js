@@ -256,10 +256,12 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                 case 'addModel':
                     actionType = Uni.I18n.translate('general.added', 'MDC', 'added');
                     record = me.formToModel(form, typeModel);
+                    record.beginEdit();
                     record.set('active', false);
                     record.set('comServer_id', me.comServerId);
                     record.set('direction', me.portDirection);
                     record.set('type', me.portDirection + '_' + record.getData().comPortType);
+                    record.endEdit();
                     record.getProxy().url = '/api/mdc/comservers/' + me.comServerId + '/comports';
                     break;
                 case 'editModel':

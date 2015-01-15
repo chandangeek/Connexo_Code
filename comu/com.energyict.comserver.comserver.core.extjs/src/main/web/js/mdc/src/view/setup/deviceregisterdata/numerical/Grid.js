@@ -3,7 +3,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
     alias: 'widget.deviceregisterreportgrid-numerical',
     itemId: 'deviceregisterreportgrid',
     store: 'NumericalRegisterData',
-
+    requires: [
+        'Uni.grid.column.ValidationFlag'
+    ],
     initComponent: function () {
         var me = this;
 
@@ -21,30 +23,11 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 flex: 1
             },
             {
+                xtype: 'validation-flag-column',
                 dataIndex: 'value',
                 align: 'right',
                 minWidth: 150,
-                flex: 1,
-                renderer: function (data, metaData, record) {
-                    var validationFlag = '';
-                    switch (record.get('validationResult')) {
-                        case 'validationStatus.notValidated':
-                            validationFlag = '<span class="icon-validation icon-validation-black"></span>';
-                            break;
-                        case 'validationStatus.ok':
-                            validationFlag = '&nbsp;&nbsp;&nbsp;&nbsp;';
-                            break;
-                        case 'validationStatus.suspect':
-                            validationFlag = '<span class="icon-validation icon-validation-red"></span>';
-                            break;
-                        default:
-                            validationFlag = '&nbsp;&nbsp;&nbsp;&nbsp;';
-                            break;
-                    }
-                    return !Ext.isEmpty(data)
-                        ? '<span class="validation-column-align">' + data + ' ' + validationFlag + '</span>'
-                        : '<span class="icon-validation icon-validation-black"></span>';
-                }
+                flex: 1
             },
             {
                 xtype: 'edited-column',

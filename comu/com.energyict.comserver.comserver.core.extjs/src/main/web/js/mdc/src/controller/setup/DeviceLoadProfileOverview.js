@@ -55,6 +55,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
                         device: device
                     });
                     me.getApplication().fireEvent('changecontentevent', tabWidget);
+                    Ext.suspendLayouts();
                     tabWidget.down('#deviceLoadProfileDataSideFilter').setVisible(false);
                     tabWidget.down('#loadProfile-specifications').add(widget);
                     tabController.showTab(0);
@@ -71,6 +72,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
                             }
                         }
                     });
+                    Ext.resumeLayouts();
                 });
             };
         deviceModel.load(mRID, {

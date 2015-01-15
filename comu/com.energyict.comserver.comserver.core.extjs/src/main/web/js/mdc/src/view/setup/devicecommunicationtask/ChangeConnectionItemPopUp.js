@@ -74,6 +74,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
                 Ext.String.format(Uni.I18n.translate('deviceCommunicationTask.sharedScheduleWarning.part1', 'MDC', "'{0}' is part of the shared communication schedule '{1}'."),this.comTaskName,this.scheduleName) +
                 '<BR>' + Uni.I18n.translate('deviceCommunicationTask.sharedScheduleWarning.part2', 'MDC', 'Changes will be applied to all other communication tasks in this schedule.');
         }
+        Ext.suspendLayouts();
         switch (this.action) {
             case 'changeConnectionMethodOfDeviceComTask':
             {
@@ -154,6 +155,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
                 break;
             }
         }
+        Ext.resumeLayouts();
     }
 });
 

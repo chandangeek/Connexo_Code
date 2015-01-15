@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.devicechannels.EditReadingsGrid', {
         'Uni.grid.column.Action',
         'Uni.grid.column.IntervalFlags',
         'Uni.grid.column.Edited',
-        'Uni.view.toolbar.PagingTop'
+        'Uni.view.toolbar.PagingTop',
+        'Uni.grid.column.ValidationFlag'
     ],
     height: 395,
     plugins: [
@@ -36,14 +37,27 @@ Ext.define('Mdc.view.setup.devicechannels.EditReadingsGrid', {
                 width: 200
             },
             {
+                xtype: 'validation-flag-column',
                 header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value') + ' (' + measurementType + ')',
                 dataIndex: 'value',
                 flex: 1,
                 align: 'right',
-                renderer: function (v) {
-                    if(!Ext.isEmpty(v)) {
-                        var value = Uni.Number.formatNumber(v, -1);
-                        return !Ext.isEmpty(value)? value : '';
+                renderer: function (value, metaData, record) {
+                    if (record.get('validationResult')) {
+                        var result = record.get('validationResult'),
+                            status = result.split('.')[1],
+                            cls = 'icon-validation-cell ';
+                        if (status === 'suspect') {
+                            cls += 'icon-validation-red'
+                        }
+                        if (status === 'notValidated') {
+                            cls += 'icon-validation-black'
+                        }
+                        metaData.tdCls = cls;
+                    }
+                    if(!Ext.isEmpty(value)) {
+                        var val = Uni.Number.formatNumber(value, -1);
+                        return !Ext.isEmpty(val)? val : '';
                     }
                 },
                 editor: {
@@ -53,34 +67,6 @@ Ext.define('Mdc.view.setup.devicechannels.EditReadingsGrid', {
                     validateOnChange: true,
                     fieldStyle: 'text-align: right'
                 }
-            },
-            {
-                header: '',
-                xtype: 'templatecolumn',
-                width: 30,
-                align: 'right',
-                tpl: new Ext.XTemplate(
-                    '{[this.checkValidationResult(values.validationResult)]}',
-                    {
-                        checkValidationResult: function (validationResult) {
-                            var result = '';
-
-                            switch (validationResult) {
-                                case 'validationStatus.notValidated':
-                                    result = '<span class="validation-column-align"><span class="icon-validation icon-validation-black"></span>';
-                                    break;
-                                case 'validationStatus.ok':
-                                    result = '<span class="validation-column-align"><span class="icon-validation"></span>';
-                                    break;
-                                case 'validationStatus.suspect':
-                                    result = '<span class="validation-column-align"><span class="icon-validation icon-validation-red"></span>';
-                                    break;
-                            }
-
-                            return result;
-                        }
-                    }
-                )
             },
             {
                 xtype: 'edited-column',

@@ -92,6 +92,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
         kpiMessageContainer.hide();
         me.showErrorPanel(false);
         editForm.setLoading();
+        record.beginEdit();
         record.set('communicationTarget', communicationKpiField.getValue());
         record.set('connectionTarget', connectionKpiField.getValue());
 
@@ -104,7 +105,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                 record.set('frequency', frequencyCombo.getValue());
             }
         }
-
+        record.endEdit();
         record.save({
             success: function (record) {
                 router.getRoute('administration/datacollectionkpis').forward();

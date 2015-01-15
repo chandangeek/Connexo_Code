@@ -325,10 +325,12 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             all = dataIntervalAndZoomLevels.get('all'),
             intervalStart = dataIntervalAndZoomLevels.getIntervalStart((me.channelModel.get('lastReading') || new Date().getTime()));
         router.filter = Ext.create('Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter');
+        router.filter.beginEdit();
         router.filter.set('intervalStart', intervalStart);
         router.filter.set('duration', all.count + all.timeUnit);
         router.filter.set('onlySuspect', viewOnlySuspects);
         router.filter.set('onlyNonSuspect', false);
+        router.filter.endEdit();
         me.getSideFilter().down('#suspect').setValue(viewOnlySuspects);
     },
 

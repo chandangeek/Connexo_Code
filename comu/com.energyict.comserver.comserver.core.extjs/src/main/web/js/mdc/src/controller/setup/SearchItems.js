@@ -117,10 +117,10 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         }
 
         this.applySort();
-
+        Ext.suspendLayouts();
         searchItems.down('#resultsPanel').removeAll();
         searchItems.down('#resultsPanel').add(Ext.create('Mdc.view.setup.searchitems.SearchResults', {store: store}));
-
+        Ext.resumeLayouts();
         var isFilterSet = this.isFilterFilled(searchItems);
         this.showSearchContentContainer(isFilterSet);
 

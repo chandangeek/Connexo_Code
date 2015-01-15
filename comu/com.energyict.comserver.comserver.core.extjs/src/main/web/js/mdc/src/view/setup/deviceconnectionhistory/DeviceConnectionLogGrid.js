@@ -7,9 +7,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogGrid', {
         'Uni.view.toolbar.PagingBottom'
     ],
     store: 'DeviceConnectionLog',
-//    plugins: {
-//        ptype: 'bufferedrenderer'
-//    },
+
     columns: {
         defaults: {
             sortable: false,

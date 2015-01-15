@@ -106,6 +106,7 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
         var me = this,
             nest = me.down('#addFormNest'),
             form;
+        Ext.suspendLayouts();
         switch (portDirection) {
             case 'inbound' :
                 switch (portType) {
@@ -150,6 +151,7 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
                 form && form.showOutbound();
                 break;
         }
+        Ext.resumeLayouts();
         return form;
     }
 });

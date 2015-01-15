@@ -206,7 +206,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                         var deviceTypeName = deviceType.get('name');
                                         var deviceConfigName = deviceConfig.get('name');
                                         var title = direction === 'Outbound' ? Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method') : Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method');
-                                        widget.down('#connectionMethodEditAddTitle').update('<h1>' + title + '</h1>');
+                                        widget.down('#deviceConnectionMethodEditAddTitle').setTitle(title);
                                         widget.setLoading(false);
                                     }
                                 });
@@ -292,6 +292,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         var me = this;
         var propertyForm = me.getConnectionMethodEditView().down('property-form');
         if (record) {
+            record.beginEdit();
             record.set(values);
             if (values.connectionStrategy === 'asSoonAsPossible') {
                 record.set('temporalExpression', null);
@@ -304,6 +305,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             if (typeof propertyForm.getRecord() !== 'undefined') {
                 record.propertiesStore = propertyForm.getRecord().properties();
             }
+            record.endEdit();
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
             record.save({
                 success: function (record) {
@@ -430,7 +432,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                         }
                                                         widget.down('form').loadRecord(connectionMethod);
                                                         var title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + connectionMethod.get('name') + "'";
-                                                        widget.down('#connectionMethodEditAddTitle').update('<h1>' + title + '</h1>');
+                                                        widget.down('#deviceConnectionMethodEditAddTitle').setTitle(title);
                                                         widget.down('form').down('#connectionTypeComboBox').setValue(connectionMethod.get('connectionTypePluggableClass'));
                                                         me.getConnectionTypeComboBox().disable();
                                                         widget.down('form').down('#communicationPortPoolComboBox').setValue(connectionMethod.get('comPortPool'));

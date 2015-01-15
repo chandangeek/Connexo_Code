@@ -100,10 +100,12 @@ Ext.define('Mdc.controller.setup.EditLogbookConfiguration', {
             });
         } else {
             formErrorsPanel.hide();
+            Ext.suspendLayouts();
             formErrorsPanel.removeAll();
             formErrorsPanel.add({
                 html: 'There are errors on this page that require your attention.'
             });
+            Ext.resumeLayouts();
             formErrorsPanel.show();
         }
     }

@@ -1,8 +1,6 @@
 Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailInfo', {
     extend: 'Ext.form.Panel',
     alias: 'widget.loadProfileConfigurationDetailInfo',
-    itemId: 'loadProfileConfigurationDetailInfo',
-    intervalStore: null,
     requires: [
         'Uni.form.field.ObisDisplay',
         'Mdc.store.Intervals'

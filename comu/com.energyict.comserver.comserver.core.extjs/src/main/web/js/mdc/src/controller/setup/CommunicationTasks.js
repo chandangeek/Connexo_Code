@@ -145,10 +145,10 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 widget = Ext.widget('container', {
                     html: communicationTasksCount + ' ' + word
                 });
-
+            Ext.suspendLayouts();
             numberOfCommunicationTasksContainer.removeAll(true);
             numberOfCommunicationTasksContainer.add(widget);
-
+            Ext.resumeLayouts();
             if (communicationTasksCount > 0) {
                 selectionModel.deselectAll(false);
                 selectionModel.select(0);

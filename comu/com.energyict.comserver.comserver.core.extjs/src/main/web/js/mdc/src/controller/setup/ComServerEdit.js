@@ -83,6 +83,7 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
             form;
 
         logLevelsStore.load();
+        model.beginEdit();
         model.set('comServerType', 'Online');
         model.set('serverLogLevel' , 'Warning');
         model.set('communicationLogLevel' , 'Warning');
@@ -91,7 +92,7 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
         model.set('storeTaskQueueSize' , 50);
         model.set('numberOfStoreTaskThreads' , 1);
         model.set('storeTaskThreadPriority' , 5);
-
+        model.endEdit();
         this.comServerModel = model;
 
         this.getApplication().fireEvent('changecontentevent', widget);

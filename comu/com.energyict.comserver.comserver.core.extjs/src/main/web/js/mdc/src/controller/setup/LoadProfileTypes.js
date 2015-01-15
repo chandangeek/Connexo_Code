@@ -161,10 +161,10 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             var widget = Ext.widget('container', {
                 html: loadTypeCount + loadTypesWord
             });
-
+            Ext.suspendLayouts();
             numberOfLoadTypesContainer.removeAll(true);
             numberOfLoadTypesContainer.add(widget);
-
+            Ext.resumeLayouts();
             if (loadTypeCount < 1) {
                 grid.hide();
                 emptyMessage.removeAll();

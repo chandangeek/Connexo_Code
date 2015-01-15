@@ -284,10 +284,12 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             formErrorsPlaceHolder = me.getDeviceregisterreportedit().down('#registerDataEditForm #registerDataEditFormErrors');
 
         formErrorsPlaceHolder.hide();
+        Ext.suspendLayouts();
         formErrorsPlaceHolder.removeAll();
         formErrorsPlaceHolder.add({
             html: Uni.I18n.translate('device.registerData.form.errors', 'MDC', 'There are errors on this page that require your attention')
         });
+        Ext.resumeLayouts();
         formErrorsPlaceHolder.show();
     },
 

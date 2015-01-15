@@ -194,6 +194,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
         preview.setTitle(communicationSchedule.get('name'));
         previewForm.loadRecord(communicationSchedule);
+        Ext.suspendLayouts();
         previewForm.down('#comTaskPreviewContainer').removeAll();
         if (communicationSchedule.comTaskUsages().data.items.length === 0) {
             previewForm.down('#comTaskPreviewContainer').add({
@@ -207,6 +208,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                 })
             });
         }
+        Ext.resumeLayouts();
     },
 
     saveCommunicationSchedule: function () {

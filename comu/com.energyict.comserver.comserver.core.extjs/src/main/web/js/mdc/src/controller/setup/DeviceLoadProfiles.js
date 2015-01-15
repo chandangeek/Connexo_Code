@@ -149,7 +149,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                     } else {
                         me.dataValidationLastChecked = new Date();
                     }
-                    confirmationWindow.add(me.getValidationContent());
+                    confirmationWindow.insert(1,me.getValidationContent());
                     confirmationWindow.show({
                         title: Uni.I18n.translatePlural('deviceloadprofiles.validateNow', record.get('name'), 'MDC', 'Validate data of load profile {0}?'),
                         msg: ''

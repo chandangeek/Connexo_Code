@@ -100,9 +100,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelDataEditReadings', {
             all = dataIntervalAndZoomLevels.get('all'),
             intervalStart = dataIntervalAndZoomLevels.getIntervalStart((record.get('lastReading') || new Date().getTime()));
         router.filter = Ext.create('Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter');
+        router.filter.beginEdit();
         router.filter.set('intervalStart', intervalStart);
         router.filter.set('duration', all.count + all.timeUnit);
         router.filter.set('onlySuspect', false);
+        router.filter.endEdit();
     },
 
     chooseAction: function (menu, menuItem) {

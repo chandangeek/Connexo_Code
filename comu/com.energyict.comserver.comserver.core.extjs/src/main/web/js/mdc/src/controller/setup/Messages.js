@@ -138,6 +138,7 @@ Ext.define('Mdc.controller.setup.Messages', {
                 }
 
                 if (activeEnablements > 0) {
+                    Ext.suspendLayouts();
                     menu.add(
                         {
                             text: Uni.I18n.translate('messages.categories.deactivateAll', 'MDC', 'Deactivate all'),
@@ -150,6 +151,7 @@ Ext.define('Mdc.controller.setup.Messages', {
                             action: 'changePrivilegesForAll'
                         }
                     );
+                    Ext.resumeLayouts();
                 }
                 this.getMessagesActionBtn().menu = menu;
             } else {
@@ -356,8 +358,10 @@ Ext.define('Mdc.controller.setup.Messages', {
         var model = Ext.create('Mdc.model.MessageActivate');
         model.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
         model.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
+        model.beginEdit();
         model.set('messageIds', inactiveEnablements);
         model.set('privileges', privileges);
+        model.endEdit();
         model.save();
         this.showMessagesOverview(router.arguments.deviceTypeId, router.arguments.deviceConfigurationId);
     },

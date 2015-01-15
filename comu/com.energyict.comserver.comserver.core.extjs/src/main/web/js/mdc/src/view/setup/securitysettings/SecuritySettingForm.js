@@ -90,6 +90,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
 
     initComponent: function () {
         this.callParent(this);
+        Ext.suspendLayouts();
         this.down('#SecuritySettingCancel').add(
             {
                 xtype: 'button',
@@ -110,6 +111,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                 text: this.actionButtonName
             }
         );
+        Ext.resumeLayouts();
     }
 });
 

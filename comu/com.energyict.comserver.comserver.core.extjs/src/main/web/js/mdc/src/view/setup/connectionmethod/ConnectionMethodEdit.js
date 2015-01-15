@@ -33,18 +33,20 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
     initComponent: function () {
         this.content = [
             {
-                xtype: 'container',
+                xtype: 'panel',
+                ui: 'large',
+                itemId: 'connectionMethodEditAddTitle',
                 layout: {
                     type: 'vbox'
 //                    align: 'stretch'
                 },
 
                 items: [
-                    {
-                        xtype: 'component',
-                        itemId: 'connectionMethodEditAddTitle',
-                        margins: '0 10 10 10'
-                    },
+//                    {
+//                        xtype: 'component',
+//                        itemId: 'connectionMethodEditAddTitle',
+//                        margins: '0 10 10 10'
+//                    },
 //                    {
 //                        xtype: 'container',
 //                        layout: {

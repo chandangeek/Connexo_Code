@@ -1,7 +1,6 @@
 Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailChannelPreview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.loadProfileConfigurationDetailChannelPreview',
-    itemId: 'loadProfileConfigurationDetailChannelPreview',
     maxHeight: 300,
     frame: true,
     editActionName: null,

@@ -97,8 +97,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         me.registerName = record.get('name');
         form.loadRecord(record);
         widget.setTitle(record.get('name'));
+        Ext.suspendLayouts();
         previewContainer.removeAll();
         previewContainer.add(widget);
+        Ext.resumeLayouts();
         if (!record.data.detailedValidationInfo.validationActive) {
             widget.down('#validateNowRegister').hide();
             Ext.ComponentQuery.query('#registerActionMenu #validateNowRegister')[0].hide();
@@ -166,7 +168,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                     } else {
                         me.dataValidationLastChecked = new Date();
                     }
-                    confirmationWindow.add(me.getValidationContent());
+                    confirmationWindow.insert(1,me.getValidationContent());
                     confirmationWindow.show({
                         title: Uni.I18n.translatePlural('deviceregisterconfiguration.validation.validateNow', record.get('name'), 'MDC', 'Validate data of register {0}?'),
                         msg: ''
