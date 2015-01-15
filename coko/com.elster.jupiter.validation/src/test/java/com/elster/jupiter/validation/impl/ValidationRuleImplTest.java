@@ -14,10 +14,13 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 
 import javax.inject.Provider;
+import javax.validation.ConstraintViolation;
+import javax.validation.ValidatorFactory;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -73,7 +76,9 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     @Mock
     private ValidationRuleSet ruleSet;
     @Mock
-    private DataMapper<IValidationRule> ruleFactory;
+    private ValidatorFactory validatorFactory;
+    @Mock
+    private javax.validation.Validator javaxValidator;
     @Mock
     private DataMapper<ValidationRuleProperties> rulePropertiesFactory;
     @Mock
@@ -113,7 +118,9 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     @Before
     public void setUp() {
         when(channel.findReadingQuality(new ReadingQualityType("3.6." + ID), DATE1)).thenReturn(Optional.<ReadingQualityRecord>empty(), Optional.of(readingQuality));        
-        when(dataModel.mapper(IValidationRule.class)).thenReturn(ruleFactory);
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(validatorFactory.getValidator()).thenReturn(javaxValidator);
+        when(javaxValidator.validate(any(javax.validation.Validator.class), any(), any())).thenReturn(new HashSet<ConstraintViolation<javax.validation.Validator>>());
         when(dataModel.mapper(ReadingTypeInValidationRule.class)).thenReturn(readingTypesInRuleFactory);
         when(dataModel.mapper(ValidationRuleProperties.class)).thenReturn(rulePropertiesFactory);
         when(validatorCreator.getValidator(eq(IMPLEMENTATION), any(Map.class))).thenReturn(validator);
@@ -167,7 +174,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     public void testPersist() {
         ValidationRuleImpl testPersistValidationRule = newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
         testPersistValidationRule.save();
-        verify(ruleFactory).persist(testPersistValidationRule);
+        verify(dataModel).persist(testPersistValidationRule);
     }
 
     @Test
@@ -175,7 +182,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         ValidationRuleImpl testUpdateValidationRule = newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
         field("id").ofType(Long.TYPE).in(testUpdateValidationRule).set(ID);
         testUpdateValidationRule.save();
-        verify(ruleFactory).update(testUpdateValidationRule);
+        verify(dataModel).update(testUpdateValidationRule);
     }
 
     @Test
@@ -185,7 +192,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
         testPersistValidationRule.save();
 
-        verify(ruleFactory).persist(testPersistValidationRule);
+        verify(dataModel).persist(testPersistValidationRule);
     }
 
     @Test
@@ -216,7 +223,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
         validationRule.save();
 
-        verify(ruleFactory).update(validationRule);
+        verify(dataModel).update(validationRule);
     }
 
     @Test
@@ -226,7 +233,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
         newRule.save();
 
-        verify(ruleFactory).persist(newRule);
+        verify(dataModel).persist(newRule);
     }
 
     @Test
@@ -255,7 +262,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
         validationRule.save();
 
-        verify(ruleFactory).update(validationRule);
+        verify(dataModel).update(validationRule);
 
     }
 

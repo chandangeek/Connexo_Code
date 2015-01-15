@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -57,6 +58,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     private Instant modTime;
     private String userName;
 
+    @Valid
     private List<IValidationRule> rules = new ArrayList<>();
 
     private final EventService eventService;
@@ -76,7 +78,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     ValidationRuleSetImpl init(String name, String description) {
-        this.name = name.trim();
+        this.name = name != null ? name.trim() : name;
         this.description = description;
         return this;
     }
@@ -113,7 +115,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     @Override
     public void setName(String name) {
-        this.name = name.trim();
+        this.name = name != null ? name.trim() : name;
     }
 
     @Override
@@ -221,6 +223,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     @Override
     public IValidationRule addRule(ValidationAction action, String implementation, String name) {
         ValidationRuleImpl newRule = validationRuleProvider.get().init(this, action, implementation, name);
+        Save.CREATE.validate(dataModel, newRule);
         rules.add(newRule);
         return newRule;
     }

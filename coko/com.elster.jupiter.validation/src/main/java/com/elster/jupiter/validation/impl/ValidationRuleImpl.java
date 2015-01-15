@@ -93,7 +93,7 @@ public final class ValidationRuleImpl implements IValidationRule {
         this.ruleSet.set(ruleSet);
         this.action = action;
         this.implementation = implementation;
-        this.name = name.trim();
+        this.name = name != null ? name.trim() : name;
         this.active = false;
         return this;
     }
@@ -163,7 +163,7 @@ public final class ValidationRuleImpl implements IValidationRule {
 
     public void delete() {
         this.setObsoleteTime(Instant.now()); // mark obsolete
-        ruleFactory().update(this);
+        doUpdate();
         eventService.postEvent(EventType.VALIDATIONRULE_DELETED.topic(), this);
     }
 
@@ -303,7 +303,7 @@ public final class ValidationRuleImpl implements IValidationRule {
     }
 
     public void rename(String name) {
-        this.name = name.trim();
+        this.name = name != null ? name.trim() : name;
     }
 
     public void setAction(ValidationAction action) {
@@ -376,15 +376,11 @@ public final class ValidationRuleImpl implements IValidationRule {
     }
 
     private void doPersist() {
-        ruleFactory().persist(this);
+        Save.CREATE.save(dataModel, this);
     }
 
     private void doUpdate() {
-        ruleFactory().update(this);
-    }
-
-    private DataMapper<IValidationRule> ruleFactory() {
-        return dataModel.mapper(IValidationRule.class);
+        Save.UPDATE.save(dataModel, this);
     }
 
     private DataMapper<ValidationRuleProperties> rulePropertiesFactory() {

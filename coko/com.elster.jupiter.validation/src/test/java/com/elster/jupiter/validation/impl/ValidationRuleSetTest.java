@@ -157,7 +157,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
         validationRuleSet.delete();
 
         verify(setFactory).update(validationRuleSet);
-        verify(ruleFactory).update((IValidationRule)rule1);
+        verify(dataModel).update(rule1);
         assertThat(validationRuleSet.getObsoleteDate()).isNotNull();
         assertThat(rule1.getObsoleteDate()).isNotNull();
     }
