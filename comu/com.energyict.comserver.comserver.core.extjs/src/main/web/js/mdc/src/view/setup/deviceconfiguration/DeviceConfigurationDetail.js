@@ -179,7 +179,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                                 {
                                                     xtype: 'button',
                                                     name: 'loadProfileCount',
-                                                    text: Uni.I18n.translate('deviceconfiguration.loadprofiles', 'MDC', 'load profiles'),
+                                                    text: Uni.I18n.translate('general.loadProfileConfigurations', 'MDC', 'load profile configurations'),
                                                     ui: 'link',
                                                     itemId: 'deviceConfigurationDetailLoadProfilesLink',
                                                     href: '#'
@@ -188,7 +188,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                                 {
                                                     xtype: 'button',
                                                     name: 'logBookCount',
-                                                    text: Uni.I18n.translate('deviceconfiguration.logbooks', 'MDC', 'logbooks'),
+                                                    text: Uni.I18n.translate('general.logbookConfigurations', 'MDC', 'logbook configurations'),
                                                     ui: 'link',
                                                     itemId: 'deviceConfigurationDetailLogBooksLink',
                                                     href: '#'
