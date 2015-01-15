@@ -259,6 +259,11 @@ Ext.define('Cfg.controller.Validation', {
                     me.getAddRule().setLoading(false);
                     var json = Ext.decode(operation.response.responseText, true);
                     if (json && json.errors) {
+                        Ext.Array.each(json.errors, function(item) {
+                            if (item.id.indexOf("name") !== -1) {
+                                form.down('#addRuleName').setActiveError(item.msg);
+                            }
+                        });
                         form.getForm().markInvalid(json.errors);
                         formErrorsPanel.show();
                     }
