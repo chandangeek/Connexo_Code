@@ -22,6 +22,7 @@ import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierByDeviceA
 import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierForAlreadyKnowLogBook;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseLogBook;
@@ -74,6 +75,11 @@ public class IdentificationServiceImpl implements IdentificationService {
     @Override
     public DeviceIdentifier createDeviceIdentifierBySerialNumber(String serialNumber) {
         return new DeviceIdentifierBySerialNumber(serialNumber, deviceService);
+    }
+
+    @Override
+    public DeviceIdentifier createDeviceIdentifierByCallHomeId(String serialNumber) {
+        return new DeviceIdentifierByPropertyValue(DeviceProtocolProperty.callHomeId.name(), serialNumber, deviceService);
     }
 
     @Override
