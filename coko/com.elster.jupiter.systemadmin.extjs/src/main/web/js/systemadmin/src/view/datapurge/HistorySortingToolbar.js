@@ -12,6 +12,7 @@ Ext.define('Sam.view.datapurge.HistorySortingToolbar', {
         {
             itemId: 'data-purge-history-sorting-toolbar-add-sort-button',
             xtype: 'button',
+            ui: 'sort',
             action: 'addSort',
             text: Uni.I18n.translate('general.addsort', 'SAM', 'Add sort'),
             menu: {
