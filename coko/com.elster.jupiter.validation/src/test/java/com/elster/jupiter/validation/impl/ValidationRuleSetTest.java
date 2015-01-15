@@ -151,6 +151,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     @Test
     public void testDeleteWithRules() {
         ValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A", "rulename");
+        validationRuleSet.save();
         setId(validationRuleSet, ID);
         setId(rule1, 1001L);
 
@@ -164,10 +165,11 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
     @Test
     public void testUpdateWithRulesPerformsNecessaryDBOperations() {
-        setId(validationRuleSet, ID);
         IValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A", "rulename");
-        setId(rule1, 1001L);
         IValidationRule rule2 = validationRuleSet.addRule(ValidationAction.FAIL, "B", "rulename");
+        validationRuleSet.save();
+        setId(validationRuleSet, ID);
+        setId(rule1, 1001L);
         setId(rule2, 1002L);
         when(ruleFactory.find()).thenReturn(Arrays.asList(rule1, rule2));
 

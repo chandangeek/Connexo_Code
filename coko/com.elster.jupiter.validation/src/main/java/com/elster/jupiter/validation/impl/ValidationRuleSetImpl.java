@@ -61,6 +61,8 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     @Valid
     private List<IValidationRule> rules = new ArrayList<>();
 
+    private List<IValidationRule> rulesToSave = new ArrayList<>();
+
     private final EventService eventService;
     private final DataModel dataModel;
     private final Provider<ValidationRuleImpl> validationRuleProvider;
@@ -166,6 +168,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     @Override
     public void save() {
+        addNewRules();
         if (getId() == 0) {
             doPersist();
         } else {
@@ -198,6 +201,14 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         	.sorted(Comparator.comparing(rule -> rule.getName().toUpperCase()))
         	.collect(Collectors.toList());
     }
+
+    private void addNewRules() {
+        rulesToSave.forEach( newRule -> {
+            Save.CREATE.validate(dataModel, newRule);
+            rules.add(newRule);
+        });
+        rulesToSave.clear();
+    }
     
     private Stream<IValidationRule> doGetRules() {
     	return rules.stream().filter(rule -> !rule.isObsolete());
@@ -223,8 +234,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     @Override
     public IValidationRule addRule(ValidationAction action, String implementation, String name) {
         ValidationRuleImpl newRule = validationRuleProvider.get().init(this, action, implementation, name);
-        Save.CREATE.validate(dataModel, newRule);
-        rules.add(newRule);
+        rulesToSave.add(newRule);
         return newRule;
     }
 
