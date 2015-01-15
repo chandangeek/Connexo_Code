@@ -5,6 +5,8 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -18,11 +20,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.yellowfin.groups.AdHocDeviceGroup;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -53,10 +50,6 @@ public class AdHocDeviceGroupImplIT {
     private UserService userService;
     @Mock
     private EventAdmin eventAdmin;
-    @Mock
-    private DeviceType deviceType;
-    @Mock
-    private DeviceConfiguration deviceConfiguration;
 
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
@@ -69,8 +62,6 @@ public class AdHocDeviceGroupImplIT {
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(DeviceType.class).toInstance(deviceType);
-            bind(DeviceConfiguration.class).toInstance(deviceConfiguration);
         }
     }
 
@@ -81,8 +72,8 @@ public class AdHocDeviceGroupImplIT {
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new IdsModule(),
-                new DeviceDataModule(),
                 new YellowfinGroupsModule(),
+                new MeteringGroupsModule(),
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),
@@ -110,15 +101,9 @@ public class AdHocDeviceGroupImplIT {
 
     @Test
     public void testCaching() {
-        Device device = null;
-        try(TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            DeviceService deviceService = injector.getInstance(DeviceService.class);
-            device = deviceService.newDevice(deviceConfiguration, "1", ED_MRID);
-            device.save();
-            ctx.commit();
-        }
 
-        List<Device> devices = new ArrayList<Device>();
+        List<Long> devices = new ArrayList<Long>();
+        devices.add(2L);
 
         Optional<AdHocDeviceGroup> found;
         YellowfinGroupsService yellowfinGroupsService = injector.getInstance(YellowfinGroupsService.class);
@@ -133,6 +118,6 @@ public class AdHocDeviceGroupImplIT {
         List<AdHocDeviceGroupImpl.AdHocEntryImpl> entries = group.getEntries();
         assertThat(entries).hasSize(1);
         assertThat(entries.get(0).getGroupId()).isEqualTo(1);
-        assertThat(entries.get(0).getDeviceId()).isEqualTo(device.getId());
+        assertThat(entries.get(0).getDeviceId()).isEqualTo(2L);
     }
 }

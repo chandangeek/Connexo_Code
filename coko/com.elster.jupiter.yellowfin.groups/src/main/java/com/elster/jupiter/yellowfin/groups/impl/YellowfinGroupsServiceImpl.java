@@ -8,7 +8,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.yellowfin.groups.AdHocDeviceGroup;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
-import com.energyict.mdc.device.data.Device;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -99,7 +98,7 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Insta
     }
 
     @Override
-    public Optional<AdHocDeviceGroup> cacheAdHocDeviceGroup(List<Device> devices){
+    public Optional<AdHocDeviceGroup> cacheAdHocDeviceGroup(List<Long> devices){
         AdHocDeviceGroupImpl cachedDeviceGroup = AdHocDeviceGroupImpl.from(dataModel, 0, devices);
         cachedDeviceGroup.save();
         return Optional.of(cachedDeviceGroup);

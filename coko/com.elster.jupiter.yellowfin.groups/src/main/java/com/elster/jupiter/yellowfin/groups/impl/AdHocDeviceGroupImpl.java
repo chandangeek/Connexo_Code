@@ -3,13 +3,13 @@ package com.elster.jupiter.yellowfin.groups.impl;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.yellowfin.groups.AdHocDeviceGroup;
-import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class AdHocDeviceGroupImpl implements AdHocDeviceGroup {
 
@@ -27,17 +27,15 @@ public class AdHocDeviceGroupImpl implements AdHocDeviceGroup {
         this.dataModel = dataModel;
     }
 
-    AdHocDeviceGroupImpl init(long id, List<Device> devices) {
+    AdHocDeviceGroupImpl init(long id, List<Long> devices) {
         this.id = id;
         this.name = String.format(ADHOC_GROUP_NAME_PREFIX + "%d", id);
-        for(Device device : devices){
-            entries.add(AdHocEntryImpl.from(dataModel, id, device.getId()));
-        }
+        entries.addAll(devices.stream().map(deviceId -> AdHocEntryImpl.from(dataModel, id, deviceId)).collect(Collectors.toList()));
 
         return this;
     }
 
-    static AdHocDeviceGroupImpl from(DataModel dataModel, long id, List<Device> devices) {
+    static AdHocDeviceGroupImpl from(DataModel dataModel, long id, List<Long> devices) {
         return dataModel.getInstance(AdHocDeviceGroupImpl.class).init(id, devices);
     }
 
@@ -114,10 +112,7 @@ public class AdHocDeviceGroupImpl implements AdHocDeviceGroup {
             entry.setGroupId(id);
         }
 
-        ArrayList<AdHocEntryImpl> result = new ArrayList<AdHocEntryImpl>();
-        for (AdHocEntryImpl entry : entries) {
-            result.add(entry);
-        }
+        List<AdHocEntryImpl> result = entries.stream().collect(Collectors.toList());
         entryFactory().persist(result);
     }
 
