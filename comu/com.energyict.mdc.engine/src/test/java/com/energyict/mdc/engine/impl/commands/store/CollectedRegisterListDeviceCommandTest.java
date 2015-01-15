@@ -56,8 +56,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class CollectedRegisterListDeviceCommandTest {
 
-    private static long DEVICE_ID = 1;
-    private static long REGISTER_ID = 2;
+    private static final long DEVICE_ID = 1;
+    private static final long REGISTER_ID = 2;
     private static ObisCode REGISTER_OBIS = ObisCode.fromString("0.0.96.10.2.255");
 
     @Mock
@@ -102,8 +102,8 @@ public class CollectedRegisterListDeviceCommandTest {
         when(registerIdentifier.getObisCode()).thenReturn(REGISTER_OBIS);
         when(this.collectedRegister.getRegisterIdentifier()).thenReturn(registerIdentifier);
         when(this.device.getId()).thenReturn(DEVICE_ID);
-        when(serviceProvider.mdcReadingTypeUtilService()).thenReturn(new MdcReadingTypeUtilServiceImpl());
-        when(serviceProvider.mdcReadingTypeUtilService()).thenReturn(new MdcReadingTypeUtilServiceImpl(meteringService));
+        when(this.meteringService.getReadingType(Matchers.<String>any())).thenReturn(Optional.ofNullable(null));
+        when(serviceProvider.mdcReadingTypeUtilService()).thenReturn(new MdcReadingTypeUtilServiceImpl(this.meteringService));
     }
 
     @Test

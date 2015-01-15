@@ -89,7 +89,8 @@ public class InboundCommunicationHandlerStatisticsTest {
         Clock clock = Clock.systemDefaultZone();
         when(this.serviceProvider.eventPublisher()).thenReturn(this.eventPublisher);
         when(this.serviceProvider.clock()).thenReturn(clock);
-        when(this.serviceProvider.issueService()).thenReturn(new IssueServiceImpl(clock, nlsService));
+        IssueServiceImpl issueService = new IssueServiceImpl(clock, nlsService);
+        when(this.serviceProvider.issueService()).thenReturn(issueService);
         when(this.serviceProvider.hexService()).thenReturn(new HexServiceImpl());
         when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
         when(this.serviceProvider.transactionService()).thenReturn(new FakeTransactionService());

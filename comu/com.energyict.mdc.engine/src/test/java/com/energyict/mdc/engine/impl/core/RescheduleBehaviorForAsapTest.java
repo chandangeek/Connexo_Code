@@ -20,6 +20,7 @@ import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.tasks.ComTask;
@@ -37,7 +38,6 @@ import java.util.logging.Logger;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Answers;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
