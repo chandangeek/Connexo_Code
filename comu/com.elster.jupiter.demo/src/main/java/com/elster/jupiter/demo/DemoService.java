@@ -9,4 +9,6 @@ public interface DemoService {
     void createA3Device();
     void createValidationSetup();
     void createCollectRemoteDataSetup(String comServerName, String host);
+
+    void createMockedDataDevice(String serialNumber);
 }

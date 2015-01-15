@@ -164,13 +164,13 @@ public class LoadProfileCommands {
                     List<String> values = Arrays.asList(Arrays.copyOfRange(columns, MANDATORY_COLUMN_SIZE, columns.length));
 
                     Instant time = dateShift.toInstant();
-                    time = time.plus(Integer.valueOf(dateTime.substring(0, 2)), ChronoUnit.DAYS);
-                    time = time.plus(Integer.valueOf(dateTime.substring(3, 5)), ChronoUnit.HOURS);
-                    time = time.plus(Integer.valueOf(dateTime.substring(6, 8)), ChronoUnit.MINUTES);
+                    time = time.plus(Integer.valueOf(dateTime.substring(0, 3)), ChronoUnit.DAYS);
+                    time = time.plus(Integer.valueOf(dateTime.substring(4, 6)), ChronoUnit.HOURS);
+                    time = time.plus(Integer.valueOf(dateTime.substring(7, 9)), ChronoUnit.MINUTES);
 
                     Flag[] realFlags = parstIntervalFlags(flags.split(","));
 
-                    for (int i = 0; i < readingTypes.size(); i++) {
+                    for (int i = 0; i < readingTypes.size() && i < values.size(); i++) {
                         String stringValue = values.get(i).replace(",", ".").replace(" ", "");
                         if (!is(stringValue).emptyOrOnlyWhiteSpace()){
                             double doubleValue = Double.valueOf(stringValue);

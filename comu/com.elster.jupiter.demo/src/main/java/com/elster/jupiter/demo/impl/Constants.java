@@ -110,6 +110,7 @@ public final class Constants {
     public static final class Device{
         public static final String STANDARD_PREFIX = "SPE";
         public static final String MOCKED_VALIDATION_DEVICE = "VPB";
+        public static final String MOCKED_REALISTIC_DEVICE = "DME";
         public static final String A3WIC16499990 = "A3WIC16499990";
 
         private Device() {}

@@ -118,6 +118,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         "osgi.command.function=createIssues",
         "osgi.command.function=createApplicationServer",
         "osgi.command.function=createA3Device",
+        "osgi.command.function=createMockedDataDevice",
         "osgi.command.function=createDeliverDataSetup",
         "osgi.command.function=createCollectRemoteDataSetup",
         "osgi.command.function=createValidationSetup"
@@ -341,6 +342,18 @@ public class DemoServiceImpl implements DemoService {
             }
         });
     }
+
+    @Override
+    public void createMockedDataDevice(String serialNumber){
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                createMockedDataDeviceImpl(serialNumber);
+            }
+        });
+    }
+
+
     private void createCollectRemoteDataSetupImpl(final String comServerName, final String host){
         Optional<License> license = licenseService.getLicenseForApplication("MDC");
         if (!license.isPresent() || !License.Status.ACTIVE.equals(license.get().getStatus())) {
@@ -890,6 +903,26 @@ public class DemoServiceImpl implements DemoService {
         device.setProtocolDialectProperty(device.getProtocolDialects().get(0).getDeviceProtocolDialectName(), "SecurityLevel", "2");
         device.setProtocolProperty("deviceTimeZone", "GMT-5");
         device.save();
+    }
+
+    private void createMockedDataDeviceImpl(String serialNumber){
+        String deviceTypeName = Constants.DeviceType.Elster_AS1440.getName();
+        Optional<DeviceType> deviceTypeByName = deviceConfigurationService.findDeviceTypeByName(deviceTypeName);
+        if (!deviceTypeByName.isPresent()){
+            throw new UnableToCreate("Unable to find corresponding device type with name: " + deviceTypeName);
+        }
+        Optional<DeviceConfiguration> deviceConfiguration = deviceTypeByName.get().getConfigurations().stream().filter(dc -> {
+            String deviceConfigName = Constants.DeviceConfiguration.DEFAULT;
+            return dc.getName().equals(deviceConfigName);
+        }).findFirst();
+        if (!deviceConfiguration.isPresent()){
+            throw new UnableToCreate("Unable to find corresponding device configuration with name: " + deviceTypeName);
+        }
+        injector.getInstance(DeviceFactory.class)
+                .withMrid(Constants.Device.MOCKED_REALISTIC_DEVICE + serialNumber)
+                .withDeviceConfiguration(deviceConfiguration.get())
+                .withSerialNumber(serialNumber)
+                .get();
     }
 
     @Reference
