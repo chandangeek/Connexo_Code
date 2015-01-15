@@ -1,5 +1,6 @@
 package com.elster.jupiter.demo.impl;
 
+import com.elster.jupiter.demo.DemoService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -18,6 +19,10 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -68,6 +73,8 @@ public class LoadProfileCommands {
     private volatile TransactionService transactionService;
     private volatile MeteringService meteringService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile DeviceService deviceService;
+
 
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
@@ -91,6 +98,11 @@ public class LoadProfileCommands {
     @Reference
     public void setMasterDataService(MasterDataService masterDataService) {
         this.masterDataService = masterDataService;
+    }
+
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     public void createLoadProfileType(String name, String obisCode, TimeDuration duration, RegisterType[] registerTypes, DeviceType deviceType) {
@@ -124,7 +136,7 @@ public class LoadProfileCommands {
     }
 
     public void uploadData(String mrid, String startTime, String csvFilePath) {
-        final Optional<EndDevice> endDevice = meteringService.findEndDevice(mrid);
+        final Optional<Meter> endDevice = meteringService.findMeter(mrid);
         if (!endDevice.isPresent()) {
             System.out.println("==> Unable to find meter with mrid = " + mrid);
             return;
@@ -191,11 +203,26 @@ public class LoadProfileCommands {
             executeTransaction(new VoidTransaction() {
                 @Override
                 protected void doPerform() {
-                    ((Meter)endDevice.get()).store(meterReading);
+                    (endDevice.get()).store(meterReading);
                 }
             });
 
             scanner.close();
+
+            executeTransaction(new VoidTransaction() {
+                @Override
+                protected void doPerform() {
+                    Device device = deviceService.findByUniqueMrid(endDevice.get().getMRID());
+                    List<LoadProfile> loadProfiles = device.getLoadProfiles();
+                    for (LoadProfile loadProfile : loadProfiles) {
+                        LoadProfile.LoadProfileUpdater updater = device.getLoadProfileUpdaterFor(loadProfile);
+                        for (Channel channel : loadProfile.getChannels()) {
+                            channel.getLastDateTime().ifPresent(t -> updater.setLastReadingIfLater(t));
+                        }
+                        updater.update();
+                    }
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }

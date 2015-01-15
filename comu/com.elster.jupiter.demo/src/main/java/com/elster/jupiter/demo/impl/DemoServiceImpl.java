@@ -348,7 +348,17 @@ public class DemoServiceImpl implements DemoService {
         executeTransaction(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                createMockedDataDeviceImpl(serialNumber);
+                createMockedDataDeviceImpl(Constants.Device.MOCKED_REALISTIC_DEVICE, serialNumber);
+            }
+        });
+    }
+
+    @Override
+    public void createValidationDevice(String serialNumber){
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                createMockedDataDeviceImpl(Constants.Device.MOCKED_VALIDATION_DEVICE, serialNumber);
             }
         });
     }
@@ -799,7 +809,11 @@ public class DemoServiceImpl implements DemoService {
                 .withName(Constants.Validation.RULE_SET_NAME)
                 .withDescription(Constants.Validation.RULE_SET_DESCRIPTION)
                 .get();
-
+        String prefix = Constants.Device.MOCKED_VALIDATION_DEVICE;
+        String serialNumber = "010000010001";
+        if (deviceService.findByUniqueMrid(prefix + serialNumber) == null){
+            createMockedDataDeviceImpl(prefix, serialNumber);
+        }
         List<DeviceConfiguration> configurations = deviceConfigurationService.getLinkableDeviceConfigurations(ruleSet);
         for (DeviceConfiguration configuration : configurations) {
             System.out.println("==> Validation rule set added to: " + configuration.getName() + " (id = " + configuration.getId() + ")");
@@ -808,6 +822,8 @@ public class DemoServiceImpl implements DemoService {
         }
 
         Condition devicesForActivation = where("mRID").like(Constants.Device.STANDARD_PREFIX + "%");
+        devicesForActivation = devicesForActivation.or(where("mRID").like(Constants.Device.MOCKED_VALIDATION_DEVICE + "%"));
+
         List<Meter> meters = meteringService.getMeterQuery().select(devicesForActivation);
         for (Meter meter : meters) {
             Optional<? extends MeterActivation> meterActivation= meter.getCurrentMeterActivation();
@@ -905,7 +921,7 @@ public class DemoServiceImpl implements DemoService {
         device.save();
     }
 
-    private void createMockedDataDeviceImpl(String serialNumber){
+    private void createMockedDataDeviceImpl(String prefix, String serialNumber){
         String deviceTypeName = Constants.DeviceType.Elster_AS1440.getName();
         Optional<DeviceType> deviceTypeByName = deviceConfigurationService.findDeviceTypeByName(deviceTypeName);
         if (!deviceTypeByName.isPresent()){
@@ -918,8 +934,13 @@ public class DemoServiceImpl implements DemoService {
         if (!deviceConfiguration.isPresent()){
             throw new UnableToCreate("Unable to find corresponding device configuration with name: " + deviceTypeName);
         }
+        String mrid = prefix + serialNumber;
+        Device device = deviceService.findByUniqueMrid(mrid);
+        if (device != null){
+            throw new UnableToCreate("Device with mrid: " + mrid + ", already exists");
+        }
         injector.getInstance(DeviceFactory.class)
-                .withMrid(Constants.Device.MOCKED_REALISTIC_DEVICE + serialNumber)
+                .withMrid(mrid)
                 .withDeviceConfiguration(deviceConfiguration.get())
                 .withSerialNumber(serialNumber)
                 .get();

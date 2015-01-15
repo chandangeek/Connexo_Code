@@ -11,4 +11,6 @@ public interface DemoService {
     void createCollectRemoteDataSetup(String comServerName, String host);
 
     void createMockedDataDevice(String serialNumber);
+
+    void createValidationDevice(String serialNumber);
 }
