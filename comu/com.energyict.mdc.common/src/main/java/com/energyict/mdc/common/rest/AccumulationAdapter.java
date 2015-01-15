@@ -12,7 +12,7 @@ public class AccumulationAdapter extends MapBasedXmlAdapter<Accumulation> {
         register("Bulk quantity", Accumulation.BULKQUANTITY);
         register("Cumulative", Accumulation.CUMULATIVE);
         register("Continuous cumulative", Accumulation.CONTINUOUSCUMULATIVE);
-        register("Delta delta", Accumulation.DELTADELTA);
+        register("Delta data", Accumulation.DELTADELTA);
         register("Indicating", Accumulation.INDICATING);
         register("Instantaneous", Accumulation.INSTANTANEOUS);
         register("Summation", Accumulation.SUMMATION);
