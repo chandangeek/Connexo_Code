@@ -724,7 +724,7 @@ public class DemoServiceImpl implements DemoService {
         for (LoadProfileSpec loadProfileSpec : devConfiguration.getLoadProfileSpecs()) {
             List<ChannelType> availableChannelTypes = loadProfileSpec.getLoadProfileType().getChannelTypes();
             for (ChannelType channelType : availableChannelTypes) {
-                devConfiguration.createChannelSpec(channelType, channelType.getPhenomenon(), loadProfileSpec).setMultiplier(new BigDecimal(1)).setOverflow(new BigDecimal(9999999999L)).setNbrOfFractionDigits(2).add();
+                devConfiguration.createChannelSpec(channelType, channelType.getPhenomenon(), loadProfileSpec).setMultiplier(new BigDecimal(1)).setOverflow(new BigDecimal(9999999999L)).setNbrOfFractionDigits(0).add();
             }
         }
     }
@@ -757,18 +757,15 @@ public class DemoServiceImpl implements DemoService {
     private void addConnectionMethodToDevice(Store store, DeviceConfiguration configuration, Device device) {
         PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
         int portNumber = 4059;
-        /* We want two failing devices for 'Actaris SL7000' device type
-        if (Constants.DeviceType.Actaris_SL7000.getName().equals(configuration.getDeviceType().getName()) && device.getmRID().endsWith("8")){
-            portNumber = 5049;
-        }
-        */
+        String deviceTypeName = device.getDeviceType().getName();
         ScheduledConnectionTask deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
-                .setComPortPool(store.get(OutboundComPortPool.class, (device.getId() & 1) == 1L ? Constants.ComPortPool.VODAFONE : Constants.ComPortPool.ORANGE))
+                .setComPortPool(store.get(OutboundComPortPool.class, Constants.DeviceType.getComPortPoolName(deviceTypeName)))
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .setNextExecutionSpecsFrom(null)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
                 .setProperty("host", store.getProperty("host"))
                 .setProperty("portNumber", new BigDecimal(portNumber))
+                .setProperty("connectionTimeout", TimeDuration.minutes(1))
                 .setSimultaneousConnectionsAllowed(false)
                 .add();
         connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
@@ -896,7 +893,7 @@ public class DemoServiceImpl implements DemoService {
                 .get();
         PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
         ScheduledConnectionTask deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
-                .setComPortPool(injector.getInstance(OutboundComPortPoolFinder.class).withName(Constants.ComPortPool.VODAFONE).find())
+                .setComPortPool(injector.getInstance(OutboundComPortPoolFinder.class).withName(Constants.ComPortPool.ORANGE).find())
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .setNextExecutionSpecsFrom(null)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)

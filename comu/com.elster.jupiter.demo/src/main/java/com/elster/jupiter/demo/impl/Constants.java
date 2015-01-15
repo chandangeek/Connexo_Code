@@ -151,21 +151,23 @@ public final class Constants {
     }
 
     public static enum DeviceType {
-        Elster_AS1440 ("Elster AS1440", 1 /*245*/),
-        Elster_AS3000 ("Elster AS3000", 1 /*352*/),
-        Landis_Gyr_ZMD ("Landis+Gyr ZMD", 1 /*73*/),
-        Actaris_SL7000 ("Actaris SL7000", 1 /*110*/),
-        Siemens_7ED ("Siemens 7ED", 1 /*96*/),
-        Iskra_38 ("Iskra 382", 1 /*84*/),
-        Alpha_A3 ("ALPHA_A3", 1),
+        Elster_AS1440 ("Elster AS1440", 245, ComPortPool.ORANGE),
+        Elster_AS3000 ("Elster AS3000", 352, ComPortPool.ORANGE),
+        Landis_Gyr_ZMD ("Landis+Gyr ZMD", 73, ComPortPool.VODAFONE),
+        Actaris_SL7000 ("Actaris SL7000", 110, ComPortPool.VODAFONE),
+        Siemens_7ED ("Siemens 7ED", 96, ComPortPool.VODAFONE),
+        Iskra_38 ("Iskra 382", 84, ComPortPool.ORANGE),
+        Alpha_A3 ("ALPHA_A3", 1, ComPortPool.ORANGE),
         ;
 
         private String name;
         private int deviceCount;
+        private String pool;
 
-        private DeviceType(String name, int deviceCount) {
+        private DeviceType(String name, int deviceCount, String pool) {
             this.deviceCount = deviceCount;
             this.name = name;
+            this.pool = pool;
         }
 
         public String getName(){
@@ -183,6 +185,15 @@ public final class Constants {
                 }
             }
             return Optional.empty();
+        }
+
+        public static String getComPortPoolName(String deviceTypeName){
+            for (DeviceType deviceType : DeviceType.values()) {
+                if (deviceType.getName().equals(deviceTypeName)){
+                    return deviceType.pool;
+                }
+            }
+            return ComPortPool.ORANGE;
         }
     }
 
