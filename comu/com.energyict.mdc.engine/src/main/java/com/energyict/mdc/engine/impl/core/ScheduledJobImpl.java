@@ -54,7 +54,8 @@ public abstract class ScheduledJobImpl extends JobExecution {
     @Override
     protected ComPortRelatedComChannel findOrCreateComChannel(ConnectionTaskPropertyProvider propertyProvider) throws ConnectionException {
         return new ComPortRelatedComChannelImpl(
-                getConnectionTask().connect(getComPort(), propertyProvider.getProperties()),
+                getConnectionTask().connect(getComPort(),
+                propertyProvider.getProperties()),
                 getComPort(),
                 getServiceProvider().clock(),
                 getServiceProvider().hexService(),

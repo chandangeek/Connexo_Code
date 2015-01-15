@@ -38,17 +38,17 @@ public class SerialCommunicationChannelAdapter implements SerialCommunicationCha
     protected String parityToNewFormat(int parity) {
         switch (parity) {
             case SerialCommunicationChannel.PARITY_NONE:
-                return Parities.NONE.getParity();
+                return Parities.NONE.value();
             case SerialCommunicationChannel.PARITY_EVEN:
-                return Parities.EVEN.getParity();
+                return Parities.EVEN.value();
             case SerialCommunicationChannel.PARITY_MARK:
-                return Parities.MARK.getParity();
+                return Parities.MARK.value();
             case SerialCommunicationChannel.PARITY_ODD:
-                return Parities.ODD.getParity();
+                return Parities.ODD.value();
             case SerialCommunicationChannel.PARITY_SPACE:
-                return Parities.SPACE.getParity();
+                return Parities.SPACE.value();
             default:
-                return Parities.NONE.getParity();
+                return Parities.NONE.value();
         }
     }
 
