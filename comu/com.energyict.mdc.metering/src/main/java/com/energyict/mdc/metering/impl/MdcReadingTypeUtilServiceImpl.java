@@ -138,7 +138,7 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
     @Override
     public Unit getMdcUnitFor(String readingTypeStr) {
         Optional<ReadingType> readingType = this.meteringService.getReadingType(readingTypeStr);
-        if(readingType.isPresent()){
+        if (readingType.isPresent()) {
                 return ReadingTypeUnitMapping.getMdcUnitFor(readingType.get().getUnit(), readingType.get().getMultiplier());
         } else {
             return Unit.getUndefined();
