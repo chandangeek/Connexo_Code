@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 hrefTarget: '_self'
             },
             {
-                text: 'Logbook configuration',
+                text: 'Logbook configurations',
                 pressed: false,
                 itemId: 'logbooksLink',
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/logbookconfigurations',
