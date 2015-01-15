@@ -162,6 +162,7 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
                     var filterOmittable = filterRecord.get('filterOmittable');
                     var filterType = filterRecord.get('filterType');
                     var filterName = filterRecord.get('filterName');
+                    var filterDisplayType = filterRecord.get('filterDisplayType');
                     var filterDescription = filterRecord.get('filterDisplayName') || filterName;
                     me.filterValues[filterRecord.get('id')] = me.getFilterValue(filterRecord, me.reportFilters[filterName]);
 
@@ -169,6 +170,24 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
                     if(value && value.toString().indexOf("__##SEARCH_RESULTS##__")!=-1){
                         value = Uni.I18n.translate('generatereport.searchResults', 'YFN', 'Search results')
                     }
+
+                    if(filterDisplayType == "DATE"){
+                        if(filterType == "BETWEEN")
+                            value = (value[0] ? Ext.Date.format(Ext.Date.parse(value[0],"Y-m-d"), 'n/j/Y') : '') +
+                            ' - ' +
+                            (value[1] ? Ext.Date.format(Ext.Date.parse(value[1],"Y-m-d"), 'n/j/Y') : '');
+                        else
+                            value = value ? Ext.Date.format(Ext.Date.parse(value,"Y-m-d"), 'n/j/Y') : '';
+                    }
+                    if(filterDisplayType == "TIMESTAMP"){
+                        if(filterType == "BETWEEN")
+                            value = (value[0] ? Ext.Date.format(Ext.Date.parse(value[0],"Y-m-d h:i:s") , 'n/j/Y g:i A') : '') +
+                            ' - ' +
+                            (value[1] ? Ext.Date.format(Ext.Date.parse(value[1],"Y-m-d h:i:s"), 'n/j/Y g:i A') : '');
+                        else
+                            value = value ? Ext.Date.format(Ext.Date.parse(value,"Y-m-d h:i:s"), 'n/j/Y g:i A') : '';
+                    }
+
 
                     if(!filterOmittable){
                         reportPromptsContainer.setVisible(true);

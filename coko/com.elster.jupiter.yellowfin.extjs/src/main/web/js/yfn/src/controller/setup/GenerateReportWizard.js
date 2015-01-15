@@ -428,6 +428,11 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         if(filterType == "INLIST" || filterType == "NOTINLIST")
             return me.createMultiSelectListControls(filterRecord, fieldType, initialValue);
         switch (filterDisplayType) {
+            case "TIMESTAMP":
+                if((filterType == "BETWEEN") || (filterType == "NOTBETWEEN"))
+                    return me.createDateTimeBetweenControls(filterRecord, fieldType, initialValue);
+                else
+                    return me.createDateTimeControls(filterRecord, fieldType, initialValue);
             case "DATE":
                 if((filterType == "BETWEEN") || (filterType == "NOTBETWEEN"))
                     return me.createDateBetweenControls(filterRecord, fieldType, initialValue);
@@ -507,7 +512,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     allowBlank: fieldType == 'filter',
                     value: defaultValue,
                     //disabled:fieldType != 'filter' && defaultValue,
-                    initComponent: function () {
+                    initC3omponent: function () {
                         this.callParent(arguments);
 
                         if (this.value) {
@@ -590,8 +595,8 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     },
                     getValue : function(){
                         return {
-                            from:  Ext.Date.format(this.query('date-time')[0].getValue(),'Y-m-d m:i:s'),
-                            to:Ext.Date.format(this.query('date-time')[1].getValue(),'Y-m-d m:i:s')
+                            from:  Ext.Date.format(this.query('date-time')[0].getValue(),'Y-m-d h:i:s'),
+                            to:Ext.Date.format(this.query('date-time')[1].getValue(),'Y-m-d h:i:s')
                         };
                     },
                     getFieldValue : function (){
@@ -638,7 +643,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                             width: '100%',
                             name: 'from',
                             //disabled:fieldType != 'filter' && defaultValue,
-                            initComponent: function () {
+                            initC3omponent: function () {
                                 this.callParent(arguments);
 
                                 if (this.value) {
@@ -653,7 +658,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                             allowBlank: fieldType == 'filter',
                             width: '100%',
                             name: 'to',
-                            initComponent: function () {
+                            initC3omponent: function () {
                                 this.callParent(arguments);
 
                                 if (this.value) {
@@ -683,8 +688,8 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     getFieldDisplayValue : function(){
                         var rawValue = this.getRawValue();
                         return Ext.String.format("{0} - {1}",
-                            rawValue.from ? Ext.Date.format(rawValue.from, 'n/j/Y g:i A') : '',
-                            rawValue.to ? Ext.Date.format(rawValue.to, 'n/j/Y g:i A') : ''
+                            rawValue.from ? Ext.Date.format(rawValue.from, 'n/j/Y') : '',
+                            rawValue.to ? Ext.Date.format(rawValue.to, 'n/j/Y') : ''
                         );
                     }
                 }
