@@ -149,7 +149,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                                         {
                                             xtype: 'button',
                                             name: 'loadProfileCount',
-                                            text: Uni.I18n.translate('deviceconfiguration.loadprofiles', 'MDC', 'load profiles'),
+                                            text: Uni.I18n.translate('general.loadProfileConfigurations', 'MDC', 'load profile configurations'),
                                             ui: 'link',
                                             itemId: 'deviceConfigurationLoadProfilesLink',
                                             href: '#'
