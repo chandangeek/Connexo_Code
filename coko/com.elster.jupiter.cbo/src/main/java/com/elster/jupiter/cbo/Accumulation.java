@@ -5,7 +5,7 @@ public enum Accumulation {
 	BULKQUANTITY (1,"BulkQuantity",true),
 	CONTINUOUSCUMULATIVE (2,"ContinuousCumulative",true),
 	CUMULATIVE (3,"Cumulative",true),
-	DELTADELTA (4,"DeltaDelta",false),
+	DELTADELTA (4,"DeltaData",false),
 	INDICATING(6,"Indicating",false),
 	SUMMATION(9,"Summation",true),
 	TIMEDELAY(10,"TimeDelay",false),
