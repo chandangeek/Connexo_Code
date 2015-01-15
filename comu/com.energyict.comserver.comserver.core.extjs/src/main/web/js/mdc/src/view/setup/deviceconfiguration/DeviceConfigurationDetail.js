@@ -188,7 +188,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                                 {
                                                     xtype: 'button',
                                                     name: 'logBookCount',
-                                                    text: Uni.I18n.translate('deviceconfiguration.logbooks', 'MDC', 'logbooks'),
+                                                    text: Uni.I18n.translate('general.logbookConfigurations', 'MDC', 'logbook configurations'),
                                                     ui: 'link',
                                                     itemId: 'deviceConfigurationDetailLogBooksLink',
                                                     href: '#'
