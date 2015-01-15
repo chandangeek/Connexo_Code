@@ -512,7 +512,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     allowBlank: fieldType == 'filter',
                     value: defaultValue,
                     //disabled:fieldType != 'filter' && defaultValue,
-                    initC3omponent: function () {
+                    initComponentTempRemoved: function () {
                         this.callParent(arguments);
 
                         if (this.value) {
@@ -643,7 +643,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                             width: '100%',
                             name: 'from',
                             //disabled:fieldType != 'filter' && defaultValue,
-                            initC3omponent: function () {
+                            initComponentTempRemoved: function () {
                                 this.callParent(arguments);
 
                                 if (this.value) {
@@ -658,7 +658,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                             allowBlank: fieldType == 'filter',
                             width: '100%',
                             name: 'to',
-                            initC3omponent: function () {
+                            initComponentTempRemoved: function () {
                                 this.callParent(arguments);
 
                                 if (this.value) {
