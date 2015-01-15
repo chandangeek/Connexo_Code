@@ -9212,14 +9212,13 @@ Ext.define('Uni.property.view.DefaultButton', {
     xtype: 'uni-default-button',
 
     border: 0,
-//    icon: '../sky/build/resources/images/form/restore.png',
-    html: '<img style="margin-left: -2px" src="../sky/build/resources/images/form/restore.png">',
+    iconCls: 'icon-spinner12',
+    iconAlign: 'center',
     height: 28,
     width: 28,
-    scale: 'small',
     action: 'delete',
-    margin: '0 0 5 5',
-    hidden: true
+    margin: '0 0 0 5',
+    hidden: false
 });
 
 /**
@@ -9243,7 +9242,7 @@ Ext.define('Uni.property.view.property.Base', {
     ],
 
     width: 320,
-    resetButtonHidden: false,
+//    resetButtonHidden: false,
     translationKey: 'UNI',
 
     layout: 'hbox',
@@ -9252,7 +9251,8 @@ Ext.define('Uni.property.view.property.Base', {
 
     items: [
         {
-            xtype: 'uni-default-button'
+            xtype: 'uni-default-button',
+            visible: true
         }
     ],
 
@@ -9336,16 +9336,20 @@ Ext.define('Uni.property.view.property.Base', {
      * Updates the reset button state and tooltip
      */
     updateResetButton: function () {
-        var resetButtonHidden = this.resetButtonHidden;
         var button = this.getResetButton();
 
-        if (!resetButtonHidden && this.isEdit) {
-            button.setTooltip(
-                    Uni.I18n.translate('general.restoreDefaultValue', this.translationKey, 'Restore to default value')
-                    + ' &quot; ' + this.getProperty().get('default') + '&quot;'
-            );
+        if (this.isEdit) {
+            if(!this.getProperty().get('isInheritedOrDefaultValue')){
+                button.setTooltip(
+                        Uni.I18n.translate('general.restoreDefaultValue', this.translationKey, 'Restore to default value')
+                        + ' &quot; ' + this.getProperty().get('default') + '&quot;'
+                );
 
-            button.setVisible(!this.getProperty().get('isInheritedOrDefaultValue'));
+                button.setDisabled(false);
+            } else {
+                button.setTooltip('bla');
+                button.setDisabled(true);
+            }
         }
         this.fireEvent('checkRestoreAll', this);
     },
@@ -15545,28 +15549,36 @@ Ext.define('Uni.view.window.Confirmation', {
     initComponent: function () {
         var me = this;
 
-        me.buttons = [
-            {
-                xtype: 'button',
-                action: 'confirm',
-                name: 'confirm',
-                scope: me,
-                text: me.confirmText,
-                ui: me.confirmBtnUi,
-                handler: me.confirmation
-            },
-            {
-                xtype: 'button',
-                action: 'cancel',
-                name: 'cancel',
-                scope: me,
-                text: me.cancelText,
-                ui: 'link',
-                handler: me.cancellation
-            }
-        ];
-
         me.callParent(arguments);
+        me.add(
+            {
+                xtype: 'container',
+                layout: {
+                    type: 'hbox'
+                },
+                items: [
+                    {
+                        xtype: 'button',
+                        action: 'confirm',
+                        name: 'confirm',
+                        scope: me,
+                        text: me.confirmText,
+                        ui: me.confirmBtnUi,
+                        handler: me.confirmation,
+                        margin: '0 0 0 ' + me.iconWidth
+                    },
+                    {
+                        xtype: 'button',
+                        action: 'cancel',
+                        name: 'cancel',
+                        scope: me,
+                        text: me.cancelText,
+                        ui: 'link',
+                        handler: me.cancellation
+                    }
+                ]
+            }
+        );
     },
 
     show: function (config) {
