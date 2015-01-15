@@ -117,7 +117,7 @@ Ext.define('Login.view.Viewport', {
                 {
                     itemId: 'about',
                     ui: 'link',
-                    href: '/apps/login/about.html',
+                    href: '/apps/login/resources/about.html',
                     text: 'About'
                 }
             ]
