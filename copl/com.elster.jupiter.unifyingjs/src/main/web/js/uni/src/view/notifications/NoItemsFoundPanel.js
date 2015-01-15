@@ -95,31 +95,36 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
     layout: {
         type: 'vbox'
     },
-
     items: [
         {
-            xtype: 'panel',
-            itemId: 'wrapper',
-            cls: Uni.About.baseCssPrefix + 'panel-no-items-found',
+            itemId: 'header',
             ui: 'medium',
             framed: true,
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            }
+            cls: Uni.About.baseCssPrefix + 'panel-no-items-found',
+            items: [
+                {
+                    xtype: 'panel',
+                    itemId: 'wrapper',
+                    ui: 'medium',
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
+                    }
+                }
+            ]
         }
     ],
 
     initComponent: function () {
         var me = this;
-
         me.callParent(arguments);
 
         Ext.suspendLayouts();
 
         var wrapper = me.down('#wrapper');
+        var header = me.down('#header');
 
-        wrapper.setTitle(me.title);
+        header.setTitle(me.title);
 
         if (Ext.isArray(me.reasons) || Ext.isString(me.reasons)) {
             var formattedReasons = me.formatReasons(me.reasons);
@@ -130,9 +135,9 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
             });
         }
 
-        if (!Ext.isEmpty(me.stepItems)){
+        if (!Ext.isEmpty(me.stepItems)) {
             var stepItems = me.stepItems;
-            if(!Ext.isArray(stepItems)) {
+            if (!Ext.isArray(stepItems)) {
                 stepItems = [stepItems];
             }
             if (typeof stepItems[0].privileges === 'undefined' || Uni.Auth.hasAnyPrivilege(stepItems[0].privileges)) {
