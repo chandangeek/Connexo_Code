@@ -9,6 +9,7 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
@@ -221,7 +222,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
     }
 
     private TimeZone getDeviceTimeZoneFromProperties() {
-        String typedProperty = this.propertiesAdapter.getProperties().getTypedProperty(DEVICE_TIMEZONE_PROPERTY_NAME);
+        String typedProperty = this.propertiesAdapter.getProperties().getTypedProperty(DeviceProtocolProperty.deviceTimeZone.name());
         if (is(typedProperty).emptyOrOnlyWhiteSpace()) {
             return TimeZone.getDefault();
         }

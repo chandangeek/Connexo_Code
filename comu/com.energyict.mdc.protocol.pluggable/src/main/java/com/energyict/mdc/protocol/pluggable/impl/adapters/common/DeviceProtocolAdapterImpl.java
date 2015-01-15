@@ -7,6 +7,7 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
@@ -29,16 +30,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Abstract adapter class that can provide general functionality for the {@link SmartMeterProtocol} and {@link MeterProtocol}
+ * Abstract adapter class that can provide general functionality for the {@link SmartMeterProtocol} and {@link MeterProtocol}.
  * <p/>
  * Copyrights EnergyICT
  * Date: 31/08/12
  * Time: 14:48
  */
 public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter, DeviceCachingSupport {
-
-    public static final String DEVICE_TIMEZONE_PROPERTY_NAME = "deviceTimeZone";
-    public static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
 
     private final DataModel dataModel;
     private final PropertySpecService propertySpecService;
@@ -208,7 +206,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     }
 
     private PropertySpec deviceTimeZonePropertySpec(boolean required) {
-        return this.propertySpecService.basicPropertySpec(DEVICE_TIMEZONE_PROPERTY_NAME, required, new StringFactory());
+        return this.propertySpecService.basicPropertySpec(DeviceProtocolProperty.deviceTimeZone.name(), required, new StringFactory());
     }
 
     private PropertySpec nodeAddressPropertySpec(boolean required) {
@@ -220,7 +218,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     }
 
     private PropertySpec callHomeIdPropertySpec(boolean required) {
-        return this.propertySpecService.basicPropertySpec(CALL_HOME_ID_PROPERTY_NAME, required, new StringFactory());
+        return this.propertySpecService.basicPropertySpec(DeviceProtocolProperty.callHomeId.name(), required, new StringFactory());
     }
 
     protected abstract AbstractDeviceProtocolSecuritySupportAdapter getSecuritySupportAdapter();

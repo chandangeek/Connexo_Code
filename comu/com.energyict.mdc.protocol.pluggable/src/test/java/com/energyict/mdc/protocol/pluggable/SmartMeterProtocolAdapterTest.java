@@ -10,6 +10,7 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -138,17 +139,17 @@ public class SmartMeterProtocolAdapterTest {
                 thenReturn(addressPropertySpec);
         PropertySpec callHomeIdPropertySpec = mock(PropertySpec.class);
         when(callHomeIdPropertySpec.isRequired()).thenReturn(false);
-        when(callHomeIdPropertySpec.getName()).thenReturn("callHomeId");
+        when(callHomeIdPropertySpec.getName()).thenReturn(DeviceProtocolProperty.callHomeId.name());
         when(callHomeIdPropertySpec.getValueFactory()).thenReturn(new StringFactory());
         when(inMemoryPersistence.getPropertySpecService().
-                basicPropertySpec(eq("callHomeId"), eq(false), any(ValueFactory.class))).
+                basicPropertySpec(eq(DeviceProtocolProperty.callHomeId.name()), eq(false), any(ValueFactory.class))).
                 thenReturn(callHomeIdPropertySpec);
         PropertySpec deviceTimeZonePropertySpec = mock(PropertySpec.class);
         when(deviceTimeZonePropertySpec.isRequired()).thenReturn(false);
-        when(deviceTimeZonePropertySpec.getName()).thenReturn("deviceTimeZone");
+        when(deviceTimeZonePropertySpec.getName()).thenReturn(DeviceProtocolProperty.deviceTimeZone.name());
         when(deviceTimeZonePropertySpec.getValueFactory()).thenReturn(new StringFactory());
         when(inMemoryPersistence.getPropertySpecService().
-                basicPropertySpec(eq("deviceTimeZone"), eq(false), any(ValueFactory.class))).
+                basicPropertySpec(eq(DeviceProtocolProperty.deviceTimeZone.name()), eq(false), any(ValueFactory.class))).
                 thenReturn(deviceTimeZonePropertySpec);
     }
 
@@ -266,9 +267,9 @@ public class SmartMeterProtocolAdapterTest {
                         count |= 0b0001;
                     } else if (propertySpec.getName().equals(MeterProtocol.ADDRESS)) {
                         count |= 0b0010;
-                    } else if (propertySpec.getName().equals("callHomeId")) {
+                    } else if (propertySpec.getName().equals(DeviceProtocolProperty.callHomeId.name())) {
                         count |= 0b0100;
-                    } else if (propertySpec.getName().equals("deviceTimeZone")) {
+                    } else if (propertySpec.getName().equals(DeviceProtocolProperty.deviceTimeZone.name())) {
                         count |= 0b1000;
                     } else {
                         count = -1;
