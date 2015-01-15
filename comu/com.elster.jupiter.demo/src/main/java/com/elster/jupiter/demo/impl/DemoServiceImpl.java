@@ -738,10 +738,6 @@ public class DemoServiceImpl implements DemoService {
             String mrid = Constants.Device.STANDARD_PREFIX +  serialNumber;
             createDevice(store, configuration, mrid, serialNumber);
         }
-        if (Constants.DeviceType.Elster_AS1440.getName().equals(deviceTypeName)){
-            String serialNumber = "010000010001";
-            createDevice(store, configuration, Constants.Device.MOCKED_VALIDATION_DEVICE + serialNumber, serialNumber);
-        }
     }
 
     private void createDevice(Store store, DeviceConfiguration configuration, String mrid, String serialNumber){
@@ -822,19 +818,8 @@ public class DemoServiceImpl implements DemoService {
 
         List<Meter> meters = meteringService.getMeterQuery().select(devicesForActivation);
         for (Meter meter : meters) {
-            activateValidationRuleSetOnMeter(ruleSet, meter);
+            validationService.activateValidation(meter);
         }
-    }
-
-    private void activateValidationRuleSetOnMeter(ValidationRuleSet ruleSet, Meter meter) {
-        Optional<? extends MeterActivation> meterActivation= meter.getCurrentMeterActivation();
-        if (meterActivation.isPresent()){
-            validationService.activate(meterActivation.get(), ruleSet);
-        } else {
-            MeterActivation activate = meter.activate(Instant.now());
-            validationService.activate(activate, ruleSet);
-        }
-        validationService.activateValidation(meter);
     }
 
     public void createDeliverDataSetupImpl(){
@@ -955,7 +940,7 @@ public class DemoServiceImpl implements DemoService {
         if (!meter.isPresent()){
             throw new UnableToCreate("Unable to find meter with mrid" + mrid);
         }
-        activateValidationRuleSetOnMeter(existingRuleSet.get(), meter.get());
+        validationService.activateValidation(meter.get());
     }
 
     @Reference
