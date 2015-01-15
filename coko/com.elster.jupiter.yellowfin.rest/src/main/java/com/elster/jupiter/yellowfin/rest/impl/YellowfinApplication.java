@@ -1,12 +1,10 @@
 package com.elster.jupiter.yellowfin.rest.impl;
 
-import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.yellowfin.YellowfinService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
-import com.energyict.mdc.device.data.DeviceService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -23,7 +21,6 @@ public class YellowfinApplication extends Application implements BinderProvider{
 
     private final Set<Class<?>> classes = new HashSet<>();
 
-    private volatile DeviceService deviceService;
     private volatile TransactionService transactionService;
 
     private volatile YellowfinService yellowfinService;
@@ -39,10 +36,6 @@ public class YellowfinApplication extends Application implements BinderProvider{
     }
 
 
-    @Reference
-    public void setDeviceService(DeviceService deviceService) {
-        this.deviceService = deviceService;
-    }
 
     @Reference
     public void setTransactionService(TransactionService transactionService) {
@@ -71,7 +64,6 @@ public class YellowfinApplication extends Application implements BinderProvider{
             protected void configure() {
                 bind(yellowfinService).to(YellowfinService.class);
                 bind(yellowfinGroupsService).to(YellowfinGroupsService.class);
-                bind(deviceService).to(DeviceService.class);
                 bind(transactionService).to(TransactionService.class);
                 bind(meteringGroupsService).to(MeteringGroupsService.class);
             }

@@ -6,7 +6,6 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.elster.jupiter.yellowfin.security.Privileges;
-import com.energyict.mdc.device.data.DeviceService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -19,16 +18,14 @@ import java.util.List;
 public class YellowfinDeviceGroupsResource {
 
     private final YellowfinGroupsService yellowfinGroupsService;
-    private final DeviceService deviceService;
     private final TransactionService transactionService;
     private final MeteringGroupsService meteringGroupsService;
 
 
     @Inject
-    private YellowfinDeviceGroupsResource(YellowfinGroupsService yellowfinGroupsService, DeviceService deviceService, TransactionService transactionService, MeteringGroupsService meteringGroupsService){
+    private YellowfinDeviceGroupsResource(YellowfinGroupsService yellowfinGroupsService, TransactionService transactionService, MeteringGroupsService meteringGroupsService){
         this.yellowfinGroupsService = yellowfinGroupsService;
         this.transactionService = transactionService;
-        this.deviceService = deviceService;
         this.meteringGroupsService = meteringGroupsService;
     }
 
