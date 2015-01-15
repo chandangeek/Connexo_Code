@@ -172,7 +172,15 @@ public class IssueResource extends BaseResource {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
         Query<IssueActionType> query = getIssueService().query(IssueActionType.class, IssueType.class);
-        Condition condition = where("issueType").isEqualTo(issueRef.get().getReason().getIssueType()).or(where("issueType").isNull());
+        
+        IssueReason reason = issueRef.get().getReason();
+        IssueType type = reason.getIssueType();
+        
+        Condition c0 = where("issueType").isNull();
+        Condition c1 = where("issueType").isEqualTo(type).and(where("issueReason").isNull());
+        Condition c2 = where("issueType").isEqualTo(type).and(where("issueReason").isEqualTo(reason));
+        Condition condition = (c0).or(c1).or(c2);
+        
         List<IssueActionType> ruleActionTypes = query.select(condition);
         ruleActionTypes = ruleActionTypes.stream().filter(at -> {
             Optional<IssueAction> action = at.createIssueAction();
