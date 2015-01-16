@@ -2,7 +2,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
     extend: 'Uni.view.grid.SelectionGrid',
     alias: 'widget.registerMappingAddGrid',
     overflowY: 'auto',
-    height: 300,
     store: 'AvailableRegisterTypes',
 
     counterTextFn: function (count) {
