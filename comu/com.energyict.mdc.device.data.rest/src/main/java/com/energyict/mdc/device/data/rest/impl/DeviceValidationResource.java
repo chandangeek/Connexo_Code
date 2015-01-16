@@ -84,7 +84,7 @@ public class DeviceValidationResource {
 
     private void fillValidationRuleSetStatus(List<ValidationRuleSet> linkedRuleSets, Optional<? extends MeterActivation> activation, List<DeviceValidationRuleSetInfo> result) {
         List<? extends ValidationRuleSet> activeRuleSets = activation.map(validationService::activeRuleSets).orElse(Collections.emptyList());
-        linkedRuleSets.forEach(ruleset -> result.add(new DeviceValidationRuleSetInfo(ruleset, activeRuleSets.contains(ruleset))));
+        linkedRuleSets.forEach(ruleset -> result.add(new DeviceValidationRuleSetInfo(ruleset, (!activation.isPresent()) || activeRuleSets.contains(ruleset))));
     }
 
     @Path("/{validationRuleSetId}/status")
