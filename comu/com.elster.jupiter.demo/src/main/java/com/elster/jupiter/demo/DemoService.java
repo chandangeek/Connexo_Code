@@ -13,4 +13,6 @@ public interface DemoService {
     void createMockedDataDevice(String serialNumber);
 
     void createValidationDevice(String serialNumber);
+
+    void createNtaConfig();
 }

@@ -109,7 +109,7 @@ public final class Constants {
 
     public static final class Device{
         public static final String STANDARD_PREFIX = "SPE";
-        
+
         public static final String MOCKED_VALIDATION_DEVICE = "VPB";
         public static final String MOCKED_VALIDATION_SERIAL_NUMBER = "085600010352";
 

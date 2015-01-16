@@ -12,6 +12,7 @@ import com.elster.jupiter.demo.impl.factories.FavoriteGroupFactory;
 import com.elster.jupiter.demo.impl.factories.InboundComPortPoolFactory;
 import com.elster.jupiter.demo.impl.factories.IssueFactory;
 import com.elster.jupiter.demo.impl.factories.IssueRuleFactory;
+import com.elster.jupiter.demo.impl.factories.NTASimToolFactory;
 import com.elster.jupiter.demo.impl.factories.OutboundTCPComPortFactory;
 import com.elster.jupiter.demo.impl.factories.OutboundTCPComPortPoolFactory;
 import com.elster.jupiter.demo.impl.factories.UserFactory;
@@ -117,6 +118,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         "osgi.command.function=createIssues",
         "osgi.command.function=createApplicationServer",
         "osgi.command.function=createA3Device",
+        "osgi.command.function=createNtaConfig",
         "osgi.command.function=createMockedDataDevice",
         "osgi.command.function=createValidationDevice",
         "osgi.command.function=createDeliverDataSetup",
@@ -275,6 +277,7 @@ public class DemoServiceImpl implements DemoService {
                 createMockedDataDeviceImpl(Constants.Device.MOCKED_REALISTIC_DEVICE, Constants.Device.MOCKED_REALISTIC_SERIAL_NUMBER);
                 createApplicationServerImpl(comServerName); // the same name as for comserver
                 createA3DeviceImpl();
+                createNtaConfigImpl();
             }
         });
     }
@@ -370,6 +373,16 @@ public class DemoServiceImpl implements DemoService {
         });
     }
 
+
+    @Override
+    public void createNtaConfig(){
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                createNtaConfigImpl();
+            }
+        });
+    }
 
     private void createCollectRemoteDataSetupImpl(final String comServerName, final String host){
         Optional<License> license = licenseService.getLicenseForApplication("MDC");
@@ -959,6 +972,9 @@ public class DemoServiceImpl implements DemoService {
         validationService.activateValidation(meter.get());
     }
 
+    private void createNtaConfigImpl(){
+        injector.getInstance(NTASimToolFactory.class).get();
+    }
     @Reference
     @SuppressWarnings("unused")
     public final void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
