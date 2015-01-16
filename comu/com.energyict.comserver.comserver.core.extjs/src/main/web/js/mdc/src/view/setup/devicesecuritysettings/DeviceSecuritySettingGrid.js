@@ -21,12 +21,12 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
             {
                 header: Uni.I18n.translate('deviceSecuritySetting.name', 'MDC', 'Security setting'),
                 dataIndex: 'name',
-                flex: 0.2
+                flex: 2
             },
             {
                 header: Uni.I18n.translate('deviceSecuritySetting.authenticationLevel', 'MDC', 'Authentication level'),
                 dataIndex: 'authenticationLevel',
-                flex: 0.3,
+                flex: 3,
                 renderer: function (value) {
                     return value.name;
                 }
@@ -34,7 +34,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
             {
                 header: Uni.I18n.translate('deviceSecuritySetting.encryptionLevel', 'MDC', 'Encryption level'),
                 dataIndex: 'encryptionLevel',
-                flex: 0.3,
+                flex: 3,
                 renderer: function (value) {
                     return value.name;
                 }
@@ -45,7 +45,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
                 renderer: function (value) {
                     return value.name;
                 },
-                flex: 0.3
+                flex: 3
             },
             {
                 xtype: 'uni-actioncolumn',

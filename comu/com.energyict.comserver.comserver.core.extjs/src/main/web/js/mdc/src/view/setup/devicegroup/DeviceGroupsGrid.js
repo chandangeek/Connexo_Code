@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupsGrid', {
                             return value;
                     }
                 },
-                flex: 0.4
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('devicegroup.type', 'MDC', 'Type'),
@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupsGrid', {
                         return Uni.I18n.translate('devicegroup.static', 'MDC', 'Static')
                     }
                 },
-                flex: 0.4
+                flex: 1
             },
             {
                 xtype: 'uni-actioncolumn',

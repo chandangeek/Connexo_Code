@@ -2,21 +2,21 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.communicationSchedulesGrid',
     overflowY: 'auto',
-    itemId: 'communicationSchedulesGrid',
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.CommunicationSchedules',
         'Mdc.view.setup.communicationschedule.CommunicationScheduleActionMenu'
     ],
-    store: 'CommunicationSchedules',
+    store: 'Mdc.store.CommunicationSchedules',
     initComponent: function () {
         var me = this;
-        this.columns = [
+        me.store = Ext.getStore(me.store) || Ext.create(me.store);
+        me.columns = [
             {
                 header: Uni.I18n.translate('communicationschedule.name', 'MDC', 'Name'),
                 dataIndex: 'name',
-                flex: 0.4
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('communicationschedule.schedule', 'MDC', 'Schedule'),
@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
                     }
                     return value.every.timeUnit;
                 },
-                flex: 0.4
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('communicationschedule.plannedDate', 'MDC', 'Planned date'),
@@ -45,7 +45,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '';
                 },
-                flex: 0.4
+                flex: 1
             },
             {
                 xtype: 'uni-actioncolumn',
@@ -64,10 +64,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
                 displayMoreMsg: Uni.I18n.translate('communicationschedule.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} shared communication schedules'),
                 emptyMsg: Uni.I18n.translate('communicationschedule.pagingtoolbartop.emptyMsg', 'MDC', 'There are no shared communication schedules to display'),
                 items: [
-                    {
-                        xtype: 'component',
-                        flex: 1
-                    },
+                    '->',
                     {
                         text: Uni.I18n.translate('communicationschedule.addCommunicationSchedule', 'MDC', 'Add shared communication schedule'),
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.sharedCommunicationSchedule'),

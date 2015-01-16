@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
             sortable: false,
             hideable: false,
             fixed: true,
-            flex: 0.9
+            flex: 1
         },
         {
             header: Uni.I18n.translate('deviceCommunicationSchedule.frequency', 'MDC', 'Frequency'),
@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
             sortable: false,
             hideable: false,
             fixed: true,
-            flex: 0.9,
+            flex: 1,
             renderer: function(value){
                 return Mdc.util.ScheduleToStringConverter.convert(value);
             }
@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
             sortable: false,
             hideable: false,
             fixed: true,
-            flex: 0.9,
+            flex: 1,
             renderer: function (value) {
                 if (value !== null) {
                     return Uni.DateTime.formatDateTimeLong(new Date(value));

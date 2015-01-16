@@ -63,13 +63,13 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                 {
                     xtype: 'uni-default-column',
                     dataIndex: 'isDefault',
-                    flex: 0.1
+                    flex: 1
                 },
                 {
                     itemId: 'connectionMethod',
                     text: Uni.I18n.translate('device.connections.connectionMethod', 'MDC', 'Connection method'),
                     dataIndex: 'connectionMethod',
-                    flex: 1,
+                    flex: 10,
                     renderer: function (val, metaData, record) {
                         var me = this;
                         metaData.tdAttr = 'data-qtip="' + Ext.htmlEncode(me.connectionTpl.apply(record.getData())) + '"';
@@ -80,7 +80,7 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                     itemId: 'currentState',
                     text: Uni.I18n.translate('device.connections.currentState', 'MDC', 'Current state'),
                     dataIndex: 'currentState',
-                    flex: 1,
+                    flex: 10,
                     renderer: function (val) {
                         return val ? val.displayValue : ''
                     }
@@ -89,7 +89,7 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                     itemId: 'latestStatus',
                     text: Uni.I18n.translate('device.connections.latestStatus', 'MDC', 'Latest status'),
                     dataIndex: 'latestStatus',
-                    flex: 1,
+                    flex: 10,
                     renderer: function (val) {
                         return val ? val.displayValue : ''
                     }
@@ -99,7 +99,7 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                     text: Uni.I18n.translate('device.connections.latestResult', 'MDC', 'Latest result'),
                     dataIndex: 'latestResult',
                     name: 'latestResult',
-                    flex: 1,
+                    flex: 10,
                     renderer: function (val) {
                         return val ? val.displayValue : ''
 
@@ -117,7 +117,7 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                         return template;
                     },
                     header: Uni.I18n.translate('device.connections.taskCount', 'MDC', 'Communication tasks'),
-                    flex: 2
+                    flex: 20
                 },
                 {
                     itemId: 'nextExecution',
@@ -126,7 +126,7 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                     renderer: function (value) {
                         return value ? Uni.DateTime.formatDateTimeShort(value) : '';
                     },
-                    flex: 1
+                    flex: 10
                 },
                 {
                     itemId: 'startDateTime',
@@ -135,7 +135,7 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                     renderer: function (value) {
                         return value ? Uni.DateTime.formatDateTimeShort(value) : '';
                     },
-                    flex: 1
+                    flex: 10
                 },
                 {
                     xtype: 'uni-actioncolumn',

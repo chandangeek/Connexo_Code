@@ -23,22 +23,22 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
             {
                 xtype: 'uni-default-column',
                 dataIndex: 'isDefault',
-                flex: 0.1
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('connectionmethod.name', 'MDC', 'Name'),
                 dataIndex: 'name',
-                flex: 0.3
+                flex: 3
             },
             {
                 header: Uni.I18n.translate('connectionmethod.direction', 'MDC', 'Direction'),
                 dataIndex: 'direction',
-                flex: 0.3
+                flex: 3
             },
             {
                 header: Uni.I18n.translate('connectionmethod.connectionType', 'MDC', 'Connection type'),
                 dataIndex: 'connectionTypePluggableClass',
-                flex: 0.3
+                flex: 3
             },
 
             {

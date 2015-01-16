@@ -42,7 +42,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationTaskSelectionGrid'
             sortable: false,
             hideable: false,
             fixed: true,
-            flex: 0.9
+            flex: 1
         }
     ],
 

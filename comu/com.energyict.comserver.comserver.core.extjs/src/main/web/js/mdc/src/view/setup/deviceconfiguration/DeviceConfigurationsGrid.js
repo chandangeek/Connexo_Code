@@ -24,7 +24,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                 renderer: function (value, b, record) {
                     return '<a href="#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + record.get('id') + '">' + value + '</a>';
                 },
-                flex: 0.4
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('deviceconfiguration.status', 'MDC', 'Status'),
@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                 renderer: function (value, b, record) {
                     return value === true ? Uni.I18n.translate('general.active', 'MDC', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
                 },
-                flex: 0.4
+                flex: 1
             },
 
             {

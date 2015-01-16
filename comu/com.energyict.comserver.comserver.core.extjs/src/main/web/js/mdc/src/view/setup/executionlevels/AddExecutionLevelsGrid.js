@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.executionlevels.AddExecutionLevelsGrid', {
             {
                 header: Uni.I18n.translate('executionLevel.executionlevel', 'MDC', 'Privilege'),
                 dataIndex: 'name',
-                flex: 0.3
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('executionLevel.userroles', 'MDC', 'User roles'),
@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.executionlevels.AddExecutionLevelsGrid', {
                     });
                     return resultArray.join('<br>');
                 },
-                flex: 0.3
+                flex: 1
             }
         ]
     }
