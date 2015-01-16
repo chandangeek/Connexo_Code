@@ -1,13 +1,12 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.LoadProfileCommandImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-
 import com.energyict.mdc.tasks.LoadProfilesTask;
 
 import java.util.List;
@@ -28,6 +27,10 @@ public class InboundCollectedLoadProfileCommandImpl extends LoadProfileCommandIm
 
     @Override
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        this.addListOfCollectedDataItems(collectedData);
+        this.addListOfCollectedDataItems(this.collectedData);
+        if (this.getLoadProfilesTask().createMeterEventsFromStatusFlags()) {
+            this.getCreateMeterEventsFromStatusFlagsCommand().execute(deviceProtocol, executionContext);
+        }
     }
+
 }
