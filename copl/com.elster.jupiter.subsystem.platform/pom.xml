@@ -236,26 +236,7 @@
                 <artifactId>util</artifactId>
                 <version>1.0.0</version>
             </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>yellowfin</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>yellowfin.groups</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>yellowfin.rest</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>yellowfin.app</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
+
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -429,22 +410,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>yellowfin</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>yellowfin.groups</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>yellowfin.rest</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>yellowfin.app</artifactId>
         </dependency>
     </dependencies>
 </project>
