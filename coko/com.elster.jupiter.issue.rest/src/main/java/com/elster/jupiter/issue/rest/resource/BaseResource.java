@@ -2,7 +2,6 @@ package com.elster.jupiter.issue.rest.resource;
 
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
-import com.elster.jupiter.issue.share.service.IssueHelpService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -21,7 +20,6 @@ public abstract class BaseResource {
     private IssueService issueService;
     private IssueCreationService issueCreationService;
     private IssueActionService issueActionService;
-    private IssueHelpService issueHelpService; // TODO remove parameter when events will be defined by MDC
     private UserService userService;
     private MeteringService meteringService;
 

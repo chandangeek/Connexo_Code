@@ -129,7 +129,6 @@ public class Mocks extends JerseyTest {
                 bind(transactionService).to(TransactionService.class);
                 bind(restQueryService).to(RestQueryService.class);
 
-                bind(mock(IssueHelpService.class)).to(IssueHelpService.class);
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             }
         });
@@ -285,14 +284,6 @@ public class Mocks extends JerseyTest {
     protected IssueActionType getDefaultIssueActionType(){
         IssueType issueType = getDefaultIssueType();
         return mockIssueActionType(1, "send", issueType);
-    }
-    
-    protected <T> Optional<T> mockOptional(T type) {
-        Optional<T> optional = mock(Optional.class);
-        when(optional.get()).thenReturn(type);
-        when(optional.isPresent()).thenReturn(true);
-        when(optional.orElse(null)).thenReturn(type);
-        return optional;
     }
     
     protected Issue getDefaultIssue() {
