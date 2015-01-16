@@ -8,7 +8,13 @@ import java.util.Optional;
 import java.util.List;
 
 public interface IssueAssignmentService {
+
+    AssignmentRule createAssignmentRule();
+    
     Optional<AssignmentRule> findAssignmentRule(long id);
-    Query<AssignmentRule> getAssignmentRuleQuery(Class<?> ... eagers);
+
+    Query<AssignmentRule> getAssignmentRuleQuery(Class<?>... eagers);
+
     void assignIssue(List<IssueForAssign> issueList);
+
 }

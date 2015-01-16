@@ -4,7 +4,9 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.impl.module.DroolsValidationException;
 import com.elster.jupiter.issue.impl.records.AssignmentRuleImpl;
+import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
+import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.IssueForAssign;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueMappingService;
@@ -17,7 +19,9 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+
 import java.util.Optional;
+
 import org.drools.core.common.ProjectClassLoader;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.event.rule.DebugAgendaEventListener;
@@ -34,6 +38,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -169,6 +174,11 @@ public class IssueAssignmentServiceImpl implements IssueAssignmentService {
         } else {
             throw new IllegalArgumentException("List of issue can't be null");
         }
+    }
+    
+    @Override
+    public AssignmentRule createAssignmentRule() {
+        return dataModel.getInstance(AssignmentRuleImpl.class);
     }
 
     private void processRules(List<IssueForAssign> issueList) {
