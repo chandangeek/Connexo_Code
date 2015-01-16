@@ -41,7 +41,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     // Events 701 - 999
     EVENT_BAD_DATA_NO_DEVICE(701, "EventBadDataNoDevice", "Unable to process issue creation event because target device (id = {0}) wasn't found", Level.SEVERE),
     EVENT_BAD_DATA_NO_KORE_DEVICE(702, "EventBadDataNoEndDevice", "Unable to process issue creation event because target kore device (amrId = {0}) wasn't found", Level.SEVERE),
-    EVENT_TITLE_UNKNOWN_INBOUND_DEVICE(703, "EventTitleUnknowInboundDevice", "Unknow inbound device", Level.INFO),
+    EVENT_TITLE_UNKNOWN_INBOUND_DEVICE(703, "EventTitleUnknownInboundDevice", "Unknown inbound device", Level.INFO),
     EVENT_TITLE_UNKNOWN_OUTBOUND_DEVICE(704, "EventTitleUnknownOutboundDevice", "Unknown outbound device", Level.INFO),
     EVENT_TITLE_DEVICE_COMMUNICATION_FAILURE(706, "EventTitleDeviceCommunicationFailure", "Device communication failure", Level.INFO),
     EVENT_TITLE_UNABLE_TO_CONNECT(706, "EventTitleUnableToConnect", "Unable to connect", Level.INFO),
