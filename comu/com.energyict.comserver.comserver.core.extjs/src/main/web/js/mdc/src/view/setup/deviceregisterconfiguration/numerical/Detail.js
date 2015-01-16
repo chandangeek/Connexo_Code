@@ -72,7 +72,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Detail', {
                                                                     + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
                                                                     + Uni.DateTime.formatTimeLong(new Date(value));
                                                             }
-                                                            return Uni.I18n.translate('deviceregisterconfiguration.latestReading.notspecified', 'MDC', '-')
+                                                            return '-';
                                                         }
                                                     },
                                                     {
