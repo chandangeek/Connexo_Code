@@ -1,11 +1,10 @@
-package com.energyict.mdc.engine.impl.meterdata.identifiers;
+package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ import static org.mockito.Mockito.when;
  * Time: 11:27
  */
 @RunWith(MockitoJUnitRunner.class)
-public class LoadProfileDataIdentifierTest {
+public class LoadProfileIdentifierByObisCodeAndDeviceTest {
 
     private static ObisCode loadProfileObisCode = ObisCode.fromString("1.0.99.1.0.255");
 
@@ -44,7 +43,7 @@ public class LoadProfileDataIdentifierTest {
 
     @Test(expected = CanNotFindForIdentifier.class)
     public void loadProfileDoesNotExist() {
-        when(this.device.getLoadProfiles()).thenReturn(new ArrayList<LoadProfile>(0));
+        when(this.device.getLoadProfiles()).thenReturn(new ArrayList<>(0));
 
         // business method
         new LoadProfileIdentifierByObisCodeAndDevice(loadProfileObisCode, getMockedDeviceIdentifier()).findLoadProfile();

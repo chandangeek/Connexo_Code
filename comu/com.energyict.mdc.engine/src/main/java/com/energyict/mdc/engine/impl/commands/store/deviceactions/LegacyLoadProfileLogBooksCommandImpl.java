@@ -188,16 +188,13 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
     private void createLoadProfileReadersForLoadProfilesTask(LoadProfilesTask localLoadProfilesTask) {
         List<OfflineLoadProfile> listOfAllLoadProfiles = this.device.getAllOfflineLoadProfiles();
         if (localLoadProfilesTask.getLoadProfileTypes().isEmpty()) {
-            for (OfflineLoadProfile loadProfile : listOfAllLoadProfiles) {
-                addLoadProfileToReaderList(loadProfile);
-            }
+            listOfAllLoadProfiles.forEach(this::addLoadProfileToReaderList);
         } else {  // Read out the specified load profile types
             for (LoadProfileType lpt : localLoadProfilesTask.getLoadProfileTypes()) {
-                for (OfflineLoadProfile loadProfile : listOfAllLoadProfiles) {
-                    if (lpt.getId() == loadProfile.getLoadProfileTypeId()) {
-                        addLoadProfileToReaderList(loadProfile);
-                    }
-                }
+                listOfAllLoadProfiles
+                        .stream()
+                        .filter(loadProfile -> lpt.getId() == loadProfile.getLoadProfileTypeId())
+                        .forEach(this::addLoadProfileToReaderList);
             }
         }
     }
