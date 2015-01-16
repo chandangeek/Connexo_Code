@@ -53,4 +53,5 @@ public interface IssueService {
     public <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers);
     List<IssueGroup> getIssueGroupList(IssueGroupFilter builder);
     public int countOpenDataCollectionIssues(String mRID);
+    List<IssueProvider> getIssueProviders();
 }

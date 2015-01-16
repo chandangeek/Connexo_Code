@@ -38,7 +38,7 @@ public class CommentIssueAction extends AbstractIssueAction {
     }
 
     @Override
-    public <T extends Issue> boolean isApplicable(T issue) {
+    public boolean isApplicable(Issue issue) {
         return issue != null;
     }
 

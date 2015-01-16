@@ -1,5 +1,21 @@
 package com.elster.jupiter.issue.impl.service;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.impl.database.groups.IssuesGroupOperation;
@@ -9,29 +25,35 @@ import com.elster.jupiter.issue.impl.records.IssueTypeImpl;
 import com.elster.jupiter.issue.impl.records.assignee.AssigneeRoleImpl;
 import com.elster.jupiter.issue.impl.records.assignee.AssigneeTeamImpl;
 import com.elster.jupiter.issue.impl.records.assignee.types.AssigneeType;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.AssigneeRole;
+import com.elster.jupiter.issue.share.entity.AssigneeTeam;
+import com.elster.jupiter.issue.share.entity.Entity;
+import com.elster.jupiter.issue.share.entity.HistoricalIssue;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueGroup;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.NotUniqueKeyException;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueGroupFilter;
 import com.elster.jupiter.issue.share.service.IssueMappingService;
+import com.elster.jupiter.issue.share.service.IssueProvider;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleNlsKey;
+import com.elster.jupiter.nls.SimpleTranslation;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
-import java.util.Optional;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.logging.Logger;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.issue", service = IssueService.class)
 public class IssueServiceImpl implements IssueService {
@@ -41,6 +63,8 @@ public class IssueServiceImpl implements IssueService {
     private volatile QueryService queryService;
     private volatile UserService userService;
     private volatile Thesaurus thesaurus;
+    
+    private List<IssueProvider> registeredIssueProviders = new ArrayList<>();
 
     public IssueServiceImpl() {
     }
@@ -226,5 +250,19 @@ public class IssueServiceImpl implements IssueService {
             return 0;
         }
     }
-
+    
+    @Reference(name = "ZIssueProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addIssueProvider(IssueProvider issueProvider) {
+        registeredIssueProviders.add(issueProvider);
+    }
+    
+    public void removeIssueProvider(IssueProvider issueProvider) {
+        registeredIssueProviders.remove(issueProvider);
+    }
+    
+    @Override
+    public List<IssueProvider> getIssueProviders() {
+        return registeredIssueProviders;
+    }
+    
 }

@@ -59,11 +59,6 @@ public class AssignIssueAction extends AbstractIssueAction {
     }
 
     @Override
-    public <T extends Issue> boolean isApplicable(T issue) {
-        return issue != null;
-    }
-
-    @Override
     public String getLocalizedName() {
         return MessageSeeds.ACTION_ASSIGN_ISSUE.getTranslated(getThesaurus());
     }

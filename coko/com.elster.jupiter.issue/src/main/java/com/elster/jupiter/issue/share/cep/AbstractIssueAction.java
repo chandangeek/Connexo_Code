@@ -9,6 +9,7 @@ import java.util.Map;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.entity.ActionParameter;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
+import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -59,6 +60,11 @@ public abstract class AbstractIssueAction implements IssueAction {
         List<ParameterViolation> errors = new ArrayList<>();
         validateParameters(action, errors);
         return errors;
+    }
+    
+    @Override
+    public boolean isApplicable(Issue issue) {
+        return issue != null;
     }
 
     protected void validateParameters(CreationRuleAction action, List<ParameterViolation> errors){

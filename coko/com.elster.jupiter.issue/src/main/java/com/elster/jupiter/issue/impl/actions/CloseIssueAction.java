@@ -49,11 +49,8 @@ public class CloseIssueAction extends AbstractIssueAction {
     }
 
     @Override
-    public <T extends Issue> boolean isApplicable(T issue) {
-        if (issue != null){
-            return IssueStatus.OPEN.equals(issue.getStatus().getKey());
-        }
-        return false;
+    public boolean isApplicable(Issue issue) {
+        return super.isApplicable(issue) && IssueStatus.OPEN.equals(issue.getStatus().getKey());
     }
 
     private IssueStatus getStatusFromParameters(Map<String, String> actionParameters){
