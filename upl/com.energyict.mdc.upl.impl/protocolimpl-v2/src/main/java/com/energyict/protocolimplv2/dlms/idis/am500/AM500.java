@@ -64,7 +64,7 @@ public class AM500 extends AbstractDlmsProtocol {
     }
 
     /**
-     * A collection of general DSMR50 properties.
+     * A collection of general AM500 properties.
      * These properties are not related to the security or the protocol dialects.
      */
     protected ConfigurationSupport getDlmsConfigurationSupport() {
