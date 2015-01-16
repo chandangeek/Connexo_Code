@@ -31,7 +31,7 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl {
     public void doExecute(ComServerDAO comServerDAO) {
         // we will only perform the update when the cache actually changed
         DeviceProtocolCache collectedDeviceCache = this.deviceCache.getCollectedDeviceCache();
-        if (collectedDeviceCache != null && collectedDeviceCache.contentChanged()) {
+        if (collectedDeviceCache != null && collectedDeviceCache.isDirty()) {
             DeviceIdentifier<?> deviceIdentifier = this.deviceCache.getDeviceIdentifier();
             Device device = (Device) deviceIdentifier.findDevice();
             Optional<DeviceCache> deviceCache = this.getEngineService().findDeviceCacheByDevice(device);
