@@ -52,6 +52,8 @@ public class IssueRuleFactory extends NamedFactory<IssueRuleFactory, CreationRul
         rule.addParameter("autoResolution", "true");
         rule.validate();
         rule.save();
+        rule.updateContent();
+        rule.save();
         store.add(CreationRule.class, rule);
         return rule;
     }
