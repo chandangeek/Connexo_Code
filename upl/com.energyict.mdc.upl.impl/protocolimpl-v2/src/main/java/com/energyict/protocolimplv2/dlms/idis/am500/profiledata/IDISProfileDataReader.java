@@ -142,7 +142,7 @@ public class IDISProfileDataReader {
                 int interval;
                 try {
                     ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(getCorrectedLoadProfileObisCode(lpr));
-                    channelInfos = getChannelInfo(profileGeneric.getCaptureObjects());
+                    channelInfos = getChannelInfo(profileGeneric.getCaptureObjects(), lpc.getMeterSerialNumber());
                     getChannelInfosMap().put(lpr, channelInfos);    //Remember these, they are re-used in method #getLoadProfileData();
                     interval = profileGeneric.getCapturePeriod();
                 } catch (IOException e) {   //Object not found in IOL, should never happen
@@ -167,7 +167,7 @@ public class IDISProfileDataReader {
         return channelInfosMap;
     }
 
-    protected List<ChannelInfo> getChannelInfo(List<CapturedObject> capturedObjects) throws IOException {
+    protected List<ChannelInfo> getChannelInfo(List<CapturedObject> capturedObjects, String serialNumber) throws IOException {
         List<ObisCode> channelObisCodes = new ArrayList<>();
         for (CapturedObject capturedObject : capturedObjects) {
             if (isChannel(capturedObject)) {
@@ -181,7 +181,7 @@ public class IDISProfileDataReader {
         int counter = 0;
         for (ObisCode obisCode : channelObisCodes) {
             Unit unit = unitMap.get(obisCode);
-            ChannelInfo channelInfo = new ChannelInfo(counter, obisCode.toString(), unit == null ? Unit.get(BaseUnit.UNITLESS) : unit);
+            ChannelInfo channelInfo = new ChannelInfo(counter, obisCode.toString(), unit == null ? Unit.get(BaseUnit.UNITLESS) : unit, serialNumber);
             if (isCumulative(obisCode)) {
                 channelInfo.setCumulative();
             }

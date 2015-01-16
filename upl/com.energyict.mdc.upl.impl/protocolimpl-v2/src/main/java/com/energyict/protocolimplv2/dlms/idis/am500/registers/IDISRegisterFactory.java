@@ -97,15 +97,15 @@ public class IDISRegisterFactory implements DeviceRegisterSupport {
                 }
             }
 
+            if (isMBusValueChannel(obisCode)) {
+                obisCode = AM500.getIDISMeterTopology().getCorrectedObisCode(obisCode, offlineRegister.getSerialNumber());
+            }
+
             final UniversalObject uo;
             try {
                 uo = AM500.getDlmsSession().getMeterConfig().findObject(obisCode);
             } catch (ProtocolException e) {
-                return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible);
-            }
-
-            if (isMBusValueChannel(obisCode)) {
-                obisCode = AM500.getIDISMeterTopology().getCorrectedObisCode(obisCode, offlineRegister.getSerialNumber());
+                return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
             }
 
             RegisterValue registerValue = null;
@@ -173,7 +173,7 @@ public class IDISRegisterFactory implements DeviceRegisterSupport {
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... errorMessage) {
         CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(register.getObisCode(), "registerXissue", register.getObisCode(), errorMessage));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(register.getObisCode(), "registerXissue", register.getObisCode(), errorMessage[0]));
         } else {
             collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
         }
