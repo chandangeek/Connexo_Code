@@ -66,7 +66,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Detail', {
                                                             + Uni.DateTime.formatTimeLong(new Date(value));
                                                     }
 
-                                                    return Uni.I18n.translate('deviceregisterconfiguration.latestMeasurement.notspecified', 'MDC', '-')
+                                                    return '-';
                                                 }
                                             },
                                             {
@@ -83,7 +83,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Detail', {
                                                                     + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
                                                                     + Uni.DateTime.formatTimeLong(new Date(value));
                                                             }
-                                                            return Uni.I18n.translate('deviceregisterconfiguration.latestReading.notspecified', 'MDC', '-')
+                                                            return '-';
                                                         }
                                                     },
                                                     {
@@ -112,7 +112,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Detail', {
                                                         return Ext.util.Format.date(new Date(value.start), this.format) + '-' + Ext.util.Format.date(new Date(value.end), this.format);
                                                     }
 
-                                                    return Uni.I18n.translate('deviceregisterconfiguration.interval.notspecified', 'MDC', '-')
+                                                    return '-';
                                                 }
                                             },
                                             {
