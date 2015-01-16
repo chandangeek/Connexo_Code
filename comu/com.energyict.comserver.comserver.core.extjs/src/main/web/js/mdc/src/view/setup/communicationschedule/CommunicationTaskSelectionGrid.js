@@ -1,7 +1,6 @@
 Ext.define('Mdc.view.setup.communicationschedule.CommunicationTaskSelectionGrid', {
     extend: 'Uni.view.grid.BulkSelection',
     alias: 'widget.communicationTaskSelectionGrid',
-    overflowY: 'auto',
     maxHeight: 300,
     itemId: 'communicationTaskGridFromSchedule',
     store: 'CommunicationTasksForCommunicationSchedule',
