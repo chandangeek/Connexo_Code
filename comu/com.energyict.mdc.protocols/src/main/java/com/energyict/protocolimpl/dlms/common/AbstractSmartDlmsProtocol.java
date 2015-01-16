@@ -263,7 +263,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
     public void updateCache(final int rtuid, final Object cacheObject) throws java.sql.SQLException, BusinessException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
-            if (dc.contentChanged()) {
+            if (dc.isDirty()) {
                 new RtuDLMS(rtuid, ormClient).saveObjectList(dc.getConfProgChange(), dc.getObjectList());
             }
         } else {

@@ -1,12 +1,7 @@
-/*
- * DLMSCache.java
- *
- * Created on 22 augustus 2003, 14:21
- */
-
 package com.energyict.dlms;
 
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+
 import com.energyict.xml.DeviceProtocolCacheXmlMarshallAdapter;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -16,52 +11,63 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 
 /**
- *
- * @author  Koen
+ * @author Koen
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlJavaTypeAdapter(DeviceProtocolCacheXmlMarshallAdapter.class)
 public class DLMSCache implements DeviceProtocolCache, Serializable {
-    UniversalObject[] objectList;
-    int confProgChange;
-    boolean changed;
-    /** Creates a new instance of DLMSCache */
+    private UniversalObject[] objectList;
+    private int confProgChange;
+    private boolean dirty;
+
     public DLMSCache() {
-        this(null,-1);
+        this(null, -1);
     }
 
-    // constructor for the
-    public DLMSCache(UniversalObject[] objectList,int confProgChange,boolean changed) {
-        this.objectList=objectList;
-        this.confProgChange=confProgChange;
-        this.changed=changed;
+    public DLMSCache(UniversalObject[] objectList, int confProgChange, boolean dirty) {
+        this.objectList = objectList;
+        this.confProgChange = confProgChange;
+        this.dirty = dirty;
     }
 
-    public DLMSCache(UniversalObject[] objectList,int confProgChange) {
-        this.objectList=objectList;
-        this.confProgChange=confProgChange;
-        setChanged(false);
+    public DLMSCache(UniversalObject[] objectList, int confProgChange) {
+        this.objectList = objectList;
+        this.confProgChange = confProgChange;
+        markClean();
     }
-    public void setChanged(boolean changed) {
-        this.changed = changed;
-    }
+
     public void saveObjectList(UniversalObject[] objectList) {
-        this.objectList=objectList;
-        setChanged(true);
+        this.objectList = objectList;
+        markDirty();
     }
-    public UniversalObject[] getObjectList () {
+
+    public UniversalObject[] getObjectList() {
         return objectList;
     }
+
     public void setConfProgChange(int confProgChange) {
-        this.confProgChange=confProgChange;
-        setChanged(true);
+        this.confProgChange = confProgChange;
+        markDirty();
     }
+
     public int getConfProgChange() {
         return confProgChange;
     }
+
     @Override
-    public boolean contentChanged() {
-        return changed;
+    public boolean isDirty() {
+        return dirty;
     }
+
+    @Override
+    public void markClean() {
+        this.dirty = false;
+    }
+
+    @Override
+    public void markDirty() {
+        this.dirty = true;
+    }
+
 }

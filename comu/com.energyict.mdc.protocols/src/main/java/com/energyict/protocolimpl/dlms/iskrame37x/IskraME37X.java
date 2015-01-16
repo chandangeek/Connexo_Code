@@ -981,7 +981,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
                 // requestSAP();  // KV 08102004 R/W denied to read SAP!!!!!
                 if (DEBUG == 1) {
-                    System.out.println("cache=" + dlmsCache.getObjectList() + ", confchange=" + dlmsCache.getConfProgChange() + ", ischanged=" + dlmsCache.contentChanged());
+                    System.out.println("cache=" + dlmsCache.getObjectList() + ", confchange=" + dlmsCache.getConfProgChange() + ", ischanged=" + dlmsCache.isDirty());
                 }
                 try { // conf program change and object list stuff
                     int iConf;
@@ -1372,7 +1372,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
-            if (dc.contentChanged()) {
+            if (dc.isDirty()) {
                 RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, ormClient);
                 RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
                 rtuCache.saveObjectList(dc.getObjectList());
