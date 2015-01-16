@@ -38,6 +38,11 @@ public class ReadLoadProfileDataCommandImpl extends SimpleComCommand implements 
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Read out the load profiles";
+    }
+
+    @Override
     protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         if (!loadProfileCommand.getLoadProfilesTask().getLoadProfileTypes().isEmpty()) {

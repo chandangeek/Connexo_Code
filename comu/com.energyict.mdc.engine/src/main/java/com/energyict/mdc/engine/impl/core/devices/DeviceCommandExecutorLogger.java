@@ -66,7 +66,7 @@ public interface DeviceCommandExecutorLogger {
      * @param deviceCommandExecutor The DeviceCommandExecutor
      * @param deviceCommand The DeviceCommand
      */
-    @Configuration(format = "{0} queued the execution of device command {1}", logLevel = LogLevel.DEBUG)
+    @Configuration(format = "{0} queued the execution of device command(s) {1}", logLevel = LogLevel.DEBUG)
     public void executionQueued (DeviceCommandExecutor deviceCommandExecutor, DeviceCommand deviceCommand);
 
     /**
@@ -76,7 +76,7 @@ public interface DeviceCommandExecutorLogger {
      * @param e The IllegalStateException that was reported by the DeviceCommandExecutor
      * @param deviceCommandExecutor The DeviceCommandExecutor
      */
-    @Configuration(format = "{0} is not running and can therefore not execute device command {1}", logLevel = LogLevel.ERROR)
+    @Configuration(format = "{0} is not running and can therefore not execute device command(s) {1}", logLevel = LogLevel.ERROR)
     public void cannotExecuteWhenNotRunning (IllegalStateException e, DeviceCommandExecutor deviceCommandExecutor, DeviceCommand command);
 
     /**
@@ -86,7 +86,7 @@ public interface DeviceCommandExecutorLogger {
      * @param deviceCommandExecutor The DeviceCommandExecutor
      * @param deviceCommand The DeviceCommand
      */
-    @Configuration(format = "{0} completed the execution of device command {1}", logLevel = LogLevel.DEBUG)
+    @Configuration(format = "{0} completed the execution of device command(s) {1}", logLevel = LogLevel.DEBUG)
     public void commandCompleted (DeviceCommandExecutor deviceCommandExecutor, DeviceCommand deviceCommand);
 
     /**

@@ -168,5 +168,9 @@ public class SimpleComCommandTest {
             return ComCommandTypes.UNKNOWN;
         }
 
+        @Override
+        public String getDescriptionTitle() {
+            return "For testing purposes only";
+        }
     }
 }

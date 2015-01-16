@@ -165,6 +165,11 @@ public class ClockCommandImpl extends CompositeComCommandImpl implements ClockCo
         return this.timeDifferenceCommand.getTimeDifference();
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "Executed clock protocol task";
+    }
+
     /**
      * ClockCommand which will do nothing
      */
@@ -188,6 +193,10 @@ public class ClockCommandImpl extends CompositeComCommandImpl implements ClockCo
             return LogLevel.DEBUG;
         }
 
+        @Override
+        public String getDescriptionTitle() {
+            return "Dummy clock command";
+        }
     }
 
 }

@@ -49,4 +49,9 @@ public class PublishConnectionSetupFailureEvent extends PublishConnectionTaskEve
         return EventType.DEVICE_CONNECTION_FAILURE.topic();
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "Publish connection setup failure event";
+    }
+
 }

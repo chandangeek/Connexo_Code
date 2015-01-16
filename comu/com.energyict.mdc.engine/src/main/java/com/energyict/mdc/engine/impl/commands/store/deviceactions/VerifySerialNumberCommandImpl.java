@@ -52,9 +52,11 @@ public class VerifySerialNumberCommandImpl extends SimpleComCommand implements V
         }
     }
 
-    /**
-     * @return the ComCommandType of this command
-     */
+    @Override
+    public String getDescriptionTitle() {
+        return "Verify the device serial number";
+    }
+
     @Override
     public ComCommandTypes getCommandType() {
         return ComCommandTypes.VERIFY_SERIAL_NUMBER_COMMAND;

@@ -6,7 +6,6 @@ import com.energyict.mdc.engine.config.ComServer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -33,6 +32,10 @@ public abstract class CompositeDeviceCommandImpl implements CompositeDeviceComma
     protected CompositeDeviceCommandImpl (ComServer.LogLevel communicationLogLevel, List<DeviceCommand> commands) {
         this(communicationLogLevel);
         this.commands = new ArrayList<>(commands);
+    }
+
+    protected ComServer.LogLevel getCommunicationLogLevel() {
+        return communicationLogLevel;
     }
 
     @Override
@@ -98,27 +101,26 @@ public abstract class CompositeDeviceCommandImpl implements CompositeDeviceComma
         return ComServer.LogLevel.TRACE;
     }
 
+    /**
+     * Tests if the specified server log level enables details of the
+     * minimum level to be shown in journal messages.
+     *
+     * @param serverLogLevel The server LogLevel
+     * @param minimumLevel   The minimum level that is required for a message to show up in journaling
+     * @return A flag that indicates if message details of the minimum level should show up in journaling
+     */
+    protected boolean isJournalingLevelEnabled(ComServer.LogLevel serverLogLevel, ComServer.LogLevel minimumLevel) {
+        return serverLogLevel.compareTo(minimumLevel) >= 0;
+    }
+
     @Override
     public String getDescriptionTitle() {
-        return this.getClass().getSimpleName();
+        return "Aggregated device command";
     }
 
     @Override
     public String toString () {
-        StringBuilder builder = new StringBuilder();
-        Iterator<DeviceCommand> commandIterator = this.getChildren().iterator();
-        while (commandIterator.hasNext()) {
-            DeviceCommand command = commandIterator.next();
-            builder.append(command.toJournalMessageDescription(communicationLogLevel));
-            if (commandIterator.hasNext()) {
-                builder.append("\n");
-            }
-        }
-        return builder.toString();
+        return this.toJournalMessageDescription(this.getCommunicationLogLevel());
     }
 
-    @Override
-    public String toJournalMessageDescription(ComServer.LogLevel serverLogLevel) {
-        return null;
-    }
 }

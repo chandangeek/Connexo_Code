@@ -25,6 +25,11 @@ public class LogOffCommand extends SimpleComCommand {
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Log off from the device";
+    }
+
+    @Override
     public ComCommandTypes getCommandType() {
         return ComCommandTypes.LOGOFF;
     }

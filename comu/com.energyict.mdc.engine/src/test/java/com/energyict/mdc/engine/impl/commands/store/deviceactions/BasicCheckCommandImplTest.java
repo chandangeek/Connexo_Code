@@ -26,7 +26,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -69,7 +68,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
     @Test
     public void getCorrectCommandTypeTest() {
         BasicCheckCommandImpl basicCheckCommand = new BasicCheckCommandImpl(mock(BasicCheckTask.class), createCommandRoot(), comTaskExecution);
-        assertEquals(ComCommandTypes.BASIC_CHECK_COMMAND, basicCheckCommand.getCommandType());
+        assertThat(basicCheckCommand.getCommandType()).isEqualTo(ComCommandTypes.BASIC_CHECK_COMMAND);
     }
 
     @Test(expected = CodingException.class)
@@ -96,19 +95,19 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
         basicCheckCommand.execute(deviceProtocol, newTestExecutionContext());
 
         //asserts
-        assertNotNull(basicCheckCommand.getVerifyTimeDifferenceCommand());
-        assertNotNull(basicCheckCommand.getBasicCheckTask());
+        assertThat(basicCheckCommand.getVerifyTimeDifferenceCommand()).isNotNull();
+        assertThat(basicCheckCommand.getBasicCheckTask()).isNotNull();
         // verify that getTime is called only once
         verify(deviceProtocol).getTime();
-        assertEquals(timeDifferenceInMillis, basicCheckCommand.getTimeDifference().get().getMilliSeconds());
-        assertEquals(CompletionCode.Ok, basicCheckCommand.getCompletionCode());
-        assertEquals(SimpleComCommand.ExecutionState.SUCCESSFULLY_EXECUTED, basicCheckCommand.getExecutionState());
-        assertTrue(basicCheckCommand.getVerifyTimeDifferenceCommand().getIssues().isEmpty());
-        assertTrue(basicCheckCommand.getVerifyTimeDifferenceCommand().getProblems().isEmpty());
-        assertTrue(basicCheckCommand.getVerifyTimeDifferenceCommand().getWarnings().isEmpty());
-        assertNull(basicCheckCommand.getVerifySerialNumberCommand());
+        assertThat(basicCheckCommand.getTimeDifference().get().getMilliSeconds()).isEqualTo(timeDifferenceInMillis);
+        assertThat(basicCheckCommand.getCompletionCode()).isEqualTo(CompletionCode.Ok);
+        assertThat(basicCheckCommand.getExecutionState()).isEqualTo(SimpleComCommand.ExecutionState.SUCCESSFULLY_EXECUTED);
+        assertThat(basicCheckCommand.getVerifyTimeDifferenceCommand().getIssues().isEmpty()).isTrue();
+        assertThat(basicCheckCommand.getVerifyTimeDifferenceCommand().getProblems().isEmpty()).isTrue();
+        assertThat(basicCheckCommand.getVerifyTimeDifferenceCommand().getWarnings().isEmpty()).isTrue();
+        assertThat(basicCheckCommand.getVerifySerialNumberCommand()).isNull();
 
-        assertEquals("BasicCheckCommandImpl {readClockDifference: true; getTimeDifference: 3000 milliseconds}", basicCheckCommand.toJournalMessageDescription(LogLevel.ERROR));
+        assertThat(basicCheckCommand.toJournalMessageDescription(LogLevel.ERROR)).contains("{readClockDifference: true; getTimeDifference: 3000 milliseconds}");
     }
 
     @Test
@@ -125,12 +124,12 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
             basicCheckCommand.execute(deviceProtocol, newTestExecutionContext());
         } catch (DeviceConfigurationException e) {
             verify(deviceProtocol).getTime();
-            assertEquals("Expecting the tho have execution state FAILED, cause exceeding time difference.", SimpleComCommand.ExecutionState.FAILED, basicCheckCommand.getExecutionState());
-            assertEquals("Expecting the VerifyTimeDifferenceCommand to have completionCode TimeError.", CompletionCode.TimeError, basicCheckCommand.getVerifyTimeDifferenceCommand().getCompletionCode());
-            assertEquals("Expecting the VerifyTimeDifferenceCommand to have 1 issue.", 1, basicCheckCommand.getVerifyTimeDifferenceCommand().getIssues().size());
-            assertEquals("Expecting the VerifyTimeDifferenceCommand to have 1 problem.", 1, basicCheckCommand.getVerifyTimeDifferenceCommand().getProblems().size());
-            assertEquals("Expecting the VerifyTimeDifferenceCommand to have no warnings.", 0, basicCheckCommand.getVerifyTimeDifferenceCommand().getWarnings().size());
-            assertEquals("Expecting a time difference of 60s.", TimeDuration.seconds(60), basicCheckCommand.getVerifyTimeDifferenceCommand().getTimeDifference().get());
+            assertThat(basicCheckCommand.getExecutionState()).isEqualTo(SimpleComCommand.ExecutionState.FAILED);
+            assertThat(basicCheckCommand.getVerifyTimeDifferenceCommand().getCompletionCode()).isEqualTo(CompletionCode.TimeError);
+            assertThat(basicCheckCommand.getVerifyTimeDifferenceCommand().getIssues()).hasSize(1);
+            assertThat(basicCheckCommand.getVerifyTimeDifferenceCommand().getProblems()).hasSize(1);
+            assertThat(basicCheckCommand.getVerifyTimeDifferenceCommand().getWarnings()).isEmpty();
+            assertThat(basicCheckCommand.getVerifyTimeDifferenceCommand().getTimeDifference().get()).isEqualTo(TimeDuration.seconds(60));
         }
     }
 
@@ -144,13 +143,13 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
         basicCheckCommand.execute(deviceProtocol, newTestExecutionContext());
 
         // asserts
-        assertNotNull(basicCheckCommand.getVerifySerialNumberCommand());
-        assertNotNull(basicCheckCommand.getBasicCheckTask());
+        assertThat(basicCheckCommand.getVerifySerialNumberCommand()).isNotNull();
+        assertThat(basicCheckCommand.getBasicCheckTask()).isNotNull();
         // verify that the getDeviceSerialNumber is called
         verify(deviceProtocol).getSerialNumber();
-        assertNull(basicCheckCommand.getVerifyTimeDifferenceCommand());
+        assertThat(basicCheckCommand.getVerifyTimeDifferenceCommand()).isNull();
         // the verification should have been successful so the test should not fail
-        assertEquals("BasicCheckCommandImpl {readClockDifference: false; check serial number}", basicCheckCommand.toJournalMessageDescription(LogLevel.ERROR));
+        assertThat(basicCheckCommand.toJournalMessageDescription(LogLevel.ERROR)).contains("{readClockDifference: false; check serial number}");
     }
 
     @Test
@@ -169,7 +168,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
         String description = basicCheckCommand.toJournalMessageDescription(LogLevel.ERROR);
 
         // Asserts
-        assertThat(description).isEqualTo("BasicCheckCommandImpl {readClockDifference: true; check serial number; getTimeDifference: }");
+        assertThat(description).contains("{readClockDifference: true; check serial number; getTimeDifference: }");
     }
 
     @Test
@@ -188,7 +187,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
         String description = basicCheckCommand.toJournalMessageDescription(LogLevel.INFO);
 
         // Asserts
-        assertThat(description).isEqualTo("BasicCheckCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; readClockDifference: true; check serial number; getTimeDifference: }");
+        assertThat(description).contains("{executionState: NOT_EXECUTED; completionCode: Ok; readClockDifference: true; check serial number; getTimeDifference: }");
     }
 
     @Test
@@ -207,7 +206,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
         String description = basicCheckCommand.toJournalMessageDescription(LogLevel.TRACE);
 
         // Asserts
-        assertThat(description).isEqualTo("BasicCheckCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; nrOfWarnings: 0; nrOfProblems: 0; readClockDifference: true; readClockDifferenceMaximum(s): 111; check serial number; getTimeDifference: }");
+        assertThat(description).contains("{executionState: NOT_EXECUTED; completionCode: Ok; nrOfWarnings: 0; nrOfProblems: 0; readClockDifference: true; readClockDifferenceMaximum(s): 111; check serial number; getTimeDifference: }");
     }
 
 }

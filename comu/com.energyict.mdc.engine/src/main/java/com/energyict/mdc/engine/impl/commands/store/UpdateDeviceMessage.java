@@ -56,4 +56,10 @@ public class UpdateDeviceMessage extends DeviceCommandImpl {
     public String getProtocolInfo() {
         return protocolInfo;
     }
+
+    @Override
+    public String getDescriptionTitle() {
+        return "Update device message";
+    }
+
 }

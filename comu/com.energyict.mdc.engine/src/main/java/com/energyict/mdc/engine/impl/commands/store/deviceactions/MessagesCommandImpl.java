@@ -64,6 +64,11 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Handle all device messages";
+    }
+
+    @Override
     protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
         toSuperJournalMessageDescription(builder, serverLogLevel);
 

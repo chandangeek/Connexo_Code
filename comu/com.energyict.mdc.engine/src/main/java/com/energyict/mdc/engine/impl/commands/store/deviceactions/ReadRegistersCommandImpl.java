@@ -118,6 +118,11 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Read out the device registers";
+    }
+
+    @Override
     protected void toJournalMessageDescription(DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         if (this.registers.isEmpty()) {

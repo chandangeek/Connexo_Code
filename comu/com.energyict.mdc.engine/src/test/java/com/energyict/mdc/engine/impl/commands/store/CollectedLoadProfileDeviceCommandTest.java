@@ -90,9 +90,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
 
         // Asserts
         assertThat(journalMessage).matches(
-                Pattern.compile(
-                        CollectedLoadProfileDeviceCommand.class.getSimpleName()
-                        + " \\{load profile:.*1\\.33\\.1\\.8\\.0\\.255.*; interval data period: \\(-∞‥\\+∞\\); channels: \\}"));
+                Pattern.compile(".*\\{load profile:.*1\\.33\\.1\\.8\\.0\\.255.*; interval data period: \\(-∞‥\\+∞\\); channels: \\}"));
     }
 
     @Test
@@ -110,9 +108,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
 
         // Asserts
         assertThat(journalMessage).matches(
-                Pattern.compile(
-                        CollectedLoadProfileDeviceCommand.class.getSimpleName()
-                        + " \\{load profile:.*1\\.33\\.1\\.8\\.0\\.255.*interval data period: \\(2012-12-12T12:53:05Z‥2012-12-12T12:53:05Z\\]; channels: 2\\}"));
+                Pattern.compile(".*\\{load profile:.*1\\.33\\.1\\.8\\.0\\.255.*interval data period: \\(2012-12-12T12:53:05Z‥2012-12-12T12:53:05Z\\]; channels: 2\\}"));
     }
 
     @Test
@@ -140,9 +136,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
 
         // Asserts
         assertThat(journalMessage).matches(
-                Pattern.compile(
-                        CollectedLoadProfileDeviceCommand.class.getSimpleName()
-                        + " \\{load profile:.*1\\.33\\.1\\.8\\.0\\.255.*; interval data period: \\(2012-12-12T12:45:00Z‥2012-12-12T13:30:00Z\\]; channels: 2\\}"));
+                Pattern.compile(".*\\{load profile:.*1\\.33\\.1\\.8\\.0\\.255.*; interval data period: \\(2012-12-12T12:45:00Z‥2012-12-12T13:30:00Z\\]; channels: 2\\}"));
     }
 
     @Test
@@ -175,9 +169,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
 
         // Asserts
         assertThat(journalMessage).matches(
-                Pattern.compile(
-                        CollectedLoadProfileDeviceCommand.class.getSimpleName() +
-                        " \\{load profile:.*1\\.33\\.1\\.8\\.0\\.255.*; interval data period: \\(2012-12-12T12:45:00Z‥2012-12-12T13:00:00Z\\]; channels: 2, 3\\}"));
+                Pattern.compile(".*\\{load profile:.*1\\.33\\.1\\.8\\.0\\.255.*; interval data period: \\(2012-12-12T12:45:00Z‥2012-12-12T13:00:00Z\\]; channels: 2, 3\\}"));
     }
 
 

@@ -36,6 +36,11 @@ public class CreateMeterEventsFromStatusFlagsCommandImpl extends SimpleComComman
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Create meter events from load profile interval statuses";
+    }
+
+    @Override
     protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         if (this.isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG)) {

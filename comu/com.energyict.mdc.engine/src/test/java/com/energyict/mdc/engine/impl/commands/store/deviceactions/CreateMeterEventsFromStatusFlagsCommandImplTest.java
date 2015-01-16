@@ -223,7 +223,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         // Business method
         String description = command.toJournalMessageDescription(LogLevel.INFO);
 
-        assertThat(description).isEqualTo("CreateMeterEventsFromStatusFlagsCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok}");
+        assertThat(description).contains("{executionState: NOT_EXECUTED; completionCode: Ok}");
     }
 
     @Test
@@ -233,7 +233,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         // Business method
         String description = command.toJournalMessageDescription(LogLevel.INFO);
 
-        assertThat(description).isEqualTo("CreateMeterEventsFromStatusFlagsCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok}");
+        assertThat(description).contains("{executionState: NOT_EXECUTED; completionCode: Ok}");
     }
 
     @Test
@@ -243,7 +243,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         // Business method
         String description = command.toJournalMessageDescription(LogLevel.TRACE);
 
-        assertThat(description).isEqualTo("CreateMeterEventsFromStatusFlagsCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; nrOfWarnings: 0; nrOfProblems: 0; Load profile obisCodes: 1.1.1.1.1.1; meterEvents: }");
+        assertThat(description).contains("{executionState: NOT_EXECUTED; completionCode: Ok; nrOfWarnings: 0; nrOfProblems: 0; Load profile obisCodes: 1.1.1.1.1.1; meterEvents: }");
     }
 
     private Clock getFrozenClock() {

@@ -40,7 +40,7 @@ public class VerifyLoadProfilesCommandImplTest {
         when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.anyList())).thenReturn(Arrays.asList(config1, config2));
         command.doExecute(deviceProtocol, null);
         String description = command.toJournalMessageDescription(LogLevel.TRACE);
-        assertThat(description).isEqualTo("VerifyLoadProfilesCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; nrOfWarnings: 0; nrOfProblems: 0; loadProfileObisCodes: 1.1.1.1.1.1, 2.2.2.2.2.2}");
+        assertThat(description).contains("{executionState: NOT_EXECUTED; completionCode: Ok; nrOfWarnings: 0; nrOfProblems: 0; loadProfileObisCodes: 1.1.1.1.1.1, 2.2.2.2.2.2}");
     }
 
     @Test
@@ -56,7 +56,7 @@ public class VerifyLoadProfilesCommandImplTest {
         when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.anyList())).thenReturn(Arrays.asList(config1, config2));
         command.doExecute(deviceProtocol, null);
         String description = command.toJournalMessageDescription(LogLevel.INFO);
-        assertThat(description).isEqualTo("VerifyLoadProfilesCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; loadProfileObisCodes: 1.1.1.1.1.1, 2.2.2.2.2.2}");
+        assertThat(description).contains("{executionState: NOT_EXECUTED; completionCode: Ok; loadProfileObisCodes: 1.1.1.1.1.1, 2.2.2.2.2.2}");
     }
 
     @Test
@@ -72,7 +72,7 @@ public class VerifyLoadProfilesCommandImplTest {
         when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.anyList())).thenReturn(Arrays.asList(config1, config2));
         command.doExecute(deviceProtocol, null);
         String description = command.toJournalMessageDescription(LogLevel.ERROR);
-        assertThat(description).isEqualTo("VerifyLoadProfilesCommandImpl {loadProfileObisCodes: 1.1.1.1.1.1, 2.2.2.2.2.2}");
+        assertThat(description).contains("{loadProfileObisCodes: 1.1.1.1.1.1, 2.2.2.2.2.2}");
     }
 
 }

@@ -90,11 +90,6 @@ public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDesc
     }
 
     @Override
-    public String getDescriptionTitle() {
-        return this.getClass().getSimpleName();
-    }
-
-    @Override
     public String toJournalMessageDescription(ComServer.LogLevel serverLogLevel) {
         DescriptionBuilder builder = new DescriptionBuilderImpl(this);
         toJournalMessageDescription(builder, serverLogLevel);

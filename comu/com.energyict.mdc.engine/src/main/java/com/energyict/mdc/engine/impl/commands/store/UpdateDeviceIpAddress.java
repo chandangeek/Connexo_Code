@@ -47,4 +47,10 @@ public class UpdateDeviceIpAddress extends DeviceCommandImpl {
             builder.addProperty("IP address").append(this.ipAddress);
         }
     }
+
+    @Override
+    public String getDescriptionTitle() {
+        return "Update device IP address";
+    }
+
 }

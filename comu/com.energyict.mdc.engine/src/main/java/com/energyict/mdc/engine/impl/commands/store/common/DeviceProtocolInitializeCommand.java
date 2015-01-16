@@ -37,6 +37,11 @@ public class DeviceProtocolInitializeCommand extends SimpleComCommand {
         return ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE;
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "Initialize the device protocol";
+    }
+
     protected LogLevel defaultJournalingLogLevel () {
         return LogLevel.DEBUG;
     }

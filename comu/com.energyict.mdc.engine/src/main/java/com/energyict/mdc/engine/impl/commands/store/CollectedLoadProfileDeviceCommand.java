@@ -61,4 +61,9 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
         }
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "Collected load profile data";
+    }
+
 }

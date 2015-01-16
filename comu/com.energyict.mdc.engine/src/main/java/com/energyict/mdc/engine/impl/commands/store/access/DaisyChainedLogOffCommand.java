@@ -25,6 +25,11 @@ public class DaisyChainedLogOffCommand extends SimpleComCommand {
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Daisy chained log off";
+    }
+
+    @Override
     public ComCommandTypes getCommandType() {
         return ComCommandTypes.DAISY_CHAINED_LOGOFF;
     }

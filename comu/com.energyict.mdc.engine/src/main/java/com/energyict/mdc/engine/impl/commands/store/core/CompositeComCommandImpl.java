@@ -60,7 +60,7 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
                 }
             }
         }
-        if(firstException != null){
+        if (firstException != null) {
             throw firstException;
         }
     }

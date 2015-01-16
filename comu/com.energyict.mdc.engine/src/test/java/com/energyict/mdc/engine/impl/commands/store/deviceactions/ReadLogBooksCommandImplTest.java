@@ -18,12 +18,6 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LogBooksTask;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -31,8 +25,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -56,7 +55,7 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
         ReadLogBooksCommand readLogBooksCommand = new ReadLogBooksCommandImpl(mock(LogBooksCommand.class), commandRoot);
 
         // asserts
-        Assert.assertEquals(ComCommandTypes.READ_LOGBOOKS_COMMAND, readLogBooksCommand.getCommandType());
+        assertThat(readLogBooksCommand.getCommandType()).isEqualTo(ComCommandTypes.READ_LOGBOOKS_COMMAND);
     }
 
     @Test
@@ -74,12 +73,12 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
         readLogBooksCommand.execute(deviceProtocol, executionContext);
 
         // asserts
-        assertNotNull(logBooksCommand.getCollectedData());
-        Assert.assertEquals("Should have one collectedLogBook", 1, logBooksCommand.getCollectedData().size());
-        assertNotNull(readLogBooksCommand.getIssues());
-        Assert.assertEquals("Should have no issues", 0, logBooksCommand.getIssues().size());
-        Assert.assertEquals("Should have no problems", 0, logBooksCommand.getProblems().size());
-        Assert.assertEquals("Should have no warnings", 0, logBooksCommand.getWarnings().size());
+        assertThat(logBooksCommand.getCollectedData()).isNotNull();
+        assertThat(logBooksCommand.getCollectedData()).hasSize(1);
+        assertThat(readLogBooksCommand.getIssues()).isNotNull();
+        assertThat(logBooksCommand.getIssues()).isEmpty();
+        assertThat(logBooksCommand.getProblems()).isEmpty();
+        assertThat(logBooksCommand.getWarnings()).isEmpty();
     }
 
     @Test
@@ -116,7 +115,8 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
         ReadLogBooksCommand readLogBooksCommand = commandRoot.getReadLogBooksCommand(mock(LogBooksCommand.class), comTaskExecution);
         readLogBooksCommand.addLogBooks(Arrays.asList(logBookReader1, logBookReader2, logBookReader3, logBookReader1, logBookReader2));
 
-        assertEquals("Expected only the three unique LogBookReaders", 3, ((ReadLogBooksCommandImpl) readLogBooksCommand).getLogBooksToCollect().size());
-        Assert.assertEquals("ReadLogBooksCommandImpl {logbookObisCodes: 1.0.1.8.1.255, 1.0.1.8.2.255, 1.0.1.8.3.255}", readLogBooksCommand.toJournalMessageDescription(LogLevel.ERROR));
+        assertThat(((ReadLogBooksCommandImpl) readLogBooksCommand).getLogBooksToCollect()).hasSize(3);
+        assertThat(readLogBooksCommand.toJournalMessageDescription(LogLevel.ERROR)).contains("{logbookObisCodes: 1.0.1.8.1.255, 1.0.1.8.2.255, 1.0.1.8.3.255}");
     }
+
 }

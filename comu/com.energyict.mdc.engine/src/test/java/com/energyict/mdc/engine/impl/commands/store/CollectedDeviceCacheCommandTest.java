@@ -103,7 +103,7 @@ public class CollectedDeviceCacheCommandTest {
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).isEqualTo(CollectedDeviceCacheCommand.class.getSimpleName() + " {deviceIdentifier: id 654}");
+        assertThat(journalMessage).contains("{deviceIdentifier: id 654}");
     }
 
     private DeviceIdentifier getMockedDeviceIdentifier() {

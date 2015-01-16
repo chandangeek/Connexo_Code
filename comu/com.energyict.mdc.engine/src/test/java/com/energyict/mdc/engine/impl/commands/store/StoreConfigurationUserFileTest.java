@@ -62,7 +62,6 @@ public class StoreConfigurationUserFileTest {
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);
 
         // Asserts
-        assertThat(journalMessage).isEqualTo(StoreConfigurationUserFile.class.getSimpleName()
-                + " {deviceIdentifier: id 97; file extension: txt}");
+        assertThat(journalMessage).contains("{deviceIdentifier: id 97; file extension: txt}");
     }
 }

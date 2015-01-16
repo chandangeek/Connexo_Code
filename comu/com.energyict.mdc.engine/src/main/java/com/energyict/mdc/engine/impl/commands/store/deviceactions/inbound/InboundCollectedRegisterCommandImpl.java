@@ -26,9 +26,14 @@ public class InboundCollectedRegisterCommandImpl extends RegisterCommandImpl {
         this.collectedData = collectedData;
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "Collect inbound register data";
+    }
 
     @Override
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         this.addListOfCollectedDataItems(collectedData);
     }
+
 }

@@ -99,8 +99,7 @@ public class CollectedMessageListDeviceCommandTest {
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);
 
         // Asserts
-        assertThat(journalMessage).isEqualTo(CollectedMessageListDeviceCommand.class.getSimpleName()
-                + " {messageIdentifier: messageId = 12, message status: confirmed, protocolInfo: null; messageIdentifier: messageId = 32, message status: indoubt, protocolInfo: null}");
+        assertThat(journalMessage).contains("{messageIdentifier: messageId = 12, message status: confirmed, protocolInfo: null; messageIdentifier: messageId = 32, message status: indoubt, protocolInfo: null}");
     }
 
     @Test
@@ -126,8 +125,7 @@ public class CollectedMessageListDeviceCommandTest {
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).isEqualTo(CollectedMessageListDeviceCommand.class.getSimpleName()
-                + " {messageIdentifier: messageId = 12, message status: confirmed; messageIdentifier: messageId = 32, message status: indoubt}");
+        assertThat(journalMessage).contains("{messageIdentifier: messageId = 12, message status: confirmed; messageIdentifier: messageId = 32, message status: indoubt}");
     }
 
     @Test

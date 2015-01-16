@@ -36,6 +36,11 @@ public class MarkIntervalsAsBadTimeCommandImpl extends SimpleComCommand implemen
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Mark load profile intervals as bad time";
+    }
+
+    @Override
     protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         builder.addProperty("minimumClockDifference").append(loadProfileCommand.getLoadProfilesTask().getMinClockDiffBeforeBadTime().map(TimeDuration::toString).orElse(""));

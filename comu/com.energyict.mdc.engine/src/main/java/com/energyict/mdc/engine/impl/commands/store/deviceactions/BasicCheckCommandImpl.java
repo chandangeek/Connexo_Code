@@ -72,6 +72,11 @@ public class BasicCheckCommandImpl extends CompositeComCommandImpl implements Ba
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Executed basic check protocol task";
+    }
+
+    @Override
     protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         builder.addProperty("readClockDifference").append(this.basicCheckTask.verifyClockDifference());

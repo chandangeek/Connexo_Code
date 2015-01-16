@@ -29,9 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -155,8 +153,8 @@ public class LogBooksCommandImplTest {
         LogBooksCommand logBooksCommand = new LogBooksCommandImpl(logBooksTask, device, commandRoot, comTaskExecution);
 
         // asserts
-        assertEquals(ComCommandTypes.LOGBOOKS_COMMAND, logBooksCommand.getCommandType());
-        assertNotNull(logBooksCommand.getLogBooksTask());
+        assertThat(logBooksCommand.getCommandType()).isEqualTo(ComCommandTypes.LOGBOOKS_COMMAND);
+        assertThat(logBooksCommand.getLogBooksTask()).isNotNull();
     }
 
     @Test
@@ -183,14 +181,14 @@ public class LogBooksCommandImplTest {
         LogBookReader expectedLogBookReader_3 = new LogBookReader(this.clock, DEVICE_OBISCODE_LOGBOOK_3, Optional.of(LAST_LOGBOOK_3), new LogBookIdentifierById(LOGBOOK_ID_3, logBookService), deviceIdentifier);
 
         // asserts
-        assertEquals(ComCommandTypes.LOGBOOKS_COMMAND, logBooksCommand.getCommandType());
-        assertNotNull(logBooksCommand.getLogBooksTask());
-        assertEquals(logBooksForDevice.size(), logBookReaders.size());
+        assertThat(logBooksCommand.getCommandType()).isEqualTo(ComCommandTypes.LOGBOOKS_COMMAND);
+        assertThat(logBooksCommand.getLogBooksTask()).isNotNull();
+        assertThat(logBookReaders.size()).isEqualTo(logBooksForDevice.size());
         assertThat(logBookReaders.get(0)).isEqualsToByComparingFields(expectedLogBookReader_1);
         assertThat(logBookReaders.get(1)).isEqualsToByComparingFields(expectedLogBookReader_2);
         assertThat(logBookReaders.get(2)).isEqualsToByComparingFields(expectedLogBookReader_3);
 
-        assertEquals("LogBooksCommandImpl {logBookObisCodes: 1.1.1.1.1.1, 2.2.2.2.2.2, 3.3.3.3.3.3}", logBooksCommand.toJournalMessageDescription(LogLevel.ERROR));
+        assertThat(logBooksCommand.toJournalMessageDescription(LogLevel.ERROR)).contains("{logBookObisCodes: 1.1.1.1.1.1, 2.2.2.2.2.2, 3.3.3.3.3.3}");
     }
 
     @Test
@@ -217,9 +215,9 @@ public class LogBooksCommandImplTest {
         LogBookReader expectedLogBookReader_3 = new LogBookReader(this.clock, DEVICE_OBISCODE_LOGBOOK_3, Optional.of(LAST_LOGBOOK_3), new LogBookIdentifierById(LOGBOOK_ID_3, logBookService), deviceIdentifier);
 
         // asserts
-        assertEquals(ComCommandTypes.LOGBOOKS_COMMAND, logBooksCommand.getCommandType());
-        assertNotNull(logBooksCommand.getLogBooksTask());
-        assertEquals(logBooksTask.getLogBookTypes().size(), logBookReaders.size());
+        assertThat(logBooksCommand.getCommandType()).isEqualTo(ComCommandTypes.LOGBOOKS_COMMAND);
+        assertThat(logBooksCommand.getLogBooksTask()).isNotNull();
+        assertThat(logBookReaders.size()).isEqualTo(logBooksTask.getLogBookTypes().size());
         assertThat(logBookReaders.get(0)).isEqualsToByComparingFields(expectedLogBookReader_1);
         assertThat(logBookReaders.get(1)).isEqualsToByComparingFields(expectedLogBookReader_3);
     }

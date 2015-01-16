@@ -28,7 +28,7 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImplTest extends CommonComm
         ReadLegacyLoadProfileLogBooksDataCommandImpl readLegacyLoadProfileLogBooksDataCommand
                 = new ReadLegacyLoadProfileLogBooksDataCommandImpl(legacyLoadProfileLogBooksDataCommand, createCommandRoot());
 
-        assertThat(readLegacyLoadProfileLogBooksDataCommand.toJournalMessageDescription(LogLevel.ERROR)).isEqualTo("ReadLegacyLoadProfileLogBooksDataCommandImpl {logBookObisCodes: none; loadProfileObisCodes: none}");
+        assertThat(readLegacyLoadProfileLogBooksDataCommand.toJournalMessageDescription(LogLevel.ERROR)).contains("{logBookObisCodes: none; loadProfileObisCodes: none}");
     }
 
     @Test
@@ -43,7 +43,7 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImplTest extends CommonComm
         ReadLegacyLoadProfileLogBooksDataCommandImpl readLegacyLoadProfileLogBooksDataCommand
                 = new ReadLegacyLoadProfileLogBooksDataCommandImpl(legacyLoadProfileLogBooksDataCommand, createCommandRoot());
 
-        assertThat(readLegacyLoadProfileLogBooksDataCommand.toJournalMessageDescription(LogLevel.ERROR)).isEqualTo("ReadLegacyLoadProfileLogBooksDataCommandImpl {logBookObisCodes: " + logbookObisCode + "; loadProfileObisCodes: none}");
+        assertThat(readLegacyLoadProfileLogBooksDataCommand.toJournalMessageDescription(LogLevel.ERROR)).contains("{logBookObisCodes: " + logbookObisCode + "; loadProfileObisCodes: none}");
     }
 
     @Test
@@ -58,7 +58,7 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImplTest extends CommonComm
         ReadLegacyLoadProfileLogBooksDataCommandImpl readLegacyLoadProfileLogBooksDataCommand
                 = new ReadLegacyLoadProfileLogBooksDataCommandImpl(legacyLoadProfileLogBooksDataCommand, createCommandRoot());
 
-        assertThat(readLegacyLoadProfileLogBooksDataCommand.toJournalMessageDescription(LogLevel.ERROR)).isEqualTo("ReadLegacyLoadProfileLogBooksDataCommandImpl {logBookObisCodes: none; loadProfileObisCodes: " + loadProfileObisCode + "; markAsBadTime: false; createEventsFromStatusFlag: false}");
+        assertThat(readLegacyLoadProfileLogBooksDataCommand.toJournalMessageDescription(LogLevel.ERROR)).contains("{logBookObisCodes: none; loadProfileObisCodes: " + loadProfileObisCode + "; markAsBadTime: false; createEventsFromStatusFlag: false}");
 
     }
 

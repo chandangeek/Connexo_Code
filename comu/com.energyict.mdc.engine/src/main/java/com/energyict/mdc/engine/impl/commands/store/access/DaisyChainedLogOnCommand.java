@@ -25,6 +25,11 @@ public class DaisyChainedLogOnCommand extends SimpleComCommand {
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Daisy chained log on";
+    }
+
+    @Override
     public ComCommandTypes getCommandType() {
         return ComCommandTypes.DAISY_CHAINED_LOGON;
     }

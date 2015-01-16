@@ -26,6 +26,11 @@ public class InboundCollectedLoadProfileCommandImpl extends LoadProfileCommandIm
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Collect inbound load profile data";
+    }
+
+    @Override
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         this.addListOfCollectedDataItems(this.collectedData);
         if (this.getLoadProfilesTask().createMeterEventsFromStatusFlags()) {

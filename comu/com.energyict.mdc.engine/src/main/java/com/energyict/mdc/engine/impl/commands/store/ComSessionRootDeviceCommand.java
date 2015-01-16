@@ -1,9 +1,12 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.config.ComServer;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -96,6 +99,36 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     @Override
     public void logExecutionWith (ExecutionLogger logger) {
         // Logging is responsibility of nested commands
+    }
+
+    @Override
+    public String toJournalMessageDescription(ComServer.LogLevel serverLogLevel) {
+        DescriptionBuilder builder = new DescriptionBuilderImpl(this);
+        if (this.createComSessionDeviceCommand != null) {
+            builder.addProperty("connectionTaskID").append(this.createComSessionDeviceCommand.getComSessionBuilder().getConnectionTask().getId());
+        }
+        else {
+            builder.addProperty("connectionTaskID").append("");
+        }
+
+        if (this.isJournalingLevelEnabled(serverLogLevel, ComServer.LogLevel.INFO)) {
+            StringBuilder stringBuilder = builder.addProperty("commands");
+            Iterator<DeviceCommand> commandIterator = this.getChildren().iterator();
+            while (commandIterator.hasNext()) {
+                DeviceCommand command = commandIterator.next();
+                String messageDescription = command.toJournalMessageDescription(serverLogLevel);
+                stringBuilder.append(messageDescription);
+                if (commandIterator.hasNext()) {
+                    stringBuilder.append(", ");
+                }
+            }
+        }
+        return builder.toString();
+    }
+
+    @Override
+    public String getDescriptionTitle() {
+        return "ComSession device command";
     }
 
 }

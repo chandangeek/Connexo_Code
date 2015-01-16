@@ -53,4 +53,10 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl {
     public ComServer.LogLevel getJournalingLogLevel() {
         return ComServer.LogLevel.INFO;
     }
+
+    @Override
+    public String getDescriptionTitle() {
+        return "Collected logbook data";
+    }
+
 }

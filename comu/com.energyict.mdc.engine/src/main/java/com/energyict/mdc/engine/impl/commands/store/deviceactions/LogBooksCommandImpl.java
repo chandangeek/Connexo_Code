@@ -53,6 +53,11 @@ public class LogBooksCommandImpl extends CompositeComCommandImpl implements LogB
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Executed logbook protocol task";
+    }
+
+    @Override
     protected void toJournalMessageDescription(DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         PropertyDescriptionBuilder logBookObisCodesBuilder = builder.addListProperty("logBookObisCodes");

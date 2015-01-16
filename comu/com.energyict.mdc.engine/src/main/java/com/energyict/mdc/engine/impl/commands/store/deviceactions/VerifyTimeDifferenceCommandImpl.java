@@ -68,6 +68,11 @@ public class VerifyTimeDifferenceCommandImpl extends SimpleComCommand implements
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Verify the device time difference";
+    }
+
+    @Override
     public ComCommandTypes getCommandType() {
         return ComCommandTypes.VERIFY_TIME_DIFFERENCE_COMMAND;
     }

@@ -39,6 +39,11 @@ public class ReadLogBooksCommandImpl extends SimpleComCommand implements ReadLog
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Read out the device logbooks";
+    }
+
+    @Override
     protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         if (this.logBooksToCollect.isEmpty()) {

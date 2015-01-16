@@ -35,6 +35,11 @@ public class ForceClockCommandImpl extends SimpleComCommand implements ForceCloc
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Force set the device time";
+    }
+
+    @Override
     protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         if (this.isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG)) {

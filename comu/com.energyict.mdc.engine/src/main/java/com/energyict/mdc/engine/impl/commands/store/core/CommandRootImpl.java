@@ -101,6 +101,11 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "All commands are executed";
+    }
+
+    @Override
     public ExecutionContext getExecutionContext () {
         return this.executionContext;
     }

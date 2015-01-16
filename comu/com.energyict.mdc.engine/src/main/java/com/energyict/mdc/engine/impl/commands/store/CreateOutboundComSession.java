@@ -72,7 +72,7 @@ public class CreateOutboundComSession extends ExecutionLoggerImpl implements Cre
 
     @Override
     public String getDescriptionTitle() {
-        return this.getClass().getSimpleName();
+        return "Create outbound comSession command";
     }
 
     @Override

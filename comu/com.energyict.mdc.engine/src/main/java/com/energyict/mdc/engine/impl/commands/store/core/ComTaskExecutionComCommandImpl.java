@@ -33,6 +33,11 @@ public class ComTaskExecutionComCommandImpl extends CompositeComCommandImpl impl
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Build up the command execution context";
+    }
+
+    @Override
     public List<CollectedData> getCollectedData () {
         List<CollectedData> collectedData = new ArrayList<>();
         collectedData.add(

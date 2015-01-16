@@ -57,4 +57,9 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl {
         builder.addProperty("deviceIdentifier").append(this.deviceCache.getDeviceIdentifier());
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "Collected device cache";
+    }
+
 }

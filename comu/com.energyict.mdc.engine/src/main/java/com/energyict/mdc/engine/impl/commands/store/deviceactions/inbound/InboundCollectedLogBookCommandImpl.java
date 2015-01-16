@@ -27,7 +27,13 @@ public class InboundCollectedLogBookCommandImpl extends LogBooksCommandImpl {
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Collect inbound logbook data";
+    }
+
+    @Override
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         this.addListOfCollectedDataItems(collectedData);
     }
+
 }

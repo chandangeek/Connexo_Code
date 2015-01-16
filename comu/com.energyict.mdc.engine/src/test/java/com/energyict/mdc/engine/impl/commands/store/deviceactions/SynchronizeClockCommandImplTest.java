@@ -24,8 +24,7 @@ import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static junit.framework.Assert.assertEquals;
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -47,7 +46,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         ClockCommand clockCommand = mock(ClockCommand.class);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         SynchronizeClockCommandImpl synchronizeClockCommand = new SynchronizeClockCommandImpl(clockCommand, createCommandRoot(), comTaskExecution);
-        Assert.assertEquals(ComCommandTypes.SYNCHRONIZE_CLOCK_COMMAND, synchronizeClockCommand.getCommandType());
+        assertThat(synchronizeClockCommand.getCommandType()).isEqualTo(ComCommandTypes.SYNCHRONIZE_CLOCK_COMMAND);
     }
 
     @Test
@@ -65,7 +64,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
         when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
         SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
-        assertEquals("SynchronizeClockCommandImpl {maximumClockShift: 111 seconds}", command.toJournalMessageDescription(LogLevel.ERROR));
+        assertThat(command.toJournalMessageDescription(LogLevel.ERROR)).contains("{maximumClockShift: 111 seconds}");
     }
 
     @Test

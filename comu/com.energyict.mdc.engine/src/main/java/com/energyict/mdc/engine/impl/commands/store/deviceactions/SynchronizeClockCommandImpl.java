@@ -42,6 +42,11 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Synchronize the device time";
+    }
+
+    @Override
     protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         builder.addProperty("maximumClockShift").append(this.clockCommand.getClockTask().getMaximumClockShift().map(TimeDuration::toString).orElse(""));

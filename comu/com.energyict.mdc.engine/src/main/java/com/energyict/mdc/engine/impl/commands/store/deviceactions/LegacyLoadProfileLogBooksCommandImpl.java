@@ -128,6 +128,11 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Executed load profile and logbook protocol tasks";
+    }
+
+    @Override
     protected void toJournalMessageDescription(DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         if (this.logBooksTask != null) {

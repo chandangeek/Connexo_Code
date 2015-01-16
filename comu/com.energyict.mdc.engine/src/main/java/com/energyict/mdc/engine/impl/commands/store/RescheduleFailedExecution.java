@@ -28,4 +28,9 @@ public class RescheduleFailedExecution extends RescheduleExecutionDeviceCommand 
         scheduledJob.reschedule(comServerDAO, this.failure, this.rescheduleReason);
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "Reschedule after failure";
+    }
+
 }

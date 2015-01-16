@@ -100,4 +100,9 @@ public class MeterDataStoreCommand extends DeviceCommandImpl {
         }
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "Store meter data";
+    }
+
 }

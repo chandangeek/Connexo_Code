@@ -54,4 +54,10 @@ public class CollectedRegisterListDeviceCommand extends DeviceCommandImpl {
             builder.addProperty("nr of collected registers").append(this.collectedRegisterList.getCollectedRegisters().size());
         }
     }
+
+    @Override
+    public String getDescriptionTitle() {
+        return "Collected register data";
+    }
+
 }

@@ -55,6 +55,11 @@ public class AddPropertiesCommand extends SimpleComCommand {
         return ComCommandTypes.ADD_PROPERTIES_COMMAND;
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "Load the device protocol properties";
+    }
+
     protected LogLevel defaultJournalingLogLevel () {
         return LogLevel.DEBUG;
     }

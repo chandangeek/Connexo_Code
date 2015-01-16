@@ -305,8 +305,7 @@ public class ComSessionRootDeviceCommandTest {
         String stringRepresentation = command.toString();
 
         // Asserts
-        assertThat(stringRepresentation).isNotNull();
-        assertThat(stringRepresentation).isEmpty();
+        assertThat(stringRepresentation).contains("{connectionTaskID: ; commands: }");
     }
 
     @Test
@@ -334,7 +333,7 @@ public class ComSessionRootDeviceCommandTest {
 
         // Asserts
         assertThat(stringRepresentation).isNotNull();
-        assertThat(stringRepresentation).contains("First\nSecond\nThird");
+        assertThat(stringRepresentation).contains("First, Second, Third");
     }
 
     private DeviceCommand mockDeviceCommand () {

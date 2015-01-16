@@ -42,4 +42,9 @@ public class CreateNoLogBooksForDeviceEvent extends DeviceCommandImpl {
         }
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "No logbooks for device event";
+    }
+
 }

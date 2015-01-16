@@ -1,9 +1,14 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.config.ComServer;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -14,7 +19,6 @@ import java.util.List;
  * @since 2013-09-17 (11:54)
  */
 public class ComTaskExecutionRootDeviceCommand extends CompositeDeviceCommandImpl {
-
 
     private ComTaskExecution comTaskExecution;
     private ExecutionLogger executionLogger;
@@ -54,6 +58,40 @@ public class ComTaskExecutionRootDeviceCommand extends CompositeDeviceCommandImp
                 deviceCommand.logExecutionWith(this.executionLogger);
             }
         }
+    }
+
+    @Override
+    public String toJournalMessageDescription(ComServer.LogLevel serverLogLevel) {
+        DescriptionBuilder descriptionBuilder = new DescriptionBuilderImpl(this);
+        descriptionBuilder.addProperty("deviceID").append(comTaskExecution.getDevice().getId());
+        if (this.comTaskExecution instanceof ScheduledComTaskExecution) {
+            ScheduledComTaskExecution scheduledComTaskExecution = (ScheduledComTaskExecution) this.comTaskExecution;
+            descriptionBuilder.addProperty("comSchedule").append(scheduledComTaskExecution.getComSchedule().getName());
+        }
+        else {
+            // Must be ManuallyScheduledComTaskExecution
+            ManuallyScheduledComTaskExecution scheduledComTaskExecution = (ManuallyScheduledComTaskExecution) this.comTaskExecution;
+            descriptionBuilder.addProperty("comTask").append(scheduledComTaskExecution.getComTask().getName());
+        }
+
+        if (isJournalingLevelEnabled(serverLogLevel, ComServer.LogLevel.DEBUG)) {
+            StringBuilder builder = descriptionBuilder.addProperty("commands");
+            Iterator<DeviceCommand> commandIterator = this.getChildren().iterator();
+            while (commandIterator.hasNext()) {
+                DeviceCommand command = commandIterator.next();
+                String messageDescription = command.toJournalMessageDescription(serverLogLevel);
+                builder.append(messageDescription);
+                if (commandIterator.hasNext()) {
+                    builder.append(", ");
+                }
+            }
+        }
+        return descriptionBuilder.toString();
+    }
+
+    @Override
+    public String getDescriptionTitle() {
+        return "ComTask device command";
     }
 
 }
