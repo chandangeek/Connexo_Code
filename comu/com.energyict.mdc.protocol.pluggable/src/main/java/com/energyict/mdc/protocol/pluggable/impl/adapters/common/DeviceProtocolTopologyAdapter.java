@@ -12,8 +12,8 @@ import com.energyict.mdc.protocol.api.tasks.support.DeviceTopologySupport;
 
 /**
  * Adapter between a {@link MeterProtocol MeterProtocol} or
- * {@link SmartMeterProtocol} and the {@link DeviceTopologySupport}.
- * A <code>MeterProtocol</code> by default does not support topology updates ...
+ * {@link SmartMeterProtocol} and the {@link DeviceTopologySupport}
+ * that do not by default support topology updates.
  *
  * @author gna
  * @since 5/04/12 - 11:23
@@ -40,12 +40,12 @@ public class DeviceProtocolTopologyAdapter implements DeviceTopologySupport {
     @Override
     public CollectedTopology getDeviceTopology() {
         CollectedTopology deviceTopology = this.collectedDataFactory.createCollectedTopology(deviceIdentifier);
-        deviceTopology.setFailureInformation(ResultType.NotSupported, getIssue(deviceIdentifier.findDevice(), "devicetopologynotsupported"));
+        deviceTopology.setFailureInformation(ResultType.NotSupported, getIssue(deviceIdentifier.findDevice(), "devicetopologynotsupportedbyadapter"));
         return deviceTopology;
     }
 
     private Issue getIssue(Object source, String description, Object... arguments){
-        return this.issueService.newProblem(source, description, arguments);
+        return this.issueService.newWarning(source, description, arguments);
     }
 
     /**
