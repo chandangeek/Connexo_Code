@@ -206,7 +206,33 @@ public final class Constants {
         public static final String CONNECTION_FAILED = "reason.connection.failed";
         public static final String CONNECTION_SETUP_FAILED = "reason.connection.setup.failed";
         public static final String COMMUNICATION_FAILED = "reason.failed.to.communicate";
+        public static final String UNKNOWN_OUTBOUND_SLAVE = "reason.unknown.outbound.device";
 
         private IssueReason() {}
+    }
+    
+    public static class AssignmentRule {
+        public static final String ASSIGNMENTRULE_DEFAULT_TO_BOB = "Assign all issues to BOB (default)";
+        public static final String ASSIGNMENTRULE_TO_BOB = 
+                "import com.elster.jupiter.issue.share.entity.IssueForAssign;\n" + 
+                "rule \"Assign to Bob\"\n" +
+                "salience 0\n" +
+                "when\n" +
+                "    issue : IssueForAssign(!processed)\n" +
+                "then\n" +
+                "    issue.assignTo(\"User\", @USERID);\n" +
+                "    update(issue);\n" +
+                "end\n";
+        public static final String ASSIGNMENTRULE_TO_SAM_UNBOUND_REASON = "Assign 'Unknown outbound device' issues to SAM";
+        public static final String ASSIGNMENTRULE_TO_SAM = 
+                "import com.elster.jupiter.issue.share.entity.IssueForAssign;\n" + 
+                "rule \"Assign to Sam\"\n" +
+                "salience 100\n" +
+                "when\n" +
+                "    issue : IssueForAssign(reason == \"@REASON\", !processed)\n" +
+                "then\n" +
+                "    issue.assignTo(\"User\", @USERID);\n" +
+                "    update(issue);\n" +
+                "end\n";
     }
 }

@@ -3,6 +3,7 @@ package com.elster.jupiter.demo.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.demo.DemoService;
 import com.elster.jupiter.demo.impl.factories.AppServerFactory;
+import com.elster.jupiter.demo.impl.factories.AssignmentRuleFactory;
 import com.elster.jupiter.demo.impl.factories.ComServerFactory;
 import com.elster.jupiter.demo.impl.factories.DataExportTaskFactory;
 import com.elster.jupiter.demo.impl.factories.DeviceFactory;
@@ -21,6 +22,8 @@ import com.elster.jupiter.demo.impl.finders.ComTaskFinder;
 import com.elster.jupiter.demo.impl.finders.LogBookFinder;
 import com.elster.jupiter.demo.impl.finders.OutboundComPortPoolFinder;
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
@@ -41,6 +44,7 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.cron.CronExpressionParser;
@@ -91,11 +95,13 @@ import com.energyict.mdc.tasks.TaskService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.Instant;
@@ -123,7 +129,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
         "osgi.command.function=createValidationDevice",
         "osgi.command.function=createDeliverDataSetup",
         "osgi.command.function=createCollectRemoteDataSetup",
-        "osgi.command.function=createValidationSetup"
+        "osgi.command.function=createValidationSetup",
+        "osgi.command.function=createAssignmentRules"
 }, immediate = true)
 public class DemoServiceImpl implements DemoService {
     private final boolean rethrowExceptions;
@@ -144,6 +151,7 @@ public class DemoServiceImpl implements DemoService {
     private volatile DataModel dataModel;
     private volatile IssueService issueService;
     private volatile IssueCreationService issueCreationService;
+    private volatile IssueAssignmentService issueAssignmentService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile KpiService kpiService;
     private volatile IssueDataCollectionService issueDataCollectionService;
@@ -185,6 +193,7 @@ public class DemoServiceImpl implements DemoService {
             OrmService ormService,
             IssueService issueService,
             IssueCreationService issueCreationService,
+            IssueAssignmentService issueAssignmentService,
             MeteringGroupsService meteringGroupsService,
             KpiService kpiService,
             IssueDataCollectionService issueDataCollectionService,
@@ -212,6 +221,7 @@ public class DemoServiceImpl implements DemoService {
         setOrmService(ormService);
         setIssueService(issueService);
         setIssueCreationService(issueCreationService);
+        setIssueAssignmentService(issueAssignmentService);
         setMeteringGroupsService(meteringGroupsService);
         setKpiService(kpiService);
         setIssueDataCollectionService(issueDataCollectionService);
@@ -251,6 +261,7 @@ public class DemoServiceImpl implements DemoService {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(IssueService.class).toInstance(issueService);
                 bind(IssueCreationService.class).toInstance(issueCreationService);
+                bind(IssueAssignmentService.class).toInstance(issueAssignmentService);
                 bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(KpiService.class).toInstance(kpiService);
                 bind(IssueDataCollectionService.class).toInstance(issueDataCollectionService);
@@ -426,6 +437,49 @@ public class DemoServiceImpl implements DemoService {
                 .withName(Constants.CreationRule.CONNECTION_SETUP_LOST)
                 .withType(Constants.IssueCreationRule.TYPE_CONNECTION_SETUP_LOST)
                 .withReason(Constants.IssueReason.CONNECTION_SETUP_FAILED)
+                .get();
+    }
+    
+    public void createAssignmentRules() {
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                createAssignmentRulesImp();
+            }
+        });
+    }
+    
+    private void createAssignmentRulesImp() {
+        System.out.println("==> Create assignment rules...");
+        Optional<User> bob = userService.findUser(Constants.User.BOB);
+        if (!bob.isPresent()) {
+            System.out.println("==> Need BOB user but not found...");
+            return;
+        }
+        
+        injector.getInstance(AssignmentRuleFactory.class)
+                .withName(Constants.AssignmentRule.ASSIGNMENTRULE_DEFAULT_TO_BOB)
+                .withDescription(Constants.AssignmentRule.ASSIGNMENTRULE_DEFAULT_TO_BOB)
+                .withRuleData(Constants.AssignmentRule.ASSIGNMENTRULE_TO_BOB.replace("@USERID",  Long.toString(bob.get().getId())))
+                .get();
+        
+        Optional<User> sam = userService.findUser(Constants.User.SAM);
+        if (!sam.isPresent()) {
+            System.out.println("==> Need SAM user but not found...");
+            return;
+        }
+        Optional<IssueReason> reason = issueService.findReason(Constants.IssueReason.UNKNOWN_OUTBOUND_SLAVE);
+        if (!reason.isPresent()) {
+            System.out.println("==> Need issue reason 'Unknown outbound device' but not found...");
+            return;
+        }
+        
+        injector.getInstance(AssignmentRuleFactory.class)
+                .withName(Constants.AssignmentRule.ASSIGNMENTRULE_TO_SAM_UNBOUND_REASON)
+                .withDescription(Constants.AssignmentRule.ASSIGNMENTRULE_TO_SAM_UNBOUND_REASON)
+                .withRuleData(Constants.AssignmentRule.ASSIGNMENTRULE_TO_SAM
+                        .replace("@USERID",  Long.toString(sam.get().getId()))
+                        .replace("@REASON", reason.get().getName()))
                 .get();
     }
 
@@ -1075,6 +1129,11 @@ public class DemoServiceImpl implements DemoService {
     @SuppressWarnings("unused")
     public final void setIssueCreationService(IssueCreationService issueCreationService) {
         this.issueCreationService = issueCreationService;
+    }
+    
+    @Reference
+    public final void setIssueAssignmentService(IssueAssignmentService issueAssignmentService) {
+        this.issueAssignmentService = issueAssignmentService;
     }
 
     @Reference
