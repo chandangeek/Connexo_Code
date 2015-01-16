@@ -46,11 +46,11 @@ public class RetryCommunicationTaskAction extends AbstractIssueAction {
     }
 
     @Override
-    public <T extends Issue> boolean isApplicable(T issue) {
-        if (issue != null && !issue.getStatus().isHistorical() && issue instanceof IssueDataCollection){
+    public boolean isApplicable(Issue issue) {
+        if (super.isApplicable(issue) && !issue.getStatus().isHistorical() && issue instanceof IssueDataCollection){
             IssueDataCollection dcIssue = (IssueDataCollection) issue;
             if (!dcIssue.getStatus().isHistorical() && dcIssue.getConnectionTask().isPresent() && dcIssue.getCommunicationTask().isPresent()){
-                ConnectionTask task = dcIssue.getConnectionTask().get();
+                ConnectionTask<?, ?> task = dcIssue.getConnectionTask().get();
                 return task instanceof ScheduledConnectionTask
                         && task.getConnectionType().getDirection() == ConnectionType.Direction.OUTBOUND
                         && ((ScheduledConnectionTask) task).getConnectionStrategy() == ConnectionStrategy.MINIMIZE_CONNECTIONS;
