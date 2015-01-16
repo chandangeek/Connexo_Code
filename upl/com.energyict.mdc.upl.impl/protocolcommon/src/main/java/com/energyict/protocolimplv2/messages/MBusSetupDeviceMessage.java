@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.messages;
 
+import com.energyict.cbo.HexString;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
@@ -45,17 +46,20 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
     )),
     Reset_MBus_Client(10, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.mbusSerialNumber)),
     WriteCaptureDefinitionForAllInstances(11,
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.dibInstance1),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.vibInstance1),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.dibInstance2),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.vibInstance2),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.dibInstance3),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.vibInstance3),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.dibInstance4),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.vibInstance4)
+            PropertySpecFactory.hexStringPropertySpecWithDefaultValue(DeviceMessageConstants.dibInstance1, getCaptureDefinitionDefaultValue()),
+            PropertySpecFactory.hexStringPropertySpecWithDefaultValue(DeviceMessageConstants.vibInstance1, getCaptureDefinitionDefaultValue()),
+            PropertySpecFactory.hexStringPropertySpecWithDefaultValue(DeviceMessageConstants.dibInstance2, getCaptureDefinitionDefaultValue()),
+            PropertySpecFactory.hexStringPropertySpecWithDefaultValue(DeviceMessageConstants.vibInstance2, getCaptureDefinitionDefaultValue()),
+            PropertySpecFactory.hexStringPropertySpecWithDefaultValue(DeviceMessageConstants.dibInstance3, getCaptureDefinitionDefaultValue()),
+            PropertySpecFactory.hexStringPropertySpecWithDefaultValue(DeviceMessageConstants.vibInstance3, getCaptureDefinitionDefaultValue()),
+            PropertySpecFactory.hexStringPropertySpecWithDefaultValue(DeviceMessageConstants.dibInstance4, getCaptureDefinitionDefaultValue()),
+            PropertySpecFactory.hexStringPropertySpecWithDefaultValue(DeviceMessageConstants.vibInstance4, getCaptureDefinitionDefaultValue())
     ),
     WriteMBusCapturePeriod(12, PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.capturePeriodAttributeName));
 
+    private static HexString getCaptureDefinitionDefaultValue() {
+        return new HexString("FFFFFFFFFFFFFFFFFFFFFF");
+    }
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.MBUS_SETUP;
 
