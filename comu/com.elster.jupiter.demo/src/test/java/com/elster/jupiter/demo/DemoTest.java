@@ -59,6 +59,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.engine.impl.EngineModule;
+import com.energyict.mdc.favorites.impl.FavoritesModule;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.io.impl.SerialIONoModemComponentServiceImpl;
@@ -211,6 +212,7 @@ public class DemoTest {
                 new ProtocolApiModule(),
                 new IssueDataCollectionModule(),
                 new TopologyModule(),
+                new FavoritesModule(),
 
                 new DemoModule()
         );
@@ -231,7 +233,6 @@ public class DemoTest {
         }
         try{
             demoService.createDemoData("DemoTestComServer", "host");
-            demoService.createA3Device();
         } catch (Exception e) {
             fail("The demo command shouldn't produce errors");
         }
