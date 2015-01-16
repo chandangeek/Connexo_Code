@@ -132,6 +132,8 @@ public interface ComSession extends HasId, TaskExecutionSummary {
 
     public ComTaskExecutionSession createComTaskExecutionSession(ComTaskExecution comTaskExecution, ComTask comTask, Device device, Range<Instant> interval, ComTaskExecutionSession.SuccessIndicator successIndicator);
 
+    public ComSessionJournalEntry createJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message);
+
     public ComSessionJournalEntry createJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, Throwable cause);
 
     /**

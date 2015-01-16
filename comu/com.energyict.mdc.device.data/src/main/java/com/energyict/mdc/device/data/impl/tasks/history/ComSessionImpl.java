@@ -347,6 +347,11 @@ public class ComSessionImpl implements ComSession {
     }
 
     @Override
+    public ComSessionJournalEntry createJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message) {
+        return this.createJournalEntry(timestamp, logLevel, message, null);
+    }
+
+    @Override
     public ComSessionJournalEntry createJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, Throwable cause) {
         ComSessionJournalEntryImpl entry = ComSessionJournalEntryImpl.from(dataModel, this, timestamp, logLevel, message, cause);
         journalEntries.add(entry);

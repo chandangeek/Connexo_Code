@@ -34,7 +34,11 @@ public interface ComSessionBuilder extends BuildsStatistics<ComSessionBuilder> {
 
     ComSessionBuilder incrementNotExecutedTasks(int numberOfPlannedButNotExecutedTasks);
 
+    ComSessionBuilder addJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message);
+
     ComSessionBuilder addJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, Throwable cause);
+
+    ComSessionBuilder addJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, Throwable cause);
 
     ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, ComTask comTask, Device device, Instant startDate);
 

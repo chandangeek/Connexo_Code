@@ -21,6 +21,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -134,9 +135,30 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         }
 
         @Override
+        public ComSessionBuilder addJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message) {
+            comSession.createJournalEntry(timestamp, logLevel, message);
+            return parentBuilder();
+        }
+
+        @Override
         public ComSessionBuilder addJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, Throwable cause) {
             comSession.createJournalEntry(timestamp, logLevel, message, cause);
             return parentBuilder();
+        }
+
+        @Override
+        public ComSessionBuilder addJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, Throwable cause) {
+            comSession.createJournalEntry(timestamp, logLevel, this.extractMessageFrom(cause), cause);
+            return parentBuilder();
+        }
+
+        private String extractMessageFrom(Throwable cause) {
+            if (Objects.nonNull(cause.getMessage())) {
+                return cause.getMessage();
+            }
+            else {
+                return cause.toString();
+            }
         }
 
         @Override
@@ -264,8 +286,18 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
     }
 
     @Override
+    public ComSessionBuilder addJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message) {
+        return state.addJournalEntry(timestamp, logLevel, message);
+    }
+
+    @Override
     public ComSessionBuilder addJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, Throwable cause) {
         return state.addJournalEntry(timestamp, logLevel, message, cause);
+    }
+
+    @Override
+    public ComSessionBuilder addJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, Throwable cause) {
+        return state.addJournalEntry(timestamp, logLevel, cause);
     }
 
     @Override

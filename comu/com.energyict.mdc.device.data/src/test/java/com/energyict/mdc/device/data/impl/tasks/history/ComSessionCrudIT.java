@@ -427,7 +427,7 @@ public class ComSessionCrudIT {
         ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
         try (TransactionContext ctx = transactionService.getContext()) {
             ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
-                    .addJournalEntry(entryTime1, ComServer.LogLevel.INFO, "entry1", null)
+                    .addJournalEntry(entryTime1, ComServer.LogLevel.INFO, "entry1")
                     .addJournalEntry(entryTime2, ComServer.LogLevel.INFO, "entry2", cause)
                     .endSession(stopTime, ComSession.SuccessIndicator.Success);
             ComSession comSession = endedComSessionBuilder.create();
