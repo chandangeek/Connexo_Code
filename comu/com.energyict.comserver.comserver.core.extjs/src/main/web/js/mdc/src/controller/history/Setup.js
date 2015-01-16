@@ -164,21 +164,21 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 },
 
                                                 loadprofiles: {
-                                                    title: 'Load profiles',
+                                                    title: Uni.I18n.translate('loadProfileConfigurations.title', 'MDC', 'Load profile configurations'),
                                                     route: 'loadprofiles',
                                                     privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                                                     controller: 'Mdc.controller.setup.LoadProfileConfigurations',
                                                     action: 'showDeviceConfigurationLoadProfilesView',
                                                     items: {
                                                         add: {
-                                                            title: 'Add load profile',
+                                                            title: Uni.I18n.translate('loadProfileConfigurations.add', 'MDC', 'Add load profile configuration'),
                                                             route: 'add',
                                                             privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.LoadProfileConfigurations',
                                                             action: 'showDeviceConfigurationLoadProfilesAddView'
                                                         },
                                                         edit: {
-                                                            title: 'Edit load profile',
+                                                            title: Uni.I18n.translate('loadProfileConfigurations.edit', 'MDC', 'Edit load profile configuration'),
                                                             route: '{loadProfileConfigurationId}/edit',
                                                             privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.LoadProfileConfigurations',
@@ -193,7 +193,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             }
                                                         },
                                                         channels: {
-                                                            title: 'Load profile',
+                                                            title: Uni.I18n.translate('general.loadProfileConfiguration', 'MDC', 'Load profile configuration'),
                                                             route: '{loadProfileConfigurationId}/channels',
                                                             privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                                                             controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
@@ -1090,7 +1090,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             }
                         },
                         registers: {
-                            title: 'Registers',
+                            title: Uni.I18n.translate('registerConfig.registerConfigs', 'MDC', 'Register configurations'),
                             route: 'registers',
                             controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
                             privileges: ['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],

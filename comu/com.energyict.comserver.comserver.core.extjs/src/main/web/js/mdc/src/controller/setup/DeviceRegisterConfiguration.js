@@ -97,10 +97,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         me.registerName = record.get('name');
         form.loadRecord(record);
         widget.setTitle(record.get('name'));
-        Ext.suspendLayouts();
         previewContainer.removeAll();
         previewContainer.add(widget);
-        Ext.resumeLayouts();
         if (!record.data.detailedValidationInfo.validationActive) {
             widget.down('#validateNowRegister').hide();
             Ext.ComponentQuery.query('#registerActionMenu #validateNowRegister')[0].hide();
@@ -170,12 +168,12 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                     }
                     confirmationWindow.insert(1,me.getValidationContent());
                     confirmationWindow.show({
-                        title: Uni.I18n.translatePlural('deviceregisterconfiguration.validation.validateNow', record.get('name'), 'MDC', 'Validate data of register {0}?'),
+                        title: Uni.I18n.translatePlural('registerconfiguration.validation.validateNow', record.get('name'), 'MDC', 'Validate data of register configuration {0}?'),
                         msg: ''
                     });
                 } else {
-                    var title = Uni.I18n.translatePlural('deviceregisterconfiguration.validateNow.error', record.get('name'), 'MDC', 'Failed to validate data of register {0}'),
-                        message = Uni.I18n.translate('deviceregisterconfiguration.validation.noData', 'MDC', 'There is currently no data for this register'),
+                    var title = Uni.I18n.translatePlural('registerconfiguration.validateNow.error', record.get('name'), 'MDC', 'Failed to validate data of register configuration {0}'),
+                        message = Uni.I18n.translate('registerconfiguration.validation.noData', 'MDC', 'There is currently no data for this register configuration'),
                         config = {
                             icon: Ext.MessageBox.WARNING
                         };
@@ -204,7 +202,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                     confWindow.removeAll(true);
                     confWindow.destroy();
                     me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translatePlural('deviceregisterconfiguration.validation.completed', me.registerName, 'MDC', 'Data validation on register {0} was completed successfully'));
+                        Uni.I18n.translatePlural('registerconfiguration.validation.completed', me.registerName, 'MDC', 'Data validation on register configuration {0} was completed successfully'));
                     if (Ext.ComponentQuery.query('#deviceRegisterConfigurationGrid')[0]) {
                         Ext.ComponentQuery.query('#deviceRegisterConfigurationGrid')[0].fireEvent('select', Ext.ComponentQuery.query('#deviceRegisterConfigurationGrid')[0].getSelectionModel(), record);
                     }
@@ -236,7 +234,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                     editable: false,
                     showToday: false,
                     value: me.dataValidationLastChecked,
-                    fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.validation.item1', 'MDC', 'The data of register will be validated starting from'),
+                    fieldLabel: Uni.I18n.translate('registerconfiguration.validation.item1', 'MDC', 'The data of register configuration will be validated starting from'),
                     labelWidth: 375,
                     labelPad: 0.5
                 },

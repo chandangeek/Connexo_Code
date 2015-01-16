@@ -316,8 +316,6 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceGroup.remove.success.msg', 'MDC', 'Device group removed'));
                         }
                     });
-                } else if (state === 'cancel') {
-                    this.close();
                 }
             }
         });

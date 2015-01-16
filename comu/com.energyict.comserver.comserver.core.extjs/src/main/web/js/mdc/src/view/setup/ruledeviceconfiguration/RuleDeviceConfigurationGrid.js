@@ -30,24 +30,14 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationGrid',
         ];
         me.dockedItems = [
             {
-                xtype: 'toolbar',
+                xtype: 'pagingtoolbartop',
+                store: me.store,
+                displayMsg: Uni.I18n.translate('validation.deviceconfiguration.display.msg', 'CFG', '{0} - {1} of {2} device configurations'),
+                displayMoreMsg: Uni.I18n.translate('validation.deviceconfiguration.display.more.msg', 'CFG', '{0} - {1} of more than {2} device configurations'),
+                emptyMsg: Uni.I18n.translate('validation.deviceconfiguration.pagingtoolbartop.emptyMsg', 'CFG', 'There are no device configurations to display'),
                 dock: 'top',
+                border: false,
                 items: [
-                    {
-                        xtype: 'container',
-                        flex: 1,
-                        items: [
-                            {
-                                xtype: 'pagingtoolbartop',
-                                store: me.store,
-                                displayMsg: Uni.I18n.translate('validation.deviceconfiguration.display.msg', 'CFG', '{0} - {1} of {2} device configurations'),
-                                displayMoreMsg: Uni.I18n.translate('validation.deviceconfiguration.display.more.msg', 'CFG', '{0} - {1} of more than {2} device configurations'),
-                                emptyMsg: Uni.I18n.translate('validation.deviceconfiguration.pagingtoolbartop.emptyMsg', 'CFG', 'There are no device configurations to display'),
-                                dock: 'top',
-                                border: false
-                            }
-                        ]
-                    },
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('validation.deviceconfiguration.addMultiple', 'CFG', 'Add device configurations'),
