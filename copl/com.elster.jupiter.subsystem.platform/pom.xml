@@ -155,6 +155,32 @@
                 <artifactId>validation.rest</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>yellowfin</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>yellowfin.groups</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>yellowfin.rest</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>yellowfin.app</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>yellowfin.extjs</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -272,6 +298,27 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>validation.rest</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>yellowfin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>yellowfin.groups</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>yellowfin.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>yellowfin.app</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>yellowfin.extjs</artifactId>
         </dependency>
     </dependencies>
 
