@@ -233,7 +233,7 @@ public class InboundCommunicationHandler {
         ComSessionBuilder comSessionBuilder =
                 serviceProvider.connectionTaskService().
                         buildComSession(connectionTask, comPort.getComPortPool(), comPort, now()).
-                        addJournalEntry(now(), ComServer.LogLevel.ERROR, e.getMessage(), e);
+                        addJournalEntry(now(), ComServer.LogLevel.ERROR, e);
         return new CreateInboundComSession(getComPort(), this.connectionTask, comSessionBuilder, ComSession.SuccessIndicator.SetupError, serviceProvider.clock());
     }
 
