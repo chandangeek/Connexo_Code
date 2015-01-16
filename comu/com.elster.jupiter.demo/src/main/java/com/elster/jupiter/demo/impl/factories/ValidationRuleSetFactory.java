@@ -58,18 +58,18 @@ public class ValidationRuleSetFactory extends NamedFactory<ValidationRuleSetFact
         ValidationRule rule;
         rule = ruleSet.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.impl.MissingValuesValidator", Constants.Validation.DETECT_MISSING_VALUES);
         // 15min Electricity
-        rule.addReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
-        rule.addReadingType("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
+        rule.addReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+        rule.addReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
         // Daily Electricity
-        rule.addReadingType("11.0.0.4.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
-        rule.addReadingType("11.0.0.4.1.1.12.0.0.0.0.2.0.0.0.0.72.0");
-        rule.addReadingType("11.0.0.4.19.1.12.0.0.0.0.1.0.0.0.0.72.0");
-        rule.addReadingType("11.0.0.4.19.1.12.0.0.0.0.2.0.0.0.0.72.0");
+        rule.addReadingType("11.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        rule.addReadingType("11.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0");
+        rule.addReadingType("11.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        rule.addReadingType("11.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0");
         // Monthly Electricity
-        rule.addReadingType("13.0.0.4.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
-        rule.addReadingType("13.0.0.4.1.1.12.0.0.0.0.2.0.0.0.0.72.0");
-        rule.addReadingType("13.0.0.4.19.1.12.0.0.0.0.1.0.0.0.0.72.0");
-        rule.addReadingType("13.0.0.4.19.1.12.0.0.0.0.2.0.0.0.0.72.0");
+        rule.addReadingType("13.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        rule.addReadingType("13.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0");
+        rule.addReadingType("13.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        rule.addReadingType("13.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0");
         rule.activate();
     }
 

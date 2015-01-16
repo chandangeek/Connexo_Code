@@ -9,9 +9,11 @@ import com.elster.jupiter.demo.impl.factories.DataExportTaskFactory;
 import com.elster.jupiter.demo.impl.factories.DeviceFactory;
 import com.elster.jupiter.demo.impl.factories.DeviceGroupFactory;
 import com.elster.jupiter.demo.impl.factories.DynamicKpiFactory;
+import com.elster.jupiter.demo.impl.factories.FavoriteGroupFactory;
 import com.elster.jupiter.demo.impl.factories.InboundComPortPoolFactory;
 import com.elster.jupiter.demo.impl.factories.IssueFactory;
 import com.elster.jupiter.demo.impl.factories.IssueRuleFactory;
+import com.elster.jupiter.demo.impl.factories.NTASimToolFactory;
 import com.elster.jupiter.demo.impl.factories.OutboundTCPComPortFactory;
 import com.elster.jupiter.demo.impl.factories.OutboundTCPComPortPoolFactory;
 import com.elster.jupiter.demo.impl.factories.UserFactory;
@@ -29,7 +31,6 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -74,6 +75,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -103,6 +105,8 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -120,7 +124,9 @@ import static com.elster.jupiter.util.conditions.Where.where;
         "osgi.command.function=createIssues",
         "osgi.command.function=createApplicationServer",
         "osgi.command.function=createA3Device",
+        "osgi.command.function=createNtaConfig",
         "osgi.command.function=createMockedDataDevice",
+        "osgi.command.function=createValidationDevice",
         "osgi.command.function=createDeliverDataSetup",
         "osgi.command.function=createCollectRemoteDataSetup",
         "osgi.command.function=createValidationSetup",
@@ -155,6 +161,7 @@ public class DemoServiceImpl implements DemoService {
     private volatile DataExportService dataExportService;
     private volatile CronExpressionParser cronExpressionParser;
     private volatile TimeService timeService;
+    private volatile FavoritesService favoritesService;
 
     private Store store;
     private Injector injector;
@@ -195,7 +202,8 @@ public class DemoServiceImpl implements DemoService {
             MessageService messageService,
             DataExportService dataExportService,
             CronExpressionParser cronExpressionParser,
-            TimeService timeService) {
+            TimeService timeService,
+            FavoritesService favoritesService) {
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
         setValidationService(validationService);
@@ -223,6 +231,7 @@ public class DemoServiceImpl implements DemoService {
         setDataExportService(dataExportService);
         setCronExpressionParser(cronExpressionParser);
         setTimeService(timeService);
+        setFavoritesService(favoritesService);
         rethrowExceptions = true;
 
         activate();
@@ -262,6 +271,7 @@ public class DemoServiceImpl implements DemoService {
                 bind(DataExportService.class).toInstance(dataExportService);
                 bind(CronExpressionParser.class).toInstance(cronExpressionParser);
                 bind(TimeService.class).toInstance(timeService);
+                bind(FavoritesService.class).toInstance(favoritesService);
             }
         });
     }
@@ -275,7 +285,10 @@ public class DemoServiceImpl implements DemoService {
                 createUserManagementImpl();
                 createValidationSetupImpl();
                 createDeliverDataSetupImpl();
+                createMockedDataDeviceImpl(Constants.Device.MOCKED_REALISTIC_DEVICE, Constants.Device.MOCKED_REALISTIC_SERIAL_NUMBER);
                 createApplicationServerImpl(comServerName); // the same name as for comserver
+                createA3DeviceImpl();
+                createNtaConfigImpl();
             }
         });
     }
@@ -355,11 +368,32 @@ public class DemoServiceImpl implements DemoService {
         executeTransaction(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                createMockedDataDeviceImpl(serialNumber);
+                createMockedDataDeviceImpl(Constants.Device.MOCKED_REALISTIC_DEVICE, serialNumber);
             }
         });
     }
 
+    @Override
+    public void createValidationDevice(String serialNumber){
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                createMockedDataDeviceImpl(Constants.Device.MOCKED_VALIDATION_DEVICE, serialNumber);
+                activateValidation(Constants.Device.MOCKED_VALIDATION_DEVICE + serialNumber, Constants.Validation.RULE_SET_NAME);
+            }
+        });
+    }
+
+
+    @Override
+    public void createNtaConfig(){
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                createNtaConfigImpl();
+            }
+        });
+    }
 
     private void createCollectRemoteDataSetupImpl(final String comServerName, final String host){
         Optional<License> license = licenseService.getLicenseForApplication("MDC");
@@ -450,18 +484,23 @@ public class DemoServiceImpl implements DemoService {
     }
 
     private void createDeviceGroups(){
-        injector.getInstance(DeviceGroupFactory.class)
+        EndDeviceGroup group = injector.getInstance(DeviceGroupFactory.class)
                 .withName(Constants.DeviceGroup.NORTH_REGION)
-                .withDeviceTypes(Constants.DeviceType.Elster_AS1440.getName(), Constants.DeviceType.Landis_Gyr_ZMD.getName(), Constants.DeviceType.Actaris_SL7000.name())
+                .withDeviceTypes(Constants.DeviceType.Elster_AS1440.getName(), Constants.DeviceType.Landis_Gyr_ZMD.getName(), Constants.DeviceType.Actaris_SL7000.getName())
                 .get();
-        injector.getInstance(DeviceGroupFactory.class)
+        injector.getInstance(FavoriteGroupFactory.class).withGroup(group).get();
+
+        group = injector.getInstance(DeviceGroupFactory.class)
                 .withName(Constants.DeviceGroup.SOUTH_REGION)
-                .withDeviceTypes(Constants.DeviceType.Elster_AS3000.getName(), Constants.DeviceType.Siemens_7ED.getName(), Constants.DeviceType.Iskra_38.name())
+                .withDeviceTypes(Constants.DeviceType.Elster_AS3000.getName(), Constants.DeviceType.Siemens_7ED.getName(), Constants.DeviceType.Iskra_38.getName())
                 .get();
-        injector.getInstance(DeviceGroupFactory.class)
+        injector.getInstance(FavoriteGroupFactory.class).withGroup(group).get();
+
+        group = injector.getInstance(DeviceGroupFactory.class)
                 .withName(Constants.DeviceGroup.ALL_ELECTRICITY_DEVICES)
-                .withDeviceTypes(Constants.DeviceType.Elster_AS1440.getName(), Constants.DeviceType.Landis_Gyr_ZMD.getName(), Constants.DeviceType.Actaris_SL7000.name(), Constants.DeviceType.Elster_AS3000.getName(), Constants.DeviceType.Siemens_7ED.getName(), Constants.DeviceType.Iskra_38.name())
+                .withDeviceTypes(Constants.DeviceType.Elster_AS1440.getName(), Constants.DeviceType.Landis_Gyr_ZMD.getName(), Constants.DeviceType.Actaris_SL7000.getName(), Constants.DeviceType.Elster_AS3000.getName(), Constants.DeviceType.Siemens_7ED.getName(), Constants.DeviceType.Iskra_38.getName())
                 .get();
+        injector.getInstance(FavoriteGroupFactory.class).withGroup(group).get();
     }
 
     private void createComPortsAndPools() {
@@ -575,7 +614,7 @@ public class DemoServiceImpl implements DemoService {
 
     private void createLogbookTypes(Store store) {
         System.out.println("==> Creating Log Book Types...");
-        createLogBookType(store, Constants.LogBookType.DEFAULT_LOGBOOK, "0.0.99.98.0.255");
+        createLogBookType(store, Constants.LogBookType.GENERIC_LOGBOOK, "0.0.99.98.0.255");
     }
 
     private void createLogBookType(Store store, String logBookTypeName, String obisCode) {
@@ -632,6 +671,9 @@ public class DemoServiceImpl implements DemoService {
         Instant timeBefore = Instant.now().minusMillis(every.getMilliSeconds()).minus(1, ChronoUnit.DAYS);
         ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleName, new TemporalExpression(every), timeBefore).build();
         comSchedule.addComTask(store.getComTasks().get(taskName));
+        LocalDateTime startOn = LocalDateTime.now();
+        startOn = startOn.withSecond(0).withMinute(0).withHour(0);
+        comSchedule.setStartDate(startOn.toInstant(ZoneOffset.UTC));
         comSchedule.save();
         store.getComSchedules().put(comScheduleName, comSchedule);
     }
@@ -658,7 +700,7 @@ public class DemoServiceImpl implements DemoService {
         deviceType.addLoadProfileType(store.getLoadProfileTypes().get(Constants.LoadProfileType.DAILY_ELECTRICITY));
         deviceType.addLoadProfileType(store.getLoadProfileTypes().get(Constants.LoadProfileType.MONTHLY_ELECTRICITY));
         deviceType.addLoadProfileType(store.getLoadProfileTypes().get(Constants.LoadProfileType._15_MIN_ELECTRICITY));
-        deviceType.addLogBookType(store.getLogBookTypes().get(Constants.LogBookType.DEFAULT_LOGBOOK));
+        deviceType.addLogBookType(store.getLogBookTypes().get(Constants.LogBookType.GENERIC_LOGBOOK));
         deviceType.save();
 
         createDeviceConfiguration(store, deviceType);
@@ -683,7 +725,7 @@ public class DemoServiceImpl implements DemoService {
         configBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(Constants.LoadProfileType._15_MIN_ELECTRICITY));
         configBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(Constants.LoadProfileType.DAILY_ELECTRICITY));
         configBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(Constants.LoadProfileType.MONTHLY_ELECTRICITY));
-        configBuilder.newLogBookSpec(store.getLogBookTypes().get(Constants.LogBookType.DEFAULT_LOGBOOK));
+        configBuilder.newLogBookSpec(store.getLogBookTypes().get(Constants.LogBookType.GENERIC_LOGBOOK));
         DeviceConfiguration configuration = configBuilder.add();
 
         addConnectionMethodToDeviceConfiguration(store, configuration);
@@ -766,7 +808,7 @@ public class DemoServiceImpl implements DemoService {
         for (LoadProfileSpec loadProfileSpec : devConfiguration.getLoadProfileSpecs()) {
             List<ChannelType> availableChannelTypes = loadProfileSpec.getLoadProfileType().getChannelTypes();
             for (ChannelType channelType : availableChannelTypes) {
-                devConfiguration.createChannelSpec(channelType, channelType.getPhenomenon(), loadProfileSpec).setMultiplier(new BigDecimal(1)).setOverflow(new BigDecimal(9999999999L)).setNbrOfFractionDigits(2).add();
+                devConfiguration.createChannelSpec(channelType, channelType.getPhenomenon(), loadProfileSpec).setMultiplier(new BigDecimal(1)).setOverflow(new BigDecimal(9999999999L)).setNbrOfFractionDigits(0).add();
             }
         }
     }
@@ -779,10 +821,6 @@ public class DemoServiceImpl implements DemoService {
             String serialNumber = "01000001" + String.format("%04d", deviceCounter);
             String mrid = Constants.Device.STANDARD_PREFIX +  serialNumber;
             createDevice(store, configuration, mrid, serialNumber);
-        }
-        if (Constants.DeviceType.Elster_AS1440.getName().equals(deviceTypeName)){
-            String serialNumber = "010000010001";
-            createDevice(store, configuration, Constants.Device.MOCKED_VALIDATION_DEVICE + serialNumber, serialNumber);
         }
     }
 
@@ -799,17 +837,15 @@ public class DemoServiceImpl implements DemoService {
     private void addConnectionMethodToDevice(Store store, DeviceConfiguration configuration, Device device) {
         PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
         int portNumber = 4059;
-        // We want two failing devices for 'Actaris SL7000' device type
-        if (Constants.DeviceType.Actaris_SL7000.getName().equals(configuration.getDeviceType().getName()) && device.getmRID().endsWith("8")){
-            portNumber = 5049;
-        }
+        String deviceTypeName = device.getDeviceType().getName();
         ScheduledConnectionTask deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
-                .setComPortPool(store.get(OutboundComPortPool.class, (device.getId() & 1) == 1L ? Constants.ComPortPool.VODAFONE : Constants.ComPortPool.ORANGE))
+                .setComPortPool(store.get(OutboundComPortPool.class, Constants.DeviceType.getComPortPoolName(deviceTypeName)))
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .setNextExecutionSpecsFrom(null)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
                 .setProperty("host", store.getProperty("host"))
                 .setProperty("portNumber", new BigDecimal(portNumber))
+                .setProperty("connectionTimeout", TimeDuration.minutes(1))
                 .setSimultaneousConnectionsAllowed(false)
                 .add();
         connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
@@ -849,7 +885,10 @@ public class DemoServiceImpl implements DemoService {
                 .withName(Constants.Validation.RULE_SET_NAME)
                 .withDescription(Constants.Validation.RULE_SET_DESCRIPTION)
                 .get();
-
+        String prefix = Constants.Device.MOCKED_VALIDATION_DEVICE;
+        if (deviceService.findByUniqueMrid(prefix + Constants.Device.MOCKED_VALIDATION_SERIAL_NUMBER) == null){
+            createMockedDataDeviceImpl(prefix, Constants.Device.MOCKED_VALIDATION_SERIAL_NUMBER);
+        }
         List<DeviceConfiguration> configurations = deviceConfigurationService.getLinkableDeviceConfigurations(ruleSet);
         for (DeviceConfiguration configuration : configurations) {
             System.out.println("==> Validation rule set added to: " + configuration.getName() + " (id = " + configuration.getId() + ")");
@@ -858,15 +897,10 @@ public class DemoServiceImpl implements DemoService {
         }
 
         Condition devicesForActivation = where("mRID").like(Constants.Device.STANDARD_PREFIX + "%");
+        devicesForActivation = devicesForActivation.or(where("mRID").like(Constants.Device.MOCKED_VALIDATION_DEVICE + "%"));
+
         List<Meter> meters = meteringService.getMeterQuery().select(devicesForActivation);
         for (Meter meter : meters) {
-            Optional<? extends MeterActivation> meterActivation= meter.getCurrentMeterActivation();
-            if (meterActivation.isPresent()){
-                validationService.activate(meterActivation.get(), ruleSet);
-            } else {
-                MeterActivation activate = meter.activate(Instant.now());
-                validationService.activate(activate, ruleSet);
-            }
             validationService.activateValidation(meter);
         }
     }
@@ -891,13 +925,13 @@ public class DemoServiceImpl implements DemoService {
             throw new IllegalStateException("Unable to retrieve the ALPHA_A3 protocol. Please check that license was correctly installed and that indexing process was finished for protocols.");
         }
         DeviceType a3DeviceType = deviceConfigurationService.newDeviceType(Constants.DeviceType.Alpha_A3.getName()/* + getRandomInt(0, 10000)*/, alphaA3Protocols.get(0));
-        a3DeviceType.addLogBookType(injector.getInstance(LogBookFinder.class).withName(Constants.LogBookType.DEFAULT_LOGBOOK).find());
+        a3DeviceType.addLogBookType(injector.getInstance(LogBookFinder.class).withName(Constants.LogBookType.GENERIC_LOGBOOK).find());
         a3DeviceType.save();
 
         DeviceType.DeviceConfigurationBuilder configBuilder = a3DeviceType.newConfiguration("Default");
         configBuilder.canActAsGateway(false);
         configBuilder.isDirectlyAddressable(true);
-        configBuilder.newLogBookSpec(injector.getInstance(LogBookFinder.class).withName(Constants.LogBookType.DEFAULT_LOGBOOK).find());
+        configBuilder.newLogBookSpec(injector.getInstance(LogBookFinder.class).withName(Constants.LogBookType.GENERIC_LOGBOOK).find());
         DeviceConfiguration configuration = configBuilder.add();
         ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIp").get();
         configuration
@@ -927,7 +961,7 @@ public class DemoServiceImpl implements DemoService {
                 .get();
         PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
         ScheduledConnectionTask deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
-                .setComPortPool(injector.getInstance(OutboundComPortPoolFinder.class).withName(Constants.ComPortPool.VODAFONE).find())
+                .setComPortPool(injector.getInstance(OutboundComPortPoolFinder.class).withName(Constants.ComPortPool.ORANGE).find())
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .setNextExecutionSpecsFrom(null)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
@@ -955,7 +989,7 @@ public class DemoServiceImpl implements DemoService {
         device.save();
     }
 
-    private void createMockedDataDeviceImpl(String serialNumber){
+    private void createMockedDataDeviceImpl(String prefix, String serialNumber){
         String deviceTypeName = Constants.DeviceType.Elster_AS1440.getName();
         Optional<DeviceType> deviceTypeByName = deviceConfigurationService.findDeviceTypeByName(deviceTypeName);
         if (!deviceTypeByName.isPresent()){
@@ -968,13 +1002,33 @@ public class DemoServiceImpl implements DemoService {
         if (!deviceConfiguration.isPresent()){
             throw new UnableToCreate("Unable to find corresponding device configuration with name: " + deviceTypeName);
         }
+        String mrid = prefix + serialNumber;
+        Device device = deviceService.findByUniqueMrid(mrid);
+        if (device != null){
+            throw new UnableToCreate("Device with mrid: " + mrid + ", already exists");
+        }
         injector.getInstance(DeviceFactory.class)
-                .withMrid(Constants.Device.MOCKED_REALISTIC_DEVICE + serialNumber)
+                .withMrid(mrid)
                 .withDeviceConfiguration(deviceConfiguration.get())
                 .withSerialNumber(serialNumber)
                 .get();
     }
 
+    private void activateValidation(String mrid, String ruleSetName){
+        Optional<ValidationRuleSet> existingRuleSet = validationService.getValidationRuleSet(ruleSetName);
+        if (!existingRuleSet.isPresent()){
+            throw new UnableToCreate("Unable to find validation ruleset with name" + ruleSetName);
+        }
+        Optional<Meter> meter = meteringService.findMeter(mrid);
+        if (!meter.isPresent()){
+            throw new UnableToCreate("Unable to find meter with mrid" + mrid);
+        }
+        validationService.activateValidation(meter.get());
+    }
+
+    private void createNtaConfigImpl(){
+        injector.getInstance(NTASimToolFactory.class).get();
+    }
     @Reference
     @SuppressWarnings("unused")
     public final void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
@@ -1134,6 +1188,12 @@ public class DemoServiceImpl implements DemoService {
     @SuppressWarnings("unused")
     public final void setTimeService(TimeService timeService) {
         this.timeService = timeService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public final void setFavoritesService(FavoritesService favoritesService) {
+        this.favoritesService = favoritesService;
     }
 
     private <T> T executeTransaction(Transaction<T> transaction) {

@@ -7,6 +7,8 @@ import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -17,15 +19,17 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 public class DeviceGroupFactory extends NamedFactory<DeviceGroupFactory, EndDeviceGroup> {
     private final MeteringGroupsService meteringGroupsService;
+    private final DeviceConfigurationService deviceConfigurationService;
     private final Store store;
 
     private List<String> deviceTypes;
 
     @Inject
-    public DeviceGroupFactory(Store store, MeteringGroupsService meteringGroupsService) {
+    public DeviceGroupFactory(Store store, MeteringGroupsService meteringGroupsService, DeviceConfigurationService deviceConfigurationService) {
         super(DeviceGroupFactory.class);
         this.store = store;
         this.meteringGroupsService = meteringGroupsService;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     public DeviceGroupFactory withDeviceTypes(String... deviceTypes){
@@ -58,7 +62,11 @@ public class DeviceGroupFactory extends NamedFactory<DeviceGroupFactory, EndDevi
             throw new UnableToCreate("You must specify the device types names for device group");
         }
         for (String deviceType : deviceTypes) {
-            condition = condition.or(where("deviceConfiguration.deviceType.name").isEqualTo(deviceType));
+            Optional<DeviceType> deviceTypeByName = deviceConfigurationService.findDeviceTypeByName(deviceType);
+            if (!deviceTypeByName.isPresent()){
+                throw new UnableToCreate("Unable to find device type with name " + deviceType);
+            }
+            condition = condition.or(where("deviceConfiguration.deviceType.id").isEqualTo(deviceTypeByName.get().getId()));
         }
         return condition.and(where("mRID").like(Constants.Device.STANDARD_PREFIX + "%"));
     }
