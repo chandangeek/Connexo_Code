@@ -65,7 +65,7 @@ public class DeviceCachingTest {
 
         // assert that the content is not null and always changed so we always update it in the database
         assertNotNull(deviceProtocolCache);
-        assertTrue(deviceProtocolCache.contentChanged());
+        assertTrue(deviceProtocolCache.isDirty());
     }
 
     @Test
@@ -85,7 +85,7 @@ public class DeviceCachingTest {
 
         // assert that the content is not null and always changed so we always update it in the database
         assertNotNull(deviceProtocolCache);
-        assertFalse(deviceProtocolCache.contentChanged());
+        assertFalse(deviceProtocolCache.isDirty());
     }
 
     /**
@@ -144,12 +144,17 @@ public class DeviceCachingTest {
     private class NotTheCorrectDeviceProtocolCache implements DeviceProtocolCache {
 
         @Override
-        public boolean contentChanged() {
+        public boolean isDirty() {
             return false;
         }
 
+
         @Override
-        public void setChanged(boolean flag) {
+        public void markClean() {
+        }
+
+        @Override
+        public void markDirty() {
         }
     }
 
