@@ -52,6 +52,11 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
             return builder;
         }
 
+        @Override
+        public ConnectionTask getConnectionTask() {
+            return this.comSession.getConnectionTask();
+        }
+
         public ComSessionBuilder addReceivedBytes(long numberOfBytes) {
             receivedBytes.add(numberOfBytes);
             return parentBuilder();
@@ -208,6 +213,11 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
 
     public ComSessionBuilderImpl(DataModel dataModel, ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Instant startTime) {
         state = new UnderConstruction(dataModel, connectionTask, comPortPool, comPort, startTime);
+    }
+
+    @Override
+    public ConnectionTask getConnectionTask() {
+        return state.getConnectionTask();
     }
 
     @Override

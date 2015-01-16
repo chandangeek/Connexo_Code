@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.tasks.history;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.tasks.ComTask;
 
@@ -15,6 +16,8 @@ import java.util.Optional;
  * Time: 17:02
  */
 public interface ComSessionBuilder extends BuildsStatistics<ComSessionBuilder> {
+
+    ConnectionTask getConnectionTask();
 
     ComSessionBuilder connectDuration(Duration duration);
 
