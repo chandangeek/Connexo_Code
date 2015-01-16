@@ -4,9 +4,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.impl.module.DroolsValidationException;
 import com.elster.jupiter.issue.impl.records.AssignmentRuleImpl;
-import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
-import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.IssueForAssign;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueMappingService;
@@ -24,8 +22,6 @@ import java.util.Optional;
 
 import org.drools.core.common.ProjectClassLoader;
 import org.kie.api.KieBaseConfiguration;
-import org.kie.api.event.rule.DebugAgendaEventListener;
-import org.kie.api.event.rule.DebugRuleRuntimeEventListener;
 import org.kie.api.io.KieResources;
 import org.kie.api.io.ResourceType;
 import org.kie.internal.KnowledgeBase;
@@ -183,9 +179,13 @@ public class IssueAssignmentServiceImpl implements IssueAssignmentService {
 
     private void processRules(List<IssueForAssign> issueList) {
         if (canEvaluateRules()) {
+            
             StatefulKnowledgeSession ksession = knowledgeBase.newStatefulKnowledgeSession();
-            ksession.addEventListener(new DebugAgendaEventListener());
-            ksession.addEventListener(new DebugRuleRuntimeEventListener());
+            /*
+             * Uncomment lines below to have a lot of drools logs
+             */
+            //ksession.addEventListener(new DebugAgendaEventListener());
+            //ksession.addEventListener(new DebugRuleRuntimeEventListener());
 
             for (IssueForAssign issue : issueList) {
                 ksession.insert(issue);

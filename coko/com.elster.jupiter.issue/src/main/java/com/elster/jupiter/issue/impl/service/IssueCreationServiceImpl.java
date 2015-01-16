@@ -25,8 +25,6 @@ import java.util.Optional;
 import org.drools.compiler.compiler.RuleBaseLoader;
 import org.drools.core.common.ProjectClassLoader;
 import org.kie.api.KieBaseConfiguration;
-import org.kie.api.event.rule.DebugAgendaEventListener;
-import org.kie.api.event.rule.DebugRuleRuntimeEventListener;
 import org.kie.api.io.KieResources;
 import org.kie.api.io.ResourceType;
 import org.kie.internal.KnowledgeBase;
@@ -172,8 +170,12 @@ public class IssueCreationServiceImpl implements IssueCreationService{
     public void dispatchCreationEvent(List<IssueEvent> events) {
         if (canEvaluateRules()) {
             StatefulKnowledgeSession ksession = knowledgeBase.newStatefulKnowledgeSession();
-            ksession.addEventListener(new DebugAgendaEventListener());
-            ksession.addEventListener(new DebugRuleRuntimeEventListener());
+            /*
+             * Uncomment lines below to have a lot of drools logs
+             */
+            //ksession.addEventListener(new DebugAgendaEventListener());
+            //ksession.addEventListener(new DebugRuleRuntimeEventListener());
+            
             try {
                 ksession.setGlobal(ISSUE_CREATION_SERVICE, this);
             } catch (RuntimeException ex){
