@@ -92,7 +92,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     @Override
     public void setCache(Object cacheObject) {
         if (cacheObject != null && cacheObject instanceof DeviceProtocolCache) {
-            ((DeviceProtocolCache) cacheObject).setChanged(false);
+            ((DeviceProtocolCache) cacheObject).markClean();
         }
         getCachingProtocol().setCache(cacheObject);
     }

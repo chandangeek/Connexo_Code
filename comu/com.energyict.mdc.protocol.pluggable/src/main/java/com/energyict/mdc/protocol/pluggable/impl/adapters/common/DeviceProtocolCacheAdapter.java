@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Adapter object to wrap the cache from a legacy protocol to a new {@link DeviceProtocolCache}
+ * Adapter object to wrap the cache from a legacy protocol to a new {@link DeviceProtocolCache}.
  * <p/>
  * Copyrights EnergyICT
  * Date: 31/08/12
@@ -27,11 +27,17 @@ public class DeviceProtocolCacheAdapter implements DeviceProtocolCache {
     }
 
     @Override
-    public void setChanged(boolean flag) {
+    public void markClean() {
+        // Ignore, dirty aspect is driven by the wrapped json String
     }
 
     @Override
-    public boolean contentChanged() {
+    public void markDirty() {
+        // Ignore, dirty aspect is driven by the wrapped json String
+    }
+
+    @Override
+    public boolean isDirty() {
         return !this.jsonCache.contains(legacyDlmsCacheCheck);
     }
 
@@ -42,4 +48,5 @@ public class DeviceProtocolCacheAdapter implements DeviceProtocolCache {
     public void setLegacyJsonCache(String legacyJsonCache) {
         this.jsonCache = legacyJsonCache;
     }
+
 }
