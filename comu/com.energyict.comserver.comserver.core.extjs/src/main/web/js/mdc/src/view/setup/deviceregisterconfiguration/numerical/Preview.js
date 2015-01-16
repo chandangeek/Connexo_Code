@@ -56,7 +56,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Preview', {
                                                     + Uni.DateTime.formatTimeLong(new Date(value));
                                             }
 
-                                            return Uni.I18n.translate('deviceregisterconfiguration.latestReading.notspecified', 'MDC', '-')
+                                            return '-';
                                         }
                                     },
                                     {

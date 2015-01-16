@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                     if(!Ext.isEmpty(value)) {
                         return Uni.DateTime.formatDateTimeShort(new Date(value));
                     }
-                    return Uni.I18n.translate('deviceregisterconfiguration.latestMeasurement.notspecified', 'MDC', '-');
+                    return '-';
                 },
                 flex: 1
             },
@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                     if(!Ext.isEmpty(value)) {
                         return Uni.DateTime.formatDateTimeShort(new Date(value));
                     }
-                    return Uni.I18n.translate('deviceregisterconfiguration.latestReading.notspecified', 'MDC', '-');
+                    return '-';
                 },
                 flex: 1
             },

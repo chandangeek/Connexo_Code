@@ -363,7 +363,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                             messageText = Uni.I18n.translate('loadProfileTypes.loadProfileTypeAdded', 'MDC', 'Load profile type added');
                             break;
                         case 'update':
-                            messageText = Uni.I18n.translate('loadProfileTypes.loadProfileTypeUpdated', 'MDC', 'Load profile type updated');
+                            messageText = Uni.I18n.translate('loadProfileTypes.loadProfileTypeUpdated', 'MDC', 'Load profile type saved');
                             break;
                     }
                     me.getApplication().fireEvent('acknowledge', messageText);
