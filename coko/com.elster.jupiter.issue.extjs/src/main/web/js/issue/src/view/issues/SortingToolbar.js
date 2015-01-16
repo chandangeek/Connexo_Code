@@ -14,6 +14,7 @@ Ext.define('Isu.view.issues.SortingToolbar', {
             xtype: 'button',
             action: 'addSort',
             text: 'Add sort',
+            ui: 'sort',
             menu: {
                 xtype: 'issues-sorting-menu',
                 itemId: 'issues-sorting-menu'
