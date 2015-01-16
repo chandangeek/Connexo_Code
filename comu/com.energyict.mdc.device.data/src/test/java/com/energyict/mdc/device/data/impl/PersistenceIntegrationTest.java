@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
@@ -12,23 +16,19 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
-import com.elster.jupiter.transaction.TransactionService;
-
 import java.sql.SQLException;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.EnumSet;
 import java.util.TimeZone;
-
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -65,15 +65,14 @@ public abstract class PersistenceIntegrationTest {
     @Mock
     protected DeviceProtocol deviceProtocol;
 
-    protected static Clock clock = mock(Clock.class);
     protected static InMemoryIntegrationPersistence inMemoryPersistence;
 
     EnumSet<DeviceMessageId> deviceMessageIds;
 
     @BeforeClass
     public static void initialize() throws SQLException {
+        inMemoryPersistence = new InMemoryIntegrationPersistence();
         initializeClock();
-        inMemoryPersistence = new InMemoryIntegrationPersistence(clock);
         inMemoryPersistence.initializeDatabase("PersistenceIntegrationTest.mdc.device.data", false);
     }
 
@@ -135,8 +134,8 @@ public abstract class PersistenceIntegrationTest {
     }
 
     private static void initializeClock() {
-        when(clock.getZone()).thenReturn(utcTimeZone.toZoneId());
-        when(clock.instant()).thenAnswer(invocationOnMock -> Instant.now());
+        when(inMemoryPersistence.getClock().getZone()).thenReturn(utcTimeZone.toZoneId());
+        when(inMemoryPersistence.getClock().instant()).thenAnswer(invocationOnMock -> Instant.now());
     }
 
     protected Instant freezeClock (int year, int month, int day) {
@@ -155,9 +154,9 @@ public abstract class PersistenceIntegrationTest {
         Calendar calendar = Calendar.getInstance(timeZone);
         calendar.set(year, month, day, hour, minute, second);
         calendar.set(Calendar.MILLISECOND, millisecond);
-        when(clock.getZone()).thenReturn(timeZone.toZoneId());
+        when(inMemoryPersistence.getClock().getZone()).thenReturn(timeZone.toZoneId());
         Instant frozenClockValue = calendar.getTime().toInstant();
-        when(clock.instant()).thenReturn(frozenClockValue);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(frozenClockValue);
         return frozenClockValue;
     }
 

@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.TypedProperties;
@@ -40,13 +39,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import java.math.BigDecimal;
-import java.security.Principal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,9 +48,12 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -106,14 +102,14 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
     private Instant initializeClockWithCurrentBeforeReleaseInstant() {
         Instant myCurrentInstant = Instant.ofEpochSecond(123456789L);
         Instant myReleaseInstant = myCurrentInstant.plusSeconds(100L);
-        when(clock.instant()).thenReturn(myCurrentInstant);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(myCurrentInstant);
         return myReleaseInstant;
     }
 
     private Instant initializeClockWithCurrentAfterReleaseInstant() {
         Instant myCurrentInstant = Instant.ofEpochSecond(123456789L);
         Instant myReleaseInstant = myCurrentInstant.minusSeconds(100L);
-        when(clock.instant()).thenReturn(myCurrentInstant);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(myCurrentInstant);
         return myReleaseInstant;
     }
 
@@ -143,7 +139,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         Device device = createSimpleDeviceWithName("createWithoutReleaseDateTest", "createWithoutReleaseDateTest");
 
         Instant myCurrentInstant = Instant.ofEpochSecond(123456789L);
-        when(clock.instant()).thenReturn(myCurrentInstant);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(myCurrentInstant);
 
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
         device.newDeviceMessage(contactorClose).setReleaseDate(null).add();

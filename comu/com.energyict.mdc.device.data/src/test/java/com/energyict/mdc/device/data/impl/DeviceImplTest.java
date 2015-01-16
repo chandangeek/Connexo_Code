@@ -498,7 +498,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void createDeviceWithTwoChannelsTest() {
-        DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs();
+        DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs(interval);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels", MRID);
         device.save();
         Device reloadedDevice = getReloadedDevice(device);
@@ -510,7 +510,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void getChannelWithExistingNameTest() {
-        DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs();
+        DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs(interval);
         List<ChannelSpec> channelSpecs = deviceConfigurationWithTwoChannelSpecs.getChannelSpecs();
         String channelSpecName = "ChannelType1";
         for (ChannelSpec channelSpec : channelSpecs) {
@@ -531,7 +531,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void getChannelWithNonExistingNameTest() {
-        DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs();
+        DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs(interval);
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels", MRID);
         device.save();
@@ -615,7 +615,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         simpleComTask.createStatusInformationTask();
         simpleComTask.save();
 
-        ComScheduleBuilder builder = inMemoryPersistence.getSchedulingService().newComSchedule(mRIDAndName, new TemporalExpression(TimeDuration.days(1)), clock.instant());
+        ComScheduleBuilder builder = inMemoryPersistence.getSchedulingService().newComSchedule(mRIDAndName, new TemporalExpression(TimeDuration.days(1)), inMemoryPersistence.getClock().instant());
         builder.mrid(mRIDAndName);
         ComSchedule comSchedule = builder.build();
         comSchedule.addComTask(simpleComTask);
@@ -629,7 +629,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
         Instant dayStart = Instant.ofEpochMilli(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
         Instant dayEnd = Instant.ofEpochMilli(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
-        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
         String code = getForwardEnergyReadingTypeCodeBuilder()
@@ -669,7 +669,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
         Instant requestIntervalStart = Instant.ofEpochMilli(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
         Instant requestIntervalEnd = Instant.ofEpochMilli(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
-        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
         String code = getForwardEnergyReadingTypeCodeBuilder()
@@ -706,11 +706,50 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
+    public void testGetLoadProfileDataMonthlyMoscowTime() {
+        TimeZone MSK = TimeZone.getTimeZone("GMT+4");
+        when(inMemoryPersistence.getClock().getZone()).thenReturn(MSK.toZoneId());
+        when(inMemoryPersistence.getClock().instant()).thenAnswer(invocationOnMock -> Instant.now());
+
+        BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
+        Instant requestIntervalStart = Instant.ofEpochMilli(1104523200000L); // Fri, 31 Dec 2004 20:00:00 GMT
+        Instant requestIntervalEnd = Instant.ofEpochMilli(1420056000000L); // Wed, 31 Dec 2014 20:00:00 GMT
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(TimeDuration.months(1));
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+        Optional<AmrSystem> amrSystem = inMemoryPersistence.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId());
+        Optional<Meter> meter = amrSystem.get().findMeter("" + device.getId());
+        meter.get().activate(Instant.ofEpochMilli(1385841600000L));//Sat, 30 Nov 2013 20:00:00 GMT
+
+        String code = getForwardEnergyReadingTypeCodeBuilder()
+                .period(MacroPeriod.MONTHLY)
+                .code();
+        IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(code);
+        Instant readingTimeStamp = Instant.ofEpochMilli(1385841600000L);//Sat, 30 Nov 2013 20:00:00 GMT
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(readingTimeStamp, readingValue));
+        IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(code);
+        Instant previousReadingTimeStamp = Instant.ofEpochMilli(1388520000000L);//  Wed, 31 Dec 2013 20:00:00 GMT
+        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(previousReadingTimeStamp, BigDecimal.ZERO));
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        meterReading.addIntervalBlock(intervalBlock);
+        meterReading.addIntervalBlock(intervalBlock2);
+        device.store(meterReading);
+        Instant lastReading = Instant.ofEpochMilli(1420802100000L); // Fri, 09 Jan 2015 11:15:00 GMT
+        device.getLoadProfileUpdaterFor(device.getLoadProfiles().get(0)).setLastReading(lastReading).update();
+
+        Device reloadedDevice = getReloadedDevice(device);
+        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(requestIntervalStart, requestIntervalEnd));
+        assertThat(readings).describedAs("There should be 14 intervals since meter activation").hasSize(14);
+        assertThat(readings.get(13).getRange().upperEndpoint()).isEqualTo(readingTimeStamp);
+    }
+
+    @Test
+    @Transactional
     public void testGetLoadProfileDataIfExternalMeterActivationDoesNotAlignWithChannelIntervalBoundary() {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
         Instant requestIntervalStart = Instant.ofEpochMilli(1420761600000L); // Fri, 09 Jan 2015 00:00:00 GMT
         Instant requestIntervalEnd = Instant.ofEpochMilli(1420848000000L); //  Sat, 10 Jan 2015 00:00:00 GMT
-        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
 
@@ -747,7 +786,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
         Instant dayStart = Instant.ofEpochMilli(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
         Instant dayEnd = Instant.ofEpochMilli(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
-        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
         String code = getForwardEnergyReadingTypeCodeBuilder()
@@ -786,7 +825,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
         Instant dayStart = Instant.ofEpochMilli(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
         Instant dayEnd = Instant.ofEpochMilli(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
-        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
         String code = getForwardEnergyReadingTypeCodeBuilder()
@@ -826,7 +865,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     public void testGetEmptyLoadProfileData() {
         Instant dayStart = Instant.ofEpochMilli(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
         Instant dayEnd = Instant.ofEpochMilli(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
-        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
 
@@ -847,7 +886,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(code);
         intervalBlock.addIntervalReading(IntervalReadingImpl.of(readingTimeStamp, readingValue));
         meterReading.addIntervalBlock(intervalBlock);
-        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
         device.store(meterReading);
@@ -875,10 +914,10 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         return deviceConfiguration;
     }
 
-    private DeviceConfiguration createDeviceConfigurationWithTwoChannelSpecs() {
+    private DeviceConfiguration createDeviceConfigurationWithTwoChannelSpecs(TimeDuration myInterval) {
         RegisterType registerType1 = createRegisterTypeIfMissing("ChannelType1", forwardEnergyObisCode, unit1, forwardEnergyReadingType, 0);
         RegisterType registerType2 = createRegisterTypeIfMissing("ChannelType2", reverseEnergyObisCode, unit2, reverseEnergyReadingType, 0);
-        loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType("LoadProfileType", loadProfileObisCode, interval, Arrays.asList(registerType1, registerType2));
+        loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType("LoadProfileType", loadProfileObisCode, myInterval, Arrays.asList(registerType1, registerType2));
         loadProfileType.save();
         ChannelType channelTypeForRegisterType1 = loadProfileType.findChannelType(registerType1).get();
         ChannelType channelTypeForRegisterType2 = loadProfileType.findChannelType(registerType2).get();

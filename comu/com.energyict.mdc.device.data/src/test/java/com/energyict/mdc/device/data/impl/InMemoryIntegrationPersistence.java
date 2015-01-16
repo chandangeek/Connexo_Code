@@ -125,7 +125,7 @@ public class InMemoryIntegrationPersistence {
     private OrmService ormService;
     private EventService eventService;
     private NlsService nlsService;
-    private Clock clock;
+    private static final Clock clock = mock(Clock.class);
     private JsonService jsonService;
     private RelationService relationService;
     private EngineConfigurationService engineConfigurationService;
@@ -151,9 +151,8 @@ public class InMemoryIntegrationPersistence {
     private ThreadPrincipalService threadPrincipalService;
     private MeteringGroupsService meteringGroupsService;
 
-    public InMemoryIntegrationPersistence(Clock clock) {
+    public InMemoryIntegrationPersistence() {
         super();
-        this.clock = clock;
     }
 
     public void initializeDatabase(String testName, boolean showSqlLogging) throws SQLException {

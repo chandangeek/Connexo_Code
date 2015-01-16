@@ -1031,12 +1031,8 @@ public class DeviceImpl implements Device, CanLock {
                             .atZone(zoneId);
             }
             case MONTHS: {
-                return ZonedDateTime
-                            .ofInstant(requestedIntervalClippedToMeterActivation.lowerEndpoint(), zoneId)
-                            .toLocalDate()
-                            .with(ChronoField.DAY_OF_MONTH, 1)
-                            .atStartOfDay()
-                            .atZone(zoneId);
+                return prefilledIntervalStartWithIntervalMonth(loadProfile,zoneId,requestedIntervalClippedToMeterActivation);
+
             }
             case YEARS: {
                 return ZonedDateTime
@@ -1075,6 +1071,27 @@ public class DeviceImpl implements Device, CanLock {
             nextAttempt = nextAttempt.plus(this.intervalLength(loadProfile));
         }
         return latestAttemptBefore;
+    }
+
+    private ZonedDateTime prefilledIntervalStartWithIntervalMonth(LoadProfile loadProfile, ZoneId zoneId, Range<Instant> requestedIntervalClippedToMeterActivation) {
+        /* Implementation note: truncate meter activation end point of the interval to the interval length
+         * and then increment with interval length until start > meter activation start
+         * to cater for the situation where meter activation is e.g. 8h43 with interval length of 15mins
+         * where truncating would start at 8h00
+         * So in case meter activation is at 8h13, the first reported interval will be (8:00,8:15]
+         *    in case meter activation is exactly 8h15 , the first reported interval will be (8:15,8:30]
+         */
+        ZonedDateTime nextAttempt =
+                ZonedDateTime
+                    .ofInstant(
+                        requestedIntervalClippedToMeterActivation.lowerEndpoint(),
+                        zoneId)
+                    .with(ChronoField.DAY_OF_MONTH,1);
+
+        while (nextAttempt.toInstant().isAfter(requestedIntervalClippedToMeterActivation.lowerEndpoint()) || nextAttempt.toInstant().equals(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {
+            nextAttempt = nextAttempt.minus(this.intervalLength(loadProfile));
+        }
+        return nextAttempt;
     }
 
     private TemporalUnit truncationUnit(LoadProfile loadProfile) {
