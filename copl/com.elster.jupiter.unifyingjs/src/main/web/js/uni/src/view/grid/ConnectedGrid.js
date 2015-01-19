@@ -123,6 +123,15 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
                     },
                     {
                         xtype: 'button',
+                        itemId: 'selectItems',
+                        width: 50,
+                        text: '>',
+                        handler: function () {
+                            me.selectItems();
+                        }
+                    },
+                    {
+                        xtype: 'button',
                         itemId: 'selectAllItems',
                         width: 50,
                         text: '>>',
@@ -132,11 +141,11 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
                     },
                     {
                         xtype: 'button',
-                        itemId: 'selectItems',
+                        itemId: 'deselectAllItems',
                         width: 50,
-                        text: '>',
+                        text: '<<',
                         handler: function () {
-                            me.selectItems();
+                            me.deselectAllItems();
                         }
                     },
                     {
@@ -147,15 +156,6 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
                         handler: function () {
                             me.deselectItems();
 
-                        }
-                    },
-                    {
-                        xtype: 'button',
-                        itemId: 'deselectAllItems',
-                        width: 50,
-                        text: '<<',
-                        handler: function () {
-                            me.deselectAllItems();
                         }
                     }
                 ]
