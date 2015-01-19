@@ -451,8 +451,8 @@ Ext.define('Idc.controller.BulkChangeIssues', {
         if (widget) {
             Ext.suspendLayouts();
             step3Panel.removeAll(true);
-            step3Panel.add(widget);
             Ext.resumeLayouts();
+            step3Panel.add(widget);
         }
     },
 
@@ -493,8 +493,8 @@ Ext.define('Idc.controller.BulkChangeIssues', {
             });
             Ext.suspendLayouts();
             step4Panel.removeAll(true);
-            step4Panel.add(widget);
             Ext.resumeLayouts();
+            step4Panel.add(widget);
         }
     },
 
