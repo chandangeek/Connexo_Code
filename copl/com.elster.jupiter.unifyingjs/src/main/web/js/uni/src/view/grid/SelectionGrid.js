@@ -12,6 +12,7 @@ Ext.define('Uni.view.grid.SelectionGrid', {
         mode: 'MULTI',
         showHeaderCheckbox: false
     },
+    cls: 'uni-selection-grid',
 
     overflowY: 'auto',
     maxHeight: 450,
