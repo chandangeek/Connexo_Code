@@ -1,5 +1,23 @@
 package com.energyict.mdc.dashboard.rest;
 
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
@@ -33,39 +51,25 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
-import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.collect.ImmutableSet;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.ws.rs.core.Application;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import javax.ws.rs.core.Application;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Insert your comments here.
@@ -73,8 +77,8 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-18 (10:32)
  */
-@Component(name = "com.energyict.mdc.dashboard.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/dsr", "app=MDC", "name=" + DashboardApplication.COMPONENT_NAME})
-public class DashboardApplication extends Application implements TranslationKeyProvider {
+@Component(name = "com.energyict.mdc.dashboard.rest", service = {Application.class, TranslationKeyProvider.class, InstallService.class}, immediate = true, property = {"alias=/dsr", "app=MDC", "name=" + DashboardApplication.COMPONENT_NAME})
+public class DashboardApplication extends Application implements TranslationKeyProvider, InstallService {
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "DSR";
 
@@ -96,6 +100,7 @@ public class DashboardApplication extends Application implements TranslationKeyP
     private volatile IssueService issueService;
     private volatile IssueDataCollectionService issueDataCollectionService;
     private volatile FavoritesService favoritesService;
+    private volatile UserService userService;
     private volatile License license;
     private Clock clock = Clock.systemDefaultZone();
 
@@ -200,6 +205,11 @@ public class DashboardApplication extends Application implements TranslationKeyP
         this.favoritesService = favoritesService;
     }
 
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
     @Reference(target="(com.elster.jupiter.license.rest.key=" + APP_KEY  + ")")
     public void setLicense(License license) {
         this.license = license;
@@ -240,6 +250,35 @@ public class DashboardApplication extends Application implements TranslationKeyP
         hashSet.addAll(super.getSingletons());
         hashSet.add(new HK2Binder());
         return Collections.unmodifiableSet(hashSet);
+    }
+
+    @Override
+    public void install() {
+        Optional<User> comServerInternalAccessAccount = userService.findUser(ComServerStatusSummaryResource.COM_SERVER_INTERNAL_USER);
+        if (!comServerInternalAccessAccount.isPresent()) {
+            setupComServerInternalAccess();
+        }
+    }
+
+    private User setupComServerInternalAccess() {
+        Group comServerResourceGroup = userService.findGroup(ComServerStatusSummaryResource.COM_SERVER_INTERNAL_USER_GROUP).orElseGet(this::createComServerAccessGroup);
+        User user = userService.createUser(ComServerStatusSummaryResource.COM_SERVER_INTERNAL_USER, "internal user");
+        user.setPassword("comserver");
+        user.join(comServerResourceGroup);
+        user.save();
+        return user;
+    }
+
+    private Group createComServerAccessGroup() {
+        Group group = userService.createGroup(ComServerStatusSummaryResource.COM_SERVER_INTERNAL_USER_GROUP, "<INTERNAL> Regulates dashboard's inter-comserver communication");
+        group.grant(Privileges.VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL);
+        group.save();
+        return group;
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Collections.emptyList();
     }
 
     class HK2Binder extends AbstractBinder {

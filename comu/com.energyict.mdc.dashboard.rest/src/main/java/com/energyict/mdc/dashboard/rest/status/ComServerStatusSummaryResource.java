@@ -39,6 +39,8 @@ import org.joda.time.DateTimeConstants;
 public class ComServerStatusSummaryResource {
 
     private static final Logger LOGGER = Logger.getLogger(ComServerStatusSummaryResource.class.getName());
+    public static final String COM_SERVER_INTERNAL_USER = "comServerInternal";
+    public static final String COM_SERVER_INTERNAL_USER_GROUP = "ComServerResources";
 
     private final EngineConfigurationService engineConfigurationService;
     private final ComServerStatusInfoFactory comServerStatusInfoFactory;
@@ -64,7 +66,7 @@ public class ComServerStatusSummaryResource {
 
     private Client newJerseyClient() {
         // Todo: remove hard coding of development username/pass and replace with interval user that has specific privileges
-        HttpAuthenticationFeature basicAuthentication = HttpAuthenticationFeature.basic("admin", "admin");
+        HttpAuthenticationFeature basicAuthentication = HttpAuthenticationFeature.basic(COM_SERVER_INTERNAL_USER, "comserver");
         return ClientBuilder.newClient().
                 register(new JacksonFeature()).
                 register(basicAuthentication).
