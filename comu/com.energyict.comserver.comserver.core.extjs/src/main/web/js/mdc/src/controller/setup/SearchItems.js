@@ -359,6 +359,15 @@ Ext.define('Mdc.controller.setup.SearchItems', {
                 reportFilter['search'] = true;
                 reportFilter['GROUPNAME'] = data.name;
 
+                // add device type and device config value
+                var searchItems = me.getSearchItems();
+                if (searchItems.down('#type').getValue() != '') {
+                    reportFilter['DEVICETYPE'] = searchItems.down('#type').getRawValue();
+                }
+                if (searchItems.down('#configuration').getValue() != "") {
+                    reportFilter['DEVICECONFIG'] = searchItems.down('#configuration').getRawValue();
+                }
+
                 router.getRoute('generatereport').forward(null, {
                     category:'MDC',
                     filter : reportFilter
