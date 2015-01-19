@@ -48,7 +48,7 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
     private final OfflineDevice device;
 
     /**
-     * Mapping between the LoadProfileReader LoadProfileReaders which are used to collect LoadProfileData from the devices and the
+     * Mapping between the LoadProfileReaders which are used to collect LoadProfileData from the devices and the
      * BaseLoadProfile from EIServer
      */
     private Map<LoadProfileReader, OfflineLoadProfile> loadProfileReaderMap = new HashMap<>();

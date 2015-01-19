@@ -57,9 +57,9 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
 
         List<OfflineRegister> registers;
         if (!this.registersTask.getRegisterGroups().isEmpty()){
-            registers = device.getRegistersForRegisterGroup(this.getRegisterGroupIds());
+            registers = device.getRegistersForRegisterGroupAndMRID(this.getRegisterGroupIds(), comTaskExecution.getDevice().getmRID());
         } else {
-            registers = device.getAllRegisters();
+            registers = device.getAllRegistersForMRID(comTaskExecution.getDevice().getmRID());
         }
         ReadRegistersCommand readRegistersCommand = getCommandRoot().getReadRegistersCommand(this, comTaskExecution);
         readRegistersCommand.addRegisters(registers);

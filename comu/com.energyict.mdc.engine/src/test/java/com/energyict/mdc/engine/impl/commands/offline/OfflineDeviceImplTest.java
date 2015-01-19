@@ -344,7 +344,7 @@ public class OfflineDeviceImplTest {
         when(offlineRtu.getAllRegisters()).thenReturn(Arrays.asList(offlineRegister1, offlineRegister2));
 
         // asserts
-        assertEquals("Should have gotten 1 registers", 1, offlineRtu.getRegistersForRegisterGroup(Arrays.asList(rtuRegisterGroupId)).size());
+        assertEquals("Should have gotten 1 registers", 1, offlineRtu.getRegistersForRegisterGroupAndMRID(Arrays.asList(rtuRegisterGroupId), comTaskExecution.getDevice().getmRID()).size());
     }
 
     private RegisterSpec createMockedRegisterSpec(RegisterType registerType) {

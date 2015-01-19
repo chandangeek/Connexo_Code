@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.config.ComServer;
@@ -10,6 +11,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.elster.jupiter.metering.readings.Reading;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Provides functionality to store {@link com.energyict.mdc.protocol.api.device.BaseRegister} data into the system
@@ -32,9 +34,9 @@ public class CollectedRegisterListDeviceCommand extends DeviceCommandImpl {
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
         PreStoreRegisters preStoreRegisters = new PreStoreRegisters(this.getMdcReadingTypeUtilService(), comServerDAO);
-        List<Reading> readings = preStoreRegisters.preStore(collectedRegisterList);
+        Map<DeviceIdentifier, List<Reading>> readings = preStoreRegisters.preStore(collectedRegisterList);
         if (!readings.isEmpty()) {
-            this.meterDataStoreCommand.addReadings(getDeviceIdentifier(), readings);
+            readings.forEach(this.meterDataStoreCommand::addReadings);
         }
     }
 
