@@ -31,6 +31,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
+                        itemId: 'load-profile-type-empty-component',
                         title: Uni.I18n.translate('loadProfileTypes.empty.title', 'MDC', 'No load profile types found'),
                         reasons: [
                             Uni.I18n.translate('loadProfileTypes.empty.list.item1', 'MDC', 'No load profile types have been defined yet.'),
@@ -40,7 +41,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
                             {
                                 text: Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'),
                                 action: 'addloadprofiletypeaction',
-                                privileges: ['privilege.administrate.masterData'],
                                 href: '#/administration/loadprofiletypes/create'
                             }
                         ]
@@ -54,19 +54,29 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
     ],
 
     initComponent: function () {
-        var config = this.config,
-            previewContainer = this.content[0].items[0],
-            addButtons;
+        var me = this,
+            config = me.config,
+            previewContainer = me.content[0].items[0],
+            addButtons,
+            actionMenuColumn,
+            actionMenuButton,
+            hasPrivilege;
 
         config && config.gridStore && (previewContainer.grid.store = config.gridStore);
 
-        this.callParent(arguments);
+        me.callParent(arguments);
 
-        addButtons = this.query('button[action=addloadprofiletypeaction]');
+        addButtons = me.query('button[action=addloadprofiletypeaction]');
 
         if (config) {
+
+            hasPrivilege = Uni.Auth.hasPrivilege('privilege.administrate.masterData');
+            actionMenuColumn = me.down('#load-profile-type-action-menu-column');
+            actionMenuButton = me.down('#loadProfileTypePreview').tools[0];
+
             if (config.deviceTypeId) {
-                this.getWestContainer().down('panel').add({
+                hasPrivilege = Uni.Auth.hasPrivilege('privilege.administrate.deviceType');
+                me.getWestContainer().down('panel').add({
                     xtype: 'deviceTypeMenu',
                     deviceTypeId: config.deviceTypeId,
                     toggle: 2
@@ -75,6 +85,16 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
                     button.href = '#/administration/devicetypes/' + config.deviceTypeId + '/loadprofiles/add';
                 });
             }
+            var emptyComponent;
+            Ext.Array.each(addButtons, function (button) {
+                emptyComponent = button.up('#load-profile-type-empty-component');
+                if (typeof emptyComponent !== 'undefined') {
+                    emptyComponent.down('#no-items-found-panel-steps-label').hidden = !hasPrivilege;
+                }
+                button.hidden = !hasPrivilege;
+            });
+            actionMenuColumn.hidden = !hasPrivilege;
+            actionMenuButton.hidden = !hasPrivilege;
         }
     }
 });

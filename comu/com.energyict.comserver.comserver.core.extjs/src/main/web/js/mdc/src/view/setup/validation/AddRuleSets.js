@@ -49,6 +49,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSets', {
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
+                            itemId: 'ctr-add-no-validation-rule-set',
                             title: Uni.I18n.translate('validation.empty.title', 'MDC', 'No validation rule sets found'),
                             reasons: [
                                 Uni.I18n.translate('validation.empty.list.item1', 'MDC', 'No validation rule sets have been added yet.'),

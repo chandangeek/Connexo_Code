@@ -154,30 +154,35 @@ Ext.define('Mdc.controller.Main', {
                         {
                             text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
                             href: '#/administration/devicetypes',
+                            itemId: 'lnk-device-types',
                             hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceType', 'privilege.view.deviceType']),
                             route: 'devicetypes'
                         },
                         {
                             text: Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types'),
                             href: '#/administration/registertypes',
+                            itemId: 'lnk-register-types',
                             hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.masterData','privilege.view.masterData']),
                             route: 'registertypes'
                         },
                         {
                             text: Uni.I18n.translate('registerGroup.registerGroups', 'MDC', 'Register groups'),
                             href: '#/administration/registergroups',
+                            itemId: 'lnk-register-groups',
                             hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.masterData','privilege.view.masterData']),
                             route: 'registergroups'
                         },
                         {
                             text: Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'),
                             href: '#/administration/logbooktypes',
+                            itemId: 'lnk-logbook-types',
                             hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.masterData','privilege.view.masterData']),
                             route: 'logbooktypes'
                         },
                         {
                             text: Uni.I18n.translate('general.loadProfileTypes', 'MDC', 'Load profile types'),
                             href: '#/administration/loadprofiletypes',
+                            itemId: 'lnk-load-profile-types',
                             hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.masterData','privilege.view.masterData']),
                             route: 'loadprofiletypes'
                         }
