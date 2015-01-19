@@ -61,4 +61,8 @@ public class RegisterDataIdentifier implements RegisterIdentifier {
         return this.registerObisCode.toString();
     }
 
+    @Override
+    public DeviceIdentifier getDeviceIdentifier() {
+        return deviceIdentifier;
+    }
 }
