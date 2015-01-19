@@ -36,7 +36,7 @@ public enum EndDeviceEventTypeMapping {
     VOLTAGE_SWELL           (22, "1.26.79.248"),
     TAMPER                  (23, "0.12.43.257"),
     COVER_OPENED            (24, "0.12.29.39"),
-    TERMINAL_OPENED         (25, "0.12.141.39"),
+    TERMINAL_OPENED         (25, "0.12.128.39"), // remapped from 0.12.141.39
     REVERSE_RUN             (26, "0.12.48.219"),
     LOADPROFILE_CLEARED     (27, "0.16.87.28"),
     EVENT_LOG_CLEARED       (28, "0.17.44.28"),
@@ -53,7 +53,7 @@ public enum EndDeviceEventTypeMapping {
     MEASUREMENT_SYSTEM_ERROR(39, "0.21.67.79"),
     FIRMWARE_READY_FOR_ACTIVATION(40, "0.11.31.25"),
     FIRMWARE_ACTIVATED      (41, "0.11.31.4"),
-    TERMINAL_COVER_CLOSED   (42, "0.12.141.16"),
+    TERMINAL_COVER_CLOSED   (42, "0.12.128.16"), // remapped from 0.12.141.16
     STRONG_DC_FIELD_DETECTED(43, "0.12.66.242"),
     NO_STRONG_DC_FIELD_ANYMORE(44, "0.12.66.243"),
     METER_COVER_CLOSED      (45, "0.12.29.16"),
@@ -78,7 +78,7 @@ public enum EndDeviceEventTypeMapping {
     VALVE_ALARM_MBUS        (64, "0.31.147.79");
 
     private final int eisCode;
-    private final String obisCode;
+    public final String obisCode;
     private EndDeviceEventType eventType;
 
     private EndDeviceEventTypeMapping(int eisCode, String obisCode) {
