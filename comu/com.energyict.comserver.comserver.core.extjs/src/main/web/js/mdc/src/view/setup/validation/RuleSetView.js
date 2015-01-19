@@ -22,6 +22,7 @@ Ext.define('Mdc.view.setup.validation.RuleSetView', {
                 xtype: 'preview-container',
                 emptyComponent: {
                     xtype: 'no-items-found-panel',
+                    itemId: 'ctr-no-validation-rule',
                     title: Uni.I18n.translate('validation.empty.title', 'MDC', 'No validation rules found'),
                     reasons: [
                         Uni.I18n.translate('validation.empty.list.item1', 'MDC', 'No validation rules have been defined yet.'),
