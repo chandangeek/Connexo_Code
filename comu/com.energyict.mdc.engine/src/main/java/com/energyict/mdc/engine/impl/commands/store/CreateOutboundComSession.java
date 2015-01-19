@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import java.time.Clock;
+
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
@@ -32,6 +34,11 @@ public class CreateOutboundComSession extends ExecutionLoggerImpl implements Cre
         this.connectionTask = connectionTask;
         this.builder = builder;
         this.successIndicator = successIndicator;
+    }
+
+    @Override
+    public ConnectionTask getConnectionTask() {
+        return connectionTask;
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 import java.time.Clock;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.config.ComServer;
@@ -37,6 +38,11 @@ public class CreateInboundComSession extends ExecutionLoggerImpl implements Crea
         this.connectionTask = connectionTask;
         this.builder = builder;
         this.successIndicator = successIndicator;
+    }
+
+    @Override
+    public ConnectionTask getConnectionTask() {
+        return connectionTask;
     }
 
     @Override
