@@ -10,14 +10,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
-    side: [
-        {
-            xtype: 'panel',
-            ui: 'medium',
-            items: []
-        }
-    ],
-
     content: [
         {
             xtype: 'panel',
@@ -54,23 +46,37 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
     ],
 
     initComponent: function () {
-        var config = this.config,
-            previewContainer = this.content[0].items[0],
+        var me = this,
+            config = me.config,
+            previewContainer = me.content[0].items[0],
             addButtons;
 
         config && config.gridStore && (previewContainer.grid.store = config.gridStore);
 
-        this.callParent(arguments);
+        if (config) {
+            if (config.deviceTypeId) {
+                me.side = [
+                    {
+                        xtype: 'panel',
+                        ui: 'medium',
+                        items: [
+                            {
+                                xtype: 'deviceTypeMenu',
+                                deviceTypeId: config.deviceTypeId,
+                                toggle: 2
+                            }
+                        ]
+                    }
+                ];
+            }
+        }
 
-        addButtons = this.query('button[action=addloadprofiletypeaction]');
+        me.callParent(arguments);
+
+        addButtons = me.query('button[action=addloadprofiletypeaction]');
 
         if (config) {
             if (config.deviceTypeId) {
-                this.getWestContainer().down('panel').add({
-                    xtype: 'deviceTypeMenu',
-                    deviceTypeId: config.deviceTypeId,
-                    toggle: 2
-                });
                 Ext.Array.each(addButtons, function (button) {
                     button.href = '#/administration/devicetypes/' + config.deviceTypeId + '/loadprofiles/add';
                 });
