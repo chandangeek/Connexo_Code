@@ -104,7 +104,12 @@ public class InstallerImpl {
                                         .eventOrAction(eventOrAction)
                                         .toCode();
                                 try {
-                                    meteringService.createEndDeviceEventType(code);
+                                    if (meteringService.getEndDeviceEventType(code).isPresent()) {
+                                        LOGGER.finer("Skipping code "+code+": already exists");
+                                    } else {
+                                        LOGGER.finer("adding code "+code);
+                                        meteringService.createEndDeviceEventType(code);
+                                    }
                                 } catch (Exception e) {
                                     LOGGER.log(Level.SEVERE, "Error creating EndDeviceType \'" + code + "\' : " + e.getMessage(), e);
                                 }
