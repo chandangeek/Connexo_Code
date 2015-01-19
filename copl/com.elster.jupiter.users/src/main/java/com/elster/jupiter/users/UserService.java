@@ -11,6 +11,8 @@ public interface UserService {
 
     String DEFAULT_ADMIN_ROLE = "Administrators";
     String DEFAULT_ADMIN_ROLE_DESCRIPTION = "Administrative privileges";
+    String BATCH_EXECUTOR_ROLE = "Batch executors";
+    String BATCH_EXECUTOR_ROLE_DESCRIPTION = "Batch executors privileges";
 
     User createUser(String name, String description);
 
