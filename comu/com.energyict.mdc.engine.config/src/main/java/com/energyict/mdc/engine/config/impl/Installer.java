@@ -42,7 +42,7 @@ public class Installer {
     }
 
     private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", "communicationAdministration.communicationAdministrations", "communicationAdministration.communicationAdministrations.description", new String[]{Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION});
+        this.userService.createResourceWithPrivileges("MDC", "communicationAdministration.communicationAdministrations", "communicationAdministration.communicationAdministrations.description", new String[]{Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL});
     }
 
     private void createEventTypes() {
