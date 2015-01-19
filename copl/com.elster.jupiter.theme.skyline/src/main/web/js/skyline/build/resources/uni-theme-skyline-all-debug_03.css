@@ -15771,11 +15771,11 @@
   padding-bottom: 24px;
   padding-left: 64px;
 }
-/* line 16, ../../sass/src/panel/NoItemsFound.scss */
+/* line 18, ../../sass/src/panel/NoItemsFound.scss */
 .uni-panel-no-items-found .message > .x-panel-body {
   background-color: transparent;
 }
-/* line 20, ../../sass/src/panel/NoItemsFound.scss */
+/* line 22, ../../sass/src/panel/NoItemsFound.scss */
 .uni-panel-no-items-found ul {
   list-style: none;
   padding: 0;
@@ -15783,7 +15783,7 @@
   margin-top: 14px;
   margin-bottom: 18px;
 }
-/* line 29, ../../sass/src/panel/NoItemsFound.scss */
+/* line 31, ../../sass/src/panel/NoItemsFound.scss */
 .uni-panel-no-items-found ul li {
   background-image: url("images/container/bullet.png");
   background-position: left 2px;
@@ -15792,17 +15792,17 @@
   margin: 0;
   margin-bottom: 8px;
 }
-/* line 40, ../../sass/src/panel/NoItemsFound.scss */
+/* line 42, ../../sass/src/panel/NoItemsFound.scss */
 .uni-panel-no-items-found .steps {
   margin-top: 8px;
 }
-/* line 44, ../../sass/src/panel/NoItemsFound.scss */
+/* line 46, ../../sass/src/panel/NoItemsFound.scss */
 .uni-panel-no-items-found *[class*='x-panel-header-text-container-'] {
   font-family: 'Lato', helvetica, arial, verdana, sans-serif;
   font-size: 18px;
   color: #686868;
 }
-/* line 50, ../../sass/src/panel/NoItemsFound.scss */
+/* line 52, ../../sass/src/panel/NoItemsFound.scss */
 .uni-panel-no-items-found *[class*='x-panel-body-'] {
   font-size: 13px;
   color: #686868;
@@ -15944,14 +15944,19 @@ div.x-form-spinner-down {
   opacity: 1;
 }
 
-/* line 5, ../../sass/src/form/field/Base.scss */
+/* line 2, ../../sass/src/form/field/PropertyDisplayField.scss */
+.uni-property-displayfield .x-form-display-field {
+  margin-top: 3px;
+}
+
+/* line 6, ../../sass/src/form/field/Base.scss */
 .x-form-field {
   border-radius: 3px;
   height: 28px;
   background-color: #ffffff;
 }
 
-/* line 11, ../../sass/src/form/field/Base.scss */
+/* line 12, ../../sass/src/form/field/Base.scss */
 .x-form-invalid-under {
   background: none;
   color: #eb5642;
@@ -15959,12 +15964,12 @@ div.x-form-spinner-down {
   padding: 10px 0px 10px 0px;
 }
 
-/* line 18, ../../sass/src/form/field/Base.scss */
+/* line 19, ../../sass/src/form/field/Base.scss */
 .x-form-invalid-field {
   border-color: #eb5642;
 }
 
-/* line 22, ../../sass/src/form/field/Base.scss */
+/* line 23, ../../sass/src/form/field/Base.scss */
 .x-form-display-field {
   height: auto;
   min-height: 28px;
@@ -16208,9 +16213,4 @@ div.x-form-spinner-down {
 /* line 249, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-top-frameInfo {
   font-family: dh-3-3-0-0-0-0-0-0-3-8-0-3;
-}
-
-/* line 315, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-default-top-tl {
-  background-position: 0 -6px;
 }
