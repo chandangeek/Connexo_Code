@@ -22,11 +22,11 @@ public enum TableSpecs {
             Table<PluggableClass> table = dataModel.addTable(name(), PluggableClass.class);
             table.map(PluggableClassImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.addAuditColumns();
             table.primaryKey("PK_CPC_PLUGGABLE").on(idColumn).add();
             table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("JAVACLASSNAME").type("varchar2(512)").map("javaClassName").add();
             table.column("PLUGGABLETYPE").number().notNull().conversion(ColumnConversion.NUMBER2ENUMPLUSONE).map("pluggableType").add();
+            table.column("MODTIME").number().notNull().conversion(ColumnConversion.NUMBER2INSTANT).map("modTime").add();
         }
     },
 
