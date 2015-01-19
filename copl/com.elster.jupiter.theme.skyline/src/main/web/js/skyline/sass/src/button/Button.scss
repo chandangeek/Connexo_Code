@@ -29,6 +29,9 @@
 
 .#{$prefix}btn {
     margin-right: 8px !important;
+    &.#{$prefix}item-disabled {
+        cursor: default;
+    }
 }
 
 @import "Icons";

@@ -6100,6 +6100,10 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 .x-btn {
   margin-right: 8px !important;
 }
+/* line 32, ../../sass/src/button/Button.scss */
+.x-btn.x-item-disabled {
+  cursor: default;
+}
 
 /* line 4, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-default-small .x-btn-icon-el {
