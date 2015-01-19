@@ -18,3 +18,10 @@
     background-repeat: no-repeat;
     background-image: url('images/grid/defaultItem.png');
 }
+
+.uni-selection-grid {
+    .#{$prefix}grid-row .#{$prefix}grid-cell-first + .#{$prefix}grid-cell .#{$prefix}grid-cell-inner,
+    .#{$prefix}box-target  .#{$prefix}column-header-first + .#{$prefix}column-header .#{$prefix}column-header-inner {
+        padding-left: 0;
+    }
+}
