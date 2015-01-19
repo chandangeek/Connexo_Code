@@ -31,17 +31,17 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationAddGri
         {
             header: Uni.I18n.translate('validation.deviceConfiguration', 'CFG', 'Device configuration'),
             dataIndex: 'config_name_link',
-            flex: 0.3
+            flex: 1
         },
         {
             header: Uni.I18n.translate('validation.deviceType', 'CFG', 'Device type'),
             dataIndex: 'deviceType_name',
-            flex: 0.3
+            flex: 1
         },
         {
             header: Uni.I18n.translate('validation.status', 'CFG', 'Status'),
             dataIndex: 'config_active',
-            flex: 0.3
+            flex: 1
         },
         {
             xtype: 'uni-actioncolumn',

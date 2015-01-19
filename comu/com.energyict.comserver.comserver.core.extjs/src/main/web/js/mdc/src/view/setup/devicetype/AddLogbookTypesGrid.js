@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypesGrid', {
     extend: 'Uni.view.grid.SelectionGrid',
     alias: 'widget.add-logbook-types-grid',
     store: 'AvailableLogbookTypes',
-    height: 300,
+
 
     requires: [
         'Uni.grid.column.Obis'

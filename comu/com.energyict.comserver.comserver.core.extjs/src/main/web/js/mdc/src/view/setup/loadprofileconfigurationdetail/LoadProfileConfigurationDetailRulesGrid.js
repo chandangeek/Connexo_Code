@@ -18,12 +18,12 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     initComponent: function () {
         var me = this;
         me.columns = [
-            { header: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'), dataIndex: 'name', flex: 0.3,
+            { header: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'), dataIndex: 'name', flex: 1,
                 renderer: function (value, b, record) {
                     return '<a href="#/administration/validation/rulesets/' + record.get('ruleSet').id + '/rules/' + record.getId() + '">' + value + '</a>'
                 }
             },
-            { header: Uni.I18n.translate('validation.status', 'CFG', 'Status'), dataIndex: 'active', flex: 0.3,
+            { header: Uni.I18n.translate('validation.status', 'CFG', 'Status'), dataIndex: 'active', flex: 1,
                 renderer: function (value) {
                     if (value) {
                         return Uni.I18n.translate('validation.active', 'CFG', 'Active')
@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     }
                     return '<a href="#/administration/validation/rulesets/' + record.data.ruleSet.id + '">' + record.data.ruleSet.name + '</a>';
                 },
-                flex: 0.3
+                flex: 1
             },
             {
                 xtype: 'uni-actioncolumn',
