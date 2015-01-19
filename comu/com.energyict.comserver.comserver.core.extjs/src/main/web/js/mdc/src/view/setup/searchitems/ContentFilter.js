@@ -1,21 +1,16 @@
 Ext.define('Mdc.view.setup.searchitems.ContentFilter', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Ext.container.Container',
     requires: [
         'Ext.form.Label',
         'Mdc.view.setup.searchitems.SortMenu',
         'Mdc.model.ItemSort'
     ],
     alias: "widget.search-content-filter",
-    //id: 'search-content-filter-id',
     itemId: 'searchContentFilter',
-    border: true,
-    header: false,
-    collapsible: false,
     layout: {
         type: 'vbox',
         align: 'stretch'
     },
-
 
     items: [
         {
