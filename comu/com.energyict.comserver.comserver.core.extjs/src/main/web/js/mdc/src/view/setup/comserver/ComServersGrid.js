@@ -57,6 +57,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
             items: [
                 {
                     xtype: 'button',
+                    itemId: 'btn-add-online-communication-server',
                     text: Uni.I18n.translate('deviceType.addOnline', 'MDC', 'Add online communication server'),
                     hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.communicationAdministration'),
                     href: '#/administration/comservers/add/online'

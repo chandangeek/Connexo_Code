@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
         itemId: 'loadProfileConfigPreviewForm',
         layout: 'column',
         defaults: {
-            xtype: 'container',
+            xtype: 'fieldcontainer',
             layout: 'form',
             columnWidth: 0.5
         },
@@ -64,20 +64,35 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
                 ]
             },
             {
-                defaults: {
-                    xtype: 'displayfield',
-                    labelWidth: 200
-                },
+                itemId: 'channel-configurations-field',
+                fieldLabel: Uni.I18n.translate('general.channelConfigurations', 'MDC', 'Channel configurations'),
+                labelWidth: 200,
+                labelStyle : 'padding:3px 14px 0px 0px;',
                 items: [
                     {
-                        fieldLabel: 'Channel configurations',
+                        xtype: 'displayfield',
                         name: 'channels',
                         renderer: function (value) {
-                            var typesString = '';
+                            var typesString = '',
+                                emptyBtn = this.up('#channel-configurations-field').down('button');
+
                             if (!Ext.isEmpty(value)) {
+                                if (emptyBtn) { emptyBtn.hide(); }
+                                this.show();
                                 Ext.each(value, function (type) {
                                     typesString += type.name + '<br />';
                                 });
+                            } else {
+                                this.hide();
+                                var linkButton = Ext.widget('button', {
+                                    text: '0 ' + Uni.I18n.translate('general.channelconfigurations', 'MDC', 'channel configurations'),
+                                    ui: 'link',
+                                    hrefTarget: '_self'
+                                });
+                                if (!emptyBtn) {
+                                    this.up('#channel-configurations-field').add(linkButton);
+                                }
+                                return;
                             }
                             return typesString;
                         }

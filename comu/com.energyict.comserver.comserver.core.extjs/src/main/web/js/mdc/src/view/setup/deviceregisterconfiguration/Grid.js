@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('deviceregisterconfiguration.register', 'MDC', 'Register'),
+                header: Uni.I18n.translate('registerconfiguration.register', 'MDC', 'Register configuration'),
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
                     return '<a href="#/devices/' + me.mRID + '/registers/' + record.get('id') + '/data">' + value + '</a>';
@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                     if(!Ext.isEmpty(value)) {
                         return Uni.DateTime.formatDateTimeShort(new Date(value));
                     }
-                    return Uni.I18n.translate('deviceregisterconfiguration.latestMeasurement.notspecified', 'MDC', '-');
+                    return '-';
                 },
                 flex: 1
             },
@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                     if(!Ext.isEmpty(value)) {
                         return Uni.DateTime.formatDateTimeShort(new Date(value));
                     }
-                    return Uni.I18n.translate('deviceregisterconfiguration.latestReading.notspecified', 'MDC', '-');
+                    return '-';
                 },
                 flex: 1
             },
@@ -66,9 +66,9 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('deviceregisterconfiguration.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} registers'),
-                displayMoreMsg: Uni.I18n.translate('deviceregisterconfiguration.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} registers'),
-                emptyMsg: Uni.I18n.translate('deviceregisterconfiguration.pagingtoolbartop.emptyMsg', 'MDC', 'There are no registers to display')
+                displayMsg: Uni.I18n.translate('registerconfiguration.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} register configurations'),
+                displayMoreMsg: Uni.I18n.translate('registerconfiguration.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} register configurations'),
+                emptyMsg: Uni.I18n.translate('registerconfiguration.pagingtoolbartop.emptyMsg', 'MDC', 'There are no register configurations to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
@@ -76,7 +76,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                 params: [
                     {mRID: me.mRID}
                 ],
-                itemsPerPageMsg: Uni.I18n.translate('deviceregisterconfiguration.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Registers per page'),
+                itemsPerPageMsg: Uni.I18n.translate('registerconfiguration.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Register configurations per page'),
                 dock: 'bottom'
             }
         ];

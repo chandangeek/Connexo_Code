@@ -33,6 +33,9 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.SideFilter', {
                         labelStyle: 'font-weight: normal',
                         dateConfig: {
                             format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
+                        },
+                        hoursConfig: {
+                            margin: '0 0 0 -10'
                         }
                     }
                 ]

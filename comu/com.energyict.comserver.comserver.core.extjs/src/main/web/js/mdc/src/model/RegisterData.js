@@ -12,7 +12,7 @@ Ext.define('Mdc.model.RegisterData', {
                    if(!Ext.isEmpty(record.data.rawValue)) {
                         return Uni.Number.formatNumber(record.data.rawValue, -1);
                    }
-                   return Uni.I18n.translate('registerdata.value.notspecified', 'MDC', '-')
+                   return '-'
               }
          }
         },
@@ -22,7 +22,7 @@ Ext.define('Mdc.model.RegisterData', {
                     if(!Ext.isEmpty(v)) {
                         return Uni.Number.formatNumber(v, -1);
                     }
-                    return Uni.I18n.translate('registerdata.deltaValue.notspecified', 'MDC', '-')
+                    return '-'
                 }
             }
         },
