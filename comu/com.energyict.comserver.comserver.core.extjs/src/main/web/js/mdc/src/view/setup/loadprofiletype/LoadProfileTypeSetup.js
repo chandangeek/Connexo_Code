@@ -41,7 +41,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
                             {
                                 text: Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'),
                                 action: 'addloadprofiletypeaction',
-                                href: '#/administration/loadprofiletypes/create'
+                                privileges: ['privilege.administrate.masterData'],
+                                href: '#/administration/loadprofiletypes/add'
                             }
                         ]
                     },

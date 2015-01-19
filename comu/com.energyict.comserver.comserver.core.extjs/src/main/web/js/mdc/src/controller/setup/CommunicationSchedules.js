@@ -102,7 +102,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     },
 
     createCommunicationScheduleHistory: function () {
-        location.href = '#/administration/communicationschedules/create';
+        location.href = '#/administration/communicationschedules/add';
     },
 
     editCommunicationScheduleHistory: function (record) {

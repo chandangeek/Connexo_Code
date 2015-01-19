@@ -514,7 +514,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     },
 
     createCommunicationSchedule: function () {
-        var newTab = window.open('#/administration/communicationschedules/create', '_blank');
+        var newTab = window.open('#/administration/communicationschedules/add', '_blank');
 
         newTab && newTab.blur();
         window.focus();

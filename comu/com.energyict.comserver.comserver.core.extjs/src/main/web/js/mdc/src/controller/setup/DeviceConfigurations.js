@@ -174,7 +174,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     createDeviceConfigurationHistory: function () {
-        location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/create';
+        location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/add';
     },
 
     editDeviceConfigurationHistory: function (record) {
