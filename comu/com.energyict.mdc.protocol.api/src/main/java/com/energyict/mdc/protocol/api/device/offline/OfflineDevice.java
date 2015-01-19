@@ -89,9 +89,10 @@ public interface OfflineDevice extends Offline {
      * <b>AND</b> are included in one of the given RegisterGroup that are specified by ID.
      *
      * @param registerGroupIds the list ID of RegisterGroup
+     * @param mrid
      * @return a list of {@link OfflineRegister}s filtered according to the given RegisterGroup
      */
-    public List<OfflineRegister> getRegistersForRegisterGroup(List<Long> registerGroupIds);
+    public List<OfflineRegister> getRegistersForRegisterGroupAndMRID(List<Long> registerGroupIds, String mrid);
 
     /**
      * Get the list of all {@link DeviceMessageStatus#PENDING pending} {@link OfflineDeviceMessage}s.
@@ -123,4 +124,5 @@ public interface OfflineDevice extends Offline {
 
     public DeviceIdentifier<?> getDeviceIdentifier();
 
+    public List<OfflineRegister> getAllRegistersForMRID(String mrid);
 }

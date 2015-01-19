@@ -33,4 +33,9 @@ public interface RegisterIdentifier {
      */
     ObisCode getDeviceRegisterObisCode();
 
+    /**
+     * @return the DeviceIdentifier for this RegisterIdentifier
+     */
+    DeviceIdentifier<?> getDeviceIdentifier();
+
 }
