@@ -2,9 +2,13 @@ package com.energyict.mdc.dynamic.impl;
 
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.ValueRequiredException;
 import com.energyict.mdc.common.Password;
+import com.energyict.mdc.dynamic.EncryptedStringFactory;
+import com.energyict.mdc.dynamic.HexStringFactory;
+import com.energyict.mdc.dynamic.PasswordFactory;
 
 /**
  * Provides an implementation for the {@link PropertySpec} interface.
@@ -45,34 +49,18 @@ public class BasicPropertySpec extends com.elster.jupiter.properties.BasicProper
                 throw new InvalidValueException("XisNotCompatibleWithAttributeY", "The value \"{0}\" is not compatible with the attribute specification {1}.", this.getName(), value);
             }
             if (this.isReference()) {
-                try {
-                    return this.valueFactory.isPersistent(value);
-                }
-                catch (ClassCastException e) {
-                    /* Doubtfull that this will happen because we have already type-checked the value
-                     * but hey, I am a defensive programmer. */
-                    throw new InvalidValueException("XisNotCompatibleWithAttributeY", "The value \"{0}\" is not compatible with the attribute specification {1}.", this.getName(), value);
-                }
+                return this.validateReference(value);
             }
-            if (possibleValues!=null && possibleValues.isExhaustive()) {
-                boolean found = false;
-                for (Object o : possibleValues.getAllValues()) {
-                    if (o.equals(value)) {
-                        found=true;
-                    }
-                }
-                if (!found) {
-                    throw new InvalidValueException("XisNotAPossibleValue", "The value \"{0}\" is not list a possible value for this property", this.getName());
-                }
+            else {
+                return this.validateSimpleValue(value);
             }
         }
-        return true;
     }
 
     private boolean isNull (Object value) {
         return value == null
-            || this.isNullString(value)
-            || this.isNullPassword(value);
+                || this.isNullString(value)
+                || this.isNullPassword(value);
     }
 
     private boolean isNullString (Object value) {
@@ -92,4 +80,46 @@ public class BasicPropertySpec extends com.elster.jupiter.properties.BasicProper
             return false;
         }
     }
+
+    private boolean validateReference(Object value) throws InvalidValueException {
+        try {
+            return this.valueFactory.isPersistent(value);
+        }
+        catch (ClassCastException e) {
+            /* Doubtfull that this will happen because we have already type-checked the value
+             * but hey, I am a defensive programmer. */
+            throw new InvalidValueException("XisNotCompatibleWithAttributeY", "The value \"{0}\" is not compatible with the attribute specification {1}.", this.getName(), value);
+        }
+    }
+
+    private boolean validateSimpleValue(Object value) throws InvalidValueException {
+        if (StringFactory.class.equals(this.getValueFactory())) {
+            String stringValue = (String) value;
+            if (stringValue.length() > StringFactory.MAX_SIZE) {
+                throw new InvalidValueException("XisToBig", "The value \"{0}\" is too large for this property (max length=" + StringFactory.MAX_SIZE + ")", this.getName());
+            }
+        }
+        else if (EncryptedStringFactory.class.equals(this.getValueFactory())) {
+            EncryptedStringFactory encryptedStringFactory = (EncryptedStringFactory) this.getValueFactory();
+            String stringValue = (String) value;
+            encryptedStringFactory.validate(stringValue, this.getName());
+        }
+        else if (HexStringFactory.class.equals(this.getValueFactory())) {
+            HexStringFactory hexStringFactory = (HexStringFactory) this.getValueFactory();
+            String stringValue = (String) value;
+            hexStringFactory.validate(stringValue, this.getName());
+        }
+        else if (PasswordFactory.class.equals(this.getValueFactory())) {
+            PasswordFactory passwordFactory = (PasswordFactory) this.getValueFactory();
+            Password password = (Password) value;
+            passwordFactory.validate(password, this.getName());
+        }
+        if (this.possibleValues != null && this.possibleValues.isExhaustive()) {
+            if (!this.possibleValues.getAllValues().contains(value)) {
+                throw new InvalidValueException("XisNotAPossibleValue", "The value \"{0}\" is not list a possible value for this property", this.getName());
+            }
+        }
+        return true;
+    }
+
 }

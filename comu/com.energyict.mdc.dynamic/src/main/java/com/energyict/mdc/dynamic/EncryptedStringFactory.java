@@ -2,6 +2,7 @@ package com.energyict.mdc.dynamic;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.properties.AbstractValueFactory;
+import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -14,6 +15,8 @@ import javax.inject.Inject;
  * @since 2013-11-29 (17:57)
  */
 public class EncryptedStringFactory extends AbstractValueFactory<String> {
+
+    public static final int MAX_SIZE = 4000;
 
     private final DataVaultService dataVaultService;
 
@@ -29,7 +32,7 @@ public class EncryptedStringFactory extends AbstractValueFactory<String> {
 
     @Override
     public String getDatabaseTypeName () {
-        return "varchar2(4000)";
+        return "varchar2(" + MAX_SIZE + ")";
     }
 
     @Override
@@ -87,6 +90,13 @@ public class EncryptedStringFactory extends AbstractValueFactory<String> {
         }
         else {
             statement.setNull(offset, this.getJdbcType());
+        }
+    }
+
+    public void validate (String value, String propertyName) throws InvalidValueException {
+        String encryptedValue = this.encrypt(value);
+        if (encryptedValue.length() > MAX_SIZE) {
+            throw new InvalidValueException("XisToBig", "The value \"{0}\" is too large for this property (max length=4000)", propertyName);
         }
     }
 
