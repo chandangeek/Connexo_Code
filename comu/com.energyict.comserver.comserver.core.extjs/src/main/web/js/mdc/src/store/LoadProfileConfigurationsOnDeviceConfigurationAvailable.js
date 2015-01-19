@@ -8,6 +8,9 @@ Ext.define('Mdc.store.LoadProfileConfigurationsOnDeviceConfigurationAvailable', 
     proxy: {
         type: 'rest',
         url: '/api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/loadprofileconfigurations/available',
+        pageParam: false,
+        startParam: false,
+        limitParam: false,
         reader: {
             type: 'json',
             root: 'data'
