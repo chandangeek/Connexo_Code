@@ -97,11 +97,18 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
     },
     items: [
         {
-            itemId: 'header',
             ui: 'medium',
             framed: true,
             cls: Uni.About.baseCssPrefix + 'panel-no-items-found',
             items: [
+                {
+                    xtype: 'container',
+                    cls: Uni.About.baseCssPrefix + 'panel-no-items-found-header',
+                    items: {
+                        xtype: 'container',
+                        itemId: 'header'
+                    }
+                },
                 {
                     xtype: 'panel',
                     itemId: 'wrapper',
@@ -124,7 +131,7 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
         var wrapper = me.down('#wrapper');
         var header = me.down('#header');
 
-        header.setTitle(me.title);
+        header.update(me.title);
 
         if (Ext.isArray(me.reasons) || Ext.isString(me.reasons)) {
             var formattedReasons = me.formatReasons(me.reasons);
