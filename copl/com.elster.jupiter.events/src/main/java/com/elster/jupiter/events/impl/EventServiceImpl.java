@@ -27,19 +27,15 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.event.EventAdmin;
-
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Component(name = "com.elster.jupiter.events", service = {InstallService.class, EventService.class}, property = "name=" + EventService.COMPONENTNAME, immediate = true)
 public class EventServiceImpl implements EventService, InstallService {
 
     private volatile Clock clock;
-    private final AtomicReference<EventAdmin> eventAdmin = new AtomicReference<>();
     private volatile Publisher publisher;
     private volatile BeanService beanService;
     private volatile MessageService messageService;
@@ -54,9 +50,8 @@ public class EventServiceImpl implements EventService, InstallService {
     }
 
     @Inject
-    public EventServiceImpl(Clock clock, JsonService jsonService, Publisher publisher, BeanService beanService, OrmService ormService, MessageService messageService, BundleContext bundleContext, EventAdmin eventAdmin, NlsService nlsService) {
+    public EventServiceImpl(Clock clock, JsonService jsonService, Publisher publisher, BeanService beanService, OrmService ormService, MessageService messageService, BundleContext bundleContext, NlsService nlsService) {
         setClock(clock);
-        setEventAdmin(eventAdmin);
         setPublisher(publisher);
         setBeanService(beanService);
         setJsonService(jsonService);
@@ -90,15 +85,6 @@ public class EventServiceImpl implements EventService, InstallService {
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
-    }
-
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-    public final void setEventAdmin(EventAdmin eventAdmin) {
-        this.eventAdmin.set(eventAdmin);
-    }
-
-    public final void unsetEventAdmin(EventAdmin eventAdmin) {
-        this.eventAdmin.compareAndSet(eventAdmin, null);
     }
 
     @Reference
@@ -171,10 +157,6 @@ public class EventServiceImpl implements EventService, InstallService {
         EventType eventType = found.get();
         LocalEvent localEvent = eventType.create(source);
         publisher.publish(localEvent); // synchronous call, may throw an exception to prevent transaction commit should be prior to further propagating the event.
-        EventAdmin eventAdmin = this.eventAdmin.get();
-        if (eventAdmin != null) {
-            eventAdmin.postEvent(localEvent.toOsgiEvent());
-        }
         if (eventType.shouldPublish()) {
             localEvent.publish();
         }

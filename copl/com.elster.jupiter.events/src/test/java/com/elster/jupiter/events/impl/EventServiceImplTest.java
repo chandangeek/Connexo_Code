@@ -24,9 +24,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -52,8 +49,6 @@ public class EventServiceImplTest {
     private Publisher publisher;
     @Mock
     private LocalEvent localEvent;
-    @Mock
-    private EventAdmin eventAdmin;
     @Mock
     private DataMapper<EventPropertyType> eventTypePropertyFactory;
     @Mock
@@ -82,7 +77,6 @@ public class EventServiceImplTest {
 
         eventService.setOrmService(ormService);
         eventService.setPublisher(publisher);
-        eventService.setEventAdmin(eventAdmin);
         eventService.setNlsService(nlsService);
     }
 
@@ -102,16 +96,6 @@ public class EventServiceImplTest {
         eventService.postEvent(TOPIC, "");
 
         verify(publisher).publish(localEvent);
-    }
-
-    @Test
-    public void testPostEventPublishesOsgiEvent() {
-        Event osgiEvent = mock(Event.class);
-        when(localEvent.toOsgiEvent()).thenReturn(osgiEvent);
-
-        eventService.postEvent(TOPIC, "");
-
-        verify(eventAdmin).postEvent(osgiEvent);
     }
 
     @Test
