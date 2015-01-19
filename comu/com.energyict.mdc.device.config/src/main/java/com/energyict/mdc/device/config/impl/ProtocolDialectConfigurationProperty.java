@@ -1,10 +1,14 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 
 import javax.inject.Inject;
+import javax.validation.constraints.Size;
 import java.time.Instant;
 
 /**
@@ -15,7 +19,9 @@ import java.time.Instant;
 public class ProtocolDialectConfigurationProperty {
 
     private Reference<ProtocolDialectConfigurationProperties> properties = ValueReference.absent();
+    @Size(max = 255, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
+    @Size(max = 4000, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String value;
     private String userName;
     private long version;
