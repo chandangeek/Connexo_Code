@@ -1,12 +1,8 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
@@ -19,6 +15,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
 import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
 import com.energyict.mdc.device.data.impl.tasks.IpConnectionType;
+import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
 import com.energyict.mdc.device.data.impl.tasks.OutboundNoParamsConnectionTypeImpl;
 import com.energyict.mdc.device.data.impl.tasks.SimpleDiscoveryProtocol;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
@@ -31,14 +28,22 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
-import org.fest.assertions.core.Condition;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.google.common.base.Strings;
+import org.fest.assertions.core.Condition;
+
+import javax.validation.ConstraintViolationException;
+import java.math.BigDecimal;
 import java.util.List;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -53,17 +58,62 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     private static final ComWindow COM_WINDOW = new ComWindow();
     private static final String MRID = "MRID";
 
+    private static ConnectionTypePluggableClass ipConnectionTypePluggableClass;
+    private static ConnectionTypePluggableClass outboundNoParamsPluggableClass;
+    private static ConnectionTypePluggableClass inboundNoParamsPluggableClass;
+
     private OutboundComPortPool outboundComPortPool;
     private OutboundComPortPool otherOutboundComPortPool;
     private InboundComPortPool inboundComPortPool;
     private InboundComPortPool otherInboundComPortPool;
-    private ConnectionTypePluggableClass connectionTypeOutboundPluggableClass, connectionTypeInboundPluggableClass;
-    private ConnectionTypePluggableClass ipConnectionTypePluggableClass;
-    private InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass;
     private PartialScheduledConnectionTask partialScheduledConnectionTask;
     private PartialInboundConnectionTask partialInboundConnectionTask;
     private PartialConnectionInitiationTask partialConnectionInitiationTask;
-    private TimeDuration frequency = TimeDuration.hours(1);
+
+    @BeforeClass
+    public static void initializePluggableClasses() {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            outboundNoParamsPluggableClass = inMemoryPersistence.getProtocolPluggableService().newConnectionTypePluggableClass("NoParamsOutboundConnectionType", OutboundNoParamsConnectionTypeImpl.class.getName());
+            outboundNoParamsPluggableClass.save();
+            inboundNoParamsPluggableClass = inMemoryPersistence.getProtocolPluggableService().newConnectionTypePluggableClass("NoParamsInboundConnectionType", InboundNoParamsConnectionTypeImpl.class.getName());
+            inboundNoParamsPluggableClass.save();
+            ipConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().newConnectionTypePluggableClass("IPConnectionType", OutboundIpConnectionTypeImpl.class.getName());
+            ipConnectionTypePluggableClass.save();
+            context.commit();
+        }
+    }
+
+    @AfterClass
+    public static void deletePluggableClasses() {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            outboundNoParamsPluggableClass.delete();
+            inboundNoParamsPluggableClass.delete();
+            ipConnectionTypePluggableClass.delete();
+            context.commit();
+        }
+    }
+
+    @Before
+    public void initBefore() {
+        outboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool("OutboundComPortPool", ComPortType.TCP, TimeDuration.minutes(15));
+        outboundComPortPool.setActive(true);
+        outboundComPortPool.save();
+
+        otherOutboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool("OtherPool", ComPortType.TCP, TimeDuration.minutes(30));
+        otherOutboundComPortPool.setActive(true);
+        otherOutboundComPortPool.save();
+
+        InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass = inMemoryPersistence.getProtocolPluggableService()
+                .newInboundDeviceProtocolPluggableClass("MyInboundDeviceProtocolPluggableClass", SimpleDiscoveryProtocol.class.getName());
+        inboundDeviceProtocolPluggableClass.save();
+        inboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool("InboundComPortPool", ComPortType.TCP, inboundDeviceProtocolPluggableClass);
+        inboundComPortPool.setActive(true);
+        inboundComPortPool.save();
+
+        otherInboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool("OtherInboundPool", ComPortType.TCP, inboundDeviceProtocolPluggableClass);
+        otherInboundComPortPool.setActive(true);
+        otherInboundComPortPool.save();
+    }
 
     private DeviceConfiguration createDeviceConfigWithPartialOutboundConnectionTask() {
         DeviceType.DeviceConfigurationBuilder configurationWithConnectionType = deviceType.newConfiguration("ConfigurationWithPartialOutboundConnectionTask");
@@ -79,6 +129,7 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = configurationWithConnectionType.add();
         addPartialIpOutboundConnectionTask(deviceConfiguration);
         deviceType.save();
+        deviceConfiguration.activate();
         return deviceConfiguration;
     }
 
@@ -95,6 +146,7 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = configurationWithConnectionType.add();
         addPartialInboundConnectionTask(deviceConfiguration);
         deviceType.save();
+        deviceConfiguration.activate();
         return deviceConfiguration;
     }
 
@@ -118,11 +170,11 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     }
 
     private void addPartialOutboundConnectionTask(DeviceConfiguration communicationConfiguration) {
-        addPartialOutboundConnectionTaskFor(communicationConfiguration, this.connectionTypeOutboundPluggableClass);
+        addPartialOutboundConnectionTaskFor(communicationConfiguration, outboundNoParamsPluggableClass);
     }
 
     private void addPartialIpOutboundConnectionTask(DeviceConfiguration communicationConfiguration) {
-        addPartialOutboundConnectionTaskFor(communicationConfiguration, this.ipConnectionTypePluggableClass);
+        addPartialOutboundConnectionTaskFor(communicationConfiguration, ipConnectionTypePluggableClass);
     }
 
     private void addPartialOutboundConnectionTaskFor(DeviceConfiguration communicationConfiguration, ConnectionTypePluggableClass connectionTypePluggableClass) {
@@ -135,11 +187,7 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     }
 
     private void addPartialInboundConnectionTask(DeviceConfiguration deviceConfiguration) {
-        addPartialInboundConnectionTaskFor(deviceConfiguration, this.connectionTypeInboundPluggableClass);
-    }
-
-    private void addPartialIpInboundConnectionTask(DeviceConfiguration deviceConfiguration) {
-        addPartialInboundConnectionTaskFor(deviceConfiguration, this.ipConnectionTypePluggableClass);
+        addPartialInboundConnectionTaskFor(deviceConfiguration, inboundNoParamsPluggableClass);
     }
 
     private void addPartialInboundConnectionTaskFor(DeviceConfiguration deviceConfiguration, ConnectionTypePluggableClass connectionTypePluggableClass) {
@@ -151,38 +199,11 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     }
 
     private void addPartialConnectionInitiationConnectionTask(DeviceConfiguration deviceConfiguration) {
-        PartialConnectionInitiationTaskBuilder partialConnectionInitiationTaskBuilder = deviceConfiguration.newPartialConnectionInitiationTask("MyConnectionInitiationTask", connectionTypeOutboundPluggableClass, TimeDuration.seconds(60))
+        PartialConnectionInitiationTaskBuilder partialConnectionInitiationTaskBuilder = deviceConfiguration.newPartialConnectionInitiationTask("MyConnectionInitiationTask", outboundNoParamsPluggableClass, TimeDuration
+                .seconds(60))
                 .comPortPool(outboundComPortPool);
         partialConnectionInitiationTask = partialConnectionInitiationTaskBuilder.build();
         deviceConfiguration.save();
-    }
-
-    @Before
-    public void initBefore() {
-        connectionTypeOutboundPluggableClass = inMemoryPersistence.getProtocolPluggableService().newConnectionTypePluggableClass("NoParamsOutboundConnectionType", OutboundNoParamsConnectionTypeImpl.class.getName());
-        connectionTypeOutboundPluggableClass.save();
-        connectionTypeInboundPluggableClass = inMemoryPersistence.getProtocolPluggableService().newConnectionTypePluggableClass("NoParamsInboundConnectionType", InboundNoParamsConnectionTypeImpl.class.getName());
-        connectionTypeInboundPluggableClass.save();
-//        ipConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().newConnectionTypePluggableClass("IPConnectionType", IpConnectionType.class.getName());
-//        ipConnectionTypePluggableClass.save(); // TODO enable again once JP-1123 is completely finished
-
-        outboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool("OutboundComPortPool", ComPortType.TCP, TimeDuration.minutes(15));
-        outboundComPortPool.setActive(true);
-        outboundComPortPool.save();
-
-        otherOutboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool("OtherPool", ComPortType.TCP, TimeDuration.minutes(30));
-        otherOutboundComPortPool.setActive(true);
-        otherOutboundComPortPool.save();
-
-        inboundDeviceProtocolPluggableClass = inMemoryPersistence.getProtocolPluggableService().newInboundDeviceProtocolPluggableClass("MyInboundDeviceProtocolPluggableClass", SimpleDiscoveryProtocol.class.getName());
-        inboundDeviceProtocolPluggableClass.save();
-        inboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool("InboundComPortPool", ComPortType.TCP, inboundDeviceProtocolPluggableClass);
-        inboundComPortPool.setActive(true);
-        inboundComPortPool.save();
-
-        otherInboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool("OtherInboundPool", ComPortType.TCP, inboundDeviceProtocolPluggableClass);
-        otherInboundComPortPool.setActive(true);
-        otherInboundComPortPool.save();
     }
 
     @Test
@@ -448,7 +469,7 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         scheduledConnectionTaskBuilder.setNextExecutionSpecsFrom(nextExecutionSpecTempExpression);
         scheduledConnectionTaskBuilder.setCommunicationWindow(communicationWindow);
         scheduledConnectionTaskBuilder.setComPortPool(otherOutboundComPortPool);
-        ScheduledConnectionTask scheduledConnectionTask = scheduledConnectionTaskBuilder.add();
+        scheduledConnectionTaskBuilder.add();
 
         Device reloadedDevice = getReloadedDevice(device);
 
@@ -484,18 +505,18 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         });
     }
 
-    @Ignore // TODO enable again once JP-1123 is completely finished
     @Test
     @Transactional
     public void scheduledConnectionTaskBuilderPropertyTest() {
-        final String ipAddress = "10.0.1.12";
-        final int portNumber = 4059;
+        String ipAddress = "10.0.1.12";
+        BigDecimal portNumber = new BigDecimal("4059");
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialIpOutboundConnectionTask();
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID);
+        device.save();
         Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask);
         scheduledConnectionTaskBuilder.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, ipAddress);
         scheduledConnectionTaskBuilder.setProperty(IpConnectionType.PORT_PROPERTY_NAME, portNumber);
-        ScheduledConnectionTask scheduledConnectionTask = scheduledConnectionTaskBuilder.add();
+        scheduledConnectionTaskBuilder.add();
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
@@ -520,6 +541,24 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         assertThat(reloadedDevice.getConnectionInitiationTasks()).isEmpty();
     }
 
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void scheduledConnectionTaskBuilderLargePropertyTest() {
+        String ipAddress = Strings.repeat("10.0.1.12", StringFactory.MAX_SIZE);
+        BigDecimal portNumber = new BigDecimal("4059");
+        DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialIpOutboundConnectionTask();
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID);
+        Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask);
+        scheduledConnectionTaskBuilder.setProperty(IpConnectionType.PORT_PROPERTY_NAME, portNumber);
+
+        // Business method
+        scheduledConnectionTaskBuilder.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, ipAddress);
+        scheduledConnectionTaskBuilder.add();
+        device.save();
+
+        // Asserts: see expected exception rule
+    }
+
     @Test
     @Transactional
     public void inboundConnectionTaskBuilderTest() {
@@ -529,7 +568,7 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         device.save();
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = device.getInboundConnectionTaskBuilder(partialInboundConnectionTask);
         inboundConnectionTaskBuilder.setComPortPool(otherInboundComPortPool);
-        InboundConnectionTask inboundConnectionTask = inboundConnectionTaskBuilder.add();
+        inboundConnectionTaskBuilder.add();
 
         Device reloadedDevice = getReloadedDevice(device);
         assertThat(reloadedDevice.getConnectionTasks().get(0).getComPortPool().getId()).isEqualTo(otherInboundComPortPool.getId());
@@ -539,40 +578,42 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         assertThat(reloadedDevice.getConnectionInitiationTasks()).isEmpty();
     }
 
-    @Ignore // TODO enable again once JP-1123 is completely finished
     @Test
     @Transactional
     public void inboundConnectionTaskBuilderPropertyTest() {
-        final String ipAddress = "10.0.1.12";
-        final int portNumber = 4059;
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialIpInboundConnectionTask();
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID);
+        device.save();
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = device.getInboundConnectionTaskBuilder(partialInboundConnectionTask);
-        inboundConnectionTaskBuilder.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, ipAddress);
-        inboundConnectionTaskBuilder.setProperty(IpConnectionType.PORT_PROPERTY_NAME, portNumber);
-        InboundConnectionTask inboundConnectionTask = inboundConnectionTaskBuilder.add();
+        inboundConnectionTaskBuilder.add();
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        assertThat(reloadedDevice.getConnectionTasks().get(0).getProperties()).has(new Condition<List<ConnectionTaskProperty>>() {
-            @Override
-            public boolean matches(List<ConnectionTaskProperty> value) {
-                int bothMatch = 0b0000;
-                for (ConnectionTaskProperty connectionTaskProperty : value) {
-                    if (connectionTaskProperty.getName().equals(IpConnectionType.IP_ADDRESS_PROPERTY_NAME) && connectionTaskProperty.getValue().toString().equals(ipAddress)) {
-                        bothMatch |= 0b0001;
-                    }
-                    if (connectionTaskProperty.getName().equals(IpConnectionType.PORT_PROPERTY_NAME) && connectionTaskProperty.getValue().equals(portNumber)) {
-                        bothMatch |= 0b0010;
-                    }
-                }
-                return bothMatch == 0b0011;
-            }
-        });
-
+        assertThat(reloadedDevice.getConnectionTasks()).hasSize(1);
         assertThat(reloadedDevice.getInboundConnectionTasks()).hasSize(1);
         assertThat(reloadedDevice.getScheduledConnectionTasks()).isEmpty();
         assertThat(reloadedDevice.getConnectionInitiationTasks()).isEmpty();
+        InboundConnectionTask inboundConnectionTask = reloadedDevice.getInboundConnectionTasks().get(0);
+        assertThat(inboundConnectionTask.getProperties()).isEmpty();
+
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void inboundConnectionTaskBuilderLargePropertyTest() {
+        String ipAddress = Strings.repeat("10.0.1.12", StringFactory.MAX_SIZE);
+        BigDecimal portNumber = new BigDecimal("4059");
+        DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialIpInboundConnectionTask();
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID);
+        Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = device.getInboundConnectionTaskBuilder(partialInboundConnectionTask);
+        inboundConnectionTaskBuilder.setProperty(IpConnectionType.PORT_PROPERTY_NAME, portNumber);
+
+        // Business method
+        inboundConnectionTaskBuilder.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, ipAddress);
+        inboundConnectionTaskBuilder.add();
+        device.save();
+
+        // Asserts: see expected exception rule
     }
 
     @Test
@@ -583,41 +624,29 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         device.save();
         Device.ConnectionInitiationTaskBuilder connectionInitiationTaskBuilder = device.getConnectionInitiationTaskBuilder(partialConnectionInitiationTask);
         connectionInitiationTaskBuilder.setComPortPool(otherOutboundComPortPool);
-        ConnectionInitiationTask connectionInitiationTask = connectionInitiationTaskBuilder.add();
+        connectionInitiationTaskBuilder.add();
 
         Device reloadedDevice = getReloadedDevice(device);
         assertThat(reloadedDevice.getConnectionTasks().get(0).getComPortPool().getId()).isEqualTo(otherOutboundComPortPool.getId());
     }
 
-    @Ignore // TODO enable again once JP-1123 is completely finished
     @Test
     @Transactional
     public void connectionInitiationTaskBuilderPropertyTest() {
-        final String ipAddress = "10.0.1.12";
-        final int portNumber = 4059;
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialConnectionInitiationTask();
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID);
+        device.save();
         Device.ConnectionInitiationTaskBuilder connectionInitiationTaskBuilder = device.getConnectionInitiationTaskBuilder(partialConnectionInitiationTask);
-        connectionInitiationTaskBuilder.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, ipAddress);
-        connectionInitiationTaskBuilder.setProperty(IpConnectionType.PORT_PROPERTY_NAME, portNumber);
-        ConnectionInitiationTask connectionInitiationTask = connectionInitiationTaskBuilder.add();
+        connectionInitiationTaskBuilder.add();
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        assertThat(reloadedDevice.getConnectionTasks().get(0).getProperties()).has(new Condition<List<ConnectionTaskProperty>>() {
-            @Override
-            public boolean matches(List<ConnectionTaskProperty> value) {
-                int bothMatch = 0b0000;
-                for (ConnectionTaskProperty connectionTaskProperty : value) {
-                    if (connectionTaskProperty.getName().equals(IpConnectionType.IP_ADDRESS_PROPERTY_NAME) && connectionTaskProperty.getValue().toString().equals(ipAddress)) {
-                        bothMatch |= 0b0001;
-                    }
-                    if (connectionTaskProperty.getName().equals(IpConnectionType.PORT_PROPERTY_NAME) && connectionTaskProperty.getValue().equals(portNumber)) {
-                        bothMatch |= 0b0010;
-                    }
-                }
-                return bothMatch == 0b0011;
-            }
-        });
+        assertThat(reloadedDevice.getConnectionTasks()).hasSize(1);
+        assertThat(reloadedDevice.getConnectionInitiationTasks()).hasSize(1);
+        assertThat(reloadedDevice.getInboundConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getScheduledConnectionTasks()).isEmpty();
+        ConnectionInitiationTask connectionInitiationTask = reloadedDevice.getConnectionInitiationTasks().get(0);
+        assertThat(connectionInitiationTask.getProperties()).isEmpty();
     }
+
 }

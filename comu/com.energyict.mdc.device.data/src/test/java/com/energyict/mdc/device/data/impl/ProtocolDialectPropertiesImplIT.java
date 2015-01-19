@@ -8,6 +8,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.google.common.base.Strings;
 import com.google.common.collect.Range;
 
 import com.energyict.mdc.common.BusinessException;
@@ -50,6 +51,9 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
+import javax.validation.ConstraintViolationException;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -374,6 +378,18 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
         // Business method
         device.setProtocolDialectProperty("DoesNotExist", REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void createWithVeryLargeProperty() throws SQLException, BusinessException {
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createWithNonExistingConfigurationPropertiesTest", MRID);
+
+        // Business method
+        device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, Strings.repeat("A", StringFactory.MAX_SIZE + 1));
+        device.save();
 
         // Asserts: see expected exception rule
     }

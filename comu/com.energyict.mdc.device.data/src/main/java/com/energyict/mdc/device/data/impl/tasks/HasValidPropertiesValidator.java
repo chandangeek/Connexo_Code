@@ -80,13 +80,10 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
     private void validatePropertyValue(ConnectionType connectionType, String propertyName, Object propertyValue, ConstraintValidatorContext context) {
         PropertySpec propertySpec=null;
         try {
-
             /* Not using fail-fast anymore so it is possible
-             * that there is not spec for the propertyName. */
+             * that there is no spec for the propertyName. */
             propertySpec = connectionType.getPropertySpec(propertyName);
-
             if (propertySpec != null) {
-
                 /**
                  * Required properties can be left empty in an incomplete state.
                  * If a required property is filled in, then it should be valid.

@@ -94,14 +94,14 @@ public abstract class PersistentIdObject<D> {
      * Saves this object for the first time.
      */
     protected void postNew() {
-        Save.CREATE.save(this.dataModel, this, Save.Create.class);
+        Save.CREATE.save(this.dataModel, this);
     }
 
     /**
      * Updates the changes made to this object.
      */
     protected void post() {
-        Save.UPDATE.save(this.dataModel, this, Save.Update.class);
+        Save.UPDATE.save(this.dataModel, this);
     }
 
     /**
