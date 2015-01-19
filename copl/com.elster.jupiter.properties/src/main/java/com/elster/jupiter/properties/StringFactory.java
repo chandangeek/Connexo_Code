@@ -14,6 +14,8 @@ import com.elster.jupiter.util.sql.SqlBuilder;
  */
 public class StringFactory extends AbstractValueFactory<String> {
 
+    public static final int MAX_SIZE = 4000;
+
     @Override
     public Class<String> getValueType () {
         return String.class;
@@ -21,7 +23,7 @@ public class StringFactory extends AbstractValueFactory<String> {
 
     @Override
     public String getDatabaseTypeName () {
-        return "varchar2(4000)";
+        return "varchar2(" + MAX_SIZE + ")";
     }
 
     @Override

@@ -7,10 +7,11 @@ import java.util.Optional;
 
 public class ListValueFactory<T extends ListValueEntry> extends AbstractValueFactory<ListValue<T>> {
 
+    public static final int MAX_SIZE = 4000;
     private static final String LIST_SEPARATOR = ",";
-    
+
     private FindById<T> finder;
-    
+
     public ListValueFactory(FindById<T> finder) {
         this.finder = finder;
     }
@@ -23,7 +24,7 @@ public class ListValueFactory<T extends ListValueEntry> extends AbstractValueFac
 
     @Override
     public String getDatabaseTypeName() {
-        return "varchar2(4000)";
+        return "varchar2(" + MAX_SIZE + ")";
     }
 
     @Override

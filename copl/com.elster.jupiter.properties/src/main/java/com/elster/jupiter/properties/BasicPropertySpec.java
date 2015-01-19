@@ -82,6 +82,18 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
             if (!this.getValueFactory().getValueType().isAssignableFrom(value.getClass())) {
                 throw new InvalidValueException("XisNotCompatibleWithAttributeY", "The value \"{0}\" is not compatible with the attribute specification {1}.", this.getName(), value);
             }
+            else if (StringFactory.class.equals(this.getValueFactory())) {
+                String stringValue = (String) value;
+                if (stringValue.length() > StringFactory.MAX_SIZE) {
+                    throw new InvalidValueException("XisToBig", "The value \"{0}\" is too large for this property (max length=" + StringFactory.MAX_SIZE + ")", this.getName());
+                }
+            }
+            else if (ListValueFactory.class.equals(this.getValueFactory())) {
+                String stringValue = (String) value;
+                if (stringValue.length() > ListValueFactory.MAX_SIZE) {
+                    throw new InvalidValueException("XisToBig", "The value \"{0}\" is too large for this property (max length=" + ListValueFactory.MAX_SIZE + ")", this.getName());
+                }
+            }
             if (possibleValues != null && possibleValues.isExhaustive()) {
                 if (!isValuePossible(value)) {
                     throw new InvalidValueException("XisNotAPossibleValue", "The value \"{0}\" is not list a possible value for this property", this.getName());
