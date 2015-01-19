@@ -30,7 +30,7 @@ public class AppServerFactory extends NamedFactory<AppServerFactory, AppServer> 
         this.messageService = messageService;
         this.dataExportService = dataExportService;
 
-        this.exportPath = "D:\\temp";
+        this.exportPath = "D:\\Data-Export";
         this.threadCount = 1;
     }
 

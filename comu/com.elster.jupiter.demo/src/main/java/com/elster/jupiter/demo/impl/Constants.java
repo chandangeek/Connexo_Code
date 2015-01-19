@@ -35,6 +35,12 @@ public final class Constants {
         private DeviceGroup() {}
     }
 
+    public static final class DataExportTask{
+        public static final String DEFAULT_PREFIX = "Consumption data exporter - ";
+
+        private DataExportTask() {}
+    }
+
     public static final class User{
         public static final String MELISSA = "Melissa";
         public static final String SAM = "Sam";
@@ -55,8 +61,6 @@ public final class Constants {
         public static final String ADMINISTRATORS = "Administrators";
         public static final String METER_EXPERT = "Meter expert";
         public static final String METER_OPERATOR = "Meter operator";
-        public static final String SECURITY_EXPERT = "Security expert";
-        public static final String SECURITY_EXPERT_DESCRIPTION = "Manage security sets and keys";
 
         private UserRoles() {}
     }
@@ -200,6 +204,13 @@ public final class Constants {
             }
             return ComPortPool.ORANGE;
         }
+    }
+
+    public static class SecuritySet {
+
+        public static final String NO_SECURITY = "No security";
+
+        private SecuritySet() {}
     }
 
     public static class IssueReason {

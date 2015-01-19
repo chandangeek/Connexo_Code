@@ -777,7 +777,7 @@ public class DemoServiceImpl implements DemoService {
     }
 
     private SecurityPropertySet createSecurityPropertySetForDeviceConfiguration(DeviceConfiguration configuration) {
-        SecurityPropertySet securityPropertySet = configuration.createSecurityPropertySet("No security").authenticationLevel(0).encryptionLevel(0).build();
+        SecurityPropertySet securityPropertySet = configuration.createSecurityPropertySet(Constants.SecuritySet.NO_SECURITY).authenticationLevel(0).encryptionLevel(0).build();
         securityPropertySet.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
         securityPropertySet.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
         securityPropertySet.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1);
@@ -816,7 +816,7 @@ public class DemoServiceImpl implements DemoService {
     private void createDevicesForDeviceConfiguration(Store store, DeviceConfiguration configuration){
         System.out.println("==> Creating Devices for Configuration...");
         String deviceTypeName = configuration.getDeviceType().getName();
-        for (int i = 1; i <= 1 /*Constants.DeviceType.from(deviceTypeName).get().getDeviceCount()*/; i++) {
+        for (int i = 1; i <= Constants.DeviceType.from(deviceTypeName).get().getDeviceCount(); i++) {
             deviceCounter++;
             String serialNumber = "01000001" + String.format("%04d", deviceCounter);
             String mrid = Constants.Device.STANDARD_PREFIX +  serialNumber;
@@ -832,6 +832,16 @@ public class DemoServiceImpl implements DemoService {
                 .withComSchedules(Constants.CommunicationSchedules.DAILY_READ_ALL)
                 .get();
         addConnectionMethodToDevice(store, configuration, device);
+
+        setSecurityPropertiesForDevice(configuration, device);
+    }
+
+    private void setSecurityPropertiesForDevice(DeviceConfiguration configuration, Device device) {
+        for (SecurityPropertySet securityPropertySet : configuration.getSecurityPropertySets()) {
+            TypedProperties typedProperties = TypedProperties.empty();
+            typedProperties.setProperty("ClientMacAddress", new BigDecimal(1));
+            device.setSecurityProperties(securityPropertySet, typedProperties);
+       }
     }
 
     private void addConnectionMethodToDevice(Store store, DeviceConfiguration configuration, Device device) {
@@ -862,10 +872,6 @@ public class DemoServiceImpl implements DemoService {
     }
 
     public void createUserManagementImpl(){
-        if (!userService.findGroup(Constants.UserRoles.SECURITY_EXPERT).isPresent()){
-            userService.createGroup(Constants.UserRoles.SECURITY_EXPERT, Constants.UserRoles.SECURITY_EXPERT_DESCRIPTION);
-        }
-
         injector.getInstance(UserFactory.class).withName(Constants.User.MELISSA).withRoles(Constants.UserRoles.METER_EXPERT).get();
         injector.getInstance(UserFactory.class).withName(Constants.User.SAM).withLanguage(Locale.US.toLanguageTag()).withRoles(Constants.UserRoles.ADMINISTRATORS).get();
         injector.getInstance(UserFactory.class).withName(Constants.User.PIETER).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
@@ -906,8 +912,10 @@ public class DemoServiceImpl implements DemoService {
     }
 
     public void createDeliverDataSetupImpl(){
-        injector.getInstance(DataExportTaskFactory.class).withName(Constants.DeviceGroup.NORTH_REGION).get();
-        injector.getInstance(DataExportTaskFactory.class).withName(Constants.DeviceGroup.SOUTH_REGION).get();
+        injector.getInstance(DataExportTaskFactory.class).withName(Constants.DataExportTask.DEFAULT_PREFIX + Constants.DeviceGroup.NORTH_REGION)
+                .withGroup(Constants.DeviceGroup.NORTH_REGION).get();
+        injector.getInstance(DataExportTaskFactory.class).withName(Constants.DataExportTask.DEFAULT_PREFIX + Constants.DeviceGroup.SOUTH_REGION)
+                .withGroup(Constants.DeviceGroup.SOUTH_REGION).get();
     }
 
     public void createKpi(){
@@ -916,7 +924,7 @@ public class DemoServiceImpl implements DemoService {
     }
 
     public void createApplicationServerImpl(final String appServerName){
-        injector.getInstance(AppServerFactory.class).withName(appServerName).get();
+        injector.getInstance(AppServerFactory.class).withName(appServerName.toUpperCase()).get();
     }
 
     public void createA3DeviceImpl(){

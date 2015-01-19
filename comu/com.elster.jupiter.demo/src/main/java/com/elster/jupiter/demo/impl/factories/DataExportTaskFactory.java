@@ -23,12 +23,19 @@ public class DataExportTaskFactory extends NamedFactory<DataExportTaskFactory, R
     private final MeteringGroupsService meteringGroupsService;
     private final TimeService timeService;
 
+    private String group;
+
     @Inject
     public DataExportTaskFactory(DataExportService dataExportService, MeteringGroupsService meteringGroupsService, TimeService timeService) {
         super(DataExportTaskFactory.class);
         this.meteringGroupsService = meteringGroupsService;
         this.dataExportService = dataExportService;
         this.timeService = timeService;
+    }
+
+    public DataExportTaskFactory withGroup(String group){
+        this.group = group;
+        return this;
     }
 
     @Override
@@ -38,9 +45,9 @@ public class DataExportTaskFactory extends NamedFactory<DataExportTaskFactory, R
         if (!yesterday.isPresent()){
             throw new UnableToCreate("Unable to find the relative yesterday period");
         }
-        Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroupByName(getName());
+        Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroupByName(group);
         if (!endDeviceGroup.isPresent()){
-            throw new UnableToCreate("Unable to find the device group with name " + getName());
+            throw new UnableToCreate("Unable to find the device group with name " + group);
         }
         LocalDateTime startOn = LocalDateTime.now();
         startOn = startOn.withSecond(0).withMinute(0).withHour(11);
