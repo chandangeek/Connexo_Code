@@ -1,6 +1,7 @@
 Ext.define('Mdc.view.setup.validation.RuleSetsGrid', {
     extend: 'Ext.grid.Panel',
     xtype: 'validation-rulesets-grid',
+    itemId: 'grd-validation-rule-sets',
     overflowY: 'auto',
 
     requires: [

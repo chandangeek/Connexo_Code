@@ -1,6 +1,7 @@
 Ext.define('Mdc.view.setup.validation.RulesGrid', {
     extend: 'Ext.grid.Panel',
     xtype: 'validation-rules-grid',
+    itemId: 'grd-validation-rules',
 
     requires: [
         'Mdc.view.setup.validation.RuleActionMenu',

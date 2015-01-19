@@ -1,6 +1,7 @@
 Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
     extend: 'Uni.view.grid.BulkSelection',
     xtype: 'validation-add-rulesets-grid',
+    itemId: 'grid-add-rule-sets',
 
     requires: [
         'Mdc.view.setup.validation.AddRuleSetActionMenu',
