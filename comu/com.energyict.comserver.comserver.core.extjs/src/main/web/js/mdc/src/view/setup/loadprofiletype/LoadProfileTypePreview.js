@@ -12,8 +12,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
     tools: [
         {
             xtype: 'button',
+            itemId: 'load-profile-type-action-menu-button',
             text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.masterData'),
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'load-profile-type-action-menu'
