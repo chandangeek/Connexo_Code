@@ -234,6 +234,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
 
     WEB_RTU_KP_V2(199, "com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP", ProtocolFamily.EICT_NTA),
     CX20009_V2(200, "com.energyict.protocolimplv2.edp.CX20009", ProtocolFamily.EDP_DLMS),
+    DSMR23_MBUS_EICT_V2(203, "com.energyict.protocolimplv2.nta.dsmr23.eict.MbusDevice", ProtocolFamily.EICT_NTA),
 
     //test with all properties
     SDK_SAMPLE_PROTOCOL_TEST_WITH_ALL_PROPERTIES(5001, "com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithAllProperties", ProtocolFamily.TEST), // need to make sure we don't run into duplicates with legacy development

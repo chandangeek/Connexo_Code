@@ -42,6 +42,7 @@ import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -138,10 +139,10 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                                     this.readingTypeUtilService.getReadingTypeFrom(register.getAmrRegisterObisCode(), register.getUnit()));
                     deviceRegister.setCollectedData(rv.getQuantity(), rv.getText());
                     deviceRegister.setCollectedTimeStamps(
-                            rv.getReadTime().toInstant(),
-                            rv.getFromTime().toInstant(),
-                            rv.getToTime().toInstant(),
-                            rv.getEventTime().toInstant());
+                            getNullSafeInstants(rv.getReadTime()),
+                            getNullSafeInstants(rv.getFromTime()),
+                            getNullSafeInstants(rv.getToTime()),
+                            getNullSafeInstants(rv.getEventTime()));
                     collectedRegisters.add(deviceRegister);
                 } else {
                     collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));
@@ -159,6 +160,13 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
             }
         }
         return collectedRegisters;
+    }
+
+    private Instant getNullSafeInstants(Date date) {
+        if(date != null){
+            return date.toInstant();
+        }
+        return null;
     }
 
     /**
@@ -348,7 +356,9 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
         } else if (abstractDataType.isNumerical()) {
             return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.getUndefined()));
         } else {
-            throw new UnsupportedException("Register with obisCode " + rObisCode + " is not supported.");
+//            throw new UnsupportedException("Register with obisCode " + rObisCode + " is not supported.");
+            this.issueService.newIssueCollector().addWarning(register, "registerNotSupported", register.getObisCode());
+            return null;
         }
     }
 

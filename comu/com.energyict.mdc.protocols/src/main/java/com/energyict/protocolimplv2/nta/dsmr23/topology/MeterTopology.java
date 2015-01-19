@@ -4,7 +4,6 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSUtils;
@@ -73,9 +72,9 @@ public class MeterTopology {
     /**
      * Search for local slave devices so a general topology can be build up
      */
-    public void searchForSlaveDevices() {
+    public CollectedTopology searchForSlaveDevices() {
         this.discoveryComposedCosemObject = constructDiscoveryComposedCosemObject();
-        discoverMbusDevices();
+        return discoverMbusDevices();
     }
 
     /**
@@ -84,7 +83,7 @@ public class MeterTopology {
      *
      * @return the constructed composedObject for requesting MbusSerialNumber-data
      */
-    protected ComposedCosemObject constructDiscoveryComposedCosemObject() {
+    private ComposedCosemObject constructDiscoveryComposedCosemObject() {
         List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
         for (int i = 1; i <= MAX_MBUS_DEVICES; i++) {
             ObisCode serialObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBIS_CODE, OBIS_CODE_B_FIELD_INDEX, (byte) i);
@@ -105,9 +104,9 @@ public class MeterTopology {
         return new ComposedCosemObject(this.protocol.getDlmsSession(), this.protocol.getDlmsSession().getProperties().isBulkRequest(), dlmsAttributes);
     }
 
-    private void discoverMbusDevices() {
+    private CollectedTopology discoverMbusDevices() {
         log(Level.FINE, "Starting discovery of MBusDevices");
-       constructMbusMap();
+        CollectedTopology collectedTopology = constructDeviceTopology();
 
         StringBuilder sb = new StringBuilder();
         sb.append("Found ").append(this.mbusMap.size()).append(" MBus devices: ").append("\r\n");
@@ -115,6 +114,7 @@ public class MeterTopology {
             sb.append(deviceMapping).append("\r\n");
         }
         log(Level.INFO, sb.toString());
+        return collectedTopology;
     }
 
     /**
@@ -123,7 +123,7 @@ public class MeterTopology {
      *
      * @return a List of <CODE>DeviceMappings</CODE>
      */
-    protected List<DeviceMapping> constructMbusMap() {
+    private CollectedTopology constructDeviceTopology() {
         String mbusSerial;
         mbusMap = new ArrayList<>();
         deviceTopology = this.collectedDataFactory.createCollectedTopology(protocol.getOfflineDevice().getDeviceIdentifier());
@@ -147,7 +147,7 @@ public class MeterTopology {
                 }
             }
         }
-        return mbusMap;
+        return deviceTopology;
     }
 
     /**
@@ -159,7 +159,7 @@ public class MeterTopology {
      * @param deviceType     - the device type
      * @return a string which is a concatenation of the manipulated given fields
      */
-    protected String constructShortId(Unsigned16 manufacturer, Unsigned32 identification, Unsigned8 version, Unsigned8 deviceType) {
+    private String constructShortId(Unsigned16 manufacturer, Unsigned32 identification, Unsigned8 version, Unsigned8 deviceType) {
         StringBuilder strBuilder = new StringBuilder();
 
         strBuilder.append((char) (((manufacturer.getValue() & 0x7D00) / 32 / 32) + 64));
@@ -217,10 +217,9 @@ public class MeterTopology {
         return "";
     }
 
-    public CollectedTopology getDeviceTopology() {
+    public CollectedTopology getCollectedDeviceTopology() {
         if (deviceTopology == null) {
-            deviceTopology = this.collectedDataFactory.createCollectedTopology(protocol.getOfflineDevice().getDeviceIdentifier());
-            deviceTopology.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(deviceTopology, "devicetopologynotsupported"));
+            return searchForSlaveDevices();
         }
         return deviceTopology;
     }

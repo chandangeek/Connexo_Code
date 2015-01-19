@@ -156,7 +156,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        return getMeterTopology().getDeviceTopology();
+        return getMeterTopology().getCollectedDeviceTopology();
     }
 
     @Override

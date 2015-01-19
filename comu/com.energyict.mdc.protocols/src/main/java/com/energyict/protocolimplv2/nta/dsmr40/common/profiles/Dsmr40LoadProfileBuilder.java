@@ -45,7 +45,7 @@ public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
     }
 
     @Override
-    protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
+    protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits, List<ChannelInfo> configuredChannelInfos) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<>();
         for (CapturedRegisterObject registerObject : registers) {
             if (!registerObject.getSerialNumber().equalsIgnoreCase("") && isDataObisCode(registerObject.getObisCode(), registerObject.getSerialNumber())) {
@@ -54,12 +54,12 @@ public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
                     ScalerUnit su = getScalerUnitForCapturedRegisterObject(registerObject, ccoRegisterUnits);
                     if (su.getUnitCode() != 0) {
                         ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), su.getEisUnit(), registerObject.getSerialNumber(), isCumulativeChannel(registerObject),
-                                getReadingTypeUtilService().getReadingTypeFrom(registerObject.getObisCode(), su.getEisUnit()));
+                                getReadingTypeFromConfiguredChannels(registerObject.getObisCode(), configuredChannelInfos));
                         channelInfos.add(ci);
                     } else {
                         //TODO CHECK if this is still correct!
                         ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), Unit.getUndefined(), registerObject.getSerialNumber(), true,
-                                getReadingTypeUtilService().getReadingTypeFrom(registerObject.getObisCode(), su.getEisUnit()));
+                                getReadingTypeFromConfiguredChannels(registerObject.getObisCode(), configuredChannelInfos));
                         channelInfos.add(ci);
                     }
                 } else {

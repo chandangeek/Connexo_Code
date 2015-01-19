@@ -67,4 +67,8 @@ public class PrimeRegisterForChannelIdentifier implements RegisterIdentifier {
         return MessageFormat.format("Prime register for device {0} for channel index {1}", deviceIdentifier.toString(), channelIndex);
     }
 
+    @Override
+    public DeviceIdentifier<?> getDeviceIdentifier() {
+        return this.deviceIdentifier;
+    }
 }

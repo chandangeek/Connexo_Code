@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr23.profiles;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.issues.Issue;
@@ -165,7 +166,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                 if (cpc != null) {
                     try {
                         lpc.setProfileInterval(ccoLpConfigs.getAttribute(cpc.getLoadProfileInterval()).intValue());
-                        List<ChannelInfo> channelInfos = constructChannelInfos(capturedObjectRegisterListMap.get(lpr), ccoCapturedObjectRegisterUnits);
+                        List<ChannelInfo> channelInfos = constructChannelInfos(capturedObjectRegisterListMap.get(lpr), ccoCapturedObjectRegisterUnits, lpr.getChannelInfos());
                         int statusMask = constructStatusMask(capturedObjectRegisterListMap.get(lpr));
                         int channelMask = constructChannelMask(capturedObjectRegisterListMap.get(lpr));
                         lpc.setChannelInfos(channelInfos);
@@ -328,10 +329,11 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
      *
      * @param registers        a list or <CODE>Registers</CODE> which have to be converted to a list of <CODE>ChannelInfos</CODE>
      * @param ccoRegisterUnits the {@link com.energyict.dlms.cosem.ComposedCosemObject} which groups the reading of all the registers
+     * @param configuredChannelInfos
      * @return a constructed list of <CODE>ChannelInfos</CODE>
      * @throws java.io.IOException when an error occurred during dataFetching or -Parsing
      */
-    protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
+    protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits, List<ChannelInfo> configuredChannelInfos) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<>();
         for (CapturedRegisterObject registerUnit : registers) {
             if (!"".equalsIgnoreCase(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
@@ -339,14 +341,12 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                     ScalerUnit su = new ScalerUnit(ccoRegisterUnits.getAttribute(this.registerUnitMap.get(registerUnit)));
                     if (su.getUnitCode() != 0) {
                         ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), true,
-                                this.readingTypeUtilService.getReadingTypeFrom(registerUnit.getObisCode(), su.getEisUnit()));
+                                getReadingTypeFromConfiguredChannels(registerUnit.getObisCode(), configuredChannelInfos));
                         channelInfos.add(ci);
                     } else {
-                        //TODO CHECK if this is still correct!
                         ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), Unit.getUndefined(), registerUnit.getSerialNumber(), true,
-                                this.readingTypeUtilService.getReadingTypeFrom(registerUnit.getObisCode(), su.getEisUnit()));
+                                getReadingTypeFromConfiguredChannels(registerUnit.getObisCode(), configuredChannelInfos));
                         channelInfos.add(ci);
-//                        throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerUnit + " - unitCode was 0.");
                     }
                 } else {
                     throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerUnit + " - not in registerUnitMap.");
@@ -354,6 +354,10 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             }
         }
         return channelInfos;
+    }
+
+    protected ReadingType getReadingTypeFromConfiguredChannels(ObisCode obisCode, List<ChannelInfo> configuredChannelInfos) throws LoadProfileConfigurationException {
+        return configuredChannelInfos.stream().filter(channelInfo -> channelInfo.getChannelObisCode().equals(obisCode)).findFirst().orElseThrow(() -> new LoadProfileConfigurationException("Could not found a correct ChannelInfo with the obiscode " + obisCode)).getReadingType();
     }
 
     private int constructStatusMask(List<CapturedRegisterObject> registers) {
