@@ -123,7 +123,7 @@ public class InboundCommunicationHandlerStatisticsTest {
         // Asserts
         verify(comSessionBuilder).addSentBytes(longThat(IsGreaterThan.ZERO));
         verify(comSessionBuilder).addSentPackets(longThat(IsGreaterThan.ZERO));
-        verify(comSessionBuilder).addReceivedBytes(0);  // Remember that SystemOutChannel always returns zero in the read method
+        verify(comSessionBuilder).addReceivedBytes(1);  // Remember that SystemOutChannel always returns zero in the read method but that counts as a read byte
         verify(comSessionBuilder).addReceivedPackets(longThat(IsGreaterThan.ZERO));
     }
 
