@@ -39,6 +39,7 @@ Ext.define('Mdc.view.setup.validation.RuleSetView', {
                 },
                 grid: {
                     xtype: 'validation-rules-grid',
+                    itemId: 'grd-validation-rules',
                     validationRuleSetId: me.validationRuleSetId
                 },
                 previewComponent: {
