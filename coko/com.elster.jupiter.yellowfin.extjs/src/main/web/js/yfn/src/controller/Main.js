@@ -56,8 +56,7 @@ Ext.define('Yfn.controller.Main', {
         if(reportsStore) {
             var proxy = reportsStore.getProxy();
             proxy.setExtraParam('category', 'MDC');
-            proxy.setExtraParam('subCategory', 'Device');
-
+            //proxy.setExtraParam('subCategory', 'Device');
             reportsStore.load(function (records) {
                 var reportsItems = [];
                 Ext.each(records, function (record) {
@@ -67,7 +66,7 @@ Ext.define('Yfn.controller.Main', {
                     reportsItems.push({
                         text: reportName,
                         tooltip: reportDescription,
-                        href: '#/administration/generatereport?reportUUID=' + reportUUID+'&subCategory=Device'
+                        href: '#/administration/generatereport?reportUUID=' + reportUUID//+'&subCategory=Device'
                         //,hrefTarget: '_blank'
                     });
                 });

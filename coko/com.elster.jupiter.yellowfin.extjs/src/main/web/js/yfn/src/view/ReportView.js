@@ -21,12 +21,11 @@ Ext.define('Yfn.view.ReportView', {
                     itemId:'reportFilters',
                     autoScroll:true,
                     padding:10,
-                    collapsible: true,
+                    collapsible: false,
                     titleCollapse: true,
                     maxHeight:400,
                     layout: {
-                        type: 'column'//,
-                       //align: 'stretch'
+                        type: 'column'
                     },
                     items: [
                         {
@@ -58,87 +57,101 @@ Ext.define('Yfn.view.ReportView', {
                         }
                     ],
                     dockedItems: [
-                        {
-                            xtype: 'toolbar',
-                            dock: 'right',
-                            items: [
-                                /*{
-                                    xtype: 'tbfill'
-                                },
-                                {
-                                    xtype: 'cycle',
-                                    prependText: 'Export to ',
-                                    showText: true,
-                                    itemId: 'export-report-btn',
-                                    menu: {
-                                        xtype: 'menu',
-                                        items: [
-                                            {
-                                                xtype: 'menucheckitem',
-                                                itemId: 'csv-btn',
-                                                action: 'export',
-                                                exportType: 'csv',
-                                                text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'CSV')
-                                            },
-
-                                            {
-                                                xtype: 'menucheckitem',
-                                                itemId: 'doc-btn',
-                                                action: 'export',
-                                                exportType: 'doc',
-                                                text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to Word')
-                                            },
-                                            {
-                                                xtype: 'menucheckitem',
-                                                itemId: 'pdf-btn',
-                                                action: 'export',
-                                                exportType: 'pdf',
-                                                text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to PDF')
-                                            },
-                                            {
-                                                xtype: 'menucheckitem',
-                                                itemId: 'rtf-btn',
-                                                action: 'export',
-                                                exportType: 'rtf',
-                                                text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to RTF')
-                                            },
-                                            {
-                                                xtype: 'menucheckitem',
-                                                itemId: 'txt-btn',
-                                                action: 'export',
-                                                exportType: 'txt',
-                                                text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to TXT')
-                                            },
-                                            {
-                                                xtype: 'menucheckitem',
-                                                itemId: 'xls-btn',
-                                                action: 'export',
-                                                exportType: 'xls',
-                                                text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to XLS')
-                                            }
-                                        ]
+                            {
+                                xtype: 'container',
+                                dock: 'right',
+                                items: [
+                                    {
+                                        xtype: 'button',
+                                        dock: 'right',
+                                        itemId: 'refresh-btn',
+                                        text: Uni.I18n.translate('generatereport.applyFiltersBtnTxt', 'YFN', 'Apply filters'),
+                                        icon: '/apps/sky/resources/images/form/restore.png'
                                     }
-                                },
-                                {
-                                    xtype: 'button',
-                                    itemId: 'chart-btn',
-                                    text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Chart'),
-                                    icon: '/apps/sky/resources/images/form/restore.png'
-                                },
-                                {
-                                    xtype: 'button',
-                                    itemId: 'table-btn',
-                                    text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Table'),
-                                    icon: '/apps/sky/resources/images/form/restore.png'
-                                },*/
-                                {
-                                    xtype: 'button',
-                                    itemId: 'refresh-btn',
-                                    text: Uni.I18n.translate('generatereport.applyFiltersBtnTxt', 'YFN', 'Apply filters'),
-                                    icon: '/apps/sky/resources/images/form/restore.png'
-                                }
-                            ]
-                        }
+                                ]
+                            }
+                            /*,
+                            {
+                                xtype: 'toolbar',
+                                dock: 'right',
+                                items: [
+                                    {
+                                     xtype: 'tbfill'
+                                     },
+                                     {
+                                     xtype: 'cycle',
+                                     prependText: 'Export to ',
+                                     showText: true,
+                                     itemId: 'export-report-btn',
+                                     menu: {
+                                     xtype: 'menu',
+                                     items: [
+                                     {
+                                     xtype: 'menucheckitem',
+                                     itemId: 'csv-btn',
+                                     action: 'export',
+                                     exportType: 'csv',
+                                     text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'CSV')
+                                     },
+
+                                     {
+                                     xtype: 'menucheckitem',
+                                     itemId: 'doc-btn',
+                                     action: 'export',
+                                     exportType: 'doc',
+                                     text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to Word')
+                                     },
+                                     {
+                                     xtype: 'menucheckitem',
+                                     itemId: 'pdf-btn',
+                                     action: 'export',
+                                     exportType: 'pdf',
+                                     text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to PDF')
+                                     },
+                                     {
+                                     xtype: 'menucheckitem',
+                                     itemId: 'rtf-btn',
+                                     action: 'export',
+                                     exportType: 'rtf',
+                                     text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to RTF')
+                                     },
+                                     {
+                                     xtype: 'menucheckitem',
+                                     itemId: 'txt-btn',
+                                     action: 'export',
+                                     exportType: 'txt',
+                                     text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to TXT')
+                                     },
+                                     {
+                                     xtype: 'menucheckitem',
+                                     itemId: 'xls-btn',
+                                     action: 'export',
+                                     exportType: 'xls',
+                                     text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to XLS')
+                                     }
+                                     ]
+                                     }
+                                     },
+                                     {
+                                     xtype: 'button',
+                                     itemId: 'chart-btn',
+                                     text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Chart'),
+                                     icon: '/apps/sky/resources/images/form/restore.png'
+                                     },
+                                     {
+                                     xtype: 'button',
+                                     itemId: 'table-btn',
+                                     text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Table'),
+                                     icon: '/apps/sky/resources/images/form/restore.png'
+                                     },
+                                    {
+                                        xtype: 'button',
+                                        itemId: 'refresh-btn',
+                                        text: Uni.I18n.translate('generatereport.applyFiltersBtnTxt', 'YFN', 'Apply filters'),
+                                        icon: '/apps/sky/resources/images/form/restore.png'
+                                    }
+                                ]
+                            }*/
                     ]
                 },
                 {

@@ -148,7 +148,9 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
     finishClick: function () {
         var me = this;
         var link = me.getGenerateReportLink();
+        me.generateReportWizardWidget.setLoading(Uni.I18n.translate('generatereport.preparingReport', 'YFN', 'Preparing report. Please wait ...'));
         var selectedGroups = me.selectedFilterValues['GROUPNAME'];
+
         if( _.isArray(selectedGroups)){
             var groups = [];
             for(var i=0;i<selectedGroups.length;i++){
@@ -157,12 +159,14 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
             Ext.Ajax.request({
                 url: '/api/yfn/cachegroups/dynamic',
                 method: 'POST',
-                async: false,
+                timeout:180000,
+                //async: false,
                 jsonData:{
                     total:groups.length,
                     groups:groups
                 },
                 success: function () {
+                    me.generateReportWizardWidget.setLoading(false);
                     var href = '#/reports/view?reportUUID='+me.selectedReportUUID+'&filter='+encodeURIComponent(Ext.JSON.encode(me.selectedFilterValues));
                     link.getEl().dom.href = href;
                     link.getEl().dom.target = '_blank';
@@ -171,6 +175,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                 },
                 failure: function(response, opts) {
                     //console.log('server-side failure with status code ' + response.status);
+                    me.generateReportWizardWidget.setLoading(false);
                 }
             });
 
@@ -243,9 +248,11 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
             delete proxy.extraParams.subCategory;
             proxy.setExtraParam('category', 'MDC');
             //proxy.setExtraParam('subCategory', 'Device Connections');
+            me.getWizard().setLoading(true);//Uni.I18n.translate('generatereport.loadingReports', 'YFN', 'Loading reports. Please wait ...'));
             me.reportsStore.load(function (records) {
                 var allReports = {};
                 Ext.each(records, function (record) {
+
                     var reportDescription = record.get('description');
                     var reportName = record.get('name');
                     var reportUUID = record.get('reportUUID');
@@ -277,7 +284,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     }
                 });
 
-                Ext.suspendLayouts();
+                //Ext.suspendLayouts();
 
                 for (var key in allReports) {
                     if (allReports.hasOwnProperty(key)) {
@@ -285,7 +292,8 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                         me.addReportGroup(reportGroup);
                     }
                 }
-                Ext.resumeLayouts(true);
+                me.getWizard().setLoading(false);
+                //Ext.resumeLayouts(true);
             });
         }
 
@@ -339,8 +347,8 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         if (reportFiltersStore) {
             var proxy = reportFiltersStore.getProxy();
             proxy.setExtraParam('reportUUID', reportUUID);
-            step2Form.setLoading(true);
-            Ext.suspendLayouts();
+            me.getWizard().setLoading(true);
+            //Ext.suspendLayouts();
             reportFiltersStore.load(function (records) {
                 var hasPrompts = false;
                 var hasFilters = false;
@@ -384,8 +392,8 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                         mandatoryFiltersPanel.setVisible(true);
                     }
                 });
-                step2Form.setLoading(false);
-                Ext.resumeLayouts(true);
+                me.getWizard().setLoading(false);
+               // Ext.resumeLayouts(true);
             });
 
         }
@@ -512,7 +520,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     allowBlank: fieldType == 'filter',
                     value: defaultValue,
                     //disabled:fieldType != 'filter' && defaultValue,
-                    initComponentTempRemoved: function () {
+                    initC3omponent: function () {
                         this.callParent(arguments);
 
                         if (this.value) {
@@ -595,8 +603,8 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     },
                     getValue : function(){
                         return {
-                            from:  Ext.Date.format(this.query('date-time')[0].getValue(),'Y-m-d h:i:s'),
-                            to:Ext.Date.format(this.query('date-time')[1].getValue(),'Y-m-d h:i:s')
+                            from:  Ext.Date.format(this.query('date-time')[0].getValue(),'Y-m-d m:i:s'),
+                            to:Ext.Date.format(this.query('date-time')[1].getValue(),'Y-m-d m:i:s')
                         };
                     },
                     getFieldValue : function (){
@@ -643,7 +651,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                             width: '100%',
                             name: 'from',
                             //disabled:fieldType != 'filter' && defaultValue,
-                            initComponentTempRemoved: function () {
+                            initC3omponent: function () {
                                 this.callParent(arguments);
 
                                 if (this.value) {
@@ -658,7 +666,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                             allowBlank: fieldType == 'filter',
                             width: '100%',
                             name: 'to',
-                            initComponentTempRemoved: function () {
+                            initC3omponent: function () {
                                 this.callParent(arguments);
 
                                 if (this.value) {
@@ -726,6 +734,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         fieldType = fieldType || 'filter';
         var filterType = filterRecord.get('filterType');
         var filterName = filterRecord.get('filterName');
+        var filterOmittable = filterRecord.get('filterOmittable');
 
         defaultValue = Ext.isString(defaultValue) && defaultValue.split(', ') || defaultValue ;
         defaultValue = _.isArray(defaultValue) && _.compact(defaultValue) || defaultValue;
@@ -737,7 +746,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         store.getProxy().setExtraParam('filterId', filterRecord.get('id'));
 
         var storeLoaded = false;
-        if( _.isArray(defaultValue)){
+        if( !filterOmittable && _.isArray(defaultValue)){
 
             for(var i=0;i<defaultValue.length;i++){
                 storeLoaded = true;
@@ -843,6 +852,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
             labelStyle: 'color:#cccccc',
             fieldLabel: Uni.I18n.translate('generatereport.wizard.mandatoryFilters', 'YFN', 'Mandatory filters')
         });
+
         var prompts = me.getWizard().query('[fieldType = prompt]');
 
         for (var prompt in prompts) {
