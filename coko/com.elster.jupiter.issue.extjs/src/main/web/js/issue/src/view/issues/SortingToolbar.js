@@ -8,19 +8,44 @@ Ext.define('Isu.view.issues.SortingToolbar', {
     title: Uni.I18n.translate('general.sort', 'ISU', 'Sort'),
     emptyText: Uni.I18n.translate('general.none', 'ISU', 'None'),
     showClearButton: false,
-    tools: [
+
+    dockedItems: [
         {
-            itemId: 'addSort',
-            xtype: 'button',
-            action: 'addSort',
-            text: 'Add sort',
-            ui: 'sort',
-            menu: {
-                xtype: 'issues-sorting-menu',
-                itemId: 'issues-sorting-menu'
-            }
+            xtype: 'header',
+            dock: 'left'
+        },
+        {
+            xtype: 'container',
+            dock: 'right',
+            minHeight: 150,
+            items: [
+                {
+                    itemId: 'Reset',
+                    xtype: 'button',
+                    style: {
+                        marginRight: '0px !important'
+                    },
+                    text: 'Clear all',
+                    action: 'clear'
+                },
+                {
+                    itemId: 'addSort',
+                    xtype: 'button',
+                    style: {
+                        marginRight: '0px !important'
+                    },
+              //      ui: 'sort',
+                    text: 'Add sort',
+                    action: 'addSort',
+                    menu: {
+                        xtype: 'issues-sorting-menu',
+                        itemId: 'issues-sorting-menu'
+                    }
+                }
+            ]
         }
     ],
+
     addSortButtons: function (sorting) {
         var me = this,
             container = me.getContainer(),
