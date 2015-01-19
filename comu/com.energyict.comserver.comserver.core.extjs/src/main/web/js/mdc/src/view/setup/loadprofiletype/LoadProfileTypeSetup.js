@@ -10,14 +10,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
-    side: [
-        {
-            xtype: 'panel',
-            ui: 'medium',
-            items: []
-        }
-    ],
-
     content: [
         {
             xtype: 'panel',
@@ -58,12 +50,27 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
         var me = this,
             config = me.config,
             previewContainer = me.content[0].items[0],
-            addButtons,
-            actionMenuColumn,
-            actionMenuButton,
-            hasPrivilege;
+            addButtons;
 
         config && config.gridStore && (previewContainer.grid.store = config.gridStore);
+
+        if (config) {
+            if (config.deviceTypeId) {
+                me.side = [
+                    {
+                        xtype: 'panel',
+                        ui: 'medium',
+                        items: [
+                            {
+                                xtype: 'deviceTypeMenu',
+                                deviceTypeId: config.deviceTypeId,
+                                toggle: 2
+                            }
+                        ]
+                    }
+                ];
+            }
+        }
 
         me.callParent(arguments);
 
@@ -76,8 +83,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
             actionMenuButton = me.down('#loadProfileTypePreview').tools[0];
 
             if (config.deviceTypeId) {
-                hasPrivilege = Uni.Auth.hasPrivilege('privilege.administrate.deviceType');
-                me.getWestContainer().down('panel').add({
+                this.getWestContainer().down('panel').add({
                     xtype: 'deviceTypeMenu',
                     deviceTypeId: config.deviceTypeId,
                     toggle: 2

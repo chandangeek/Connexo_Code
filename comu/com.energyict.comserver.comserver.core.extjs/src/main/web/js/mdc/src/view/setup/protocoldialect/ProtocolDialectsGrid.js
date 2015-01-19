@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectsGrid', {
             {
                 header: Uni.I18n.translate('protocolDialect.name', 'MDC', 'Name'),
                 dataIndex: 'name',
-                flex: 0.6
+                flex: 1
             },
             {
                 xtype: 'uni-actioncolumn',

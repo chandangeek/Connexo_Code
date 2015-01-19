@@ -27,10 +27,10 @@ Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
                 renderer: function (value, b, record) {
                     return '<a href="#/administration/validation/rulesets/' + record.data.ruleSet.id + '/rules/' + record.getId() + '">' + value + '</a>';
                 },
-                flex: 1
+                flex: 10
             },
             {
-                header: Uni.I18n.translate('validation.status', 'CFG', 'Status'), dataIndex: 'active', flex: 0.3, sortable: false, fixed: true,
+                header: Uni.I18n.translate('validation.status', 'CFG', 'Status'), dataIndex: 'active', flex: 3, sortable: false, fixed: true,
                 renderer: function (value) {
                     if (value) {
                         return Uni.I18n.translate('validation.active', 'CFG', 'Active')
@@ -48,7 +48,7 @@ Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
                     }
                     return '<a href="#/administration/validation/rulesets/' + value.id + '">' + value.name + '</a>';
                 },
-                flex: 1
+                flex: 10
             },
             {
                 xtype: 'uni-actioncolumn',

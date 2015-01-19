@@ -265,23 +265,11 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             recordsAlreadyPresented = [],
             hasComTasks;
 
-        editView.setLoading(true);
         me.record.comTaskUsages().remove(comTask);
-        me.record.comTaskUsages().each(function (record) {
-            recordsAlreadyPresented.push(record);
-        });
         me.comTaskStore.add(comTask);
-        me.comTaskStore.load({
-            callback: function () {
-                if (me.alreadyAddedComTasks) {
-                    me.comTaskStore.add(me.alreadyAddedComTasks);
-                }
-                me.comTaskStore.remove(recordsAlreadyPresented);
-                editView.setLoading(false);
-                grid.down('gridview').setSize(0, 0);
-                grid.gridHeight = undefined;
-            }
-        });
+        me.comTaskStore.fireEvent('load', me.comTaskStore.getRange());
+        grid.down('gridview').setSize(0, 0);
+        grid.gridHeight = undefined;
         hasComTasks = me.record.comTaskUsages().getCount() ? true : false;
         form.down('#noComTasksSelectedMsg').setVisible(!hasComTasks);
         form.down('#comTasksOnForm').setVisible(hasComTasks);

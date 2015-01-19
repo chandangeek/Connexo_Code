@@ -2,7 +2,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceTypesGrid',
     overflowY: 'auto',
-    itemId: 'devicetypegrid',
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
@@ -20,12 +19,12 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                 renderer: function (value, b, record) {
                     return '<a href="#/administration/devicetypes/' + record.get('id') + '">' + value + '</a>';
                 },
-                flex: 0.4
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('devicetype.communicationProtocol', 'MDC', 'Communication protocol'),
                 dataIndex: 'deviceProtocolPluggableClass',
-                flex: 0.4
+                flex: 1
             },
             {
                 xtype: 'uni-actioncolumn',
