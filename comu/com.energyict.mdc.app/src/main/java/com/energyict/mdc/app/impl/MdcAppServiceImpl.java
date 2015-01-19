@@ -80,7 +80,7 @@ public class MdcAppServiceImpl implements MdcAppService, InstallService {
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(UserService.COMPONENTNAME, "ISU", "DTC", "DDC", "MDC", "SCH", "VAL");
+        return Arrays.asList(UserService.COMPONENTNAME, "APS", "ISU", "DTC", "DDC", "MDC", "SCH", "VAL");
     }
 
     @Reference
@@ -100,6 +100,7 @@ public class MdcAppServiceImpl implements MdcAppService, InstallService {
     private void assignPrivilegesToDefaultRoles() {
         List<String> availablePrivileges = getAvailablePrivileges();
         userService.grantGroupWithPrivilege(Roles.METER_EXPERT.value(), availablePrivileges.toArray(new String[availablePrivileges.size()]));
+        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, availablePrivileges.toArray(new String[availablePrivileges.size()]));
         //TODO: workaround: attached Meter expert to user admin !!! to remove this line when the user can be created/added to system
         userService.getUser(1).ifPresent(u -> u.join(userService.getGroups().stream().filter(e -> e.getName().equals(Roles.METER_EXPERT.value())).findFirst().get()));
     }
