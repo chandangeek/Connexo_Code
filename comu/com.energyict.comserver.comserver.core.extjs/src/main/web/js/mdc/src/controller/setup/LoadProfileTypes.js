@@ -175,7 +175,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 emptyMessage.add(
                     {
                         xtype: 'loadProfileTypeEmptyList',
-                        actionHref: '#/administration/loadprofiletypes/create'
+                        actionHref: '#/administration/loadprofiletypes/add'
                     }
                 );
                 this.getLoadTypePreview().hide();
