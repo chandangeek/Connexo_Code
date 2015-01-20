@@ -5,7 +5,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
     requires: [
         'Mdc.view.setup.devicetype.DeviceTypesGrid',
         'Mdc.view.setup.devicetype.DeviceTypePreview',
-        'Mdc.view.setup.devicetype.DeviceTypeMenu'
+        'Mdc.view.setup.devicetype.SideMenu'
     ],
     deviceTypeId: null,
 
@@ -205,7 +205,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                 ui: 'medium',
                 items: [
                     {
-                        xtype: 'deviceTypeMenu',
+                        xtype: 'deviceTypeSideMenu',
                         itemId: 'stepsMenu',
                         deviceTypeId: this.deviceTypeId,
                         toggle: 0

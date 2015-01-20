@@ -247,6 +247,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
                     self.getApplication().fireEvent('loadDeviceType', deviceType);
                     self.deviceTypeName = deviceType.get('name');
                     self.getApplication().fireEvent('changecontentevent', widget);
+                    widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
                     Ext.Array.each(Ext.ComponentQuery.query('[action=editloadprofiletype]'), function (item) {
                         item.hide();
                     });

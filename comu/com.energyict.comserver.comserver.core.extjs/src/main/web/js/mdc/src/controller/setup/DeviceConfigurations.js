@@ -115,6 +115,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     success: function (deviceType) {
                         me.getApplication().fireEvent('loadDeviceType', deviceType);
                         me.getApplication().fireEvent('changecontentevent', widget);
+                        widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
                         me.getDeviceConfigurationsGrid().getSelectionModel().doSelect(0);
                     }
                 });

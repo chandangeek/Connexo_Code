@@ -67,9 +67,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
         if (config) {
             if (config.deviceTypeId) {
                 this.getWestContainer().down('panel').add({
-                    xtype: 'deviceTypeMenu',
-                    deviceTypeId: config.deviceTypeId,
-                    toggle: 2
+                    xtype: 'deviceTypeSideMenu',
+                    deviceTypeId: config.deviceTypeId
                 });
                 Ext.Array.each(addButtons, function (button) {
                     button.href = '#/administration/devicetypes/' + config.deviceTypeId + '/loadprofiles/add';

@@ -5,7 +5,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
     deviceTypeId: null,
 
     requires: [
-        'Mdc.view.setup.devicetype.DeviceTypeMenu',
+        'Mdc.view.setup.devicetype.SideMenu',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.deviceconfiguration.ActionMenu',
@@ -165,10 +165,9 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                 ui: 'medium',
                 items: [
                     {
-                        xtype: 'deviceTypeMenu',
+                        xtype: 'deviceTypeSideMenu',
                         itemId: 'stepsMenu',
-                        deviceTypeId: this.deviceTypeId,
-                        toggle: 3
+                        deviceTypeId: this.deviceTypeId
                     }
                 ]
             }

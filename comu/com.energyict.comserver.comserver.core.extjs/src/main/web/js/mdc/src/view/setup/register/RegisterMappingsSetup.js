@@ -12,7 +12,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
         'Uni.view.navigation.SubMenu',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
-        'Mdc.view.setup.devicetype.DeviceTypeMenu'
+        'Mdc.view.setup.devicetype.SideMenu'
     ],
 
     initComponent: function () {
@@ -22,10 +22,9 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
                 ui: 'medium',
                 items: [
                     {
-                        xtype: 'deviceTypeMenu',
+                        xtype: 'deviceTypeSideMenu',
                         itemId: 'stepsMenu',
-                        deviceTypeId: this.deviceTypeId,
-                        toggle: 1
+                        deviceTypeId: this.deviceTypeId
                     }
                 ]
             }
