@@ -5,6 +5,8 @@ import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
 
+import java.util.Optional;
+
 /**
  * Provides converters from ReadingType to ObisCode/Unit/Interval and visa versa
  * <p/>
@@ -52,7 +54,7 @@ public interface MdcReadingTypeUtilService {
     public String getReadingTypeFrom(ObisCode obisCode, Unit unit, TimeDuration interval);
 
     /**
-     * Creates a readingType based in the given ReadingType with the given interval applied
+     * Creates a readingType from the given ReadingType with the given interval applied.
      *
      * @param readingType the ReadingType to start from
      * @param interval the Interval to apply
@@ -60,7 +62,7 @@ public interface MdcReadingTypeUtilService {
      *
      * @return the interval applied ReadingType
      */
-    public ReadingType getIntervalAppliedReadingType(ReadingType readingType, TimeDuration interval, ObisCode registerObisCode);
+    public Optional<ReadingType> getIntervalAppliedReadingType(ReadingType readingType, TimeDuration interval, ObisCode registerObisCode);
 
     /**
      * Gets the MDC unit according to the CIM ReadingType.

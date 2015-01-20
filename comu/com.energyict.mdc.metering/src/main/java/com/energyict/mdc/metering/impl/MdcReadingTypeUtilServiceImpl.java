@@ -110,13 +110,13 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
     }
 
     @Override
-    public ReadingType getIntervalAppliedReadingType(ReadingType readingType, TimeDuration interval, ObisCode registerObisCode) {
+    public Optional<ReadingType> getIntervalAppliedReadingType(ReadingType readingType, TimeDuration interval, ObisCode registerObisCode) {
         ReadingTypeCodeBuilder readingTypeCodeBuilder = copyReadingTypeFields(readingType);
 
         readingTypeCodeBuilder.period(MeasuringPeriodMapping.getMeasuringPeriodFor(registerObisCode, interval));
         readingTypeCodeBuilder.period(MacroPeriodMapping.getMacroPeriodFor(registerObisCode, interval));
 
-        return this.meteringService.getReadingType(readingTypeCodeBuilder.code()).orElse(null);
+        return this.meteringService.getReadingType(readingTypeCodeBuilder.code());
     }
 
     private ReadingTypeCodeBuilder copyReadingTypeFields(ReadingType readingType) {
