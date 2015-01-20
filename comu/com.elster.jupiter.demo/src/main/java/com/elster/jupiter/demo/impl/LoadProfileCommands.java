@@ -2,7 +2,6 @@ package com.elster.jupiter.demo.impl;
 
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.ProfileStatus.Flag;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
@@ -10,27 +9,22 @@ import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.io.File;
+import javax.inject.Inject;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.text.DateFormat;
@@ -74,6 +68,18 @@ public class LoadProfileCommands {
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile DeviceService deviceService;
 
+    public LoadProfileCommands() {
+    }
+
+    @Inject
+    public LoadProfileCommands(MasterDataService masterDataService, TransactionService transactionService, MeteringService meteringService, ThreadPrincipalService threadPrincipalService, DeviceService deviceService) {
+        setMasterDataService(masterDataService);
+        setTransactionService(transactionService);
+        setMeteringService(meteringService);
+        setThreadPrincipalService(threadPrincipalService);
+        setDeviceService(deviceService);
+    }
+
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
@@ -103,20 +109,29 @@ public class LoadProfileCommands {
         this.deviceService = deviceService;
     }
 
-    public void uploadData(String mrid, String startTime, String csvFilePath) {
+    public void uploadData(String mrid, String startTime, String csvFilePath) throws IOException{
+        uploadDataImpl(mrid, startTime, new FileInputStream(csvFilePath));
+    }
+
+
+    public void uploadDataImpl(String mrid, String startTime, InputStream stream) {
         Meter meter = findMeterByMridOrThrowException(mrid);
         Date dateShift = parseDate(startTime);
 
         ValueProcessor processor = new LoadProfileDataProcessor(meter);
-        parseFile(csvFilePath, meter, dateShift, processor);
+        parseFile(stream, meter, dateShift, processor);
     }
 
-    public void uploadRegisters(String mrid, String startTime, String csvFilePath) {
+    public void uploadRegisters(String mrid, String startTime, String csvFilePath) throws IOException{
+        uploadRegistersImpl(mrid, startTime, new FileInputStream(csvFilePath));
+    }
+
+    public void uploadRegistersImpl(String mrid, String startTime, InputStream stream){
         Meter meter = findMeterByMridOrThrowException(mrid);
         Date dateShift = parseDate(startTime);
 
         ValueProcessor processor = new RegisterDataProcessor(meter);
-        parseFile(csvFilePath, meter, dateShift, processor);
+        parseFile(stream, meter, dateShift, processor);
     }
 
     private Date parseDate(String startTime) {
@@ -129,10 +144,9 @@ public class LoadProfileCommands {
         return dateShift;
     }
 
-    private void parseFile(String csvFilePath, Meter meter, Date dateShift, ValueProcessor valuesProcessor) {
-        try {
-            File loadProfileData = new File(csvFilePath);
-            Scanner scanner = new Scanner(loadProfileData);
+    private void parseFile(InputStream stream, Meter meter, Date dateShift, ValueProcessor valuesProcessor) {
+
+            Scanner scanner = new Scanner(stream);
             String header = scanner.nextLine();
             List<String> readingTypes = readHeader(header);
             valuesProcessor.processReadingTypes(readingTypes);
@@ -144,9 +158,7 @@ public class LoadProfileCommands {
                     valuesProcessor.stopProcessing();
                 }
             });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
     }
 
     private void parseBodyOfReadings(Date dateShift, Scanner scanner, List<String> readingTypes, ValueProcessor valuesProcessor) {

@@ -102,6 +102,8 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 
+import java.io.File;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.Instant;
@@ -162,6 +164,7 @@ public class DemoServiceImpl implements DemoService {
     private volatile CronExpressionParser cronExpressionParser;
     private volatile TimeService timeService;
     private volatile FavoritesService favoritesService;
+    private volatile LoadProfileCommands loadProfileCommands;
 
     private Store store;
     private Injector injector;
@@ -203,7 +206,8 @@ public class DemoServiceImpl implements DemoService {
             DataExportService dataExportService,
             CronExpressionParser cronExpressionParser,
             TimeService timeService,
-            FavoritesService favoritesService) {
+            FavoritesService favoritesService,
+            LoadProfileCommands loadProfileCommands) {
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
         setValidationService(validationService);
@@ -232,6 +236,7 @@ public class DemoServiceImpl implements DemoService {
         setCronExpressionParser(cronExpressionParser);
         setTimeService(timeService);
         setFavoritesService(favoritesService);
+        setLoadProfileCommands(loadProfileCommands);
         rethrowExceptions = true;
 
         activate();
@@ -272,12 +277,13 @@ public class DemoServiceImpl implements DemoService {
                 bind(CronExpressionParser.class).toInstance(cronExpressionParser);
                 bind(TimeService.class).toInstance(timeService);
                 bind(FavoritesService.class).toInstance(favoritesService);
+                bind(LoadProfileCommands.class).toInstance(loadProfileCommands);
             }
         });
     }
 
     @Override
-    public void createDemoData(final String comServerName, final String host) {
+    public void createDemoData(final String comServerName, final String host, final String startDate) {
         executeTransaction(new VoidTransaction() {
             @Override
             protected void doPerform() {
@@ -291,6 +297,7 @@ public class DemoServiceImpl implements DemoService {
                 createNtaConfigImpl();
             }
         });
+        uploadData(startDate);
     }
 
     @Override
@@ -511,6 +518,23 @@ public class DemoServiceImpl implements DemoService {
         injector.getInstance(OutboundTCPComPortPoolFactory.class).withName(Constants.ComPortPool.VODAFONE).withComPorts(Constants.OutboundTcpComPort.TCP_1, Constants.OutboundTcpComPort.TCP_2).get();
         injector.getInstance(OutboundTCPComPortPoolFactory.class).withName(Constants.ComPortPool.ORANGE).withComPorts(Constants.OutboundTcpComPort.TCP_1, Constants.OutboundTcpComPort.TCP_2).get();
         injector.getInstance(InboundComPortPoolFactory.class).withName(Constants.ComPortPool.INBOUND_SERVLET_POOL).get();
+    }
+
+
+    private void uploadData(String startDate) {
+        loadProfileCommands.uploadDataImpl(Constants.Device.MOCKED_REALISTIC_DEVICE + Constants.Device.MOCKED_REALISTIC_SERIAL_NUMBER, startDate, getResourceAsStream("realisticChannelData - Interval.csv"));
+        loadProfileCommands.uploadDataImpl(Constants.Device.MOCKED_REALISTIC_DEVICE + Constants.Device.MOCKED_REALISTIC_SERIAL_NUMBER, startDate, getResourceAsStream("realisticChannelData - Daily.csv"));
+        loadProfileCommands.uploadDataImpl(Constants.Device.MOCKED_REALISTIC_DEVICE + Constants.Device.MOCKED_REALISTIC_SERIAL_NUMBER, startDate, getResourceAsStream("realisticChannelData - Monthly.csv"));
+        loadProfileCommands.uploadRegistersImpl(Constants.Device.MOCKED_REALISTIC_DEVICE + Constants.Device.MOCKED_REALISTIC_SERIAL_NUMBER, startDate, getResourceAsStream("realisticRegisterData.csv"));
+
+        loadProfileCommands.uploadDataImpl(Constants.Device.MOCKED_VALIDATION_DEVICE + Constants.Device.MOCKED_VALIDATION_SERIAL_NUMBER, startDate, getResourceAsStream("realisticChannelData - Interval - Validation.csv"));
+        loadProfileCommands.uploadDataImpl(Constants.Device.MOCKED_VALIDATION_DEVICE + Constants.Device.MOCKED_VALIDATION_SERIAL_NUMBER, startDate, getResourceAsStream("realisticChannelData - Daily - Validation.csv"));
+        loadProfileCommands.uploadDataImpl(Constants.Device.MOCKED_VALIDATION_DEVICE + Constants.Device.MOCKED_VALIDATION_SERIAL_NUMBER, startDate, getResourceAsStream("realisticChannelData - Monthly.csv"));
+        loadProfileCommands.uploadRegistersImpl(Constants.Device.MOCKED_VALIDATION_DEVICE + Constants.Device.MOCKED_VALIDATION_SERIAL_NUMBER, startDate, getResourceAsStream("realisticRegisterData - Validation.csv"));
+   }
+
+    private InputStream getResourceAsStream(String name) {
+        return getClass().getClassLoader().getResourceAsStream(name);
     }
 
     private void findRegisterTypes(Store store) {
@@ -1037,6 +1061,7 @@ public class DemoServiceImpl implements DemoService {
     private void createNtaConfigImpl(){
         injector.getInstance(NTASimToolFactory.class).get();
     }
+
     @Reference
     @SuppressWarnings("unused")
     public final void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
@@ -1202,6 +1227,12 @@ public class DemoServiceImpl implements DemoService {
     @SuppressWarnings("unused")
     public final void setFavoritesService(FavoritesService favoritesService) {
         this.favoritesService = favoritesService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public final void setLoadProfileCommands(LoadProfileCommands loadProfileCommands) {
+        this.loadProfileCommands = loadProfileCommands;
     }
 
     private <T> T executeTransaction(Transaction<T> transaction) {
