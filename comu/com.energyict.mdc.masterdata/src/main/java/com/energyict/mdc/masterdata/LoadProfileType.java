@@ -64,7 +64,16 @@ public interface LoadProfileType extends HasId {
      */
     public List<ChannelType> getChannelTypes();
 
-    public ChannelType createChannelTypeForRegisterType(RegisterType templateRegister);
+    /**
+     * Creates a new {@link ChannelType} for the specified {@link RegisterType}.
+     *
+     * @param templateRegister The RegisterType
+     * @return The new ChannelType or Optional.empty() when it was not possible
+     *         to map the RegisterType's obiscode,
+     *         the RegisterType's {@link com.elster.jupiter.metering.ReadingType}
+     *         and this LoadProfile's interval to an appropriate ReadingType
+     */
+    public Optional<ChannelType> createChannelTypeForRegisterType(RegisterType templateRegister);
 
     public void removeChannelType(ChannelType channelType);
 
@@ -73,4 +82,5 @@ public interface LoadProfileType extends HasId {
     public void delete ();
 
     Optional<ChannelType> findChannelType(RegisterType measurementTypeWithoutInterval);
+
 }

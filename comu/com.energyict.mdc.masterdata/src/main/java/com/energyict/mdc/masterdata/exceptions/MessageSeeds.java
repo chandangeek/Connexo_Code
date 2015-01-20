@@ -44,6 +44,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     CHANNEL_TYPE_SHOULD_BE_LINKED_TO_REGISTER_TYPE(1412, Keys.CHANNEL_TYPE_SHOULD_BE_LINKED_TO_REGISTER_TYPE, "A channel type should have a link to it's corresponding register type", SEVERE),
     CHANNEL_TYPE_INTERVAL_REQUIRED(1413, Keys.CHANNEL_TYPE_INTERVAL_IS_REQUIRED, "The interval is required", SEVERE),
     CHANNEL_TYPE_WITH_REGISTER_TYPE_AND_INTERVAL_DUPLICATE(1414, Keys.CHANNEL_TYPE_WITH_REGISTER_TYPE_AND_INTERVAL_DUPLICATE, "There is already a channel type with this interval and register type", SEVERE),
+    REGISTER_TYPES_AND_LOAD_PROFILE_TYPE_INTERVAL_NOT_SUPPORTED(1415, Keys.REGISTER_TYPES_AND_LOAD_PROFILE_TYPE_INTERVAL_NOT_SUPPORTED, "The following register types could not be mapped to the load profile type's interval: {0}", SEVERE),
 
     LOAD_PROFILE_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(1500, "loadProfileType.cannotUpdateObisCode", "The obis code of the load profile type \"{0}\" cannot be updated because it is in use", SEVERE),
     LOAD_PROFILE_TYPE_INTERVAL_CANNOT_BE_UPDATED(1501, "loadProfileType.cannotUpdateInterval", "The interval of the load profile type \"{0}\" cannot be updated because it is in use", SEVERE),
@@ -112,6 +113,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String REGISTER_MAPPING_STILL_USED_BY_LOADPROFILE = "registerType.usedBy.loadProfileType";
         public static final String CHANNEL_TYPE_WITH_REGISTER_TYPE_AND_INTERVAL_DUPLICATE = "duplicate.channelType.interval.registerType";
         public static final String AT_LEAST_ONE_REGISTER_TYPE_REQUIRED = "loadProfileType.registerTypes.mustHaveAtLeastOne";
+        public static final String REGISTER_TYPES_AND_LOAD_PROFILE_TYPE_INTERVAL_NOT_SUPPORTED = "registerType.inLoadProfileType.unsupportedInterval";
         public static final String LOAD_PROFILE_TYPE_INTERVAL_IS_REQUIRED = "loadProfileType.interval.required";
         public static final String INTERVAL_IN_YEARS_MUST_BE_ONE = "loadProfileType.interval.notsupported.multipleyears";
     }
