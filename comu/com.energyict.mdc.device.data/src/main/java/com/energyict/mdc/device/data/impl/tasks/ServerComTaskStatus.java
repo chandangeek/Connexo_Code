@@ -29,13 +29,13 @@ public enum ServerComTaskStatus {
 
         @Override
         public boolean appliesTo(ServerComTaskExecution task, Instant now) {
-            return task.isOnHold();
+            return task.isOnHold() && !task.isExecuting();
         }
 
         @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
-            sqlBuilder.append("and cte.nextExecutionTimestamp is null");
+            sqlBuilder.append("and cte.nextExecutionTimestamp is null and cte.comport is null");
         }
     },
 
@@ -50,7 +50,7 @@ public enum ServerComTaskStatus {
 
         @Override
         public boolean appliesTo(ServerComTaskExecution task, Instant now) {
-            return task.isExecuting() && !task.isOnHold();
+            return task.isExecuting() && ((task.getConnectionTask() == null) || (task.getConnectionTask().isExecuting()));
         }
 
         @Override
