@@ -13,6 +13,7 @@ import com.energyict.mdc.issues.Warning;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Provides a default implementation for the {@link IssueCollector} interface.
@@ -43,28 +44,28 @@ public class IssueCollectorDefaultImplementation implements IssueCollector {
      * {@inheritDoc}
      */
     public Issue addProblem (String description) {
-        return this.addIssue(new ProblemImpl(thesaurus, this.clock.instant(), description));
+        return this.addIssue(new ProblemImpl(this.thesaurus, this.clock.instant(), description));
     }
 
     /**
      * {@inheritDoc}
      */
     public Issue addProblem(Object source, String description, Object... arguments) {
-        return this.addIssue(new ProblemImpl(thesaurus, this.clock.instant(), source, description));
+        return this.addIssue(new ProblemImpl(this.thesaurus, this.clock.instant(), source, description, arguments));
     }
 
     /**
      * {@inheritDoc}
      */
     public Issue addWarning (String description) {
-        return this.addIssue(new WarningImpl(thesaurus, this.clock.instant(), description));
+        return this.addIssue(new WarningImpl(this.thesaurus, this.clock.instant(), description));
     }
 
     /**
      * {@inheritDoc}
      */
     public Issue addWarning(Object source, String description, Object... arguments) {
-        return this.addIssue(new WarningImpl(thesaurus, this.clock.instant(), source, description));
+        return this.addIssue(new WarningImpl(this.thesaurus, this.clock.instant(), source, description, arguments));
     }
 
     /**
@@ -120,13 +121,10 @@ public class IssueCollectorDefaultImplementation implements IssueCollector {
      * {@inheritDoc}
      */
     public Collection<? extends Issue> getIssues (Object source) {
-        Collection<Issue> sourceIssues = new ArrayList<>(this.issues.size());
-        for (Issue issue : this.issues) {
-            if (Checks.is(source).equalTo(issue.getSource())) {
-                sourceIssues.add(issue);
-            }
-        }
-        return sourceIssues;
+        return this.issues
+                .stream()
+                .filter(issue -> Checks.is(source).equalTo(issue.getSource()))
+                .collect(Collectors.toList());
     }
 
     /**
