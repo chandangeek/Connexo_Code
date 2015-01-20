@@ -488,7 +488,7 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "MSG");
+        return Arrays.asList("ORM", "MSG", "USR");
     }
 
     private void createPrivileges(UserService userService) {
