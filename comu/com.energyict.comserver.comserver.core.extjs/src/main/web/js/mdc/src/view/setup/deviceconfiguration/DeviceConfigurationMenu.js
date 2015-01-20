@@ -1,95 +1,74 @@
 Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
-    extend: 'Uni.view.navigation.SubMenu',
+    extend: 'Uni.view.menu.SideMenu',
     xtype: 'device-configuration-menu',
 
     deviceTypeId: null,
     deviceConfigurationId: null,
-    toggle: null,
+
+    title: Uni.I18n.translate('deviceGeneralInformation.deviceConfiguration', 'MDC', 'Device configuration'),
 
     initComponent: function () {
-        this.callParent(arguments);
+        var me = this;
 
-        this.add(
+        me.menuItems = [
             {
                 text: Uni.I18n.translate('deviceconfigurationmenu.overview', 'MDC', 'Overview'),
-                pressed: false,
                 itemId: 'deviceConfigurationOverviewLink',
-                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId,
-                hrefTarget: '_self'
+                href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId
             },
             {
                 text: Uni.I18n.translate('deviceconfigurationmenu.registerTypes', 'MDC', 'Register configurations'),
-                pressed: false,
                 itemId: 'registerConfigsLink',
-                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/registerconfigurations',
-                hrefTarget: '_self'
+                href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/registerconfigurations'
             },
             {
                 text: Uni.I18n.translate('deviceconfigurationmenu.loadProfiles', 'MDC', 'Load profiles'),
-                pressed: false,
                 itemId: 'loadProfilesLink',
-                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofiles',
-                hrefTarget: '_self'
+                href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofiles'
             },
             {
                 text: 'Logbook configurations',
-                pressed: false,
                 itemId: 'logbooksLink',
-                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/logbookconfigurations',
-                hrefTarget: '_self'
+                href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/logbookconfigurations'
             },
             {
                 text: Uni.I18n.translate('deviceconfigurationmenu.connectionMethods', 'MDC', 'Connection methods'),
-                pressed: false,
                 itemId: 'connectionMethodsLink',
-                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/connectionmethods',
-                hrefTarget: '_self'
+                href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/connectionmethods'
             },
             {
                 text: 'Security settings',
-                pressed: false,
                 itemId: 'securitySettingsLink',
-                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings',
-                hrefTarget: '_self'
+                href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/securitysettings'
             },
             {
                 text: Uni.I18n.translate('deviceconfigurationmenu.protocols', 'MDC', 'Protocol dialects'),
-                pressed: false,
                 itemId: 'protocolLink',
-                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/protocols',
-                hrefTarget: '_self'
+                href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/protocols'
             },
             {
                 text: 'Communication tasks',
-                pressed: false,
                 itemId: 'communicationTasksLink',
-                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId+ '/comtaskenablements',
-                hrefTarget: '_self'
+                href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId+ '/comtaskenablements'
             },
             {
                 text: 'Validation rule sets',
-                pressed: false,
                 itemId: 'validationRuleSetsLink',
                 hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration']),
-                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/validationrulesets',
-                hrefTarget: '_self'
+                href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/validationrulesets'
             },
             {
                 text: 'Commands',
-                pressed: false,
                 itemId: 'messagesLink',
-                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/messages',
-                hrefTarget: '_self'
+                href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/messages'
             },
             {
                 text: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
-                pressed: false,
                 itemId: 'generalAttributesLink',
-                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/generalattributes',
-                hrefTarget: '_self'
+                href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/generalattributes'
             }
-        );
+        ];
 
-        this.toggleMenuItem(this.toggle);
+        me.callParent(arguments);
     }
 });

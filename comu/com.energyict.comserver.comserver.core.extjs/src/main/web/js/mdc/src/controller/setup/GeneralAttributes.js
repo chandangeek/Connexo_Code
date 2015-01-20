@@ -108,10 +108,10 @@ Ext.define('Mdc.controller.setup.GeneralAttributes', {
             }
         });
 
-        this.loadDeviceTypeAndConfiguration(deviceTypeId, deviceConfigurationId);
+        this.loadDeviceTypeAndConfiguration(deviceTypeId, deviceConfigurationId, widget);
     },
 
-    loadDeviceTypeAndConfiguration: function (deviceTypeId, deviceConfigurationId) {
+    loadDeviceTypeAndConfiguration: function (deviceTypeId, deviceConfigurationId, widget) {
         var me = this;
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
@@ -122,6 +122,7 @@ Ext.define('Mdc.controller.setup.GeneralAttributes', {
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
+                        widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
                     }
                 });
             }
