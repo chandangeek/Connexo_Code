@@ -22,11 +22,11 @@ import java.util.Optional;
 import static org.mockito.Mockito.spy;
 
 public class SpyEventService implements EventService {
-    final private EventService eventService;
+    private final EventService eventService;
 
     @Inject
     public SpyEventService(Clock clock, JsonService jsonService, Publisher publisher, BeanService beanService, OrmService ormService, MessageService messageService, BundleContext bundleContext, EventAdmin eventAdmin, NlsService nlsService) {
-        eventService = spy(new EventServiceImpl(clock, jsonService, publisher, beanService, ormService, messageService, bundleContext, nlsService));
+        eventService = spy(new EventServiceImpl(clock, jsonService, publisher, beanService, ormService, messageService, bundleContext, eventAdmin, nlsService));
     }
 
     @Override
@@ -58,4 +58,5 @@ public class SpyEventService implements EventService {
     public EventService getSpy() {
         return eventService;
     }
+
 }
