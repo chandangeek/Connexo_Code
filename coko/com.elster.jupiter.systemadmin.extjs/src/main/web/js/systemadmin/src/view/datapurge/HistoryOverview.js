@@ -36,7 +36,7 @@ Ext.define('Sam.view.datapurge.HistoryOverview', {
                             xtype: 'no-items-found-panel',
                             title: Uni.I18n.translate('datapurge.history.empty.title', 'SAM', 'No data purge history found'),
                             reasons: [
-                                Uni.I18n.translate('datapurge.history.empty.list.item1', 'SAM', 'No data has been purged so far.') + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+                                Uni.I18n.translate('datapurge.history.empty.list.item1', 'SAM', 'No data has been purged so far.')
                             ]
                         },
                         previewComponent: {

@@ -6,13 +6,6 @@ Ext.define('Sam.view.licensing.Upload', {
     ],
     alias: 'widget.upload-licenses-overview',
 
-    side: [
-        {
-            xtype: 'navigationSubMenu',
-            itemId: 'sideMenu'
-        }
-    ],
-
     content: [
         {
             cls: 'content-wrapper',
@@ -70,8 +63,24 @@ Ext.define('Sam.view.licensing.Upload', {
     ],
 
     initComponent: function () {
+        var me = this;
+        me.side = [
+            {
+                ui: 'medium',
+                items: {
+                    xtype: 'uni-view-menu-side',
+                    title: Uni.I18n.translate('licensing.sidemenu.title', 'SAM', 'Licensing'),
+                    itemId: 'sideMenu',
+                    menuItems: [
+                        {
+                            itemId: 'navEl',
+                            text: Uni.I18n.translate('licensing.sidemenu.uploadLic', 'SAM', 'Upload licenses'),
+                            href: '#/administration/licensing/upload'
+                        }
+                    ]
+                }}
+        ];
         this.callParent(this);
-        this.initMenu();
         Ext.apply(Ext.form.VTypes, {
             fileUpload: function (val, field) {
                 var fileName = /^.*\.(lic)$/i;
@@ -79,21 +88,6 @@ Ext.define('Sam.view.licensing.Upload', {
             },
             fileUploadText: 'License must be in .lic format'
         });
-    },
-
-    initMenu: function () {
-        var menu = this.getSideMenuCmp();
-
-        menu.add({
-            text: 'Upload licenses',
-            pressed: true,
-            href: '#/administration/licensing/upload',
-            hrefTarget: '_self'
-        });
-    },
-
-    getSideMenuCmp: function () {
-        return this.down('#sideMenu');
     }
 });
 

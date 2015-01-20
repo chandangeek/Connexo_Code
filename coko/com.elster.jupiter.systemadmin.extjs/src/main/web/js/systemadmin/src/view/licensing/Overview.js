@@ -1,18 +1,11 @@
 Ext.define('Sam.view.licensing.Overview', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
-        'Uni.view.navigation.SubMenu',
+        'Uni.view.menu.SideMenu',
         'Sam.view.licensing.List',
         'Sam.view.licensing.Details'
     ],
     alias: 'widget.licensing-overview',
-
-    side: [
-        {
-            xtype: 'navigationSubMenu',
-            itemId: 'sideMenu'
-        }
-    ],
 
     content: [
         {
@@ -37,24 +30,25 @@ Ext.define('Sam.view.licensing.Overview', {
     ],
 
     initComponent: function () {
-        this.callParent(this);
-        this.initMenu();
-    },
-
-    initMenu: function () {
-        var menu = this.getSideMenuCmp();
-
-        menu.add({
-            itemId: 'navEl',
-            text: 'Licenses',
-            pressed: true,
-            href: '#/administration/licensing/licenses',
-            hrefTarget: '_self'
-        });
-    },
-
-    getSideMenuCmp: function () {
-        return this.down('#sideMenu');
+        var me = this;
+        me.side = [
+            {
+                ui: 'medium',
+                items: {
+                    xtype: 'uni-view-menu-side',
+                    title: Uni.I18n.translate('licensing.sidemenu.title', 'SAM', 'Licensing'),
+                    itemId: 'sideMenu',
+                    menuItems: [
+                        {
+                            itemId: 'navEl',
+                            text: Uni.I18n.translate('licensing.sidemenu.licenses', 'SAM', 'Licenses'),
+                            href: '#/administration/licensing/licenses'
+                        }
+                    ]
+                }}
+        ];
+        me.callParent(this);
     }
+
 });
 
