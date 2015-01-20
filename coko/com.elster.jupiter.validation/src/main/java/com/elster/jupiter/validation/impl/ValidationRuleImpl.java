@@ -1,12 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -62,6 +57,7 @@ public final class ValidationRuleImpl implements IValidationRule {
     private String userName;
     // associations
     @Valid
+    @Size(min=1, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
     private List<ReadingTypeInValidationRule> readingTypesInRule = new ArrayList<>();
 
     private Reference<ValidationRuleSet> ruleSet = ValueReference.absent();
