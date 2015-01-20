@@ -13,10 +13,8 @@ Ext.define('Sam.view.licensing.Details', {
 
     onChange: function (panel, record) {
         var self = this;
-        Ext.suspendLayouts();
         self.removeAll();
         self.add(self.getItems(record));
-        Ext.resumeLayouts();
     },
 
     getItems: function (record) {
