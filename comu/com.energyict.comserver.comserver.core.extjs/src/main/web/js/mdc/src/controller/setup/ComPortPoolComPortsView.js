@@ -96,17 +96,19 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
                 'Mdc.store.FlowControls'
             ],
             widget;
-
         comPortModel.getProxy().url = url;
         comPortsStore.getProxy().url = url;
-
+        widget = Ext.widget('comPortPoolsComPortsView', {
+            poolId: id
+        });
+        me.getApplication().fireEvent('changecontentevent', widget);
+        widget.setLoading(true);
         Uni.util.Common.loadNecessaryStores(storesArr, function () {
-            widget = Ext.widget('comPortPoolsComPortsView');
-            me.getApplication().fireEvent('changecontentevent', widget);
             comPortPoolModel.load(id, {
                 success: function (record) {
-                    widget.down('comportpoolsubmenu').setServer(record);
+                    widget.down('comportpoolsidemenu #comportpoolLink').setText(record.get('name'));
                     me.getApplication().fireEvent('comPortPoolOverviewLoad', record);
+                    widget.setLoading(false);
                 }
             });
         });
@@ -119,7 +121,9 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
 
     showAddComPortView: function (id) {
         var me = this,
-            widget = Ext.widget('addComportToComportPoolView'),
+            widget = Ext.widget('addComportToComportPoolView', {
+                poolId: id
+            }),
             comPortPoolModel = me.getModel('Mdc.model.ComPortPool'),
             directionParams = {},
             recordData,
@@ -128,10 +132,11 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
 
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.updateCancelHref(id);
-
+        widget.setLoading(true);
         comPortPoolModel.load(id, {
             success: function (record) {
-                widget.down('comportpoolsubmenu').setServer(record);
+                widget.down('comportpoolsidemenu #comportpoolLink').setText(record.get('name'));
+                widget.setLoading(false);
                 recordData = record.getData();
                 switch (recordData.direction) {
                     case 'Inbound':

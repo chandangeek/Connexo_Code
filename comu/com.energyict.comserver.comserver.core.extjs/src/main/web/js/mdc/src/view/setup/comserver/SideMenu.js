@@ -7,7 +7,6 @@ Ext.define('Mdc.view.setup.comserver.SideMenu', {
             serverId = me.serverId;
         me.menuItems = [
             {
-                text: name,
                 itemId: 'comserverLink',
                 href: '#/administration/comservers/' + serverId + '/overview'
             },
@@ -18,6 +17,5 @@ Ext.define('Mdc.view.setup.comserver.SideMenu', {
             }
         ];
         me.callParent(arguments);
-    },
-
+    }
 });
