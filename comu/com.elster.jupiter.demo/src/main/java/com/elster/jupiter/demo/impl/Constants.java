@@ -226,7 +226,7 @@ public final class Constants {
         public static final String ASSIGNMENTRULE_DEFAULT_TO_BOB = "Assign all issues to BOB (default)";
         public static final String ASSIGNMENTRULE_TO_BOB = 
                 "import com.elster.jupiter.issue.share.entity.IssueForAssign;\n" + 
-                "rule \"Assign to Bob\"\n" +
+                "rule \"Assign to @USERID (default)\"\n" +
                 "salience 0\n" +
                 "when\n" +
                 "    issue : IssueForAssign(!processed)\n" +
@@ -237,7 +237,7 @@ public final class Constants {
         public static final String ASSIGNMENTRULE_TO_SAM_UNBOUND_REASON = "Assign 'Unknown outbound device' issues to SAM";
         public static final String ASSIGNMENTRULE_TO_SAM = 
                 "import com.elster.jupiter.issue.share.entity.IssueForAssign;\n" + 
-                "rule \"Assign to Sam\"\n" +
+                "rule \"Assign to @USERID\"\n" +
                 "salience 100\n" +
                 "when\n" +
                 "    issue : IssueForAssign(reason == \"@REASON\", !processed)\n" +
