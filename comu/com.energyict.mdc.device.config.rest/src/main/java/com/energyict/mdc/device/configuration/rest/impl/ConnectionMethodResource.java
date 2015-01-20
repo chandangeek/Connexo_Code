@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
@@ -173,13 +174,17 @@ public class ConnectionMethodResource {
      */
     private void updateProperties(ConnectionMethodInfo<PartialConnectionTask> connectionMethodInfo, PartialConnectionTask partialConnectionTask) {
         if (connectionMethodInfo.properties != null) {
-            for (PropertySpec propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
-                Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, connectionMethodInfo.properties);
-                if (propertyValue != null) {
-                    partialConnectionTask.setProperty(propertySpec.getName(), propertyValue);
-                } else {
-                    partialConnectionTask.removeProperty(propertySpec.getName());
+            try {
+                for (PropertySpec propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
+                    Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, connectionMethodInfo.properties);
+                    if (propertyValue != null) {
+                        partialConnectionTask.setProperty(propertySpec.getName(), propertyValue);
+                    } else {
+                        partialConnectionTask.removeProperty(propertySpec.getName());
+                    }
                 }
+            } catch (LocalizedFieldValidationException e) {
+                throw new LocalizedFieldValidationException(e.getMessageSeed(), "properties."+e.getViolatingProperty());
             }
         }
     }

@@ -1,17 +1,27 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.properties.BasicPropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.jayway.jsonpath.JsonModel;
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -52,6 +62,32 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         assertThat(comPortPoolArgumentCaptor.getValue()).isNull();
     }
 
+    @Test
+    public void testUpdateConnectionMethodSetInvalidTimeout() throws Exception {
+        InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
+        info.name = "name";
+        info.comPortPool = null; // should be set to null
+        info.comWindowStart = 6;
+        info.comWindowEnd = 12;
+        info.connectionTypePluggableClass = "pluggableClass";
+        info.properties = new ArrayList<>();
+        PropertyInfo propertyInfo = new PropertyInfo();
+        propertyInfo.key = "connectionTimeOut";
+        propertyInfo.required = false;
+        TimeDurationInfo timeDurationInfo = new TimeDurationInfo();
+        timeDurationInfo.timeUnit="1"; // INVALID
+        propertyInfo.propertyValueInfo = new PropertyValueInfo<TimeDurationInfo>(timeDurationInfo,null,null,true);
+        propertyInfo.propertyTypeInfo = new PropertyTypeInfo();
+        propertyInfo.propertyTypeInfo.simplePropertyType = SimplePropertyType.TIMEDURATION;
+        info.properties.add(propertyInfo);
+        Response response = target("/devicetypes/11/deviceconfigurations/12/connectionmethods/13").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        assertThat(jsonModel.<Boolean>get("$.success")).isEqualTo(false);
+        assertThat(jsonModel.<String>get("$.errors[0].id")).startsWith("properties.");
+        assertThat(jsonModel.<String>get("$.errors[0].msg")).isEqualTo("Invalid value");
+    }
+
     @Before
     public void setup() {
         DeviceType deviceType = mockDeviceType("device", 11);
@@ -85,6 +121,9 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         when(partialConnectionTask.getConnectionType()).thenReturn(connectionType);
         ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
         when(pluggableClass.getName()).thenReturn("pluggableClass");
+
+        PropertySpec propertySpec = new BasicPropertySpec("connectionTimeOut",false, new TimeDurationValueFactory());
+        when(pluggableClass.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
         when(protocolPluggableService.findConnectionTypePluggableClassByName("pluggableClass")).thenReturn(Optional.of(pluggableClass));
         when(deviceConfigurationService.getPartialConnectionTask(id)).thenReturn(Optional.of(partialConnectionTask));
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
