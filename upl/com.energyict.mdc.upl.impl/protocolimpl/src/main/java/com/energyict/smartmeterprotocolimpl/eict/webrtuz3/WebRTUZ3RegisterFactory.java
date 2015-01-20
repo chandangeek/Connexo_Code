@@ -145,7 +145,7 @@ public class WebRTUZ3RegisterFactory implements BulkRegisterProtocol {
                         dlmsAttributes.add(this.registerMap.get(register));
                     }
                 } else {
-                    if (rObisCode.equals(MBUS_CLIENT_STATUS)) {
+                    if (rObisCode.equals(getCorrectedRegisterObisCode(MBUS_CLIENT_STATUS, register.getSerialNumber()))) {
                         this.registerMap.put(register,
                                 new DLMSAttribute(
                                         getCorrectedRegisterObisCode(MBUS_CLIENT, register.getSerialNumber()),
@@ -154,7 +154,7 @@ public class WebRTUZ3RegisterFactory implements BulkRegisterProtocol {
                                 )
                         );
                         dlmsAttributes.add(this.registerMap.get(register));
-                    } else if (rObisCode.equals(MBUS_CLIENT_ALARM)) {
+                    } else if (rObisCode.equals(getCorrectedRegisterObisCode(MBUS_CLIENT_ALARM, register.getSerialNumber()))) {
                         this.registerMap.put(register,
                                 new DLMSAttribute(
                                         getCorrectedRegisterObisCode(MBUS_CLIENT, register.getSerialNumber()),
