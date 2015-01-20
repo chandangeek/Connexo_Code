@@ -67,8 +67,8 @@ public class RelativePeriodResource {
     }
 
     @GET
-    @RolesAllowed({Privileges.ADMINISTRATE_RELATIVE_PERIOD, Privileges.VIEW_RELATIVE_PERIOD})
     @Produces(MediaType.APPLICATION_JSON)
+    // not protected by privileges yet because a combobox containing all the relative periods needs to be shown when creating an export task
     public RelativePeriodInfos getRelativePeriods(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         Query<? extends RelativePeriod> query = timeService.getRelativePeriodQuery();
