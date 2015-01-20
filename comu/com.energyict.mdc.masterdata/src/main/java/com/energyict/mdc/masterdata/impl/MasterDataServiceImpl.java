@@ -339,8 +339,11 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
 
     @Override
     public Optional<ChannelType> findChannelTypeByTemplateRegisterAndInterval(RegisterType templateRegisterType, TimeDuration interval) {
-        return getDataModel().mapper(ChannelType.class).getUnique(MeasurementTypeImpl.Fields.TEMPLATE_REGISTER_ID.fieldName(), templateRegisterType.getId(),
-                MeasurementTypeImpl.Fields.INTERVAl.fieldName(), interval);
+        return getDataModel()
+                    .mapper(ChannelType.class)
+                    .getUnique(
+                            MeasurementTypeImpl.Fields.TEMPLATE_REGISTER_ID.fieldName(), templateRegisterType.getId(),
+                            MeasurementTypeImpl.Fields.INTERVAl.fieldName(), interval);
     }
 
     @Override

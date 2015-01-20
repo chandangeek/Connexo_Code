@@ -17,6 +17,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.IntervalIsRequiredException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.exceptions.RegisterTypeAlreadyInLoadProfileTypeException;
+import com.energyict.mdc.masterdata.exceptions.RegisterTypesNotMappableToLoadProfileTypeIntervalException;
 import com.energyict.mdc.masterdata.exceptions.UnsupportedIntervalException;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import java.util.ArrayList;
@@ -89,16 +90,29 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
     }
 
-    LoadProfileTypeImpl initialize(String name, ObisCode obisCode, TimeDuration interval, Collection<RegisterType> registerTypes) {
+    Collection<RegisterType> initialize(String name, ObisCode obisCode, TimeDuration interval, Collection<RegisterType> registerTypes) {
         this.setName(name);
         this.setObisCode(obisCode);
         this.setInterval(interval);
-        registerTypes.stream().forEach(this::createChannelTypeForRegisterType);
-        return this;
+        Collection<RegisterType> failedRegisterTypes = new ArrayList<>();
+        for (RegisterType registerType : registerTypes) {
+            Optional<ChannelType> channelType = this.createChannelTypeForRegisterType(registerType);
+            if (!channelType.isPresent()) {
+                failedRegisterTypes.add(registerType);
+            }
+        }
+        return failedRegisterTypes;
     }
 
     static LoadProfileTypeImpl from(DataModel dataModel, String name, ObisCode obisCode, TimeDuration interval, Collection<RegisterType> registerTypes) {
-        return dataModel.getInstance(LoadProfileTypeImpl.class).initialize(name, obisCode, interval, registerTypes);
+        LoadProfileTypeImpl loadProfileType = dataModel.getInstance(LoadProfileTypeImpl.class);
+        Collection<RegisterType> failedRegisterTypes = loadProfileType.initialize(name, obisCode, interval, registerTypes);
+        if (failedRegisterTypes.isEmpty()) {
+            return loadProfileType;
+        }
+        else {
+            throw new RegisterTypesNotMappableToLoadProfileTypeIntervalException(loadProfileType.thesaurus, loadProfileType, failedRegisterTypes);
+        }
     }
 
     @Override
@@ -233,14 +247,16 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     }
 
     @Override
-    public ChannelType createChannelTypeForRegisterType(RegisterType measurementTypeWithoutInterval) {
-        ChannelType channelType = findOrCreateCorrespondingChannelType(measurementTypeWithoutInterval);
-        for (LoadProfileTypeChannelTypeUsageImpl channelTypeUsage : this.registerTypes) {
-            if (channelTypeUsage.sameChannelType(channelType)) {
-                throw new RegisterTypeAlreadyInLoadProfileTypeException(this.getThesaurus(), this, channelType);
+    public Optional<ChannelType> createChannelTypeForRegisterType(RegisterType measurementTypeWithoutInterval) {
+        Optional<ChannelType> channelType = findOrCreateCorrespondingChannelType(measurementTypeWithoutInterval);
+        if (channelType.isPresent()) {
+            for (LoadProfileTypeChannelTypeUsageImpl channelTypeUsage : this.registerTypes) {
+                if (channelTypeUsage.sameChannelType(channelType.get())) {
+                    throw new RegisterTypeAlreadyInLoadProfileTypeException(this.getThesaurus(), this, channelType.get());
+                }
             }
+            this.registerTypes.add(new LoadProfileTypeChannelTypeUsageImpl(this, channelType.get()));
         }
-        this.registerTypes.add(new LoadProfileTypeChannelTypeUsageImpl(this, channelType));
         return channelType;
     }
 
@@ -269,16 +285,24 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         return this.masterDataService.findChannelTypeByTemplateRegisterAndInterval(measurementTypeWithoutInterval, getInterval());
     }
 
-    private ChannelType findOrCreateCorrespondingChannelType(RegisterType measurementTypeWithoutInterval){
-
+    private Optional<ChannelType> findOrCreateCorrespondingChannelType(RegisterType measurementTypeWithoutInterval) {
         Optional<ChannelType> channelType = this.masterDataService.findChannelTypeByTemplateRegisterAndInterval(measurementTypeWithoutInterval, getInterval());
-        if(!channelType.isPresent()){
-            ReadingType intervalAppliedReadingType = this.mdcReadingTypeUtilService.getIntervalAppliedReadingType(measurementTypeWithoutInterval.getReadingType(), getInterval(), measurementTypeWithoutInterval.getObisCode());
-            ChannelType newChannelType = masterDataService.newChannelType(measurementTypeWithoutInterval, getInterval(), intervalAppliedReadingType);
-            newChannelType.save();
-            return newChannelType;
+        if (!channelType.isPresent()) {
+            return this.mdcReadingTypeUtilService
+                    .getIntervalAppliedReadingType(
+                            measurementTypeWithoutInterval.getReadingType(),
+                            getInterval(),
+                            measurementTypeWithoutInterval.getObisCode())
+                    .map(rt -> this.newChannelType(measurementTypeWithoutInterval, rt));
         } else {
-            return channelType.get();
+            return channelType;
         }
     }
+
+    private ChannelType newChannelType(RegisterType measurementTypeWithoutInterval, ReadingType intervalAppliedReadingType) {
+        ChannelType newChannelType = this.masterDataService.newChannelType(measurementTypeWithoutInterval, getInterval(), intervalAppliedReadingType);
+        newChannelType.save();
+        return newChannelType;
+    }
+
 }
