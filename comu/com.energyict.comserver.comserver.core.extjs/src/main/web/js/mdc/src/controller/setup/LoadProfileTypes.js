@@ -371,6 +371,11 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 } else {
                     json = Ext.decode(operation.response.responseText, true);
                     if (json && json.errors) {
+                        Ext.Array.each(json.errors, function (item) {
+                            if (item.id.indexOf("interval") !== -1) {
+                                me.getEditPage().down('#timeDuration').setActiveError(item.msg);
+                            }
+                        });
                         basicForm.markInvalid(json.errors);
                         me.registerTypesIsValid(json.errors);
                         formErrorsPanel.show();
@@ -383,7 +388,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
     registerTypesIsValid: function (errors) {
         var me = this,
             registerTypesError = Ext.Array.findBy(errors, function (error) {
-                return error.id === 'readingType';
+                return error.id === 'registerTypes';
             }, me),
             form = me.getEditForm();
 

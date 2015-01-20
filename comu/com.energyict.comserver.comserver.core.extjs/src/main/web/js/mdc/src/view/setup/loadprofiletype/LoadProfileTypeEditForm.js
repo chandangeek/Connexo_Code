@@ -33,6 +33,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
         {
             xtype: 'combobox',
             allowBlank: false,
+            itemId: 'timeDuration',
             fieldLabel: 'Interval',
             emptyText: '0 minutes',
             name: 'timeDuration',
@@ -226,7 +227,12 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
         Ext.iterate(obj, function (key, value) {
             record.set(key, value);
         });
-        record.set('timeDuration', {id: obj.timeDuration});
+        if(!me.down('#timeDuration').getValue()) {
+            record.set('timeDuration', null);
+        } else {
+            record.set('timeDuration', {id: obj.timeDuration});
+        }
+
         record.endEdit();
 
         return basicForm;
