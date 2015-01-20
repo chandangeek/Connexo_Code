@@ -1,7 +1,7 @@
 package com.elster.jupiter.bpm.impl;
 
-import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.BpmAppService;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -13,8 +13,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.List;
 
 @Component(
         name = "com.elster.jupiter.bpm.app",
@@ -22,7 +20,7 @@ import java.util.List;
         property = "name=" + BpmAppService.COMPONENTNAME,
         immediate = true
 )
-public class BpmAppServiceImpl implements BpmAppService, InstallService {
+public class BpmAppServiceImpl implements BpmAppService {
 
     private volatile ServiceRegistration<App> registration;
     private volatile BpmService bpmService;
@@ -46,16 +44,6 @@ public class BpmAppServiceImpl implements BpmAppService, InstallService {
     @Deactivate
     public void stop(BundleContext context) throws Exception {
         registration.unregister();
-    }
-
-    @Override
-    public void install() {
-        // TODO: implement assignPrivilegesToDefaultRoles. Still empty because 'privilege.view.bpm' is currently under SYS application
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("SYSAPP");
     }
 
     @Reference
