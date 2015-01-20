@@ -252,6 +252,22 @@ public class IssueMappingServiceImpl implements IssueMappingService, InstallServ
         this.threadPrincipalService = threadPrincipalService;
     }
 
+    public IssueService getIssueService() {
+        return issueService;
+    }
+
+    public IssueAssignmentService getIssueAssignmentService() {
+        return issueAssignmentService;
+    }
+
+    public IssueCreationService getIssueCreationService() {
+        return issueCreationService;
+    }
+
+    public IssueActionService getIssueActionService() {
+        return issueActionService;
+    }
+
     public DataModel getDataModel() {
         return this.dataModel;
     }
