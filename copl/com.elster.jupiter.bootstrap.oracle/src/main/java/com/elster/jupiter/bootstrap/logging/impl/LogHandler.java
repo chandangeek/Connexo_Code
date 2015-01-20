@@ -28,7 +28,10 @@ class LogHandler extends Handler {
 
 	@Override
 	public void publish(LogRecord logRecord) {
-        int osgiLevel = mapLevel(logRecord.getLevel());
+		if (!isLoggable(logRecord)) {
+			return;
+		}
+		int osgiLevel = mapLevel(logRecord.getLevel());
 		logService.log(osgiLevel, format(logRecord) , logRecord.getThrown());
 	}
 
