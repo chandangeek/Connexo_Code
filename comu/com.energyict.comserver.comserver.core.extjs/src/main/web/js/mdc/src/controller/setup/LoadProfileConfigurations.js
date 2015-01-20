@@ -264,9 +264,18 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
     },
 
     loadGridItemDetail: function (selectionModel, record) {
-        var loadProfileConfigs = this.getLoadConfigurationGrid().getSelectionModel().getSelection();
+        var loadProfileConfigs = this.getLoadConfigurationGrid().getSelectionModel().getSelection(),
+            linkButton = this.getLoadProfileConfigPreviewForm().down('#channel-configurations-field button'),
+            router = this.getController('Uni.controller.history.Router');
+
         if (loadProfileConfigs.length == 1) {
             this.getLoadProfileConfigPreviewForm().loadRecord(loadProfileConfigs[0]);
+            if (linkButton) {
+                linkButton.on('click', function () {
+                    router.arguments.loadProfileConfigurationId = loadProfileConfigs[0].getId();
+                    router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.arguments);
+                });
+            }
             var loadProfileConfigsName = this.getLoadProfileConfigPreviewForm().form.findField('name').getSubmitValue();
             this.getLoadProfileConfigurationPreview().setTitle(loadProfileConfigsName);
         }
@@ -303,6 +312,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
+                        widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
                         me.deviceTypeName = deviceType.get('name');
                         me.deviceConfigName = deviceConfig.get('name');
 

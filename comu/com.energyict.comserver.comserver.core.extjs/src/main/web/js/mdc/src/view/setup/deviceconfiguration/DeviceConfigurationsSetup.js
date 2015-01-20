@@ -44,6 +44,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
+                            itemId: 'ctr-no-device-config',
                             title: Uni.I18n.translate('deviceConfiguration.empty.title', 'MDC', 'No device configurations found'),
                             reasons: [
                                 Uni.I18n.translate('deviceConfiguration.empty.list.item1', 'MDC', 'No device configurations have been added yet.')

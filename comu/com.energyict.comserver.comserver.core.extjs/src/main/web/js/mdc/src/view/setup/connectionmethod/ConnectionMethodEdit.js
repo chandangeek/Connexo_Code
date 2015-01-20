@@ -104,7 +104,13 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 emptyText: Uni.I18n.translate('connectionmethod.selectComPortPool', 'MDC', 'Select a communication port pool...'),
                                 forceSelection: true,
                                 typeAhead: true,
-                                msgTarget: 'under'
+                                msgTarget: 'under',
+                                listeners: {
+                                    'change': function (combo, newValue) {
+                                        if (newValue === null)
+                                            combo.reset();
+                                    }
+                                }
                             },
                             {
                                 xtype: 'combobox',

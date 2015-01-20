@@ -67,7 +67,7 @@ Ext.define('Mdc.view.setup.generalattributes.Edit', {
                 items: [
                     {
                         xtype: 'device-configuration-menu',
-                        toggle: 10,
+                        itemId: 'stepsMenu',
                         deviceTypeId: me.router.arguments.deviceTypeId,
                         deviceConfigurationId: me.router.arguments.deviceConfigurationId
                     }

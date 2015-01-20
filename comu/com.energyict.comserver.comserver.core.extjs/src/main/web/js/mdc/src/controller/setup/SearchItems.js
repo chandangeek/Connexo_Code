@@ -20,7 +20,8 @@ Ext.define('Mdc.controller.setup.SearchItems', {
     refs: [
         {ref: 'searchItems', selector: '#searchItems'},
         {ref: 'searchButton', selector: '#searchAllItems[action=applyfilter]'},
-        {ref: 'bulkButton', selector: '#searchResultsBulkActionButton'}
+        {ref: 'bulkButton', selector: '#searchResultsBulkActionButton'},
+        {ref: 'generateReportButton', selector: '#generate-report'}
     ],
 
     init: function () {
@@ -57,6 +58,9 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             },
             '#searchResultsBulkActionButton': {
                 click: this.showBulkAction
+            },
+            '#generate-report': {
+                click: this.onGenerateReport
             }
         });
     },
@@ -332,5 +336,36 @@ Ext.define('Mdc.controller.setup.SearchItems', {
                 ? centerConatiner.down('#searchContentFilter').show()
                 : centerConatiner.down('#searchContentFilter').hide();
         }
+    },
+    onGenerateReport: function(){
+        var me = this;
+        var router = this.getController('Uni.controller.history.Router');
+
+        var searchCriteria = {};
+        var store = me.getStore('Mdc.store.Devices');
+        Ext.apply(searchCriteria,store.getProxy().extraParams);
+
+        console.log(searchCriteria);
+        var url  = '/api/ddr/cachegroups/adhoc?'+router.queryParamsToString(searchCriteria);
+        Ext.Ajax.request({
+            url: url,
+            method: 'POST',
+            params:searchCriteria,
+            async: false,
+            success: function (response) {
+                data = Ext.JSON.decode(response.responseText);
+                var reportFilter = {};
+                reportFilter['search'] = true;
+                reportFilter['GROUPNAME'] = data.name;
+
+                router.getRoute('generatereport').forward(null, {
+                    category:'MDC',
+                    filter : reportFilter
+                });
+
+            }
+        });
+
+
     }
 });

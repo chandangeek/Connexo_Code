@@ -106,7 +106,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
                                 adHocComTasks.push(schedule);
                             }
                         });
-                        Ext.suspendLayouts();
                         if (shared.length > 0) {
                             var sharedGrid = {
                                 xtype: 'sharedCommunicationScheduleGrid',
@@ -150,7 +149,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
                             };
                             widget.down('#onRequestDeviceCommunicationScheduleSetupPanel').add(msg);
                         }
-                        Ext.resumeLayouts();
                     }
                 });
             }

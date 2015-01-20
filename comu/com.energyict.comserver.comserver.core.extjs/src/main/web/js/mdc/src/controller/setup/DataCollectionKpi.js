@@ -47,7 +47,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
     },
 
     moveToCreatePage: function () {
-        this.getController('Uni.controller.history.Router').getRoute('administration/datacollectionkpis/create').forward();
+        this.getController('Uni.controller.history.Router').getRoute('administration/datacollectionkpis/add').forward();
     },
 
     moveToEditPage: function () {

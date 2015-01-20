@@ -16,7 +16,7 @@
             "executionLevels": [
                 {
                     "id": 1,
-                    "name": "Edit device security properties (level1)",
+                    "name": "Edit device security settings (level1)",
                     "userRoles": [
                         {
                             "id": 1,
@@ -34,7 +34,7 @@
                 },
                 {
                     "id": 2,
-                    "name": "Edit device security properties (level4)",
+                    "name": "Edit device security settings (level4)",
                     "userRoles": [
                         {
                             "id": 1,
@@ -61,7 +61,7 @@
             "executionLevels": [
                 {
                     "id": 1,
-                    "name": "Edit device security properties (level1)",
+                    "name": "Edit device security settings (level1)",
                     "userRoles": [
                         {
                             "id": 1,
@@ -79,7 +79,7 @@
                 },
                 {
                     "id": 1,
-                    "name": "Edit device security properties (level4)",
+                    "name": "Edit device security settings (level4)",
                     "userRoles": [
                         {
                             "id": 1,

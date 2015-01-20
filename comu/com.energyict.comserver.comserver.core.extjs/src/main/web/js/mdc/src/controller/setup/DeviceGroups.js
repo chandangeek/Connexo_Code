@@ -233,6 +233,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
                     success: function (record) {
                         actionsMenu.record = record;
                         me.getApplication().fireEvent('changecontentevent', widget);
+                        widget.down('#devicegroups-view-menu #devicegroups-view-link').setText(record.get('name'));
                         widget.down('form').loadRecord(record);
                         me.getApplication().fireEvent('loadDeviceGroup', record);
                         me.updateCriteria(record);
@@ -316,8 +317,6 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceGroup.remove.success.msg', 'MDC', 'Device group removed'));
                         }
                     });
-                } else if (state === 'cancel') {
-                    this.close();
                 }
             }
         });

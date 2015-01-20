@@ -55,13 +55,21 @@ Ext.define('Mdc.view.setup.searchitems.SearchResults', {
                 displayMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} devices'),
                 displayMoreMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} devices'),
                 emptyMsg: Uni.I18n.translate('devices.pagingtoolbartop.emptyMsg', 'MDC', 'There are no devices to display'),
-                items: {
-                    xtype: 'button',
-                    hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceCommunication'),
-                    action: 'bulk',
-                    itemId: 'searchResultsBulkActionButton',
-                    text: Uni.I18n.translate('general.bulkAction', 'MDC', 'Bulk action')
-                }
+                items: [
+                    {
+                        xtype: 'button',
+                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceCommunication'),
+                        action: 'bulk',
+                        itemId: 'searchResultsBulkActionButton',
+                        text: Uni.I18n.translate('general.bulkAction', 'MDC', 'Bulk action')
+                    },
+                    {
+                        xtype:'button',
+                        hidden:!Uni.Auth.hasAnyPrivilege(['privilege.view.reports']),
+                        itemId:'generate-report',
+                        action: 'generate-report',
+                        text:Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
+                }]
             },
             {
                 xtype: 'pagingtoolbarbottom',

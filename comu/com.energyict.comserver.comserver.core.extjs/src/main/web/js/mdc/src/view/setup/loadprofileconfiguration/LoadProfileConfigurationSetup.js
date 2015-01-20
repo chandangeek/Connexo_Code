@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
         items: [
             {
                 xtype: 'device-configuration-menu',
-                toggle: 2
+                itemId: 'stepsMenu'
             }
         ]
     },

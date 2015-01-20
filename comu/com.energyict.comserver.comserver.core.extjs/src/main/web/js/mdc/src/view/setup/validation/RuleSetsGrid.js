@@ -30,6 +30,7 @@ Ext.define('Mdc.view.setup.validation.RuleSetsGrid', {
             },
             {
                 header: Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'),
+                align: 'right',
                 dataIndex: 'numberOfRules',
                 flex: 1,
                 renderer: function (value, b, record) {
@@ -39,6 +40,7 @@ Ext.define('Mdc.view.setup.validation.RuleSetsGrid', {
             },
             {
                 header: Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'),
+                align: 'right',
                 dataIndex: 'numberOfInactiveRules',
                 flex: 1
             },

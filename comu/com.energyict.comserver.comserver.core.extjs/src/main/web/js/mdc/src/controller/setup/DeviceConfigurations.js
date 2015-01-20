@@ -131,9 +131,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             this.getDeviceConfigurationRegisterLink().getEl().set({href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/registerconfigurations'});
             this.getDeviceConfigurationRegisterLink().getEl().setHTML(deviceConfigurations[0].get('registerCount') + ' ' + Uni.I18n.translatePlural('deviceconfig.registerconfigs', deviceConfigurations[0].get('registerCount'), 'MDC', 'register configurations'));
             this.getDeviceConfigurationLogBookLink().getEl().set({href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/logbookconfigurations'});
-            this.getDeviceConfigurationLogBookLink().getEl().setHTML(deviceConfigurations[0].get('logBookCount') + ' ' + Uni.I18n.translatePlural('deviceconfiguration.logbooks', deviceConfigurations[0].get('logBookCount'), 'MDC', 'logbooks'));
+            this.getDeviceConfigurationLogBookLink().getEl().setHTML(deviceConfigurations[0].get('logBookCount') + ' ' + Uni.I18n.translatePlural('general.logbookConfiguration', deviceConfigurations[0].get('logBookCount'), 'MDC', 'logbook configurations'));
             this.getDeviceConfigurationLoadProfilesLink().getEl().set({href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/loadprofiles'});
-            this.getDeviceConfigurationLoadProfilesLink().getEl().setHTML(deviceConfigurations[0].get('loadProfileCount') + ' ' + Uni.I18n.translatePlural('deviceconfiguration.loadprofiles', deviceConfigurations[0].get('loadProfileCount'), 'MDC', 'load profiles'));
+            this.getDeviceConfigurationLoadProfilesLink().getEl().setHTML(deviceConfigurations[0].get('loadProfileCount') + ' ' + Uni.I18n.translatePlural('general.loadProfileConfigurations', deviceConfigurations[0].get('loadProfileCount'), 'MDC', 'load profile configurations'));
             this.getDeviceConfigurationPreviewForm().loadRecord(deviceConfigurations[0]);
             this.getDeviceConfigurationPreview().down('#device-configuration-action-menu').record = deviceConfigurations[0];
             this.getDeviceConfigurationPreview().getLayout().setActiveItem(1);
@@ -154,6 +154,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         deviceConfigModel.load(deviceconfiguration, {
             success: function (deviceConfiguration) {
                 me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
+                widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfiguration.get('name'));
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(devicetype, {
                     success: function (deviceType) {
                         me.getApplication().fireEvent('loadDeviceType', deviceType);
@@ -161,9 +162,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                         me.getDeviceConfigurationDetailRegisterLink().getEl().set({href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/registerconfigurations'});
                         me.getDeviceConfigurationDetailRegisterLink().getEl().setHTML(deviceConfiguration.get('registerCount') + ' ' + Uni.I18n.translatePlural('deviceconfig.registerconfigs', deviceConfiguration.get('registerCount'), 'MDC', 'register configurations'));
                         me.getDeviceConfigurationDetailLogBookLink().getEl().set({href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/logbookconfigurations'});
-                        me.getDeviceConfigurationDetailLogBookLink().getEl().setHTML(deviceConfiguration.get('logBookCount') + ' ' + Uni.I18n.translatePlural('deviceconfiguration.logbooks', deviceConfiguration.get('logBookCount'), 'MDC', 'logbooks'));
+                        me.getDeviceConfigurationDetailLogBookLink().getEl().setHTML(deviceConfiguration.get('logBookCount') + ' ' + Uni.I18n.translatePlural('general.logbookConfigurations', deviceConfiguration.get('logBookCount'), 'MDC', 'logbook configurations'));
                         me.getDeviceConfigurationDetailLoadProfilesLink().getEl().set({href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/loadprofiles'});
-                        me.getDeviceConfigurationDetailLoadProfilesLink().getEl().setHTML(deviceConfiguration.get('loadProfileCount') + ' ' + Uni.I18n.translatePlural('deviceconfiguration.loadprofiles', deviceConfiguration.get('loadProfileCount'), 'MDC', 'load profiles'));
+                        me.getDeviceConfigurationDetailLoadProfilesLink().getEl().setHTML(deviceConfiguration.get('loadProfileCount') + ' ' + Uni.I18n.translatePlural('general.loadProfileConfigurations', deviceConfiguration.get('loadProfileCount'), 'MDC', 'load profile configurations'));
                         //me.getDeviceConfigurationPreviewTitle().update('<h1>' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>');
                         widget.down('form').loadRecord(deviceConfiguration);
                         widget.down('#device-configuration-action-menu').record = deviceConfiguration;
@@ -175,7 +176,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     createDeviceConfigurationHistory: function () {
-        location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/create';
+        location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/add';
     },
 
     editDeviceConfigurationHistory: function (record) {
@@ -261,8 +262,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             router = me.getController('Uni.controller.history.Router');
 
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('deviceconfiguration.deleteDeviceConfiguration', 'MDC', 'The device configuration will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + deviceConfigurationToDelete.get('name') + '?',
+            msg: Uni.I18n.translate('deviceconfiguration.removeDeviceConfiguration', 'MDC', 'This device configuration will no longer be available.'),
+            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + " '" + deviceConfigurationToDelete.get('name') + "'?",
             config: {
                 registerConfigurationToDelete: deviceConfigurationToDelete,
                 me: me
@@ -423,12 +424,16 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             record.set(values);
             if (!record.get('canBeGateway')) {
                 record.set('gatewayType', 'NONE')
-            };
+            }
             record.getProxy().setExtraParam('deviceType', this.deviceTypeId);
             record.save({
                 success: function (record) {
                     router.getRoute('administration/devicetypes/view/deviceconfigurations').forward();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.acknowledgment.saved', 'MDC', 'Device configuration saved'));
+                    if (btn.action === 'createDeviceConfiguration') {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.acknowledgment.added', 'MDC', 'Device configuration added'));
+                    } else {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.acknowledgment.saved', 'MDC', 'Device configuration saved'));
+                    }
                     editForm.setLoading(false);
                 },
                 failure: function (record, operation) {
@@ -467,6 +472,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             deviceConfigModel.load(deviceConfigurationId, {
                                 success: function (deviceConfiguration) {
                                     me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
+                                    widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfiguration.get('name'));
                                     widget.setLoading(false);
                                 }
                             });
@@ -488,7 +494,11 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         var me = this,
             model = Ext.ModelManager.getModel('Mdc.model.DeviceType'),
             deviceConfigModel = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration'),
-            store = Ext.data.StoreManager.lookup('LogbookConfigurations');
+            store = Ext.data.StoreManager.lookup('LogbookConfigurations'),
+            widget = Ext.widget('add-logbook-configurations', {
+                deviceTypeId: deviceTypeId,
+                deviceConfigurationId: deviceConfigurationId
+            });
         store.getProxy().setExtraParam('deviceType', deviceTypeId);
         store.getProxy().setExtraParam('available', true);
         store.getProxy().setExtraParam('deviceConfiguration', deviceConfigurationId);
@@ -496,12 +506,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         store.load(
             {
                 callback: function () {
-                    var self = this,
-                        widget = Ext.widget('add-logbook-configurations', {
-                            deviceTypeId: deviceTypeId,
-                            deviceConfigurationId: deviceConfigurationId
-                        });
                     me.getApplication().fireEvent('changecontentevent', widget);
+                    if (!this.getCount()) { widget.down('button[action=add]').disable(); }
                     widget.setLoading(true);
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
@@ -514,13 +520,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             });
                         }
                     });
-                    var numberOfLogbooksLabel = Ext.ComponentQuery.query('add-logbook-configurations toolbar #LogBookCount')[0],
+                    var numberOfLogbooksLabel = Ext.ComponentQuery.query('add-logbook-configurations #logbook-count')[0],
                         grid = Ext.ComponentQuery.query('add-logbook-configurations grid')[0];
-                    numberOfLogbooksLabel.setText('No logbooks selected');
-                    if (self.getCount() < 1) {
-                        grid.hide();
-                        grid.next().show();
-                    }
+                    numberOfLogbooksLabel.setText(Uni.I18n.translate('logbookConfiguration.noSelected', 'MDC', 'No logbook configurations selected'));
                 }
             }
         );

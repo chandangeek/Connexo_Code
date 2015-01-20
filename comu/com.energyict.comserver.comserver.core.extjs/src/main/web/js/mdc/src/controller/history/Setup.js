@@ -119,7 +119,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     items: {
                                         create: {
                                             title: 'Add device configuration',
-                                            route: 'create',
+                                            route: 'add',
                                             privileges: ['privilege.administrate.deviceType'],
                                             controller: 'Mdc.controller.setup.DeviceConfigurations',
                                             action: 'showDeviceConfigurationCreateView'
@@ -164,21 +164,21 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 },
 
                                                 loadprofiles: {
-                                                    title: 'Load profiles',
+                                                    title: Uni.I18n.translate('loadProfileConfigurations.title', 'MDC', 'Load profile configurations'),
                                                     route: 'loadprofiles',
                                                     privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                                                     controller: 'Mdc.controller.setup.LoadProfileConfigurations',
                                                     action: 'showDeviceConfigurationLoadProfilesView',
                                                     items: {
                                                         add: {
-                                                            title: 'Add load profile',
+                                                            title: Uni.I18n.translate('loadProfileConfigurations.add', 'MDC', 'Add load profile configuration'),
                                                             route: 'add',
                                                             privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.LoadProfileConfigurations',
                                                             action: 'showDeviceConfigurationLoadProfilesAddView'
                                                         },
                                                         edit: {
-                                                            title: 'Edit load profile',
+                                                            title: Uni.I18n.translate('loadProfileConfigurations.edit', 'MDC', 'Edit load profile configuration'),
                                                             route: '{loadProfileConfigurationId}/edit',
                                                             privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.LoadProfileConfigurations',
@@ -193,7 +193,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             }
                                                         },
                                                         channels: {
-                                                            title: 'Load profile',
+                                                            title: Uni.I18n.translate('general.loadProfileConfiguration', 'MDC', 'Load profile configuration'),
                                                             route: '{loadProfileConfigurationId}/channels',
                                                             privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                                                             controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
@@ -258,7 +258,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     items: {
                                                         create: {
                                                             title: 'Add register configuration',
-                                                            route: 'create',
+                                                            route: 'add',
                                                             privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.RegisterConfigs',
                                                             action: 'showRegisterConfigurationCreateView'
@@ -282,7 +282,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     items: {
                                                         create: {
                                                             title: 'Add security setting',
-                                                            route: 'create',
+                                                            route: 'add',
                                                             privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.SecuritySettings',
                                                             action: 'showSecuritySettingsCreateView'
@@ -313,7 +313,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     items: {
                                                         create: {
                                                             title: 'Add communication task configuration',
-                                                            route: 'create',
+                                                            route: 'add',
                                                             privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.CommunicationTasks',
                                                             action: 'showAddCommunicationTaskView'
@@ -463,7 +463,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     items: {
                         create: {
                             title: 'Add profile type',
-                            route: 'create',
+                            route: 'add',
                             privileges: ['privilege.administrate.masterData'],
                             controller: 'Mdc.controller.setup.LoadProfileTypes',
                             action: 'showEdit',
@@ -804,7 +804,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     items: {
                         create: {
                             title: 'Add communication task',
-                            route: 'create',
+                            route: 'add',
                             privileges: ['privilege.administrate.communicationAdministration'],
                             controller: 'Mdc.controller.setup.Comtasks',
                             action: 'showCommunicationTasksCreateEdit'
@@ -834,7 +834,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     items: {
                         create: {
                             title: Uni.I18n.translate('datacollectionkpis.addDataCollectionKpi', 'MDC', 'Add data collection KPI'),
-                            route: 'create',
+                            route: 'add',
                             controller: 'Mdc.controller.setup.DataCollectionKpi',
                             action: 'showDataCollectionKpiEditView'
                         },
@@ -862,7 +862,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     items: {
                         create: {
                             title: 'Add shared communication schedule',
-                            route: 'create',
+                            route: 'add',
                             privileges: ['privilege.administrate.sharedCommunicationSchedule'],
                             controller: 'Mdc.controller.setup.CommunicationSchedules',
                             action: 'showCommunicationSchedulesEditView'
@@ -1090,7 +1090,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             }
                         },
                         registers: {
-                            title: 'Registers',
+                            title: Uni.I18n.translate('registerConfig.registerConfigs', 'MDC', 'Register configurations'),
                             route: 'registers',
                             controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
                             privileges: ['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
@@ -1128,7 +1128,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                         items: {
                                             create: {
                                                 title: Uni.I18n.translate('device.registerData.addReading', 'MDC', 'Add reading'),
-                                                route: 'create',
+                                                route: 'add',
                                                 controller: 'Mdc.controller.setup.DeviceRegisterDataEdit',
                                                 privileges: ['privilege.administrate.deviceData'],
                                                 action: 'showDeviceRegisterConfigurationDataAddView'
@@ -1466,14 +1466,14 @@ Ext.define('Mdc.controller.history.Setup', {
     },
 
     tokenizeAddComserver: function () {
-        return this.tokenize([this.rootToken, 'comservers', 'create']);
+        return this.tokenize([this.rootToken, 'comservers', 'add']);
     },
 
     tokenizeAddDeviceCommunicationProtocol: function () {
-        return this.tokenize([this.rootToken, 'devicecommunicationprotocols', 'create']);
+        return this.tokenize([this.rootToken, 'devicecommunicationprotocols', 'add']);
     },
 
     tokenizeAddComPortPool: function () {
-        return this.tokenize([this.rootToken, 'comportpools', 'create']);
+        return this.tokenize([this.rootToken, 'comportpools', 'add']);
     }
 });

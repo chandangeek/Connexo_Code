@@ -48,8 +48,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
                         xtype: 'device-configuration-menu',
                         itemId: 'stepsMenu',
                         deviceTypeId: this.deviceTypeId,
-                        deviceConfigurationId: this.deviceConfigId,
-                        toggle: 1
+                        deviceConfigurationId: this.deviceConfigId
                     }
                 ]
             }

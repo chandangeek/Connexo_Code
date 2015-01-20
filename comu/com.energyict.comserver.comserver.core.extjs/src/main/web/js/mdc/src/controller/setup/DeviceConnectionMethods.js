@@ -40,7 +40,8 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         {ref: 'toggleActiveMenuItem', selector: '#toggleActiveMenuItem'},
         {ref: 'comWindowStart', selector: '#deviceConnectionMethodEdit #comWindowStart'},
         {ref: 'comWindowEnd', selector: '#deviceConnectionMethodEdit #comWindowEnd'},
-        {ref: 'activateConnWindowRadiogroup', selector: '#activateConnWindowRadiogroup'}
+        {ref: 'activateConnWindowRadiogroup', selector: '#activateConnWindowRadiogroup'},
+        {ref: 'propertyForm', selector: '#propertyForm'}
 
     ],
 
@@ -164,14 +165,10 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             } else {
                 this.getDeviceConnectionMethodPreview().down('#connectionDetailsTitle').setVisible(false);
             }
-            this.getPropertiesViewController().showProperties(connectionMethod[0], this.getDeviceConnectionMethodPreview());
+            this.getPropertyForm().loadRecord(connectionMethod[0]);
         } else {
             this.getDeviceConnectionMethodPreview().getLayout().setActiveItem(0);
         }
-    },
-
-    getPropertiesViewController: function () {
-        return this.getController('Mdc.controller.setup.PropertiesView');
     },
 
     addOutboundConnectionMethodHistory: function () {
@@ -199,20 +196,21 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     },
 
     showAddDeviceConnectionMethodView: function (mrid, direction) {
-        this.mrid = mrid;
-        var me = this;
-        var deviceModel = Ext.ModelManager.getModel('Mdc.model.Device');
-        var connectionMethodsStore = Ext.StoreManager.get('ConnectionMethodsOfDeviceConfiguration');
-        this.comPortPoolStore = Ext.StoreManager.get('ComPortPools');
-        var connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
+        var me = this,
+            deviceModel = Ext.ModelManager.getModel('Mdc.model.Device'),
+            connectionMethodsStore = Ext.StoreManager.get('ConnectionMethodsOfDeviceConfiguration'),
+            connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
+
+        me.mrid = mrid;
+        me.comPortPoolStore = Ext.StoreManager.get('ComPortPools');
 
         deviceModel.load(mrid, {
             success: function (device) {
                 var widget = Ext.widget('deviceConnectionMethodEdit', {
                     edit: false,
-                    returnLink: '#/devices/' + this.mrid + '/connectionmethods',
+                    returnLink: '#/devices/' + me.mrid + '/connectionmethods',
                     connectionMethods: connectionMethodsStore,
-                    comPortPools: this.comPortPoolStore,
+                    comPortPools: me.comPortPoolStore,
                     connectionStrategies: connectionStrategiesStore,
                     direction: direction,
                     device: device

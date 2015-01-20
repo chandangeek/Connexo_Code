@@ -38,13 +38,13 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
             {
                 header: Uni.I18n.translate('device.dataValidation.rulesSetGrid.columnHeader.activeRules', 'MDC', 'Active rules'),
                 dataIndex: 'numberOfActiveRules',
-                align: 'center',
+                align: 'right',
                 flex: 1
             },
             {
                 header: Uni.I18n.translate('device.dataValidation.rulesSetGrid.columnHeader.inactiveRules', 'MDC', 'Inactive rules'),
                 dataIndex: 'numberOfInactiveRules',
-                align: 'center',
+                align: 'right',
                 flex: 1
             },
             {

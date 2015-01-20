@@ -55,18 +55,12 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationBrowse
         this.side = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
-                layout: {
-                    type: 'vbox',
-                    align: 'stretch'
-                },
                 ui: 'medium',
                 items: [
                     {
                         xtype: 'ruleSetSubMenu',
                         itemId: 'stepsMenu',
-                        ruleSetId: me.ruleSetId,
-                        toggle: 2
+                        ruleSetId: this.ruleSetId
                     }
                 ]
             }

@@ -25,9 +25,9 @@ Ext.define('Mdc.view.setup.validation.RulesOverview', {
                 items: [
                     {
                         xtype: 'device-configuration-menu',
+                        itemId: 'stepsMenu',
                         deviceTypeId: me.deviceTypeId,
-                        deviceConfigurationId: me.deviceConfigId,
-                        toggle: 8
+                        deviceConfigurationId: me.deviceConfigId
                     }
                 ]
             }
@@ -44,11 +44,14 @@ Ext.define('Mdc.view.setup.validation.RulesOverview', {
                         xtype: 'preview-container',
                         grid: {
                             xtype: 'validation-rulesets-grid',
+                            itemId: 'grid-add-rule-sets',
+                            itemId: 'grd-validation-rule-sets',
                             deviceTypeId: me.deviceTypeId,
                             deviceConfigId: me.deviceConfigId
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
+                            itemId: 'ctr-no-validation-rule-set',
                             title: Uni.I18n.translate('validation.empty.title', 'MDC', 'No validation rule sets found'),
                             reasons: [
                                 Uni.I18n.translate('device.dataValidation.rulesSetGrid.emptyCmp.item1', 'MDC', 'No validation rule sets have been defined yet.'),

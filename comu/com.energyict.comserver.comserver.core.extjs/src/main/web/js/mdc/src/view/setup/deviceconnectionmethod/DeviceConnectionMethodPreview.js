@@ -221,8 +221,22 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                     ]
                 },
                 {
-                    xtype: 'propertyView'
+                    xtype: 'property-form',
+                    itemId: 'propertyForm',
+                    isEdit: false,
+                    layout: 'column',
+
+                    defaults: {
+                        xtype: 'container',
+                        layout: 'form',
+                        resetButtonHidden: true,
+                        labelWidth: 250,
+                        columnWidth: 0.5
+                    }
                 }
+//                {
+//                    xtype: 'propertyView'
+//                }
             ]
         }
     ],

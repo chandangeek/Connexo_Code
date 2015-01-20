@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskGrid', {
                     text: Uni.I18n.translate('comtask.create', 'MDC', 'Add communication task'),
                     hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.communicationAdministration'),
                     action: 'createcommunicationtasks',
-                    href: '#/administration/communicationtasks/create'
+                    href: '#/administration/communicationtasks/add'
                 }
             ]
 

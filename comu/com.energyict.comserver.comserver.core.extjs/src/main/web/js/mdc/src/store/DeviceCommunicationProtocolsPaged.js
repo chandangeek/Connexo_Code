@@ -4,7 +4,7 @@ Ext.define('Mdc.store.DeviceCommunicationProtocolsPaged', {
         'Mdc.model.DeviceCommunicationProtocol'
     ],
     model: 'Mdc.model.DeviceCommunicationProtocol',
-    storeId: 'DeviceCommunicationProtocols',
+    storeId: 'DeviceCommunicationProtocolsPaged',
     proxy: {
         type: 'rest',
         url: '../../api/plr/devicecommunicationprotocols',

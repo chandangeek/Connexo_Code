@@ -24,6 +24,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
+                        itemId: 'ctr-no-device-type',
                         title: Uni.I18n.translate('deviceType.empty.title', 'MDC', 'No device types found'),
                         reasons: [
                             Uni.I18n.translate('deviceType.empty.list.item1', 'MDC', 'No register types are associated to this register group.')

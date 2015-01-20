@@ -90,6 +90,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             '#comPortEdit #addEditButton': {
                 click: this.addClicked
             },
+            '#comPortEdit checkbox[name=useHttps]': {
+                change: this.enablePassFields
+            },
             'button[action=showAddComPortPoolPage]': {
                 click: this.navigateAddPool
             },
@@ -108,6 +111,27 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             }
         });
 
+    },
+
+    enablePassFields: function(checkbox) {
+        var state = checkbox.getValue(),
+            editView = this.getComPortEdit(),
+            keyPathField = editView.down('#keyStoreFilePath'),
+            keyPasswordField = editView.down('#keyStorePassword'),
+            trustPathField = editView.down('#trustStoreFilePath'),
+            trustPasswordField = editView.down('#trustStorePassword');
+
+        if (state) {
+            keyPathField.enable();
+            keyPasswordField.enable();
+            trustPathField.enable();
+            trustPasswordField.enable();
+        } else {
+            keyPathField.disable();
+            keyPasswordField.disable();
+            trustPathField.disable();
+            trustPasswordField.disable();
+        }
     },
 
     updatePoolCount: function (gridview) {

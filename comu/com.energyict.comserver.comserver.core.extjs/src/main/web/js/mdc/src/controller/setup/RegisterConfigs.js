@@ -111,7 +111,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
     },
 
     createRegisterConfigurationHistory: function () {
-        location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigId + '/registerconfigurations/create';
+        location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigId + '/registerconfigurations/add';
     },
 
     previewRegisterConfig: function (grid, record) {
@@ -143,7 +143,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         this.deviceConfigId = deviceConfigId;
         var widget = Ext.widget('registerConfigSetup', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigId});
 
-        me.getCreateRegisterConfigBtn().href = '#/administration/devicetypes/' + deviceTypeId + '/deviceconfigurations/' + deviceConfigId + '/registerconfigurations/create';
+        me.getCreateRegisterConfigBtn().href = '#/administration/devicetypes/' + deviceTypeId + '/deviceconfigurations/' + deviceConfigId + '/registerconfigurations/add';
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
@@ -152,6 +152,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                 model.load(deviceConfigId, {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
+                        widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
                         var deviceTypeName = deviceType.get('name');
                         var deviceConfigName = deviceConfig.get('name');
                         me.getApplication().fireEvent('changecontentevent', widget);
