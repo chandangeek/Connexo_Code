@@ -71,15 +71,13 @@ Ext.define('Mdc.view.setup.devicegroup.Details', {
         me.side = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('general.deviceGroups', 'DES', 'Device groups'),
                 ui: 'medium',
                 items: [
                     {
                         xtype: 'devicegroups-menu',
                         itemId: 'devicegroups-view-menu',
                         router: me.router,
-                        deviceGroupId: me.deviceGroupId,
-                        toggle: 0
+                        deviceGroupId: me.deviceGroupId
                     }
                 ]
             }
