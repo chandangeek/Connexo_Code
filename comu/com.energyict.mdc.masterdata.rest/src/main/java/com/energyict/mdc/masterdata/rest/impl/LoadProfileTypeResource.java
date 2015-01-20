@@ -17,11 +17,11 @@ import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -153,11 +153,8 @@ public class LoadProfileTypeResource {
 
 
     private void addAllChannelTypesToLoadProfileType(LoadProfileType loadProfileType) {
-        Set<Long> alreadyAdded = new HashSet<>();
-        for (ChannelType channelType : loadProfileType.getChannelTypes()) {
-            alreadyAdded.add(channelType.getId());
-        }
-        for (RegisterType registerType : masterDataService.findAllRegisterTypes().find()) {
+        Set<Long> alreadyAdded = loadProfileType.getChannelTypes().stream().map(ChannelType::getId).collect(Collectors.toSet());
+        for (RegisterType registerType : this.masterDataService.findAllRegisterTypes().find()) {
             if (!alreadyAdded.remove(registerType.getId())) {
                 loadProfileType.createChannelTypeForRegisterType(registerType);
             }
@@ -166,10 +163,7 @@ public class LoadProfileTypeResource {
 
     private void editChannelTypesToLoadProfileType(LoadProfileType loadProfileType, LoadProfileTypeInfo request) {
         if (request.registerTypes != null) {
-            List<ChannelType> mappingsOnLoadProfile = loadProfileType.getChannelTypes();
-            for (ChannelType channelType : mappingsOnLoadProfile) {
-                loadProfileType.removeChannelType(channelType);
-            }
+            loadProfileType.getChannelTypes().forEach(loadProfileType::removeChannelType);
             for (RegisterTypeInfo measurementType : request.registerTypes) {
                 Optional<RegisterType> registerType = masterDataService.findRegisterType(measurementType.id);
                 if (registerType.isPresent()) {
