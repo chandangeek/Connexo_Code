@@ -236,6 +236,27 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         // Expected BusinessException because a ComPortPool cannot be made obsolete if ComPorts are still using it
     }
 
+    @Test
+    @Transactional
+    public void testMakeObsoleteWithObsoleteComPorts() {
+        InboundComPortPool comPortPool = this.newInboundComPortPoolWithoutViolations();
+        long comPortPoolId = comPortPool.getId();
+        OnlineComServer onlineComServer = createOnlineComServer();
+        TCPBasedInboundComPort inboundComPort = onlineComServer.newTCPBasedInboundComPort("port", 1, 8080).description("hello world")
+                .active(true).comPortPool(comPortPool)
+                .add();
+        inboundComPort.makeObsolete();
+
+        // Business method
+        comPortPool.makeObsolete();
+
+        Optional<? extends ComPortPool> shouldNotBePresent = getEngineModelService().findComPortPool(comPortPoolId);
+
+        // Asserts
+        assertThat(shouldNotBePresent.isPresent()).isTrue();
+        assertThat(shouldNotBePresent.get().isObsolete()).isTrue();
+    }
+
 //    @Test(expected = BusinessException.class)
 //    public void testMakeObsoleteWithConnectionTasks () {
 //        InboundComPortPool comPortPool = this.newInboundComPortPoolWithoutViolations();

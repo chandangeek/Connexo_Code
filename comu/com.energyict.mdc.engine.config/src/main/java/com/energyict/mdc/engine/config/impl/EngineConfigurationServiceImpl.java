@@ -38,7 +38,6 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.proxy.LazyLoader;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -55,7 +54,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.OFFLINE_COMSERVER_DISCRIMINATOR;
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.ONLINE_COMSERVER_DISCRIMINATOR;
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.REMOTE_COMSERVER_DISCRIMINATOR;
@@ -174,7 +175,7 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
 
     @Override
     public Optional<ComServer> findComServer(String name) {
-        Condition condition = Where.where("name").isEqualTo(name).and(Where.where("obsoleteDate").isNull());
+        Condition condition = where("name").isEqualTo(name).and(where("obsoleteDate").isNull());
         return unique(getComServerDataMapper().select(condition));
     }
 
@@ -185,7 +186,7 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
 
     @Override
     public Finder<ComServer> findAllComServers() {
-        return DefaultFinder.of(ComServer.class, Where.where("obsoleteDate").isNull(), dataModel);
+        return DefaultFinder.of(ComServer.class, where("obsoleteDate").isNull(), dataModel);
     }
 
     @Override
@@ -195,28 +196,28 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
 
     @Override
     public List<OnlineComServer> findAllOnlineComServers() {
-        Condition condition = Where.where("class").isEqualTo(ONLINE_COMSERVER_DISCRIMINATOR).and(Where.where("obsoleteDate").isNull());
+        Condition condition = where("class").isEqualTo(ONLINE_COMSERVER_DISCRIMINATOR).and(where("obsoleteDate").isNull());
         return convertComServerListToOnlineComServers(getComServerDataMapper().select(condition));
     }
 
     @Override
     public List<RemoteComServer> findAllRemoteComServers() {
-        Condition condition = Where.where("class").isEqualTo(REMOTE_COMSERVER_DISCRIMINATOR).and(Where.where("obsoleteDate").isNull());
+        Condition condition = where("class").isEqualTo(REMOTE_COMSERVER_DISCRIMINATOR).and(where("obsoleteDate").isNull());
         return convertComServerListToRemoteComServers(getComServerDataMapper().select(condition));
     }
 
     @Override
     public List<RemoteComServer> findRemoteComServersForOnlineComServer(OnlineComServer onlineComServer) {
         Condition condition =
-                Where.where("class").isEqualTo(REMOTE_COMSERVER_DISCRIMINATOR)
-                        .and(Where.where("onlineComServer").isEqualTo(onlineComServer))
-                        .and(Where.where("obsoleteDate").isNull());
+                where("class").isEqualTo(REMOTE_COMSERVER_DISCRIMINATOR)
+                        .and(where("onlineComServer").isEqualTo(onlineComServer))
+                        .and(where("obsoleteDate").isNull());
         return convertComServerListToRemoteComServers(getComServerDataMapper().select(condition));
     }
 
     @Override
     public List<OfflineComServer> findAllOfflineComServers() {
-        Condition condition = Where.where("class").isEqualTo(OFFLINE_COMSERVER_DISCRIMINATOR).and(Where.where("obsoleteDate").isNull());
+        Condition condition = where("class").isEqualTo(OFFLINE_COMSERVER_DISCRIMINATOR).and(where("obsoleteDate").isNull());
         return convertComServerListToOfflineComServers(getComServerDataMapper().select(condition));
     }
 
@@ -242,12 +243,8 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
      * @param comServers the given list of ComServers
      * @return a list of {@link OnlineComServer}
      */
-    private List<OnlineComServer> convertComServerListToOnlineComServers(final List<ComServer> comServers) {
-        List<OnlineComServer> onlineComServers = new ArrayList<>(comServers.size());
-        for (ComServer comServer : comServers) {
-            onlineComServers.add((OnlineComServer) comServer);
-        }
-        return onlineComServers;
+    private List<OnlineComServer> convertComServerListToOnlineComServers(List<ComServer> comServers) {
+        return comServers.stream().map(OnlineComServer.class::cast).collect(Collectors.toList());
     }
 
     /**
@@ -257,12 +254,8 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
      * @param comServers the given list of ComServers
      * @return a list of {@link OfflineComServer}
      */
-    private List<OfflineComServer> convertComServerListToOfflineComServers(final List<ComServer> comServers) {
-        List<OfflineComServer> offlineComServers = new ArrayList<>(comServers.size());
-        for (ComServer comServer : comServers) {
-            offlineComServers.add((OfflineComServer) comServer);
-        }
-        return offlineComServers;
+    private List<OfflineComServer> convertComServerListToOfflineComServers(List<ComServer> comServers) {
+        return comServers.stream().map(OfflineComServer.class::cast).collect(Collectors.toList());
     }
 
     /**
@@ -272,12 +265,8 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
      * @param comServers the given list of ComServers
      * @return a list of {@link RemoteComServer}
      */
-    private List<RemoteComServer> convertComServerListToRemoteComServers(final List<ComServer> comServers) {
-        List<RemoteComServer> remoteComServers = new ArrayList<>(comServers.size());
-        for (ComServer comServer : comServers) {
-            remoteComServers.add((RemoteComServer) comServer);
-        }
-        return remoteComServers;
+    private List<RemoteComServer> convertComServerListToRemoteComServers(List<ComServer> comServers) {
+        return comServers.stream().map(RemoteComServer.class::cast).collect(Collectors.toList());
     }
 
     @Override
@@ -292,13 +281,13 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
 
     @Override
     public List<OutboundComPort> findAllOutboundComPorts() {
-        Condition condition = Where.where("class").isEqualTo(ComPortImpl.OUTBOUND_DISCRIMINATOR).and(Where.where("obsoleteDate").isNull());
+        Condition condition = where("class").isEqualTo(ComPortImpl.OUTBOUND_DISCRIMINATOR).and(where("obsoleteDate").isNull());
         return convertComportListToOutBoundComPorts(getComPortDataMapper().select(condition));
     }
 
     @Override
     public List<InboundComPort> findAllInboundComPorts() {
-        Condition condition = Where.where("class").isNotEqual(ComPortImpl.OUTBOUND_DISCRIMINATOR).and(Where.where("obsoleteDate").isNull());
+        Condition condition = where("class").isNotEqual(ComPortImpl.OUTBOUND_DISCRIMINATOR).and(where("obsoleteDate").isNull());
         return convertComportListToInBoundComPorts(getComPortDataMapper().select(condition));
     }
 
@@ -337,13 +326,13 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     @Override
     public List<OutboundComPortPool> findOutboundComPortPoolsByType(ComPortType comPortType) {
         return convertComportPoolListToOutBoundComPortPools(getComPortPoolDataMapper().
-                select(Where.where("comPortType").isEqualTo(comPortType).and(Where.where(ComPortPoolImpl.Fields.OBSOLETEDATE.fieldName()).isNull())));
+                select(where("comPortType").isEqualTo(comPortType).and(where(ComPortPoolImpl.Fields.OBSOLETEDATE.fieldName()).isNull())));
     }
 
     @Override
     public List<InboundComPortPool> findInboundComPortPoolsByType(ComPortType comPortType) {
         return convertComportPoolListToInBoundComPortPools(getComPortPoolDataMapper().
-                select(Where.where("comPortType").isEqualTo(comPortType).and(Where.where(ComPortPoolImpl.Fields.OBSOLETEDATE.fieldName()).isNull())));
+                select(where("comPortType").isEqualTo(comPortType).and(where(ComPortPoolImpl.Fields.OBSOLETEDATE.fieldName()).isNull())));
     }
 
     @Override
@@ -367,7 +356,7 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     private Condition findComPortPoolByNameCondition(String name) {
-        return Where.where("obsoleteDate").isNull().and(Where.where("name").isEqualTo(name));
+        return where("obsoleteDate").isNull().and(where("name").isEqualTo(name));
     }
 
     @Override
@@ -439,27 +428,28 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     public List<ComPortPool> findContainingComPortPoolsForComServer(ComServer comServer) {
         List<ComPortPool> comPortPools = new ArrayList<>();
         for (ComPort comPort : comServer.getComPorts()) {
-            if (OutboundComPort.class.isAssignableFrom(comPort.getClass())) {
+            if (comPort instanceof OutboundComPort) {
                 comPortPools.addAll(findContainingComPortPoolsForComPort((OutboundComPort) comPort));
             }
         }
-
         return comPortPools;
     }
 
     @Override
     public List<ComPortPool> findAllComPortPools() {
-        Condition condition = Where.where("obsoleteDate").isNull();
+        Condition condition = where("obsoleteDate").isNull();
         return getComPortPoolDataMapper().select(condition);
     }
 
     @Override
     public List<InboundComPort> findInboundInPool(InboundComPortPool comPortPool) {
-        List<InboundComPort> inboundComPorts = new ArrayList<>();
-        for (ComPort portPool : getComPortDataMapper().find("comPortPool", comPortPool)) {
-            inboundComPorts.add((InboundComPort) portPool);
-        }
-        return inboundComPorts;
+        return this.dataModel
+                .mapper(ComPort.class)
+                .select(where("comPortPool").isEqualTo(comPortPool)
+                        .and(where("obsoleteDate").isNull()))
+                .stream()
+                .map(InboundComPort.class::cast)
+                .collect(Collectors.toList());
     }
 
     @Override
