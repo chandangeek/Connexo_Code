@@ -209,69 +209,78 @@ Ext.define('Cfg.controller.Validation', {
 
         var propertyForm = this.getAddRule().down('property-form');
 
-        if (form.isValid()) {
-            var ruleSetId = this.getRuleSetIdFromHref() || me.ruleSetId,
-                record = me.formToModel();
+        form.down('#addRuleName').clearInvalid();
+        form.down('#validatorCombo').clearInvalid();
+        form.down('#readingTypesErrorLabel').hide();
+        form.down('#propertiesErrorLabel').hide();
 
-            formErrorsPanel.hide();
+        var ruleSetId = this.getRuleSetIdFromHref() || me.ruleSetId,
+            record = me.formToModel();
 
-            record.set('ruleSet', {
-                id: me.ruleSetId
-            });
+        formErrorsPanel.hide();
 
-            if (button.action === 'editRuleAction') {
-                record.readingTypes().removeAll();
-            }
+        record.set('ruleSet', {
+            id: me.ruleSetId
+        });
 
-            Ext.each(record.get('readingTypes'), function (record) {
-                var readingTypeRecord = Ext.create(Cfg.model.ReadingType);
-                readingTypeRecord.set('mRID', record.mRID);
-                arrReadingTypes.push(readingTypeRecord);
-            });
-
-            if (propertyForm.getRecord()) {
-                propertyForm.updateRecord();
-                record.propertiesStore = propertyForm.getRecord().properties();
-            }
-
-            record.readingTypes().add(arrReadingTypes);
-
-            me.getAddRule().setLoading('Loading...');
-            record.save({
-                params: {
-                    id: ruleSetId
-                },
-                success: function (record, operation) {
-                    var messageText;
-                    if (button.action === 'editRuleAction') {
-                        messageText = Uni.I18n.translate('validation.editRuleSuccess.msg', 'CFG', 'Validation rule saved');
-                    } else {
-                        messageText = Uni.I18n.translate('validation.addRuleSuccess.msg', 'CFG', 'Validation rule added');
-                    }
-                    if (me.fromRulePreview) {
-                        location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/rules/' + me.ruleId;
-                    } else {
-                        location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/rules';
-                    }
-                    me.getApplication().fireEvent('acknowledge', messageText);
-                },
-                failure: function (record, operation) {
-                    me.getAddRule().setLoading(false);
-                    var json = Ext.decode(operation.response.responseText, true);
-                    if (json && json.errors) {
-                        Ext.Array.each(json.errors, function(item) {
-                            if (item.id.indexOf("name") !== -1) {
-                                form.down('#addRuleName').setActiveError(item.msg);
-                            }
-                        });
-                        form.getForm().markInvalid(json.errors);
-                        formErrorsPanel.show();
-                    }
-                }
-            });
-        } else {
-            formErrorsPanel.show();
+        if (button.action === 'editRuleAction') {
+            record.readingTypes().removeAll();
         }
+
+        Ext.each(record.get('readingTypes'), function (record) {
+            var readingTypeRecord = Ext.create(Cfg.model.ReadingType);
+            readingTypeRecord.set('mRID', record.mRID);
+            arrReadingTypes.push(readingTypeRecord);
+        });
+
+        if (propertyForm.getRecord()) {
+            propertyForm.updateRecord();
+            record.propertiesStore = propertyForm.getRecord().properties();
+        }
+
+        record.readingTypes().add(arrReadingTypes);
+
+        me.getAddRule().setLoading('Loading...');
+        record.save({
+            params: {
+                id: ruleSetId
+            },
+            success: function (record, operation) {
+                var messageText;
+                if (button.action === 'editRuleAction') {
+                    messageText = Uni.I18n.translate('validation.editRuleSuccess.msg', 'CFG', 'Validation rule saved');
+                } else {
+                    messageText = Uni.I18n.translate('validation.addRuleSuccess.msg', 'CFG', 'Validation rule added');
+                }
+                if (me.fromRulePreview) {
+                    location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/rules/' + me.ruleId;
+                } else {
+                    location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/rules';
+                }
+                me.getApplication().fireEvent('acknowledge', messageText);
+            },
+            failure: function (record, operation) {
+                me.getAddRule().setLoading(false);
+                var json = Ext.decode(operation.response.responseText, true);
+                if (json && json.errors) {
+                    Ext.Array.each(json.errors, function (item) {
+                        if (item.id.indexOf("name") !== -1) {
+                            form.down('#addRuleName').setActiveError(item.msg);
+                        }
+                        if (item.id.indexOf("readingTypes") !== -1) {
+                            form.down('#readingTypesErrorLabel').setText(item.msg);
+                            form.down('#readingTypesErrorLabel').show();
+                        }
+                        if (item.id.indexOf("properties") !== -1) {
+                            form.down('#propertiesErrorLabel').setText(item.msg);
+                            form.down('#propertiesErrorLabel').show();
+                        }
+                    });
+                    form.getForm().markInvalid(json.errors);
+                    formErrorsPanel.show();
+                }
+            }
+        });
     },
 
     updateProperties: function (field, newValue) {
@@ -451,8 +460,7 @@ Ext.define('Cfg.controller.Validation', {
                     Uni.I18n.translate('validation.readingType.empty.list.item3', 'CFG', 'All reading types have been already added to rule.')
                 ]
             }
-        }
-
+        };
         bulkGridContainer.removeAll();
 
 
@@ -576,51 +584,48 @@ Ext.define('Cfg.controller.Validation', {
             form = button.up('form'),
             record,
             formErrorsPanel = form.down('[name=form-errors]');
-        if (form.isValid()) {
-            formErrorsPanel.hide();
-            if (button.text === 'Save') {
-                record = me.ruleSetModel;
-            } else {
-                record = Ext.create(Cfg.model.ValidationRuleSet);
-            }
-            var values = form.getValues();
-            record.set(values);
-            createEditRuleSetPanel.setLoading('Loading...');
 
-            record.save({
-                success: function (record, operation) {
-                    var messageText;
-                    if (button.text === 'Save') {
-                        messageText = Uni.I18n.translate('validation.editRuleSetSuccess.msg', 'CFG', 'Validation rule set saved');
-                        if (me.fromRuleSetOverview) {
-                            location.href = '#/administration/validation/rulesets/' + record.get('id');
-                        } else {
-                            me.getValidationRuleSetsStore().reload(
-                                {
-                                    callback: function () {
-                                        location.href = '#/administration/validation/rulesets';
-                                    }
-                                }
-                            );
-                        }
-                    } else {
-                        messageText = Uni.I18n.translate('validation.addRuleSetSuccess.msg', 'CFG', 'Validation rule set added');
-                        location.href = '#/administration/validation/rulesets/' + record.get('id') + '/rules';
-                    }
-                    me.getApplication().fireEvent('acknowledge', messageText);
-                },
-                failure: function (record, operation) {
-                    createEditRuleSetPanel.setLoading(false);
-                    var json = Ext.decode(operation.response.responseText);
-                    if (json && json.errors) {
-                        form.getForm().markInvalid(json.errors);
-                        formErrorsPanel.show();
-                    }
-                }
-            })
+        formErrorsPanel.hide();
+        if (button.text === 'Save') {
+            record = me.ruleSetModel;
         } else {
-            formErrorsPanel.show();
+            record = Ext.create(Cfg.model.ValidationRuleSet);
         }
+        var values = form.getValues();
+        record.set(values);
+        createEditRuleSetPanel.setLoading('Loading...');
+
+        record.save({
+            success: function (record, operation) {
+                var messageText;
+                if (button.text === 'Save') {
+                    messageText = Uni.I18n.translate('validation.editRuleSetSuccess.msg', 'CFG', 'Validation rule set saved');
+                    if (me.fromRuleSetOverview) {
+                        location.href = '#/administration/validation/rulesets/' + record.get('id');
+                    } else {
+                        me.getValidationRuleSetsStore().reload(
+                            {
+                                callback: function () {
+                                    location.href = '#/administration/validation/rulesets';
+                                }
+                            }
+                        );
+                    }
+                } else {
+                    messageText = Uni.I18n.translate('validation.addRuleSetSuccess.msg', 'CFG', 'Validation rule set added');
+                    location.href = '#/administration/validation/rulesets/' + record.get('id') + '/rules';
+                }
+                me.getApplication().fireEvent('acknowledge', messageText);
+            },
+            failure: function (record, operation) {
+                createEditRuleSetPanel.setLoading(false);
+                var json = Ext.decode(operation.response.responseText);
+                if (json && json.errors) {
+                    form.getForm().markInvalid(json.errors);
+                    formErrorsPanel.show();
+                }
+            }
+        })
     },
 
     createEditRuleSet: function (ruleSetId) {
