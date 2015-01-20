@@ -71,6 +71,8 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     private String obisCode;
     private String oldObisCode;
     private ObisCode obisCodeCached;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.LOAD_PROFILE_TYPE_INTERVAL_IS_REQUIRED + "}")
+    @IncorrectTimeDuration(groups = {Save.Create.class, Save.Update.class})
     private TimeDuration interval;
     private long oldIntervalSeconds;
     @Size(max= Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -178,18 +180,6 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
 
     @Override
     public void setInterval(TimeDuration interval) {
-        if (interval == null || interval.isEmpty()) {
-            throw IntervalIsRequiredException.forLoadProfileType(getThesaurus());
-        }
-        if ((interval.getTimeUnit() == TimeDuration.TimeUnit.WEEKS)) {
-            throw UnsupportedIntervalException.weeksAreNotSupportedForLoadProfileTypes(this.getThesaurus(), this);
-        }
-        if (countMustBeOneFor(interval) && interval.getCount() != 1) {
-            throw UnsupportedIntervalException.multipleNotSupported(this.getThesaurus(), interval);
-        }
-        if ((interval.getCount() <= 0)) {
-            throw UnsupportedIntervalException.strictlyPositive(this.getThesaurus(), interval);
-        }
         this.intervalChanged = this.interval != null && !this.interval.equals(interval) && !this.registerTypes.isEmpty();
         this.interval = interval;
     }
@@ -203,10 +193,6 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         for (RegisterType templateRegister : templateRegisters) {
             createChannelTypeForRegisterType(templateRegister);
         }
-    }
-
-    private boolean countMustBeOneFor(TimeDuration interval) {
-        return interval.getTimeUnit() == TimeDuration.TimeUnit.DAYS || interval.getTimeUnit() == TimeDuration.TimeUnit.MONTHS || interval.getTimeUnit() == TimeDuration.TimeUnit.YEARS;
     }
 
     // Used by EventType
@@ -273,7 +259,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
 
         Optional<ChannelType> channelType = this.masterDataService.findChannelTypeByTemplateRegisterAndInterval(measurementTypeWithoutInterval, getInterval());
         if(!channelType.isPresent()){
-            ReadingType intervalAppliedReadingType = this.mdcReadingTypeUtilService.getIntervalAppliedReadingType(measurementTypeWithoutInterval.getReadingType(), getInterval(), measurementTypeWithoutInterval.getObisCode());
+            ReadingType intervalAppliedReadingType = this.mdcReadingTypeUtilService.getIntervalAppliedReadingType(measurementTypeWithoutInterval.getReadingType(), getInterval(), measurementTypeWithoutInterval.getObisCode()).get();
             ChannelType newChannelType = masterDataService.newChannelType(measurementTypeWithoutInterval, getInterval(), intervalAppliedReadingType);
             newChannelType.save();
             return newChannelType;
