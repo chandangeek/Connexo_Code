@@ -23,8 +23,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
                         xtype: 'device-configuration-menu',
                         itemId: 'stepsMenu',
                         deviceTypeId: this.deviceTypeId,
-                        deviceConfigurationId: this.deviceConfigId,
-                        toggle: 6
+                        deviceConfigurationId: this.deviceConfigId
                     }
                 ]
             }

@@ -23,9 +23,9 @@ Ext.define('Mdc.view.setup.validation.AddRuleSets', {
                 items: [
                     {
                         xtype: 'device-configuration-menu',
+                        itemId: 'stepsMenu',
                         deviceTypeId: me.deviceTypeId,
-                        deviceConfigurationId: me.deviceConfigId,
-                        toggle: 8
+                        deviceConfigurationId: me.deviceConfigId
                     }
                 ]
             }

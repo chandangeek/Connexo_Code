@@ -23,8 +23,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodSetup', {
                         xtype: 'device-configuration-menu',
                         itemId: 'stepsMenu',
                         deviceTypeId: this.deviceTypeId,
-                        deviceConfigurationId: this.deviceConfigId,
-                        toggle: 4
+                        deviceConfigurationId: this.deviceConfigId
                     }
                 ]
             }

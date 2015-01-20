@@ -25,8 +25,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                         xtype: 'device-configuration-menu',
                         itemId: 'stepsMenu',
                         deviceTypeId: me.deviceTypeId,
-                        deviceConfigurationId: me.deviceConfigId,
-                        toggle: 5
+                        deviceConfigurationId: me.deviceConfigId
                     }
                 ]
             }

@@ -23,8 +23,7 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskSetup', {
                         xtype: 'device-configuration-menu',
                         itemId: 'stepsMenu',
                         deviceTypeId: me.deviceTypeId,
-                        deviceConfigurationId: me.deviceConfigurationId,
-                        toggle: 7
+                        deviceConfigurationId: me.deviceConfigurationId
                     }
                 ]
             }
