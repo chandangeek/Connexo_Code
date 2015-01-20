@@ -33,13 +33,13 @@ public class LogConfigurator  {
         if (props != null && props.containsKey(FORMAT_KEY)) {
             format = (String) props.get(FORMAT_KEY);
         }
-        Level level = Level.FINEST;
+        Level level = Level.WARNING;
         if (props != null && props.containsKey(LOG_LEVEL)) {
             level = Level.parse((String) (props.get(LOG_LEVEL)));
         }
         handler = new LogHandler(logService, format);
-        Logger.getLogger("").addHandler(handler);
-        Logger.getLogger("").setLevel(level);
+        handler.setLevel(level);
+        Logger.getLogger("").addHandler(handler);        
     }
 
     @Deactivate
