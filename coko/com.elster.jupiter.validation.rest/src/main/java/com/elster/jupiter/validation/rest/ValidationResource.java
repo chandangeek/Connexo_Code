@@ -11,10 +11,7 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.validation.ValidationAction;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.Validator;
+import com.elster.jupiter.validation.*;
 import com.elster.jupiter.validation.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -177,11 +174,15 @@ public class ValidationResource {
                     rule.addReadingType(readingTypeInfo.mRID);
                 }
                 PropertyUtils propertyUtils = new PropertyUtils();
-                for (PropertySpec propertySpec : rule.getPropertySpecs()) {
-                    Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
-                    rule.addProperty(propertySpec.getName(), value);
+                try {
+                    for (PropertySpec propertySpec : rule.getPropertySpecs()) {
+                        Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
+                        rule.addProperty(propertySpec.getName(), value);
+                    }
+                } catch (ValidatorNotFoundException ex) {
+                } finally {
+                    set.save();
                 }
-                set.save();
             }
             return rule;
         }));
