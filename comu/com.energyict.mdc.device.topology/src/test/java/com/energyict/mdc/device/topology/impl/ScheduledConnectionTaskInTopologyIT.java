@@ -41,16 +41,13 @@ import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.VoidTransaction;
-import org.joda.time.DateMidnight;
 
 import java.sql.SQLException;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -440,6 +437,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         });
         OutboundComPort outboundComPort = createOutboundComPort();
         ((ServerComTaskExecution) comTaskExecution).setLockedComPort(outboundComPort); // busy task
+        setCurrentlyExecutionComServerOnConnectionTask(connectionTask, outboundComPort.getComServer()); // set busy task
         assertThat(getReloadedComTaskExecution(device).getStatus()).isEqualTo(TaskStatus.Busy);
         connectionTask.trigger(triggerDate);
         reloadedDevice = getReloadedDevice(device);
@@ -450,6 +448,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
                 return futureDate.equals(comTaskExecution.getNextExecutionTimestamp());
             }
         });
+        setCurrentlyExecutionComServerOnConnectionTask(connectionTask, null);
         ((ServerComTaskExecution) comTaskExecution).setLockedComPort(null);
         comTaskExecution.putOnHold(); // on hold task
         assertThat(getReloadedComTaskExecution(device).getStatus()).isEqualTo(TaskStatus.OnHold);
@@ -508,6 +507,11 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
                 return futureTrigger.equals(comTaskExecution.getNextExecutionTimestamp());
             }
         });
+    }
+
+    private void setCurrentlyExecutionComServerOnConnectionTask(ScheduledConnectionTaskImpl connectionTask, ComServer comServer) {
+        connectionTask.setExecutingComServer(comServer);
+        connectionTask.save();
     }
 
     private OutboundComPort createOutboundComPort() {
