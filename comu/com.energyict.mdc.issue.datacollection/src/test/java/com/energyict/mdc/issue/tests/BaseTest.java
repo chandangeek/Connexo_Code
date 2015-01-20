@@ -154,7 +154,7 @@ public abstract class BaseTest {
 
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             // initialize Issue tables
-            injector.getInstance(com.elster.jupiter.issue.impl.service.InstallServiceImpl.class);
+            injector.getInstance(com.elster.jupiter.issue.impl.service.IssueMappingServiceImpl.class);
             injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(IssueDataCollectionService.class);
