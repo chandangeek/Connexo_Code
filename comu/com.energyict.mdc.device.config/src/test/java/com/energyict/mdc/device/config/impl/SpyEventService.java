@@ -26,7 +26,7 @@ public class SpyEventService implements EventService {
 
     @Inject
     public SpyEventService(Clock clock, JsonService jsonService, Publisher publisher, BeanService beanService, OrmService ormService, MessageService messageService, BundleContext bundleContext, EventAdmin eventAdmin, NlsService nlsService) {
-        eventService = spy(new EventServiceImpl(clock, jsonService, publisher, beanService, ormService, messageService, bundleContext, nlsService));
+        eventService = spy(new EventServiceImpl(clock, jsonService, publisher, beanService, ormService, messageService, bundleContext, eventAdmin, nlsService));
     }
 
     @Override
