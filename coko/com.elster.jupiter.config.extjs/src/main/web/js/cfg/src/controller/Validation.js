@@ -1153,7 +1153,7 @@ Ext.define('Cfg.controller.Validation', {
                 me.getApplication().fireEvent('loadRule', rule);
                 rulesContainerWidget.down('validation-rule-action-menu').record = rule;
                 rulesContainerWidget.down('validation-rule-action-menu').down('#view').hide();
-                rulesContainerWidget.down('#stepsRuleMenu').setTitle(rule.get('name'));
+                rulesContainerWidget.down('#stepsRuleMenu #ruleSetOverviewLink').setText(rule.get('name'));
                 rulesContainerWidget.setLoading(false);
             }
         });
