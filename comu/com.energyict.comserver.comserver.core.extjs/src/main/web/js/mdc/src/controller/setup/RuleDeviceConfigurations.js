@@ -58,7 +58,7 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
                 var ruleSet = ruleSetsStore.getById(parseInt(ruleSetId)),
                     widget = Ext.widget('ruleDeviceConfigurationBrowse', {ruleSetId: ruleSetId});
                 me.getApplication().fireEvent('changecontentevent', widget);
-                widget.down('#stepsMenu').setTitle(ruleSet.get('name'));
+                widget.down('#stepsMenu #ruleSetOverviewLink').setText(ruleSet.get('name'));
                 widget.down('#deviceConfigLink').show();
                 me.getApplication().fireEvent('loadRuleSet', ruleSet);
             }
