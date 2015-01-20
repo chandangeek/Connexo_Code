@@ -23,7 +23,6 @@ import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
@@ -119,7 +118,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                                       EngineConfigurationService engineConfigurationService, DeviceConfigurationService deviceConfigurationService,
                                       MeteringService meteringService, ValidationService validationService,
                                       SchedulingService schedulingService, MessageService messageService,
-                                      SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, IdentificationService identificationService) {
+                                      SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -138,7 +137,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setSecurityPropertyService(securityPropertyService);
         this.setUserService(userService);
         this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
-//        this.setIdentificationService(identificationService);
         this.activate(bundleContext);
         this.install(true);
     }
@@ -322,11 +320,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.taskService = taskService;
     }
 
-//    @Reference
-//    public void setIdentificationService(IdentificationService identificationService) {
-//        this.identificationService = identificationService;
-//    }
-
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -357,7 +350,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(ServerDeviceService.class).toInstance(deviceService);
                 bind(LoadProfileService.class).toInstance(loadProfileService);
                 bind(LogBookService.class).toInstance(logBookService);
-//                bind(IdentificationService.class).toInstance(identificationService);
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(DataCollectionKpiService.class).toInstance(dataCollectionKpiService);
             }
