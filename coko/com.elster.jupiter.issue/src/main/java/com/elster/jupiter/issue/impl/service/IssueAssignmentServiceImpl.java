@@ -46,7 +46,6 @@ import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = "com.elster.jupiter.issue.drools", service = {IssueAssignmentService.class, IssueAssignmentServiceImpl.class}, property = {"osgi.command.scope=issue", "osgi.command.function=rebuild", "osgi.command.function=fromFile"}, immediate = true)
 public class IssueAssignmentServiceImpl implements IssueAssignmentService {
     public static final Logger LOG = Logger.getLogger(IssueAssignmentServiceImpl.class.getName());
 

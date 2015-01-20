@@ -41,7 +41,6 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
-@Component(name = "com.elster.jupiter.issue.action", service = {IssueActionService.class}, immediate = true)
 public class IssueActionServiceImpl implements IssueActionService {
     private static final Logger LOG = Logger.getLogger(IssueActionService.class.getName());
     private volatile QueryService queryService;
