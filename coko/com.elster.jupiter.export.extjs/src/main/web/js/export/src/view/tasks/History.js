@@ -18,15 +18,13 @@ Ext.define('Dxp.view.tasks.History', {
         me.side = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('general.dataExportTasks', 'DES', 'Data export tasks'),
                 ui: 'medium',
                 items: [
                     {
                         xtype: 'tasks-menu',
                         itemId: 'tasks-view-menu',
                         taskId: me.taskId,
-                        router: me.router,
-                        toggle: 1
+                        router: me.router
                     },
                     {
                         xtype: 'history-filter-form',

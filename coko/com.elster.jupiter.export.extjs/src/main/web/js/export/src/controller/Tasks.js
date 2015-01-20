@@ -170,7 +170,7 @@ Ext.define('Dxp.controller.Tasks', {
 
                 actionsMenu.record = record;
                 actionsMenu.down('#view-details').hide();
-                view.down('#tasks-view-menu').setTitle(record.get('name'));
+                view.down('#tasks-view-menu #tasks-view-link').setText(record.get('name'));
                 me.getApplication().fireEvent('dataexporttaskload', record);
                 detailsForm.loadRecord(record);
                 if (record.get('status') !== 'Busy') {
@@ -273,7 +273,7 @@ Ext.define('Dxp.controller.Tasks', {
 
         taskModel.load(currentTaskId, {
             success: function (record) {
-                view.down('#tasks-view-menu').setTitle(record.get('name'));
+                view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
                 store.load(function (records, operation, success) {
                     records.map(function (r) {
                         r.set(Ext.apply({}, r.raw, record.raw));
@@ -431,7 +431,6 @@ Ext.define('Dxp.controller.Tasks', {
             router = me.getController('Uni.controller.history.Router'),
             taskModel = me.getModel('Dxp.model.DataExportTask'),
             store = me.getStore('Dxp.store.DataSources'),
-            sideMenu,
             view;
 
         store.getProxy().setUrl(router.arguments);
@@ -443,8 +442,7 @@ Ext.define('Dxp.controller.Tasks', {
         taskModel.load(currentTaskId, {
             success: function (record) {
                 me.getApplication().fireEvent('dataexporttaskload', record);
-                sideMenu = view.down('#tasks-view-menu');
-                sideMenu.setTitle(record.get('name'));
+                view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
             }
         });
     },
