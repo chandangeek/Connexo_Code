@@ -110,18 +110,18 @@ $include-ie: false;
     $ui: 'message-error',
 
     $ui-padding: 0 24px 16px 16px,
-    $ui-border-color: #70bb51,
+    $ui-border-color: #eb5642,
     $ui-border-width: 1px,
     $ui-border-radius: 10px,
 
-    $ui-header-color: #70bb51,
+    $ui-header-color: #eb5642,
     $ui-header-background-color: transparent,
     $ui-header-padding: 0 8px 0 0,
     $ui-header-text-padding: 0,
     $ui-body-background-color: transparent,
-    $ui-body-color: #70bb51,
+    $ui-body-color: #eb5642,
 
-    $ui-background-color: rgba(230, 255, 227, 0.9)
+    $ui-background-color: rgba(255, 235, 227, 0.90)
 );
 
 .#{$prefix}window-message-error {
