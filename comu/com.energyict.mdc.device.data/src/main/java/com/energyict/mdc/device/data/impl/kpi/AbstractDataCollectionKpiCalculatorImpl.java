@@ -8,6 +8,8 @@ import com.elster.jupiter.kpi.KpiMember;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Map;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  * Provides code reuse opportunities for classes that
@@ -18,6 +20,7 @@ import java.util.Map;
  */
 public class AbstractDataCollectionKpiCalculatorImpl {
 
+    private static final BigDecimal HUNDRED = new BigDecimal("100");
     private final Instant timestamp;
 
     public AbstractDataCollectionKpiCalculatorImpl(Instant timestamp) {
@@ -25,11 +28,11 @@ public class AbstractDataCollectionKpiCalculatorImpl {
         this.timestamp = timestamp;
     }
 
-    protected void calculateAndStore(Kpi koreKpi, Map<TaskStatus, Long> statusCounters) {
+    protected void calculateAndStore(Kpi koreKpi, Map<TaskStatus, Long> statusCounters, long total) {
         for (KpiMember kpiMember : koreKpi.getMembers()) {
             MonitoredTaskStatus taskStatus = MonitoredTaskStatus.valueOf(kpiMember.getName());
             long counter = taskStatus.calculateFrom(statusCounters);
-            kpiMember.score(this.timestamp, new BigDecimal(counter));
+            kpiMember.score(this.timestamp, HUNDRED.multiply(new BigDecimal(counter)).divide(new BigDecimal(total), BigDecimal.ROUND_HALF_UP));
         }
     }
 
