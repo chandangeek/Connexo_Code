@@ -40,10 +40,12 @@ Ext.define('Dxp.view.tasks.Setup', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'tasks-grid',
+                        itemId: 'grd-data-export-tasks',
                         router: me.router
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
+                        itemId: 'ctr-no-export-task',
                         title: Uni.I18n.translate('dataExportTasks.empty.title', 'DES', 'No data export tasks found'),
                         reasons: [
                             Uni.I18n.translate('dataExportTasks.empty.list.item1', 'DES', 'No data export tasks have been defined yet.'),
