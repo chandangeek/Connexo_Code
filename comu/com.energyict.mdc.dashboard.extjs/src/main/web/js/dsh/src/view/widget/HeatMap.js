@@ -153,16 +153,16 @@ Ext.define('Dsh.view.widget.HeatMap', {
 
     reload: function () {
         var me = this,
-            store = me.store;
-
-
+            store = me.store,
+            chartHeight;
 
         store.load({
             callback: function () {
                 var cmp = me.down('#heatmapchart');
                 if (store.count() && cmp) {
-                    cmp.setHeight(80 + store.count() * 50);
-                    me.renderChart(cmp.getEl().down('.x-panel-body').dom, me.findBorders(store));
+                    chartHeight =  80 + store.count() * 50
+                    cmp.setHeight(chartHeight);
+                    me.renderChart(cmp.getEl().down('.x-panel-body').dom, me.findBorders(store), chartHeight);
                     me.loadChart(store, me.getCombo() ? me.getCombo().getDisplayValue() : 'Device type');
                     me.show();
                     me.doLayout();
@@ -173,14 +173,14 @@ Ext.define('Dsh.view.widget.HeatMap', {
         });
     },
 
-    renderChart: function (container, borders) {
+    renderChart: function (container, borders, chartHeight) {
         var me = this;
-
-        var width = container.offsetWidth;
         this.chart = new Highcharts.Chart({
             chart: {
                 type: 'heatmap',
-                renderTo: container
+                renderTo: container,
+                reflow: false,
+                height: chartHeight
             },
             exporting: {
                 enabled: false
