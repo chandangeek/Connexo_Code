@@ -69,7 +69,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                                     xtype: 'displayfield',
                                     name: 'temporalExpression',
                                     fieldLabel: Uni.I18n.translate('deviceCommunicationSchedule.frequency', 'MDC', 'Frequency'),
-                                    renderer: function(value){
+                                    renderer: function (value) {
                                         return Mdc.util.ScheduleToStringConverter.convert(value);
                                     }
 
@@ -80,7 +80,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                                     fieldLabel: Uni.I18n.translate('deviceCommunicationSchedule.plannedDate', 'MDC', 'Planned date'),
                                     renderer: function (value) {
                                         if (value !== null) {
-                                            return Uni.DateTime.formatDateTimeLong(new Date(value));
+                                            return Uni.DateTime.formatDateTimeLong(value);
                                         } else {
                                             return '';
                                         }
@@ -99,6 +99,3 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
         this.callParent(arguments);
     }
 });
-
-
-
