@@ -21,6 +21,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -149,7 +151,17 @@ class ThesaurusImpl implements IThesaurus {
         List<NlsKey> newKeys = provider.getKeys().stream().filter(tk -> !translations.containsKey(tk.getKey())).map(this::newNlsKey).collect(Collectors.toList());
 
         if (!newKeys.isEmpty()) {
-            dataModel.mapper(NlsKey.class).persist(newKeys);
+            // remove duplicate keys
+            Set<String> uniqueIds = new HashSet<>();
+            List<NlsKey> uniqueKeys = new ArrayList<NlsKey>();
+
+            for (NlsKey key : newKeys) {
+                if (uniqueIds.add(key.getKey())) {
+                    uniqueKeys.add(key);
+                }
+            }
+
+            dataModel.mapper(NlsKey.class).persist(uniqueKeys);
             initTranslations(component, layer);
         }
 
