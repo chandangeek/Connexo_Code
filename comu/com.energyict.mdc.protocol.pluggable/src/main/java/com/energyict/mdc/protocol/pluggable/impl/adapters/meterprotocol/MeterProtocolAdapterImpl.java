@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
@@ -223,7 +224,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     }
 
     private TimeZone getDeviceTimeZoneFromProperties() {
-        TimeZone timeZone = this.propertiesAdapter.getProperties().getTypedProperty(DEVICE_TIMEZONE_PROPERTY_NAME);
+        TimeZone timeZone = this.propertiesAdapter.getProperties().getTypedProperty(DeviceProtocolProperty.deviceTimeZone.name());
         if (timeZone == null) {
             return TimeZone.getDefault();
         }

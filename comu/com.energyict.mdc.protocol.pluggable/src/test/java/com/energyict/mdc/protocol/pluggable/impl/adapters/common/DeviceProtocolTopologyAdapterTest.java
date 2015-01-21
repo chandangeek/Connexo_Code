@@ -70,7 +70,7 @@ public class DeviceProtocolTopologyAdapterTest {
 
         // Asserts
         verify(this.collectedTopology).setFailureInformation(eq(ResultType.NotSupported), any(Issue.class));
-        verify(this.issueService).newProblem(anyString(), anyString(), anyVararg());
+        verify(this.issueService).newWarning(anyString(), anyString(), anyVararg());
     }
 
     private DeviceIdentifier getDeviceIdentifier(){

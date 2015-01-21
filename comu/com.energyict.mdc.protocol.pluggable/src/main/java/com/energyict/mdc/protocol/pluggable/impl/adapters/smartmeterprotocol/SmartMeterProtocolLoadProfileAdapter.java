@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Adapter between a {@link com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter} and a {@link com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport}
@@ -80,9 +81,7 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
             try {
                 List<LoadProfileConfiguration> configurations = this.smartMeterProtocol.fetchLoadProfileConfiguration(loadProfilesToRead);
                 loadProfileConfigurations = convertToCollectedLoadProfileConfigurations(configurations);
-            } catch (IOException e) {
-                loadProfileConfigurations = createIssueListForLoadProfileReaders(loadProfilesToRead, e);
-            } catch (IndexOutOfBoundsException e) {
+            } catch (IOException | IndexOutOfBoundsException e) {
                 loadProfileConfigurations = createIssueListForLoadProfileReaders(loadProfilesToRead, e);
             }
         }
@@ -91,26 +90,35 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
 
     private List<CollectedLoadProfileConfiguration> createIssueListForLoadProfileReaders(List<LoadProfileReader> loadProfilesToRead, Exception e) {
         CollectedDataFactory collectedDataFactory = this.collectedDataFactory;
-        List<CollectedLoadProfileConfiguration> configurations = new ArrayList<>();
-        for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
-            CollectedLoadProfileConfiguration deviceLoadProfileConfiguration = collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getDeviceIdentifier(), false);
-            deviceLoadProfileConfiguration.setFailureInformation(ResultType.DataIncomplete, getIssue(this, "deviceprotocol.legacy.issue", StackTracePrinter.print(e)));
-            configurations.add(deviceLoadProfileConfiguration);
-        }
-        return configurations;
+        return loadProfilesToRead
+                .stream()
+                .map(loadProfileReader -> {
+                        CollectedLoadProfileConfiguration deviceLoadProfileConfiguration =
+                                collectedDataFactory.createCollectedLoadProfileConfiguration(
+                                        loadProfileReader.getProfileObisCode(),
+                                        loadProfileReader.getDeviceIdentifier(),
+                                        false);
+                        deviceLoadProfileConfiguration.setFailureInformation(ResultType.DataIncomplete, getIssue(this, "deviceprotocol.legacy.issue", StackTracePrinter.print(e)));
+                        return deviceLoadProfileConfiguration;
+                    })
+                .collect(Collectors.toList());
     }
 
     private List<CollectedLoadProfileConfiguration> convertToCollectedLoadProfileConfigurations(List<LoadProfileConfiguration> loadProfileConfigurations) {
         CollectedDataFactory collectedDataFactory = this.collectedDataFactory;
-        List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = new ArrayList<>();
-        for (LoadProfileConfiguration loadProfileConfiguration : loadProfileConfigurations) {
-            CollectedLoadProfileConfiguration deviceLoadProfileConfiguration = collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileConfiguration.getObisCode(), loadProfileConfiguration.getDeviceIdentifier());
-            deviceLoadProfileConfiguration.setSupportedByMeter(loadProfileConfiguration.isSupportedByMeter());
-            deviceLoadProfileConfiguration.setChannelInfos(loadProfileConfiguration.getChannelInfos());
-            deviceLoadProfileConfiguration.setProfileInterval(loadProfileConfiguration.getProfileInterval());
-            collectedLoadProfileConfigurations.add(deviceLoadProfileConfiguration);
-        }
-        return collectedLoadProfileConfigurations;
+        return loadProfileConfigurations
+                .stream()
+                .map(loadProfileConfiguration -> {
+                    CollectedLoadProfileConfiguration deviceLoadProfileConfiguration =
+                            collectedDataFactory.createCollectedLoadProfileConfiguration(
+                                    loadProfileConfiguration.getObisCode(),
+                                    loadProfileConfiguration.getDeviceIdentifier());
+                    deviceLoadProfileConfiguration.setSupportedByMeter(loadProfileConfiguration.isSupportedByMeter());
+                    deviceLoadProfileConfiguration.setChannelInfos(loadProfileConfiguration.getChannelInfos());
+                    deviceLoadProfileConfiguration.setProfileInterval(loadProfileConfiguration.getProfileInterval());
+                    return deviceLoadProfileConfiguration;
+                })
+                .collect(Collectors.toList());
     }
 
     /**
