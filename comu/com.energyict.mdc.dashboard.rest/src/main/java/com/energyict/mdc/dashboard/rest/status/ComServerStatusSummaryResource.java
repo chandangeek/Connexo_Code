@@ -88,7 +88,7 @@ public class ComServerStatusSummaryResource {
 
     private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, Client jerseyClient, long comServerId, String comServerName, String defaultUri, String statusUri, ComServerType comServerType) {
         try {
-            LOGGER.fine(() -> "Executing " + statusUri);
+            LOGGER.info(() -> "Executing " + statusUri);
             ComServerStatusInfo comServerStatusInfo =
                 jerseyClient.
                     target(statusUri).
