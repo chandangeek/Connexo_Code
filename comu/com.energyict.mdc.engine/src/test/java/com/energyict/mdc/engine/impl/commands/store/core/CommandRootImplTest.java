@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.elster.jupiter.time.TimeDuration;
+
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
@@ -66,10 +68,18 @@ public class CommandRootImplTest extends CommonCommandImplTests {
 
     @Mock
     private ComTaskExecution comTaskExecution;
+    @Mock
+    private Device device;
 
     private final TimeDuration MAX_CLOCK_DIFF = new TimeDuration(8);
     private final TimeDuration MIN_CLOCK_DIFF = new TimeDuration(2);
     private final TimeDuration MAX_CLOCK_SHIFT = new TimeDuration(5);
+
+    @Before
+    public void initializeMocks() {
+        when(this.comTaskExecution.getDevice()).thenReturn(this.device);
+        when(this.device.getmRID()).thenReturn(CommandRootImplTest.class.getSimpleName());
+    }
 
     @Test
     public void getEmptyRootCommandsNotNullTest() {
