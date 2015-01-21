@@ -5,6 +5,7 @@ import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.DefaultStartPage;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.security.Privileges;
@@ -17,16 +18,21 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Component(
         name = "com.energyict.mdc.app",
-        service = {MdcAppService.class},
+        service = {MdcAppService.class, InstallService.class},
         property = "name=" + MdcAppService.COMPONENTNAME,
-        immediate = true
-)
-public class MdcAppServiceImpl implements MdcAppService {
+        immediate = true)
+@SuppressWarnings("unused")
+public class MdcAppServiceImpl implements MdcAppService, InstallService {
+
+    private final Logger logger = Logger.getLogger(MdcAppServiceImpl.class.getName());
 
     public static final String HTTP_RESOURCE_ALIAS = "/multisense";
     public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/mdc";
@@ -61,6 +67,12 @@ public class MdcAppServiceImpl implements MdcAppService {
         registration.unregister();
     }
 
+    @Override
+    public void install() {
+        createDefaultRoles();
+        assignPrivilegesToDefaultRoles();
+    }
+
     @Reference(target = "(com.elster.jupiter.license.application.key=" + APP_KEY + ")")
     public void setLicense(License license) {
         this.license = license;
@@ -76,6 +88,14 @@ public class MdcAppServiceImpl implements MdcAppService {
         this.userService = userService;
     }
 
+    private void createDefaultRoles() {
+        try {
+            userService.createGroup(Roles.METER_EXPERT.value(), Roles.METER_EXPERT.description());
+            userService.createGroup(Roles.METER_OPERATOR.value(), Roles.METER_OPERATOR.description());
+        } catch (Exception e) {
+            this.logger.severe(e.getMessage());
+        }
+    }
 
     private void assignPrivilegesToDefaultRoles() {
         List<String> availablePrivileges = getAvailablePrivileges();
@@ -93,6 +113,12 @@ public class MdcAppServiceImpl implements MdcAppService {
 
     private List<? super Privileges> getApplicationPrivileges() {
         return userService.getResources(APPLICATION_KEY).stream().flatMap(resource -> resource.getPrivileges().stream()).collect(Collectors.toList());
+    }
+
+    public List<String> getAvailablePrivileges() {
+        List<String> privileges = new ArrayList<String>();
+        userService.getResources(MdcAppService.APPLICATION_KEY).forEach(e -> e.getPrivileges().forEach(p -> privileges.add(p.getName())));
+        return privileges;
     }
 
 }
