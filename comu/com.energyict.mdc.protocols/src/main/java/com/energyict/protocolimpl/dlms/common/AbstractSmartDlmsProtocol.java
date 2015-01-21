@@ -51,7 +51,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
      */
     public Date getTime() throws IOException {
         try {
-            getLogger().severe("Reading CLOCK");
+            getLogger().info("Reading CLOCK");
             return getDlmsSession().getCosemObjectFactory().getClock().getDateTime();
         } catch (IOException e) {
             getLogger().log(Level.FINEST, e.getMessage());
