@@ -869,7 +869,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
-            if (dc.contentChanged()) {
+            if (dc.isDirty()) {
                 RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, ormClient);
                 RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
                 rtuCache.saveObjectList(dc.getObjectList());

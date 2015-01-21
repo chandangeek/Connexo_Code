@@ -36,9 +36,6 @@ import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 
 import com.energyict.protocols.mdc.services.impl.OrmClient;
-import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocols.messaging.FirmwareUpdateMessaging;
-import com.energyict.protocols.messaging.FirmwareUpdateMessagingConfig;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
@@ -694,7 +691,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
-            if (dc.contentChanged()) {
+            if (dc.isDirty()) {
                 RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, ormClient);
                 RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
                 rtuCache.saveObjectList(dc.getObjectList());

@@ -1,7 +1,5 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-
 /**
  * @author sva
  * @since 4/07/13 - 10:01
@@ -36,4 +34,10 @@ public class CTRUpdateDeviceMessage {
 //            );
 //        }
 //    }
+//
+//    @Override
+//    public String getDescriptionTitle() {
+//        return "Update device message";
+//    }
+
 }

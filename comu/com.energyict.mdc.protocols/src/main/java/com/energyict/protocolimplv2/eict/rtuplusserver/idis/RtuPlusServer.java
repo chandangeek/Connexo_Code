@@ -14,6 +14,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
@@ -33,7 +34,6 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.events.IDISGatewayEvents;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.messages.IDISGatewayMessages;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.properties.IDISGatewayDynamicPropertySupportSupport;
@@ -208,7 +208,7 @@ public class RtuPlusServer implements DeviceProtocol {
         }
         for (SAPAssignmentItem sapAssignmentItem : sapAssignmentList) {     //Using callHomeId as a general property
             if (!isGatewayNode(sapAssignmentItem)) {
-                DeviceIdentifier slaveDeviceIdentifier = this.identificationService.createDeviceIdentifierByProperty(BasicDynamicPropertySupport.CALL_HOME_ID_PROPERTY_NAME, sapAssignmentItem.getLogicalDeviceName().trim().toUpperCase());
+                DeviceIdentifier slaveDeviceIdentifier = this.identificationService.createDeviceIdentifierByProperty(DeviceProtocolProperty.callHomeId.name(), sapAssignmentItem.getLogicalDeviceName().trim().toUpperCase());
 
                 deviceTopology.addSlaveDevice(slaveDeviceIdentifier);
                 deviceTopology.addAdditionalCollectedDeviceInfo(

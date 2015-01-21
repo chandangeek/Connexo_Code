@@ -989,7 +989,7 @@ public abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnable
     public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
-            if (dc.contentChanged()) {
+            if (dc.isDirty()) {
                 //System.out.println("KV_DEBUG>> rtuid="+rtuid+", "+new Date()+" update cache="+dc.getObjectList()+", confchange="+dc.getConfProgChange()+", ischanged="+dc.isChanged()); // KV_DEBUG
                 RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, ormClient);
                 RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);

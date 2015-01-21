@@ -30,21 +30,8 @@ public class SioPlainSerialConnectionType extends SioSerialConnectionType {
 
     @Override
     public SerialComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
-        SerialPortConfiguration serialPortConfiguration = createSerialConfiguration(this.getComPortNameValue(), properties);
+        SerialPortConfiguration serialPortConfiguration = createSerialConfiguration(properties);
         return newSioSerialConnection(this.getSerialComponentService(), serialPortConfiguration);
-    }
-
-    protected SerialPortConfiguration createSerialConfiguration(String comPortName, List<ConnectionProperty> properties) {
-        for (ConnectionProperty property : properties) {
-            this.setProperty(property.getName(), property.getValue());
-        }
-        return new SerialPortConfiguration(
-                        comPortName,
-                        getBaudRateValue(),
-                        getNrOfDataBitsValue(),
-                        getNrOfStopBitsValue(),
-                        getParityValue(),
-                        getFlowControlValue());
     }
 
     @Override

@@ -26,16 +26,16 @@ public abstract class SioSerialConnectionType extends AbstractSerialConnectionTy
 
     @Override
     public SerialComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
-        SerialPortConfiguration serialPortConfiguration = createSerialConfiguration(this.getComPortNameValue(), properties);
+        SerialPortConfiguration serialPortConfiguration = createSerialConfiguration(properties);
         return newSioSerialConnection(this.getSerialComponentService(), serialPortConfiguration);
     }
 
-    protected SerialPortConfiguration createSerialConfiguration(String comPortName, List<ConnectionProperty> properties) {
+    protected SerialPortConfiguration createSerialConfiguration(List<ConnectionProperty> properties) {
         for (ConnectionProperty property : properties) {
             this.setProperty(property.getName(), property.getValue());
         }
         return new SerialPortConfiguration(
-                        comPortName,
+                        this.getComPortNameValue(),
                         getBaudRateValue(),
                         getNrOfDataBitsValue(),
                         getNrOfStopBitsValue(),

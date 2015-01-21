@@ -86,7 +86,7 @@ public abstract class AbstractInboundFrame {
         buildParameterList();
         inboundParameters = new InboundParameters(parameters);  //All frames contain some parameters, parse them here
         inboundParameters.parse();
-        this.deviceIdentifier = this.identificationService.createDeviceIdentifierBySerialNumber(inboundParameters.getSerialNumber());
+        this.deviceIdentifier = this.identificationService.createDeviceIdentifierByCallHomeId(inboundParameters.getSerialNumber());
         if (findDevice()) {
             doParse();
         }

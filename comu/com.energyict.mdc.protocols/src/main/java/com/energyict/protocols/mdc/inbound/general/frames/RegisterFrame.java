@@ -15,7 +15,9 @@ import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCode
 import com.energyict.protocols.mdc.inbound.general.frames.parsing.RegisterInfo;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -76,28 +78,25 @@ public class RegisterFrame extends AbstractInboundFrame {
 
     private CollectedRegister processRegister (RegisterValue register) {
         CollectedRegister deviceRegister;
+        Instant readTime = getInboudReadTimeParameter();
         if (register.getObisCode().getF() != 255) {
-            deviceRegister = this.collectedDataFactory.createBillingCollectedRegister(getRegisterIdentifier(register.getObisCode()),
+            deviceRegister = this.collectedDataFactory.createBillingCollectedRegister(
+                    getRegisterIdentifier(register.getObisCode()),
                     this.readingTypeUtilService.getReadingTypeFrom(register.getObisCode(), register.getQuantity().getUnit()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
-            deviceRegister.setCollectedTimeStamps(
-                    this.clock.instant(),
-                    null,
-                    getInboundParameters().getReadTime().toInstant());
+            deviceRegister.setCollectedTimeStamps(readTime, null, readTime);
         } else if (register.getEventTime() != null) {
-            deviceRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(register.getObisCode()),
+            deviceRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(
+                    getRegisterIdentifier(register.getObisCode()),
                     this.readingTypeUtilService.getReadingTypeFrom(register.getObisCode(), register.getQuantity().getUnit()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
-            deviceRegister.setCollectedTimeStamps(
-                    this.clock.instant(),
-                    null,
-                    getInboundParameters().getReadTime().toInstant(),
-                    register.getEventTime().toInstant());
+            deviceRegister.setCollectedTimeStamps(readTime, null, readTime, register.getEventTime().toInstant());
         } else {
-            deviceRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register.getObisCode()),
+            deviceRegister = this.collectedDataFactory.createDefaultCollectedRegister(
+                    getRegisterIdentifier(register.getObisCode()),
                     this.readingTypeUtilService.getReadingTypeFrom(register.getObisCode(), register.getQuantity().getUnit()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
-            deviceRegister.setReadTime(getInboundParameters().getReadTime().toInstant());
+            deviceRegister.setReadTime(readTime);
         }
 
         if (this.getDevice() == null) {
@@ -116,15 +115,25 @@ public class RegisterFrame extends AbstractInboundFrame {
         return deviceRegister;
     }
 
-    private CollectedRegisterList getCollectedRegisterList(){
-        if(this.collectedRegisterList == null){
+    private Instant getInboudReadTimeParameter() {
+        Date readTime = this.getInboundParameters().getReadTime();
+        if (readTime == null) {
+            return this.clock.instant();
+        }
+        else {
+            return readTime.toInstant();
+        }
+    }
+
+    private CollectedRegisterList getCollectedRegisterList() {
+        if (this.collectedRegisterList == null) {
             this.collectedRegisterList = this.collectedDataFactory.createCollectedRegisterList(getDeviceIdentifier());
             getCollectedDatas().add(this.collectedRegisterList);
         }
         return this.collectedRegisterList;
     }
 
-    private RegisterIdentifier getRegisterIdentifier(ObisCode registerObisCode){
+    private RegisterIdentifier getRegisterIdentifier(ObisCode registerObisCode) {
         return new RegisterDataIdentifierByObisCodeAndDevice(registerObisCode, registerObisCode, getDeviceIdentifier());
     }
 

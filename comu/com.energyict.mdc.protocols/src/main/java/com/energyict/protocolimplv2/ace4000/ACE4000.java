@@ -56,7 +56,7 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
     }
 
     public DeviceIdentifier getDeviceIdentifier() {
-        return this.identificationService.createDeviceIdentifierBySerialNumber(this.serialNumber);
+        return this.identificationService.createDeviceIdentifierByCallHomeId(this.serialNumber);
     }
 
     public String getSerialNumber() {

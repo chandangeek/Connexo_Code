@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.xml.DeviceProtocolCacheXmlMarshallAdapter;
 
@@ -21,15 +20,16 @@ public class CTRDeviceProtocolCache implements DeviceProtocolCache, Serializable
     private static final PendingFirmwareKey NO_FIRMWARE_UPGRADE_PENDING = new PendingFirmwareKey(null, new Date(1), -1);
 
     /** The last WriteDataBlock ID used in SMS communication. **/
-    int smsWriteDataBlockID = 0;
+    private int smsWriteDataBlockID = 0;
 
     /** The id of the mending firmware upgrade message, or -1 if no firmware upgrade is pending **/
     private PendingFirmwareKey pendingFirmwareMessageID = NO_FIRMWARE_UPGRADE_PENDING;
 
-    boolean contentChanged;
+    private boolean dirty;
 
     public CTRDeviceProtocolCache() {
-        contentChanged = true;
+        super();
+        this.markDirty();
     }
 
     public int getSmsWriteDataBlockID() {
@@ -39,7 +39,7 @@ public class CTRDeviceProtocolCache implements DeviceProtocolCache, Serializable
     public void setSmsWriteDataBlockID(int smsWriteDataBlockID) {
         if (this.smsWriteDataBlockID != smsWriteDataBlockID) {
             this.smsWriteDataBlockID = smsWriteDataBlockID;
-            this.contentChanged = true;
+            this.markDirty();
         }
     }
 
@@ -51,18 +51,23 @@ public class CTRDeviceProtocolCache implements DeviceProtocolCache, Serializable
         PendingFirmwareKey pendingFirmwareKey = new PendingFirmwareKey(deviceMessageId, creationDate, deviceId);
         if (!this.pendingFirmwareMessageID.equals(pendingFirmwareKey)) {
             this.pendingFirmwareMessageID = pendingFirmwareKey;
-            this.contentChanged = true;
+            this.markDirty();
         }
     }
 
     @Override
-    public boolean contentChanged() {
-        return contentChanged;
+    public void markClean() {
+        this.dirty = false;
     }
 
     @Override
-    public void setChanged(boolean flag) {
-        this.contentChanged = flag;
+    public void markDirty() {
+        this.dirty = true;
+    }
+
+    @Override
+    public boolean isDirty() {
+        return this.dirty;
     }
 
     public static class PendingFirmwareKey{
@@ -105,4 +110,5 @@ public class CTRDeviceProtocolCache implements DeviceProtocolCache, Serializable
             return result;
         }
     }
+
 }

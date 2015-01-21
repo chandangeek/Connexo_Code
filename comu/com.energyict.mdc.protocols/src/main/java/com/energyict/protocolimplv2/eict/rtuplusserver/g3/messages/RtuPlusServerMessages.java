@@ -674,14 +674,14 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         }
         String allInfo = (pingSuccess.length() == 0 ? "" : (pingSuccess + ". ")) + (pingFailed.length() == 0 ? "" : (pingFailed + ". ")) + (pathFailed.length() == 0 ? "" : (pathFailed + "."));
 
-        if (pingFailed.toString().length() == 0 && pathFailed.toString().length() == 0) {
+        if (pingFailed.toString().isEmpty() && pathFailed.toString().isEmpty()) {
             session.getLogger().info("Message result: ping and path requests were successful for every meter.");
         }
         return new CollectedTopologyMessageInfo(collectedTopology, allInfo);
     }
 
     private void logFailedPingRequest(StringBuilder pingFailed, String macAddress) {
-        if (pingFailed.toString().length() == 0) {
+        if (pingFailed.toString().isEmpty()) {
             pingFailed.append("Ping failed for: ");
             pingFailed.append(macAddress);
         } else {
@@ -691,7 +691,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     private void logSuccessfulPingRequest(StringBuilder pingSuccess, String macAddress, int pingTime) {
-        if (pingSuccess.toString().length() == 0) {
+        if (pingSuccess.toString().isEmpty()) {
             pingSuccess.append("Ping successful for: ");
             pingSuccess.append(macAddress);
             if (pingTime > 1) {
@@ -707,7 +707,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     private void logFailedPathRequest(StringBuilder pathFailed, String macAddress) {
-        if (pathFailed.toString().length() == 0) {
+        if (pathFailed.toString().isEmpty()) {
             pathFailed.append("Path request failed for: ");
             pathFailed.append(macAddress);
         } else {
@@ -951,7 +951,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 //            for (BusinessObject businessObject : group.getMembers()) {
 //                if (businessObject instanceof Device) {
 //                    Device device = (Device) businessObject;
-//                    String callHomeId = device.getProtocolProperties().<String>getTypedProperty(AdapterDeviceProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "");
+//                    String callHomeId = device.getProtocolProperties().<String>getTypedProperty(com.energyict.mdc.protocol.api.DeviceProtocolProperty.callHomeId.name(), "");
 //                    if (!callHomeId.isEmpty()) {
 //                        if (macAddresses.length() != 0) {
 //                            macAddresses.append(";");

@@ -267,7 +267,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
         final CollectedTopology deviceTopology = this.createCollectedTopology(offlineDevice.getDeviceIdentifier());
         for (String slaveSerialNumber : objectFactory.getAllSlaveSerialNumbers()) {
-            deviceTopology.addSlaveDevice(this.identificationService.createDeviceIdentifierBySerialNumber(slaveSerialNumber));
+            deviceTopology.addSlaveDevice(this.identificationService.createDeviceIdentifierByCallHomeId(slaveSerialNumber));
         }
         return deviceTopology;
     }
