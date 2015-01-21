@@ -5,6 +5,8 @@ import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.config.ComServer;
 
+import com.elster.jupiter.util.time.StopWatch;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -72,11 +74,18 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
 
     @Override
     public void execute (final ComServerDAO comServerDAO) {
+        this.startStopWatch();
         this.broadCastFailureLoggerIfAny();
         comServerDAO.executeTransaction(() -> {
             executeAll(comServerDAO);
             return null;
         });
+    }
+
+    private void startStopWatch() {
+        if (this.createComSessionDeviceCommand != null) {
+            this.createComSessionDeviceCommand.setStopWatch(new StopWatch());
+        }
     }
 
     private void broadCastFailureLoggerIfAny () {
@@ -89,6 +98,7 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
 
     @Override
     public void executeDuringShutdown (final ComServerDAO comServerDAO) {
+        this.startStopWatch();
         this.broadCastFailureLoggerIfAny();
         comServerDAO.executeTransaction(() -> {
             executeAllDuringShutdown(comServerDAO);

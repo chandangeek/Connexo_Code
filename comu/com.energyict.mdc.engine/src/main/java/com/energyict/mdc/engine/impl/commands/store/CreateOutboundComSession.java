@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import java.time.Clock;
+import java.time.Duration;
+
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
@@ -9,6 +11,8 @@ import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
+
+import com.elster.jupiter.util.time.StopWatch;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface
@@ -26,12 +30,18 @@ public class CreateOutboundComSession extends ExecutionLoggerImpl implements Cre
     private final ComSessionBuilder builder;
     private final ComSession.SuccessIndicator successIndicator;
     private ComSession outboundComSession;
+    private StopWatch stopWatch;
 
     public CreateOutboundComSession(ComServer.LogLevel communicationLogLevel, ScheduledConnectionTask connectionTask, ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator, Clock clock) {
         super(communicationLogLevel, clock);
         this.connectionTask = connectionTask;
         this.builder = builder;
         this.successIndicator = successIndicator;
+    }
+
+    @Override
+    public void setStopWatch(StopWatch stopWatch) {
+        this.stopWatch = stopWatch;
     }
 
     @Override
@@ -42,7 +52,9 @@ public class CreateOutboundComSession extends ExecutionLoggerImpl implements Cre
     @Override
     public void execute (ComServerDAO comServerDAO) {
         try {
-            outboundComSession = comServerDAO.createComSession(this.builder, successIndicator);
+            this.stopWatch.stop();
+            this.builder.storeDuration(Duration.ofNanos(this.stopWatch.getElapsed()));
+            this.outboundComSession = comServerDAO.createComSession(this.builder, successIndicator);
         }
         catch (RuntimeException e) {
             LoggerFactory.getLoggerFor(DeviceCommandLogger.class).outboundComSessionCreationFailed(e, this.connectionTask);
@@ -77,18 +89,20 @@ public class CreateOutboundComSession extends ExecutionLoggerImpl implements Cre
 
     @Override
     public String toJournalMessageDescription(ComServer.LogLevel serverLogLevel) {
-        if (outboundComSession == null) {
+        if (this.outboundComSession == null) {
             return "";
         }
-        DescriptionBuilder builder = new DescriptionBuilderImpl(this);
-        if (isJournalingLevelEnabled(serverLogLevel, ComServer.LogLevel.DEBUG)) {
-            builder.addProperty("indicator").append(outboundComSession.getSuccessIndicator());
-            builder.addProperty("connectionTaskId").append(outboundComSession.getConnectionTask().getId());
-            builder.addProperty("comPortId").append(outboundComSession.getComPort().getId());
-            builder.addProperty("number of tasks").append(outboundComSession.getComTaskExecutionSessions().size());
-            builder.addProperty("number of journal entries").append(outboundComSession.getJournalEntries().size());
+        else {
+            DescriptionBuilder builder = new DescriptionBuilderImpl(this);
+            if (isJournalingLevelEnabled(serverLogLevel, ComServer.LogLevel.DEBUG)) {
+                builder.addProperty("indicator").append(this.outboundComSession.getSuccessIndicator());
+                builder.addProperty("connectionTaskId").append(this.outboundComSession.getConnectionTask().getId());
+                builder.addProperty("comPortId").append(this.outboundComSession.getComPort().getId());
+                builder.addProperty("number of tasks").append(this.outboundComSession.getComTaskExecutionSessions().size());
+                builder.addProperty("number of journal entries").append(this.outboundComSession.getJournalEntries().size());
+            }
+            return builder.toString();
         }
-        return builder.toString();
     }
 
     /**
@@ -102,4 +116,5 @@ public class CreateOutboundComSession extends ExecutionLoggerImpl implements Cre
     protected boolean isJournalingLevelEnabled(ComServer.LogLevel serverLogLevel, ComServer.LogLevel minimumLevel) {
         return serverLogLevel.compareTo(minimumLevel) >= 0;
     }
+
 }
