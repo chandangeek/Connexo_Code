@@ -1,22 +1,23 @@
 Ext.define('Tme.view.relativeperiod.Menu', {
-    extend: 'Uni.view.navigation.SubMenu',
+    extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.relative-periods-menu',
-    toggle: null,
+
     router: null,
+
+    title: Uni.I18n.translate('general.relativePeriods', 'DES', 'Relative periods'),
 
     initComponent: function () {
         var me = this;
-        me.callParent(me);
 
-        me.add(
+        me.menuItems = [
             {
                 text: Uni.I18n.translate('general.overview', 'DES', 'Overview'),
-                href: me.router.getRoute('administration/relativeperiods/relativeperiod').buildUrl(),
-                hrefTarget: '_self'
+                itemId: 'relative-period-overview-link',
+                href: me.router.getRoute('administration/relativeperiods/relativeperiod').buildUrl()
             }
-        );
+        ];
 
-        me.toggleMenuItem(me.toggle);
+        me.callParent(arguments);
     }
 });
 
