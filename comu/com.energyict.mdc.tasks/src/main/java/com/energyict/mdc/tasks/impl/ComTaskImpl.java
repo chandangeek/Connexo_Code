@@ -239,15 +239,6 @@ public class ComTaskImpl implements ComTask {
         return ComTask.class.getName();
     }
 
-    private <T extends ProtocolTask> boolean isConfiguredToCollectDataOfClass(Class<T> protocolTaskClass) {
-        for (ProtocolTask protocolTask : this.getProtocolTasks()) {
-            if (protocolTaskClass.isAssignableFrom(protocolTask.getClass())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private void verifyUniqueProtocolTaskType(Class<? extends ProtocolTask> taskClass) {
         for (ProtocolTask protocolTask : this.getProtocolTasks()) {
             if (protocolTask.getClass().equals(taskClass)) {
@@ -258,13 +249,11 @@ public class ComTaskImpl implements ComTask {
 
     @Override
     public void delete() {
+        this.eventService.postEvent(EventType.COMTASK_VALIDATE_DELETE.topic(), this);
+        this.protocolTasks.forEach(ProtocolTaskImpl::deleteDependents);
+        this.protocolTasks.clear(); // delete dependents
+        this.dataModel.remove(this);
         this.eventService.postEvent(EventType.COMTASK_DELETED.topic(), this);
-
-        for (ProtocolTaskImpl protocolTask : protocolTasks) {
-            protocolTask.deleteDependents();
-        }
-        protocolTasks.clear(); // delete dependents
-        dataModel.remove(this);
     }
 
     class BasicCheckTaskBuilderImpl implements BasicCheckTask.BasicCheckTaskBuilder {

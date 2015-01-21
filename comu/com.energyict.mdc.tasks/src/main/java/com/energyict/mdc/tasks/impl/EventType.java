@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.TransactionRequired;
 public enum EventType {
 
     COMTASK_DELETED("comtask/DELETED"),
+    COMTASK_VALIDATE_DELETE("comtask/VALIDATE_DELETE"),
     COMTASK_CREATED("comtask/CREATED"),
     COMTASK_UPDATED("comtask/UPDATED");
 
