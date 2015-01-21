@@ -90,6 +90,9 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
                 itemId: 'open-data-collection-issues-grid',
                 hideHeaders: true,
                 padding: 0,
+                viewConfig: {
+                    style: 'overflow-x: hidden !important;'
+                },
                 columns: [
                     {
 
