@@ -88,13 +88,11 @@ public class ComServerStatusSummaryResource {
 
     private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, Client jerseyClient, long comServerId, String comServerName, String defaultUri, String statusUri, ComServerType comServerType) {
         try {
-            LOGGER.log(Level.FINE, "Executing " + statusUri);
+            LOGGER.fine(() -> "Executing " + statusUri);
             ComServerStatusInfo comServerStatusInfo =
                 jerseyClient.
                     target(statusUri).
                     request(MediaType.APPLICATION_JSON).
-//                    property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "admin").
-//                    property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "admin").
                     get(ComServerStatusInfo.class);
             statusSummaryInfo.comServerStatusInfos.add(comServerStatusInfo);
         }
@@ -104,8 +102,9 @@ public class ComServerStatusSummaryResource {
              * The underlying exception in this case is: java.net.UnknownHostException */
             /* The ComServerStatusResource of this ComServer is not accessible,
              * most likely because the ComServer is not running. */
-            LOGGER.info("ComServer " + comServerName + " is most likely not running");
-            LOGGER.log(Level.FINE, "ComServer " + comServerName + " is most likely not running", e);
+            String message = "ComServer " + comServerName + " is most likely not running";
+            LOGGER.info(message);
+            LOGGER.log(Level.SEVERE, message, e);
             ComServerStatusInfo statusInfo = comServerStatusInfoFactory.from(comServerId, comServerName, defaultUri, comServerType);
             statusSummaryInfo.comServerStatusInfos.add(statusInfo);
         }
