@@ -179,7 +179,8 @@ Ext.define('Uni.controller.Error', {
             msg: message,
             modal: false,
             ui: 'message-error',
-            icon: Ext.MessageBox.ERROR
+            icon: 'icon-warning2',
+            style: 'font-size: 34px;'
         });
 
         var box = Ext.create('Ext.window.MessageBox', {
