@@ -20,7 +20,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class ComPortPoolDeletionEventHandler implements TopicHandler {
 
-    private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile ServerDeviceConfigurationService deviceConfigurationService;
 
     @Override
     public void handle(LocalEvent localEvent) {
@@ -32,7 +32,7 @@ public class ComPortPoolDeletionEventHandler implements TopicHandler {
     }
 
     private Thesaurus getThesaurus() {
-        return ((DeviceConfigurationServiceImpl) deviceConfigurationService).getThesaurus();
+        return deviceConfigurationService.getThesaurus();
     }
 
     @Override
@@ -42,7 +42,7 @@ public class ComPortPoolDeletionEventHandler implements TopicHandler {
 
     @Reference
     @SuppressWarnings("unused")
-    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+    public void setDeviceConfigurationService(ServerDeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
     }
 

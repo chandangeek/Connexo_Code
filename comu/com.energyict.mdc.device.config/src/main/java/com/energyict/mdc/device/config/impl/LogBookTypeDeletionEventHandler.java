@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.exceptions.VetoLogBookTypeDeletionBecauseStillUsedByDeviceTypesException;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -25,14 +24,14 @@ public class LogBookTypeDeletionEventHandler implements TopicHandler {
 
     static final String TOPIC = "com/energyict/mdc/masterdata/logbooktype/VALIDATEDELETE";
 
-    private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile ServerDeviceConfigurationService deviceConfigurationService;
 
     public LogBookTypeDeletionEventHandler() {
         super();
     }
 
     // For testing purposes only
-    LogBookTypeDeletionEventHandler(DeviceConfigurationService deviceConfigurationService) {
+    LogBookTypeDeletionEventHandler(ServerDeviceConfigurationService deviceConfigurationService) {
         this();
         this.setDeviceConfigurationService(deviceConfigurationService);
     }
@@ -52,11 +51,11 @@ public class LogBookTypeDeletionEventHandler implements TopicHandler {
     }
 
     private Thesaurus getThesaurus() {
-        return ((DeviceConfigurationServiceImpl) deviceConfigurationService).getThesaurus();
+        return deviceConfigurationService.getThesaurus();
     }
 
     @Reference
-    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+    public void setDeviceConfigurationService(ServerDeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
