@@ -189,7 +189,7 @@ Ext.define('Uni.controller.Error', {
                     text: Uni.I18n.translate('general.close', 'UNI', 'Close'),
                     action: 'close',
                     name: 'close',
-                    ui: 'action',
+                    ui: 'remove',
                     handler: function () {
                         box.close();
                     }
