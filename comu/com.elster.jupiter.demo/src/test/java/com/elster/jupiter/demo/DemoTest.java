@@ -224,7 +224,6 @@ public class DemoTest {
         inMemoryBootstrapModule.deactivate();
     }
 
-    @Test
     public void testDemoSetup() {
         doPreparations();
         DemoService demoService = null;
