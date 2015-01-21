@@ -24,11 +24,11 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
                         itemId: 'stepsMenu',
                         device: me.device,
                         toggleId: 'connectionMethodsLink'
-                    },
-                    {
-                        xtype: 'deviceconnectionhistorySideFilter'
                     }
                 ]
+            },
+            {
+                xtype: 'deviceconnectionhistorySideFilter'
             }
         ];
 

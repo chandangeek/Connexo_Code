@@ -25,11 +25,11 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                         device: me.device,
                         toggleId: 'communicationTasksLink'
 
-                    },
-                    {
-                        xtype: 'deviceCommunicationTaskHistorySideFilter'
                     }
                 ]
+            },
+            {
+                xtype: 'deviceCommunicationTaskHistorySideFilter'
             }
         ];
 
