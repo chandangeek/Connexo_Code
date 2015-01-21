@@ -336,15 +336,17 @@ public class OfflineDeviceImplTest {
         OfflineRegister offlineRegister1 = mock(OfflineRegister.class);
         when(offlineRegister1.inGroup(rtuRegisterGroupId)).thenReturn(true);
         when(offlineRegister1.inAtLeastOneGroup(Arrays.asList(rtuRegisterGroupId))).thenReturn(true);
+        when(offlineRegister1.getDeviceMRID()).thenReturn("getRegistersForRegisterGroup");
         Register register2 = createMockedRegister(registerSpec, device);
         when(device.getRegisters()).thenReturn(Arrays.asList(register1, register2));
         OfflineRegister offlineRegister2 = mock(OfflineRegister.class);
+        when(offlineRegister2.getDeviceMRID()).thenReturn("getRegistersForRegisterGroup");
 
         OfflineDeviceImpl offlineRtu = spy(new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider));
         when(offlineRtu.getAllRegisters()).thenReturn(Arrays.asList(offlineRegister1, offlineRegister2));
 
         // asserts
-        assertEquals("Should have gotten 1 registers", 1, offlineRtu.getRegistersForRegisterGroupAndMRID(Arrays.asList(rtuRegisterGroupId), comTaskExecution.getDevice().getmRID()).size());
+        assertEquals("Should have gotten 1 registers", 1, offlineRtu.getRegistersForRegisterGroupAndMRID(Arrays.asList(rtuRegisterGroupId), "getRegistersForRegisterGroup").size());
     }
 
     private RegisterSpec createMockedRegisterSpec(RegisterType registerType) {
