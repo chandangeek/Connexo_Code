@@ -1,0 +1,68 @@
+Ext.define('Dxp.view.tasks.AddReadingTypesToTaskSetup', {
+    extend: 'Uni.view.container.ContentContainer',
+    alias: 'widget.AddReadingTypesToTaskSetup',
+    itemId: 'AddReadingTypesToTaskSetup',
+    overflowY: true,
+
+    requires: [
+        'Uni.component.filter.view.FilterTopPanel',
+        'Dxp.view.tasks.AddReadingTypesToTaskBulk'
+//                'Cfg.view.validation.SideFilter'
+    ],
+
+//    side: [
+//        {
+//            xtype: 'cfg-side-filter'
+//        }
+//    ],
+
+    content: [
+        {
+            xtype: 'panel',
+            ui: 'large',
+            title: Uni.I18n.translate('validation.addReadingTypes', 'CFG', 'Add reading types'),
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
+            items: [
+//                {
+//                    title: Uni.I18n.translate('general.filter', 'CFG', 'Filter'),
+//                    xtype: 'filter-top-panel',
+//                    itemId: 'filterReadingTypes',
+//                    margin: '0 0 20 0',
+//                    name: 'filter',
+//                    emptyText: Uni.I18n.translate('general.none', 'CFG', 'None')
+//                },
+                {
+                    xtype: 'container',
+                    itemId: 'AddReadingTypesToTaskBulk'
+                },
+                {
+                    xtype: 'container',
+                    itemId: 'buttonsContainer',
+                    defaults: {
+                        xtype: 'button'
+                    },
+                    items: [
+                        {
+
+                            text: Uni.I18n.translate('general.add', 'CFG', 'Add'),
+                            name: 'add',
+                            ui: 'action'
+                        },
+                        {
+                            name: 'cancel',
+                            text: Uni.I18n.translate('general.add', 'CFG', 'Cancel'),
+                            ui: 'link'
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+
+    initComponent: function () {
+        this.callParent(arguments);
+    }
+});

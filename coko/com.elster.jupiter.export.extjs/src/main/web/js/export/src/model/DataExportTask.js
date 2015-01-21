@@ -17,7 +17,7 @@ Ext.define('Dxp.model.DataExportTask', {
                 if (data.lastRun && (data.lastRun !== 0)) {
                     result = moment(data.lastRun).format('ddd, DD MMM YYYY HH:mm:ss');
                 } else {
-                    result = ''
+                    result = '-'
                 }
                 return result;
             }
@@ -29,6 +29,7 @@ Ext.define('Dxp.model.DataExportTask', {
                 var result;
                 if (data.nextRun && (data.nextRun !== 0)) {
                     result = moment(data.nextRun).format('ddd, DD MMM YYYY HH:mm:ss');
+                    result = Uni.DateTime.formatDateTimeLong(new Date(data.nextRun));
                 } else {
                     result = Uni.I18n.translate('general.notScheduled', 'DES', 'Not scheduled')
                 }
@@ -42,7 +43,31 @@ Ext.define('Dxp.model.DataExportTask', {
                 if (data.lastExportOccurence && data.lastExportOccurence.status) {
                     return data.lastExportOccurence.status;
                 } else {
-                    return '-';
+                    return Uni.I18n.translate('general.notPerformed', 'DES', 'Not performed yet');
+                }
+            }
+        },
+        {
+            name: 'statusOnDate',
+            persist: false,
+            mapping: function (data) {
+                if (data.lastExportOccurence && data.lastExportOccurence.statusDate && data.lastExportOccurence.statusDate != 0) {
+                    return data.lastExportOccurence.statusPrefix + ' ' + moment(data.lastExportOccurence.statusDate).format('ddd, DD MMM YYYY HH:mm:ss');
+                } else if (data.lastExportOccurence) {
+                    return data.lastExportOccurence.statusPrefix
+                } else {
+                    return Uni.I18n.translate('general.notPerformed', 'DES', 'Not performed yet');
+                }
+            }
+        },
+        {
+            name: 'reason',
+            persist: false,
+            mapping: function (data) {
+                if (data.lastExportOccurence && data.lastExportOccurence.reason) {
+                    return data.lastExportOccurence.reason;
+                } else {
+                    return '';
                 }
             }
         },
@@ -53,7 +78,7 @@ Ext.define('Dxp.model.DataExportTask', {
                 if (data.lastExportOccurence && data.lastExportOccurence.trigger) {
                     return data.lastExportOccurence.trigger;
                 } else {
-                    return '-';
+                    return '-'
                 }
             }
         },
@@ -62,7 +87,7 @@ Ext.define('Dxp.model.DataExportTask', {
             persist: false,
             mapping: function (data) {
                 if (data.lastExportOccurence && data.lastExportOccurence.startedOn) {
-                    return moment(data.lastExportOccurence.startedOn).format('ddd, DD MMM YYYY HH:mm:ss');
+                    return Uni.DateTime.formatDateTimeLong(new Date(data.lastExportOccurence.startedOn));
                 } else {
                     return '-';
                 }
@@ -73,7 +98,7 @@ Ext.define('Dxp.model.DataExportTask', {
             persist: false,
             mapping: function (data) {
                 if (data.lastExportOccurence && data.lastExportOccurence.finishedOn) {
-                    return moment(data.lastExportOccurence.finishedOn).format('ddd, DD MMM YYYY HH:mm:ss');
+                    return Uni.DateTime.formatDateTimeLong(new Date(data.lastExportOccurence.finishedOn));
                 } else {
                     return '-';
                 }

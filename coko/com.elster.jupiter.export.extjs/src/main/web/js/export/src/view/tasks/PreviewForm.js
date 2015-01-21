@@ -85,11 +85,20 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.lastRun', 'DES', 'Last run'),
-                        name: 'lastRun_formatted'
+                        name: 'lastRun',
+                        renderer: function (value) {
+                            return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
+                        }
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.status', 'DES', 'Status'),
                         name: 'status'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.reason', 'DES', 'Reason'),
+                        itemId: 'reason-field',
+                        name: 'reason',
+                        hidden: true
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.startedOn', 'DES', 'Started on'),

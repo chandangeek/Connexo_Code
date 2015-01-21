@@ -21,20 +21,27 @@ Ext.define('Dxp.view.tasks.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.lastRun', 'DES', 'Last run'),
-                dataIndex: 'lastRun_formatted',
-                renderer: function (value, metaData, record) {
-                    if (value) {
-                        return record.get('status') + ' ' + Uni.I18n.translate('dataExportTasks.on', 'DES', 'on') + ' ' + value;
+                header: Uni.I18n.translate('general.status', 'DES', 'Status'),
+                dataIndex: 'lastExportOccurence',
+                renderer: function (value) {
+                    var result;
+                    if (value && value.statusDate && value.statusDate != 0) {
+                        result = value.statusPrefix + ' ' + Uni.DateTime.formatDateTimeShort(new Date(value.statusDate));
+                    } else if (value) {
+                        result = value.statusPrefix
                     } else {
-                        return Uni.I18n.translate('general.notPerformedYet', 'DES', 'Not performed yet')
+                        result = Uni.I18n.translate('general.notPerformed', 'DES', 'Not performed yet');
                     }
+                    return result;
                 },
                 flex: 1
             },
             {
                 header: Uni.I18n.translate('general.nextRun', 'DES', 'Next run'),
-                dataIndex: 'nextRun_formatted',
+                dataIndex: 'nextRun',
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : Uni.I18n.translate('general.notScheduled', 'DES', 'Not scheduled');
+                },
                 flex: 1
             },
             {

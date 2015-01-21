@@ -52,12 +52,18 @@ Ext.define('Dxp.view.tasks.HistoryFilterForm', {
                         {
                             xtype: 'date-time',
                             name: 'startedOnFrom',
-                            fieldLabel: Uni.I18n.translate('todo', 'DES', 'From')
+                            fieldLabel: Uni.I18n.translate('todo', 'DES', 'From'),
+                            dateConfig: {
+                                format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
+                            }
                         },
                         {
                             xtype: 'date-time',
                             name: 'startedOnTo',
-                            fieldLabel: Uni.I18n.translate('todo', 'DES', 'To')
+                            fieldLabel: Uni.I18n.translate('todo', 'DES', 'To'),
+                            dateConfig: {
+                                format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
+                            }
                         }
                     ]
                 },
@@ -78,7 +84,10 @@ Ext.define('Dxp.view.tasks.HistoryFilterForm', {
                             padding: 0,
                             marginBottom: '10px'
                         },
-                        getRawValue: true
+                        getRawValue: true,
+                        dateConfig: {
+                            format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
+                        }
                     },
                     items: [
                         {
@@ -103,13 +112,13 @@ Ext.define('Dxp.view.tasks.HistoryFilterForm', {
                     fieldLabel: Uni.I18n.translate('todo', 'DES', 'Export period contains'),
                     rawToValue: function (rawValue) {
                         if (rawValue) {
-                            var date = Ext.Date.parse(rawValue, 'd/m/Y');
+                            var date = Ext.Date.parse(rawValue, Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault));
                             if (date && Ext.isDate(date)) return date.getTime();
                         }
                         return null;
                     },
                     valueToRaw: function (value) {
-                        if (value) return Ext.util.Format.date(new Date(value), 'd/m/Y');
+                        if (value) return Uni.DateTime.formatDateShort(new Date(value));
                         return null;
                     }
                 }

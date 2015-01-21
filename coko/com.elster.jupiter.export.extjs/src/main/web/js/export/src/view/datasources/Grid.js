@@ -35,13 +35,16 @@ Ext.define('Dxp.view.datasources.Grid', {
                 dataIndex: 'lastRun',
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute('administration/dataexporttasks/dataexporttask/history/occurrence').buildUrl({occurrenceId: record.get('occurrenceId')});
-                    return '<a href="' + url + '">' + value + '</a>';
+                    return value ? '<a href="' + url + '">' + Uni.DateTime.formatDateTimeShort(value) + '</a>' : '';
                 },
                 flex: 1
             },
             {
                 header: Uni.I18n.translate('general.lastExportedDate', 'DES', 'Last exported date'),
                 dataIndex: 'lastExportedDate',
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                },
                 flex: 1
             }
         ];

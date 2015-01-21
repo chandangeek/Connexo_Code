@@ -4,11 +4,8 @@ Ext.define('Dxp.model.Log', {
         'loglevel', 'message',
         {
             name: 'timestamp',
-            mapping: function (data) {
-                if (data.timestamp) {
-                    return moment(data.timestamp).format('ddd, DD MMM YYYY HH:mm:ss');
-                }
-            }
+            dateFormat: 'time',
+            type: 'date'
         }
     ]
 });
