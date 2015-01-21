@@ -77,8 +77,8 @@ Ext.define('Dsh.controller.Connections', {
             'connections-details #communicationsdetails': {
                 selectionchange: this.onCommunicationSelectionChange
             },
-            'connections-details #connectionsActionMenu': {
-                afterrender: this.initConnectionMenu
+            '#connectionsActionMenu': {
+                show: this.initConnectionMenu
             },
             'connections-list #generate-report': {
                 click: this.onGenerateReport

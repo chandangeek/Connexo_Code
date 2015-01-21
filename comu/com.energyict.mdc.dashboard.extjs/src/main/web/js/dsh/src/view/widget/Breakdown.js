@@ -79,7 +79,8 @@ Ext.define('Dsh.view.widget.Breakdown', {
                 {property: 'displayName', direction: 'ASC'}
             ]);
 
-            var total = item.counters().first().get('total');
+            var first = item.counters().first();
+            var total = first ? first.get('total') : 0; //Avoid 'Cannot read property 'get' of undefined' error
             var panel = Ext.create('Ext.panel.Panel', {
                 ui: 'tile',
                 tbar: {

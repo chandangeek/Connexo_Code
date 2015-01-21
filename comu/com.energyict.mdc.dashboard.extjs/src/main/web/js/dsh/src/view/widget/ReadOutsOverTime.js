@@ -33,9 +33,18 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
             },
             {
                 xtype: 'container',
+                flex: 1,
                 hidden: true,
                 itemId: 'chart',
-                height: 400
+                height: 400,
+                listeners: {
+                    resize: {
+                        fn: function(el) {
+                            me.chart.setSize(Ext.getBody().getViewSize().width-100, 400);
+                            me.doLayout();
+                        }
+                    }
+                }
             }
         ];
 
@@ -89,6 +98,9 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                     type: 'spline',
                     zoomType: 'x',
                     renderTo: container.el.dom,
+                    reflow: false,
+                    width: Ext.getBody().getViewSize().width-100,
+                    height: 400,
                     events: {
                         load: function () {
                             $('#' + container.getId() + " .highcharts-legend").appendTo("#read-outs-legend-container");
