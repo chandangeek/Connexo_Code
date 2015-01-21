@@ -44,6 +44,7 @@ public final class Constants {
     public static final class User{
         public static final String MELISSA = "Melissa";
         public static final String SAM = "Sam";
+        public static final String MONICA = "Monica";
         public static final String PIETER = "Pieter";
         public static final String JOLIEN = "Jolien";
         public static final String INGE = "Inge";
@@ -137,6 +138,7 @@ public final class Constants {
 
     public static final class DeviceConfiguration{
         public static final String DEFAULT = "Default";
+        public static final String EXTENDED = "Extended";
 
         private DeviceConfiguration() {}
     }

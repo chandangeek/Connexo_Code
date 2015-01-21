@@ -29,7 +29,7 @@ public class UserFactory extends NamedFactory<UserFactory, User> {
         super(UserFactory.class);
         this.store = store;
         this.userService = userService;
-        this.password = "admin";
+        this.password = "D3moAdmin";
         this.description = "";
         this.language = Locale.ENGLISH.toLanguageTag();
     }

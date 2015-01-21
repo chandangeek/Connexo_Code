@@ -727,13 +727,14 @@ public class DemoServiceImpl implements DemoService {
         deviceType.addLogBookType(store.getLogBookTypes().get(Constants.LogBookType.GENERIC_LOGBOOK));
         deviceType.save();
 
-        createDeviceConfiguration(store, deviceType);
+        createDeviceConfiguration(store, deviceType, Constants.DeviceConfiguration.EXTENDED, false);
+        createDeviceConfiguration(store, deviceType, Constants.DeviceConfiguration.DEFAULT, true);
     }
 
-    private void createDeviceConfiguration(Store store, DeviceType deviceType) {
+    private void createDeviceConfiguration(Store store, DeviceType deviceType, String name, boolean hasDevices) {
         System.out.println("==> Creating Default Device Configuration...");
-        DeviceType.DeviceConfigurationBuilder configBuilder = deviceType.newConfiguration(Constants.DeviceConfiguration.DEFAULT);
-        configBuilder.description("Default configuration for device type: " + deviceType.getName());
+        DeviceType.DeviceConfigurationBuilder configBuilder = deviceType.newConfiguration(name);
+        configBuilder.description(name + " configuration for device type: " + deviceType.getName());
         configBuilder.canActAsGateway(true);
         configBuilder.gatewayType(GatewayType.HOME_AREA_NETWORK);
         configBuilder.isDirectlyAddressable(true);
@@ -759,7 +760,9 @@ public class DemoServiceImpl implements DemoService {
         configureChannelsForLoadProfileSpec(configuration);
         configuration.activate();
         configuration.save();
-        createDevicesForDeviceConfiguration(store, configuration);
+        if (hasDevices){
+            createDevicesForDeviceConfiguration(store, configuration);
+        }
     }
 
     /**
@@ -898,6 +901,7 @@ public class DemoServiceImpl implements DemoService {
     public void createUserManagementImpl(){
         injector.getInstance(UserFactory.class).withName(Constants.User.MELISSA).withRoles(Constants.UserRoles.METER_EXPERT).get();
         injector.getInstance(UserFactory.class).withName(Constants.User.SAM).withLanguage(Locale.US.toLanguageTag()).withRoles(Constants.UserRoles.ADMINISTRATORS).get();
+        injector.getInstance(UserFactory.class).withName(Constants.User.MONICA).withRoles(Constants.UserRoles.METER_OPERATOR).get();
         injector.getInstance(UserFactory.class).withName(Constants.User.PIETER).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
         injector.getInstance(UserFactory.class).withName(Constants.User.JOLIEN).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
         injector.getInstance(UserFactory.class).withName(Constants.User.INGE).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
@@ -907,7 +911,9 @@ public class DemoServiceImpl implements DemoService {
         injector.getInstance(UserFactory.class).withName(Constants.User.KURT).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
         injector.getInstance(UserFactory.class).withName(Constants.User.EDUARDO).withLanguage(Locale.US.toLanguageTag()).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
         injector.getInstance(UserFactory.class).withName(Constants.User.BOB).withLanguage(Locale.US.toLanguageTag()).withRoles(Constants.UserRoles.ADMINISTRATORS, Constants.UserRoles.METER_EXPERT, Constants.UserRoles.METER_OPERATOR).get();
-
+        User admin = userService.findUser("admin").get();
+        admin.setPassword("D3moAdmin");
+        admin.save();
     }
 
     public void createValidationSetupImpl(){
@@ -921,6 +927,9 @@ public class DemoServiceImpl implements DemoService {
         }
         List<DeviceConfiguration> configurations = deviceConfigurationService.getLinkableDeviceConfigurations(ruleSet);
         for (DeviceConfiguration configuration : configurations) {
+            if (configuration.getName().equals(Constants.DeviceConfiguration.DEFAULT)){
+                continue;
+            }
             System.out.println("==> Validation rule set added to: " + configuration.getName() + " (id = " + configuration.getId() + ")");
             configuration.addValidationRuleSet(ruleSet);
             configuration.save();
@@ -1028,7 +1037,7 @@ public class DemoServiceImpl implements DemoService {
             throw new UnableToCreate("Unable to find corresponding device type with name: " + deviceTypeName);
         }
         Optional<DeviceConfiguration> deviceConfiguration = deviceTypeByName.get().getConfigurations().stream().filter(dc -> {
-            String deviceConfigName = Constants.DeviceConfiguration.DEFAULT;
+            String deviceConfigName = Constants.Device.MOCKED_VALIDATION_DEVICE.equals(prefix) ? Constants.DeviceConfiguration.EXTENDED : Constants.DeviceConfiguration.DEFAULT;
             return dc.getName().equals(deviceConfigName);
         }).findFirst();
         if (!deviceConfiguration.isPresent()){
