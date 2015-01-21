@@ -17,7 +17,8 @@ Ext.define('Uni.model.PortalItem', {
         'portal',
         'index',
         'items',
-        'itemId'
+        'itemId',
+        'afterrender'
     ],
     proxy: {
         type: 'memory'

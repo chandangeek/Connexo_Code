@@ -22,7 +22,7 @@ Ext.define('Uni.controller.Session', {
             method: 'GET',
             async: false,
             success: function (response) {
-                var backEndTimeout = JSON.parse(response.responseText).sessionTimeOut
+                var backEndTimeout = JSON.parse(response.responseText).sessionTimeOut;
                 me.maxInactive = (backEndTimeout-backEndTimeout/10)*1000;
             },
             failure: function () {
