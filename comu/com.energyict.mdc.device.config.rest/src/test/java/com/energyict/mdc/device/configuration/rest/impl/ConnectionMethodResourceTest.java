@@ -10,9 +10,11 @@ import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -38,13 +40,14 @@ import static org.mockito.Mockito.when;
 
 public class ConnectionMethodResourceTest extends DeviceConfigurationApplicationJerseyTest {
 
-    private PartialInboundConnectionTask partialConnectionTask;
+    private PartialInboundConnectionTask partialInboundConnectionTask;
+    private PartialScheduledConnectionTask partialScheduledConnectionTask;
 
     @Test
     public void testGetConnectionMethod() throws Exception {
         String response = target("/devicetypes/11/deviceconfigurations/12/connectionmethods").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(response);
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(2);
     }
 
     @Test
@@ -58,7 +61,7 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         Response response = target("/devicetypes/11/deviceconfigurations/12/connectionmethods/13").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ArgumentCaptor<InboundComPortPool> comPortPoolArgumentCaptor = ArgumentCaptor.forClass(InboundComPortPool.class);
-        verify(partialConnectionTask).setComportPool(comPortPoolArgumentCaptor.capture());
+        verify(partialInboundConnectionTask).setComportPool(comPortPoolArgumentCaptor.capture());
         assertThat(comPortPoolArgumentCaptor.getValue()).isNull();
     }
 
@@ -88,14 +91,30 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         assertThat(jsonModel.<String>get("$.errors[0].msg")).isEqualTo("Invalid value");
     }
 
+    @Test
+    public void testUpdateScheduledConnectionMethodSetComPortPoolToNull() throws Exception {
+        ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
+        info.name = "name";
+        info.comPortPool = null; // should be set to null
+        info.comWindowStart = 6;
+        info.comWindowEnd = 12;
+        info.connectionTypePluggableClass = "pluggableClass";
+        Response response = target("/devicetypes/11/deviceconfigurations/12/connectionmethods/14").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        ArgumentCaptor<OutboundComPortPool> comPortPoolArgumentCaptor = ArgumentCaptor.forClass(OutboundComPortPool.class);
+        verify(partialScheduledConnectionTask).setComportPool(comPortPoolArgumentCaptor.capture());
+        assertThat(comPortPoolArgumentCaptor.getValue()).isNull();
+    }
+
     @Before
     public void setup() {
         DeviceType deviceType = mockDeviceType("device", 11);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration("config", 12);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
-        partialConnectionTask = mockPartialInboundConnectionTask(13L, "partial inbound");
-        when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask));
+        partialInboundConnectionTask = mockPartialInboundConnectionTask(13L, "partial inbound");
+        partialScheduledConnectionTask = mockPartialScheduledConnectionTask(14L, "partial scheduled");
+        when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialInboundConnectionTask, partialScheduledConnectionTask));
 
     }
 
@@ -127,6 +146,25 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         when(protocolPluggableService.findConnectionTypePluggableClassByName("pluggableClass")).thenReturn(Optional.of(pluggableClass));
         when(deviceConfigurationService.getPartialConnectionTask(id)).thenReturn(Optional.of(partialConnectionTask));
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
+        when(comPortPool.getName()).thenReturn("com port pool");
+        when(partialConnectionTask.getComPortPool()).thenReturn(comPortPool);
+        when(partialConnectionTask.getPluggableClass()).thenReturn(pluggableClass);
+        return partialConnectionTask;
+    }
+
+    private PartialScheduledConnectionTask mockPartialScheduledConnectionTask(long id, String name) {
+        PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
+        when(partialConnectionTask.getId()).thenReturn(id);
+        when(partialConnectionTask.getName()).thenReturn(name);
+        ConnectionType connectionType = mock(ConnectionType.class);
+        when(connectionType.getPropertySpecs()).thenReturn(Collections.emptyList());
+        when(partialConnectionTask.getTypedProperties()).thenReturn(TypedProperties.empty());
+        when(partialConnectionTask.getConnectionType()).thenReturn(connectionType);
+        ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
+        when(pluggableClass.getName()).thenReturn("pluggableClass");
+        when(protocolPluggableService.findConnectionTypePluggableClassByName("pluggableClass")).thenReturn(Optional.of(pluggableClass));
+        when(deviceConfigurationService.getPartialConnectionTask(id)).thenReturn(Optional.of(partialConnectionTask));
+        OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
         when(comPortPool.getName()).thenReturn("com port pool");
         when(partialConnectionTask.getComPortPool()).thenReturn(comPortPool);
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggableClass);
