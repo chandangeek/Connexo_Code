@@ -2,8 +2,8 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 
 import com.elster.jupiter.util.time.StopWatch;
 
@@ -115,7 +115,7 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     public String toJournalMessageDescription(ComServer.LogLevel serverLogLevel) {
         DescriptionBuilder builder = new DescriptionBuilderImpl(this);
         if (this.createComSessionDeviceCommand != null) {
-            builder.addProperty("connectionTaskID").append(this.createComSessionDeviceCommand.getComSessionBuilder().getConnectionTask().getId());
+            builder.addProperty("connectionTaskID").append(this.createComSessionDeviceCommand.getConnectionTask().getId());
         }
         else {
             builder.addProperty("connectionTaskID").append("");

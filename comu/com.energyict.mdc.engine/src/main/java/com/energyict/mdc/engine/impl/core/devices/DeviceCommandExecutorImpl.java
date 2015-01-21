@@ -69,11 +69,11 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
         this.clock = clock;
         this.eventPublisher = eventPublisher;
         this.workQueue = new WorkQueue(queueCapacity);
+        this.name = "Device command executor for " + comServerName;
         this.threadFactory = new PriorityConfigurableThreadFactory(threadFactory, threadPriority, name);
         this.numberOfThreads = numberOfThreads;
         this.logLevel = logLevel;
         this.comServerDAO = comServerDAO;
-        this.name = "Device command executor for " + comServerName;
         this.threadPrincipalService = threadPrincipalService;
         this.userService = userService;
         this.initializeLogging();

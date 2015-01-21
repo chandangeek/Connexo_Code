@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 
@@ -16,6 +17,8 @@ import com.elster.jupiter.util.time.StopWatch;
 public interface CreateComSessionDeviceCommand extends DeviceCommand, DeviceCommand.ExecutionLogger, CanProvideDescriptionTitle {
 
     public ComSessionBuilder getComSessionBuilder();
+
+    public ConnectionTask getConnectionTask();
 
     public ComSession getComSession();
 

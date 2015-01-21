@@ -53,8 +53,11 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
     public void testToJournalMessageDescription () {
         ClockCommand clockCommand = mock(ClockCommand.class);
         ClockTask clockTask = mock(ClockTask.class);
+        when(clockTask.getMinimumClockDifference()).thenReturn(Optional.empty());
+        when(clockTask.getMaximumClockDifference()).thenReturn(Optional.empty());
         when(clockTask.getMaximumClockShift()).thenReturn(Optional.of(new TimeDuration(111)));
         when(clockCommand.getClockTask()).thenReturn(clockTask);
+        when(clockCommand.getTimeDifference()).thenReturn(Optional.empty());
         CommandRoot commandRoot = mock(CommandRoot.class);
         CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
         IssueService issueService = executionContextServiceProvider.issueService();
@@ -64,7 +67,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
         when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
         SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
-        assertThat(command.toJournalMessageDescription(LogLevel.ERROR)).contains("{maximumClockShift: 111 seconds}");
+        assertThat(command.toJournalMessageDescription(LogLevel.DEBUG)).contains("maximumClockShift: 111 seconds");
     }
 
     @Test

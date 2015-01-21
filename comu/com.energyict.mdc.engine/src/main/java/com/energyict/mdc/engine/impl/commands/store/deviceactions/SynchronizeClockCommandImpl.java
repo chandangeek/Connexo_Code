@@ -15,6 +15,7 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 import java.text.MessageFormat;
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * Command to synchronize the clock based on a maximum clock shift.
@@ -49,15 +50,33 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
     @Override
     protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
-        builder.addProperty("maximumClockShift").append(this.clockCommand.getClockTask().getMaximumClockShift().map(TimeDuration::toString).orElse(""));
+        if (isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG)) {
+            this.getMinimumClockDifference().ifPresent(cd -> builder.addProperty("minimumDifference").append(cd));
+            this.getMaximumClockDifference().ifPresent(cd -> builder.addProperty("maximumDifference").append(cd));
+            this.getMaximumClockShift().ifPresent(cs -> builder.addProperty("maximumClockShift").append(cs));
+            this.getTimeDifference().ifPresent(td -> builder.addProperty("timeDifference").append(td));
+        }
         if (this.timeSet != null && this.isJournalingLevelEnabled(serverLogLevel, LogLevel.INFO)) {
-            builder.addLabel(MessageFormat.format("Time was forcefully set to {0}", this.timeSet));
+            builder.addLabel(MessageFormat.format("Time was forcefully set to {0,date,yyyy-MM-dd HH:mm:ss}", this.timeSet));
         }
     }
 
-    /**
-     * Perform the actions which are owned by this ComCommand
-     */
+    private Optional<TimeDuration> getMinimumClockDifference() {
+        return clockCommand.getClockTask().getMinimumClockDifference();
+    }
+
+    private Optional<TimeDuration> getMaximumClockDifference() {
+        return clockCommand.getClockTask().getMaximumClockDifference();
+    }
+
+    private Optional<TimeDuration> getMaximumClockShift() {
+        return clockCommand.getClockTask().getMaximumClockShift();
+    }
+
+    private Optional<TimeDuration> getTimeDifference() {
+        return clockCommand.getTimeDifference();
+    }
+
     public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         long timeDifference = clockCommand.getTimeDifference().orElse(TimeDuration.TimeUnit.MILLISECONDS.during(0)).getMilliSeconds();
         if (Math.abs(timeDifference) <= clockCommand.getClockTask().getMaximumClockDifference().map(TimeDuration::getMilliSeconds).orElse(0L)){
