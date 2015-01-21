@@ -9,12 +9,14 @@ public interface DeviceProtocolCache extends Serializable {
 
     /**
      * Indicates that the content of this object changed during a communication session with a device.
-     * The ComServer will use this as an argument to update the content in the DataBase.
+     * The ComServer will use this when deciding to update the content in the DataBase or not.
      *
      * @return true if the content changed, false otherwise
      */
-    public boolean contentChanged();
+    public boolean isDirty();
 
-    public void setChanged(boolean flag);
+    public void markClean();
+
+    public void markDirty();
 
 }

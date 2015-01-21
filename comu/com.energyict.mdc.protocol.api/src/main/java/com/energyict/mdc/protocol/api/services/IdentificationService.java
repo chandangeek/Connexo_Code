@@ -22,6 +22,8 @@ public interface IdentificationService {
 
     DeviceIdentifier createDeviceIdentifierBySerialNumber(String serialNumber);
 
+    DeviceIdentifier createDeviceIdentifierByCallHomeId(String serialNumber);
+
     DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(BaseDevice device);
 
     DeviceIdentifier createDeviceIdentifierByProperty(String propertyName, String propertyValue);
