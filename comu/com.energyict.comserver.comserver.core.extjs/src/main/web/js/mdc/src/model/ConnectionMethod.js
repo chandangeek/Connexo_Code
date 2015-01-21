@@ -34,6 +34,10 @@ Ext.define('Mdc.model.ConnectionMethod', {
     ],
     proxy: {
         type: 'rest',
-        url: '../../api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/connectionmethods'
+        url: '../../api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/connectionmethods',
+        reader: {
+            type: 'json'
+        }
     }
+
 });
