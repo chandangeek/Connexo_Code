@@ -21,7 +21,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -33,7 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -100,13 +99,13 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         loadProfileCommand.addLoadProfileToReaderList(loadProfile);
 
         // Asserts
-        assertNotNull(loadProfileCommand.getLoadProfileReaders());
-        assertEquals("Expect 1 element in the list", 1, loadProfileCommand.getLoadProfileReaders().size());
+        assertThat(loadProfileCommand.getLoadProfileReaders()).isNotNull();
+        assertThat(loadProfileCommand.getLoadProfileReaders()).hasSize(1);
         LoadProfileReader loadProfileReader = loadProfileCommand.getLoadProfileReaders().get(0);
-        Assert.assertEquals(FIXED_LOAD_PROFILE_OBIS_CODE, loadProfileReader.getProfileObisCode());
-        Assert.assertEquals(FIXED_DEVICE_SERIAL_NUMBER, loadProfileReader.getDeviceIdentifier().getIdentifier());
-        Assert.assertEquals(LAST_READING, loadProfileReader.getStartReadingTime());
-        assertNotNull(loadProfileReader.getEndReadingTime());
+        assertThat(loadProfileReader.getProfileObisCode()).isEqualTo(FIXED_LOAD_PROFILE_OBIS_CODE);
+        assertThat(loadProfileReader.getDeviceIdentifier().getIdentifier()).isEqualTo(FIXED_DEVICE_SERIAL_NUMBER);
+        assertThat(loadProfileReader.getStartReadingTime()).isEqualTo(LAST_READING);
+        assertThat(loadProfileReader.getEndReadingTime()).isNotNull();
     }
 
     @Test
@@ -117,11 +116,11 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         LoadProfileCommandImpl loadProfileCommand = new LoadProfileCommandImpl(loadProfilesTask, mock(OfflineDevice.class), commandRoot, comTaskExecution);
 
         // asserts
-        assertNotNull(loadProfileCommand.getVerifyLoadProfilesCommand());
-        assertNull(loadProfileCommand.getMarkIntervalsAsBadTimeCommand());
-        assertNull(loadProfileCommand.getCreateMeterEventsFromStatusFlagsCommand());
-        assertNull(loadProfileCommand.getTimeDifferenceCommand());
-        assertNotNull(loadProfileCommand.getReadLoadProfileDataCommand());
+        assertThat(loadProfileCommand.getVerifyLoadProfilesCommand()).isNotNull();
+        assertThat(loadProfileCommand.getMarkIntervalsAsBadTimeCommand()).isNull();
+        assertThat(loadProfileCommand.getCreateMeterEventsFromStatusFlagsCommand()).isNull();
+        assertThat(loadProfileCommand.getTimeDifferenceCommand()).isNull();
+        assertThat(loadProfileCommand.getReadLoadProfileDataCommand()).isNotNull();
     }
 
     @Test
@@ -132,11 +131,11 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         LoadProfileCommandImpl loadProfileCommand = new LoadProfileCommandImpl(loadProfilesTask, mock(OfflineDevice.class), commandRoot, comTaskExecution);
 
         // asserts
-        assertNotNull(loadProfileCommand.getVerifyLoadProfilesCommand());
-        assertNull(loadProfileCommand.getMarkIntervalsAsBadTimeCommand());
-        assertNotNull(loadProfileCommand.getCreateMeterEventsFromStatusFlagsCommand());
-        assertNull(loadProfileCommand.getTimeDifferenceCommand());
-        assertNotNull(loadProfileCommand.getReadLoadProfileDataCommand());
+        assertThat(loadProfileCommand.getVerifyLoadProfilesCommand()).isNotNull();
+        assertThat(loadProfileCommand.getMarkIntervalsAsBadTimeCommand()).isNull();
+        assertThat(loadProfileCommand.getCreateMeterEventsFromStatusFlagsCommand()).isNotNull();
+        assertThat(loadProfileCommand.getTimeDifferenceCommand()).isNull();
+        assertThat(loadProfileCommand.getReadLoadProfileDataCommand()).isNotNull();
     }
 
     @Test
@@ -147,11 +146,11 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         LoadProfileCommandImpl loadProfileCommand = new LoadProfileCommandImpl(loadProfilesTask, mock(OfflineDevice.class), commandRoot, comTaskExecution);
 
         // asserts
-        assertNotNull(loadProfileCommand.getVerifyLoadProfilesCommand());
-        assertNotNull(loadProfileCommand.getMarkIntervalsAsBadTimeCommand());
-        assertNull(loadProfileCommand.getCreateMeterEventsFromStatusFlagsCommand());
-        assertNotNull(loadProfileCommand.getTimeDifferenceCommand());
-        assertNotNull(loadProfileCommand.getReadLoadProfileDataCommand());
+        assertThat(loadProfileCommand.getVerifyLoadProfilesCommand()).isNotNull();
+        assertThat(loadProfileCommand.getMarkIntervalsAsBadTimeCommand()).isNotNull();
+        assertThat(loadProfileCommand.getCreateMeterEventsFromStatusFlagsCommand()).isNull();
+        assertThat(loadProfileCommand.getTimeDifferenceCommand()).isNotNull();
+        assertThat(loadProfileCommand.getReadLoadProfileDataCommand()).isNotNull();
     }
 
     @Test
@@ -175,10 +174,10 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         //loadProfileCommand.createLoadProfileReaders(offlineDevice);
 
         // Asserts
-        assertNotNull(loadProfileCommand.getLoadProfileReaderMap());
-        assertEquals("Expected 4 readers in the map", 4, loadProfileCommand.getLoadProfileReaderMap().size());
-        assertNotNull(loadProfileCommand.getLoadProfileReaders());
-        assertEquals("Expected 4 readers", 4, loadProfileCommand.getLoadProfileReaders().size());
+        assertThat(loadProfileCommand.getLoadProfileReaderMap()).isNotNull();
+        assertThat(loadProfileCommand.getLoadProfileReaderMap()).hasSize(4);
+        assertThat(loadProfileCommand.getLoadProfileReaders()).isNotNull();
+        assertThat(loadProfileCommand.getLoadProfileReaders()).hasSize(4);
     }
 
     @Test
@@ -208,11 +207,11 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         LoadProfileCommandImpl loadProfileCommand = new LoadProfileCommandImpl(loadProfilesTask, offlineDevice, commandRoot, comTaskExecution);
 
         // Asserts
-        assertNotNull(loadProfileCommand.getLoadProfileReaderMap());
-        assertEquals("Expected 2 readers in the map", 2, loadProfileCommand.getLoadProfileReaderMap().size());
-        assertNotNull(loadProfileCommand.getLoadProfileReaders());
-        assertEquals("Expected 2 readers", 2, loadProfileCommand.getLoadProfileReaders().size());
-        assertEquals("LoadProfileCommandImpl {loadProfileObisCodes: 1.0.99.1.0.255; markAsBadTime: false; createEventsFromStatusFlag: false}", loadProfileCommand.toJournalMessageDescription(LogLevel.ERROR));
+        assertThat(loadProfileCommand.getLoadProfileReaderMap()).isNotNull();
+        assertThat(loadProfileCommand.getLoadProfileReaderMap()).hasSize(2);
+        assertThat(loadProfileCommand.getLoadProfileReaders()).isNotNull();
+        assertThat(loadProfileCommand.getLoadProfileReaders()).hasSize(2);
+        assertThat(loadProfileCommand.toJournalMessageDescription(LogLevel.ERROR)).contains("{loadProfileObisCodes: 1.0.99.1.0.255; markAsBadTime: false; createEventsFromStatusFlag: false}");
     }
 
     @Test
@@ -242,7 +241,7 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         loadProfileCommand.removeIncorrectLoadProfileReaders(readersToRemove);
 
         // Asserts
-        assertEquals("Expected only two readers left", 2, loadProfileCommand.getLoadProfileReaders().size());
+        assertThat(loadProfileCommand.getLoadProfileReaders()).hasSize(2);
     }
 
     @Test
@@ -253,7 +252,7 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         LoadProfileReader loadProfileReader = mock(LoadProfileReader.class);
 
         // Asserts
-        assertEquals("Should not have found the LoadProfileReader", LoadProfileCommand.INVALID_LOAD_PROFILE_INTERVAL, loadProfileCommand.findLoadProfileIntervalForLoadProfileReader(loadProfileReader));
+        assertThat(loadProfileCommand.findLoadProfileIntervalForLoadProfileReader(loadProfileReader)).isEqualTo(LoadProfileCommand.INVALID_LOAD_PROFILE_INTERVAL);
     }
 
     @Test
@@ -279,7 +278,9 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         // Asserts
         int count = 0;
         for (LoadProfileReader loadProfileReader : loadProfileCommand.getLoadProfileReaders()) {
-            assertEquals("Expected reader " + count++ + " to have a correct interval", FIXED_LOAD_PROFILE_INTERVAL.getSeconds(), loadProfileCommand.findLoadProfileIntervalForLoadProfileReader(loadProfileReader));
+            assertThat(loadProfileCommand.findLoadProfileIntervalForLoadProfileReader(loadProfileReader))
+                .as("Expected reader " + count++ + " to have a correct interval")
+                .isEqualTo(FIXED_LOAD_PROFILE_INTERVAL.getSeconds());
         }
     }
 
@@ -300,15 +301,15 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
 
         // Asserts
         List<ChannelInfo> channelInfos = loadProfileCommand.createChannelInfos(offlineLoadProfile);
-        assertNotNull(channelInfos);
-        assertEquals("Expected three channels", 3, channelInfos.size());
+        assertThat(channelInfos).isNotNull();
+        assertThat(channelInfos).hasSize(3);
 
         int count = 0;
         for (ChannelInfo channelInfo : channelInfos) {
-            Assert.assertEquals(channelInfo.getId(), count);
-            Assert.assertEquals(channelInfo.getName(), channelObisCodes[count++].toString());
-            Assert.assertEquals(channelInfo.getUnit(), FIXED_CHANNEL_UNIT);
-            Assert.assertEquals(channelInfo.getMeterIdentifier(), FIXED_DEVICE_SERIAL_NUMBER);
+            assertThat(count).isEqualTo(channelInfo.getId());
+            assertThat(channelObisCodes[count++].toString()).isEqualTo(channelInfo.getName());
+            assertThat(FIXED_CHANNEL_UNIT).isEqualTo(channelInfo.getUnit());
+            assertThat(FIXED_DEVICE_SERIAL_NUMBER).isEqualTo(channelInfo.getMeterIdentifier());
         }
     }
 
@@ -322,13 +323,13 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         LoadProfileCommand loadProfileCommand = commandRoot.getLoadProfileCommand(loadProfilesTask, commandRoot, comTaskExecution);
 
         // Asserts
-        Assert.assertEquals("Expected 5 subCommands in the command list of the LoadProfileCommand", 5, loadProfileCommand.getCommands().size());
-        Assert.assertEquals("The commandRoot should only contain 1 command, the LoadProfileCommand", 1, commandRoot.getCommands().size());
-        assertTrue("The first command should be the verifyLoadProfileCommand", loadProfileCommand.getCommands().values().toArray()[0] instanceof VerifyLoadProfilesCommandImpl);
-        assertTrue("The second command should be the readLoadProfileDataCommand", loadProfileCommand.getCommands().values().toArray()[1] instanceof ReadLoadProfileDataCommand);
-        assertTrue("The third command should be the timeDifferenceCommand", loadProfileCommand.getCommands().values().toArray()[2] instanceof TimeDifferenceCommand);
-        assertTrue("The fourth command should be the markIntervalsAsBadTimeCommand", loadProfileCommand.getCommands().values().toArray()[3] instanceof MarkIntervalsAsBadTimeCommand);
-        assertTrue("The fifth command should be the createMeterEventsCommand", loadProfileCommand.getCommands().values().toArray()[4] instanceof CreateMeterEventsFromStatusFlagsCommand);
+        assertThat(loadProfileCommand.getCommands()).hasSize(5);
+        assertThat(commandRoot.getCommands()).hasSize(1);
+        assertThat(loadProfileCommand.getCommands().values().toArray()[0]).isInstanceOf(VerifyLoadProfilesCommandImpl.class);
+        assertThat(loadProfileCommand.getCommands().values().toArray()[1]).isInstanceOf(ReadLoadProfileDataCommand.class);
+        assertThat(loadProfileCommand.getCommands().values().toArray()[2]).isInstanceOf(TimeDifferenceCommand.class);
+        assertThat(loadProfileCommand.getCommands().values().toArray()[3]).isInstanceOf(MarkIntervalsAsBadTimeCommand.class);
+        assertThat(loadProfileCommand.getCommands().values().toArray()[4]).isInstanceOf(CreateMeterEventsFromStatusFlagsCommand.class);
     }
 
     private static OfflineLoadProfileChannel createMockedOfflineLoadProfileChannel(final ObisCode obisCode) {

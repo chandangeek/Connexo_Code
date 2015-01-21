@@ -182,6 +182,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
             Serializable cacheObject = deviceProtocolCache.get().getSimpleCacheObject();
             if (cacheObject instanceof DeviceProtocolCache) {
                 this.deviceProtocolCache = (DeviceProtocolCache) cacheObject;
+                this.deviceProtocolCache.markClean(); // Cache is loaded from DB, so make sure it is marked clean, i.e. not dirty or changed
             }
         }
     }

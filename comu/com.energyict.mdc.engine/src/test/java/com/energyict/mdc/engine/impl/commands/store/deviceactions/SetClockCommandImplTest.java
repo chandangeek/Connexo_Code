@@ -10,7 +10,7 @@ import java.util.Optional;
 
 import org.junit.Test;
 
-import static junit.framework.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -32,7 +32,7 @@ public class SetClockCommandImplTest {
         when(clockCommand.getClockTask()).thenReturn(clockTask);
 
         SetClockCommandImpl setClockCommand = new SetClockCommandImpl(clockCommand, commandRoot, null);
-        assertEquals("SetClockCommandImpl {minimumDifference: 10s; maximumDifference: 100s}", setClockCommand.toJournalMessageDescription(LogLevel.ERROR));
+        assertThat(setClockCommand.toJournalMessageDescription(LogLevel.ERROR)).contains("{minimumDifference: 10s; maximumDifference: 100s}");
     }
 
 }

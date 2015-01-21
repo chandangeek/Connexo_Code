@@ -71,7 +71,7 @@ public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTest
         MarkIntervalsAsBadTimeCommand markIntervalsAsBadTimeCommand = commandRoot.getMarkIntervalsAsBadTimeCommand(loadProfileCommand, comTaskExecution);
         loadProfileCommand.addCollectedDataItem(createDeviceCollectedLoadProfile());
         markIntervalsAsBadTimeCommand.execute(deviceProtocol, this.newTestExecutionContext());
-        assertThat(markIntervalsAsBadTimeCommand.toJournalMessageDescription(LogLevel.ERROR)).startsWith("MarkIntervalsAsBadTimeCommandImpl {minimumClockDifference: 1 minutes");
+        assertThat(markIntervalsAsBadTimeCommand.toJournalMessageDescription(LogLevel.ERROR)).contains("{minimumClockDifference: 1 minutes");
 
         // asserts
         assertNotNull(loadProfileCommand.getCollectedData());

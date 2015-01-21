@@ -75,6 +75,11 @@ public class SetClockCommandImpl extends SimpleComCommand implements SetClockCom
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Set the device time";
+    }
+
+    @Override
     protected LogLevel defaultJournalingLogLevel () {
         return LogLevel.INFO;
     }

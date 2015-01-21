@@ -40,4 +40,9 @@ public class DeviceProtocolSetCacheCommand extends SimpleComCommand {
         return LogLevel.DEBUG;
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "Load the device protocol cache";
+    }
+
 }

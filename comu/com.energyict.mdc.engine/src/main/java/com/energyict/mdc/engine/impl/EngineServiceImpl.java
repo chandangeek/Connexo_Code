@@ -387,6 +387,14 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         }
 
         @Override
+        public DeviceIdentifier createDeviceIdentifierByCallHomeId(String serialNumber) {
+            return this.identificationService
+                    .get()
+                    .map(s -> s.createDeviceIdentifierByCallHomeId(serialNumber))
+                    .orElseThrow(IdentificationServiceMissingException::new);
+        }
+
+        @Override
         public DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(BaseDevice device) {
             return this.identificationService
                     .get()

@@ -56,6 +56,11 @@ public class HandHeldUnitEnablerCommand extends SimpleComCommand {
         return ComCommandTypes.HAND_HELD_UNIT_ENABLER;
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "Hand-held unit sign-on";
+    }
+
     protected LogLevel defaultJournalingLogLevel () {
         return LogLevel.DEBUG;
     }

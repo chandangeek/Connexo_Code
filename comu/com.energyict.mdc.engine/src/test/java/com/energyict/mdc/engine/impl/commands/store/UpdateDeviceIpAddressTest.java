@@ -37,7 +37,7 @@ public class UpdateDeviceIpAddressTest {
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).isEqualTo(UpdateDeviceIpAddress.class.getSimpleName() + " {deviceIdentifier: id 1; IP address: 10.0.1.50:4059}");
+        assertThat(journalMessage).contains("{deviceIdentifier: id 1; IP address: 10.0.1.50:4059}");
     }
 
 }

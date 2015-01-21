@@ -139,8 +139,7 @@ public class CreateInboundComSessionTest {
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);
 
         // Asserts
-        assertThat(journalMessage).isEqualTo(CreateInboundComSession.class.getSimpleName() +
-                " {indicator: Success; connectionTaskId: 1; comPortId: 2; number of tasks: 0; number of journal entries: 0}");
+        assertThat(journalMessage).contains("{indicator: Success; connectionTaskId: 1; comPortId: 2; number of tasks: 0; number of journal entries: 0}");
     }
 
     private class MockedComServerDAOFailure extends RuntimeException {

@@ -51,7 +51,7 @@ public class TopologyCommandImplTest extends CommonCommandImplTests {
         assertThat(topologyCommand.getCollectedData()).hasSize(1);
         CollectedData collectedData = topologyCommand.getCollectedData().get(0);
         assertThat(collectedData).isInstanceOf(CollectedTopology.class);
-        assertThat(topologyCommand.toJournalMessageDescription(LogLevel.ERROR)).isEqualTo("TopologyCommandImpl {topologyAction: UPDATE}");
+        assertThat(topologyCommand.toJournalMessageDescription(LogLevel.ERROR)).contains("{topologyAction: UPDATE}");
     }
 
     @Test
@@ -68,7 +68,7 @@ public class TopologyCommandImplTest extends CommonCommandImplTests {
 
         // Asserts
         assertThat(description).isNotNull();
-        assertThat(description).isEqualTo("TopologyCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; nrOfWarnings: 0; nrOfProblems: 0; topologyAction: UPDATE}");
+        assertThat(description).contains("{executionState: NOT_EXECUTED; completionCode: Ok; nrOfWarnings: 0; nrOfProblems: 0; topologyAction: UPDATE}");
     }
 
 }

@@ -326,4 +326,11 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
             builder.addProperty("deviceIdentifier").append(this.deviceTopology.getDeviceIdentifier());
         }
     }
+
+
+    @Override
+    public String getDescriptionTitle() {
+        return "Collected device topology";
+    }
+
 }

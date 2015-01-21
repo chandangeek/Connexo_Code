@@ -45,6 +45,11 @@ public class DeviceProtocolUpdateCacheCommand extends SimpleComCommand {
         return ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND;
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "Update the stored device cache";
+    }
+
     protected LogLevel defaultJournalingLogLevel() {
         return LogLevel.DEBUG;
     }

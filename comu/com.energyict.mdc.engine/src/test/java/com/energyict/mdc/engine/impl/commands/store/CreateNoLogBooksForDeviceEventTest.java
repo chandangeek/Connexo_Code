@@ -33,7 +33,7 @@ public class CreateNoLogBooksForDeviceEventTest {
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).isEqualTo(CreateNoLogBooksForDeviceEvent.class.getSimpleName() + " {deviceIdentifier: id 97}");
+        assertThat(journalMessage).contains("{deviceIdentifier: id 97}");
     }
 
 }

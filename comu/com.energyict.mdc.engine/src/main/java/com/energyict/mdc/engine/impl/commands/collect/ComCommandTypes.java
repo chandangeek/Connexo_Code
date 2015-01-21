@@ -229,14 +229,18 @@ public enum ComCommandTypes implements ComCommandType {
             return new CreateComTaskExecutionSessionCommandType(createComTaskExecutionSessionCommand.getComTask());
         }
         else {
-            final Class<? extends ProtocolTask> protocolTaskClass = protocolTask.getClass();
             for (ComCommandTypes comCommandTypes : values()) {
-                if (comCommandTypes.protocolTaskClass != null && comCommandTypes.protocolTaskClass.isAssignableFrom(protocolTaskClass)) {
+                if (comCommandTypes.appliesTo(protocolTask)) {
                     return comCommandTypes;
                 }
             }
             return UNKNOWN;
         }
+    }
+
+    public boolean appliesTo(ProtocolTask protocolTask) {
+        Class<? extends ProtocolTask> protocolTaskClass = protocolTask.getClass();
+        return this.protocolTaskClass != null && this.protocolTaskClass.isAssignableFrom(protocolTaskClass);
     }
 
     @Override

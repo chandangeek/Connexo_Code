@@ -25,6 +25,11 @@ public class LogOnCommand extends SimpleComCommand {
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Log on to the device";
+    }
+
+    @Override
     public ComCommandTypes getCommandType() {
         return ComCommandTypes.LOGON;
     }

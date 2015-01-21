@@ -42,4 +42,9 @@ public class UnlockScheduledJobDeviceCommand extends DeviceCommandImpl {
                 .forEach(comTasksBuilder::append);
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "Unlock task";
+    }
+
 }

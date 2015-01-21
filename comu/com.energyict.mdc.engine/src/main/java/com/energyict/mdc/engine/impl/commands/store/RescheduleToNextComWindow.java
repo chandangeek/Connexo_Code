@@ -22,4 +22,9 @@ public class RescheduleToNextComWindow extends RescheduleExecutionDeviceCommand 
         scheduledJob.rescheduleToNextComWindow(comServerDAO);
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "Reschedule to next communication window";
+    }
+
 }

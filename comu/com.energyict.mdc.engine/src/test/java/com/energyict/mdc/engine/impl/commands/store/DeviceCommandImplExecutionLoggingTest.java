@@ -77,6 +77,10 @@ public class DeviceCommandImplExecutionLoggingTest {
             builder.addLabel("For Testing purposes only");
         }
 
+        @Override
+        public String getDescriptionTitle() {
+            return "For testing purposes only";
+        }
     }
 
     private class IssueServiceOnly implements DeviceCommand.ServiceProvider {

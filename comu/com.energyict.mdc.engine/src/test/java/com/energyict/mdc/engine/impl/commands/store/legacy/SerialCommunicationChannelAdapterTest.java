@@ -63,13 +63,13 @@ public class SerialCommunicationChannelAdapterTest {
         SerialCommunicationChannelAdapter serialCommunicationChannelAdapter = createSerialCommunicationChannelAdapter();
 
         // asserts
-        assertEquals(Parities.EVEN.getParity(), serialCommunicationChannelAdapter.parityToNewFormat(SerialCommunicationChannel.PARITY_EVEN));
-        assertEquals(Parities.ODD.getParity(), serialCommunicationChannelAdapter.parityToNewFormat(SerialCommunicationChannel.PARITY_ODD));
-        assertEquals(Parities.SPACE.getParity(), serialCommunicationChannelAdapter.parityToNewFormat(SerialCommunicationChannel.PARITY_SPACE));
-        assertEquals(Parities.MARK.getParity(), serialCommunicationChannelAdapter.parityToNewFormat(SerialCommunicationChannel.PARITY_MARK));
-        assertEquals(Parities.NONE.getParity(), serialCommunicationChannelAdapter.parityToNewFormat(SerialCommunicationChannel.PARITY_NONE));
+        assertEquals(Parities.EVEN.value(), serialCommunicationChannelAdapter.parityToNewFormat(SerialCommunicationChannel.PARITY_EVEN));
+        assertEquals(Parities.ODD.value(), serialCommunicationChannelAdapter.parityToNewFormat(SerialCommunicationChannel.PARITY_ODD));
+        assertEquals(Parities.SPACE.value(), serialCommunicationChannelAdapter.parityToNewFormat(SerialCommunicationChannel.PARITY_SPACE));
+        assertEquals(Parities.MARK.value(), serialCommunicationChannelAdapter.parityToNewFormat(SerialCommunicationChannel.PARITY_MARK));
+        assertEquals(Parities.NONE.value(), serialCommunicationChannelAdapter.parityToNewFormat(SerialCommunicationChannel.PARITY_NONE));
 
-        assertEquals(Parities.NONE.getParity(), serialCommunicationChannelAdapter.parityToNewFormat(9999)); // any unknown format should return none
+        assertEquals(Parities.NONE.value(), serialCommunicationChannelAdapter.parityToNewFormat(9999)); // any unknown format should return none
     }
 
     @Test
@@ -77,11 +77,11 @@ public class SerialCommunicationChannelAdapterTest {
         SerialCommunicationChannelAdapter serialCommunicationChannelAdapter = createSerialCommunicationChannelAdapter();
 
         // asserts
-        assertEquals(NrOfStopBits.ONE.getNrOfStopBits(), serialCommunicationChannelAdapter.stopBitsToNewFormat(SerialCommunicationChannel.STOPBITS_1));
-        assertEquals(NrOfStopBits.TWO.getNrOfStopBits(), serialCommunicationChannelAdapter.stopBitsToNewFormat(SerialCommunicationChannel.STOPBITS_2));
-        assertEquals(NrOfStopBits.ONE_AND_HALF.getNrOfStopBits(), serialCommunicationChannelAdapter.stopBitsToNewFormat(SerialCommunicationChannel.STOPBITS_1_5));
+        assertEquals(NrOfStopBits.ONE.value(), serialCommunicationChannelAdapter.stopBitsToNewFormat(SerialCommunicationChannel.STOPBITS_1));
+        assertEquals(NrOfStopBits.TWO.value(), serialCommunicationChannelAdapter.stopBitsToNewFormat(SerialCommunicationChannel.STOPBITS_2));
+        assertEquals(NrOfStopBits.ONE_AND_HALF.value(), serialCommunicationChannelAdapter.stopBitsToNewFormat(SerialCommunicationChannel.STOPBITS_1_5));
 
-        assertEquals(NrOfStopBits.ONE.getNrOfStopBits(), serialCommunicationChannelAdapter.stopBitsToNewFormat(654654));  // any unknown format should return one stopbit
+        assertEquals(NrOfStopBits.ONE.value(), serialCommunicationChannelAdapter.stopBitsToNewFormat(654654));  // any unknown format should return one stopbit
     }
 
     @Test

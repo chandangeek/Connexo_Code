@@ -319,11 +319,6 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     }
 
     @Override
-    public String getDescriptionTitle () {
-        return this.getClass().getSimpleName();
-    }
-
-    @Override
     public String toJournalMessageDescription (LogLevel serverLogLevel) {
         DescriptionBuilder builder = new DescriptionBuilderImpl(this);
         this.toJournalMessageDescription(builder, serverLogLevel);

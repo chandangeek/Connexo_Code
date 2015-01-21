@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
-import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -17,7 +16,7 @@ import java.util.Optional;
 
 import org.junit.*;
 
-import static junit.framework.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,7 +35,7 @@ public class VerifyTimeDifferenceCommandImplTest extends CommonCommandImplTests 
         when(basicCheckCommand.getBasicCheckTask()).thenReturn(basicCheckTask);
         when(basicCheckTask.getMaximumClockDifference()).thenReturn(Optional.of(new TimeDuration(100)));
         VerifyTimeDifferenceCommandImpl command = new VerifyTimeDifferenceCommandImpl(basicCheckCommand, createCommandRoot());
-        assertEquals("VerifyTimeDifferenceCommandImpl {maximumDifference: 100 seconds}", command.toJournalMessageDescription(LogLevel.ERROR));
+        assertThat(command.toJournalMessageDescription(LogLevel.ERROR)).contains("{maximumDifference: 100 seconds}");
     }
 
     @Test(expected = TimeDifferenceExceededException.class)

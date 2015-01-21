@@ -58,6 +58,11 @@ public class TimeDifferenceCommandImpl extends SimpleComCommand implements TimeD
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Read out the device time difference";
+    }
+
+    @Override
     protected void toJournalMessageDescription(DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         if (this.isJournalingLevelEnabled(serverLogLevel, LogLevel.INFO)) {

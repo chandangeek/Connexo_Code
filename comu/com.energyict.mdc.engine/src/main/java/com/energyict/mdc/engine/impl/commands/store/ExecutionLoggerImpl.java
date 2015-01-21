@@ -37,8 +37,7 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
             getComSessionBuilder().addJournalEntry(
                     this.clock.instant(),
                     this.logLevel,
-                    deviceCommand.toJournalMessageDescription(this.logLevel),
-                    null);
+                    deviceCommand.toJournalMessageDescription(this.logLevel));
         }
     }
 

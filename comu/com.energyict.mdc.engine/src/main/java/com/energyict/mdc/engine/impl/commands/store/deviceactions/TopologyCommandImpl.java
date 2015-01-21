@@ -65,6 +65,11 @@ public class TopologyCommandImpl extends SimpleComCommand implements TopologyCom
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Executed topology protocol task";
+    }
+
+    @Override
     protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         builder.addProperty("topologyAction").append(this.topologyAction.name());

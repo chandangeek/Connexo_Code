@@ -310,7 +310,7 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     public void fail(Throwable t, ComSession.SuccessIndicator reason) {
-        sessionBuilder.addJournalEntry(now(), ComServer.LogLevel.ERROR, messageFor(t), t);
+        sessionBuilder.addJournalEntry(now(), ComServer.LogLevel.ERROR, t);
         this.createComSessionCommand(sessionBuilder, reason);
     }
 
@@ -455,7 +455,7 @@ public final class ExecutionContext implements JournalEntryFactory {
                 builder.append(separator.get());
                 this.appendPropertyToMessage(builder, connectionProperty);
             }
-            sessionBuilder.addJournalEntry(now(), ComServer.LogLevel.INFO, builder.toString(), null);
+            sessionBuilder.addJournalEntry(now(), ComServer.LogLevel.INFO, builder.toString());
         }
     }
 
@@ -539,7 +539,7 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     private void createComSessionJournalEntry(ComServer.LogLevel logLevel, String message) {
-        getComSessionBuilder().addJournalEntry(now(), logLevel, message, null);
+        getComSessionBuilder().addJournalEntry(now(), logLevel, message);
     }
 
     private void createComTaskExecutionMessageJournalEntry(ComServer.LogLevel logLevel, String message) {
@@ -601,14 +601,6 @@ public final class ExecutionContext implements JournalEntryFactory {
      */
     private boolean isLogLevelEnabled(ComServer.LogLevel logLevel) {
         return this.comPort.getComServer().getCommunicationLogLevel().compareTo(logLevel) >= 0;
-    }
-
-    private String messageFor(Throwable t) {
-        if (t.getMessage() == null) {
-            return t.toString();
-        } else {
-            return t.getMessage();
-        }
     }
 
     private Instant now() {

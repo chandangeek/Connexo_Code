@@ -345,7 +345,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     private void assertComSessionJournalMessage(String expectedMessage) {
-        verify(comSessionBuilder).addJournalEntry(eq(clock.instant()), any(ComServer.LogLevel.class), eq(expectedMessage), isNull(Throwable.class));
+        verify(comSessionBuilder).addJournalEntry(eq(clock.instant()), any(ComServer.LogLevel.class), eq(expectedMessage));
     }
 
     private void assertNoComSessionJournalMessage() {

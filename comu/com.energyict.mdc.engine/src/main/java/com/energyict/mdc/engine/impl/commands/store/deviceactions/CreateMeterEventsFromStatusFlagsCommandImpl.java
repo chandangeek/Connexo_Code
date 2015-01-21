@@ -13,7 +13,6 @@ import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
@@ -34,6 +33,11 @@ public class CreateMeterEventsFromStatusFlagsCommandImpl extends SimpleComComman
     public CreateMeterEventsFromStatusFlagsCommandImpl(final LoadProfileCommand loadProfileCommand, final CommandRoot commandRoot) {
         super(commandRoot);
         this.loadProfileCommand = loadProfileCommand;
+    }
+
+    @Override
+    public String getDescriptionTitle() {
+        return "Create meter events from load profile interval statuses";
     }
 
     @Override
@@ -66,26 +70,27 @@ public class CreateMeterEventsFromStatusFlagsCommandImpl extends SimpleComComman
 
     @Override
     public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        for (CollectedData collectedData : loadProfileCommand.getCollectedData()) {
-            if (collectedData instanceof DeviceLoadProfile) {
-                DeviceLoadProfile deviceLoadProfile = (DeviceLoadProfile) collectedData;
-                ExecutedDeviceLoadProfile executedDeviceLoadProfile = new ExecutedDeviceLoadProfile(deviceLoadProfile);
-                this.deviceLoadProfiles.add(executedDeviceLoadProfile);
-                List<MeterProtocolEvent> collectedMeterEvents = new ArrayList<>();
-                for (IntervalData intervalData : deviceLoadProfile.getCollectedIntervalData()) {
-                    List<MeterEvent> meterEvents = intervalData.generateEvents();
-                    if (!meterEvents.isEmpty()) {
-                        executedDeviceLoadProfile.noMeterEventsCreated = false;
+        loadProfileCommand.getCollectedData()
+                .stream()
+                .filter(collectedData -> collectedData instanceof DeviceLoadProfile)
+                .map(DeviceLoadProfile.class::cast)
+                .forEach(deviceLoadProfile -> {
+                    ExecutedDeviceLoadProfile executedDeviceLoadProfile = new ExecutedDeviceLoadProfile(deviceLoadProfile);
+                    this.deviceLoadProfiles.add(executedDeviceLoadProfile);
+                    List<MeterProtocolEvent> collectedMeterEvents = new ArrayList<>();
+                    for (IntervalData intervalData : deviceLoadProfile.getCollectedIntervalData()) {
+                        List<MeterEvent> meterEvents = intervalData.generateEvents();
+                        if (!meterEvents.isEmpty()) {
+                            executedDeviceLoadProfile.noMeterEventsCreated = false;
+                        }
+                        collectedMeterEvents.addAll(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
                     }
-                    collectedMeterEvents.addAll(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
-                }
-                DeviceIdentifier deviceIdentifier = loadProfileCommand.getOfflineDevice().getDeviceIdentifier();
-                IdentificationService identificationService = getCommandRoot().getServiceProvider().identificationService();
-                DeviceLogBook deviceLogBook = new DeviceLogBook(identificationService.createLogbookIdentifierByObisCodeAndDeviceIdentifier(DeviceLogBook.GENERIC_LOGBOOK_TYPE_OBISCODE, deviceIdentifier));
-                deviceLogBook.setMeterEvents(collectedMeterEvents);
-                this.loadProfileCommand.addCollectedDataItem(deviceLogBook);
-            }
-        }
+                    DeviceIdentifier deviceIdentifier = loadProfileCommand.getOfflineDevice().getDeviceIdentifier();
+                    IdentificationService identificationService = getCommandRoot().getServiceProvider().identificationService();
+                    DeviceLogBook deviceLogBook = new DeviceLogBook(identificationService.createLogbookIdentifierByObisCodeAndDeviceIdentifier(DeviceLogBook.GENERIC_LOGBOOK_TYPE_OBISCODE, deviceIdentifier));
+                    deviceLogBook.setMeterEvents(collectedMeterEvents);
+                    this.loadProfileCommand.addCollectedDataItem(deviceLogBook);
+                });
     }
 
     @Override

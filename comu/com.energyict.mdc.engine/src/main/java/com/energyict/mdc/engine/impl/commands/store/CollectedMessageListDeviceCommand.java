@@ -78,4 +78,10 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl {
             }
         }
     }
+
+    @Override
+    public String getDescriptionTitle() {
+        return "Collected message data";
+    }
+
 }

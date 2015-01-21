@@ -43,6 +43,11 @@ public class InboundCollectedMessageListCommandImpl extends MessagesCommandImpl 
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Collect inbound message data";
+    }
+
+    @Override
     protected void toJournalMessageDescription(DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toSuperJournalMessageDescription(builder, serverLogLevel);
         this.appendMessagesExecutionStatus(builder, getListOfCollectedMessages());

@@ -40,9 +40,12 @@ public class StatusInformationCommandImpl extends CompositeComCommandImpl implem
         readRegistersCommand.addRegisters(registers);
     }
 
-    /**
-     * @return the ComCommandTypes of this command
-     */
+
+    @Override
+    public String getDescriptionTitle() {
+        return "Read out the device status information";
+    }
+
     @Override
     public ComCommandTypes getCommandType() {
         return ComCommandTypes.STATUS_INFORMATION_COMMAND;

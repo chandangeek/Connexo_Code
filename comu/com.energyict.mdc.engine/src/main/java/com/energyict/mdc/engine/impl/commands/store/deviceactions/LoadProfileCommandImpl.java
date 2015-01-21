@@ -114,6 +114,11 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Executed load profile protocol task";
+    }
+
+    @Override
     protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         if (!loadProfilesTask.getLoadProfileTypes().isEmpty()) {

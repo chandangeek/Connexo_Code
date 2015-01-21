@@ -41,6 +41,11 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComComma
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Read out load profile and logbook of legacy protocol";
+    }
+
+    @Override
     protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         this.logBookObisCodes(builder);

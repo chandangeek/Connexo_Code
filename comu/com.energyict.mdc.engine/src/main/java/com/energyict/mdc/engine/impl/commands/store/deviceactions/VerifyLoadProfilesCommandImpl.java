@@ -67,6 +67,11 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Read out and verify the load profile configuration";
+    }
+
+    @Override
     protected LogLevel defaultJournalingLogLevel () {
         return LogLevel.DEBUG;
     }

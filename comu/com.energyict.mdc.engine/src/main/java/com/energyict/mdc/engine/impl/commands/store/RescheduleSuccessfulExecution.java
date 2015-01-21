@@ -21,4 +21,9 @@ public class RescheduleSuccessfulExecution extends RescheduleExecutionDeviceComm
         scheduledJob.reschedule(comServerDAO);
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "Reschedule task";
+    }
+
 }

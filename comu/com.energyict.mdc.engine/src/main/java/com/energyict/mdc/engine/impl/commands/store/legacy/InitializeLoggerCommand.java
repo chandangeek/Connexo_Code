@@ -60,6 +60,11 @@ public class InitializeLoggerCommand extends SimpleComCommand {
         return LogLevel.DEBUG;
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "Initialize the protocol logger";
+    }
+
     /**
      * A Handler that forwards all records to the {@link com.energyict.mdc.engine.impl.core.ExecutionContext}'s Logger
      * leaving it to that Logger's responsibility if the record should be logged or not.

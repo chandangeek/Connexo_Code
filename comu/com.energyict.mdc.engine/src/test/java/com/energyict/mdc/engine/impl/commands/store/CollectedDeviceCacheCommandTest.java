@@ -103,7 +103,7 @@ public class CollectedDeviceCacheCommandTest {
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).isEqualTo(CollectedDeviceCacheCommand.class.getSimpleName() + " {deviceIdentifier: id 654}");
+        assertThat(journalMessage).contains("{deviceIdentifier: id 654}");
     }
 
     private DeviceIdentifier getMockedDeviceIdentifier() {
@@ -115,20 +115,26 @@ public class CollectedDeviceCacheCommandTest {
 
     private class SimpleDeviceProtocolCache implements Serializable, DeviceProtocolCache {
 
-        private boolean changed = false;
+        private boolean dirty = false;
         private String description = "NoDescription";
 
         @Override
-        public boolean contentChanged() {
-            return changed;
+        public boolean isDirty() {
+            return dirty;
         }
 
         @Override
-        public void setChanged(boolean flag) {
+        public void markClean() {
+            this.dirty = false;
+        }
+
+        @Override
+        public void markDirty() {
+            this.dirty = true;
         }
 
         protected void updateChangedState(final boolean changedState) {
-            this.changed = changedState;
+            this.dirty = changedState;
         }
 
         protected void updateDescription(final String newDescription) {

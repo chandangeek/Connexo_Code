@@ -41,6 +41,11 @@ public class CreateComTaskExecutionSessionCommandImpl extends SimpleComCommand i
     }
 
     @Override
+    public String getDescriptionTitle() {
+        return "Create communication task session";
+    }
+
+    @Override
     public ComCommandType getCommandType() {
         return new CreateComTaskExecutionSessionCommandType(this.getComTask());
     }

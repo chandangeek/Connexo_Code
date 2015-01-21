@@ -49,7 +49,7 @@ public class CollectedLogBookDeviceCommandTest {
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).isEqualTo(CollectedLogBookDeviceCommand.class.getSimpleName() + " {logbook: 1; nr of events: 0}");
+        assertThat(journalMessage).contains("{logbook: 1; nr of events: 0}");
     }
 
     @Test
@@ -82,7 +82,7 @@ public class CollectedLogBookDeviceCommandTest {
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).isEqualTo(CollectedLogBookDeviceCommand.class.getSimpleName() + " {logbook: 1; nr of events: 2}");
+        assertThat(journalMessage).contains("{logbook: 1; nr of events: 2}");
     }
 
     private void initializeEndDeviceEventTypeFactory() {

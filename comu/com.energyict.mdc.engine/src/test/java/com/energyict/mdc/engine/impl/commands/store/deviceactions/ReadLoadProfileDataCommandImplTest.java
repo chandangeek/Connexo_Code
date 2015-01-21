@@ -54,7 +54,7 @@ public class ReadLoadProfileDataCommandImplTest extends CommonCommandImplTests {
         LoadProfileCommand loadProfileCommand = commandRoot.getLoadProfileCommand(loadProfilesTask, commandRoot, comTaskExecution);
         ReadLoadProfileDataCommand readLoadProfileDataCommand = commandRoot.getReadLoadProfileDataCommand(loadProfileCommand, comTaskExecution);
         readLoadProfileDataCommand.execute(deviceProtocol, executionContext);
-        assertThat(readLoadProfileDataCommand.toJournalMessageDescription(LogLevel.ERROR)).startsWith("ReadLoadProfileDataCommandImpl {loadProfileObisCodes: 1.1.1.1.1.1");
+        assertThat(readLoadProfileDataCommand.toJournalMessageDescription(LogLevel.ERROR)).contains("{loadProfileObisCodes: 1.1.1.1.1.1");
 
         // asserts
         assertThat(loadProfileCommand.getCollectedData()).isNotNull();

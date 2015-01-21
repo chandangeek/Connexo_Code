@@ -50,4 +50,10 @@ public class StoreConfigurationUserFile extends DeviceCommandImpl {
             builder.addProperty("file extension").append(this.fileExtension);
         }
     }
+
+    @Override
+    public String getDescriptionTitle() {
+        return "Store configuration user file";
+    }
+
 }

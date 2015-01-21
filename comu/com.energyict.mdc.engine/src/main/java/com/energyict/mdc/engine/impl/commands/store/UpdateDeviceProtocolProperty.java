@@ -69,4 +69,9 @@ public class UpdateDeviceProtocolProperty extends DeviceCommandImpl {
         }
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "Update device protocol property";
+    }
+
 }

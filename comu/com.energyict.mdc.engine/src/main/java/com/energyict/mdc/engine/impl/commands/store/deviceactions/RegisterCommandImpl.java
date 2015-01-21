@@ -121,4 +121,9 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
         return ComCommandTypes.REGISTERS_COMMAND;
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "Executed register protocol task";
+    }
+
 }

@@ -28,7 +28,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -118,12 +117,12 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
         // asserts
         // the ClockCommand should be a SetClockCommand
-        assertTrue(((ClockCommandImpl) clockCommand).getClockCommand() instanceof SetClockCommand);
+        assertThat(((ClockCommandImpl) clockCommand).getClockCommand()).isInstanceOf(SetClockCommand.class);
         // verify that getTime is called only once
         verify(deviceProtocol).getTime();
         // time difference is between boundaries, should set the frozenClock time
         verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()));
-        Assert.assertEquals(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.TimeUnit.MILLISECONDS), clockCommand.getTimeDifference().get());
+        assertThat(clockCommand.getTimeDifference().get()).isEqualTo(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -139,11 +138,11 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
         // asserts
         assertThat(clockCommand.getIssues()).isNotNull();
-        Assert.assertEquals("We expect 1 issue", 1, clockCommand.getIssues().size());
-        Assert.assertEquals("We expect 1 warning", 1, clockCommand.getWarnings().size());
-        Assert.assertEquals("We expect no problems", 0, clockCommand.getProblems().size());
-        assertTrue("The issue should be a warning", clockCommand.getIssues().get(0).isWarning());
-        Assert.assertEquals("timediffXlargerthanmaxdefined", clockCommand.getIssues().get(0).getDescription());
+        assertThat(clockCommand.getIssues()).hasSize(1);
+        assertThat(clockCommand.getWarnings()).hasSize(1);
+        assertThat(clockCommand.getProblems()).isEmpty();
+        assertThat(clockCommand.getIssues().get(0).isWarning()).isTrue();
+        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo("timediffXlargerthanmaxdefined");
     }
 
     @Test
@@ -178,13 +177,13 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
         // asserts
         assertThat(clockCommand.getIssues()).isNotNull();
-        Assert.assertEquals("We expect 0 issues", 0, clockCommand.getIssues().size());
-        Assert.assertEquals("We expect 0 problems", 0, clockCommand.getProblems().size());
-        Assert.assertEquals("We expect 0 warnings", 0, clockCommand.getWarnings().size());
+        assertThat(clockCommand.getIssues()).isEmpty();
+        assertThat(clockCommand.getProblems()).isEmpty();
+        assertThat(clockCommand.getWarnings()).isEmpty();
 
         // asserts
         // the ClockCommand should be a SetClockCommand
-        assertTrue(((ClockCommandImpl) clockCommand).getClockCommand() instanceof SetClockCommand);
+        assertThat(((ClockCommandImpl) clockCommand).getClockCommand() instanceof SetClockCommand).isTrue();
         // verify that getTime is called only once
         verify(deviceProtocol).getTime();
         // time difference is between boundaries, should set the frozenClock time
@@ -206,11 +205,11 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
         // asserts
         assertThat(clockCommand.getIssues()).isNotNull();
-        Assert.assertEquals("We expect 1 issue", 1, clockCommand.getIssues().size());
-        Assert.assertEquals("We expect 1 warning", 1, clockCommand.getWarnings().size());
-        Assert.assertEquals("We expect no problems", 0, clockCommand.getProblems().size());
-        assertTrue("The issue should be a warning", clockCommand.getIssues().get(0).isWarning());
-        Assert.assertEquals("timediffXlargerthanmaxdefined", clockCommand.getIssues().get(0).getDescription());
+        assertThat(clockCommand.getIssues()).hasSize(1);
+        assertThat(clockCommand.getWarnings()).hasSize(1);
+        assertThat(clockCommand.getProblems()).isEmpty();
+        assertThat(clockCommand.getIssues().get(0).isWarning()).isTrue();
+        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo("timediffXlargerthanmaxdefined");
     }
 
     @Test
@@ -238,11 +237,11 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         validationDate = Date.from(frozenClock.instant());ClockTask clockTask = getForceClockTask();
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
         clockCommand.execute(deviceProtocol, newTestExecutionContext());
-        Assert.assertEquals("ClockCommandImpl {clockTaskType: FORCECLOCK}", clockCommand.toJournalMessageDescription(LogLevel.ERROR));
+        assertThat(clockCommand.toJournalMessageDescription(LogLevel.ERROR)).contains("{clockTaskType: FORCECLOCK}");
 
         // asserts
         // the ClockCommand should be a SetClockCommand
-        assertTrue(((ClockCommandImpl) clockCommand).getClockCommand() instanceof ForceClockCommand);
+        assertThat(((ClockCommandImpl) clockCommand).getClockCommand() instanceof ForceClockCommand).isTrue();
         // As the ClockCommand is a ForceClockTask, verify that getTime is not called
         verify(deviceProtocol, times(0)).getTime();
         // time difference is outside boundaries, but as the ClockCommand is a ForceClockTask it should set the frozenClock time
@@ -263,13 +262,13 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
         // asserts
         // the ClockCommand should be a SetClockCommand
-        assertTrue(((ClockCommandImpl) clockCommand).getClockCommand() instanceof SynchronizeClockCommand);
+        assertThat(((ClockCommandImpl) clockCommand).getClockCommand() instanceof SynchronizeClockCommand).isTrue();
         // verify that getTime is called only once
         verify(deviceProtocol).getTime();
         // time difference is between boundaries, should set the frozenClock time
         verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()));
         // verify the timedifference
-        Assert.assertEquals(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.TimeUnit.MILLISECONDS), clockCommand.getTimeDifference().get());
+        assertThat(clockCommand.getTimeDifference().get()).isEqualTo(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -285,11 +284,11 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
         // asserts
         assertThat(clockCommand.getIssues()).isNotNull();
-        Assert.assertEquals("We expect 1 issue", 1, clockCommand.getIssues().size());
-        Assert.assertEquals("We expect 1 warning", 1, clockCommand.getWarnings().size());
-        Assert.assertEquals("We expect no problems", 0, clockCommand.getProblems().size());
-        assertTrue("The issue should be a warning", clockCommand.getIssues().get(0).isWarning());
-        Assert.assertEquals("timediffXbelowthanmindefined", clockCommand.getIssues().get(0).getDescription());
+        assertThat(clockCommand.getIssues()).hasSize(1);
+        assertThat(clockCommand.getWarnings()).hasSize(1);
+        assertThat(clockCommand.getProblems()).isEmpty();
+        assertThat(clockCommand.getIssues().get(0).isWarning()).isTrue();
+        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo("timediffXbelowthanmindefined");
     }
 
     @Test
@@ -308,13 +307,13 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
         // asserts
         // the ClockCommand should be a SetClockCommand
-        assertTrue(((ClockCommandImpl) clockCommand).getClockCommand() instanceof SynchronizeClockCommand);
+        assertThat(((ClockCommandImpl) clockCommand).getClockCommand() instanceof SynchronizeClockCommand).isTrue();
         // verify that getTime is called only once
         verify(deviceProtocol).getTime();
         // time difference is between boundaries, should set the Clock time
         verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()));
         // verify the timedifference
-        Assert.assertEquals(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.TimeUnit.MILLISECONDS), clockCommand.getTimeDifference().get());
+        assertThat(clockCommand.getTimeDifference().get()).isEqualTo(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -333,13 +332,13 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
         // asserts
         // the ClockCommand should be a SetClockCommand
-        assertTrue(((ClockCommandImpl) clockCommand).getClockCommand() instanceof SynchronizeClockCommand);
+        assertThat(((ClockCommandImpl) clockCommand).getClockCommand() instanceof SynchronizeClockCommand).isTrue();
         // verify that getTime is called only once
         verify(deviceProtocol).getTime();
         // time difference is between boundaries, should set the Clock time
         verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()));
         // verify the timedifference
-        Assert.assertEquals(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.TimeUnit.MILLISECONDS), clockCommand.getTimeDifference().get());
+        assertThat(clockCommand.getTimeDifference().get()).isEqualTo(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -355,11 +354,11 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
         // asserts
         assertThat(clockCommand.getIssues()).isNotNull();
-        Assert.assertEquals("We expect 1 issue", 1, clockCommand.getIssues().size());
-        Assert.assertEquals("We expect 1 warning", 1, clockCommand.getWarnings().size());
-        Assert.assertEquals("We expect no problems", 0, clockCommand.getProblems().size());
-        assertTrue("The issue should be a warning", clockCommand.getIssues().get(0).isWarning());
-        Assert.assertEquals("timediffXbelowthanmindefined", clockCommand.getIssues().get(0).getDescription());
+        assertThat(clockCommand.getIssues()).hasSize(1);
+        assertThat(clockCommand.getWarnings()).hasSize(1);
+        assertThat(clockCommand.getProblems()).isEmpty();
+        assertThat(clockCommand.getIssues().get(0).isWarning()).isTrue();
+        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo("timediffXbelowthanmindefined");
     }
 
     @Test
@@ -371,7 +370,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         String description = clockCommand.toJournalMessageDescription(LogLevel.ERROR);
 
         // Asserts
-        assertThat(description).isEqualTo("ClockCommandImpl {clockTaskType: SYNCHRONIZECLOCK}");
+        assertThat(description).contains("{clockTaskType: SYNCHRONIZECLOCK}");
     }
 
     @Test
@@ -383,7 +382,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         String description = clockCommand.toJournalMessageDescription(LogLevel.INFO);
 
         // Asserts
-        assertThat(description).isEqualTo("ClockCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; clockTaskType: SYNCHRONIZECLOCK}");
+        assertThat(description).contains("{executionState: NOT_EXECUTED; completionCode: Ok; clockTaskType: SYNCHRONIZECLOCK}");
     }
 
     @Test
@@ -395,7 +394,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         String description = clockCommand.toJournalMessageDescription(LogLevel.TRACE);
 
         // Asserts
-        assertThat(description).isEqualTo("ClockCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; nrOfWarnings: 0; nrOfProblems: 0; clockTaskType: SYNCHRONIZECLOCK; maximumClockShift: 8 seconds; getTimeDifference: }");
+        assertThat(description).contains("{executionState: NOT_EXECUTED; completionCode: Ok; nrOfWarnings: 0; nrOfProblems: 0; clockTaskType: SYNCHRONIZECLOCK; maximumClockShift: 8 seconds; getTimeDifference: }");
     }
 
     /**

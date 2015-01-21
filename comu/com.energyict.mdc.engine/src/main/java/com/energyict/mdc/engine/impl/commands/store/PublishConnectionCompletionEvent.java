@@ -56,4 +56,9 @@ public class PublishConnectionCompletionEvent extends PublishConnectionTaskEvent
         return EventType.DEVICE_CONNECTION_COMPLETION.topic();
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "Publish connection completion event";
+    }
+
 }

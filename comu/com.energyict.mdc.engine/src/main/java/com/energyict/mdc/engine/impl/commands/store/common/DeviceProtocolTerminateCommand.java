@@ -30,6 +30,11 @@ public class DeviceProtocolTerminateCommand extends SimpleComCommand {
         return ComCommandTypes.DEVICE_PROTOCOL_TERMINATE;
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "Terminate the protocol session";
+    }
+
     protected LogLevel defaultJournalingLogLevel () {
         return LogLevel.DEBUG;
     }

@@ -38,4 +38,9 @@ public class NoopDeviceCommand extends DeviceCommandImpl {
     protected void toJournalMessageDescription(DescriptionBuilder builder, ComServer.LogLevel serverLogLevel) {
     }
 
+    @Override
+    public String getDescriptionTitle() {
+        return "No operations device command";
+    }
+
 }

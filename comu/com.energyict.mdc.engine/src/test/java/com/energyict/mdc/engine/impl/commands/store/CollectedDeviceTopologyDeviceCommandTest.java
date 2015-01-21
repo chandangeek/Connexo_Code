@@ -295,8 +295,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).isEqualTo(CollectedDeviceTopologyDeviceCommand.class.getSimpleName()
-                + " {topologyAction.verify; deviceIdentifier: deviceIdentifier}");
+        assertThat(journalMessage).contains("{topologyAction.verify; deviceIdentifier: deviceIdentifier}");
     }
 
 }
