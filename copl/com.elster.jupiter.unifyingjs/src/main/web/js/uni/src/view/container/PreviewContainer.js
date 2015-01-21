@@ -66,6 +66,13 @@ Ext.define('Uni.view.container.PreviewContainer', {
      */
     selectByDefault: true,
 
+    /**
+     * @cfg {Boolean}
+     *
+     * Hide empty compoonent if set to true.
+     */
+    hasNotEmptyComponent: false,
+
     mixins: {
         bindable: 'Ext.util.Bindable'
     },
@@ -239,6 +246,11 @@ Ext.define('Uni.view.container.PreviewContainer', {
             // Ignore exceptions for when the selection model is not ready yet.
         }
 
+        if (me.hasNotEmptyComponent) {
+            me.hide();
+            return;
+        }
+
         if (activeIndex !== 1) {
             me.getLayout().setActiveItem(1);
         }
@@ -253,7 +265,12 @@ Ext.define('Uni.view.container.PreviewContainer', {
         if (isEmpty && activeIndex !== 0) {
             me.getLayout().setActiveItem(0);
         } else if (!isEmpty && activeIndex !== 1) {
-            me.getLayout().setActiveItem(1);
+            if (me.hasNotEmptyComponent) {
+                me.show();
+                me.getLayout().setActiveItem(0);
+            } else {
+                me.getLayout().setActiveItem(1);
+            }
         }
 
         if (me.selectByDefault && !isEmpty) {
