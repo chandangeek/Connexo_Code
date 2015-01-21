@@ -143,14 +143,20 @@ Ext.define('Dsh.controller.OperatorDashboard', {
                 me.getCommunicationServers().reload();
                 connectionModel.load(null, {
                         success: function (connections) {
-                            me.getConnectionSummary().setRecord(connections.getSummary());
+                            if(me.getConnectionSummary()){
+                                me.getConnectionSummary().setRecord(connections.getSummary());
+                            }
 
                             communicationModel.load(null, {
                                 success: function (communications) {
-                                    me.getCommunicationSummary().setRecord(communications.getSummary());
+                                    if(me.getCommunicationSummary()){
+                                        me.getCommunicationSummary().setRecord(communications.getSummary());
+                                    }
                                 },
                                 callback: function () {
-                                    lastUpdateField.update('Last updated at ' + Uni.DateTime.formatTimeShort(new Date()));
+                                    if(lastUpdateField){
+                                        lastUpdateField.update('Last updated at ' + Uni.DateTime.formatTimeShort(new Date()));
+                                    }
                                     dashboard.setLoading(false);
                                 }
                             });
