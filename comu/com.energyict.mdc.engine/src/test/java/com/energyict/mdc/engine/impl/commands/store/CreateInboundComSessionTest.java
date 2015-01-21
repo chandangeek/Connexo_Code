@@ -7,6 +7,8 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 
+import com.elster.jupiter.util.time.StopWatch;
+
 import java.time.Clock;
 import java.time.Instant;
 
@@ -67,6 +69,7 @@ public class CreateInboundComSessionTest {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         CreateInboundComSession command = new CreateInboundComSession(this.comPort, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
+        command.setStopWatch(new StopWatch());
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
         // Business method
@@ -81,6 +84,7 @@ public class CreateInboundComSessionTest {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         CreateInboundComSession command = new CreateInboundComSession(this.comPort, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
+        command.setStopWatch(new StopWatch());
         command.logExecutionWith(this.executionLogger);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
@@ -96,6 +100,7 @@ public class CreateInboundComSessionTest {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         CreateInboundComSession command = new CreateInboundComSession(this.comPort, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
+        command.setStopWatch(new StopWatch());
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         doThrow(MockedComServerDAOFailure.class).when(comServerDAO).createComSession(any(ComSessionBuilder.class), any(ComSession.SuccessIndicator.class));
 
@@ -110,6 +115,7 @@ public class CreateInboundComSessionTest {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         CreateInboundComSession command = new CreateInboundComSession(this.comPort, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
+        command.setStopWatch(new StopWatch());
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         doThrow(MockedComServerDAOFailure.class).when(comServerDAO).createComSession(any(ComSessionBuilder.class), any(ComSession.SuccessIndicator.class));
 
@@ -133,6 +139,7 @@ public class CreateInboundComSessionTest {
         when(comSession.getConnectionTask()).thenReturn(connectionTask);
         when(comServerDao.createComSession(comSessionBuilder, ComSession.SuccessIndicator.Success)).thenReturn(comSession);
         CreateInboundComSession command = new CreateInboundComSession(comPort, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
+        command.setStopWatch(new StopWatch());
         command.execute(comServerDao);
 
         // Business method

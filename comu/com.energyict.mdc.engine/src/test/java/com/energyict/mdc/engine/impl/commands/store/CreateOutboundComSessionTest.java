@@ -7,6 +7,9 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
+
+import com.elster.jupiter.util.time.StopWatch;
+
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,6 +43,7 @@ public class CreateOutboundComSessionTest {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
+        command.setStopWatch(new StopWatch());
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
         // Business method
@@ -54,6 +58,7 @@ public class CreateOutboundComSessionTest {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
+        command.setStopWatch(new StopWatch());
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
         // Business method
@@ -68,6 +73,7 @@ public class CreateOutboundComSessionTest {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
+        command.setStopWatch(new StopWatch());
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         doThrow(MockedComServerDAOFailure.class).when(comServerDAO).createComSession(any(ComSessionBuilder.class), any(ComSession.SuccessIndicator.class));
 
@@ -82,6 +88,7 @@ public class CreateOutboundComSessionTest {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
+        command.setStopWatch(new StopWatch());
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         doThrow(MockedComServerDAOFailure.class).when(comServerDAO).createComSession(any(ComSessionBuilder.class), any(ComSession.SuccessIndicator.class));
 
@@ -105,6 +112,7 @@ public class CreateOutboundComSessionTest {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         when(comServerDAO.createComSession(comSessionBuilder, successIndicator)).thenReturn(comSession);
         CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, successIndicator, clock);
+        command.setStopWatch(new StopWatch());
         command.execute(comServerDAO);
 
         // Business method
