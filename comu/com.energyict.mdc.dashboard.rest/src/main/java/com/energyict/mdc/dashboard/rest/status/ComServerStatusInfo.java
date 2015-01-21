@@ -19,6 +19,6 @@ public class ComServerStatusInfo {
     public boolean blocked;
     public TimeDurationInfo blockTime;
     public Instant blockedSince;
-    public String defaultUri;
+    public String uri;
 
 }

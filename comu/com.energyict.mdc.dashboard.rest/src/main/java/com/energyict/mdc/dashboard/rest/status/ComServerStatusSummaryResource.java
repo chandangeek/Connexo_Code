@@ -77,18 +77,18 @@ public class ComServerStatusSummaryResource {
     private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, OnlineComServer comServer, Client jerseyClient, UriBuilder uriBuilder) {
         String defaultUri = uriBuilder.build(comServer.getName()).toString();
         String statusUri = comServer.usesDefaultStatusUri()? defaultUri :comServer.getStatusUri();
-        this.addStatusInfo(statusSummaryInfo, jerseyClient, comServer.getId(), comServer.getName(), defaultUri, statusUri, ComServerType.ONLINE);
+        this.addStatusInfo(statusSummaryInfo, jerseyClient, comServer.getId(), comServer.getName(), statusUri, ComServerType.ONLINE);
     }
 
     private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, RemoteComServer comServer, Client jerseyClient, UriBuilder uriBuilder) {
         String defaultUri = uriBuilder.build(comServer.getName()).toString();
         String statusUri = comServer.usesDefaultStatusUri()? defaultUri :comServer.getStatusUri();
-        this.addStatusInfo(statusSummaryInfo, jerseyClient, comServer.getId(), comServer.getName(), defaultUri, statusUri, ComServerType.REMOTE);
+        this.addStatusInfo(statusSummaryInfo, jerseyClient, comServer.getId(), comServer.getName(), statusUri, ComServerType.REMOTE);
     }
 
-    private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, Client jerseyClient, long comServerId, String comServerName, String defaultUri, String statusUri, ComServerType comServerType) {
+    private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, Client jerseyClient, long comServerId, String comServerName, String statusUri, ComServerType comServerType) {
         try {
-            LOGGER.info(() -> "Executing " + statusUri);
+            LOGGER.fine(() -> "Executing " + statusUri);
             ComServerStatusInfo comServerStatusInfo =
                 jerseyClient.
                     target(statusUri).
@@ -105,7 +105,7 @@ public class ComServerStatusSummaryResource {
             String message = "ComServer " + comServerName + " is most likely not running";
             LOGGER.info(message);
             LOGGER.log(Level.SEVERE, message, e);
-            ComServerStatusInfo statusInfo = comServerStatusInfoFactory.from(comServerId, comServerName, defaultUri, comServerType);
+            ComServerStatusInfo statusInfo = comServerStatusInfoFactory.from(comServerId, comServerName, statusUri, comServerType);
             statusSummaryInfo.comServerStatusInfos.add(statusInfo);
         }
     }

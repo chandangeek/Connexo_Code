@@ -28,7 +28,7 @@ public class ComServerStatusInfoFactory {
         info.comServerType =  getTranslatedComServerType(status.getComServerType());
         info.running = status.isRunning();
         info.blocked = status.isBlocked();
-        info.defaultUri = defaultUri;
+        info.uri = defaultUri;
         if (info.blocked) {
             info.blockTime = new TimeDurationInfo((int) status.getBlockTime().getSeconds());
             info.blockedSince = status.getBlockTimestamp();
@@ -45,7 +45,7 @@ public class ComServerStatusInfoFactory {
         ComServerStatusInfo statusInfo = new ComServerStatusInfo();
         statusInfo.comServerId = comServerId;
         statusInfo.comServerName = comServerName;
-        statusInfo.defaultUri = defaultUri;
+        statusInfo.uri = defaultUri;
         statusInfo.comServerType = getTranslatedComServerType(comServerType);
         statusInfo.blocked = false;
         statusInfo.running = false;
