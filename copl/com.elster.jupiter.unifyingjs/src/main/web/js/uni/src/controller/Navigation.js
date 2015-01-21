@@ -307,7 +307,6 @@ Ext.define('Uni.controller.Navigation', {
     showContent: function (content, side) {
         var panel = this.getContentWrapper();
 
-        Ext.suspendLayouts();
         panel.removeAll();
 
         if (content instanceof Uni.view.container.ContentContainer) {
