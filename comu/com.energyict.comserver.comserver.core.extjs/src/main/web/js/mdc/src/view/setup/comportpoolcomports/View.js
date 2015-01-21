@@ -37,6 +37,7 @@ Ext.define('Mdc.view.setup.comportpoolcomports.View', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
+                        itemId: 'ctr-no-comports',
                         title: Uni.I18n.translate('comPortPoolPorts.empty.title', 'MDC', 'No communication ports found'),
                         reasons: [
                             Uni.I18n.translate('comPortPoolPorts.empty.list.item1', 'MDC', 'No communication ports are associated to this communication port pool.')
