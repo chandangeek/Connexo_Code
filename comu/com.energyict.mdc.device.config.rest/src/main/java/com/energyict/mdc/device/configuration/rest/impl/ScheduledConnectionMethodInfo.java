@@ -50,6 +50,8 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
         partialConnectionTask.setConnectionStrategy(this.connectionStrategy);
         if (!Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace()) {
             engineConfigurationService.findOutboundComPortPoolByName(this.comPortPool).ifPresent(partialConnectionTask::setComportPool);
+        } else {
+            partialConnectionTask.setComportPool(null);
         }
         partialConnectionTask.setRescheduleRetryDelay(this.rescheduleRetryDelay!=null?this.rescheduleRetryDelay.asTimeDuration():null);
         if (temporalExpression !=null) {
