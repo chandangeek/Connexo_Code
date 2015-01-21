@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -10,6 +11,7 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -23,6 +25,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ChannelResourceHelper {
+    
     private static final Comparator<Channel> CHANNEL_COMPARATOR_BY_NAME = new ChannelComparator();
 
     private final ResourceHelper resourceHelper;
@@ -79,6 +82,17 @@ public class ChannelResourceHelper {
 
     public ValidationStatusInfo determineStatus(Channel channel) {
         return new ValidationStatusInfo(isValidationActive(channel), channel.getDevice().forValidation().getLastChecked(channel), hasData(channel));
+    }
+    
+    public String getChannelName(Channel channel) {
+        ReadingTypeInfo readingTypeInfo = new ReadingTypeInfo(channel.getReadingType());
+        StringBuilder channelReadingTypeName = new StringBuilder();
+        channelReadingTypeName.append(readingTypeInfo.aliasName);
+        if (!readingTypeInfo.names.timeOfUse.isEmpty()) {
+            channelReadingTypeName.append(' ').append(readingTypeInfo.names.timeOfUse);
+        }
+        channelReadingTypeName.append(' ').append('(').append(readingTypeInfo.names.unitOfMeasure).append(')');
+        return channelReadingTypeName.toString();
     }
 
 }

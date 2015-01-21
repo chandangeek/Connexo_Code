@@ -32,9 +32,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -79,11 +79,10 @@ public class ChannelResource {
         return device.getLoadProfiles().stream()
                 .filter(l -> filterByLoadProfileName.test(l.getLoadProfileSpec().getLoadProfileType().getName()))
                 .flatMap(l -> l.getChannels().stream())
-                .filter(c -> filterByChannelName.test(c.getName()))
-                .sorted(Comparator.comparing(Channel::getName))
+                .filter(c -> filterByChannelName.test(channelHelper.get().getChannelName(c)))
                 .collect(Collectors.toList());
     }
-
+    
     private Predicate<String> getFilterIfAvailable(String name, JsonQueryFilter filter){
         if (filter.hasProperty(name)){
             Pattern pattern = getFilterPattern(filter.getString(name));
@@ -101,9 +100,6 @@ public class ChannelResource {
         }
         return null;
     }
-
-
-
 
     @GET
     @Path("/{channelid}/data")
@@ -159,8 +155,6 @@ public class ChannelResource {
         return info.value == null;
     }
 
-
-
     @PUT
     @Path("/{channelid}/data")
     @Produces(MediaType.APPLICATION_JSON)
@@ -189,7 +183,6 @@ public class ChannelResource {
 
         return Response.status(Response.Status.OK).build();
     }
-
 
     @GET
     @Path("{channelid}/validationstatus")
