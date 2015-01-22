@@ -36,7 +36,8 @@ Ext.define('Sam.view.licensing.List', {
                             action: 'uploadlicenses',
                             hrefTarget: '',
                             href: '#/administration/licensing/upload',
-                            hidden: Uni.Auth.hasNoPrivilege('privilege.upload.license')
+                            hidden: Uni.Auth.hasNoPrivilege('privilege.upload.license'),
+                            ui: 'action'
                         }
                     ]
                 }
@@ -80,12 +81,14 @@ Ext.define('Sam.view.licensing.List', {
             dockedItems: [
                 {
                     itemId: 'toolbarTop',
-                    xtype: 'toolbar',
+                    xtype: 'pagingtoolbartop',
                     dock: 'top',
+                    emptyMsg:'',
                     items: [
                         {
                             xtype: 'container',
-                            name: 'gridcontainer'
+                            name: 'gridcontainer',
+                            flex: 180
                         },
                         {
                             itemId: 'uploadButton',
@@ -140,6 +143,7 @@ Ext.define('Sam.view.licensing.List', {
         if (grid && emptyText) {
             grid.hide();
             emptyText.show();
+            Ext.getBody().mask( 'Loading...' );
         }
     },
 
@@ -149,6 +153,7 @@ Ext.define('Sam.view.licensing.List', {
         if (grid && emptyText) {
             grid.show();
             emptyText.hide();
+            Ext.getBody().unmask();
         }
     }
 });
