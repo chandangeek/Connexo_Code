@@ -2,6 +2,10 @@ package com.elster.jupiter.demo.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.demo.DemoService;
+import com.elster.jupiter.demo.impl.commands.upload.UploadAllCommand;
+import com.elster.jupiter.demo.impl.commands.upload.UploadIntervalChannelDataCommand;
+import com.elster.jupiter.demo.impl.commands.upload.UploadNonIntervalChannelDataCommand;
+import com.elster.jupiter.demo.impl.commands.upload.UploadRegisterDataCommand;
 import com.elster.jupiter.demo.impl.factories.AppServerFactory;
 import com.elster.jupiter.demo.impl.factories.AssignmentRuleFactory;
 import com.elster.jupiter.demo.impl.factories.ComServerFactory;
@@ -95,14 +99,11 @@ import com.energyict.mdc.tasks.TaskService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.Instant;
@@ -131,7 +132,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
         "osgi.command.function=createDeliverDataSetup",
         "osgi.command.function=createCollectRemoteDataSetup",
         "osgi.command.function=createValidationSetup",
-        "osgi.command.function=createAssignmentRules"
+        "osgi.command.function=createAssignmentRules",
+        "osgi.command.function=uploadIntervalChannelData",
+        "osgi.command.function=uploadNonIntervalChannelData",
+        "osgi.command.function=uploadRegisterData",
 }, immediate = true)
 public class DemoServiceImpl implements DemoService {
     private final boolean rethrowExceptions;
@@ -163,7 +167,6 @@ public class DemoServiceImpl implements DemoService {
     private volatile CronExpressionParser cronExpressionParser;
     private volatile TimeService timeService;
     private volatile FavoritesService favoritesService;
-    private volatile LoadProfileCommands loadProfileCommands;
 
     private Store store;
     private Injector injector;
@@ -203,8 +206,7 @@ public class DemoServiceImpl implements DemoService {
             DataExportService dataExportService,
             CronExpressionParser cronExpressionParser,
             TimeService timeService,
-            FavoritesService favoritesService,
-            LoadProfileCommands loadProfileCommands) {
+            FavoritesService favoritesService) {
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
         setValidationService(validationService);
@@ -231,7 +233,6 @@ public class DemoServiceImpl implements DemoService {
         setCronExpressionParser(cronExpressionParser);
         setTimeService(timeService);
         setFavoritesService(favoritesService);
-        setLoadProfileCommands(loadProfileCommands);
         rethrowExceptions = true;
 
         activate();
@@ -272,27 +273,74 @@ public class DemoServiceImpl implements DemoService {
                 bind(CronExpressionParser.class).toInstance(cronExpressionParser);
                 bind(TimeService.class).toInstance(timeService);
                 bind(FavoritesService.class).toInstance(favoritesService);
-                bind(LoadProfileCommands.class).toInstance(loadProfileCommands);
             }
         });
     }
+
+    @SuppressWarnings("unused")
+    public void uploadIntervalChannelData(String mrid, String startDate, String path) {
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                UploadIntervalChannelDataCommand command = injector.getInstance(UploadIntervalChannelDataCommand.class);
+                command.setMeter(mrid);
+                command.setStartDate(startDate);
+                command.setSource(path);
+                command.run();
+            }
+        });
+    }
+
+    @SuppressWarnings("unused")
+    public void uploadNonIntervalChannelData(String mrid, String startDate, String path) {
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                UploadNonIntervalChannelDataCommand command = injector.getInstance(UploadNonIntervalChannelDataCommand.class);
+                command.setMeter(mrid);
+                command.setStartDate(startDate);
+                command.setSource(path);
+                command.run();
+            }
+        });
+    }
+
+
+    @SuppressWarnings("unused")
+    public void uploadRegisterData(String mrid, String startDate, String path) {
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                UploadRegisterDataCommand command = injector.getInstance(UploadRegisterDataCommand.class);
+                command.setMeter(mrid);
+                command.setStartDate(startDate);
+                command.setSource(path);
+                command.run();
+            }
+        });
+    }
+
 
     @Override
     public void createDemoData(final String comServerName, final String host, final String startDate) {
         executeTransaction(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                createCollectRemoteDataSetupImpl(comServerName, host);
                 createUserManagementImpl();
+                createCollectRemoteDataSetupImpl(comServerName, host);
                 createValidationSetupImpl();
                 createDeliverDataSetupImpl();
                 createMockedDataDeviceImpl(Constants.Device.MOCKED_REALISTIC_DEVICE, Constants.Device.MOCKED_REALISTIC_SERIAL_NUMBER);
                 createApplicationServerImpl(comServerName); // the same name as for comserver
-                createA3DeviceImpl();
                 createNtaConfigImpl();
             }
         });
-        uploadData(startDate);
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                uploadAllData(startDate);
+            }
+        });
     }
 
     @Override
@@ -515,21 +563,10 @@ public class DemoServiceImpl implements DemoService {
         injector.getInstance(InboundComPortPoolFactory.class).withName(Constants.ComPortPool.INBOUND_SERVLET_POOL).get();
     }
 
-
-    private void uploadData(String startDate) {
-        loadProfileCommands.uploadDataImpl(Constants.Device.MOCKED_REALISTIC_DEVICE + Constants.Device.MOCKED_REALISTIC_SERIAL_NUMBER, startDate, getResourceAsStream("realisticChannelData - Interval.csv"));
-        loadProfileCommands.uploadDataImpl(Constants.Device.MOCKED_REALISTIC_DEVICE + Constants.Device.MOCKED_REALISTIC_SERIAL_NUMBER, startDate, getResourceAsStream("realisticChannelData - Daily.csv"));
-        loadProfileCommands.uploadDataImpl(Constants.Device.MOCKED_REALISTIC_DEVICE + Constants.Device.MOCKED_REALISTIC_SERIAL_NUMBER, startDate, getResourceAsStream("realisticChannelData - Monthly.csv"));
-        loadProfileCommands.uploadRegistersImpl(Constants.Device.MOCKED_REALISTIC_DEVICE + Constants.Device.MOCKED_REALISTIC_SERIAL_NUMBER, startDate, getResourceAsStream("realisticRegisterData.csv"));
-
-        loadProfileCommands.uploadDataImpl(Constants.Device.MOCKED_VALIDATION_DEVICE + Constants.Device.MOCKED_VALIDATION_SERIAL_NUMBER, startDate, getResourceAsStream("realisticChannelData - Interval - Validation.csv"));
-        loadProfileCommands.uploadDataImpl(Constants.Device.MOCKED_VALIDATION_DEVICE + Constants.Device.MOCKED_VALIDATION_SERIAL_NUMBER, startDate, getResourceAsStream("realisticChannelData - Daily - Validation.csv"));
-        loadProfileCommands.uploadDataImpl(Constants.Device.MOCKED_VALIDATION_DEVICE + Constants.Device.MOCKED_VALIDATION_SERIAL_NUMBER, startDate, getResourceAsStream("realisticChannelData - Monthly.csv"));
-        loadProfileCommands.uploadRegistersImpl(Constants.Device.MOCKED_VALIDATION_DEVICE + Constants.Device.MOCKED_VALIDATION_SERIAL_NUMBER, startDate, getResourceAsStream("realisticRegisterData - Validation.csv"));
-   }
-
-    private InputStream getResourceAsStream(String name) {
-        return getClass().getClassLoader().getResourceAsStream(name);
+    private void uploadAllData(String startDate) {
+        UploadAllCommand command = injector.getInstance(UploadAllCommand.class);
+        command.setStartDate(startDate);
+        command.run();
     }
 
     private void findRegisterTypes(Store store) {
@@ -838,7 +875,7 @@ public class DemoServiceImpl implements DemoService {
     private void createDevicesForDeviceConfiguration(Store store, DeviceConfiguration configuration){
         System.out.println("==> Creating Devices for Configuration...");
         String deviceTypeName = configuration.getDeviceType().getName();
-        for (int i = 1; i <= Constants.DeviceType.from(deviceTypeName).get().getDeviceCount(); i++) {
+        for (int i = 1; i <= 1 /*Constants.DeviceType.from(deviceTypeName).get().getDeviceCount()*/; i++) {
             deviceCounter++;
             String serialNumber = "01000001" + String.format("%04d", deviceCounter);
             String mrid = Constants.Device.STANDARD_PREFIX +  serialNumber;
@@ -1222,12 +1259,6 @@ public class DemoServiceImpl implements DemoService {
     @SuppressWarnings("unused")
     public final void setFavoritesService(FavoritesService favoritesService) {
         this.favoritesService = favoritesService;
-    }
-
-    @Reference
-    @SuppressWarnings("unused")
-    public final void setLoadProfileCommands(LoadProfileCommands loadProfileCommands) {
-        this.loadProfileCommands = loadProfileCommands;
     }
 
     private <T> T executeTransaction(Transaction<T> transaction) {

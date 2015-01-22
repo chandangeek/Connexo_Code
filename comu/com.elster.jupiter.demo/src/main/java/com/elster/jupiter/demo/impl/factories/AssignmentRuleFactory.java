@@ -1,9 +1,9 @@
 package com.elster.jupiter.demo.impl.factories;
 
-import javax.inject.Inject;
-
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
+
+import javax.inject.Inject;
 
 public class AssignmentRuleFactory extends NamedFactory<AssignmentRuleFactory, AssignmentRule> {
 
