@@ -454,6 +454,9 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
 
     }
 
+    /**
+     * The protocol version date
+     */
     public String getProtocolVersion() {
         return "$Date$";
     }

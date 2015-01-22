@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.powermeasurement.ion;
 
+import com.energyict.protocolimpl.utils.ProtocolTools;
+
 public class Authentication {
 
     private ByteArray byteArray;
@@ -31,26 +33,42 @@ public class Authentication {
         }
         
         Integer pwd = parse( password );
-        
-        if( pwd == null && password.length() > 6 ) {
-            String msg = "An alphanumeric password is max. 6 chars long.";
-            throw new InvalidPasswordException( msg );
+
+        if (pwd == null) {
+            boolean invalidPassword = false;
+            if (password.toLowerCase().startsWith("hex") && (password.length() > 15)) {
+                invalidPassword = true;
+            } else if (!password.toLowerCase().startsWith("hex") && (password.length() > 6)) {
+                invalidPassword = true;
+            }
+
+            if (invalidPassword) {
+                String msg = "An alphanumeric password is max. 6 chars long.";
+                throw new InvalidPasswordException(msg);
+            }
         }
 
         byteArray = new ByteArray()
                         .add( pwd != null ? (byte)0x00 : (byte)0x80 ) 
                         .add( (byte) uid.intValue() );
-        
+
         if( pwd != null ) {
-            byteArray.add( (byte)0x0 ).add( (byte)0x0 ).addRawInt( pwd.intValue(), 4 );
+            byteArray.add((byte) 0x0).add((byte) 0x0).addRawInt(pwd.intValue(), 4);
         } else {
-            for( int i = 0; i < (6-password.length()); i ++ )
-                byteArray.add( (byte)0x00 );
-            byteArray.add( password.getBytes() ); 
+            byte[] passwordBytes;
+            if (password.toLowerCase().startsWith("hex")) {
+                passwordBytes = ProtocolTools.getBytesFromHexString(password.substring(3), "");
+            } else {
+                passwordBytes = password.getBytes();
+            }
+
+            for (int i = 0; i < (6 - passwordBytes.length); i++) {
+                byteArray.add((byte) 0x00);
+            }
+            byteArray.add(passwordBytes);
         }
-        
     }
-    
+
     private Integer parse( String s ) {
         Integer rslt = null;
         try {
