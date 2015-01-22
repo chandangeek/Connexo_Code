@@ -62,6 +62,7 @@ Ext.define('Uni.Loader', {
         'Uni.override.ux.window.Notification',
         'Uni.override.view.Table',
         'Uni.override.window.MessageBox',
+        'Uni.override.form.field.Picker',
         'Uni.form.field.ReadingTypeCombo'
     ],
 
