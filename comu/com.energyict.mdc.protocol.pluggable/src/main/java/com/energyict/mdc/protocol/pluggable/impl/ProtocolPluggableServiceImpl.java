@@ -83,7 +83,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -135,7 +134,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     private volatile UserService userService;
     private volatile DataVaultService dataVaultService;
 
-    private volatile boolean active = false;
+    private volatile boolean installed = false;
     private List<ReferencePropertySpecFinderProvider> factoryProviders = new ArrayList<>();
 
     // For OSGi purposes
@@ -628,7 +627,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addLicensedProtocolService(LicensedProtocolService licensedProtocolService) {
         this.licensedProtocolServices.add(licensedProtocolService);
-        if (active) {
+        if (installed) {
             registerDeviceProtocolPluggableClasses();
         }
     }
@@ -641,7 +640,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addInboundDeviceProtocolService(InboundDeviceProtocolService inboundDeviceProtocolService) {
         this.inboundDeviceProtocolServices.add(inboundDeviceProtocolService);
-        if (active) {
+        if (installed) {
             registerInboundDeviceProtocolPluggableClasses();
         }
     }
@@ -681,7 +680,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addConnectionTypeService(ConnectionTypeService connectionTypeService) {
         this.connectionTypeServices.add(connectionTypeService);
-        if (active) {
+        if (installed) {
             registerConnectionTypePluggableClasses();
         }
     }
@@ -730,7 +729,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             getPropertySpecService().addFactoryProvider(factoryProvider);
         }
         this.factoryProviders.add(factoryProvider);
-        if (active) {
+        if (installed) {
             registerAllPluggableClasses();
         }
     }
@@ -840,12 +839,12 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     public void activate() {
         //TODO need a proper implementation of the DataVault!
         this.dataModel.register(this.getModule());
-        this.active = this.dataModel.isInstalled();
+        this.installed = this.dataModel.isInstalled();
         this.registerAllPluggableClasses();
     }
 
     private void registerAllPluggableClasses() {
-        if (active) {
+        if (installed) {
             this.registerInboundDeviceProtocolPluggableClasses();
             this.registerDeviceProtocolPluggableClasses();
             this.registerConnectionTypePluggableClasses();
