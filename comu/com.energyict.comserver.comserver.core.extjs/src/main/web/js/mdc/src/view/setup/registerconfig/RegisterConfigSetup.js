@@ -10,7 +10,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
         'Mdc.view.setup.registerconfig.RegisterConfigGrid',
         'Mdc.view.setup.registerconfig.RegisterConfigFilter',
         'Mdc.view.setup.registerconfig.RegisterConfigPreview',
-        'Uni.view.navigation.SubMenu',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',

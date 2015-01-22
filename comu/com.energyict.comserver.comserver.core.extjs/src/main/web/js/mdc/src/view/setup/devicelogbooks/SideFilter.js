@@ -7,10 +7,10 @@ Ext.define('Mdc.view.setup.devicelogbooks.SideFilter', {
     alias: 'widget.deviceLogbookDataSideFilter',
     ui: 'medium',
     width: 250,
+    title: Uni.I18n.translate('general.filter', 'MDC', 'Filter'),
     items: {
         xtype: 'form',
         itemId: 'deviceLogbookDataSideFilterForm',
-        title: Uni.I18n.translate('general.filter', 'MDC', 'Filter'),
         ui: 'filter',
         defaults: {
             xtype: 'combobox',

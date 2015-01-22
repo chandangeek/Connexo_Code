@@ -6,7 +6,6 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingSetup', {
     device: null,
 
     requires: [
-        'Uni.view.navigation.SubMenu',
         'Mdc.view.setup.device.DeviceMenu',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel'

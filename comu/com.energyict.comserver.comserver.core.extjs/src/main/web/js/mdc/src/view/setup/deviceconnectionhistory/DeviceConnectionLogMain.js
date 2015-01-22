@@ -4,7 +4,6 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
     itemId: 'deviceConnectionLogMain',
 
     requires: [
-        'Uni.view.navigation.SubMenu',
         'Mdc.view.setup.device.DeviceMenu',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',

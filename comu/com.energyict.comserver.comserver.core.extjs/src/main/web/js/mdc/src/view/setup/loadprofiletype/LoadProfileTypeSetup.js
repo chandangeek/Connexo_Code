@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
         'Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid',
         'Mdc.view.setup.loadprofiletype.LoadProfileTypePreview',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Mdc.view.setup.devicetype.SideMenu'
     ],
 
     content: [
@@ -62,7 +63,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
                         ui: 'medium',
                         items: [
                             {
-                                xtype: 'deviceTypeMenu',
+                                xtype: 'deviceTypeSideMenu',
                                 deviceTypeId: config.deviceTypeId,
                                 toggle: 2
                             }

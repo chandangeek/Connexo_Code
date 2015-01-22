@@ -9,7 +9,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
         'Mdc.view.setup.register.RegisterMappingsGrid',
         'Mdc.view.setup.register.RegisterMappingsFilter',
         'Mdc.view.setup.register.RegisterMappingPreview',
-        'Uni.view.navigation.SubMenu',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.devicetype.SideMenu'

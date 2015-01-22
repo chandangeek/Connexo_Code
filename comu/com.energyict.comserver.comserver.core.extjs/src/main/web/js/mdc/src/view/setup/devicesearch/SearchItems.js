@@ -7,7 +7,6 @@ Ext.define('Mdc.view.setup.devicesearch.SearchItems', {
         'Mdc.view.setup.devicesearch.SearchResults',
         'Mdc.view.setup.devicesearch.DevicesSideFilter',
         'Uni.component.filter.view.FilterTopPanel',
-        'Uni.view.navigation.SubMenu',
         'Mdc.view.setup.devicesearch.SortMenu'
     ],
 

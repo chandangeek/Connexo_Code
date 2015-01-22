@@ -6,7 +6,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodSetup', {
     deviceConfigId: null,
 
     requires: [
-        'Uni.view.navigation.SubMenu',
         'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel'
