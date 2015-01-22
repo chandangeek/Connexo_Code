@@ -231,7 +231,7 @@ public class DemoTest {
             ctx.commit();
         }
         try{
-            demoService.createDemoData("DemoTestComServer", "host", "2013-12-01T00:00:00Z");
+            demoService.createDemoData("DemoTestComServer", "host", "2013-12-01");
         } catch (Exception e) {
             fail("The demo command shouldn't produce errors");
         }

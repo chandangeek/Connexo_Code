@@ -22,7 +22,7 @@ import java.util.Scanner;
 import static com.elster.jupiter.util.Checks.is;
 
 public abstract class ReadDataFromFileCommand {
-    protected static final String START_DATE_FORMAT = "yyyy-MM-ddTHH:mm:00Z";
+    protected static final String START_DATE_FORMAT = "yyyy-MM-dd";
 
     private final MeteringService meteringService;
 
@@ -38,7 +38,7 @@ public abstract class ReadDataFromFileCommand {
 
     public void setStartDate(String date){
         try {
-            this.start = ZonedDateTime.ofInstant(Instant.parse(date), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
+            this.start = ZonedDateTime.ofInstant(Instant.parse(date + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
         } catch (DateTimeParseException e) {
             throw new UnableToCreate("Unable to parse start time. Please use the following format: " + START_DATE_FORMAT);
         }

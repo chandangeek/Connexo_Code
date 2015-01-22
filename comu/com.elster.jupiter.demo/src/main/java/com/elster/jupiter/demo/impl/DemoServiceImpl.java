@@ -3,9 +3,9 @@ package com.elster.jupiter.demo.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.demo.DemoService;
 import com.elster.jupiter.demo.impl.commands.upload.UploadAllCommand;
-import com.elster.jupiter.demo.impl.commands.upload.UploadIntervalChannelDataCommand;
-import com.elster.jupiter.demo.impl.commands.upload.UploadNonIntervalChannelDataCommand;
-import com.elster.jupiter.demo.impl.commands.upload.UploadRegisterDataCommand;
+import com.elster.jupiter.demo.impl.commands.upload.AddIntervalChannelReadingsCommand;
+import com.elster.jupiter.demo.impl.commands.upload.AddNoneIntervalChannelReadingsCommand;
+import com.elster.jupiter.demo.impl.commands.upload.AddRegisterReadingsCommand;
 import com.elster.jupiter.demo.impl.factories.AppServerFactory;
 import com.elster.jupiter.demo.impl.factories.AssignmentRuleFactory;
 import com.elster.jupiter.demo.impl.factories.ComServerFactory;
@@ -133,9 +133,9 @@ import static com.elster.jupiter.util.conditions.Where.where;
         "osgi.command.function=createCollectRemoteDataSetup",
         "osgi.command.function=createValidationSetup",
         "osgi.command.function=createAssignmentRules",
-        "osgi.command.function=uploadIntervalChannelData",
-        "osgi.command.function=uploadNonIntervalChannelData",
-        "osgi.command.function=uploadRegisterData",
+        "osgi.command.function=addIntervalChannelReadings",
+        "osgi.command.function=addNoneIntervalChannelReadings",
+        "osgi.command.function=addRegisterReadings",
 }, immediate = true)
 public class DemoServiceImpl implements DemoService {
     private final boolean rethrowExceptions;
@@ -278,11 +278,11 @@ public class DemoServiceImpl implements DemoService {
     }
 
     @SuppressWarnings("unused")
-    public void uploadIntervalChannelData(String mrid, String startDate, String path) {
+    public void addIntervalChannelReadings(String mrid, String startDate, String path) {
         executeTransaction(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                UploadIntervalChannelDataCommand command = injector.getInstance(UploadIntervalChannelDataCommand.class);
+                AddIntervalChannelReadingsCommand command = injector.getInstance(AddIntervalChannelReadingsCommand.class);
                 command.setMeter(mrid);
                 command.setStartDate(startDate);
                 command.setSource(path);
@@ -292,11 +292,11 @@ public class DemoServiceImpl implements DemoService {
     }
 
     @SuppressWarnings("unused")
-    public void uploadNonIntervalChannelData(String mrid, String startDate, String path) {
+    public void addNoneIntervalChannelReadings(String mrid, String startDate, String path) {
         executeTransaction(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                UploadNonIntervalChannelDataCommand command = injector.getInstance(UploadNonIntervalChannelDataCommand.class);
+                AddNoneIntervalChannelReadingsCommand command = injector.getInstance(AddNoneIntervalChannelReadingsCommand.class);
                 command.setMeter(mrid);
                 command.setStartDate(startDate);
                 command.setSource(path);
@@ -307,11 +307,11 @@ public class DemoServiceImpl implements DemoService {
 
 
     @SuppressWarnings("unused")
-    public void uploadRegisterData(String mrid, String startDate, String path) {
+    public void addRegisterReadings(String mrid, String startDate, String path) {
         executeTransaction(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                UploadRegisterDataCommand command = injector.getInstance(UploadRegisterDataCommand.class);
+                AddRegisterReadingsCommand command = injector.getInstance(AddRegisterReadingsCommand.class);
                 command.setMeter(mrid);
                 command.setStartDate(startDate);
                 command.setSource(path);

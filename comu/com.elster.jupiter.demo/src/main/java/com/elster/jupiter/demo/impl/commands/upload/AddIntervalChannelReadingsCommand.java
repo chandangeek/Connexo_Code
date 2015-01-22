@@ -10,10 +10,10 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-public class UploadIntervalChannelDataCommand extends UploadChannelDataCommand{
+public class AddIntervalChannelReadingsCommand extends AddChannelReadingsCommand {
 
     @Inject
-    public UploadIntervalChannelDataCommand(MeteringService meteringService, DeviceService deviceService) {
+    public AddIntervalChannelReadingsCommand(MeteringService meteringService, DeviceService deviceService) {
         super(meteringService, deviceService);
     }
 

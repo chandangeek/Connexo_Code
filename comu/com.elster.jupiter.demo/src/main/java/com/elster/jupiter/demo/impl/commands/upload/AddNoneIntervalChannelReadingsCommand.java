@@ -12,10 +12,10 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
-public class UploadNonIntervalChannelDataCommand extends UploadChannelDataCommand {
+public class AddNoneIntervalChannelReadingsCommand extends AddChannelReadingsCommand {
 
     @Inject
-    public UploadNonIntervalChannelDataCommand(MeteringService meteringService, DeviceService deviceService) {
+    public AddNoneIntervalChannelReadingsCommand(MeteringService meteringService, DeviceService deviceService) {
         super(meteringService, deviceService);
     }
 

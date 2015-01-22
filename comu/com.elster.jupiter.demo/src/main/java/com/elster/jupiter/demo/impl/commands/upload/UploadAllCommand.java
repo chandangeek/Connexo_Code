@@ -13,16 +13,16 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 
 public class UploadAllCommand {
-    protected static final String START_DATE_FORMAT = "yyyy-MM-ddTHH:mm:00Z";
+    protected static final String START_DATE_FORMAT = "yyyy-MM-dd";
 
-    private final Provider<UploadIntervalChannelDataCommand> uploadIntervalChannelDataCommandProvider;
-    private final Provider<UploadNonIntervalChannelDataCommand> uploadNonIntervalChannelDataCommandProvider;
-    private final Provider<UploadRegisterDataCommand> uploadRegisterDataCommandProvider;
+    private final Provider<AddIntervalChannelReadingsCommand> uploadIntervalChannelDataCommandProvider;
+    private final Provider<AddNoneIntervalChannelReadingsCommand> uploadNonIntervalChannelDataCommandProvider;
+    private final Provider<AddRegisterReadingsCommand> uploadRegisterDataCommandProvider;
 
     private Instant start;
 
     @Inject
-    public UploadAllCommand(Provider<UploadIntervalChannelDataCommand> uploadIntervalChannelDataCommandProvider, Provider<UploadNonIntervalChannelDataCommand> uploadNonIntervalChannelDataCommandProvider, Provider<UploadRegisterDataCommand> uploadRegisterDataCommandProvider) {
+    public UploadAllCommand(Provider<AddIntervalChannelReadingsCommand> uploadIntervalChannelDataCommandProvider, Provider<AddNoneIntervalChannelReadingsCommand> uploadNonIntervalChannelDataCommandProvider, Provider<AddRegisterReadingsCommand> uploadRegisterDataCommandProvider) {
         this.uploadIntervalChannelDataCommandProvider = uploadIntervalChannelDataCommandProvider;
         this.uploadNonIntervalChannelDataCommandProvider = uploadNonIntervalChannelDataCommandProvider;
         this.uploadRegisterDataCommandProvider = uploadRegisterDataCommandProvider;
@@ -30,7 +30,7 @@ public class UploadAllCommand {
 
     public void setStartDate(String date){
         try {
-            this.start = ZonedDateTime.ofInstant(Instant.parse(date), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
+            this.start = ZonedDateTime.ofInstant(Instant.parse(date + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
         } catch (DateTimeParseException e) {
             throw new UnableToCreate("Unable to parse start time. Please use the following format: " + START_DATE_FORMAT);
         }

@@ -1,27 +1,31 @@
 package com.elster.jupiter.demo.impl.commands.upload;
 
-import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
+import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
-import com.elster.jupiter.metering.readings.beans.ReadingImpl;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfile;
 
-import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class UploadRegisterDataCommand extends ReadDataFromFileCommand {
+public abstract class AddChannelReadingsCommand extends ReadDataFromFileCommand {
+
+    private final DeviceService deviceService;
 
     private Map<String, IntervalBlockImpl> blocks;
     private MeterReadingImpl meterReading;
 
-    @Inject
-    public UploadRegisterDataCommand(MeteringService meteringService) {
+    public AddChannelReadingsCommand(MeteringService meteringService, DeviceService deviceService) {
         super(meteringService);
+        this.deviceService = deviceService;
     }
 
     @Override
@@ -43,7 +47,8 @@ public class UploadRegisterDataCommand extends ReadDataFromFileCommand {
     @Override
     protected void saveRecord(ReadingType readingType, String controlValue, Double value) {
         Instant timeForReading = getTimeForReading(readingType, getStart(), controlValue);
-        meterReading.addReading(ReadingImpl.of(readingType.getMRID(), BigDecimal.valueOf(value), timeForReading));
+        IntervalReadingImpl intervalReading = IntervalReadingImpl.of(timeForReading, BigDecimal.valueOf(value));
+        blocks.get(readingType.getMRID()).addIntervalReading(intervalReading);
 
         //System.out.println("\t" + timeForReading + " - (" + readingType.getMRID() + ") -\tvalue = " + value);
     }
@@ -55,14 +60,20 @@ public class UploadRegisterDataCommand extends ReadDataFromFileCommand {
             meterReading.addIntervalBlock(block);
         }
         getMeter().store(meterReading);
+        setLastReadingTypeForLoadProfile(getMeter().getMRID());
     }
 
-    protected Instant getTimeForReading(ReadingType readingType, Instant startDate, String controlValue) {
-        if (controlValue.length() != 9){
-            throw new UnableToCreate("Incorrect control value for importing data. Should be 000-00:00");
+    protected abstract Instant getTimeForReading(ReadingType readingType, Instant startDate, String controlValue);
+
+    private void setLastReadingTypeForLoadProfile(final String mrid) {
+        Device device = deviceService.findByUniqueMrid(mrid);
+        List<LoadProfile> loadProfiles = device.getLoadProfiles();
+        for (LoadProfile loadProfile : loadProfiles) {
+            LoadProfile.LoadProfileUpdater updater = device.getLoadProfileUpdaterFor(loadProfile);
+            for (Channel channel : loadProfile.getChannels()) {
+                channel.getLastDateTime().ifPresent(t -> updater.setLastReadingIfLater(t));
+            }
+            updater.update();
         }
-        startDate = startDate.plus(Integer.valueOf(controlValue.substring(0, 3)), ChronoUnit.DAYS);
-        startDate = startDate.plus(Integer.valueOf(controlValue.substring(4, 6)), ChronoUnit.HOURS);
-        return startDate.plus(Integer.valueOf(controlValue.substring(7, 9)), ChronoUnit.MINUTES);
     }
 }
