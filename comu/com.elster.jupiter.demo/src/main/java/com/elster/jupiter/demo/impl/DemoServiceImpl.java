@@ -102,7 +102,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 
-import java.io.File;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.security.Principal;
@@ -195,8 +194,6 @@ public class DemoServiceImpl implements DemoService {
             LicenseService licenseService,
             OrmService ormService,
             IssueService issueService,
-            IssueCreationService issueCreationService,
-            IssueAssignmentService issueAssignmentService,
             MeteringGroupsService meteringGroupsService,
             KpiService kpiService,
             IssueDataCollectionService issueDataCollectionService,
@@ -224,8 +221,6 @@ public class DemoServiceImpl implements DemoService {
         setLicenseService(licenseService);
         setOrmService(ormService);
         setIssueService(issueService);
-        setIssueCreationService(issueCreationService);
-        setIssueAssignmentService(issueAssignmentService);
         setMeteringGroupsService(meteringGroupsService);
         setKpiService(kpiService);
         setIssueDataCollectionService(issueDataCollectionService);
@@ -1165,17 +1160,8 @@ public class DemoServiceImpl implements DemoService {
     @SuppressWarnings("unused")
     public final void setIssueService(IssueService issueService) {
         this.issueService = issueService;
-    }
-
-    @Reference
-    @SuppressWarnings("unused")
-    public final void setIssueCreationService(IssueCreationService issueCreationService) {
-        this.issueCreationService = issueCreationService;
-    }
-    
-    @Reference
-    public final void setIssueAssignmentService(IssueAssignmentService issueAssignmentService) {
-        this.issueAssignmentService = issueAssignmentService;
+        this.issueAssignmentService = issueService.getIssueAssignmentService();
+        this.issueCreationService = issueService.getIssueCreationService();
     }
 
     @Reference
