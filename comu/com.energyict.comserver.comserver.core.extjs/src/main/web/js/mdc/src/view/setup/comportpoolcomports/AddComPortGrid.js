@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.comportpoolcomports.AddComPortGrid', {
 
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
-            'setup.searchitems.bulk.SchedulesSelectionGrid.counterText',
+            'comPortPoolComPorts.addPorts.counterText',
             count,
             'MDC',
             '{0} communication ports selected'
@@ -21,17 +21,17 @@ Ext.define('Mdc.view.setup.comportpoolcomports.AddComPortGrid', {
 
     columns: [
         {
-            header: Uni.I18n.translate('comPortPoolComPort.communicationPort', 'MDC', 'Communication port'),
-            dataIndex: 'name',
-            flex: 3
-        },
-        {
             header: Uni.I18n.translate('comPortPoolComPort.communicationServer', 'MDC', 'Communication server'),
             dataIndex: 'comServerName',
             flex: 2
         },
         {
-            header: Uni.I18n.translate('comPortPoolComPort.portStatus', 'MDC', 'Port status'),
+            header: Uni.I18n.translate('comPortPoolComPort.communicationPort', 'MDC', 'Communication port'),
+            dataIndex: 'name',
+            flex: 3
+        },
+        {
+            header: Uni.I18n.translate('deviceconfiguration.status', 'MDC', 'Status'),
             dataIndex: 'active',
             flex: 3,
             renderer: function (value) {

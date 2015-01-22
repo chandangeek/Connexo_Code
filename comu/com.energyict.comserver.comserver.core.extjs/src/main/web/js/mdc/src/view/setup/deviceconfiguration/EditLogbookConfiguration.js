@@ -12,6 +12,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.EditLogbookConfiguration', {
         {
             xtype: 'panel',
             ui: 'large',
+            itemId: 'editLogbookPanel',
             title: 'Edit logbook configuration',
             items: [
                 {

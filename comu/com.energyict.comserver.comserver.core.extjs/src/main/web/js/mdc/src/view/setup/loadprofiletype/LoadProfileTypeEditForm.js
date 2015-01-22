@@ -109,7 +109,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
                                     xtype: 'button',
                                     itemId: 'add-register-types-to-load-profile-type-button',
                                     text: Uni.I18n.translate('loadProfileTypes.addRegisterTypes', 'MDC', 'Add register types'),
-                                    ui: 'action',
                                     margin: '0 0 0 10'
                                 }
                             ]

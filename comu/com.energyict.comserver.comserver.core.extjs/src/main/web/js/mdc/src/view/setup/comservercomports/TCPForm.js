@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
             },
             name: 'numberOfSimultaneousConnections',
             value: 1,
-            width: 350                                    },
+            width: 370                                    },
         {
             xtype: 'fieldcontainer',
             required: false,
@@ -56,7 +56,7 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
             },
             name: 'portNumber',
             value: 0,
-            width: 350
+            width: 370
         },
         {
             xtype: 'combobox',

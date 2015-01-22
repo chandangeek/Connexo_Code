@@ -38,27 +38,14 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                 itemId: 'connectionMethodEditAddTitle',
                 layout: {
                     type: 'vbox'
-//                    align: 'stretch'
                 },
 
                 items: [
-//                    {
-//                        xtype: 'component',
-//                        itemId: 'connectionMethodEditAddTitle',
-//                        margins: '0 10 10 10'
-//                    },
-//                    {
-//                        xtype: 'container',
-//                        layout: {
-//                            type: 'column'
-//                        },
-//                        items: [
                     {
                         xtype: 'form',
                         border: false,
                         itemId: 'connectionMethodEditForm',
                         width: 900,
-//                                padding: '10 10 0 10',
                         layout: {
                             type: 'vbox',
                             align: 'stretch'
@@ -107,7 +94,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 msgTarget: 'under',
                                 listeners: {
                                     'change': function (combo, newValue) {
-                                        if (newValue === null)
+                                        if (newValue === null || newValue === '' )
                                             combo.reset();
                                     }
                                 }

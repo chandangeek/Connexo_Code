@@ -276,8 +276,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                         router.getRoute(currentRoute).forward();
                     }
                 },
-                callback: function () {
-                    form.setTitle(Uni.I18n.translate('loadProfileTypes.LoadProfileTypeEdit.editTitle', 'MDC', 'Edit load profile type'));
+                callback: function (record) {
+                    form.setTitle(Uni.I18n.translate('loadProfileTypes.LoadProfileTypeEdit.editTitle', 'MDC', 'Edit') + " '" + record.get('name') + "'");
                     form.setEdit(true, returnLink, addRegisterTypesLink);
                     widget.setLoading(false);
                 }
