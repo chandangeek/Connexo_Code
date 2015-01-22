@@ -18,7 +18,7 @@ Ext.define('Uni.property.view.property.Base', {
         'Uni.property.view.DefaultButton'
     ],
 
-    width: 320,
+    width: 256,
     translationKey: 'UNI',
 
     layout: 'hbox',
