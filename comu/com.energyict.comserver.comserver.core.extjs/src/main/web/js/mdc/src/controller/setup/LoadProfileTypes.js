@@ -91,7 +91,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                     widget.setLoading(false);
 
                     if (success) {
-                        me.handleSuccessRequest(Uni.I18n.translate('loadProfileTypes.removeSuccessMsg', 'MDC', 'Load profile type was removed successfully'));
+                        me.handleSuccessRequest(Uni.I18n.translate('loadProfileTypes.removeSuccessMsg', 'MDC', 'Load profile type removed'));
                         me.store.loadPage(1);
                     } else {
                         json = Ext.decode(operation.response.responseText, true);
