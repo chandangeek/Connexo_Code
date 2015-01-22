@@ -264,7 +264,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                         reportGroup = allReports[subCategory];
                         reportGroup.title = subCategory;
                         reportGroup.name = reportName;
-                        reportGroup.disabled = selectedReportGroup && selectedReportGroup != subCategory;
+                        reportGroup.disabled = selectedReportGroup && (selectedReportGroup.toUpperCase() != subCategory.toUpperCase());
 
                     }
                     if (reportUUID == selectedReportUUID) {

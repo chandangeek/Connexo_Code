@@ -28,12 +28,15 @@ Ext.define('Yfn.view.generatereport.RadioGroup', {
                     checked: !me.disabled && item.checked,
                     disabled:me.groupDisabled,
                     record:item.record,
+                    tooltip:item.tooltip,
                     fieldType:item.fieldType,
                     listeners:{
                         afterrender:function(component){
+                            var tooltip = component.tooltip;// || (component.record && component.record.get('description')) ;
+
                             new Ext.ToolTip({
                                 target: component.getEl(),
-                                html: item.tooltip
+                                html: tooltip
                             });
 
                         },
