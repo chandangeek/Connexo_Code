@@ -78,54 +78,37 @@ Ext.define('Sam.controller.licensing.Upload', {
                 method: 'POST',
                 waitMsg: 'Loading...',
                 failure: function (form, action) {
-                    if (Ext.isEmpty(action.result.data.failure)) {
-                        window.location.href = '#/administration/licensing/licenses';
-                        header.text = 'Licenses successfully uploaded for applications:';
-                        msges.push(header);
-                        Ext.Array.each(action.result.data.success, function(item) {
-                            var bodyItem = {};
-                            bodyItem.style = 'msgItemStyle';
-                            bodyItem.text = item;
-                            msges.push(bodyItem);
-                        });
-                        self.getApplication().fireEvent('isushowmsg', {
-                            type: 'notify',
-                            msgBody: msges,
-                            y: 10,
-                            showTime: 5000
-                        });
-                        self.getApplication().fireEvent('upload', action.result.data.success[0]);
-                        Ext.getStore('apps').load();
+                    if (Ext.isIE) {
+                        if (action.result.success) {
+                            self.getController('Uni.controller.history.Router').getRoute('administration/licensing/licences').forward();
+                            self.getApplication().fireEvent('acknowledge', 'Licenses successfully uploaded');
+                        } else {
+                            uploadPanel.down('#upload').disable();
+                            self.getApplication().getController('Uni.controller.Error').showError('Failed to upload licenses', 'A newer license is already active');
+                        }
                     } else {
-                        var bodyItem = {};
-                        bodyItem.style = 'msgItemStyle';
-                        header.text = 'Failed to upload licenses';
-                        msges.push(header);
-                        bodyItem.text = action.result.data.failure;
-                        msges.push(bodyItem);
-                        self.getApplication().fireEvent('isushowmsg', {
-                            type: 'error',
-                            msgBody: msges,
-                            y: 10,
-                            closeBtn: true,
-                            btns: [
-                                {
-                                    text: 'Cancel',
-                                    cls: 'isu-btn-link',
-                                    hnd: function () {
-                                        window.location = '#/administration/licensing/licenses';
-                                    }
-                                }
-                            ],
-                            listeners: {
-                                close: {
-                                    fn: function () {
-                                        uploadPanel.enable();
-                                    }
-                                }
-                            }
-                        })
-                        uploadPanel.disable();
+                        if (Ext.isEmpty(action.result.data.failure)) {
+                            window.location.href = '#/administration/licensing/licenses';
+                            header.text = 'Licenses successfully uploaded for applications:';
+                            msges.push(header);
+                            Ext.Array.each(action.result.data.success, function(item) {
+                                var bodyItem = {};
+                                bodyItem.style = 'msgItemStyle';
+                                bodyItem.text = item;
+                                msges.push(bodyItem);
+                            });
+                            self.getApplication().fireEvent('isushowmsg', {
+                                type: 'notify',
+                                msgBody: msges,
+                                y: 10,
+                                showTime: 5000
+                            });
+                            self.getApplication().fireEvent('upload', action.result.data.success[0]);
+                            Ext.getStore('apps').load();
+                        } else {
+                            uploadPanel.down('#upload').disable();
+                            self.getApplication().getController('Uni.controller.Error').showError('Failed to upload licenses', action.result.data.failure);
+                        }
                     }
                 }
             });
