@@ -5,7 +5,7 @@ Ext.define('Uni.controller.Session', {
     initialized: false,
     lastResetTime: null,
     maxInactive: null,
-    verbose:true,
+    verbose:false,
     init: function () {
         this.runner = new Ext.util.TaskRunner();
         this.body = Ext.getBody();
