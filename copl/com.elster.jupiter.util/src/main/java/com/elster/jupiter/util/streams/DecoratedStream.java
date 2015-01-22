@@ -74,7 +74,7 @@ public class DecoratedStream<T> implements Stream<T> {
         return new DecoratedStream<>(decorated.distinct());
     }
 
-    public <R> DecoratedStream<T> disctinct(Function<? super T, ? extends R> property) {
+    public <R> DecoratedStream<T> distinct(Function<? super T, ? extends R> property) {
         return new DecoratedStream<>(
             decorated
                 .map(v -> KeyValue.of(v, property))

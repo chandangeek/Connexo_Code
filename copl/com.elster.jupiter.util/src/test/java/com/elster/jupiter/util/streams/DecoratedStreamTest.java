@@ -58,7 +58,7 @@ public class DecoratedStreamTest {
         );
 
         List<Customer> collect = decorate(customers.stream())
-                .disctinct(Customer::getName)
+                .distinct(Customer::getName)
                 .collect(toList());
 
         assertThat(collect).hasSize(8);
