@@ -266,6 +266,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(comTaskExecution1.getCurrentTryCount()).thenReturn(999);
         when(comTaskExecution1.getDevice()).thenReturn(device);
         when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.Busy);
+        when(comTaskExecution1.getId()).thenReturn(123123L);
         when(device.getComTaskExecutions()).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
         when(comTaskExecutionSession.getSuccessIndicator()).thenReturn(ComTaskExecutionSession.SuccessIndicator.Success);
         when(comTaskExecutionSession.getStartDate()).thenReturn(Instant.now());
@@ -314,7 +315,8 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
                 .containsKey("nextCommunication")
                 .containsKey("alwaysExecuteOnInbound")
                 .containsKey("connectionTask")
-                .hasSize(16);
+                .containsKey("id")
+                .hasSize(17);
 
 
     }
