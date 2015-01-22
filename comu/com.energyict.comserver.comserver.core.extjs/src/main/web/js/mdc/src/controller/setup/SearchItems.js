@@ -59,7 +59,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             '#searchResultsBulkActionButton': {
                 click: this.showBulkAction
             },
-            '#generate-report': {
+            'contentLayout #generate-report': {
                 click: this.onGenerateReport
             }
         });
