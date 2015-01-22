@@ -33,7 +33,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showLogbookTypeEditView',
                             callback: function (route) {
                                 this.getApplication().on('loadLogbookType', function (record) {
-                                    route.setTitle('Edit ' + record.get('name') + '');
+                                    route.setTitle('Edit ' + " '" + record.get('name') + "'");
                                     return true;
                                 }, {single: true});
 
@@ -76,7 +76,15 @@ Ext.define('Mdc.controller.history.Setup', {
                                     route: 'edit',
                                     privileges: ['privilege.administrate.deviceType'],
                                     controller: 'Mdc.controller.setup.DeviceTypes',
-                                    action: 'showDeviceTypeEditView'
+                                    action: 'showDeviceTypeEditView',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadDeviceType', function (record) {
+                                            route.setTitle('Edit' + " '" + record.get('name') + "'");
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    }
                                 },
                                 logbooktypes: {
                                     title: 'Logbook types',
@@ -144,7 +152,15 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     route: 'edit',
                                                     privileges: ['privilege.administrate.deviceType'],
                                                     controller: 'Mdc.controller.setup.DeviceConfigurations',
-                                                    action: 'showDeviceConfigurationEditView'
+                                                    action: 'showDeviceConfigurationEditView',
+                                                    callback: function (route) {
+                                                        this.getApplication().on('loadDeviceConfiguration', function (record) {
+                                                            route.setTitle('Edit' + " '" + record.get('name') + "'");
+                                                            return true;
+                                                        }, {single: true});
+
+                                                        return this;
+                                                    }
                                                 },
                                                 generalattributes: {
                                                     title: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
@@ -185,7 +201,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             action: 'showDeviceConfigurationLoadProfilesEditView',
                                                             callback: function (route) {
                                                                 this.getApplication().on('loadLoadProfile', function (record) {
-                                                                    route.setTitle('Edit \'' + record.name + '\'');
+                                                                    route.setTitle('Edit' + " '" + record.name + "'");
                                                                     return true;
                                                                 }, {single: true});
 
@@ -244,7 +260,15 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             route: '{logbookConfigurationId}/edit',
                                                             privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.DeviceConfigurations',
-                                                            action: 'showEditDeviceConfigurationLogbooksView'
+                                                            action: 'showEditDeviceConfigurationLogbooksView',
+                                                            callback: function (route) {
+                                                                this.getApplication().on('loadLogbooksConfiguration', function (record) {
+                                                                    route.setTitle('Edit' + " '" + record.getValue() + "'");
+                                                                    return true;
+                                                                }, {single: true});
+
+                                                                return this;
+                                                            }
                                                         }
                                                     }
                                                 },
@@ -268,7 +292,15 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             route: '{registerConfigurationId}/edit',
                                                             privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.RegisterConfigs',
-                                                            action: 'showRegisterConfigurationEditView'
+                                                            action: 'showRegisterConfigurationEditView',
+                                                            callback: function (route) {
+                                                                this.getApplication().on('loadRegisterConfiguration', function (record) {
+                                                                    route.setTitle('Edit' + " '" + record.get('name') + "'");
+                                                                    return true;
+                                                                }, {single: true});
+
+                                                                return this;
+                                                            }
                                                         }
                                                     }
                                                 },
@@ -477,7 +509,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             }
                         },
                         edit: {
-                            title: 'Edit profile type',
+                            title: 'Edit',
                             route: '{id}/edit',
                             privileges: ['privilege.administrate.masterData'],
                             controller: 'Mdc.controller.setup.LoadProfileTypes',
@@ -516,7 +548,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showOnlineAddView'
                         },
                         edit: {
-                            title: 'Edit communication server',
+                            title: 'Edit',
                             route: '{id}/edit',
                             privileges: ['privilege.administrate.communicationAdministration'],
                             controller: 'Mdc.controller.setup.ComServerEdit',
