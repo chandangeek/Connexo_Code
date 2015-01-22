@@ -23,6 +23,7 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
+import com.google.common.base.Functions;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -38,6 +39,7 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -189,8 +191,8 @@ public class SchedulingServiceImpl implements ServerSchedulingService, InstallSe
                     .stream()
                     .map(ComTaskInComSchedule::getComSchedule)
                     .collect(Collectors.toMap(
-                                    HasId::getId,
-                                    cs -> cs))  // Dunno why Functions.identity() does not work here
+                                ComSchedule::getId,
+                                Function.identity()))
                     .values());
     }
 
