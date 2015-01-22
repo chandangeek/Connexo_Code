@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
             action: 'run',
             visible: function() {
                 var r = this.record;
-                return r.get('connectionStrategy') && r.get('connectionStrategy').id
+                return r.get('connectionStrategy') && r.get('connectionStrategy').id == 'minimizeConnections'
             }
         },
         {
@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
             action: 'runNow',
             visible: function() {
                 var r = this.record;
-                return r.get('connectionStrategy') && r.get('connectionStrategy').id == 'minimizeConnections'
+                return r.get('connectionStrategy') && r.get('connectionStrategy').id
             }
         },
         {
