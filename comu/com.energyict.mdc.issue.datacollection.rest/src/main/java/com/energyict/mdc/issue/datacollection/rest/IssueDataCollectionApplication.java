@@ -11,14 +11,12 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
@@ -26,7 +24,6 @@ import com.energyict.mdc.issue.datacollection.rest.resource.IssueResource;
 import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
 import com.google.common.collect.ImmutableSet;
 
-import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -83,11 +80,7 @@ public class IssueDataCollectionApplication extends Application implements Insta
     @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
-    }
-
-    @Reference
-    public void setIssueActionService(IssueActionService issueActionService) {
-        this.issueActionService = issueActionService;
+        this.issueActionService = issueService.getIssueActionService();
     }
 
     @Reference
