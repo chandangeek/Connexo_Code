@@ -91,7 +91,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
             title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + logbookTypeToDelete.get('name') + '?',
             config: {
                 logbookTypeToDelete: logbookTypeToDelete,
-                me: me
+                me: me.getApplication()
             },
             fn: me.deleteLogbookTypeInDatabase
         });
@@ -105,9 +105,10 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
         if (btn === 'confirm') {
             var logbookTypeToDelete = opt.config.logbookTypeToDelete;
             var me = opt.config.me;
+            var message = Uni.I18n.translate('logbookType.acknowlegment.removed', 'MDC', 'Logbook type removed');
             logbookTypeToDelete.destroy({
                 success: function () {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('logbookType.acknowlegment.removed', 'MDC', 'Logbook type removed') );
+                    me.fireEvent('acknowledge',message );
                     location.href = '#/administration/logbooktypes/';
                 }
             });
