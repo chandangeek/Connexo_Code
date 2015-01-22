@@ -49,10 +49,12 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskSetup', {
 
                             text: Uni.I18n.translate('general.add', 'CFG', 'Add'),
                             name: 'add',
+                            itemId: 'btn-add-reading-types',
                             ui: 'action'
                         },
                         {
                             name: 'cancel',
+                            itemId: 'lnk-cancel-add-reading-types',
                             text: Uni.I18n.translate('general.add', 'CFG', 'Cancel'),
                             ui: 'link'
                         }
