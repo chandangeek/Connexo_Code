@@ -111,7 +111,6 @@ Ext.define('Isu.controller.CreationRuleEdit', {
 
         switch (action) {
             case 'edit':
-                title = Uni.I18n.translate('administration.issueCreationRules.title.editIssueCreationRule', 'ISU', 'Edit issue creation rule');
                 btnTxt = Uni.I18n.translate('general.save', 'ISU', 'Save');
                 if (savedData) {
                     me.ruleModel = savedData;
@@ -127,6 +126,12 @@ Ext.define('Isu.controller.CreationRuleEdit', {
                             delete me.ruleModel.data.modificationDate;
                             if (widget.isVisible()) {
                                 me.modelToForm(record);
+                                title = Uni.I18n.translate('administration.issueCreationRules.title.editIssueCreationRule', 'ISU', 'Edit') + " '" + record.data.name + "'";
+                                me.getPageTitle().setTitle(title);
+                                me.getApplication().fireEvent('issueCreationRuleEdit', record);
+                                widget.on('afterrender', function () {
+                                    me.modelToForm(record);
+                                }, me, {single: true});
                             } else {
                                 widget.on('afterrender', function () {
                                     me.modelToForm(record);

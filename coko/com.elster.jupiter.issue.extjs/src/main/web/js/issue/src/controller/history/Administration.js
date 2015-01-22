@@ -43,7 +43,15 @@ Ext.define('Isu.controller.history.Administration', {
                             route: '{id}/edit',
                             controller: 'Isu.controller.CreationRuleEdit',
                             action: 'showEdit',
-                            privileges: ['privilege.administrate.creationRule']
+                            privileges: ['privilege.administrate.creationRule'],
+                            callback: function (route) {
+                                this.getApplication().on('issueCreationRuleEdit', function (record) {
+                                    route.setTitle('Edit' + " '" + record.data.name + "'");
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
                         }
                     }
                 }

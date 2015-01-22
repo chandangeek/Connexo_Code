@@ -1790,7 +1790,7 @@ Ext.define('Isu.controller.CreationRuleEdit', {
 
         switch (action) {
             case 'edit':
-                title = Uni.I18n.translate('administration.issueCreationRules.title.editIssueCreationRule', 'ISU', 'Edit issue creation rule');
+                title = Uni.I18n.translate('administration.issueCreationRules.title.editIssueCreationRule', 'ISU', 'Edit');
                 btnTxt = Uni.I18n.translate('general.save', 'ISU', 'Save');
                 if (savedData) {
                     me.ruleModel = savedData;
