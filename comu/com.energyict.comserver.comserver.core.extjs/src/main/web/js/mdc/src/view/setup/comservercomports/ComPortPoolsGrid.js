@@ -37,12 +37,12 @@ Ext.define('Mdc.view.setup.comservercomports.ComPortPoolsGrid', {
         {
             xtype: 'container',
             items: [
-                 {
-                     xtype: 'button',
-                     text: 'Add communication port pools',
-                     action: 'showAddComPortPoolPage',
-                     margin: '0 0 0 10'
-                 }
+                {
+                    xtype: 'button',
+                    text: 'Add communication port pools',
+                    action: 'showAddComPortPoolPage',
+                    margin: '0 0 0 10'
+                }
             ]
         }
     ]

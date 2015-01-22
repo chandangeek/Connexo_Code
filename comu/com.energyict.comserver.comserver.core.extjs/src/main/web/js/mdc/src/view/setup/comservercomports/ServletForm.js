@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
                 }
             },
             value: 1,
-            width: 350
+            width: 370
         },
         {
             xtype: 'numberfield',
@@ -49,7 +49,7 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
                 }
             },
             value: 0,
-            width: 350
+            width: 370
         },
         {
             xtype: 'combobox',
