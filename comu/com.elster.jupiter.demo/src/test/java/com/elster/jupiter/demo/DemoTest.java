@@ -12,10 +12,8 @@ import com.elster.jupiter.export.impl.ExportModule;
 import com.elster.jupiter.export.processor.impl.StandardCsvDataProcessorFactory;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.issue.impl.service.IssueCreationServiceImpl;
-import com.elster.jupiter.issue.impl.service.IssueMappingServiceImpl;
-import com.elster.jupiter.issue.share.service.IssueCreationService;
-import com.elster.jupiter.issue.share.service.IssueMappingService;
+import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
@@ -96,6 +94,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -107,11 +106,10 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -295,18 +293,14 @@ public class DemoTest {
         ((DeviceConfigurationServiceImpl)injector.getInstance(DeviceConfigurationService.class)).setQueryService(injector.getInstance(QueryService.class));
         ((DataExportServiceImpl)injector.getInstance(DataExportService.class)).addResource(injector.getInstance(StandardCsvDataProcessorFactory.class));
 
-        injector.getInstance(IssueMappingService.class);
         injector.getInstance(IssueDataCollectionService.class);
         fixIssueTemplates();
     }
 
     private void fixIssueTemplates() {
         AbstractTemplate template = injector.getInstance(BasicDatacollectionRuleTemplate.class);
-        IssueMappingServiceImpl mappingService = (IssueMappingServiceImpl) injector.getInstance(IssueMappingService.class);
-        Map<String, Object> map = new HashMap<>();
-        map.put("uuid", BasicDatacollectionRuleTemplate.BASIC_TEMPLATE_UUID);
-        ((IssueCreationServiceImpl)mappingService.getIssueCreationService()).addRuleTemplate(template, map);
-        ((IssueCreationServiceImpl) injector.getInstance(IssueCreationService.class)).addRuleTemplate(template, map);
+        IssueServiceImpl issueService = (IssueServiceImpl) injector.getInstance(IssueService.class);
+        issueService.addCreationRuleTemplate(template);
     }
 
     private void createDefaultStuff(){
