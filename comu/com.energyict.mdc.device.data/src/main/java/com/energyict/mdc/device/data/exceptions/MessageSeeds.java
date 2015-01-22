@@ -64,7 +64,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     COM_TASK_EXECUTION_IS_ALREADY_OBSOLETE(2029, Keys.COM_TASK_EXECUTION_IS_ALREADY_OBSOLETE, "You can not make comtaskexecution {0} for device {1} obsolete because it has already been made obsolete on {2}", Level.SEVERE),
     COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE(2030, Keys.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE, "You can not make comtaskexecution {0} for device {1} obsolete because it is currently execution on comserver {2}", Level.SEVERE),
     COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2031, Keys.COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not remove comtaskexecution {0} because it is not owned by device {1}", Level.SEVERE),
-    VETO_COM_TASK_ENABLEMENT_DELETION(2032, Keys.VETO_COM_TASK_ENABLEMENT_DELETION, "The device protocol pluggable class {0} is still used by the following device types: {1}", SEVERE),
+    VETO_COM_TASK_ENABLEMENT_DELETION(2032, Keys.VETO_COM_TASK_ENABLEMENT_DELETION, "The communication task {0} is still used by devices of the following configuration {1}", SEVERE),
     VETO_DEVICE_CONFIGURATION_DEACTIVATION(2033, Keys.VETO_DEVICE_CONFIGURATION_IN_USE_BY_DEVICES, "The device configuration {0} is still used by at least one device", SEVERE),
     CONNECTION_TASK_STATUS_INCOMPLETE(2036, Keys.CONNECTION_TASK_STATUS_INCOMPLETE, "Incomplete", INFO),
     CONNECTION_TASK_STATUS_ACTIVE(2037, Keys.CONNECTION_TASK_STATUS_ACTIVE, "Active", INFO),
