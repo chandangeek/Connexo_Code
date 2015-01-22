@@ -27,7 +27,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     PLUGGABLE_CLASS_CREATION_FAILURE(1003, Keys.PLUGGABLE_CLASS_NEW_INSTANCE_FAILURE, "Failure to create instance of pluggable class {0}", Level.SEVERE),
     NOT_A_PLUGGABLE_PROPERTY(1004, "PluggableClass.properties.unknown", "Cannot specify value for properties ({0}) that are not supported by the pluggable class {1}", Level.SEVERE),
     PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC(2023, Keys.PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC_KEY, "The protocol dialect ''{0}'' does not contain a specification for attribute ''{1}''", Level.SEVERE),
-    PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE(2024, Keys.PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY, "''{0}'' is not a valid value for attribute ''{1}'' of device protocol ''{2}''", Level.SEVERE),
+    PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE(2024, Keys.PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY, "Not a valid value for this attribute", Level.SEVERE),
     PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING(2025, Keys.PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY, "A value is missing for required attribute ''{0}'' of device protocol''{1}''", Level.SEVERE),
     UNSUPPORTED_CHANNEL_INFO(2026, Keys.UNSUPPORTED_CHANNELINFO, "The channel info ''{0}'' is not supported", Level.SEVERE),
     ;
