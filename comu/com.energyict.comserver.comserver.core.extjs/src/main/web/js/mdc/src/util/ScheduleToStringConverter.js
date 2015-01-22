@@ -75,7 +75,7 @@ Ext.define('Mdc.util.ScheduleToStringConverter', {
                     seconds = ((offset.count % 86400) % 3600) % 60;
                     minutes = Math.floor(((offset.count % 86400) % 3600) / 60);
                     hours = Math.floor((offset.count % 86400) / 3600);
-                    days = Math.floor(Math.floor(offset.count / 86400));
+                    days = Math.floor((offset.count + 86400) / 86400);
 
                     if (temporalExpression.lastDay === false) {
                         result += days ? ' ' + Ext.String.format(Uni.I18n.translate('scheduleToStringConverter.onTheDay', 'MDC', 'on the {0} day'), days) : '';

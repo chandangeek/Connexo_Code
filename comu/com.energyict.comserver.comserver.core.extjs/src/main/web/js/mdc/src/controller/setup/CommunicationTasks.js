@@ -308,7 +308,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                                 if(!Ext.isEmpty(communicationTask.get('comTask'))) {
                                                     comTaskName = communicationTask.get('comTask').name;
                                                 }
-                                                var title = Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit') + ' ' + comTaskName;
+                                                var title = Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit') + " '" + comTaskName + "'";
                                                 widget.down('#communicationTaskEditForm').setTitle(title);
                                                 widget.setValues(communicationTask);
                                                 widget.setLoading(false);
