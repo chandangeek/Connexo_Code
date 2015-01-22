@@ -93,23 +93,10 @@ public class IssueApplication extends Application implements BinderProvider, Ins
     @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
+        this.issueActionService = issueService.getIssueActionService();
+        this.issueAssignmentService = issueService.getIssueAssignmentService();
+        this.issueCreationService = issueService.getIssueCreationService();
     }
-
-    @Reference
-    public void setIssueAssignmentService(IssueAssignmentService issueAssignmentService) {
-        this.issueAssignmentService = issueAssignmentService;
-    }
-
-    @Reference
-    public void setIssueCreationService(IssueCreationService issueCreationService) {
-        this.issueCreationService = issueCreationService;
-    }
-
-    @Reference
-    public void setIssueActionService(IssueActionService issueActionService) {
-        this.issueActionService = issueActionService;
-    }
-
 
     @Reference
     public void setMeteringService(MeteringService meteringService) {
