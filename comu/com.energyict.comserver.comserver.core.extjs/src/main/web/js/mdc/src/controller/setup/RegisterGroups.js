@@ -140,6 +140,9 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         var me = this;
         me.mode = 'edit';
 
+        this.getApplication().fireEvent('changecontentevent', widget);
+        widget.setLoading(true);
+
         // TODO: change this to activate infinite scrolling when JP-2844 is fixed
         Ext.ModelManager.getModel('Mdc.model.RegisterGroup').load(registerGroupId, {
             success: function (registerGroup) {
@@ -153,17 +156,11 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                             widget.down('#editRegisterGroupGridField').getSelectionModel().doSelect(registerGroup.registerTypes().data.items);
                             widget.down('#editRegisterGroupGridField').store.add(registerTypes);
                         }
-
-                        widget.show();
                         widget.setLoading(false);
                     }
                 });
             }
         });
-
-        this.getApplication().fireEvent('changecontentevent', widget);
-        widget.setLoading(true);
-        widget.hide();
     },
 
     showRegisterGroupCreateView: function () {
@@ -172,6 +169,9 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
 
         var me = this;
         me.mode = 'create';
+
+        this.getApplication().fireEvent('changecontentevent', widget);
+        widget.setLoading(true);
 
         // TODO: change this to activate infinite scrolling when JP-2844 is fixed
         //widget.down('#editRegisterGroupGridField').store.on('load', function () {
@@ -185,15 +185,10 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                     widget.down('#editRegisterGroupSelectedField').setValue(Ext.String.format(Uni.I18n.translate('registerGroup.selectedRegisterTypes', 'MDC', '{0} register types selected'), 0));
                     widget.down('#editRegisterGroupGridField').store.add(registerTypes);
                 }
-
-                widget.show();
                 widget.setLoading(false);
             }
         });
 
-        this.getApplication().fireEvent('changecontentevent', widget);
-        widget.setLoading(true);
-        widget.hide();
     },
 
     checkboxChanged: function (grid, selected) {
