@@ -71,6 +71,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
+                            itemId: 'ctr-no-register-configuration',
                             title: Uni.I18n.translate('registerConfig.empty.title', 'MDC', 'No register configurations found'),
                             reasons: [
                                 Uni.I18n.translate('registerConfig.empty.list.item1', 'MDC', 'No register configurations have been added yet.')
