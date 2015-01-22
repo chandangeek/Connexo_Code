@@ -11,22 +11,21 @@ import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.json.JsonService;
-import java.time.Clock;
-import java.util.Optional;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.spy;
 
 public class SpyEventService implements EventService {
-    final private EventService eventService;
+    private final EventService eventService;
 
     @Inject
-    public SpyEventService(Clock clock, JsonService jsonService, Publisher publisher, BeanService beanService, OrmService ormService, MessageService messageService, BundleContext bundleContext, EventAdmin eventAdmin, NlsService nlsService) {
-        eventService = spy(new EventServiceImpl(clock, jsonService, publisher, beanService, ormService, messageService, bundleContext, eventAdmin, nlsService));
+    public SpyEventService(Clock clock, JsonService jsonService, Publisher publisher, BeanService beanService, OrmService ormService, MessageService messageService, BundleContext bundleContext, NlsService nlsService) {
+        eventService = spy(new EventServiceImpl(clock, jsonService, publisher, beanService, ormService, messageService, bundleContext, nlsService));
     }
 
     @Override
@@ -58,4 +57,5 @@ public class SpyEventService implements EventService {
     public EventService getSpy() {
         return eventService;
     }
+
 }

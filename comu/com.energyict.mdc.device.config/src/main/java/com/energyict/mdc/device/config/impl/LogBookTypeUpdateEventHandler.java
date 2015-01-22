@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenLogBookTypeIsInUseException;
 import com.energyict.mdc.masterdata.LogBookType;
 
@@ -30,14 +29,14 @@ public class LogBookTypeUpdateEventHandler implements TopicHandler {
     static final String TOPIC = "com/energyict/mdc/masterdata/logbooktype/UPDATED";
     static final String OLD_OBIS_CODE_PROPERTY_NAME = "oldObisCode";
 
-    private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile ServerDeviceConfigurationService deviceConfigurationService;
     private Thesaurus thesaurus;
 
     public LogBookTypeUpdateEventHandler() {
         super();
     }
 
-    public LogBookTypeUpdateEventHandler(DeviceConfigurationService deviceConfigurationService) {
+    public LogBookTypeUpdateEventHandler(ServerDeviceConfigurationService deviceConfigurationService) {
         this();
         this.setDeviceConfigurationService(deviceConfigurationService);
     }
@@ -73,7 +72,7 @@ public class LogBookTypeUpdateEventHandler implements TopicHandler {
 
     private Thesaurus getThesaurus() {
         if (this.thesaurus == null) {
-            return ((DeviceConfigurationServiceImpl) deviceConfigurationService).getThesaurus();
+            return deviceConfigurationService.getThesaurus();
         }
         else {
             return this.thesaurus;
@@ -81,7 +80,7 @@ public class LogBookTypeUpdateEventHandler implements TopicHandler {
     }
 
     @Reference
-    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+    public void setDeviceConfigurationService(ServerDeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
     }
 

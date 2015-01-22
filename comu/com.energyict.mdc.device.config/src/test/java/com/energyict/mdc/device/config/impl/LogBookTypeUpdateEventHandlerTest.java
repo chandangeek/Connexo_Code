@@ -71,16 +71,14 @@ public class LogBookTypeUpdateEventHandlerTest {
     @Mock
     private Thesaurus thesaurus;
     @Mock
-    private DeviceConfigurationService deviceConfigurationService;
+    private ServerDeviceConfigurationService deviceConfigurationService;
 
     private InMemoryBootstrapModule bootstrapModule;
-    private TransactionService transactionService;
-    private Injector injector;
 
     @Before
     public void setup () {
         this.bootstrapModule = new InMemoryBootstrapModule();
-        injector = Guice.createInjector(
+        Injector injector = Guice.createInjector(
                 new MockModule(),
                 this.bootstrapModule,
                 new ThreadSecurityModule(this.principal),
@@ -97,8 +95,8 @@ public class LogBookTypeUpdateEventHandlerTest {
                 //new MeteringModule(),
                 new InMemoryMessagingModule(),
                 new EventsModule());
-        this.transactionService = injector.getInstance(TransactionService.class);
-        try (TransactionContext ctx = this.transactionService.getContext()) {
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        try (TransactionContext ctx = transactionService.getContext()) {
             injector.getInstance(EventService.class);
             ctx.commit();
         }
@@ -120,7 +118,7 @@ public class LogBookTypeUpdateEventHandlerTest {
     public void testUpdateObisCodeWhenNotInUse () {
         LogBookType logBookType = mock(LogBookType.class);
         when(logBookType.getObisCode()).thenReturn(ObisCode.fromString(OBIS_CODE));
-        when(this.deviceConfigurationService.findDeviceConfigurationsUsingLogBookType(logBookType)).thenReturn(new ArrayList<DeviceConfiguration>(0));
+        when(this.deviceConfigurationService.findDeviceConfigurationsUsingLogBookType(logBookType)).thenReturn(new ArrayList<>(0));
         LocalEvent event = mock(LocalEvent.class);
         when(event.getSource()).thenReturn(logBookType);
         EventType eventType = mock(EventType.class);

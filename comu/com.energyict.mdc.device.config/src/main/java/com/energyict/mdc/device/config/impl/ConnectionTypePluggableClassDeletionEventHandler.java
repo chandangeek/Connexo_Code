@@ -1,11 +1,11 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -19,7 +19,7 @@ import java.util.List;
 @Component(name="com.energyict.mdc.device.config.protocol.delete.connectiontypepluggableclass.eventhandler", service = TopicHandler.class, immediate = true)
 public class ConnectionTypePluggableClassDeletionEventHandler implements TopicHandler {
 
-    private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile ServerDeviceConfigurationService deviceConfigurationService;
 
     @Override
     public void handle(LocalEvent localEvent) {
@@ -31,7 +31,7 @@ public class ConnectionTypePluggableClassDeletionEventHandler implements TopicHa
     }
 
     private Thesaurus getThesaurus() {
-        return ((DeviceConfigurationServiceImpl) deviceConfigurationService).getThesaurus();
+        return deviceConfigurationService.getThesaurus();
     }
 
     @Override
@@ -40,7 +40,7 @@ public class ConnectionTypePluggableClassDeletionEventHandler implements TopicHa
     }
 
     @Reference
-    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+    public void setDeviceConfigurationService(ServerDeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
     }
 }
