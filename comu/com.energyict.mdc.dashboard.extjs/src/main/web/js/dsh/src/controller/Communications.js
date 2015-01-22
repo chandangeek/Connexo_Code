@@ -239,7 +239,7 @@ Ext.define('Dsh.controller.Communications', {
         var record = item.action.record;
         record.run(function () {
             me.getApplication().fireEvent('acknowledge',
-                Uni.I18n.translate('device.communication.run.wait', 'MDC', 'Communication task will wait')
+                Uni.I18n.translate('device.communication.run.wait', 'MDC', 'Run succeeded')
             );
             record.set('plannedDate', new Date());
             me.showOverview();
@@ -251,7 +251,7 @@ Ext.define('Dsh.controller.Communications', {
         var record = item.action.record;
         record.run(function () {
             me.getApplication().fireEvent('acknowledge',
-                Uni.I18n.translate('device.communication.run.now', 'MDC', 'Communication task will run immediately')
+                Uni.I18n.translate('device.communication.run.now', 'MDC', 'Run now succeeded')
             );
             record.set('plannedDate', new Date());
             me.showOverview();
