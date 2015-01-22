@@ -131,7 +131,15 @@ public enum MeasurementKind {
 	VOLTAGE(158,"voltage"),
 	DCVOLTAGE(159,"dcVoltage"),
 	ACVOLTAGEPEAK(160,"acVoltagePeak"),
-	ACVOLTAGEPEAKTOPEAK(161,"acVoltagePeakToPeak");
+	ACVOLTAGEPEAKTOPEAK(161,"acVoltagePeakToPeak"),
+
+    // custom measurementkinds have a value above 1000
+    CTRATIO(1001,"CTRatio"),
+    MULTIPLIER(1002,"Multiplier"),
+    SECURITYSTATE(1003,"SecurityState"),
+    BLACKLISTTABLE(1005,"BlackListTable"),
+
+    ;
 
 	private final int id;
 	private final String description;

@@ -160,4 +160,24 @@ public final class ReadingTypeCodeBuilder {
 			unit.getId(), 
 			ReadingTypeCodeBuilder.getCurrencyId(currency));
 	}
+
+    public Accumulation getCurrentAccumulation() {
+        return accumulation;
+    }
+
+    public TimeAttribute getCurrentTimeAttribute() {
+        return measuringPeriod;
+    }
+
+    public Integer getCurrentTimeOfUseAttribute() {
+        return tou;
+    }
+
+    public Phase getCurrentPhase() {
+        return phases;
+    }
+
+    public MetricMultiplier getCurrentMetricMultiplier() {
+        return multiplier;
+    }
 }
