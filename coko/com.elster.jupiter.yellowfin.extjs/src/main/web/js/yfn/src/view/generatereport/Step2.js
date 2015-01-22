@@ -119,7 +119,7 @@ Ext.define('Yfn.view.generatereport.Step2', {
                                 afterrender: function (component) {
                                     new Ext.ToolTip({
                                         target: component.getEl(),
-                                        html: Uni.I18n.translate('generatereport.wizard.mandatoryFiltersTooltip',
+                                        html: Uni.I18n.translate('generatereport.wizard.optionalFiltersTooltip',
                                             'YFN',
                                             'Filtering on the data that is in the report data set')
 
