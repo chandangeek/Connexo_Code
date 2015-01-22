@@ -2,7 +2,6 @@ package com.energyict.mdc.issue.datacollection.impl;
 
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
@@ -26,7 +25,6 @@ public class IssueDataCollectionModule extends AbstractModule {
         requireBinding(MessageService.class);
         requireBinding(EventService.class);
         requireBinding(IssueService.class);
-        requireBinding(IssueCreationService.class);
         requireBinding(NlsService.class);
         requireBinding(DeviceService.class);
         requireBinding(CommunicationTaskService.class);

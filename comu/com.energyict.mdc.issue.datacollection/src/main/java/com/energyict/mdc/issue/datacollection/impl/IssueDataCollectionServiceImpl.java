@@ -56,10 +56,15 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
 
     // For unit testing
     @Inject
-    public IssueDataCollectionServiceImpl(IssueService issueService, IssueActionService issueActionService, MessageService messageService, NlsService nlsService, OrmService ormService, QueryService queryService, TopologyService topologyService, DeviceService deviceService){
+    public IssueDataCollectionServiceImpl(IssueService issueService, 
+                                          MessageService messageService,
+                                          NlsService nlsService,
+                                          OrmService ormService,
+                                          QueryService queryService,
+                                          TopologyService topologyService,
+                                          DeviceService deviceService){
         setMessageService(messageService);
         setIssueService(issueService);
-        setIssueActionService(issueActionService);
         setNlsService(nlsService);
         setOrmService(ormService);
         setQueryService(queryService);
@@ -101,11 +106,7 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
     @Reference
     public final void setIssueService(IssueService issueService) {
         this.issueService = issueService;
-    }
-
-    @Reference
-    public final void setIssueActionService(IssueActionService issueActionService) {
-        this.issueActionService = issueActionService;
+        this.issueActionService = issueService.getIssueActionService();
     }
 
     @Reference

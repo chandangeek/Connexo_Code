@@ -2,7 +2,9 @@ package com.energyict.mdc.issue.tests;
 
 import com.elster.jupiter.issue.impl.service.IssueCreationServiceImpl;
 import com.elster.jupiter.issue.share.cep.IssueEvent;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.AmrSystem;
@@ -177,13 +179,22 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     }
 
     private MessageHandler getDataCollectionEventHandler(IssueCreationService issueCreationService) {
+        IssueService issueService = mockIssueService(issueCreationService);
         DeviceService deviceService = mockDeviceService();
         MeteringService meteringService = mockMeteringService();
         DataCollectionEventHandlerFactory handlerFactory = getInjector().getInstance(DataCollectionEventHandlerFactory.class);
-        handlerFactory.setIssueCreationService(issueCreationService);
+        handlerFactory.setIssueService(issueService);
         handlerFactory.setDeviceService(deviceService);
         handlerFactory.setMeteringService(meteringService);
         return handlerFactory.newMessageHandler();
+    }
+    
+    private IssueService mockIssueService(IssueCreationService issueCreationService) {
+        IssueService issueService = mock(IssueService.class);
+        when(issueService.getIssueCreationService()).thenReturn(issueCreationService);
+        IssueStatus status = mock(IssueStatus.class);
+        when(issueService.findStatus(IssueStatus.OPEN)).thenReturn(Optional.of(status));
+        return issueService;
     }
 
     private MeteringService mockMeteringService() {

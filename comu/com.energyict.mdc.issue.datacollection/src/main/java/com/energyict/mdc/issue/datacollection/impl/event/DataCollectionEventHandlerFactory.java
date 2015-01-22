@@ -50,7 +50,6 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
     @Inject
     public DataCollectionEventHandlerFactory(
             JsonService jsonService,
-            IssueCreationService issueCreationService,
             IssueService issueService,
             MeteringService meteringService,
             CommunicationTaskService communicationTaskService,
@@ -61,7 +60,6 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
             NlsService nlsService) {
         this();
         setJsonService(jsonService);
-        setIssueCreationService(issueCreationService);
         setIssueService(issueService);
         setMeteringService(meteringService);
         setCommunicationTaskService(communicationTaskService);
@@ -99,13 +97,9 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
     }
 
     @Reference
-    public final void setIssueCreationService(IssueCreationService issueCreationService) {
-        this.issueCreationService = issueCreationService;
-    }
-
-    @Reference
     public final void setIssueService(IssueService issueService) {
         this.issueService = issueService;
+        this.issueCreationService = issueService.getIssueCreationService();
     }
 
     @Reference

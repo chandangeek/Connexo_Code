@@ -39,13 +39,9 @@ public class MeterReadingEventHandlerFactory implements MessageHandlerFactory {
     }
 
     @Reference
-    public final void setIssueCreationService(IssueCreationService issueCreationService) {
-        this.issueCreationService = issueCreationService;
-    }
-
-    @Reference
     public final void setIssueService(IssueService issueService) {
         this.issueService = issueService;
+        this.issueCreationService = issueService.getIssueCreationService();
     }
 
     @Reference
