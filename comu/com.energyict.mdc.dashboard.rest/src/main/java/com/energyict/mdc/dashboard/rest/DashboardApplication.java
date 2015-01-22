@@ -278,7 +278,7 @@ public class DashboardApplication extends Application implements TranslationKeyP
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Collections.emptyList();
+        return Arrays.asList("USR");
     }
 
     class HK2Binder extends AbstractBinder {
