@@ -59,7 +59,7 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
     }
 
     protected PropertySpec nodeAddressPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(MeterProtocol.NODEID);
+        return PropertySpecFactory.bigDecimalPropertySpec(MeterProtocol.NODEID);
     }
 
     protected PropertySpec callHomeIdPropertySpec() {

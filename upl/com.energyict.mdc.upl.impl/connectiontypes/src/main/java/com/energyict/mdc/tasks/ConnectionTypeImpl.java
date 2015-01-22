@@ -145,6 +145,11 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
         }
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return this.getClass() == obj.getClass();
+    }
+
     /**
      * Create a property that indicates the type of the ComChannel.
      * This is used by the protocols to determine the transport layer.

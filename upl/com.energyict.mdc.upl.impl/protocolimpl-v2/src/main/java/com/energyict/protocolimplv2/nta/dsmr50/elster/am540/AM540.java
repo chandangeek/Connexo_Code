@@ -3,35 +3,33 @@ package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.comserver.exceptions.ComServerRuntimeException;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.protocolimplv2.ApplicationServiceObjectV2;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.v2migration.MigrateFromV1Protocol;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
+import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
@@ -64,7 +62,7 @@ import java.util.logging.Level;
  * @author khe
  * @since 17/12/2014 - 14:30
  */
-public class AM540 extends AbstractDlmsProtocol {
+public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol {
 
     private Dsmr50ConfigurationSupport dsmr50ConfigurationSupport;
     private Dsmr50LogBookFactory dsmr50LogBookFactory;
@@ -321,5 +319,55 @@ public class AM540 extends AbstractDlmsProtocol {
     @Override
     public String getVersion() {
         return "$Date$";
+    }
+
+    //TODO complete & describe
+    @Override
+    public TypedProperties formatLegacyProperties(TypedProperties legacyProperties) {
+        TypedProperties result = TypedProperties.empty();
+
+        for (String key : legacyProperties.propertyNames()) {
+
+            Object oldValue = legacyProperties.getProperty(key);
+            PropertySpec propertySpec = getPropertySpecByName(key);
+            if (propertySpec != null) {
+                Object newValue = null;
+                String newKey = key;
+                if (oldValue instanceof String) {
+                    String oldStringValue = (String) oldValue;
+
+
+                } else {
+                    if (propertySpec.getValueFactory().getValueType() == TimeZoneInUse.class) {
+                        if (oldValue instanceof TimeZoneInUse) {
+                            newValue = oldValue;
+                            newKey = DlmsProtocolProperties.TIMEZONE;
+                        }
+                    }
+                }
+
+                if (newValue != null) {
+                    result.setProperty(newKey, newValue);
+                }
+            }
+        }
+        return result;
+    }
+
+    private PropertySpec getPropertySpecByName(String key) {
+        List<PropertySpec> allPropertySpecs = new ArrayList<>();
+        allPropertySpecs.addAll(getOptionalProperties());
+        allPropertySpecs.addAll(getRequiredProperties());
+        for (DeviceProtocolDialect deviceProtocolDialect : getDeviceProtocolDialects()) {
+            allPropertySpecs.addAll(deviceProtocolDialect.getRequiredProperties());
+            allPropertySpecs.addAll(deviceProtocolDialect.getOptionalProperties());
+        }
+
+        for (PropertySpec propertySpec : allPropertySpecs) {
+            if (propertySpec.getName().equals(key)) {
+                return propertySpec;
+            }
+        }
+        return null;
     }
 }
