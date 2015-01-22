@@ -23,7 +23,6 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
-import com.google.common.base.Functions;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -33,16 +32,15 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 @Component(name = "com.energyict.mdc.scheduling", service = {SchedulingService.class, InstallService.class, TranslationKeyProvider.class}, immediate = true, property = "name=" + SchedulingService.COMPONENT_NAME)
 public class SchedulingServiceImpl implements ServerSchedulingService, InstallService, TranslationKeyProvider {
@@ -184,16 +182,14 @@ public class SchedulingServiceImpl implements ServerSchedulingService, InstallSe
 
     @Override
     public List<ComSchedule> findComSchedulesUsing(ComTask comTask) {
-        return new ArrayList<>(
+        return decorate(
                 this.dataModel
-                    .mapper(ComTaskInComSchedule.class)
-                    .find(ComTaskInComScheduleImpl.Fields.COM_TASK_REFERENCE.fieldName(), comTask)
-                    .stream()
-                    .map(ComTaskInComSchedule::getComSchedule)
-                    .collect(Collectors.toMap(
-                                ComSchedule::getId,
-                                Function.identity()))
-                    .values());
+                        .mapper(ComTaskInComSchedule.class)
+                        .find(ComTaskInComScheduleImpl.Fields.COM_TASK_REFERENCE.fieldName(), comTask)
+                        .stream()
+                        .map(ComTaskInComSchedule::getComSchedule))
+                        .distinct(HasId::getId)
+                        .collect(Collectors.toList());
     }
 
     @Override
