@@ -355,7 +355,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         var me = this,
             widget = Ext.widget('loadProfileConfigurationForm', {deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId, loadProfileConfigurationAction: 'Save'});
 
-        var title = Uni.I18n.translate('loadprofileconfigurations.addloadprofileconfigurations', 'MDC', 'Edit load profile configuration');
+        var title = Uni.I18n.translate('loadprofileconfigurations.editloadprofileconfigurations', 'MDC', 'Edit');
         widget.down('#LoadProfileConfigurationFormId').setTitle(title);
 
         me.deviceTypeId = deviceTypeId;
@@ -390,6 +390,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                                 widget.down('displayfield[name=loadprofiletype]').show();
                                 widget.down('[name=obisCode]').setValue(record.obisCode);
                                 widget.down('[name=overruledObisCode]').setValue(overruledObisCode);
+                                var title = Uni.I18n.translate('loadprofileconfigurations.editloadprofileconfigurations', 'MDC', 'Edit') + " '" + record.name + "'";
+                                widget.down('#LoadProfileConfigurationFormId').setTitle(title);
                             }
                         });
                     }

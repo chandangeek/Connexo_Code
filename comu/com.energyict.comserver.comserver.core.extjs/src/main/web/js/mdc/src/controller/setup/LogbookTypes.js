@@ -128,7 +128,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
                 me.getApplication().fireEvent('loadLogbookType', logbookType);
 
                 widget.down('form').loadRecord(logbookType);
-                widget.down('#logbookTypeEditCreateTitle').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + logbookType.get('name'));
+                widget.down('#logbookTypeEditCreateTitle').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + logbookType.get('name') + "'");
 
                 if (logbookType.get('isInUse') === true) {
                     widget.down('obis-field').disable();

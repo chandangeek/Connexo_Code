@@ -328,6 +328,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                     success: function (deviceConfiguration) {
                                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
                                         widget.down('form').loadRecord(registerConfiguration);
+                                        me.getApplication().fireEvent('loadRegisterConfiguration', registerConfiguration);
                                         me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + registerConfiguration.get('name') + "'");
                                         widget.down('#registerTypeComboBox').setValue(registerConfiguration.get('registerType'));
                                         if(registerConfiguration.get('asText')===true){
