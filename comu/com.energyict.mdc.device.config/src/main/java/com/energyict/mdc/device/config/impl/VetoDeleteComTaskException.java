@@ -14,7 +14,7 @@ import com.elster.jupiter.nls.Thesaurus;
 public class VetoDeleteComTaskException extends LocalizedException {
 
     public VetoDeleteComTaskException(Thesaurus thesaurus, ComTask comTask) {
-        super(thesaurus, MessageSeeds.VETO_COMPORTPOOL_DELETION, comTask.getName());
+        super(thesaurus, MessageSeeds.VETO_COMTASK_DELETION, comTask.getName());
     }
 
 }

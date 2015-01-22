@@ -17,7 +17,6 @@ import static org.mockito.Mockito.when;
 /**
  * Tests the {@link ComTaskDeletionEventHandler} component.
  *
- *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-01-21 (16:58)
  */
