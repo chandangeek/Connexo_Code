@@ -1,9 +1,8 @@
 Ext.define('Mdc.view.setup.comservercomports.AddComPortPoolsGrid', {
     extend: 'Uni.view.grid.BulkSelection',
     xtype: 'add-com-port-pools-grid',
-
+    autoScroll: false,
     store: 'Mdc.store.OutboundComPortPools',
-
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
             'comServerComPorts.pagingtoolbartop.portPoolsSelected',
