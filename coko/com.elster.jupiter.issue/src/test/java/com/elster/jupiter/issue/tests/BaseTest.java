@@ -8,21 +8,14 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
+import com.elster.jupiter.issue.impl.service.InstallServiceImpl;
 import com.elster.jupiter.issue.impl.service.IssueMappingServiceImpl;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.cep.IssueActionFactory;
 import com.elster.jupiter.issue.share.cep.IssueEvent;
-import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.DueInType;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.share.service.IssueActionService;
-import com.elster.jupiter.issue.share.service.IssueAssignmentService;
-import com.elster.jupiter.issue.share.service.IssueCreationService;
-import com.elster.jupiter.issue.share.service.IssueMappingService;
-import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.service.*;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -144,6 +137,7 @@ public class BaseTest {
         );
 
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            injector.getInstance(InstallServiceImpl.class);
             // In OSGI container issue types will be set by separate bundle
             IssueService issueService = injector.getInstance(IssueService.class);
             IssueType type = issueService.createIssueType(ISSUE_DEFAULT_TYPE_UUID, MESSAGE_SEED_DEFAULT_TRANSLATION);

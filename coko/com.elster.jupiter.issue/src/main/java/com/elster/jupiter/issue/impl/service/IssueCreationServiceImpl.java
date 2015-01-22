@@ -47,6 +47,7 @@ import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
+@Component(name = "com.elster.jupiter.issue.creation", service = {IssueCreationService.class}, immediate = true)
 public class IssueCreationServiceImpl implements IssueCreationService{
     public static final Logger LOG = Logger.getLogger(IssueCreationServiceImpl.class.getName());
     public static final String ISSUE_CREATION_SERVICE = "issueCreationService";

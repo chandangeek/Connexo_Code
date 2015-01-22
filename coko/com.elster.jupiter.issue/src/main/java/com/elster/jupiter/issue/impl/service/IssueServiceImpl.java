@@ -55,6 +55,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+@Component(name = "com.elster.jupiter.issue", service = IssueService.class)
 public class IssueServiceImpl implements IssueService {
     private static final Logger LOG = Logger.getLogger(IssueServiceImpl.class.getName());
 
