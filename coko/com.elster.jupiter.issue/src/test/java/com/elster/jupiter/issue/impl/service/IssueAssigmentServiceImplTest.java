@@ -1,4 +1,4 @@
-package com.elster.jupiter.issue.tests;
+package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.issue.impl.records.AssignmentRuleImpl;
 import com.elster.jupiter.issue.impl.records.IssueForAssignImpl;

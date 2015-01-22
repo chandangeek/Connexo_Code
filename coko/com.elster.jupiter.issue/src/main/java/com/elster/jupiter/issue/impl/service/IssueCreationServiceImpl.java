@@ -1,26 +1,16 @@
 package com.elster.jupiter.issue.impl.service;
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.issue.impl.module.DroolsValidationException;
-import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
-import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
-import com.elster.jupiter.issue.impl.tasks.IssueActionExecutor;
-import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.cep.IssueEvent;
-import com.elster.jupiter.issue.share.entity.*;
-import com.elster.jupiter.issue.share.service.IssueActionService;
-import com.elster.jupiter.issue.share.service.IssueCreationService;
-import com.elster.jupiter.issue.share.service.IssueMappingService;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.util.conditions.Condition;
+import static com.elster.jupiter.util.conditions.Where.where;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
 
 import org.drools.compiler.compiler.RuleBaseLoader;
 import org.drools.core.common.ProjectClassLoader;
@@ -33,90 +23,63 @@ import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderConfiguration;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 
-import javax.inject.Inject;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.issue.impl.module.DroolsValidationException;
+import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
+import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
+import com.elster.jupiter.issue.impl.tasks.IssueActionExecutor;
+import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.cep.IssueEvent;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.CreationRuleAction;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
+import com.elster.jupiter.issue.share.entity.Entity;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.conditions.Condition;
 
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
-
-import static com.elster.jupiter.util.conditions.Where.where;
-
-@Component(name = "com.elster.jupiter.issue.creation", service = {IssueCreationService.class}, immediate = true)
-public class IssueCreationServiceImpl implements IssueCreationService{
+@SuppressWarnings("deprecation")
+public class IssueCreationServiceImpl implements IssueCreationService {
     public static final Logger LOG = Logger.getLogger(IssueCreationServiceImpl.class.getName());
     public static final String ISSUE_CREATION_SERVICE = "issueCreationService";
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile QueryService queryService;
-    private volatile IssueActionService issueActionService;
+    private volatile IssueService issueService;
 
     private volatile KnowledgeBase knowledgeBase;
     private volatile KnowledgeBuilderFactoryService knowledgeBuilderFactoryService;
     private volatile KnowledgeBaseFactoryService knowledgeBaseFactoryService;
     private volatile KieResources resourceFactoryService;
 
-    private final Map<String, CreationRuleTemplate> registeredTemplates = new ConcurrentHashMap<>();
-
-    public IssueCreationServiceImpl(){}
-
+    //for test purpose only
+    public IssueCreationServiceImpl() {
+    }
+    
     @Inject
     public IssueCreationServiceImpl(
-            NlsService nlsService,
+            DataModel dataModel, 
+            IssueService issueService,
             QueryService queryService,
-            IssueMappingService issueMappingService,
-            IssueActionService issueActionService,
             KnowledgeBuilderFactoryService knowledgeBuilderFactoryService,
             KnowledgeBaseFactoryService knowledgeBaseFactoryService,
-            KieResources resourceFactoryService) {
-        setNlsService(nlsService);
-        setQueryService(queryService);
-        setIssueMappingService(issueMappingService);
-        setKnowledgeBaseFactoryService(knowledgeBaseFactoryService);
-        setKnowledgeBuilderFactoryService(knowledgeBuilderFactoryService);
-        setResourceFactoryService(resourceFactoryService);
-        setIssueActionService(issueActionService);
-    }
-
-    @Reference
-    public final void setQueryService(QueryService queryService) {
+            KieResources resourceFactoryService,
+            Thesaurus thesaurus) {
+        this.dataModel = dataModel;
+        this.issueService = issueService;
         this.queryService = queryService;
-    }
-
-    @Reference
-    public final void setIssueMappingService(IssueMappingService issueMappingService) {
-        dataModel = IssueMappingServiceImpl.class.cast(issueMappingService).getDataModel();
-    }
-
-    @Reference
-    public final void setIssueActionService(IssueActionService issueActionService) {
-        this.issueActionService = issueActionService;
-    }
-
-    @Reference
-    public final void setKnowledgeBuilderFactoryService(KnowledgeBuilderFactoryService knowledgeBuilderFactoryService) {
-        this.knowledgeBuilderFactoryService = knowledgeBuilderFactoryService;
-    }
-
-    @Reference
-    public final void setKnowledgeBaseFactoryService(KnowledgeBaseFactoryService knowledgeBaseFactoryService) {
         this.knowledgeBaseFactoryService = knowledgeBaseFactoryService;
-    }
-
-    @Reference
-    public final void setResourceFactoryService(KieResources resourceFactoryService) {
+        this.knowledgeBuilderFactoryService = knowledgeBuilderFactoryService;
         this.resourceFactoryService = resourceFactoryService;
-    }
-
-    @Reference
-    public final void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -152,7 +115,7 @@ public class IssueCreationServiceImpl implements IssueCreationService{
 
     @Override
     public Optional<CreationRuleTemplate> findCreationRuleTemplate(String uuid) {
-        CreationRuleTemplate template = registeredTemplates.get(uuid);
+        CreationRuleTemplate template = issueService.getCreationRuleTemplates().get(uuid);
         if (template == null) {
             return Optional.empty();
         }
@@ -162,7 +125,7 @@ public class IssueCreationServiceImpl implements IssueCreationService{
     @Override
     public List<CreationRuleTemplate> getCreationRuleTemplates() {
         List<CreationRuleTemplate> templates = new ArrayList<>();
-        templates.addAll(registeredTemplates.values());
+        templates.addAll(issueService.getCreationRuleTemplates().values());
         return templates;
     }
 
@@ -221,7 +184,7 @@ public class IssueCreationServiceImpl implements IssueCreationService{
     }
 
     private void executeCreationActions(Issue issue) {
-        new IssueActionExecutor(issue, CreationRuleActionPhase.CREATE, thesaurus, issueActionService).run();
+        new IssueActionExecutor(issue, CreationRuleActionPhase.CREATE, thesaurus, issueService.getIssueActionService()).run();
     }
 
     private  <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers) {
@@ -231,19 +194,7 @@ public class IssueCreationServiceImpl implements IssueCreationService{
         return query;
     }
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addRuleTemplate(CreationRuleTemplate ruleTemplate, Map<String, Object> map) {
-        registeredTemplates.put(String.valueOf(map.get("uuid")), ruleTemplate);
-        createKnowledgeBase(); // TODO at this step datamodel can be not registered
-
-    }
-
-    public void removeRuleTemplate(CreationRuleTemplate template) {
-        registeredTemplates.values().remove(template);
-        createKnowledgeBase();
-    }
-
-    private boolean createKnowledgeBase() {
+    boolean createKnowledgeBase() {
         try {
             ClassLoader[] rulesClassloader = getRulesClassloader();
             KnowledgeBuilderConfiguration kbConf = knowledgeBuilderFactoryService.newKnowledgeBuilderConfiguration(null, rulesClassloader);
@@ -251,7 +202,7 @@ public class IssueCreationServiceImpl implements IssueCreationService{
 
             List<CreationRule> allRules = getCreationRules();
             for (CreationRule rule : allRules) {
-                if (registeredTemplates.get(rule.getTemplateUuid()) != null) {
+                if (issueService.getCreationRuleTemplates().get(rule.getTemplateUuid()) != null) {
                     kbuilder.add(resourceFactoryService.newByteArrayResource(rule.getData()), ResourceType.DRL);
                 }
             }
@@ -272,7 +223,7 @@ public class IssueCreationServiceImpl implements IssueCreationService{
 
     private ClassLoader[] getRulesClassloader() {
         Set<ClassLoader> rulesClassloader = new HashSet<>();
-        for (CreationRuleTemplate template : registeredTemplates.values()) {
+        for (CreationRuleTemplate template : issueService.getCreationRuleTemplates().values()) {
             rulesClassloader.add(template.getClass().getClassLoader());
         }
         rulesClassloader.add(getClass().getClassLoader());

@@ -1,20 +1,20 @@
 package com.elster.jupiter.issue.impl.records;
 
+import java.nio.charset.Charset;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.users.UserService;
-
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.nio.charset.Charset;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class AssignmentRuleImpl extends EntityImpl implements AssignmentRule {
     private static final Logger LOG = Logger.getLogger(AssignmentRuleImpl.class.getName());
@@ -30,14 +30,12 @@ public class AssignmentRuleImpl extends EntityImpl implements AssignmentRule {
     private String ruleData;
 
     private IssueService issueService;
-    private UserService userService;
     private Thesaurus thesaurus;
 
     @Inject
-    public AssignmentRuleImpl(DataModel dataModel, IssueService issueService, UserService userService, Thesaurus thesaurus){
+    public AssignmentRuleImpl(DataModel dataModel, IssueService issueService, Thesaurus thesaurus){
         super(dataModel);
         this.issueService = issueService;
-        this.userService = userService;
         this.thesaurus = thesaurus;
     }
 

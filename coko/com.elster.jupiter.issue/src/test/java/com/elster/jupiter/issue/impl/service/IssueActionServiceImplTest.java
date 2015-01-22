@@ -1,8 +1,15 @@
-package com.elster.jupiter.issue.tests;
+package com.elster.jupiter.issue.impl.service;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.Test;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.impl.records.IssueActionTypeImpl;
-import com.elster.jupiter.issue.impl.service.IssueActionServiceImpl;
 import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.cep.IssueActionFactory;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
@@ -10,13 +17,6 @@ import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
-import java.util.Optional;
-import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssueActionServiceImplTest extends BaseTest {
     @Test
@@ -43,9 +43,9 @@ public class IssueActionServiceImplTest extends BaseTest {
 
     @Test
     public void testActionFactoryRegistration() {
-        IssueActionServiceImpl impl = IssueActionServiceImpl.class.cast(getIssueActionService());
+        IssueServiceImpl impl = IssueServiceImpl.class.cast(getIssueService());
         IssueActionFactory factory = getMockIssueActionFactory();
-        impl.addIssueActionFactory(factory, new HashMap<String, Object>());
+        impl.addIssueActionFactory(factory);
         assertThat(getIssueActionService().getRegisteredFactories().size()).isEqualTo(1);
         Optional<IssueAction> action = getIssueActionService().createIssueAction(factory.getId(), "classname");
         assertThat(action).isNotNull();

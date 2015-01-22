@@ -3,18 +3,12 @@ package com.elster.jupiter.issue.impl.service;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
@@ -31,75 +25,34 @@ import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
-import com.elster.jupiter.issue.share.service.IssueMappingService;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
-@Component(name = "com.elster.jupiter.issue.action", service = {IssueActionService.class}, immediate = true)
 public class IssueActionServiceImpl implements IssueActionService {
     private static final Logger LOG = Logger.getLogger(IssueActionService.class.getName());
+    
+    private volatile DataModel dataModel;
+    private volatile IssueService issueService;
     private volatile QueryService queryService;
     private volatile TransactionService transactionService;
-    private volatile DataModel dataModel;
-    private Map<String, IssueActionFactory> registeredFactories = new HashMap<>();
     private volatile Thesaurus thesaurus;
 
-    public IssueActionServiceImpl() {
-    }
-
     @Inject
-    public IssueActionServiceImpl(QueryService queryService, IssueMappingService issueMappingService, TransactionService transactionService, NlsService nlsService) {
-        setQueryService(queryService);
-        setIssueMappingService(issueMappingService);
-        setTransactionService(transactionService);
-        setNlsService(nlsService);
-    }
-
-    @Reference
-    public final void setQueryService(QueryService queryService) {
+    public IssueActionServiceImpl(DataModel dataModel, IssueService issueService, QueryService queryService, TransactionService transactionService, Thesaurus thesaurus) {
+        this.dataModel = dataModel;
+        this.issueService = issueService;
         this.queryService = queryService;
-    }
-
-    @Reference
-    public final void setIssueMappingService(IssueMappingService issueMappingService) {
-        dataModel = IssueMappingServiceImpl.class.cast(issueMappingService).getDataModel();
-    }
-    
-    @Reference
-    public final void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
-    }
-
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public final void addIssueActionFactory(IssueActionFactory issueActionFactory, Map<String, Object> map) {
-        registeredFactories.put(issueActionFactory.getId(), issueActionFactory);
-    }
-
-    @Reference
-    public final void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
-    }
-
-    public final void removeIssueActionFactory(IssueActionFactory issueActionFactory) {
-        registeredFactories.remove(issueActionFactory.getId());
-    }
-
-    @Override
-    public List<IssueActionFactory> getRegisteredFactories() {
-        List<IssueActionFactory> factories = new ArrayList<>();
-        factories.addAll(registeredFactories.values());
-        return factories;
+        this.thesaurus = thesaurus;
     }
 
     @Override
     public Optional<IssueAction> createIssueAction(String factoryId, String issueActionClassName) {
-        IssueActionFactory actionFactory = registeredFactories.get(factoryId);
+        IssueActionFactory actionFactory = issueService.getIssueActionFactories().get(factoryId);
         if (actionFactory == null) {
             LOG.info("Action Factory with provided factoryId: " + factoryId + " doesn't exist");//Probably, because not licensed anymore
             return Optional.empty();
@@ -157,6 +110,13 @@ public class IssueActionServiceImpl implements IssueActionService {
     @Override
     public Query<IssueActionType> getActionTypeQuery() {
         return query(IssueActionType.class, IssueType.class, IssueReason.class);
+    }
+    
+    @Override
+    public List<IssueActionFactory> getRegisteredFactories() {
+        List<IssueActionFactory> factories = new ArrayList<>();
+        factories.addAll(issueService.getIssueActionFactories().values());
+        return factories;
     }
 
     @Override
