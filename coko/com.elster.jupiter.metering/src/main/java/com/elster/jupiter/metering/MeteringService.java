@@ -68,5 +68,7 @@ public interface MeteringService {
 
     void configurePurge(PurgeConfiguration purgeConfiguration);
 
+    ReadingType createReadingType(String mRID, String aliasName);
+
     void purge(PurgeConfiguration purgeConfiguration);
 }

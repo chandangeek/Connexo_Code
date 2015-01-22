@@ -225,7 +225,7 @@ public class MeterReadingStorer {
         if (readingTypeHolder.isPresent()) {
             return readingTypeHolder.get();
         } else {
-            ReadingType readingType = ((MeteringServiceImpl) meteringService).createReadingType(code, "");
+            ReadingType readingType = meteringService.createReadingType(code, "");
             MessageSeeds.READINGTYPE_ADDED.log(logger, thesaurus, code, meter.getMRID());
             return readingType;
         }

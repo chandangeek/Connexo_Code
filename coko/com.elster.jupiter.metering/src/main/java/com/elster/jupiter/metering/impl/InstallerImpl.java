@@ -54,14 +54,18 @@ public class InstallerImpl {
     private final UserService userService;
     private final EventService eventService;
     private final Thesaurus thesaurus;
+    private final boolean createAllReadingTypes;
+    private final String[] requiredReadingTypes;
 
-    public InstallerImpl(MeteringServiceImpl meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, Thesaurus thesaurus) {
+    public InstallerImpl(MeteringServiceImpl meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, Thesaurus thesaurus, boolean createAllReadingTypes, String[] requiredReadingTypes) {
         this.meteringService = meteringService;
         this.idsService = idsService;
         this.partyService = partyService;
         this.userService = userService;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
+        this.createAllReadingTypes = createAllReadingTypes;
+        this.requiredReadingTypes = requiredReadingTypes;
     }
 
     public void install() {
@@ -200,7 +204,11 @@ public class InstallerImpl {
 
     private void createReadingTypes() {
         try {
-            ReadingTypeGenerator.generate(meteringService);
+            if(createAllReadingTypes){
+                ReadingTypeGenerator.generate(meteringService);
+            } else if(requiredReadingTypes.length > 0){
+                ReadingTypeGenerator.generateSelectedReadingTypes(meteringService, requiredReadingTypes);
+            }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error creating readingtypes : " + e.getMessage(), e);
         }

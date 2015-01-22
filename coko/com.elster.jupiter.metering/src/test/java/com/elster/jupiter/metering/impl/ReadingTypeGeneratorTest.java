@@ -32,13 +32,10 @@ public class ReadingTypeGeneratorTest {
 
     @Before
     public void setUp() {
-    	when(meteringService.createReadingType(anyString(), anyString())).thenAnswer(new Answer<Object>() {
-    		@Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-    			Object[] args = invocationOnMock.getArguments();
-    			return new ReadingTypeImpl(dataModel, thesaurus).init((String) args[0], (String) args[1]);
-    		}
-    	});
+    	when(meteringService.createReadingType(anyString(), anyString())).thenAnswer(invocationOnMock -> {
+            Object[] args = invocationOnMock.getArguments();
+            return new ReadingTypeImpl(dataModel, thesaurus).init((String) args[0], (String) args[1]);
+        });
     }
 
     @After
@@ -48,13 +45,14 @@ public class ReadingTypeGeneratorTest {
 
     @Test
     public void testGeneration() {
-    	List<ReadingTypeImpl> generated = ReadingTypeGenerator.generate(meteringService);
+    	List<ReadingType> generated = ReadingTypeGenerator.generate(meteringService);
     	Set<String> mRIDs = new HashSet<>();
     	Set<String> aliases = new HashSet<>();
     	for (ReadingType each : generated) {
     		mRIDs.add(each.getMRID());
     		aliases.add(each.getAliasName());
     	}
-    	assertThat(generated.size()).isEqualTo(mRIDs.size());
+        System.out.println(generated.size());
+        assertThat(generated.size()).isEqualTo(mRIDs.size());
     }
 }

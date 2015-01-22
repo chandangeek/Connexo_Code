@@ -43,6 +43,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
@@ -65,12 +66,18 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
 
+    private volatile boolean createAllReadingTypes;
+    private volatile String[] requiredReadingTypes;
+
     public MeteringServiceImpl() {
     }
 
     @Inject
-    public MeteringServiceImpl(Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService) {
+    public MeteringServiceImpl(Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService,
+                               @Named("createReadingTypes") boolean createAllReadingTypes,@Named("requiredReadingTypes") String requiredReadingTypes) {
         this.clock = clock;
+        this.createAllReadingTypes = createAllReadingTypes;
+        this.requiredReadingTypes = requiredReadingTypes.split(";");
         setOrmService(ormService);
         setIdsService(idsService);
         setEventService(eventService);
@@ -101,7 +108,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        new InstallerImpl(this, idsService, partyService, userService, eventService, thesaurus).install();
+        new InstallerImpl(this, idsService, partyService, userService, eventService, thesaurus, createAllReadingTypes, requiredReadingTypes).install();
     }
 
     @Override
@@ -359,7 +366,8 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
         return endDeviceEventType;
     }
 
-    ReadingTypeImpl createReadingType(String mRID, String aliasName) {
+    @Override
+    public ReadingType createReadingType(String mRID, String aliasName) {
         ReadingTypeImpl readingType = dataModel.getInstance(ReadingTypeImpl.class).init(mRID, aliasName);
         dataModel.persist(readingType);
         return readingType;

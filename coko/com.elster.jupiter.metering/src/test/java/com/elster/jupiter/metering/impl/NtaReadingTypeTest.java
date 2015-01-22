@@ -93,8 +93,8 @@ public class NtaReadingTypeTest {
 
     private static final String[] readingTypeCodes = {
     	"0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
-    	"11.0.0.1.1.1.12.0.0.0.0.1.0.0.0.3.72.0",
-    	"13.0.0.1.1.1.12.0.0.0.0.1.0.0.0.3.72.0",
+    	"11.0.0.9.1.1.12.0.0.0.0.1.0.0.0.3.72.0",
+    	"13.0.0.9.1.1.12.0.0.0.0.1.0.0.0.3.72.0",
     };
     
     private class MockModule extends AbstractModule {
