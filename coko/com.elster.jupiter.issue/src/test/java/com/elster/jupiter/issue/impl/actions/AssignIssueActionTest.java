@@ -1,4 +1,4 @@
-package com.elster.jupiter.issue.tests;
+package com.elster.jupiter.issue.impl.actions;
 
 import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
 import com.elster.jupiter.issue.impl.actions.parameters.Parameter;

@@ -1,20 +1,13 @@
 package com.elster.jupiter.issue.impl.records;
 
-import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.cep.CreationRuleOrActionValidationException;
-import com.elster.jupiter.issue.share.cep.IssueAction;
-import com.elster.jupiter.issue.share.entity.*;
-import com.elster.jupiter.issue.share.service.IssueCreationService;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.conditions.Condition;
+import static com.elster.jupiter.util.Checks.is;
+import static com.elster.jupiter.util.conditions.Where.where;
 
+import java.nio.charset.Charset;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
@@ -22,13 +15,24 @@ import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static com.elster.jupiter.util.Checks.is;
-import static com.elster.jupiter.util.conditions.Where.where;
+import com.elster.jupiter.issue.impl.module.MessageSeeds;
+import com.elster.jupiter.issue.share.cep.CreationRuleOrActionValidationException;
+import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.cep.IssueAction;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.CreationRuleAction;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
+import com.elster.jupiter.issue.share.entity.CreationRuleParameter;
+import com.elster.jupiter.issue.share.entity.DueInType;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.conditions.Condition;
 
 public class CreationRuleImpl extends EntityImpl implements CreationRule {
     private static final String PARAM_RULE_ID = "ruleId";
@@ -52,15 +56,13 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     private List<CreationRuleAction> actions = new ArrayList<>();
 
     private IssueService issueService;
-    private IssueCreationService issueCreationService;
-    private NlsService nlsService;
+    private Thesaurus thesaurus;
 
     @Inject
-    public CreationRuleImpl(DataModel dataModel, IssueService issueService, IssueCreationService issueCreationService, NlsService nlsService) {
+    public CreationRuleImpl(DataModel dataModel, IssueService issueService, Thesaurus thesaurus) {
         super(dataModel);
         this.issueService = issueService;
-        this.issueCreationService = issueCreationService;
-        this.nlsService = nlsService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -135,7 +137,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
 
     @Override
     public CreationRuleTemplate getTemplate() {
-        return issueCreationService.findCreationRuleTemplate(getTemplateUuid()).orElse(null);
+        return issueService.getIssueCreationService().findCreationRuleTemplate(getTemplateUuid()).orElse(null);
     }
 
     @Override
@@ -223,7 +225,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
 
     @Override
     public void validate() {
-        CreationRuleOrActionValidationException exception = new CreationRuleOrActionValidationException(nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN), MessageSeeds.ISSUE_CREATION_RULE_VALIDATION_FAILED);
+        CreationRuleOrActionValidationException exception = new CreationRuleOrActionValidationException(thesaurus, MessageSeeds.ISSUE_CREATION_RULE_VALIDATION_FAILED);
 
         Validator validator = getDataModel().getValidatorFactory().getValidator();
         for (ConstraintViolation<?> violation : validator.validate(this)) {

@@ -1,24 +1,18 @@
 package com.elster.jupiter.issue.impl.service;
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.issue.impl.module.DroolsValidationException;
-import com.elster.jupiter.issue.impl.records.AssignmentRuleImpl;
-import com.elster.jupiter.issue.share.entity.AssignmentRule;
-import com.elster.jupiter.issue.share.entity.IssueForAssign;
-import com.elster.jupiter.issue.share.service.IssueAssignmentService;
-import com.elster.jupiter.issue.share.service.IssueMappingService;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
+import static com.elster.jupiter.util.conditions.Where.where;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.Principal;
+import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
 
 import org.drools.core.common.ProjectClassLoader;
 import org.kie.api.KieBaseConfiguration;
@@ -30,23 +24,22 @@ import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderConfiguration;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
-import javax.inject.Inject;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.issue.impl.module.DroolsValidationException;
+import com.elster.jupiter.issue.impl.records.AssignmentRuleImpl;
+import com.elster.jupiter.issue.share.entity.AssignmentRule;
+import com.elster.jupiter.issue.share.entity.IssueForAssign;
+import com.elster.jupiter.issue.share.service.IssueAssignmentService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.Principal;
-import java.util.List;
-import java.util.logging.Logger;
-
-import static com.elster.jupiter.util.conditions.Where.where;
-
-@Component(name = "com.elster.jupiter.issue.drools", service = {IssueAssignmentService.class, IssueAssignmentServiceImpl.class}, property = {"osgi.command.scope=issue", "osgi.command.function=rebuild", "osgi.command.function=fromFile"}, immediate = true)
+@SuppressWarnings("deprecation")
 public class IssueAssignmentServiceImpl implements IssueAssignmentService {
     public static final Logger LOG = Logger.getLogger(IssueAssignmentServiceImpl.class.getName());
 
@@ -62,60 +55,24 @@ public class IssueAssignmentServiceImpl implements IssueAssignmentService {
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile TransactionService transactionService;
 
-    public IssueAssignmentServiceImpl() {
-    }
-
     @Inject
     public IssueAssignmentServiceImpl(
+            DataModel dataModel,
+            QueryService queryService,
             KnowledgeBuilderFactoryService knowledgeBuilderFactoryService,
             KnowledgeBaseFactoryService knowledgeBaseFactoryService,
             KieResources resourceFactoryService,
-            NlsService nlsService,
-            QueryService queryService,
             ThreadPrincipalService threadPrincipalService,
             TransactionService transactionService,
-            IssueMappingService issueMappingService) {
-        setKnowledgeBaseFactoryService(knowledgeBaseFactoryService);
-        setKnowledgeBuilderFactoryService(knowledgeBuilderFactoryService);
-        setResourceFactoryService(resourceFactoryService);
-        setNlsService(nlsService);
-        setQueryService(queryService);
-        setThreadPrincipalService(threadPrincipalService);
-        setTransactionService(transactionService);
-        setIssueMappingService(issueMappingService);
-    }
-
-    @Reference
-    public final void setKnowledgeBuilderFactoryService(KnowledgeBuilderFactoryService knowledgeBuilderFactoryService) {
-        this.knowledgeBuilderFactoryService = knowledgeBuilderFactoryService;
-    }
-    @Reference
-    public final void setKnowledgeBaseFactoryService(KnowledgeBaseFactoryService knowledgeBaseFactoryService) {
-        this.knowledgeBaseFactoryService = knowledgeBaseFactoryService;
-    }
-    @Reference
-    public final void setResourceFactoryService(KieResources resourceFactoryService) {
-        this.resourceFactoryService = resourceFactoryService;
-    }
-    @Reference
-    public final void setQueryService(QueryService queryService) {
+            Thesaurus thesaurus) {
+        this.dataModel = dataModel;
         this.queryService = queryService;
-    }
-    @Reference
-    public final void setIssueMappingService(IssueMappingService issueMappingService) {
-        dataModel = IssueMappingServiceImpl.class.cast(issueMappingService).getDataModel();
-    }
-    @Reference
-    public final void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
-    @Reference
-    public final void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.knowledgeBuilderFactoryService = knowledgeBuilderFactoryService;
+        this.knowledgeBaseFactoryService = knowledgeBaseFactoryService;
+        this.resourceFactoryService = resourceFactoryService;
         this.threadPrincipalService = threadPrincipalService;
-    }
-    @Reference
-    public final void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
+        this.transactionService = transactionService;
+        this.thesaurus = thesaurus;
     }
 
     private boolean createKnowledgeBase() {
@@ -237,5 +194,4 @@ public class IssueAssignmentServiceImpl implements IssueAssignmentService {
             LOG.warning("Please specify the not null absolute path");
         }
     }
-
 }

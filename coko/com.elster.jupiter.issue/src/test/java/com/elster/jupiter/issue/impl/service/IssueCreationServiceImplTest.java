@@ -1,26 +1,32 @@
-package com.elster.jupiter.issue.tests;
+package com.elster.jupiter.issue.impl.service;
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.impl.records.IssueActionTypeImpl;
-import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
-import com.elster.jupiter.issue.impl.service.IssueCreationServiceImpl;
-import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.cep.IssueEvent;
-import com.elster.jupiter.issue.share.entity.*;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.util.conditions.Condition;
+import static com.elster.jupiter.util.conditions.Where.where;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-
-import static com.elster.jupiter.util.conditions.Where.where;
-import static org.assertj.core.api.Assertions.assertThat;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.impl.records.IssueActionTypeImpl;
+import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
+import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.cep.IssueEvent;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.CreationRuleAction;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.util.conditions.Condition;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssueCreationServiceImplTest extends BaseTest {
@@ -133,13 +139,13 @@ public class IssueCreationServiceImplTest extends BaseTest {
         assertThat(templates).isEmpty();
 
         CreationRuleTemplate template = getMockCreationRuleTemplate();
-        IssueCreationServiceImpl impl = IssueCreationServiceImpl.class.cast(getIssueCreationService());
-        impl.addRuleTemplate(template, new HashMap<String, Object>());
+        IssueServiceImpl impl = IssueServiceImpl.class.cast(getIssueService());
+        impl.addCreationRuleTemplate(template);
         assertThat(getIssueCreationService().getCreationRuleTemplates().size()).isEqualTo(1);
 
         assertThat(getIssueCreationService().reReadRules()).isTrue();
 
-        impl.removeRuleTemplate(template);
+        impl.removeCreationRuleTemplate(template);
         assertThat(getIssueCreationService().getCreationRuleTemplates()).isEmpty();
     }
 

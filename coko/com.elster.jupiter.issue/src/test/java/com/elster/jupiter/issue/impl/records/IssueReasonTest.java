@@ -1,14 +1,17 @@
-package com.elster.jupiter.issue.tests;
+package com.elster.jupiter.issue.impl.records;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.records.IssueReasonImpl;
+import com.elster.jupiter.issue.impl.service.BaseTest;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.NotUniqueKeyException;
 import com.elster.jupiter.transaction.TransactionContext;
+
 import java.util.Optional;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;

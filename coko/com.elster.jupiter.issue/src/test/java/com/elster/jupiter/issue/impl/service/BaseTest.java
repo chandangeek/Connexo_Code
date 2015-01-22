@@ -1,4 +1,4 @@
-package com.elster.jupiter.issue.tests;
+package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -8,8 +8,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
-import com.elster.jupiter.issue.impl.service.InstallServiceImpl;
-import com.elster.jupiter.issue.impl.service.IssueMappingServiceImpl;
+import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.cep.IssueActionFactory;
@@ -38,6 +37,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -89,6 +89,7 @@ public class BaseTest {
 
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    private static IssueService issueService;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -137,9 +138,8 @@ public class BaseTest {
         );
 
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            injector.getInstance(InstallServiceImpl.class);
             // In OSGI container issue types will be set by separate bundle
-            IssueService issueService = injector.getInstance(IssueService.class);
+            issueService = injector.getInstance(IssueService.class);
             IssueType type = issueService.createIssueType(ISSUE_DEFAULT_TYPE_UUID, MESSAGE_SEED_DEFAULT_TRANSLATION);
             issueService.createReason(ISSUE_DEFAULT_REASON, type, MESSAGE_SEED_DEFAULT_TRANSLATION);
             ctx.commit();
@@ -154,33 +154,33 @@ public class BaseTest {
     protected TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
     }
-    protected TransactionContext getContext(){
+
+    protected TransactionContext getContext() {
         return getTransactionService().getContext();
     }
+
     protected UserService getUserService() {
         return injector.getInstance(UserService.class);
     }
+
     protected IssueService getIssueService() {
         return injector.getInstance(IssueService.class);
     }
-    protected IssueMappingService getIssueMappingService(){
-        return injector.getInstance(IssueMappingService.class);
+
+    protected IssueCreationService getIssueCreationService() {
+        return issueService.getIssueCreationService();
     }
-    protected IssueCreationService getIssueCreationService(){
-        return injector.getInstance(IssueCreationService.class);
+
+    protected IssueActionService getIssueActionService() {
+        return issueService.getIssueActionService();
     }
-    protected IssueActionService getIssueActionService(){
-        return injector.getInstance(IssueActionService.class);
-    }
+
     protected IssueAssignmentService getIssueAssignmentService() {
-        return injector.getInstance(IssueAssignmentService.class);
+        return issueService.getIssueAssignmentService();
     }
+
     protected ThreadPrincipalService getThreadPrincipalService() {
         return injector.getInstance(ThreadPrincipalService.class);
-    }
-    protected DataModel getDataModel(){
-        IssueMappingServiceImpl impl = IssueMappingServiceImpl.class.cast(getIssueMappingService());
-        return  impl.getDataModel();
     }
 
     protected CreationRule getSimpleCreationRule() {
@@ -208,6 +208,10 @@ public class BaseTest {
         }
     }
 
+    protected DataModel getDataModel() {
+        return ((IssueServiceImpl)issueService).getDataModel();
+    }
+
     protected static KnowledgeBuilderFactoryService mockKnowledgeBuilderFactoryService() {
         KnowledgeBuilderConfiguration config = mock(KnowledgeBuilderConfiguration.class);
         KnowledgeBuilder builder = mock(KnowledgeBuilder.class);
@@ -217,6 +221,7 @@ public class BaseTest {
         return service;
     }
 
+    @SuppressWarnings("deprecation")
     protected static KnowledgeBaseFactoryService mockKnowledgeBaseFactoryService() {
         KieBaseConfiguration config = mock(KieBaseConfiguration.class);
         KnowledgeBase base = mockKnowledgeBase();
@@ -226,6 +231,7 @@ public class BaseTest {
         return service;
     }
 
+    @SuppressWarnings("deprecation")
     protected static KnowledgeBase mockKnowledgeBase() {
         StatefulKnowledgeSession ksession = mockStatefulKnowledgeSession();//mock(StatefulKnowledgeSession.class);
         KnowledgeBase base = mock(KnowledgeBase.class);
@@ -238,7 +244,9 @@ public class BaseTest {
     }
 
     protected CreationRuleTemplate getMockCreationRuleTemplate() {
-        return mock(CreationRuleTemplate.class);
+        CreationRuleTemplate mock = mock(CreationRuleTemplate.class);
+        when(mock.getUUID()).thenReturn("uuid");
+        return mock;
     }
 
     protected IssueEvent getMockIssueEvent() {
@@ -250,6 +258,7 @@ public class BaseTest {
     protected IssueActionFactory getMockIssueActionFactory() {
         IssueActionFactory factory = mock(IssueActionFactory.class);
         when(factory.createIssueAction(Matchers.<String>any())).thenReturn(getMockIssueAction());
+        when(factory.getId()).thenReturn("id");
         return factory;
     }
 
