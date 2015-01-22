@@ -174,7 +174,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         if (record.get('dynamic')) {
             me.getSearchCriteriaContainer().setVisible(true);
             var criteria = record.criteriaStore.data.items;
-            Ext.suspendLayouts();
+            //Ext.suspendLayouts();
             me.getSearchCriteriaContainer().removeAll();
             for (var i = 0; i < criteria.length; i++) {
                 var foundCriteria = criteria[i].data;
@@ -202,7 +202,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
                     }
                 )
             }
-            Ext.resumeLayouts();
+            //Ext.resumeLayouts();
         } else {
             Ext.Array.each(Ext.ComponentQuery.query('#edit-device-group'), function (item) {
                 if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceOfEnumeratedGroup'])) { item.show(); }
@@ -316,8 +316,6 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceGroup.remove.success.msg', 'MDC', 'Device group removed'));
                         }
                     });
-                } else if (state === 'cancel') {
-                    this.close();
                 }
             }
         });
