@@ -1,11 +1,13 @@
 package com.energyict.mdc.scheduling.model.impl;
 
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
+import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
 import com.elster.jupiter.events.EventService;
@@ -30,16 +32,18 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.energyict.mdc.scheduling", service = {SchedulingService.class, InstallService.class, TranslationKeyProvider.class}, immediate = true, property = "name=" + SchedulingService.COMPONENT_NAME)
-public class SchedulingServiceImpl implements SchedulingService, InstallService, TranslationKeyProvider {
+public class SchedulingServiceImpl implements ServerSchedulingService, InstallService, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -60,6 +64,11 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService,
         setUserService(userService);
         activate();
         this.install();
+    }
+
+    @Override
+    public Thesaurus getThesaurus() {
+        return thesaurus;
     }
 
     @Reference
@@ -132,6 +141,7 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService,
                 bind(TaskService.class).toInstance(tasksService);
                 bind(UserService.class).toInstance(userService);
                 bind(SchedulingService.class).toInstance(SchedulingServiceImpl.this);
+                bind(ServerSchedulingService.class).toInstance(SchedulingServiceImpl.this);
             }
         };
     }
@@ -168,6 +178,20 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService,
     private Optional<ComSchedule> findUniqueSchedule(String fieldName, Object value) {
         Condition condition = where(fieldName).isEqualTo(value).and(where(ComScheduleImpl.Fields.OBSOLETE_DATE.fieldName()).isNull());
         return this.dataModel.query(ComSchedule.class).select(condition).stream().findFirst();
+    }
+
+    @Override
+    public List<ComSchedule> findComSchedulesUsing(ComTask comTask) {
+        return new ArrayList<>(
+                this.dataModel
+                    .mapper(ComTaskInComSchedule.class)
+                    .find(ComTaskInComScheduleImpl.Fields.COM_TASK_REFERENCE.fieldName(), comTask)
+                    .stream()
+                    .map(ComTaskInComSchedule::getComSchedule)
+                    .collect(Collectors.toMap(
+                                    HasId::getId,
+                                    cs -> cs))  // Dunno why Functions.identity() does not work here
+                    .values());
     }
 
     @Override

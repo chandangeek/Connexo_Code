@@ -21,7 +21,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE(13, Keys.TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY, "The offset value of a temporal expression must be a positive number", Level.SEVERE),
     TOO_LONG(14, Keys.TOO_LONG, "Must be less then {max} characters", Level.SEVERE),
     CANNOT_ADD_COM_TASK_TO_COMSCHEDULE_THAT_IS_IN_USE(15, Keys.CANNOT_ADD_COM_TASK_TO_COMSCHEDULE_THAT_IS_IN_USE, "ComTasks cannot be added to communication schedules that are already linked to devices", Level.SEVERE),
-    COM_TASK_USAGES_NOT_FOUND(16, Keys.COM_TASK_USAGES_NOT_FOUND, "Communication schedule should have at least one communication task", Level.SEVERE);
+    COM_TASK_USAGES_NOT_FOUND(16, Keys.COM_TASK_USAGES_NOT_FOUND, "Communication schedule should have at least one communication task", Level.SEVERE),
+    VETO_COMTASK_DELETION(17, "comTaskXstillInUse", "ComTask {0} is still in use by the following communication schedules: {1}", Level.SEVERE);
 
     private final int number;
     private final String key;
