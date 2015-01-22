@@ -60,7 +60,7 @@ public class ComTaskEnablementDeletionHandlerTest {
     }
 
     @Test
-    public void testDeleteUnused() {
+    public void handlerDelegatesToService() {
         LocalEvent localEvent = mock(LocalEvent.class);
         com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
         when(eventType.getTopic()).thenReturn(ComTaskEnablementDeletionHandler.TOPIC);
@@ -75,7 +75,7 @@ public class ComTaskEnablementDeletionHandlerTest {
     }
 
     @Test(expected = VetoDeleteComTaskEnablementException.class)
-    public void testDeleteUsed() {
+    public void handlerVetosWhenInUse() {
         LocalEvent localEvent = mock(LocalEvent.class);
         com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
         when(eventType.getTopic()).thenReturn(ComTaskEnablementDeletionHandler.TOPIC);
