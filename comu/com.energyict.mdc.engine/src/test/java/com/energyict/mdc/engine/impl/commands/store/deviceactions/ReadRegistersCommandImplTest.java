@@ -58,7 +58,15 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
     @Mock
     private ComTaskExecution comTaskExecution;
     @Mock
+    private Device device;
+    @Mock
     private IdentificationService identificationService;
+
+    @Before
+    public void initializeMocks() {
+        when(this.comTaskExecution.getDevice()).thenReturn(this.device);
+        when(this.device.getmRID()).thenReturn(ReadRegistersCommandImplTest.class.getSimpleName());
+    }
 
     @Test
     public void commandTypeTest() {

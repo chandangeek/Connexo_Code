@@ -55,6 +55,7 @@ import com.energyict.mdc.tasks.StatusInformationTask;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -181,6 +182,7 @@ public class ScheduledJobImplTest {
         when(this.comPortPool.getId()).thenReturn(COM_PORT_POOL_ID);
         when(this.comPortPool.getComPortType()).thenReturn(ComPortType.TCP);
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
+        when(this.basicCheckTask.getMaximumClockDifference()).thenReturn(Optional.<TimeDuration>empty());
     }
 
     @Test
@@ -188,7 +190,7 @@ public class ScheduledJobImplTest {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
-        OfflineDevice offlineDevice = createMockOfflineDevice();
+        createMockOfflineDevice();
         Device device = createMockDevice();
         OnlineComServer comServer = createMockOnlineComServer();
         OutboundComPort comPort = createMockOutBoundComPort(comServer);
@@ -222,7 +224,7 @@ public class ScheduledJobImplTest {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
-        OfflineDevice offlineDevice = createMockOfflineDevice();
+        createMockOfflineDevice();
         Device device = createMockDevice();
         OnlineComServer comServer = createMockOnlineComServer();
         OutboundComPort comPort = createMockOutBoundComPort(comServer);
@@ -316,12 +318,9 @@ public class ScheduledJobImplTest {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
-        Runnable jobRunnable = new Runnable() {
-            @Override
-            public void run() {
-                jobExecutor.execute(job);
-                startLatch.countDown();
-            }
+        Runnable jobRunnable = () -> {
+            jobExecutor.execute(job);
+            startLatch.countDown();
         };
         Thread jobThread = new Thread(jobRunnable);
         jobThread.setName("ScheduledComTaskExecution for testThatThreadInterruptSetsAppropriateSuccessIndicator");
@@ -483,7 +482,7 @@ public class ScheduledJobImplTest {
         List<ProtocolTask> protocolTasks = comTask.getProtocolTasks();
         when(scheduledComTask.getProtocolTasks()).thenReturn(protocolTasks);
         when(scheduledComTask.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
-        return (ComTaskExecution) scheduledComTask;
+        return scheduledComTask;
     }
 
     private ProtocolDialectConfigurationProperties createMockProtocolDialectConfigurationProperties() {

@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import java.time.Clock;
+import java.time.Duration;
+
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -11,6 +13,8 @@ import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
+
+import com.elster.jupiter.util.time.StopWatch;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface
@@ -31,6 +35,7 @@ public class CreateInboundComSession extends ExecutionLoggerImpl implements Crea
     private final ComSessionBuilder builder;
     private final ComSession.SuccessIndicator successIndicator;
     private ComSession inboundComSession;
+    private StopWatch stopWatch;
 
     public CreateInboundComSession(InboundComPort comPort, InboundConnectionTask connectionTask, ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator, Clock clock) {
         super(comPort.getComServer().getCommunicationLogLevel(), clock);
@@ -46,6 +51,11 @@ public class CreateInboundComSession extends ExecutionLoggerImpl implements Crea
     }
 
     @Override
+    public void setStopWatch(StopWatch stopWatch) {
+        this.stopWatch = stopWatch;
+    }
+
+    @Override
     public ComSessionBuilder getComSessionBuilder() {
         return builder;
     }
@@ -53,7 +63,9 @@ public class CreateInboundComSession extends ExecutionLoggerImpl implements Crea
     @Override
     public void execute (ComServerDAO comServerDAO) {
         try {
-            inboundComSession = comServerDAO.createComSession(this.builder, successIndicator);
+            this.stopWatch.stop();
+            this.builder.storeDuration(Duration.ofNanos(this.stopWatch.getElapsed()));
+            this.inboundComSession = comServerDAO.createComSession(this.builder, successIndicator);
         }
         catch (RuntimeException e) {
             if (this.connectionTask == null) {
@@ -93,15 +105,20 @@ public class CreateInboundComSession extends ExecutionLoggerImpl implements Crea
 
     @Override
     public String toJournalMessageDescription(ComServer.LogLevel serverLogLevel) {
-        DescriptionBuilder builder = new DescriptionBuilderImpl(this);
-        if (isJournalingLevelEnabled(serverLogLevel, ComServer.LogLevel.DEBUG)) {
-            builder.addProperty("indicator").append(inboundComSession.getSuccessIndicator());
-            builder.addProperty("connectionTaskId").append(inboundComSession.getConnectionTask().getId());
-            builder.addProperty("comPortId").append(inboundComSession.getComPort().getId());
-            builder.addProperty("number of tasks").append(inboundComSession.getComTaskExecutionSessions().size());
-            builder.addProperty("number of journal entries").append(inboundComSession.getJournalEntries().size());
+        if (this.inboundComSession == null) {
+            return "";
         }
-        return builder.toString();
+        else {
+            DescriptionBuilder builder = new DescriptionBuilderImpl(this);
+            if (isJournalingLevelEnabled(serverLogLevel, ComServer.LogLevel.DEBUG)) {
+                builder.addProperty("indicator").append(this.inboundComSession.getSuccessIndicator());
+                builder.addProperty("connectionTaskId").append(this.inboundComSession.getConnectionTask().getId());
+                builder.addProperty("comPortId").append(this.inboundComSession.getComPort().getId());
+                builder.addProperty("number of tasks").append(this.inboundComSession.getComTaskExecutionSessions().size());
+                builder.addProperty("number of journal entries").append(this.inboundComSession.getJournalEntries().size());
+            }
+            return builder.toString();
+        }
     }
 
     /**
@@ -115,4 +132,5 @@ public class CreateInboundComSession extends ExecutionLoggerImpl implements Crea
     protected boolean isJournalingLevelEnabled(ComServer.LogLevel serverLogLevel, ComServer.LogLevel minimumLevel) {
         return serverLogLevel.compareTo(minimumLevel) >= 0;
     }
+
 }

@@ -14,6 +14,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 
 import java.math.BigDecimal;
@@ -37,12 +38,12 @@ public final class MeterDataFactory {
      * @param deviceRegister The given collectedRegister
      * @return the newly created Reading
      */
-    public static Reading createReadingForDeviceRegisterAndObisCode(final CollectedRegister deviceRegister) {
+    public static Pair<DeviceIdentifier, Reading> createReadingForDeviceRegisterAndObisCode(final CollectedRegister deviceRegister) {
         ReadingImpl reading = getRegisterReading(deviceRegister);
         if (deviceRegister.getFromTime() != null && deviceRegister.getToTime() != null) {
             reading.setTimePeriod(deviceRegister.getFromTime(), deviceRegister.getToTime());
         }
-        return reading;
+        return Pair.of(deviceRegister.getRegisterIdentifier().getDeviceIdentifier(), reading);
     }
 
     private static ReadingImpl getRegisterReading(final CollectedRegister collectedRegister) {

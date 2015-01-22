@@ -63,15 +63,17 @@ public class ComTaskExecutionRootDeviceCommand extends CompositeDeviceCommandImp
     @Override
     public String toJournalMessageDescription(ComServer.LogLevel serverLogLevel) {
         DescriptionBuilder descriptionBuilder = new DescriptionBuilderImpl(this);
-        descriptionBuilder.addProperty("deviceID").append(comTaskExecution.getDevice().getId());
-        if (this.comTaskExecution instanceof ScheduledComTaskExecution) {
-            ScheduledComTaskExecution scheduledComTaskExecution = (ScheduledComTaskExecution) this.comTaskExecution;
-            descriptionBuilder.addProperty("comSchedule").append(scheduledComTaskExecution.getComSchedule().getName());
-        }
-        else {
-            // Must be ManuallyScheduledComTaskExecution
-            ManuallyScheduledComTaskExecution scheduledComTaskExecution = (ManuallyScheduledComTaskExecution) this.comTaskExecution;
-            descriptionBuilder.addProperty("comTask").append(scheduledComTaskExecution.getComTask().getName());
+        if(this.comTaskExecution != null){
+            descriptionBuilder.addProperty("deviceID").append(comTaskExecution.getDevice().getId());
+            if (this.comTaskExecution instanceof ScheduledComTaskExecution) {
+                ScheduledComTaskExecution scheduledComTaskExecution = (ScheduledComTaskExecution) this.comTaskExecution;
+                descriptionBuilder.addProperty("comSchedule").append(scheduledComTaskExecution.getComSchedule().getName());
+            }
+            else {
+                // Must be ManuallyScheduledComTaskExecution
+                ManuallyScheduledComTaskExecution scheduledComTaskExecution = (ManuallyScheduledComTaskExecution) this.comTaskExecution;
+                descriptionBuilder.addProperty("comTask").append(scheduledComTaskExecution.getComTask().getName());
+            }
         }
 
         if (isJournalingLevelEnabled(serverLogLevel, ComServer.LogLevel.DEBUG)) {

@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -23,7 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
@@ -36,10 +40,22 @@ import static org.mockito.Mockito.when;
  * @author gna
  * @since 14/06/12 - 14:20
  */
+@RunWith(MockitoJUnitRunner.class)
 public class RegisterCommandImplTest {
+
+    @Mock
+    private ComTaskExecution comTaskExecution;
+    @Mock
+    private Device device;
 
     private Clock clock = Clock.systemDefaultZone();
     private IssueService issueService = new IssueServiceImpl();
+
+    @Before
+    public void initializeMocks() {
+        when(this.comTaskExecution.getDevice()).thenReturn(this.device);
+        when(this.device.getmRID()).thenReturn(RegisterCommandImplTest.class.getSimpleName());
+    }
 
     @Test(expected = CodingException.class)
     public void commandRootNullTest() {
@@ -74,7 +90,7 @@ public class RegisterCommandImplTest {
         when(commandRootServiceProvider.issueService()).thenReturn(this.issueService);
         when(commandRootServiceProvider.clock()).thenReturn(this.clock);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
-        RegisterCommand registerCommand = new RegisterCommandImpl(mock(RegistersTask.class), device, commandRoot, null);
+        RegisterCommand registerCommand = new RegisterCommandImpl(mock(RegistersTask.class), device, commandRoot, this.comTaskExecution);
 
         // asserts
         Assert.assertEquals(ComCommandTypes.REGISTERS_COMMAND, registerCommand.getCommandType());
@@ -91,7 +107,7 @@ public class RegisterCommandImplTest {
         when(commandRootServiceProvider.clock()).thenReturn(clock);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
         when(commandRoot.getReadRegistersCommand(Matchers.<CompositeComCommand>any(), any(ComTaskExecution.class))).thenReturn(readRegistersCommand);
-        RegisterCommand registerCommand = new RegisterCommandImpl(mock(RegistersTask.class), device, commandRoot, null);
+        RegisterCommand registerCommand = new RegisterCommandImpl(mock(RegistersTask.class), device, commandRoot, this.comTaskExecution);
 
         CollectedData noCollectedRegisterCollectedData = mock(CollectedData.class);
         DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class), mock(ReadingType.class));

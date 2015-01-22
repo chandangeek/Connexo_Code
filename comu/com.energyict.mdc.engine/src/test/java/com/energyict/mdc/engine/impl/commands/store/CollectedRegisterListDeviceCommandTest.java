@@ -69,6 +69,8 @@ public class CollectedRegisterListDeviceCommandTest {
     @Mock
     private CollectedRegister collectedRegister;
     @Mock
+    private RegisterIdentifier collectedRegisterIdentifier;
+    @Mock
     private DeviceFactory deviceFactory;
     @Mock
     private Device device;
@@ -98,9 +100,8 @@ public class CollectedRegisterListDeviceCommandTest {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMRID()).thenReturn("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.3.72.0");
         when(this.collectedRegister.getReadingType()).thenReturn(readingType);
-        RegisterIdentifier registerIdentifier = mock(RegisterIdentifier.class);
-        when(registerIdentifier.getObisCode()).thenReturn(REGISTER_OBIS);
-        when(this.collectedRegister.getRegisterIdentifier()).thenReturn(registerIdentifier);
+        when(this.collectedRegisterIdentifier.getObisCode()).thenReturn(REGISTER_OBIS);
+        when(this.collectedRegister.getRegisterIdentifier()).thenReturn(this.collectedRegisterIdentifier);
         when(this.device.getId()).thenReturn(DEVICE_ID);
         when(this.meteringService.getReadingType(Matchers.<String>any())).thenReturn(Optional.ofNullable(null));
         when(serviceProvider.mdcReadingTypeUtilService()).thenReturn(new MdcReadingTypeUtilServiceImpl(this.meteringService));
@@ -142,7 +143,9 @@ public class CollectedRegisterListDeviceCommandTest {
     }
 
     private DeviceRegisterList getDeviceRegisterList() {
-        DeviceRegisterList deviceRegisterList = new DeviceRegisterList(new DeviceIdentifierById(DEVICE_ID, deviceService));
+        DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        DeviceRegisterList deviceRegisterList = new DeviceRegisterList(deviceIdentifier);
+        when(this.collectedRegisterIdentifier.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         deviceRegisterList.addCollectedRegister(collectedRegister);
         return deviceRegisterList;
     }
