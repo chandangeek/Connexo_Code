@@ -177,23 +177,34 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             msg: Uni.I18n.translate('registerType.deleteRegisterType', 'MDC', 'The register type will no longer be available.'),
             title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + registerTypeToDelete.get('name') + '?',
             config: {
+                me: me,
                 registerTypeToDelete: registerTypeToDelete
+
             },
-            fn: me.deleteRegisterTypeInDatabase
-        });
+
+        fn: me.deleteRegisterTypeInDatabase
+    });
     },
 
-    deleteRegisterTypeFromPreview: function (registerTypeToDelete) {
+    deleteRegisterTypeFromPreview: function () {
         this.deleteRegisterType(this.getRegisterTypeGrid().getSelectionModel().getSelection()[0]);
     },
 
     deleteRegisterTypeInDatabase: function (btn, text, opt) {
         if (btn === 'confirm') {
-            var registerTypeToDelete = opt.config.registerTypeToDelete;
+            var me = opt.config.me,
+                registerTypeToDelete = opt.config.registerTypeToDelete,
+                message = Uni.I18n.translate('registertype.acknowlegment.removed', 'MDC', 'Register type removed');
             registerTypeToDelete.destroy({
+                success: function () {
+                    me.getApplication().fireEvent('acknowledge', message);
+                    me.load();
+                },
                 callback: function () {
                     location.href = '#/administration/registertypes/';
+
                 }
+
             });
         }
     },
@@ -301,8 +312,10 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             record;
 
         if (btn.action === 'editRegisterType') {
+            me.mode = 'edit';
             record = this.getRegisterTypeEditForm().getRecord();
         } else {
+            me.mode = 'create';
             record = Ext.create(Mdc.model.RegisterType);
         }
 
@@ -315,6 +328,11 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             record.setUnitOfMeasure(unitOfMeasureCombo.findRecordByDisplay(unitOfMeasureCombo.getRawValue()));
             record.save({
                 success: function () {
+                    if(me.mode == 'create') {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registertype.acknowlegment.added', 'MDC', 'Register type added'));
+                    }else{
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registertype.acknowlegment.saved', 'MDC', 'Register type saved'));
+                    }
                     editView.setLoading(false);
                     location.href = '#/administration/registertypes/';
                 },
