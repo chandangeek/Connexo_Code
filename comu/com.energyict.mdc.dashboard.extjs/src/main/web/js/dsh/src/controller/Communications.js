@@ -66,7 +66,7 @@ Ext.define('Dsh.controller.Communications', {
             '#communicationsdetails #communicationslist': {
                 selectionchange: this.onSelectionChange
             },
-            'communications-list #generate-report':{
+            'communications-list #generate-report': {
                 click: this.onGenerateReport
             }
         });
@@ -107,6 +107,32 @@ Ext.define('Dsh.controller.Communications', {
                         click: me.viewCommunicationLog
                     }
                 });
+            }
+            if (record.get('connectionTask').connectionStrategy && record.get('connectionTask').connectionStrategy.id) {
+                menuItems.push({
+                    text: Uni.I18n.translate('connection.widget.details.menuItem.run', 'MDC', 'Run'),
+                    action: {
+                        action: 'run',
+                        record: record,
+                        me: me
+                    },
+                     listeners: {
+                     click: me.communicationRun
+                     }
+                });
+                if (record.get('connectionTask').connectionStrategy.id === 'minimizeConnections') {
+                    menuItems.push({
+                        text: Uni.I18n.translate('connection.widget.details.menuItem.runNow', 'MDC', 'Run now'),
+                        action: {
+                            action: 'runNow',
+                            record: record,
+                            me:me
+                        },
+                         listeners: {
+                         click: me.communicationRunNow
+                         }
+                    });
+                }
             }
         });
 
@@ -170,7 +196,7 @@ Ext.define('Dsh.controller.Communications', {
             '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D'
     },
 
-    onGenerateReport: function(){
+    onGenerateReport: function () {
         var me = this;
         var router = this.getController('Uni.controller.history.Router');
         var fieldsToFilterNameMap = {};
@@ -184,13 +210,13 @@ Ext.define('Dsh.controller.Communications', {
         var reportFilter = false;
 
         var fields = me.getSideFilterForm().getForm().getFields();
-        fields.each(function(field){
+        fields.each(function (field) {
             reportFilter = reportFilter || {};
             var filterName = fieldsToFilterNameMap[field.getName()];
-            if(filterName){
+            if (filterName) {
                 var fieldValue = field.getRawValue();
-                if(field.getXType() == 'side-filter-combo'){
-                    fieldValue = Ext.isString(fieldValue) && fieldValue.split(', ') || fieldValue ;
+                if (field.getXType() == 'side-filter-combo') {
+                    fieldValue = Ext.isString(fieldValue) && fieldValue.split(', ') || fieldValue;
                     fieldValue = _.isArray(fieldValue) && _.compact(fieldValue) || fieldValue;
                 }
             }
@@ -202,9 +228,33 @@ Ext.define('Dsh.controller.Communications', {
         //router.filter.finishBetween
 
         router.getRoute('generatereport').forward(null, {
-            category:'MDC',
-            subCategory:'Device Communication',
-            filter : reportFilter
+            category: 'MDC',
+            subCategory: 'Device Communication',
+            filter: reportFilter
+        });
+    },
+
+    communicationRun: function (item) {
+        var me = item.action.me;
+        var record = item.action.record;
+        record.run(function () {
+            me.getApplication().fireEvent('acknowledge',
+                Uni.I18n.translate('device.communication.run.wait', 'MDC', 'Communication task will wait')
+            );
+            record.set('plannedDate', new Date());
+            me.showOverview();
+        });
+    },
+
+    communicationRunNow: function (item) {
+        var me = item.action.me;
+        var record = item.action.record;
+        record.run(function () {
+            me.getApplication().fireEvent('acknowledge',
+                Uni.I18n.translate('device.communication.run.now', 'MDC', 'Communication task will run immediately')
+            );
+            record.set('plannedDate', new Date());
+            me.showOverview();
         });
     }
 });
