@@ -174,7 +174,8 @@ Ext.define('Idc.view.workspace.issues.bulk.Wizard', {
                             itemId: 'next',
                             action: 'nextWizard',
                             scope: this,
-                            handler: this.onNextButtonClick
+                            handler: this.onNextButtonClick,
+                            ui: 'action'
 
                         },
                         {
@@ -184,7 +185,8 @@ Ext.define('Idc.view.workspace.issues.bulk.Wizard', {
                             action: 'finishWizard',
                             hidden: true,
                             scope: this,
-                            handler: this.onConfirmButtonClick
+                            handler: this.onConfirmButtonClick,
+                            ui: 'action'
                         },
                         {
                             xtype: 'button',
