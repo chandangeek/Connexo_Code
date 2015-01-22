@@ -98,9 +98,7 @@ Ext.define('Uni.controller.Session', {
             scope: this,
             callback: function () {
                 me.log('Redirecting to login page ....');
-                window.location.replace('/apps/login/index.html?expired&page='
-                    + window.location.pathname
-                    + window.location.hash);
+                window.location.replace('/apps/login/index.html');
             }
         });
     },
