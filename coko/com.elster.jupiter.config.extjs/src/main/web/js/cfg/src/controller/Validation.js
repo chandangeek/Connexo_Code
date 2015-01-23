@@ -289,6 +289,10 @@ Ext.define('Cfg.controller.Validation', {
 
         if (record && record.properties() && record.properties().count()) {
             propertyForm.loadRecord(record);
+            if (propertyForm.down('#minimumnumberfield')) {
+                propertyForm.down('#minimumnumberfield').hasNotValueSameAsDefaultMessage = true;
+                propertyForm.down('#maximumnumberfield').hasNotValueSameAsDefaultMessage = true;
+            }
             propertyForm.show();
         } else {
             propertyForm.hide();
