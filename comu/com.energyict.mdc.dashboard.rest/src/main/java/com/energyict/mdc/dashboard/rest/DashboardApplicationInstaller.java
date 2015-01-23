@@ -9,7 +9,6 @@ import com.energyict.mdc.engine.config.security.Privileges;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import javax.ws.rs.core.Application;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -19,8 +18,8 @@ import org.osgi.service.component.annotations.Reference;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-18 (10:32)
  */
-@Component(name = "com.energyict.mdc.dashboard.rest.installer", service = {Application.class, InstallService.class}, immediate = true, property = {"name=DSI"})
-public class DashboardApplicationInstaller extends Application implements InstallService {
+@Component(name = "com.energyict.mdc.dashboard.rest.installer", service = { InstallService.class}, immediate = true, property = {"name=DSI"})
+public class DashboardApplicationInstaller implements InstallService {
     private volatile UserService userService;
 
     @Reference
