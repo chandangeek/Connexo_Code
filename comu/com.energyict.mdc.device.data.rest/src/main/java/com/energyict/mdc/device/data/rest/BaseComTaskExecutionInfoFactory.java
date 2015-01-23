@@ -29,7 +29,8 @@ public abstract class BaseComTaskExecutionInfoFactory <T extends BaseComTaskExec
     
     public final T from(ComTaskExecution comTaskExecution, Optional<ComTaskExecutionSession> comTaskExecutionSession) {
         T info = getInfoSupplier().get();
-        
+
+        info.id = comTaskExecution.getId();
         if(comTaskExecution.usesSharedSchedule()){
             info.name = ((ScheduledComTaskExecution)comTaskExecution).getComSchedule().getName();
         } else {
