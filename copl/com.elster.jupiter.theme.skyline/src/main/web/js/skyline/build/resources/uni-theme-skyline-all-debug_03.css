@@ -15976,20 +15976,21 @@ div.x-form-spinner-down {
   background-color: #ffffff;
 }
 
-/* line 12, ../../sass/src/form/field/Base.scss */
+/* line 13, ../../sass/src/form/field/Base.scss */
 .x-form-invalid-under {
   background: none;
   color: #eb5642;
   font: 13px/16px "Lato", helvetica, arial, verdana, sans-serif;
   padding: 10px 0px 10px 0px;
+  white-space: nowrap;
 }
 
-/* line 19, ../../sass/src/form/field/Base.scss */
+/* line 21, ../../sass/src/form/field/Base.scss */
 .x-form-invalid-field {
   border-color: #eb5642;
 }
 
-/* line 23, ../../sass/src/form/field/Base.scss */
+/* line 25, ../../sass/src/form/field/Base.scss */
 .x-form-display-field {
   height: auto;
   min-height: 28px;
