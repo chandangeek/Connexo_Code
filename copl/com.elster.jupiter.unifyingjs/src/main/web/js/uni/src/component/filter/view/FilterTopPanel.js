@@ -21,6 +21,8 @@ Ext.define('Uni.component.filter.view.FilterTopPanel', {
                         str += item;
                     }
                 });
+            } else {
+                str = value;
             }
             btnsContainer.add(Ext.create('Uni.view.button.TagButton', {
                 text: name + ': ' + str,
