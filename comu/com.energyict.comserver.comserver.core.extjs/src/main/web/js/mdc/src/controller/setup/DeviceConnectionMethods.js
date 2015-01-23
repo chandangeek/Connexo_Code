@@ -412,7 +412,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                         });
                     } else {
                         me.getDeviceConnectionMethodEditForm().getForm().markInvalid(json.errors);
-//                        me.getPropertiesController().showErrors(json.errors);
+                        me.getDeviceConnectionMethodEditView().down('property-form').getForm().markInvalid(json.errors);
                     }
 
 

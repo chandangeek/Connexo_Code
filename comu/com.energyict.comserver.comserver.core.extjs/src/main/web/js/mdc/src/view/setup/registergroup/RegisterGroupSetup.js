@@ -28,6 +28,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupSetup', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
+                        itemId: 'ctr-no-register-group',
                         title: Uni.I18n.translate('registerGroup.empty.title', 'MDC', 'No register groups found'),
                         reasons: [
                             Uni.I18n.translate('registerGroup.empty.list.item1', 'MDC', 'No register groups have been defined yet.')

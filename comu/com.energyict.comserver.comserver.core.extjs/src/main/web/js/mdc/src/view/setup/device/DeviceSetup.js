@@ -283,6 +283,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 layout: 'fit',
                 items: {
                     xtype: 'preview-container',
+                    hasNotEmptyComponent: true,
                     grid: {
                         xtype: 'device-connections-list',
                         itemId: 'connectionslist',
@@ -291,14 +292,6 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         viewConfig: {
                             disableSelection: true
                         }
-                    },
-                    emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        itemId: 'device-connections-no-items-found-panel',
-                        title: Uni.I18n.translate('device.connections.empty.title', 'MDC', 'No connections found'),
-                        reasons: [
-                            Uni.I18n.translate('device.connections.empty.list.item1', 'MDC', 'No connections for device have been created yet.')
-                        ]
                     }
                 }
             },
@@ -313,6 +306,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 layout: 'fit',
                 items: {
                     xtype: 'preview-container',
+                    hasNotEmptyComponent: true,
                     grid: {
                         xtype: 'device-communications-list',
                         itemId: 'communicationslist',
@@ -345,14 +339,6 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                                     }
                                 ]
                             }
-                        ]
-                    },
-                    emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        itemId: 'device-communications-no-items-found-panel',
-                        title: Uni.I18n.translate('device.communicationTasks.empty.title', 'MDC', 'No communication tasks found'),
-                        reasons: [
-                            Uni.I18n.translate('device.communicationTasks.empty.list.item1', 'MDC', 'No communication tasks for device have been created yet.')
                         ]
                     }
                 }
