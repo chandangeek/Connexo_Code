@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.comservercomports.UDPForm', {
             allowBlank: false,
             name: 'numberOfSimultaneousConnections',
             value: 1,
-            width: 350
+            width: 370
         },
         {
             xtype: 'fieldcontainer',
@@ -58,7 +58,7 @@ Ext.define('Mdc.view.setup.comservercomports.UDPForm', {
             allowBlank: false,
             name: 'portNumber',
             value: 0,
-            width: 350
+            width: 370
         },
         {
             xtype: 'numberfield',
@@ -78,7 +78,7 @@ Ext.define('Mdc.view.setup.comservercomports.UDPForm', {
                 }
             },
             value: 1024,
-            width: 350
+            width: 370
         },
         {
             xtype: 'combobox',

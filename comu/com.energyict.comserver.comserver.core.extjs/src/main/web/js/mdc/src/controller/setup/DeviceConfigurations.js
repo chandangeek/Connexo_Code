@@ -394,7 +394,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     success: function (deviceType) {
                         me.getApplication().fireEvent('loadDeviceType', deviceType);
                         widget.down('form').loadRecord(deviceConfiguration);
-                        widget.down('#deviceConfigurationEditCreateTitle').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + deviceConfiguration.get('name'));
+                        widget.down('#deviceConfigurationEditCreateTitle').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + deviceConfiguration.get('name') + "'");
                         me.setRadioButtons(deviceType, deviceConfiguration);
                         widget.setLoading(false);
                     }
@@ -564,6 +564,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             deviceConfigModel.load(deviceConfigurationId, {
                                 success: function (deviceConfiguration) {
                                     me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
+                                    me.getApplication().fireEvent('loadLogbooksConfiguration', form.down('[name=name]'));
+                                    widget.down('#editLogbookPanel').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + form.down('[name=name]').getValue() + "'");
                                     widget.setLoading(false);
                                 }
                             });
