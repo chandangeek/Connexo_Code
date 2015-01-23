@@ -1,6 +1,8 @@
 package com.energyict.mdc.scheduling.rest;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -72,9 +74,23 @@ public class TemporalExpressionInfo {
         } else {
             TemporalExpression temporalExpression;
             if (this.offset==null) {
-                temporalExpression = new TemporalExpression(this.every.asTimeDuration());
+                try {
+                    temporalExpression = new TemporalExpression(this.every.asTimeDuration());
+                } catch (LocalizedFieldValidationException e) {
+                    throw e.fromSubField("every");
+                }
             } else {
-                temporalExpression = new TemporalExpression(this.every.asTimeDuration(), this.offset.asTimeDuration());
+                TimeDuration every;
+                try {
+                    every = this.every.asTimeDuration();
+                } catch (LocalizedFieldValidationException e) {
+                    throw e.fromSubField("every");
+                }
+                try {
+                    temporalExpression = new TemporalExpression(every, this.offset.asTimeDuration());
+                } catch (LocalizedFieldValidationException e) {
+                    throw e.fromSubField("offset");
+                }
             }
             if (this.lastDay) {
                 temporalExpression.setLastDay();

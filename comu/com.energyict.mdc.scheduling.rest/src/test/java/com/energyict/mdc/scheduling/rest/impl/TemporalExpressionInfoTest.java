@@ -1,6 +1,8 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import java.time.Duration;
 import java.time.Period;
@@ -8,6 +10,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
+import static org.junit.Assert.fail;
 
 /**
  * Created by bvn on 12/29/14.
@@ -63,5 +66,52 @@ public class TemporalExpressionInfoTest {
         assertThat(info.every.timeUnit).isEqualTo(TimeDuration.TimeUnit.MONTHS.getDescription());
         assertThat(info.offset).isNull();
         assertThat(info.lastDay).isFalse();
+    }
+
+    @Test
+    public void testIllegalPeriodTimeUnit() throws Exception {
+        TemporalExpressionInfo info = new TemporalExpressionInfo();
+        info.every=new TimeDurationInfo();
+        info.every.count=15;
+        info.every.timeUnit="illegal";
+        try {
+            info.asTemporalExpression();
+            fail("Expected a field validation exception");
+        } catch (LocalizedFieldValidationException e) {
+            assertThat(e.getViolatingProperty()).isEqualTo("every.timeUnit");
+        }
+    }
+
+    @Test
+    public void testIllegalOffsetTimeUnit() throws Exception {
+        TemporalExpressionInfo info = new TemporalExpressionInfo();
+        info.every=new TimeDurationInfo();
+        info.every.count=15;
+        info.every.timeUnit="minutes";
+        info.offset=new TimeDurationInfo();
+        info.offset.count=1;
+        info.offset.timeUnit="illegal";
+        try {
+            info.asTemporalExpression();
+            fail("Expected a field validation exception");
+        } catch (LocalizedFieldValidationException e) {
+            assertThat(e.getViolatingProperty()).isEqualTo("offset.timeUnit");
+        }
+    }
+    @Test
+    public void testIllegalOffsetPeriodTimeUnit() throws Exception {
+        TemporalExpressionInfo info = new TemporalExpressionInfo();
+        info.every=new TimeDurationInfo();
+        info.every.count=15;
+        info.every.timeUnit="illegal";
+        info.offset=new TimeDurationInfo();
+        info.offset.count=1;
+        info.offset.timeUnit="illegal";
+        try {
+            info.asTemporalExpression();
+            fail("Expected a field validation exception");
+        } catch (LocalizedFieldValidationException e) {
+            assertThat(e.getViolatingProperty()).isEqualTo("every.timeUnit");
+        }
     }
 }
