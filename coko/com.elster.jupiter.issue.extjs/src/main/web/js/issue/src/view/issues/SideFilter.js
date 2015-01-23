@@ -53,9 +53,7 @@ Ext.define('Isu.view.issues.SideFilter', {
             queryParam: 'like',
             queryDelay: 100,
             queryCaching: false,
-            minChars: 1,
 
-            triggerAction: 'query',
             anchor: '100%',
             emptyText: 'Select a reason',
             tooltipText: 'Start typing for reason'
@@ -80,9 +78,7 @@ Ext.define('Isu.view.issues.SideFilter', {
             queryParam: 'like',
             queryDelay: 100,
             queryCaching: false,
-            minChars: 1,
 
-            triggerAction: 'query',
             anchor: '100%',
             emptyText: 'Select a MRID of the meter',
             tooltipText: 'Start typing for a MRID'
