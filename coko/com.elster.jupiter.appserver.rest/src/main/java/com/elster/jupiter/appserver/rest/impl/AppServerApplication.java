@@ -113,6 +113,8 @@ public class AppServerApplication extends Application implements InstallService 
                 bind(messageService).to(MessageService.class);
                 bind(transactionService).to(TransactionService.class);
                 bind(cronExpressionParser).to(CronExpressionParser.class);
+                bind(nlsService).to(NlsService.class);
+                bind(thesaurus).to(Thesaurus.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);
