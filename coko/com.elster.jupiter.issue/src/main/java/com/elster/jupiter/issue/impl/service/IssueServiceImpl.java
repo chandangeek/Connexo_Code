@@ -79,6 +79,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
+import com.google.inject.Scopes;
 
 @Component(name = "com.elster.jupiter.issue",
     service = {IssueService.class, InstallService.class, TranslationKeyProvider.class},
@@ -104,9 +105,9 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     private volatile KnowledgeBaseFactoryService knowledgeBaseFactoryService;
     private volatile KieResources resourceFactoryService;
     
-    private volatile IssueActionServiceImpl issueActionService;
-    private volatile IssueAssignmentServiceImpl issueAssignmentService;
-    private volatile IssueCreationServiceImpl issueCreationService;
+    private volatile IssueActionService issueActionService;
+    private volatile IssueAssignmentService issueAssignmentService;
+    private volatile IssueCreationService issueCreationService;
 
     private volatile Map<String, IssueActionFactory> issueActionFactories = new ConcurrentHashMap<>();
     private volatile Map<String, CreationRuleTemplate> creationRuleTemplates = new ConcurrentHashMap<>();
@@ -152,11 +153,6 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
-        
-        issueCreationService = new IssueCreationServiceImpl(dataModel, this, queryService, knowledgeBuilderFactoryService, knowledgeBaseFactoryService, resourceFactoryService, thesaurus);
-        issueActionService = new IssueActionServiceImpl(dataModel, this, queryService, transactionService, thesaurus);
-        issueAssignmentService = new IssueAssignmentServiceImpl(dataModel, queryService, knowledgeBuilderFactoryService, knowledgeBaseFactoryService, resourceFactoryService, threadPrincipalService, transactionService, thesaurus);
-        
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -166,12 +162,21 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(UserService.class).toInstance(userService);
                 bind(TaskService.class).toInstance(taskService);
+                bind(KieResources.class).toInstance(resourceFactoryService);
+                bind(KnowledgeBaseFactoryService.class).toInstance(knowledgeBaseFactoryService);
+                bind(KnowledgeBuilderFactoryService.class).toInstance(knowledgeBuilderFactoryService);
+                bind(QueryService.class).toInstance(queryService);
+                bind(TransactionService.class).toInstance(transactionService);
+                bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(IssueService.class).toInstance(IssueServiceImpl.this);
-                bind(IssueActionService.class).toInstance(issueActionService);
-                bind(IssueAssignmentService.class).toInstance(issueAssignmentService);
-                bind(IssueCreationService.class).toInstance(issueCreationService);
+                bind(IssueActionService.class).to(IssueActionServiceImpl.class).in(Scopes.SINGLETON);
+                bind(IssueAssignmentService.class).to(IssueAssignmentServiceImpl.class).in(Scopes.SINGLETON);
+                bind(IssueCreationService.class).to(IssueCreationServiceImpl.class).in(Scopes.SINGLETON);
             }
         });
+        issueCreationService = dataModel.getInstance(IssueCreationService.class);
+        issueActionService = dataModel.getInstance(IssueActionService.class);
+        issueAssignmentService = dataModel.getInstance(IssueAssignmentService.class);
     }
 
     @Reference
@@ -263,14 +268,14 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     public void addCreationRuleTemplate(CreationRuleTemplate ruleTemplate) {
         creationRuleTemplates.put(ruleTemplate.getUUID(), ruleTemplate);
         if (issueCreationService != null) {
-            issueCreationService.createKnowledgeBase();
+            issueCreationService.reReadRules();
         }
     }
 
     public void removeCreationRuleTemplate(CreationRuleTemplate template) {
         creationRuleTemplates.values().remove(template);
         if (issueCreationService != null) {
-            issueCreationService.createKnowledgeBase();
+            issueCreationService.reReadRules();
         }
     }
     
@@ -473,11 +478,11 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     }
     
     public void rebuildAssignmentRules() {
-        issueAssignmentService.rebuild();
+        issueAssignmentService.rebuildAssignmentRules();
     }
     
     public void loadAssignmentRuleFromFile(String absolutePath) {
-        issueAssignmentService.fromFile(absolutePath);
+        issueAssignmentService.loadAssignmentRuleFromFile(absolutePath);
     }
     
     public DataModel getDataModel() {

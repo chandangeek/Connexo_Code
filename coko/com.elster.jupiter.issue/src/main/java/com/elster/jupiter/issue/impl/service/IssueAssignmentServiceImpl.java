@@ -162,11 +162,11 @@ public class IssueAssignmentServiceImpl implements IssueAssignmentService {
         return canEvaluateRules;
     }
 
-    public void rebuild() {
+    public void rebuildAssignmentRules() {
         createKnowledgeBase();
     }
 
-    public void fromFile(String absolutePath) {
+    public void loadAssignmentRuleFromFile(String absolutePath) {
         if (absolutePath != null) {
             try {
                 byte[] source = Files.readAllBytes(Paths.get(absolutePath));

@@ -16,5 +16,8 @@ public interface IssueAssignmentService {
     Query<AssignmentRule> getAssignmentRuleQuery(Class<?>... eagers);
 
     void assignIssue(List<IssueForAssign> issueList);
+    
+    void loadAssignmentRuleFromFile(String absolutePath);
 
+    void rebuildAssignmentRules();
 }
