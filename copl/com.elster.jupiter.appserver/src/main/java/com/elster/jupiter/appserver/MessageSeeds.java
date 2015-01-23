@@ -15,7 +15,10 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     APPSERVER_NAME_UNKNOWN(1002, "appserver.name.unknown", "AppServer with name \"{0}\" is unknown", Level.SEVERE),
     APPSERVER_STARTED_ANONYMOUSLY(2001, "appserver.started.anonymously", "AppServer started anonymously.", Level.WARNING),
     THREAD_UNCAUGHT_EXCEPTION(2002, "thread.uncaught.exception", "Uncaught exception occurred on thread {0}", Level.SEVERE),
-    MESSAGEHANDLER_FAILED(2003, "messagehandler.failed", "Message handler failed", Level.SEVERE);
+    MESSAGEHANDLER_FAILED(2003, "messagehandler.failed", "Message handler failed", Level.SEVERE),
+    FIELD_CAN_NOT_BE_EMPTY(3001, Keys.FIELD_CAN_NOT_BE_EMPTY, "This field can not be empty", Level.SEVERE),
+    FIELD_SIZE_BETWEEN_1_AND_80(6, Keys.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE),
+    APPSERVER_NAME_INVALID_CHARS(3002, Keys.APPSERVER_NAME_INVALID_CHARS, "The name of a application server should comply with the domain name system (rfc 1035) and can therefore only contain a-z, A-Z, 0-9, . and - characters", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -62,5 +65,12 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     public void log(Logger logger, Thesaurus thesaurus, Throwable t, Object... args) {
         NlsMessageFormat format = thesaurus.getFormat(this);
         logger.log(getLevel(), format.format(args), t);
+    }
+
+    public static final class Keys {
+
+        public static final String FIELD_CAN_NOT_BE_EMPTY = "can.not.be.empty";
+        public static final String FIELD_SIZE_BETWEEN_1_AND_80 = "field.size.between.1and80";
+        public static final String APPSERVER_NAME_INVALID_CHARS = "invalid.chars";
     }
 }

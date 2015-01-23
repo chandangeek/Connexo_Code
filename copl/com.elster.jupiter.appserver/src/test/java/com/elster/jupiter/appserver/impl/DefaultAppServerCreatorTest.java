@@ -24,6 +24,10 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import java.util.HashSet;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,6 +62,10 @@ public class DefaultAppServerCreatorTest {
     private JsonService jsonService;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private ValidatorFactory validatorFactory;
+    @Mock
+    private javax.validation.Validator javaxValidator;
 
     @Before
     public void setUp() {
@@ -67,6 +75,10 @@ public class DefaultAppServerCreatorTest {
         when(messageService.getDestinationSpec(AppService.ALL_SERVERS)).thenReturn(Optional.of(allServersDestination));
         when(messageService.getDestinationSpec("AppServer_" + NAME)).thenReturn(Optional.<DestinationSpec>empty());
         when(dataModel.getInstance(AppServerImpl.class)).thenReturn(new AppServerImpl(dataModel, cronExpressionParser, messageService, jsonService, thesaurus));
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(validatorFactory.getValidator()).thenReturn(javaxValidator);
+        when(javaxValidator.validate(any(javax.validation.Validator.class), any(), any())).thenReturn(new HashSet<ConstraintViolation<Validator>>());
+
 
         setupFakeTransactionService();
 
@@ -92,7 +104,7 @@ public class DefaultAppServerCreatorTest {
 
         new DefaultAppServerCreator(dataModel, messageService).createAppServer(NAME, cronExpression);
 
-        verify(appServerFactory).persist(appServerCaptor.capture());
+        verify(dataModel).persist(appServerCaptor.capture());
 
         assertThat(appServerCaptor.getValue().getName()).isEqualTo(NAME);
         assertThat(appServerCaptor.getValue().getScheduleFrequency()).isEqualTo(cronExpression);

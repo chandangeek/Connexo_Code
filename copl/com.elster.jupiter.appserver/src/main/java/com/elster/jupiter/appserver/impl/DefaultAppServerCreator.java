@@ -2,6 +2,7 @@ package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
@@ -26,7 +27,7 @@ public class DefaultAppServerCreator implements AppServerCreator {
     @Override
     public AppServer createAppServer(final String name, final CronExpression cronExpression) {
         AppServerImpl server = AppServerImpl.from(dataModel, name, cronExpression);
-        dataModel.mapper(AppServer.class).persist(server);
+        Save.CREATE.save(dataModel, server);
 
         Optional<DestinationSpec> found = messageService.getDestinationSpec(server.messagingName());
         if (found.isPresent()) { // possibly queue exists from before.

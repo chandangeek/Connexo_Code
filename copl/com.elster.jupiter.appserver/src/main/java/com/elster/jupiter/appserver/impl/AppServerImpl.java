@@ -1,21 +1,22 @@
 package com.elster.jupiter.appserver.impl;
 
-import com.elster.jupiter.appserver.AppServer;
-import com.elster.jupiter.appserver.AppServerCommand;
-import com.elster.jupiter.appserver.Command;
-import com.elster.jupiter.appserver.ServerMessageQueueMissing;
-import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.appserver.*;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +24,9 @@ import java.util.Optional;
 public class AppServerImpl implements AppServer {
 
     private static final String APP_SERVER = "AppServer";
-
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY +"}")
+    @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80+"}")
+    @Pattern(regexp="[a-zA-Z0-9\\.\\-]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.APPSERVER_NAME_INVALID_CHARS +"}")
     private String name;
     private String cronString;
     private transient CronExpression scheduleFrequency;
