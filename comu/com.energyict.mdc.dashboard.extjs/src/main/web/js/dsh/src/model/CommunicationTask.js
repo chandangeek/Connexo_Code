@@ -41,7 +41,35 @@ Ext.define('Dsh.model.CommunicationTask', {
         associationKey: 'connectionTask',
         name: 'connectionTask',
         getterName: 'getConnectionTask'
+    },
+
+    run: function(callback) {
+        Ext.Ajax.request({
+            method: 'PUT',
+            url: this.proxy.url + '/{id}/run'.replace('{id}', this.getId()),
+            success: callback
+        });
+    },
+
+    runNow: function(callback) {
+        Ext.Ajax.request({
+            method: 'PUT',
+            url: this.proxy.url + '/{id}/runnow'.replace('{id}', this.getId()),
+            success: callback
+        });
+    },
+
+    proxy: {
+        type: 'ajax',
+        url: '/api/dsr/communications',
+        reader: {
+            type: 'json',
+            root: 'communicationTasks',
+            totalProperty: 'total'
+        }
     }
+
+
 });
 
 

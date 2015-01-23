@@ -240,7 +240,7 @@ Ext.define('Dsh.controller.Connections', {
         var me = this;
         record.run(function () {
             me.getApplication().fireEvent('acknowledge',
-                Uni.I18n.translate('connection.run.now', 'MDC', 'Connection will run immediately')
+                Uni.I18n.translate('connection.run.now', 'MDC', 'Run succeeded')
             );
             record.set('nextExecution', new Date());
             me.showOverview();
