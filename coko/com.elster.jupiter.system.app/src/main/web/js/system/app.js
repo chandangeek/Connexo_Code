@@ -19,6 +19,10 @@ Ext.onReady(function () {
         {
             name: 'Dxp',
             path: '../../apps/dxp/src'
+        },
+		{
+            name: 'Apr',
+            path: '../../apps/apr/src'
         }
     ];
 

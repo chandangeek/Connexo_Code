@@ -7,6 +7,7 @@ Ext.define('SystemApp.controller.Main', {
     applicationTitle: 'Connexo Admin',
     defaultToken: '#/administration',
     searchEnabled: false,
+    onlineHelpEnabled: true,
     privileges: ['privilege.administrate.userAndRole','privilege.view.userAndRole','privilege.view.license','privilege.upload.license',
                 'privilege.administrate.period','privilege.view.period','privilege.administrate.dataPurge','privilege.view.dataPurge',
                 'privilege.administrate.dataExportTask','privilege.view.dataExportTask','privilege.update.dataExportTask','privilege.update.schedule.dataExportTask','privilege.run.dataExportTask'],
@@ -14,6 +15,7 @@ Ext.define('SystemApp.controller.Main', {
         'Usr.controller.Main',
         'Sam.controller.Main',
         'Tme.controller.Main',
-        'Dxp.controller.Main'
+        'Dxp.controller.Main',
+		'Apr.controller.Main'
     ]
 });

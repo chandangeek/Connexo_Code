@@ -1,17 +1,26 @@
 package com.elster.jupiter.system.app.impl;
 
+import com.elster.jupiter.http.whiteboard.App;
+import com.elster.jupiter.http.whiteboard.BundleResolver;
+import com.elster.jupiter.http.whiteboard.DefaultStartPage;
+import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.system.app.SysAppService;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.HasName;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Component(
         name = "com.elster.jupiter.system.app",
@@ -21,21 +30,36 @@ import java.util.logging.Logger;
 )
 public class SysAppServiceImpl implements SysAppService, InstallService {
 
-    private final Logger logger = Logger.getLogger(SysAppServiceImpl.class.getName());
+    public static final String HTTP_RESOURCE_ALIAS = "/admin";
+    public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/system";
 
+    public static final String APP_KEY = "SYS";
+    public static final String APP_NAME = "Admin";
+    public static final String APP_ICON = "connexo";
+
+    private volatile ServiceRegistration<App> registration;
     private volatile UserService userService;
 
     public SysAppServiceImpl() {
     }
 
     @Inject
-    public SysAppServiceImpl(UserService userService) {
+    public SysAppServiceImpl(UserService userService, BundleContext context) {
         setUserService(userService);
-        activate();
+        activate(context);
     }
 
     @Activate
-    public final void activate() {
+    public final void activate(BundleContext context) {
+        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context), new DefaultStartPage(APP_NAME));
+        App app = new App(APP_KEY, APP_NAME, APP_ICON, HTTP_RESOURCE_ALIAS, resource, user -> isAllowed(user));
+
+        registration = context.registerService(App.class, app, null);
+    }
+
+    @Deactivate
+    public void stop(BundleContext context) throws Exception {
+        registration.unregister();
     }
 
     @Override
@@ -45,7 +69,7 @@ public class SysAppServiceImpl implements SysAppService, InstallService {
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(UserService.COMPONENTNAME, "DES", "LIC", "TME", "BPM");
+        return Arrays.asList(UserService.COMPONENTNAME, "DES", "LIC", "TME", "BPM", "APR", "LFC");
     }
 
     @Reference
@@ -54,14 +78,17 @@ public class SysAppServiceImpl implements SysAppService, InstallService {
     }
 
     private void assignPrivilegesToDefaultRoles() {
-        List<String> availablePrivileges = getAvailablePrivileges();
-        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, availablePrivileges.toArray(new String[availablePrivileges.size()]));
+        List<Privilege> availablePrivileges = getApplicationPrivileges();
+        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
     }
 
-    @Override
-    public List<String> getAvailablePrivileges() {
-        List<String> privileges = new ArrayList<String>();
-        userService.getResources(SysAppService.APPLICATION_KEY).forEach(e -> e.getPrivileges().forEach(p -> privileges.add(p.getName())));
-        return privileges;
+    private boolean isAllowed(User user) {
+        List<Privilege> appPrivileges = getApplicationPrivileges();
+        return user.getPrivileges().stream().anyMatch(appPrivileges::contains);
     }
+
+    private List<Privilege> getApplicationPrivileges() {
+        return userService.getResources(APPLICATION_KEY).stream().flatMap(resource -> resource.getPrivileges().stream()).collect(Collectors.toList());
+    }
+
 }
