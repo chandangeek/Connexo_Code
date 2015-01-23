@@ -1,14 +1,13 @@
 package com.elster.jupiter.issue.rest.transactions;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
-import java.util.Optional;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 
 public class CreateCommentTransaction implements Transaction<IssueComment> {
     private IssueService issueService;
@@ -25,14 +24,7 @@ public class CreateCommentTransaction implements Transaction<IssueComment> {
 
     @Override
     public IssueComment perform() {
-        Optional< ? extends Issue> issueRef = issueService.findIssue(issueId);
-        IssueComment issueComment = null;
-        if (issueRef.isPresent()){
-            Issue issue = issueRef.get();
-            issueComment = issue.addComment(comment, author).orElse(null);
-        } else {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
-        }
-        return issueComment;
+        Issue issue = issueService.findIssue(issueId).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
+        return issue.addComment(comment, author).orElse(null);
     }
 }
