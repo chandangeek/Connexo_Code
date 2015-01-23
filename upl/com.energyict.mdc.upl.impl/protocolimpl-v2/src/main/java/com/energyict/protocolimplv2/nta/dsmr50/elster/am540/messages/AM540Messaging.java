@@ -25,8 +25,6 @@ public class AM540Messaging extends Dsmr40Messaging implements DeviceMessageSupp
 
     private final static List<DeviceMessageSpec> supportedMessages;
 
-    private AM540MessageExecutor messageExecutor;
-
     static {
         supportedMessages = new ArrayList<>();
 

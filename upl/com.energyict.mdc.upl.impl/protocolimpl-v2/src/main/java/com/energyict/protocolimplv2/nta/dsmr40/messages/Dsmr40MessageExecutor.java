@@ -25,12 +25,13 @@ import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
 
 import java.io.IOException;
@@ -50,6 +51,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     private static final ObisCode OBISCODE_CONFIGURATION_OBJECT = ObisCode.fromString("0.1.94.31.3.255");
     private static final ObisCode OBISCODE_PUSH_SCRIPT = ObisCode.fromString("0.0.10.0.108.255");
     private static final ObisCode OBISCODE_GLOBAL_RESET = ObisCode.fromString("0.1.94.31.5.255");
+    private Dsmr40MbusMessageExecutor mbusMessageExecutor;
 
     public Dsmr40MessageExecutor(AbstractDlmsProtocol protocol) {
         super(protocol);
@@ -63,8 +65,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         List<OfflineDeviceMessage> mbusMessages = getMbusMessages(pendingMessages);
         if (!mbusMessages.isEmpty()) {
             // Execute messages for MBus devices
-            Dsmr40MbusMessageExecutor mbusMessageExecutor = new Dsmr40MbusMessageExecutor(getProtocol());
-            result.addCollectedMessages(mbusMessageExecutor.executePendingMessages(mbusMessages));
+            result.addCollectedMessages(getMbusMessageExecutor().executePendingMessages(mbusMessages));
         }
 
         List<OfflineDeviceMessage> notExecutedDeviceMessages = new ArrayList<>();
@@ -373,5 +374,13 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
     private boolean isEnableP0(OfflineDeviceMessage deviceMessage) {
         return deviceMessage.getSpecification().equals(SecurityMessage.ENABLE_DLMS_AUTHENTICATION_LEVEL_P0);
+    }
+
+    @Override
+    protected AbstractMessageExecutor getMbusMessageExecutor() {
+        if (this.mbusMessageExecutor == null) {
+            this.mbusMessageExecutor = new Dsmr40MbusMessageExecutor(getProtocol());
+        }
+        return this.mbusMessageExecutor;
     }
 }

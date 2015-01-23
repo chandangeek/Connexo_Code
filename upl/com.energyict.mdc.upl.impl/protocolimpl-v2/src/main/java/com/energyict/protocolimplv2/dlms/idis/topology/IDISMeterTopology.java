@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.dlms.idis.am500.topology;
+package com.energyict.protocolimplv2.dlms.idis.topology;
 
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
@@ -6,7 +6,8 @@ import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
@@ -17,26 +18,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ * Class responsible for building/managing of the device topology;<br/>
+ * During this process all attached MBus devices will be discovered. Each MBus device is discovered
+ * based on the MBusClient identification number (0.x.24.1.0.255 - attribute 6).
  *
  * @author khe
  * @since 19/12/2014 - 14:05
  */
-public class IDISMeterTopology {
+public class IDISMeterTopology extends AbstractMeterTopology {
 
     private static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
     private static final int MAX_MBUS_CHANNELS = 4;
-    private final AM500 protocol;
+    private final AbstractDlmsProtocol protocol;
     List<DeviceMapping> deviceMapping = null;
 
-    public IDISMeterTopology(AM500 protocol) {
+    public IDISMeterTopology(AbstractDlmsProtocol protocol) {
         this.protocol = protocol;
     }
 
-    public CollectedTopology discoverMBusDevices() {
+    @Override
+    public void searchForSlaveDevices() {
         deviceMapping = new ArrayList<>();
-        CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(protocol.getOfflineDevice().getId()));
-
         ObisCode obisCode = MBUS_CLIENT_OBISCODE;
         for (int i = 1; i <= MAX_MBUS_CHANNELS; i++) {
             try {
@@ -45,7 +47,6 @@ public class IDISMeterTopology {
                 if (serialNumberValue != 0) {
                     String serialNumber = String.valueOf(serialNumberValue);
                     deviceMapping.add(new DeviceMapping(serialNumber, i, false));
-                    deviceTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(serialNumber));
                 }
             } catch (DataAccessResultException e) {
                 // fetch next
@@ -53,32 +54,27 @@ public class IDISMeterTopology {
                 throw IOExceptionHandler.handle(e, protocol.getDlmsSession());
             }
         }
-        return deviceTopology;
     }
 
     public List<DeviceMapping> getDeviceMapping() {
         if (deviceMapping == null) {
-            discoverMBusDevices();
+            searchForSlaveDevices();
         }
         return deviceMapping;
     }
 
-    /**
-     * If the SerialNumber is empty, throw missingProperty exception
-     * If the SerialNumber matches with the e-meter's, return the original obiscode
-     * If the SerialNumber matches with one of the slave meters, return the corrected obiscode. This means that the B-field is replaced with the MBus channel ID.
-     * If the SerialNumber does not match one of the e-meter / slave meters, throw UnsupportedPropertyValueException
-     */
-    public ObisCode getCorrectedObisCode(ObisCode originalObisCode, String serialNumber) {
-        int mBusChannelId = getMBusChannelId(serialNumber);
+    @Override
+    public ObisCode getPhysicalAddressCorrectedObisCode(ObisCode obisCode, String serialNumber) {
+        int mBusChannelId = getPhysicalAddress(serialNumber);
         if (mBusChannelId == 0) {
-            return originalObisCode;
+            return obisCode;
         } else {
-            return ProtocolTools.setObisCodeField(originalObisCode, 1, (byte) mBusChannelId);
+            return ProtocolTools.setObisCodeField(obisCode, 1, (byte) mBusChannelId);
         }
     }
 
-    public int getMBusChannelId(String serialNumber) {
+    @Override
+    public int getPhysicalAddress(String serialNumber) {
         if (serialNumber == null || serialNumber.isEmpty()) {
             throw MdcManager.getComServerExceptionFactory().missingProperty("SerialNumber");
         }
@@ -91,5 +87,30 @@ public class IDISMeterTopology {
             }
         }
         throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("SerialNumber", serialNumber);
+    }
+
+    @Override
+    public String getSerialNumber(ObisCode obisCode) {
+        int bField = obisCode.getB();
+        if (bField == 0 || bField == 128) {    // 128 is the notation of the CapturedObjects in mW for Electricity ...
+            return this.protocol.getDlmsSession().getProperties().getSerialNumber();
+        }
+
+        for (DeviceMapping dm : getDeviceMapping()) {
+            if (dm.getPhysicalAddress() == bField) {
+                return dm.getSerialNumber();
+            }
+        }
+        return "";
+    }
+
+    @Override
+    public CollectedTopology getDeviceTopology() {
+        CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(protocol.getOfflineDevice().getId()));
+        for (DeviceMapping mapping : getDeviceMapping()) {
+            deviceTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(mapping.getSerialNumber()));
+        }
+
+        return deviceTopology;
     }
 }

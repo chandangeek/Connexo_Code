@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.nta.abstractnta;
+package com.energyict.protocolimplv2.dlms;
 
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
@@ -8,6 +8,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
+import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
@@ -16,7 +17,6 @@ import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.dsmr23.ComposedMeterInfo;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
@@ -45,9 +45,6 @@ import java.util.logging.Logger;
  * Author: khe
  */
 public abstract class AbstractDlmsProtocol implements DeviceProtocol {
-
-    public static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
-    public static final ObisCode monthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
 
     protected Dsmr23RegisterFactory registerFactory = null;
     private ComposedMeterInfo meterInfo;
@@ -180,7 +177,12 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         return dsmr23Messaging;
     }
 
-    public MeterTopology getMeterTopology() {
+    @Override
+    public CollectedTopology getDeviceTopology() {
+        return getMeterTopology().getDeviceTopology();
+    }
+
+    public AbstractMeterTopology getMeterTopology() {
         if (this.meterTopology == null) {
             this.meterTopology = new MeterTopology(this);
         }
@@ -308,22 +310,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
      * @return the corrected ObisCode
      */
     public ObisCode getPhysicalAddressCorrectedObisCode(ObisCode obisCode, String serialNumber) {
-        int address;
-
-        if (obisCode.equalsIgnoreBChannel(dailyObisCode) || obisCode.equalsIgnoreBChannel(monthlyObisCode)) {
-            address = 0;
-        } else {
-            address = getPhysicalAddressFromSerialNumber(serialNumber);
-        }
-
-        if ((address == 0 && obisCode.getB() != -1 && obisCode.getB() != 128)) { // then don't correct the obisCode
-            return obisCode;
-        }
-
-        if (address != -1) {
-            return ProtocolTools.setObisCodeField(obisCode, 1, (byte) address);
-        }
-        return null;
+        return getMeterTopology().getPhysicalAddressCorrectedObisCode(obisCode, serialNumber);
     }
 
     /**
@@ -393,7 +380,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         return dlmsConfigurationSupport;
     }
 
-    public Logger getLogger() { //TODO: usage of old logger should be prevented -> refactor/remove this
+    public Logger getLogger() {
         return Logger.getLogger(this.getClass().getName());
     }
 

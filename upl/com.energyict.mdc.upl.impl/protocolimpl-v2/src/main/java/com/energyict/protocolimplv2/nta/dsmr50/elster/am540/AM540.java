@@ -17,7 +17,11 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.SerialPortComChannel;
@@ -37,16 +41,17 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
-import com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
+import com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr50.Dsmr50ConfigurationSupport;
+import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.logbooks.Dsmr50LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.AM540MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.AM540Messaging;
-import com.energyict.protocolimplv2.nta.dsmr50.logbooks.Dsmr50LogBookFactory;
-import com.energyict.protocolimplv2.nta.dsmr50.registers.Dsmr50RegisterFactory;
+import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.profiles.AM540LoadProfileBuilder;
+import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.registers.Dsmr50RegisterFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540Cache;
 
 import java.util.ArrayList;
@@ -68,6 +73,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     private Dsmr50LogBookFactory dsmr50LogBookFactory;
     private AM540Messaging am540Messaging;
     private long initialFrameCounter = -1;
+    private IDISMeterTopology meterTopology;
 
     public AM540() {
         super();
@@ -100,6 +106,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     public void logOn() {
         connectWithRetries();
         checkCacheObjects();
+        getMeterTopology().searchForSlaveDevices();
     }
 
     @Override
@@ -244,8 +251,8 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     protected LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LGLoadProfileBuilder(this);
-            ((LGLoadProfileBuilder) loadProfileBuilder).setCumulativeCaptureTimeChannel(getDlmsSessionProperties().isCumulativeCaptureTimeChannel());
+            this.loadProfileBuilder = new AM540LoadProfileBuilder(this);
+            ((Dsmr40LoadProfileBuilder) loadProfileBuilder).setCumulativeCaptureTimeChannel(getDlmsSessionProperties().isCumulativeCaptureTimeChannel());
         }
         return loadProfileBuilder;
     }
@@ -312,8 +319,11 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     }
 
     @Override
-    public CollectedTopology getDeviceTopology() {
-        return MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
+    public IDISMeterTopology getMeterTopology() {
+        if (meterTopology == null) {
+            meterTopology = new IDISMeterTopology(this);
+        }
+        return meterTopology;
     }
 
     @Override

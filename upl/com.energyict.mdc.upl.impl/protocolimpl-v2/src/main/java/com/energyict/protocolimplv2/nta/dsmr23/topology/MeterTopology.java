@@ -13,10 +13,11 @@ import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMbusSerialNumber;
 
@@ -30,9 +31,12 @@ import java.util.logging.Level;
  * Date: 14-jul-2011
  * Time: 16:56:32
  */
-public class MeterTopology {
+public class MeterTopology extends AbstractMeterTopology {
 
+    private static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
+    private static final ObisCode monthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
     private static final ObisCode MbusClientObisCode = ObisCode.fromString("0.0.24.1.0.255");
+
     private static final int ObisCodeBFieldIndex = 1;
     public static final int MaxMbusDevices = 4;
     private static String ignoreZombieMbusDevice = "@@@0000000000000";
@@ -63,9 +67,7 @@ public class MeterTopology {
         this.protocol = protocol;
     }
 
-    /**
-     * Search for local slave devices so a general topology can be build up
-     */
+    @Override
     public void searchForSlaveDevices() {
         this.discoveryComposedCosemObject = constructDiscoveryComposedCosemObject();
         discoverMbusDevices();
@@ -170,12 +172,7 @@ public class MeterTopology {
         return mbusMap;
     }
 
-    /**
-     * Search for the physicalAddress of the given SerialNumber
-     *
-     * @param serialNumber the given Serialnumber
-     * @return the physicalAddress or -1 if the serialNumber was not found.
-     */
+    @Override
     public int getPhysicalAddress(final String serialNumber) {
 
         if (serialNumber.equals(protocol.getDlmsSession().getProperties().getSerialNumber())) {
@@ -190,12 +187,7 @@ public class MeterTopology {
         return -1;
     }
 
-    /**
-     * Search for the potential serialNumber of the given ObisCode. The B-field should indicate on which channel the meter is.
-     *
-     * @param obisCode the ObisCode
-     * @return the serialNumber of the meter which corresponds with the B-field of the ObisCode
-     */
+    @Override
     public String getSerialNumber(final ObisCode obisCode) {
         int bField = obisCode.getB();
         if (bField == 0 || bField == 128) {    // 128 is the notation of the CapturedObjects in mW for Electricity ...
@@ -210,6 +202,27 @@ public class MeterTopology {
         return "";
     }
 
+    @Override
+    public ObisCode getPhysicalAddressCorrectedObisCode(ObisCode obisCode, String serialNumber) {
+        int address;
+
+        if (obisCode.equalsIgnoreBChannel(dailyObisCode) || obisCode.equalsIgnoreBChannel(monthlyObisCode)) {
+            address = 0;
+        } else {
+            address = getPhysicalAddress(serialNumber);
+        }
+
+        if ((address == 0 && obisCode.getB() != -1 && obisCode.getB() != 128)) { // then don't correct the obisCode
+            return obisCode;
+        }
+
+        if (address != -1) {
+            return ProtocolTools.setObisCodeField(obisCode, 1, (byte) address);
+        }
+        return null;
+    }
+
+    @Override
     public CollectedTopology getDeviceTopology() {
         if (deviceTopology == null) {
             deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(protocol.getOfflineDevice().getId()));

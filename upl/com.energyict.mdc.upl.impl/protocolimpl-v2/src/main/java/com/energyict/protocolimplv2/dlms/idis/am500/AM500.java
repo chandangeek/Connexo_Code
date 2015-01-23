@@ -8,7 +8,11 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
@@ -23,6 +27,8 @@ import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.dlms.idis.IDISObjectList;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
 import com.energyict.protocolimplv2.dlms.idis.am500.profiledata.IDISProfileDataReader;
@@ -30,8 +36,7 @@ import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISConfiguration
 import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
 import com.energyict.protocolimplv2.dlms.idis.am500.registers.IDISRegisterFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.registers.IDISStoredValues;
-import com.energyict.protocolimplv2.dlms.idis.am500.topology.IDISMeterTopology;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -88,6 +93,7 @@ public class AM500 extends AbstractDlmsProtocol {
     public void logOn() {
         connectWithRetries();
         checkCacheObjects();
+        getMeterTopology().searchForSlaveDevices();
     }
 
     /**
@@ -272,11 +278,7 @@ public class AM500 extends AbstractDlmsProtocol {
     }
 
     @Override
-    public CollectedTopology getDeviceTopology() {
-        return getIDISMeterTopology().discoverMBusDevices();
-    }
-
-    public IDISMeterTopology getIDISMeterTopology() {
+    public AbstractMeterTopology getMeterTopology() {
         if (idisMeterTopology == null) {
             idisMeterTopology = new IDISMeterTopology(this);
         }

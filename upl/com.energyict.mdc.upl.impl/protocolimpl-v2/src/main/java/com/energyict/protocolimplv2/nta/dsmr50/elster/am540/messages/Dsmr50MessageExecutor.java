@@ -10,8 +10,10 @@ import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessageExecutor;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.DSMR50Properties;
 
@@ -34,11 +36,19 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
 
     private static final String RESUME = "resume";
+    private AbstractMessageExecutor mbusMessageExecutor;
 
     public Dsmr50MessageExecutor(AbstractDlmsProtocol protocol) {
         super(protocol);
     }
 
+    @Override
+    protected AbstractMessageExecutor getMbusMessageExecutor() {
+        if (this.mbusMessageExecutor == null) {
+            this.mbusMessageExecutor = new IDISMBusMessageExecutor(getProtocol());
+        }
+        return this.mbusMessageExecutor;
+    }
 
     @Override
     protected boolean isResume(OfflineDeviceMessage pendingMessage) {

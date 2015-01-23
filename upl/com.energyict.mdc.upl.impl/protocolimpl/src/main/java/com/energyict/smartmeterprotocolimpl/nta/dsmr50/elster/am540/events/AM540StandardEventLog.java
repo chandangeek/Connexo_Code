@@ -20,6 +20,10 @@ public class AM540StandardEventLog extends StandardEventLog {
     private static final int EVENT_PHASE_SEQUENCE_REVERSAL = 88;
     private static final int EVENT_MISSING_NEUTRAL = 89;
 
+    public AM540StandardEventLog(DataContainer dc) {
+        super(dc);
+    }
+
     public AM540StandardEventLog(DataContainer dc, AXDRDateTimeDeviationType deviationType) {
         super(dc, deviationType);
     }

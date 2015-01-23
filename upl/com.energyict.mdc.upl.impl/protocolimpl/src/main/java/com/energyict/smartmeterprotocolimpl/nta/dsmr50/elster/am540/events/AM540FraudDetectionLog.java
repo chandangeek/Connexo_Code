@@ -18,6 +18,10 @@ public class AM540FraudDetectionLog extends FraudDetectionLog {
 
     protected static final int CONFIG_CHANGE = 47;
 
+    public AM540FraudDetectionLog(DataContainer dc) {
+        super(dc);
+    }
+
     public AM540FraudDetectionLog(DataContainer dc, AXDRDateTimeDeviationType deviationType) {
         super(dc, deviationType);
     }

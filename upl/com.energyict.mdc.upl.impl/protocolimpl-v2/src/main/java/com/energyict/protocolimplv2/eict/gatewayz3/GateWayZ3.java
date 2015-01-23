@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.eict.gatewayz3;
 
 import com.energyict.cpo.PropertySpec;
-import com.energyict.dlms.common.AbstractDlmsProtocol;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
@@ -10,13 +9,16 @@ import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,18 +31,13 @@ import java.util.List;
 public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Override
-    protected DlmsSessionProperties getDlmsSessionProperties() {
+    public DlmsSessionProperties getDlmsSessionProperties() {
         return null;  // nothing to do
     }
 
     @Override
-    protected void initAfterConnect() {
+    public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         // nothing to do
-    }
-
-    @Override
-    public int requestConfigurationChanges() {
-        return -1;        // nothing to do yet
     }
 
     @Override

@@ -1,6 +1,10 @@
 package com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
@@ -13,6 +17,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -40,7 +45,7 @@ public class IDISMBusMessageExecutor extends AbstractMessageExecutor {
     protected static final ObisCode DISCONNECTOR_CONTROL_MBUS_OBISCODE = ObisCode.fromString("0.0.24.4.0.255");
     protected static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
 
-    public IDISMBusMessageExecutor(AM500 protocol) {
+    public IDISMBusMessageExecutor(AbstractDlmsProtocol protocol) {
         super(protocol);
     }
 
@@ -179,6 +184,6 @@ public class IDISMBusMessageExecutor extends AbstractMessageExecutor {
     }
 
     private byte getMBusChannelId(OfflineDeviceMessage offlineDeviceMessage) {
-        return (byte) getProtocol().getIDISMeterTopology().getMBusChannelId(offlineDeviceMessage.getDeviceSerialNumber());
+        return (byte) getProtocol().getPhysicalAddressFromSerialNumber(offlineDeviceMessage.getDeviceSerialNumber());
     }
 }

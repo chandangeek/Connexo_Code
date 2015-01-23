@@ -14,7 +14,6 @@ import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
@@ -27,8 +26,8 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -134,11 +133,6 @@ public class WebRTUKP extends AbstractDlmsProtocol {
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
         return getRegisterFactory().readRegisters(registers);
-    }
-
-    @Override
-    public CollectedTopology getDeviceTopology() {
-        return getMeterTopology().getDeviceTopology();
     }
 
     @Override

@@ -59,11 +59,7 @@ public class DSMR50Properties extends DlmsProperties {
     }
 
     public int getNodeAddress() {
-        try {
-            return Integer.parseInt(getProperties().<String>getTypedProperty(MeterProtocol.NODEID, ""));
-        } catch (NumberFormatException e) {
-            return DEFAULT_UPPER_SERVER_MAC_ADDRESS.intValue();
-        }
+        return getProperties().<BigDecimal>getTypedProperty(MeterProtocol.NODEID, DEFAULT_UPPER_SERVER_MAC_ADDRESS).intValue();
     }
 
     public boolean getCheckNumberOfBlocksDuringFirmwareResume() {

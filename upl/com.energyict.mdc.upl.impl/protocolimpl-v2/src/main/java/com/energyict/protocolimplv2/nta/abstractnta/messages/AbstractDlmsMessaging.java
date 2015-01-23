@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.nta.abstractnta.messages;
 import com.energyict.mdw.core.Code;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 
 import javax.xml.parsers.ParserConfigurationException;
 

@@ -16,6 +16,10 @@ public class StandardEventLog extends EventsLog {
 	protected static final int EVENT_TARIFF_SHIFT_TIME = 19;
 	protected static final int EVENT_SELF_CHECK_AFTER_FIRMWARE = 20;
 
+    public StandardEventLog(DataContainer dc) {
+        super(dc);
+    }
+
     public StandardEventLog(DataContainer dc, AXDRDateTimeDeviationType deviationType) {
         super(dc, deviationType);
     }

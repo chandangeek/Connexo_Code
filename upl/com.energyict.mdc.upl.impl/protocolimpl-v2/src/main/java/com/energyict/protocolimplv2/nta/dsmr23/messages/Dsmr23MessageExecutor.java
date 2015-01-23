@@ -60,6 +60,7 @@ import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
@@ -76,7 +77,6 @@ import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import org.xml.sax.SAXException;
 
@@ -101,6 +101,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     public static final String SEPARATOR = ";";
     private static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
     private static final byte[] defaultMonitoredAttribute = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
+    private Dsmr23MbusMessageExecutor mbusMessageExecutor;
 
     public Dsmr23MessageExecutor(AbstractDlmsProtocol protocol) {
         super(protocol);
@@ -114,8 +115,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         List<OfflineDeviceMessage> mbusMessages = getMbusMessages(pendingMessages);
         if (!mbusMessages.isEmpty()) {
             // Execute messages for MBus devices
-            Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(getProtocol());
-            result.addCollectedMessages(mbusMessageExecutor.executePendingMessages(mbusMessages));
+            result.addCollectedMessages(getMbusMessageExecutor().executePendingMessages(mbusMessages));
         }
 
         for (OfflineDeviceMessage pendingMessage : masterMessages) {
@@ -814,5 +814,12 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             }
         }
         return mbusMessages;
+    }
+
+    protected AbstractMessageExecutor getMbusMessageExecutor() {
+        if (this.mbusMessageExecutor == null) {
+            this.mbusMessageExecutor = new Dsmr23MbusMessageExecutor(getProtocol());
+        }
+        return this.mbusMessageExecutor;
     }
 }

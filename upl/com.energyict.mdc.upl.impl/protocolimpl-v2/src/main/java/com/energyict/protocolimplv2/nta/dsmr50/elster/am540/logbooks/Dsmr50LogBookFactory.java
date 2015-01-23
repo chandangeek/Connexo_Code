@@ -1,8 +1,7 @@
-package com.energyict.protocolimplv2.nta.dsmr50.logbooks;
+package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.logbooks;
 
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.ResultType;
@@ -14,11 +13,15 @@ import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.DisconnectControlLog;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.PowerFailureLog;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.events.AM540FraudDetectionLog;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.events.AM540MBusLog;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.events.AM540MbusControlLog;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.events.AM540StandardEventLog;
 
 import java.io.IOException;
@@ -27,8 +30,6 @@ import java.util.Calendar;
 import java.util.List;
 
 public class Dsmr50LogBookFactory implements DeviceLogBookSupport {
-
-    private static final AXDRDateTimeDeviationType DEVIATION_TYPE = AXDRDateTimeDeviationType.Negative;
 
     private AbstractDlmsProtocol protocol;
 
@@ -41,10 +42,18 @@ public class Dsmr50LogBookFactory implements DeviceLogBookSupport {
         this.protocol = protocol;
         supportedLogBooks = new ArrayList<>();
         try {
+            // E-meter event logs
             supportedLogBooks.add(getMeterConfig().getEventLogObject().getObisCode());
+            supportedLogBooks.add(getMeterConfig().getFraudDetectionLogObject().getObisCode());
             supportedLogBooks.add(getMeterConfig().getControlLogObject().getObisCode());
             supportedLogBooks.add(getMeterConfig().getPowerFailureLogObject().getObisCode());
-            supportedLogBooks.add(getMeterConfig().getFraudDetectionLogObject().getObisCode());
+            // TODO: need to support power quality event log?
+
+            // MBus related event logs
+            supportedLogBooks.add(getMeterConfig().getMbusEventLogObject().getObisCode());
+            for (DeviceMapping mbusMeter : ((IDISMeterTopology) protocol.getMeterTopology()).getDeviceMapping()) {
+                supportedLogBooks.add(getMeterConfig().getMbusControlLog(mbusMeter.getPhysicalAddress() - 1).getObisCode());
+            }
         } catch (ProtocolException e) {   //Object not found in IOL, should never happen
             throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         }
@@ -85,13 +94,17 @@ public class Dsmr50LogBookFactory implements DeviceLogBookSupport {
         List<MeterEvent> meterEvents;
         try {
             if (logBookObisCode.equals(getMeterConfig().getEventLogObject().getObisCode())) {
-                meterEvents = new AM540StandardEventLog(dataContainer, DEVIATION_TYPE).getMeterEvents();
+                meterEvents = new AM540StandardEventLog(dataContainer).getMeterEvents();
             } else if (logBookObisCode.equals(getMeterConfig().getControlLogObject().getObisCode())) {
                 meterEvents = new DisconnectControlLog(dataContainer).getMeterEvents();
             } else if (logBookObisCode.equals(getMeterConfig().getPowerFailureLogObject().getObisCode())) {
                 meterEvents = new PowerFailureLog(dataContainer).getMeterEvents();
             } else if (logBookObisCode.equals(getMeterConfig().getFraudDetectionLogObject().getObisCode())) {
-                meterEvents = new AM540FraudDetectionLog(dataContainer, DEVIATION_TYPE).getMeterEvents();
+                meterEvents = new AM540FraudDetectionLog(dataContainer).getMeterEvents();
+            } else if (logBookObisCode.equals(getMeterConfig().getMbusEventLogObject().getObisCode())) {
+                meterEvents = new AM540MBusLog(dataContainer).getMeterEvents();
+            } else if (logBookObisCode.equals(getMeterConfig().getMbusControlLog(0).getObisCode())) {
+                meterEvents = new AM540MbusControlLog(dataContainer).getMeterEvents();
             } else{
                 return new ArrayList<>();
             }

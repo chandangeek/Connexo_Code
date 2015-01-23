@@ -32,6 +32,9 @@ public class AM540MBusLog extends MbusLog {
     private static final int EVENT_PERMANENT_ERROR_MBUS4 = 136;
     private static final int EVENT_TEMPORARY_ERROR_MBUS4 = 137;
 
+    public AM540MBusLog(DataContainer dc) {
+        super(dc);
+    }
 
     public AM540MBusLog(DataContainer dc, AXDRDateTimeDeviationType deviationType) {
         super(dc, deviationType);

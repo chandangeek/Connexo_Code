@@ -6,8 +6,22 @@ import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.dlms.idis.events.*;
+import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.dlms.idis.events.AbstractEvent;
+import com.energyict.protocolimpl.dlms.idis.events.DisconnectorControlLog;
+import com.energyict.protocolimpl.dlms.idis.events.FraudDetectionLog;
+import com.energyict.protocolimpl.dlms.idis.events.MBusControlLog1;
+import com.energyict.protocolimpl.dlms.idis.events.MBusControlLog2;
+import com.energyict.protocolimpl.dlms.idis.events.MBusControlLog3;
+import com.energyict.protocolimpl.dlms.idis.events.MBusControlLog4;
+import com.energyict.protocolimpl.dlms.idis.events.MBusEventLog;
+import com.energyict.protocolimpl.dlms.idis.events.PowerFailureEventLog;
+import com.energyict.protocolimpl.dlms.idis.events.PowerQualityEventLog;
+import com.energyict.protocolimpl.dlms.idis.events.StandardEventLog;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
@@ -71,7 +85,7 @@ public class IDISLogBookFactory implements DeviceLogBookSupport {
                 fromDate.setTime(logBookReader.getLastLogBook());
 
                 try {
-                    if (protocol.getIDISMeterTopology().getMBusChannelId(logBookReader.getMeterSerialNumber()) > 0) {
+                    if (protocol.getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber()) > 0) {
                         //MBus slave logbook
                         List<MeterEvent> mbusEvents = getMBusControlLog(fromDate, getCalendar(), logBookReader);
                         collectedLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(mbusEvents));
@@ -117,7 +131,7 @@ public class IDISLogBookFactory implements DeviceLogBookSupport {
         ObisCode mBusControlLogObisCode = getMBusControlLogObisCode(logBookReader.getMeterSerialNumber());
         DataContainer mBusControlLogDC = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(mBusControlLogObisCode).getBuffer(fromCal, toCal);
         AbstractEvent mBusControlLog;
-        switch (protocol.getIDISMeterTopology().getMBusChannelId(logBookReader.getMeterSerialNumber())) {
+        switch (protocol.getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber())) {
             case 1:
                 mBusControlLog = new MBusControlLog1(protocol.getTimeZone(), mBusControlLogDC);
                 break;
@@ -137,7 +151,7 @@ public class IDISLogBookFactory implements DeviceLogBookSupport {
     }
 
     private ObisCode getMBusControlLogObisCode(String serialNumber) {
-        return protocol.getIDISMeterTopology().getCorrectedObisCode(MBUS_CONTROL_LOG, serialNumber);
+        return protocol.getPhysicalAddressCorrectedObisCode(MBUS_CONTROL_LOG, serialNumber);
     }
 
     private boolean isSupported(LogBookReader logBookReader) {
