@@ -7,11 +7,13 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.TabbedDeviceLoadProfilesView', {
         'Mdc.view.setup.deviceloadprofiles.SideFilter'
     ],
     router: null,
+    title: null,
     initComponent: function () {
         var me = this;
         me.content = [
             {
                 xtype: 'tabpanel',
+                title: me.title,
                 ui: 'large',
                 itemId: 'loadProfileTabPanel',
                 items: [
