@@ -72,12 +72,17 @@ Ext.define('Uni.view.grid.SelectionGrid', {
                         margin: '0 8 0 0'
                     },
                     {
-                        xtype: 'button',
-                        itemId: 'uncheckAllButton',
-                        text: me.uncheckText,
-                        action: 'uncheckAll',
-                        margin: '0 0 0 8',
-                        disabled: true
+                        xtype: 'container',
+                        items: [
+                            {
+                                xtype: 'button',
+                                itemId: 'uncheckAllButton',
+                                text: me.uncheckText,
+                                action: 'uncheckAll',
+                                margin: '0 0 0 8',
+                                disabled: true
+                            }
+                        ]
                     }
                 ]
             }

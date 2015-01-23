@@ -40,6 +40,10 @@ Ext.define('Uni.property.view.property.Date', {
     },
 
     getValue: function () {
-        return this.getField().getValue().getTime()
+        if (this.getField().getValue() != null) {
+            return this.getField().getValue().getTime()
+        } else {
+            return null;
+        }
     }
 });
