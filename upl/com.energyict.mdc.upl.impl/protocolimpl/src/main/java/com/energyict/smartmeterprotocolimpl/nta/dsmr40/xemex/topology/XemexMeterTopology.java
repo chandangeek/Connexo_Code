@@ -1,13 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.topology;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.mdw.core.Device;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
@@ -15,9 +13,7 @@ import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNt
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 
