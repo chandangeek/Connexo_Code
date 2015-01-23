@@ -435,7 +435,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                             location.href = '#/administration/devicetypes/'+me.deviceTypeId+'/deviceconfigurations/'+me.deviceConfigurationId+'/comtaskenablements';
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task successfully removed'));
                             me.loadCommunicationTasksStore();
-                        } else {
+                        } /*else {
                             if(operation.response.status == 400) {
                                 var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
                                 if(!Ext.isEmpty(operation.response.statusText)) {
@@ -450,7 +450,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
 
                                 me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('communicationtasks.remove.operation.failed', 'MDC', 'Remove operation failed'), errorText);
                             }
-                        }
+                        }*/
 
                     }
                 });
