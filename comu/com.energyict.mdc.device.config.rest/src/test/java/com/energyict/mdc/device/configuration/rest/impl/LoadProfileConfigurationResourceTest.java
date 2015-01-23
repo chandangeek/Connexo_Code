@@ -40,7 +40,9 @@ public class LoadProfileConfigurationResourceTest extends BaseLoadProfileTest {
         DeviceConfiguration deviceConfiguration = getDeviceConfiguration();
         List<LoadProfileSpec> loadProfileSpecs = getLoadProfileSpecs(5);
         when(deviceConfiguration.getLoadProfileSpecs()).thenReturn(loadProfileSpecs);
-        when(deviceConfigurationService.findChannelSpecsForLoadProfileSpec(Matchers.<LoadProfileSpec>anyObject())).thenReturn(Collections.<ChannelSpec>emptyList());
+        for (LoadProfileSpec loadProfileSpec : loadProfileSpecs) {
+            when(loadProfileSpec.getChannelSpecs()).thenReturn(Collections.emptyList());
+        }
 
         Map<String, Object> map = target("/devicetypes/1/deviceconfigurations/1/loadprofileconfigurations").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(5);
@@ -60,7 +62,9 @@ public class LoadProfileConfigurationResourceTest extends BaseLoadProfileTest {
         when(deviceType.getLoadProfileTypes()).thenReturn(loadProfileTypes);
         when(deviceType.getConfigurations()).thenReturn(deviceConfigurations);
         when(deviceConfiguration.getLoadProfileSpecs()).thenReturn(loadProfileSpecs);
-        when(deviceConfigurationService.findChannelSpecsForLoadProfileSpec(Matchers.<LoadProfileSpec>anyObject())).thenReturn(Collections.<ChannelSpec>emptyList());
+        for (LoadProfileSpec loadProfileSpec : loadProfileSpecs) {
+            when(loadProfileSpec.getChannelSpecs()).thenReturn(Collections.emptyList());
+        }
 
         Map<String, Object> map = target("/devicetypes/1/deviceconfigurations/1/loadprofileconfigurations/available").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(5);

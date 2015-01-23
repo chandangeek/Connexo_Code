@@ -65,7 +65,7 @@ public class LoadProfileConfigurationResource {
         Collections.sort(loadProfileSpecs, new LoadProfileSpecComparator());
         List<LoadProfileSpecInfo> loadProfileSpecInfos = new ArrayList<>(loadProfileSpecs.size());
         for (LoadProfileSpec spec : loadProfileSpecs) {
-            loadProfileSpecInfos.add(LoadProfileSpecInfo.from(spec, deviceConfigurationService.findChannelSpecsForLoadProfileSpec(spec)));
+            loadProfileSpecInfos.add(LoadProfileSpecInfo.from(spec, spec.getChannelSpecs()));
         }
         return Response.ok(PagedInfoList.asJson("data", loadProfileSpecInfos, queryParameters)).build();
     }
@@ -165,7 +165,7 @@ public class LoadProfileConfigurationResource {
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @BeanParam QueryParameters queryParameters) {
         LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
-        List<ChannelSpec> channelSpecs = deviceConfigurationService.findChannelSpecsForLoadProfileSpec(loadProfileSpec);
+        List<ChannelSpec> channelSpecs = loadProfileSpec.getChannelSpecs();
         Collections.sort(channelSpecs, new LoadProfileChannelComparator());
         return Response.ok(PagedInfoList.asJson("data", ChannelSpecFullInfo.from(channelSpecs), queryParameters)).build();
     }
@@ -276,7 +276,7 @@ public class LoadProfileConfigurationResource {
         for (ChannelType measurementType : loadProfileSpec.getLoadProfileType().getChannelTypes()) {
             channelTypes.put(measurementType.getId(), measurementType);
         }
-        List<ChannelSpec> channelSpecs = deviceConfigurationService.findChannelSpecsForLoadProfileSpec(loadProfileSpec);
+        List<ChannelSpec> channelSpecs = loadProfileSpec.getChannelSpecs();
         for (ChannelSpec channelSpec : channelSpecs) {
             channelTypes.remove(channelSpec.getChannelType().getId());
         }
