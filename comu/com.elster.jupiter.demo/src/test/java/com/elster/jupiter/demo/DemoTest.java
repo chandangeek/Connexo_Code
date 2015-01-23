@@ -67,6 +67,7 @@ import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionModule;
 import com.energyict.mdc.issue.datacollection.impl.templates.AbstractTemplate;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDatacollectionRuleTemplate;
 import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
@@ -272,6 +273,7 @@ public class DemoTest {
     private void fixMissedDynamicReference() {
         // Register device factory provider
         injector.getInstance(MeteringGroupsService.class);
+		injector.getInstance(MasterDataService.class);
 
         ProtocolPluggableServiceImpl protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
         protocolPluggableService.addInboundDeviceProtocolService(injector.getInstance(InboundDeviceProtocolService.class));
