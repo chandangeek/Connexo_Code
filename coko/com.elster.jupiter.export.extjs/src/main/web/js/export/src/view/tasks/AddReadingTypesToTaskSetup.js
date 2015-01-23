@@ -6,15 +6,15 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskSetup', {
 
     requires: [
         'Uni.component.filter.view.FilterTopPanel',
-        'Dxp.view.tasks.AddReadingTypesToTaskBulk'
-//                'Cfg.view.validation.SideFilter'
+        'Dxp.view.tasks.AddReadingTypesToTaskBulk',
+        'Dxp.view.tasks.SideFilter'
     ],
 
-//    side: [
-//        {
-//            xtype: 'cfg-side-filter'
-//        }
-//    ],
+    side: [
+        {
+            xtype: 'rt-side-filter'
+        }
+    ],
 
     content: [
         {
@@ -26,14 +26,13 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskSetup', {
                 align: 'stretch'
             },
             items: [
-//                {
-//                    title: Uni.I18n.translate('general.filter', 'CFG', 'Filter'),
-//                    xtype: 'filter-top-panel',
-//                    itemId: 'filterReadingTypes',
-//                    margin: '0 0 20 0',
-//                    name: 'filter',
-//                    emptyText: Uni.I18n.translate('general.none', 'CFG', 'None')
-//                },
+                {
+                    title: Uni.I18n.translate('general.filter', 'CFG', 'Filter'),
+                    xtype: 'filter-top-panel',
+                    itemId: 'filterReadingTypes',
+                    margin: '0 0 20 0',
+                    name: 'filter'
+                },
                 {
                     xtype: 'container',
                     itemId: 'AddReadingTypesToTaskBulk'
@@ -49,10 +48,12 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskSetup', {
 
                             text: Uni.I18n.translate('general.add', 'CFG', 'Add'),
                             name: 'add',
+                            itemId: 'btn-add-reading-types',
                             ui: 'action'
                         },
                         {
                             name: 'cancel',
+                            itemId: 'lnk-cancel-add-reading-types',
                             text: Uni.I18n.translate('general.add', 'CFG', 'Cancel'),
                             ui: 'link'
                         }
