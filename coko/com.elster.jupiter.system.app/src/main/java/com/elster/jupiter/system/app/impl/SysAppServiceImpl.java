@@ -69,7 +69,7 @@ public class SysAppServiceImpl implements SysAppService, InstallService {
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(UserService.COMPONENTNAME, "DES", "LIC", "TME", "BPM", "APR", "LFC");
+        return Arrays.asList(UserService.COMPONENTNAME, "APS", "DES", "LIC", "TME", "BPM", "APR", "LFC", "YFN");
     }
 
     @Reference
@@ -80,6 +80,7 @@ public class SysAppServiceImpl implements SysAppService, InstallService {
     private void assignPrivilegesToDefaultRoles() {
         List<Privilege> availablePrivileges = getApplicationPrivileges();
         userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
+        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
     }
 
     private boolean isAllowed(User user) {
