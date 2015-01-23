@@ -52,7 +52,6 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                             name: 'name',
                             itemId: 'addRuleSetName',
                             required: true,
-                            allowBlank: false,
                             maxLength: 80,
                             width: 600,
                             msgTarget: 'under',

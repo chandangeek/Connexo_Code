@@ -63,7 +63,6 @@ Ext.define('Cfg.view.validation.AddRule', {
                             msgTarget: 'under',
                             maxLength: 80,
                             enforceMaxLength: true,
-                            allowBlank: false,
                             labelWidth: 260,
                             name: 'name',
                             width: 600
@@ -80,7 +79,6 @@ Ext.define('Cfg.view.validation.AddRule', {
                             queryMode: 'local',
                             fieldLabel: Uni.I18n.translate('validation.validator', 'CFG', 'Validator'),
                             required: true,
-                            allowBlank: false,
                             labelAlign: 'right',
                             forceSelection: true,
                             emptyText: Uni.I18n.translate('validation.selectARule', 'CFG', 'Select a rule') + '...',
@@ -145,9 +143,21 @@ Ext.define('Cfg.view.validation.AddRule', {
                             ]
                         },
                         {
+                            xtype: 'label',
+                            cls: 'x-form-invalid-under',
+                            itemId: 'readingTypesErrorLabel',
+                            margin: '0 0 0 275'
+                        },
+                        {
                             xtype: 'property-form',
                             padding: '5 10 0 10',
                             width: '100%'
+                        },
+                        {
+                            xtype: 'label',
+                            cls: 'x-form-invalid-under',
+                            itemId: 'propertiesErrorLabel',
+                            margin: '0 0 0 275'
                         },
                         {
                             xtype: 'fieldcontainer',
