@@ -9,8 +9,7 @@
 --systemPackages=javax.activation;version=1.1.1,\
  javax.xml.ws;version=2.2.0,\
  javax.xml.ws.wsaddressing,\
- javax.xml.stream;javax.xml.stream.events;javax.xml.stream.util;version=1.0.0,\
- com.sun.tools.xjc
+ javax.xml.stream;javax.xml.stream.events;javax.xml.stream.util;version=1.0.0
 mvn:javax.annotation/javax.annotation-api/1.2
 mvn:javax.validation/validation-api/1.1.0.Final
 mvn:javax.el/javax.el-api/2.2.5
@@ -79,6 +78,7 @@ mvn:org.slf4j/slf4j-api/1.7.2
 mvn:org.drools/drools-templates/6.0.1.Final
 mvn:org.drools/drools-compiler/6.0.1.Final
 mvn:com.google.protobuf/protobuf-java/2.5.0
+mvn:com.sun.xml.bind/jaxb-xjc/2.2.11
 mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.antlr-runtime/3.5_1
 mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/1.4.3_3
 mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/1.6.1_5
