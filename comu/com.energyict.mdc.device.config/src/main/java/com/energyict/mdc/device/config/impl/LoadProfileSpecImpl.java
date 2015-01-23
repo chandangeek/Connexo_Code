@@ -1,5 +1,16 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.exceptions.CannotDeleteLoadProfileSpecLinkedChannelSpecsException;
+import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsNotConfiguredOnDeviceTypeException;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.masterdata.ChannelType;
+import com.energyict.mdc.masterdata.LoadProfileType;
+
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
@@ -8,20 +19,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.validation.ValidationRule;
-import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.exceptions.CannotDeleteLoadProfileSpecLinkedChannelSpecsException;
-import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsNotConfiguredOnDeviceTypeException;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.LoadProfileType;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> implements LoadProfileSpec {
 
-    private final DeviceConfigurationService deviceConfigurationService;
+    private final ServerDeviceConfigurationService deviceConfigurationService;
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_REQUIRED + "}")
     private final Reference<LoadProfileType> loadProfileType = ValueReference.absent();
     private String overruledObisCodeString;
@@ -46,9 +46,10 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     private long version;
     private Instant createTime;
     private Instant modTime;
+    private List<ChannelSpec> channelSpecs; // Cache
 
     @Inject
-    public LoadProfileSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, DeviceConfigurationService deviceConfigurationService) {
+    public LoadProfileSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ServerDeviceConfigurationService deviceConfigurationService) {
         super(LoadProfileSpec.class, dataModel, eventService, thesaurus);
         this.deviceConfigurationService = deviceConfigurationService;
     }
@@ -120,7 +121,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
     @Override
     public void validateDelete() {
-        if (!this.deviceConfigurationService.findChannelSpecsForLoadProfileSpec(this).isEmpty()) {
+        if (!this.getChannelSpecs().isEmpty()) {
             throw new CannotDeleteLoadProfileSpecLinkedChannelSpecsException(this.thesaurus);
         }
     }
@@ -155,6 +156,28 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
         this.overruledObisCode = overruledObisCode;
     }
 
+    public List<ValidationRule> getValidationRules() {
+        List<ReadingType> readingTypes = new ArrayList<>();
+        List<ChannelType> channelTypes = this.getLoadProfileType().getChannelTypes();
+        for (ChannelType mapping : channelTypes) {
+            readingTypes.add(mapping.getReadingType());
+        }
+        return getDeviceConfiguration().getValidationRules(readingTypes);
+    }
+
+    @Override
+    public List<ChannelSpec> getChannelSpecs() {
+        if (this.channelSpecs == null) {
+            this.channelSpecs = this.deviceConfigurationService.findChannelSpecsForLoadProfileSpec(this);
+        }
+        return this.channelSpecs;
+    }
+
+    public void created(ChannelSpecImpl channelSpec) {
+        // Reset cache
+        this.channelSpecs = null;
+    }
+
     abstract static class LoadProfileSpecBuilder implements LoadProfileSpec.LoadProfileSpecBuilder {
 
         private final LoadProfileSpecImpl loadProfileSpec;
@@ -187,21 +210,6 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
                 buildingCompletionListener.loadProfileSpecBuildingProcessCompleted(this.loadProfileSpec);
             }
         }
-    }
-
-
-    public List<ValidationRule> getValidationRules() {
-        List<ReadingType> readingTypes = new ArrayList<>();
-        List<ChannelType> channelTypes = this.getLoadProfileType().getChannelTypes();
-        for (ChannelType mapping : channelTypes) {
-            readingTypes.add(mapping.getReadingType());
-        }
-        return getDeviceConfiguration().getValidationRules(readingTypes);
-    }
-
-    @Override
-    public List<ChannelSpec> getChannelSpecs() {
-        return this.deviceConfigurationService.findChannelSpecsForLoadProfileSpec(this);
     }
 
     abstract static class LoadProfileSpecUpdater implements LoadProfileSpec.LoadProfileSpecUpdater {

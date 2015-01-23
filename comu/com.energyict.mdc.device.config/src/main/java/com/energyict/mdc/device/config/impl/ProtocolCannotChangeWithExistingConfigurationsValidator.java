@@ -16,10 +16,10 @@ import javax.validation.ConstraintValidatorContext;
  */
 public class ProtocolCannotChangeWithExistingConfigurationsValidator implements ConstraintValidator<ProtocolCannotChangeWithExistingConfigurations, DeviceTypeImpl> {
 
-    private DeviceConfigurationService deviceConfigurationService;
+    private ServerDeviceConfigurationService deviceConfigurationService;
 
     @Inject
-    public ProtocolCannotChangeWithExistingConfigurationsValidator(DeviceConfigurationService deviceConfigurationService) {
+    public ProtocolCannotChangeWithExistingConfigurationsValidator(ServerDeviceConfigurationService deviceConfigurationService) {
         super();
         this.deviceConfigurationService = deviceConfigurationService;
     }
@@ -32,8 +32,7 @@ public class ProtocolCannotChangeWithExistingConfigurationsValidator implements 
     @Override
     public boolean isValid(DeviceTypeImpl deviceType, ConstraintValidatorContext context) {
         if (deviceType.deviceProtocolPluggableClassChanged()) {
-            ServerDeviceConfigurationService deviceConfigurationService = (ServerDeviceConfigurationService) this.deviceConfigurationService;
-            List<DeviceConfiguration> allConfigurations = deviceConfigurationService.findDeviceConfigurationsByDeviceType(deviceType);
+            List<DeviceConfiguration> allConfigurations = this.deviceConfigurationService.findDeviceConfigurationsByDeviceType(deviceType);
             if (!allConfigurations.isEmpty()) {
                 context.disableDefaultConstraintViolation();
                 context

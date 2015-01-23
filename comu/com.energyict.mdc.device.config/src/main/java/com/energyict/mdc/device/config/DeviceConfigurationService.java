@@ -100,14 +100,6 @@ public interface DeviceConfigurationService {
     public List<RegisterSpec> findRegisterSpecsByMeasurementType(MeasurementType measurementType);
 
     /**
-     * Finds a list of {@link ChannelSpec ChannelSpecs} which are linked to the given {@link LoadProfileSpec}
-     *
-     * @param loadProfileSpec the LoadProfileSpec
-     * @return the list of ChannelSpecs
-     */
-    public List<ChannelSpec> findChannelSpecsForLoadProfileSpec(LoadProfileSpec loadProfileSpec);
-
-    /**
      * Find the {@link LoadProfileSpec} with the given ID
      *
      * @param loadProfileSpecId the ID of the LoadProfileSpec

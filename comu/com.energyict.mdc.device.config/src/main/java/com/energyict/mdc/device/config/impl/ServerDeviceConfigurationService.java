@@ -5,6 +5,7 @@ import com.energyict.mdc.device.config.ChannelSpecLinkType;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.tasks.ComTask;
 
@@ -36,6 +37,14 @@ public interface ServerDeviceConfigurationService extends DeviceConfigurationSer
      * @return the list of RegisterSpecs
      */
     public List<RegisterSpec> findRegisterSpecsByChannelSpecAndLinkType(ChannelSpec channelSpec, ChannelSpecLinkType linkType);
+
+    /**
+     * Finds a list of {@link ChannelSpec ChannelSpecs} which are linked to the given {@link LoadProfileSpec}
+     *
+     * @param loadProfileSpec the LoadProfileSpec
+     * @return the list of ChannelSpecs
+     */
+    public List<ChannelSpec> findChannelSpecsForLoadProfileSpec(LoadProfileSpec loadProfileSpec);
 
     /**
      * Tests if the specified {@link ComTask} is used by at least one {@link DeviceConfiguration}.
