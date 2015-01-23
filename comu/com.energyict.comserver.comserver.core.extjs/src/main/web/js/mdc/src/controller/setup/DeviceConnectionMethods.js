@@ -4,7 +4,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     deviceConfigurationId: null,
     requires: [
         'Mdc.store.ConnectionMethodsOfDevice',
-        'Mdc.store.ConnectionMethodsOfDeviceConfiguration',
+        'Mdc.store.ConnectionMethodsOfDeviceConfigurationCombo',
         'Mdc.store.ConnectionStrategies',
         'Mdc.store.ComPortPools',
         'Mdc.store.ConnectionTypes'
@@ -20,7 +20,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     stores: [
         'ConnectionMethodsOfDevice',
         'ConnectionStrategies',
-        'ConnectionMethodsOfDeviceConfiguration',
+        'ConnectionMethodsOfDeviceConfigurationCombo',
         'ComPortPools',
         'ConnectionTypes'
     ],
@@ -201,7 +201,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     showAddDeviceConnectionMethodView: function (mrid, direction) {
         var me = this,
             deviceModel = Ext.ModelManager.getModel('Mdc.model.Device'),
-            connectionMethodsStore = Ext.StoreManager.get('ConnectionMethodsOfDeviceConfiguration'),
+            connectionMethodsStore = Ext.StoreManager.get('ConnectionMethodsOfDeviceConfigurationCombo'),
             connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
 
         me.mrid = mrid;
@@ -224,9 +224,6 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                 connectionMethodsStore.getProxy().extraParams = ({deviceType: device.get('deviceTypeId'), deviceConfig: device.get('deviceConfigurationId')});
                 connectionMethodsStore.getProxy().setExtraParam('available', true);
                 connectionMethodsStore.getProxy().setExtraParam('mrId', mrid);
-                connectionMethodsStore.getProxy().pageParam = null;
-                connectionMethodsStore.getProxy().limitParam = null;
-                connectionMethodsStore.getProxy().startParam = null;
                 connectionMethodsStore.clearFilter(true);
                 connectionMethodsStore.filter('direction', direction);
                 connectionMethodsStore.load({
@@ -473,7 +470,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         var me = this;
         var deviceModel = Ext.ModelManager.getModel('Mdc.model.Device');
         var connectionMethodModel = Ext.ModelManager.getModel('Mdc.model.DeviceConnectionMethod');
-        var connectionMethodsStore = Ext.getStore('ConnectionMethodsOfDeviceConfiguration');
+        var connectionMethodsStore = Ext.getStore('ConnectionMethodsOfDeviceConfigurationCombo');
         this.comPortPoolStore = Ext.getStore('ComPortPools');
         var connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
 
@@ -498,9 +495,6 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                         connectionMethodsStore.getProxy().extraParams = ({deviceType: device.get('deviceTypeId'), deviceConfig: device.get('deviceConfigurationId')});
                         connectionMethodsStore.clearFilter(true);
                         connectionMethodsStore.filter('direction', connectionMethod.get('direction'));
-                        connectionMethodsStore.getProxy().pageParam = null;
-                        connectionMethodsStore.getProxy().limitParam = null;
-                        connectionMethodsStore.getProxy().startParam = null;
                         connectionMethodsStore.load({
                             callback: function () {
                                 me.comPortPoolStore.clearFilter(true);

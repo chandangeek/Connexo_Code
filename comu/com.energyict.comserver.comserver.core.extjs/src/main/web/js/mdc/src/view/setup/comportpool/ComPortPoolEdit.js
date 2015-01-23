@@ -34,6 +34,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
                 {
                     xtype: 'textfield',
                     name: 'name',
+                    itemId: 'txt-comportpool-name',
                     fieldLabel: Uni.I18n.translate('general.formFieldLabel.name', 'MDC', 'Name'),
                     width: 600,
                     required: true
@@ -48,6 +49,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
                 {
                     xtype: 'combobox',
                     name: 'type',
+                    itemId: 'cbo-comportpool-type',
                     fieldLabel: Uni.I18n.translate('general.formFieldLabel.type', 'MDC', 'Type'),
                     emptyText: Uni.I18n.translate('comPortPool.formFieldEmptyText.selectCommunicationType', 'MDC', 'Select communication type...'),
                     store: 'Mdc.store.ComPortTypes',
@@ -61,6 +63,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
                 {
                     xtype: 'combobox',
                     name: 'discoveryProtocolPluggableClassId',
+                    itemId: 'cbo-comportpool-protocol-detect',
                     fieldLabel: Uni.I18n.translate('comPortPool.formFieldLabel.protocolDetection', 'MDC', 'Protocol detection'),
                     emptyText: Uni.I18n.translate('comPortPool.formFieldEmptyText.selectProtocolDetection', 'MDC', 'Select protocol detection...'),
                     store: 'Mdc.store.DeviceDiscoveryProtocols',

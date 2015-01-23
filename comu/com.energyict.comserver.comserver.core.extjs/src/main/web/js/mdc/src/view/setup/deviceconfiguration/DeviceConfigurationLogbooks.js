@@ -39,7 +39,8 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                                 },
                                 {
                                     xtype: 'obis-column',
-                                    dataIndex: 'overruledObisCode'
+                                    dataIndex: 'overruledObisCode',
+                                    flex: 1
                                 },
                                 {
                                     xtype: 'uni-actioncolumn',
