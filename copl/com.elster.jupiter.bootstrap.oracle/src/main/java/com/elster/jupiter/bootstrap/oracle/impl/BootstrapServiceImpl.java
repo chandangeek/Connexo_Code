@@ -38,6 +38,7 @@ public final class BootstrapServiceImpl implements BootstrapService {
     private static final String JDBC_POOLMAXSTATEMENTS = "com.elster.jupiter.datasource.pool.maxstatements";
     private static final String MAX_LIMIT = "MaxLimit";
     private static final String MAX_STATEMENTS_LIMIT = "MaxStatementsLimit";
+    private static final String CONNECTION_WAIT_TIMEOUT = "ConnectionWaitTimeout";
 
     private String jdbcUrl;
     private String jdbcUser;
@@ -92,6 +93,7 @@ public final class BootstrapServiceImpl implements BootstrapService {
         Properties connectionCacheProps = new Properties();
         connectionCacheProps.put(MAX_LIMIT, maxLimit);
         connectionCacheProps.put(MAX_STATEMENTS_LIMIT, maxStatementsLimit);
+        connectionCacheProps.put(CONNECTION_WAIT_TIMEOUT, "10"); // 10 seconds 
         return connectionCacheProps;
     }
 
