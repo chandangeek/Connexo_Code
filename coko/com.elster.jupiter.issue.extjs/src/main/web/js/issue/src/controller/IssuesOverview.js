@@ -23,7 +23,7 @@ Ext.define('Isu.controller.IssuesOverview', {
                 router.filter.save();
             }});
         } else if (!router.queryParams.filter) {
-            router.filter.set('status', 'status.open');
+            router.filter.set('status', ['status.open', 'status.in.progress']);
             router.filter.set('sorting', [
                 {type: 'dueDate', value: Uni.component.sort.model.Sort.ASC}
             ]);
