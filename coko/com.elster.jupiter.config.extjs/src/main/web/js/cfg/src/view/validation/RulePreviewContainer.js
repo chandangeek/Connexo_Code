@@ -33,6 +33,19 @@ Ext.define('Cfg.view.validation.RulePreviewContainer', {
                 ]
             }
         ];
+        this.side = [
+            {
+                xtype: 'panel',
+                ui: 'medium',
+                items: [
+                    {
+                        xtype: 'ruleSetSubMenu',
+                        itemId: 'stepsMenu',
+                        ruleSetId: this.ruleSetId
+                    }
+                ]
+            }
+        ];
         this.callParent(arguments);
     }
 });

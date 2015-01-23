@@ -1,40 +1,34 @@
 Ext.define('Cfg.view.validation.RuleSetSubMenu', {
-    extend: 'Uni.view.navigation.SubMenu',
+    extend: 'Uni.view.menu.SideMenu',
     xtype: 'ruleSetSubMenu',
 
     ruleSetId: null,
-    title: null,
-    toggle: null,
+
+    title: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
 
     initComponent: function () {
-        this.callParent(this);
+        var me = this;
 
-        this.add(
+        me.menuItems = [
             {
                 text: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
-                pressed: false,
                 itemId: 'ruleSetOverviewLink',
-                href: '#/administration/validation/rulesets/' + this.ruleSetId,
-                hrefTarget: '_self'
+                href: '#/administration/validation/rulesets/' + me.ruleSetId
             },
             {
                 text: Uni.I18n.translate('validation.validationRules', 'CFG', 'Validation rules'),
-                pressed: false,
                 itemId: 'rulesLink',
-                href: '#/administration/validation/rulesets/' + this.ruleSetId + '/rules',
-                hrefTarget: '_self'
+                href: '#/administration/validation/rulesets/' + me.ruleSetId + '/rules'
             },
             {
                 text: Uni.I18n.translate('validation.deviceConfigurations', 'CFG', 'Device configurations'),
-                pressed: false,
                 itemId: 'deviceConfigLink',
-                href: '#/administration/validation/rulesets/' + this.ruleSetId + '/deviceconfigurations',
-                hrefTarget: '_self',
+                href: '#/administration/validation/rulesets/' + me.ruleSetId + '/deviceconfigurations',
                 hidden: true
             }
-        );
+        ];
 
-        this.toggleMenuItem(this.toggle);
+        me.callParent(arguments);
     }
 });
 

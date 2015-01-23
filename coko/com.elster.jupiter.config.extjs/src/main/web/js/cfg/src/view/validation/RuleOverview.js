@@ -47,19 +47,13 @@ Ext.define('Cfg.view.validation.RuleOverview', {
         this.side = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'),
                 ui: 'medium',
-                layout: {
-                    type: 'vbox',
-                    align: 'stretch'
-                },
                 items: [
                     {
                         xtype: 'ruleSubMenu',
                         itemId: 'stepsRuleMenu',
                         ruleSetId: this.ruleSetId,
-                        ruleId: this.ruleId,
-                        toggle: 0
+                        ruleId: this.ruleId
                     }
                 ]
             }

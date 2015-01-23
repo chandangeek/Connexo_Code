@@ -696,7 +696,7 @@ Ext.define('Cfg.controller.Validation', {
                 var selectedRuleSet = ruleSetsStore.getByInternalId(id),
                     rulesContainerWidget = Ext.widget('rulePreviewContainer', {ruleSetId: id});
                 me.getApplication().fireEvent('changecontentevent', rulesContainerWidget);
-                rulesContainerWidget.down('#stepsMenu').setTitle(selectedRuleSet.get('name'));
+                rulesContainerWidget.down('#stepsMenu #ruleSetOverviewLink').setText(selectedRuleSet.get('name'));
                 if (me.mdcIsActive) {
                     rulesContainerWidget.down('#deviceConfigLink').show();
                 }
@@ -714,7 +714,7 @@ Ext.define('Cfg.controller.Validation', {
                 me.getApplication().fireEvent('changecontentevent', rulesContainerWidget);
 
                 me.getRulesetOverviewForm().loadRecord(ruleSet);
-                rulesContainerWidget.down('#stepsMenu').setTitle(ruleSet.get('name'));
+                rulesContainerWidget.down('#stepsMenu #ruleSetOverviewLink').setText(ruleSet.get('name'));
                 if (me.mdcIsActive) {
                     rulesContainerWidget.down('#deviceConfigLink').show();
                 }
@@ -1162,7 +1162,7 @@ Ext.define('Cfg.controller.Validation', {
                 me.getApplication().fireEvent('loadRule', rule);
                 rulesContainerWidget.down('validation-rule-action-menu').record = rule;
                 rulesContainerWidget.down('validation-rule-action-menu').down('#view').hide();
-                rulesContainerWidget.down('#stepsRuleMenu').setTitle(rule.get('name'));
+                rulesContainerWidget.down('#stepsRuleMenu #ruleSetOverviewLink').setText(rule.get('name'));
                 rulesContainerWidget.setLoading(false);
             }
         });

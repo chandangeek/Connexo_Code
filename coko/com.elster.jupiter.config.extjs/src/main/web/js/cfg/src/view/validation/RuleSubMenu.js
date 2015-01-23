@@ -1,24 +1,23 @@
 Ext.define('Cfg.view.validation.RuleSubMenu', {
-    extend: 'Uni.view.navigation.SubMenu',
+    extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.ruleSubMenu',
+
     ruleSetId: null,
     ruleId: null,
-    title: null,
-    toggle: null,
+
+    title: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'),
+
     initComponent: function () {
-        this.callParent(this);
-        this.add(
+        var me = this;
+
+        me.menuItems = [
             {
                 text: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
-                pressed: false,
                 itemId: 'ruleSetOverviewLink',
-                href: '#/administration/validation/rulesets/' + this.ruleSetId + '/rules/' + this.ruleId,
-                hrefTarget: '_self'
+                href: '#/administration/validation/rulesets/' + me.ruleSetId + '/rules/' + me.ruleId
             }
-        );
-        this.toggleMenuItem(this.toggle);
+        ];
+
+        me.callParent(arguments);
     }
 });
-
-
-

@@ -81,18 +81,12 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
         this.side = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
                 ui: 'medium',
-                layout: {
-                    type: 'vbox',
-                    align: 'stretch'
-                },
                 items: [
                     {
                         xtype: 'ruleSetSubMenu',
                         itemId: 'stepsMenu',
-                        ruleSetId: this.ruleSetId,
-                        toggle: 0
+                        ruleSetId: this.ruleSetId
                     }
                 ]
             }
