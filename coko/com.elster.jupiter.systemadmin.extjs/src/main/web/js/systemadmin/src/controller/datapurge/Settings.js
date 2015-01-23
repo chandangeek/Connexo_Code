@@ -46,6 +46,7 @@ Ext.define('Sam.controller.datapurge.Settings', {
             store = me.getStore('Sam.store.DataPurgeSettings');
 
         if (!store.getUpdatedRecords().length) {
+            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('datapurge.settings.nothingToSaveMsg', 'SAM', 'Nothing to save'));
             return;
         }
         page.setLoading(Uni.I18n.translate('general.saving', 'SAM', 'Saving...'));

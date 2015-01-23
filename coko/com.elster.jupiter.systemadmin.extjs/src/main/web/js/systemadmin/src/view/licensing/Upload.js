@@ -45,7 +45,8 @@ Ext.define('Sam.view.licensing.Upload', {
                                     itemId: 'upload',
                                     text: 'Upload',
                                     name: 'upload',
-                                    disabled: true
+                                    disabled: true,
+                                    ui: 'action'
                                 },
                                 {
                                     itemId: 'Cancel',
