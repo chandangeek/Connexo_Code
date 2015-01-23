@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.properties.BasicPropertySpec;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
@@ -15,9 +19,11 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask.SuccessIndicator;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.ConnectionType.Direction;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -27,6 +33,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -68,7 +75,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         String response = target("/devices/ZABF0000000/connectionmethods").request().get(String.class);
 
         JsonModel jsonModel = JsonModel.model(response);
-        assertThat(jsonModel.<Integer> get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<List<?>> get("$.connectionMethods")).hasSize(1);
         assertThat(jsonModel.<Integer>get("$.connectionMethods[0].id")).isEqualTo(9);
         assertThat(jsonModel.<Integer>get("$.connectionMethods[0].comWindowStart")).isEqualTo(60);
@@ -137,6 +144,21 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("nextExecutionSpecs.offset.timeUnit");
     }
 
+    @Test
+    public void testUpdateScheduledConnectionMethodWithIllegalProperty() throws IOException {
+        ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
+        info.name = "AS1440";
+        info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
+        info.properties = new ArrayList<>();
+        PropertyInfo propertyInfo = new PropertyInfo("connectionTimeout",new PropertyValueInfo<>(new TimeDuration("15 seconds"),null,null,null),new PropertyTypeInfo(SimplePropertyType.TIMEDURATION,null,null,null),false);
+        info.properties.add(propertyInfo);
+
+        Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("properties.connectionTimeout");
+    }
+
     private ScheduledConnectionTask mockConnectionTask(long id) {
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         ComSession comSession = mockComSession(comSessionStart, comSessionEnd);
@@ -162,7 +184,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         return connectionTask;
     }
 
-    private PartialScheduledConnectionTask mockPartialConnectionTask(long id, String name) {
+    private <T> PartialScheduledConnectionTask mockPartialConnectionTask(long id, String name) {
         PartialScheduledConnectionTask connectionTask = mock(PartialScheduledConnectionTask.class);
         when(connectionTask.getId()).thenReturn(id);
         when(connectionTask.getName()).thenReturn(name);
@@ -170,6 +192,8 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
         when(connectionType.getDirection()).thenReturn(Direction.OUTBOUND);
         ConnectionTypePluggableClass pluggableClass = mockPluggableClass();
+        BasicPropertySpec propertySpec = new BasicPropertySpec("connectionTimeout", new TimeDurationValueFactory());
+        when(pluggableClass.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
         when(connectionTask.getPluggableClass()).thenReturn(pluggableClass);
         when(connectionTask.isDefault()).thenReturn(true);
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
