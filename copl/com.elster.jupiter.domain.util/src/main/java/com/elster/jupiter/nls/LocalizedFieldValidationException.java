@@ -23,6 +23,17 @@ public class LocalizedFieldValidationException extends RuntimeException{
         this.args = args;
     }
 
+    /**
+     * Creates a LocalizedFieldValidationException based on the this exception, but prepends the provided nodeName to the existing
+     * javaFieldName. This method is practical in case a LocalizedFieldValidationException needs to be caught and rethrown whilst adding
+     * information to the nodePath / root property that caused the violation
+     * @param nodeName the path leading up to the property causing the violation
+     * @return new LocalizedFieldValidationException with the extended nodePath
+     */
+    public LocalizedFieldValidationException fromSubField(String nodeName) {
+        return new LocalizedFieldValidationException(this.messageSeed, nodeName+"."+this.javaFieldName, this.args);
+    }
+
     public String getViolatingProperty(){
         return javaFieldName;
     }
