@@ -248,6 +248,7 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
                     data = Ext.JSON.decode(response.responseText);
                     if (typeof yellowfin == "undefined") {
                         Ext.Loader.injectScriptElement(data.url + '/JsAPI', function () {
+                            yellowfin.baseURL = data.url + '/JsAPI';
                             Ext.Loader.injectScriptElement(data.url + '/JsAPI?api=reports', function () {
                                 me.generateReport(data);
                             }, function () {
