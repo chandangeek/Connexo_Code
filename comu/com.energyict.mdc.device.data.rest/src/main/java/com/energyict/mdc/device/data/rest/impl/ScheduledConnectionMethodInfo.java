@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ComWindow;
@@ -40,7 +41,11 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
         super.writeTo(scheduledConnectionTask, partialConnectionTask, engineConfigurationService, mdcPropertyUtils);
         writeCommonFields(scheduledConnectionTask, engineConfigurationService);
         scheduledConnectionTask.setConnectionStrategy(this.connectionStrategy);
-        scheduledConnectionTask.setNextExecutionSpecsFrom(this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null);
+        try {
+            scheduledConnectionTask.setNextExecutionSpecsFrom(this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null);
+        } catch (LocalizedFieldValidationException e) {
+            throw e.fromSubField("nextExecutionSpecs");
+        }
     }
 
     private void writeCommonFields(ScheduledConnectionTask scheduledConnectionTask, EngineConfigurationService engineConfigurationService) {
