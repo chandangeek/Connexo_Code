@@ -4,7 +4,6 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -35,7 +34,6 @@ import java.util.stream.Collectors;
  */
 public class LoadProfileImpl implements LoadProfile {
 
-    private final DeviceConfigurationService deviceConfigurationService;
     private final DataModel dataModel;
 
     private long id;
@@ -48,9 +46,8 @@ public class LoadProfileImpl implements LoadProfile {
     private Instant modTime;
 
     @Inject
-    public LoadProfileImpl(DataModel dataModel, DeviceConfigurationService deviceConfigurationService) {
+    public LoadProfileImpl(DataModel dataModel) {
         super();
-        this.deviceConfigurationService = deviceConfigurationService;
         this.dataModel = dataModel;
     }
 
@@ -67,8 +64,7 @@ public class LoadProfileImpl implements LoadProfile {
 
     @Override
     public List<Channel> getChannels() {
-        return this.deviceConfigurationService
-                .findChannelSpecsForLoadProfileSpec(getLoadProfileSpec())
+        return this.getLoadProfileSpec().getChannelSpecs()
                 .stream()
                 .map(channelSpec -> new ChannelImpl(channelSpec, this))
                 .collect(Collectors.toList());
