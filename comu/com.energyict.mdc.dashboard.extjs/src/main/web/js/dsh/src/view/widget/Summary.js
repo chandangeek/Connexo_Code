@@ -125,8 +125,8 @@ Ext.define('Dsh.view.widget.Summary', {
         var success = counters.getAt(counters.findBy(function(r){return r.get('name') === 'success'}));
         var successRate = Math.round(!total ? 0 : success.get('count') * 100 / total);
         var diff = successRate - target;
-        var direction = diff > 0 ? 'above' : 'below';
-        var color = diff > 0 ? 'bar-success' : 'bar-failed';
+        var direction = diff >= 0 ? 'above' : 'below';
+        var color = diff >= 0 ? 'bar-success' : 'bar-failed';
 
         Ext.suspendLayouts();
         targetContainer.removeAll();

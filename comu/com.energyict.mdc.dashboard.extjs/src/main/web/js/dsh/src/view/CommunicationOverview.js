@@ -62,6 +62,8 @@ Ext.define('Dsh.view.CommunicationOverview', {
                     {
                         xtype: 'quick-links',
                         itemId: 'quick-links',
+                        maxHeight:256,
+                        overflowY:'auto',
                         style: {
                             marginRight: '0',
                             padding: '20px'
