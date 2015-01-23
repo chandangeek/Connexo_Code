@@ -116,10 +116,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Inject
     public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService) {
-        this(ormService, eventService, nlsService, meteringService, mdcReadingTypeUtilService, protocolPluggableService, userService, engineConfigurationService, schedulingService, validationService);
-    }
-
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, ProtocolPluggableService protocolPluggableService, UserService userService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService) {
         this();
         this.setOrmService(ormService);
         this.setUserService(userService);
