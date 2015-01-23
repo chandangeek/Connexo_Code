@@ -7,7 +7,6 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
     deviceConfigId: null,
 
     requires: [
-        'Uni.view.navigation.SubMenu',
         'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel'
@@ -23,8 +22,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
                         xtype: 'device-configuration-menu',
                         itemId: 'stepsMenu',
                         deviceTypeId: this.deviceTypeId,
-                        deviceConfigurationId: this.deviceConfigId,
-                        toggle: 6
+                        deviceConfigurationId: this.deviceConfigId
                     }
                 ]
             }

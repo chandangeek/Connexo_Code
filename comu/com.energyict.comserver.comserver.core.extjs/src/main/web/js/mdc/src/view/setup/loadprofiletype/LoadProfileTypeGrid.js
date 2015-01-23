@@ -52,7 +52,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
                     xtype: 'button',
                     action: 'addloadprofiletypeaction',
                     hrefTarget: '',
-                    href: '#/administration/loadprofiletypes/create'
+                    href: '#/administration/loadprofiletypes/add'
                 }
             ]
         },

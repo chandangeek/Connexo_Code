@@ -25,8 +25,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                         xtype: 'device-configuration-menu',
                         itemId: 'stepsMenu',
                         deviceTypeId: me.deviceTypeId,
-                        deviceConfigurationId: me.deviceConfigId,
-                        toggle: 5
+                        deviceConfigurationId: me.deviceConfigId
                     }
                 ]
             }
@@ -57,7 +56,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                                 {
                                     text:  Uni.I18n.translate('securitySetting.addSecuritySetting','MDC','Add security setting'),
                                     privileges: ['privilege.administrate.deviceType'],
-                                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/securitysettings/create'
+                                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/securitysettings/add'
                                 }
                             ]
                         },

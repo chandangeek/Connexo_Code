@@ -3,18 +3,9 @@ Ext.define('Mdc.view.setup.comportpool.Overview', {
     alias: 'widget.comPortPoolOverview',
     requires: [
         'Mdc.view.setup.comportpool.ActionMenu',
-        'Mdc.view.setup.comportpool.SubMenu'
+        'Mdc.view.setup.comportpool.SideMenu'
     ],
-    side: {
-        xtype: 'panel',
-        ui: 'medium',
-        title: Uni.I18n.translate('', 'MDC', 'Communication port pools'),
-        width: 350,
-        items: [{
-            xtype: 'comportpoolsubmenu',
-            itemId: 'comportpoolsubmenu'
-        }]
-    },
+    poolId: null,
     content: [
         {
             xtype: 'container',
@@ -91,5 +82,23 @@ Ext.define('Mdc.view.setup.comportpool.Overview', {
                 }
             ]
         }
-    ]
+    ],
+
+    initComponent: function () {
+        var me = this;
+        me.side = {
+            xtype: 'panel',
+            ui: 'medium',
+            title: Uni.I18n.translate('', 'MDC', 'Communication port pools'),
+            width: 350,
+            items: [
+                {
+                    xtype: 'comportpoolsidemenu',
+                    itemId: 'comportpoolsidemenu',
+                    poolId: me.poolId
+                }
+            ]
+        };
+        me.callParent(arguments)
+    }
 });

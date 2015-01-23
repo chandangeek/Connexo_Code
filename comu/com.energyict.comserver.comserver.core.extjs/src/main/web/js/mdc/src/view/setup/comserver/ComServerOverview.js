@@ -3,18 +3,9 @@ Ext.define('Mdc.view.setup.comserver.ComServerOverview', {
     alias: 'widget.comServerOverview',
     requires: [
         'Mdc.view.setup.comserver.ActionMenu',
-        'Mdc.view.setup.comserver.SubMenu'
+        'Mdc.view.setup.comserver.SideMenu'
     ],
-    side: {
-        xtype: 'panel',
-        ui: 'medium',
-        title: Uni.I18n.translate('comserver.title.communicationServers', 'MDC', 'Communication servers'),
-        width: 300,
-        items: [{
-            xtype: 'comserversubmenu',
-            itemId: 'comserversubmenu'
-        }]
-    },
+    serverId: null,
     content: [
         {
             xtype: 'container',
@@ -117,6 +108,21 @@ Ext.define('Mdc.view.setup.comserver.ComServerOverview', {
                 }
             ]
         }
-    ]
+    ],
+    initComponent: function () {
+        var me = this;
+        me.side = {
+            xtype: 'panel',
+            ui: 'medium',
+            items: [
+                {
+                    xtype: 'comserversidemenu',
+                    itemId: 'comserversidemenu',
+                    serverId: me.serverId
+                }
+            ]
+        };
+        me.callParent(arguments)
+    }
 });
 

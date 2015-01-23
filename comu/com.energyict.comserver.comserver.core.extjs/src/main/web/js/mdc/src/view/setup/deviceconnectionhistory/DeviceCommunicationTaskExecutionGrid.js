@@ -18,13 +18,13 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                 itemId: 'name',
                 text: Uni.I18n.translate('deviceconnectionhistory.communication', 'MDC', 'Communication task'),
                 dataIndex: 'name',
-                flex: 1
+                flex: 2
             },
             {
                 itemId: 'device',
                 text: Uni.I18n.translate('deviceconnectionhistory.device', 'MDC', 'Device'),
                 dataIndex: 'device',
-                flex: 1,
+                flex: 2,
                 renderer: function(value){
                    return value.name;
                 }
@@ -33,13 +33,13 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                 itemId: 'result',
                 text: Uni.I18n.translate('deviceconnectionhistory.result', 'MDC', 'Result'),
                 dataIndex: 'result',
-                flex: 0.5
+                flex: 1
             },
             {
                 itemId: 'startTime',
                 text: Uni.I18n.translate('deviceconnectionhistory.startedOn', 'MDC', 'Started on'),
                 dataIndex: 'startTime',
-                flex: 1,
+                flex: 2,
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '';
                 }
@@ -49,7 +49,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                 itemId: 'durationInSeconds',
                 text: Uni.I18n.translate('deviceconnectionhistory.duration', 'MDC', 'Duration'),
                 dataIndex: 'durationInSeconds',
-                flex: 1,
+                flex: 2,
                 usesSeconds: true
             },
             {

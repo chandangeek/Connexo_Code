@@ -4,7 +4,6 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskSetup'
     itemId: 'deviceCommunicationTaskSetup',
 
     requires: [
-        'Uni.view.navigation.SubMenu',
         'Mdc.view.setup.device.DeviceMenu',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',

@@ -1,10 +1,9 @@
 Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.SideFilter', {
-    extend: 'Uni.view.navigation.SubMenu',
-    requires: [
-    ],
+    extend: 'Ext.panel.Panel',
     alias: 'widget.deviceCommunicationTaskHistorySideFilter',
     itemId: 'deviceCommunicationTaskHistorySideFilter',
-    cls: 'filter-form',
+    ui: 'medium',
+    width: 288,
     title: Uni.I18n.translate('devicecommunicationtaskhistory.sideFilter.title', 'DSH', 'Filter'),
     items: {
         xtype: 'form',

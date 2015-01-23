@@ -1,5 +1,8 @@
 Ext.define('Mdc.view.setup.devicechannels.ChannelsFilter', {
     extend: 'Ext.panel.Panel',
+    requires: [
+        'Uni.form.NestedForm'
+    ],
     alias: 'widget.device-channels-filter',
     itemId: 'device-channels-filter',
     ui: 'medium',

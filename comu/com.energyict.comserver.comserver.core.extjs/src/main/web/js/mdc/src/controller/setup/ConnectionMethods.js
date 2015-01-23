@@ -110,6 +110,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                     success: function (deviceConfig) {
                         var widget = Ext.widget('connectionMethodSetup', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigurationId, isDirectlyAddressable: deviceConfig.get('isDirectlyAddressable')});
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
+                        widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
                         widget.down('#connectionMethodSetupPanel').setTitle(Uni.I18n.translate('connectionmethod.connectionmethods', 'MDC', 'Connection methods'));
                         me.getApplication().fireEvent('changecontentevent', widget);
                         me.getConnectionmethodsgrid().getSelectionModel().doSelect(0);

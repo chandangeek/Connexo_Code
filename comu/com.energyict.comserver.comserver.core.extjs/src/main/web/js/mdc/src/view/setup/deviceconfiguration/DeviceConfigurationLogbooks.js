@@ -177,8 +177,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                         xtype: 'device-configuration-menu',
                         itemId: 'stepsMenu',
                         deviceTypeId: this.deviceTypeId,
-                        deviceConfigurationId: this.deviceConfigurationId,
-                        toggle: 3
+                        deviceConfigurationId: this.deviceConfigurationId
                     }
                 ]
             }

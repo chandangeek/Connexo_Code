@@ -18,7 +18,8 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesSetup', {
                 {
                     xtype: 'preview-container',
                     grid: {
-                        xtype: 'communicationSchedulesGrid'
+                        xtype: 'communicationSchedulesGrid',
+                        itemId: 'communicationSchedulesGrid'
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
@@ -40,10 +41,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesSetup', {
                 }
             ]
         }
-    ],
-
-    side: [
-
     ],
 
     initComponent: function () {

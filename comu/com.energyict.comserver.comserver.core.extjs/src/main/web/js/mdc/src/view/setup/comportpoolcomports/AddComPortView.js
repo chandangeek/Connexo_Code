@@ -7,18 +7,7 @@ Ext.define('Mdc.view.setup.comportpoolcomports.AddComPortView', {
         'Mdc.view.setup.comportpoolcomports.AddComPortGrid'
     ],
 
-    side: {
-        xtype: 'panel',
-        ui: 'medium',
-        title: Uni.I18n.translate('setup.comportpoolcomports.AddComPortView.side.title', 'MDC', 'Communication port pools'),
-        items: [
-            {
-                xtype: 'comportpoolsubmenu',
-                itemId: 'comportpoolsubmenu'
-            }
-        ]
-    },
-
+    poolId: null,
     content: [
         {
             xtype: 'panel',
@@ -37,7 +26,19 @@ Ext.define('Mdc.view.setup.comportpoolcomports.AddComPortView', {
     ],
 
     initComponent: function () {
-        this.callParent(arguments);
+        var me = this;
+        me.side = {
+            xtype: 'panel',
+            ui: 'medium',
+            items: [
+                {
+                    xtype: 'comportpoolsidemenu',
+                    itemId: 'comportpoolsidemenu',
+                    poolId: me.poolId
+                }
+            ]
+        };
+        me.callParent(arguments)
     },
 
     updateCancelHref: function (comPortPoolId) {

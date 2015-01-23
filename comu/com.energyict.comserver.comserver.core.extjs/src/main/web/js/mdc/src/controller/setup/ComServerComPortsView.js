@@ -98,22 +98,26 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             widget,
             addMenus;
 
+
         comPortModel.getProxy().url = url;
         comPortsStore.getProxy().url = url;
-
+        widget = Ext.widget('comServerComPortsView', {
+            serverId: id
+        });
+        me.getApplication().fireEvent('changecontentevent', widget);
+        widget.setLoading(true);
         Uni.util.Common.loadNecessaryStores(storesArr, function () {
-            widget = Ext.widget('comServerComPortsView');
             addMenus = widget.query('comServerComPortsAddMenu');
             addMenus && Ext.Array.each(addMenus, function (menu) {
                 menu.comServerId = id;
             });
-            me.getApplication().fireEvent('changecontentevent', widget);
             me.getApplication().getController('Mdc.controller.setup.ComServerComPortsEdit').portModel && (delete me.getApplication().getController('Mdc.controller.setup.ComServerComPortsEdit').portModel);
             addComPortPoolsStore.removeAll();
             comServerModel.load(id, {
                 success: function (record) {
-                    widget.down('comserversubmenu').setServer(record);
+                    widget.setLoading(false);
                     me.getApplication().fireEvent('comServerOverviewLoad', record);
+                    widget.down('comserversidemenu #comserverLink').setText(record.get('name'));
                 }
             });
         }, false);

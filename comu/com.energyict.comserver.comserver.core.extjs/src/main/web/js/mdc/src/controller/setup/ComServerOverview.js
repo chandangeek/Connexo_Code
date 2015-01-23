@@ -46,17 +46,19 @@ Ext.define('Mdc.controller.setup.ComServerOverview', {
 
     showOverview: function (id) {
         var me = this,
-            widget = Ext.widget('comServerOverview'),
-            model = this.getModel('Mdc.model.ComServer');
-
-        this.getApplication().fireEvent('changecontentevent', widget);
+            model = this.getModel('Mdc.model.ComServer'),
+            widget = Ext.widget('comServerOverview', {
+                serverId: id
+            });
         widget.setLoading(true);
         model.load(id, {
             success: function (record) {
-                var form = widget.down('form');
+                var form = widget.down('form')
+                    ;
+                me.getApplication().fireEvent('changecontentevent', widget);
                 form.loadRecord(record);
                 form.up('container').down('container').down('button').menu.record = record;
-                widget.down('comserversubmenu').setServer(record);
+                widget.down('comserversidemenu #comserverLink').setText(record.get('name'));
                 me.getApplication().fireEvent('comServerOverviewLoad', record);
             },
             callback: function () {

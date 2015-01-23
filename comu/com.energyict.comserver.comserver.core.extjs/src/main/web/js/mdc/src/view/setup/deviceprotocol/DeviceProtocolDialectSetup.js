@@ -5,7 +5,6 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectSetup', {
 
     device: null,
     requires: [
-        'Uni.view.navigation.SubMenu',
         'Mdc.view.setup.deviceprotocol.DeviceProtocolDialectActionMenu',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel'

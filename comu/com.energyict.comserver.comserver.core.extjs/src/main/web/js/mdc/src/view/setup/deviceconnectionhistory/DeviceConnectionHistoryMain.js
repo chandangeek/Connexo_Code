@@ -4,7 +4,6 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryMain',
     itemId: 'deviceConnectionHistoryMain',
 
     requires: [
-        'Uni.view.navigation.SubMenu',
         'Mdc.view.setup.device.DeviceMenu',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel'
@@ -21,8 +20,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryMain',
                     {
                         xtype: 'deviceMenu',
                         itemId: 'stepsMenu',
-                        device: me.device,
-                        toggleId: 'connectionMethodsLink'
+                        device: me.device
                     }
                 ]
             }

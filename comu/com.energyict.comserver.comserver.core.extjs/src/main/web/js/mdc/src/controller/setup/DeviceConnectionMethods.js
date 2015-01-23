@@ -40,7 +40,8 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         {ref: 'toggleActiveMenuItem', selector: '#toggleActiveMenuItem'},
         {ref: 'comWindowStart', selector: '#deviceConnectionMethodEdit #comWindowStart'},
         {ref: 'comWindowEnd', selector: '#deviceConnectionMethodEdit #comWindowEnd'},
-        {ref: 'activateConnWindowRadiogroup', selector: '#activateConnWindowRadiogroup'}
+        {ref: 'activateConnWindowRadiogroup', selector: '#activateConnWindowRadiogroup'},
+        {ref: 'propertyForm', selector: '#propertyForm'}
 
     ],
 
@@ -164,14 +165,10 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             } else {
                 this.getDeviceConnectionMethodPreview().down('#connectionDetailsTitle').setVisible(false);
             }
-            this.getPropertiesViewController().showProperties(connectionMethod[0], this.getDeviceConnectionMethodPreview());
+            this.getPropertyForm().loadRecord(connectionMethod[0]);
         } else {
             this.getDeviceConnectionMethodPreview().getLayout().setActiveItem(0);
         }
-    },
-
-    getPropertiesViewController: function () {
-        return this.getController('Mdc.controller.setup.PropertiesView');
     },
 
     addOutboundConnectionMethodHistory: function () {
@@ -412,7 +409,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                         });
                     } else {
                         me.getDeviceConnectionMethodEditForm().getForm().markInvalid(json.errors);
-//                        me.getPropertiesController().showErrors(json.errors);
+                        me.getDeviceConnectionMethodEditView().down('property-form').getForm().markInvalid(json.errors);
                     }
 
 

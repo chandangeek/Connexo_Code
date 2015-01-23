@@ -81,6 +81,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getRegisterMappingGrid().getSelectionModel().doSelect(0);
+                widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
             }
         });
     },

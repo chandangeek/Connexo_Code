@@ -172,6 +172,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
+                        widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
                         me.getApplication().fireEvent('changecontentevent', widget);
                     }
                 });

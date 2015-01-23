@@ -36,7 +36,9 @@ Ext.define('Mdc.controller.setup.ComPortPoolOverview', {
 
     showOverview: function (id) {
         var me = this,
-            widget = Ext.widget('comPortPoolOverview'),
+            widget = Ext.widget('comPortPoolOverview', {
+                poolId: id
+            }),
             model = me.getModel('Mdc.model.ComPortPool'),
             deviceDiscoveryProtocolsStore = this.getStore('Mdc.store.DeviceDiscoveryProtocols');
 
@@ -52,7 +54,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolOverview', {
                 }
                 form.loadRecord(record);
                 widget.down('comportpool-actionmenu').record = record;
-                widget.down('comportpoolsubmenu').setServer(record);
+                widget.down('comportpoolsidemenu #comportpoolLink').setText(record.get('name'));
                 me.getApplication().fireEvent('comPortPoolOverviewLoad', record);
             },
             callback: function () {

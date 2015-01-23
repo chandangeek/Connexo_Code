@@ -233,6 +233,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
+                        widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
                         me.deviceTypeName = deviceType.get('name');
                         me.deviceConfigName = deviceConfig.get('name');
                         me.getApplication().fireEvent('changecontentevent', widget);
@@ -550,7 +551,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
 
         var securitySettingsGrid = me.getSecurityGridPanel(),
             securitySetting = securitySettingsGrid.getView().getSelectionModel().getLastSelected().getData().id;
-
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('executionlevel.removeExecutionLevel', 'MDC', 'The privilege will no longer be available.'),
             title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + '\'' + lastSelected.getData().name + '\'?',
@@ -568,14 +568,16 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             var me = cfg.config.me,
                 executionLevelToDelete = cfg.config.executionLevelToDelete,
                 securitySetting = cfg.config.securitySetting;
-
+            var securitySettingSelected = me.getSecurityGridPanel().getSelectionModel().getLastSelected();
             Ext.Ajax.request({
                 url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/securityproperties/' + securitySetting + '/executionlevels/' + executionLevelToDelete.getData().id,
                 method: 'DELETE',
                 waitMsg: 'Removing...',
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('executionlevel.acknowlegment.removed', 'MDC', 'Privilege removed'));
-                    me.store.load();
+                    me.store.load(function(){
+                        me.getSecurityGridPanel().getSelectionModel().select(securitySettingSelected);
+                    });
                 },
                 failure: function (response, request) {
                     var errorText = "Unknown error occurred";

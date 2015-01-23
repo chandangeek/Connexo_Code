@@ -7,15 +7,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
         'Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid',
         'Mdc.view.setup.loadprofiletype.LoadProfileTypePreview',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
-    ],
-
-    side: [
-        {
-            xtype: 'panel',
-            ui: 'medium',
-            items: []
-        }
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Mdc.view.setup.devicetype.SideMenu'
     ],
 
     content: [
@@ -41,7 +34,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
                             {
                                 text: Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'),
                                 action: 'addloadprofiletypeaction',
-                                href: '#/administration/loadprofiletypes/create'
+                                privileges: ['privilege.administrate.masterData'],
+                                href: '#/administration/loadprofiletypes/add'
                             }
                         ]
                     },
@@ -57,12 +51,27 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
         var me = this,
             config = me.config,
             previewContainer = me.content[0].items[0],
-            addButtons,
-            actionMenuColumn,
-            actionMenuButton,
-            hasPrivilege;
+            addButtons;
 
         config && config.gridStore && (previewContainer.grid.store = config.gridStore);
+
+        if (config) {
+            if (config.deviceTypeId) {
+                me.side = [
+                    {
+                        xtype: 'panel',
+                        ui: 'medium',
+                        items: [
+                            {
+                                xtype: 'deviceTypeSideMenu',
+                                deviceTypeId: config.deviceTypeId,
+                                toggle: 2
+                            }
+                        ]
+                    }
+                ];
+            }
+        }
 
         me.callParent(arguments);
 
@@ -75,11 +84,9 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
             actionMenuButton = me.down('#loadProfileTypePreview').tools[0];
 
             if (config.deviceTypeId) {
-                hasPrivilege = Uni.Auth.hasPrivilege('privilege.administrate.deviceType');
-                me.getWestContainer().down('panel').add({
-                    xtype: 'deviceTypeMenu',
-                    deviceTypeId: config.deviceTypeId,
-                    toggle: 2
+                this.getWestContainer().down('panel').add({
+                    xtype: 'deviceTypeSideMenu',
+                    deviceTypeId: config.deviceTypeId
                 });
                 Ext.Array.each(addButtons, function (button) {
                     button.href = '#/administration/devicetypes/' + config.deviceTypeId + '/loadprofiles/add';

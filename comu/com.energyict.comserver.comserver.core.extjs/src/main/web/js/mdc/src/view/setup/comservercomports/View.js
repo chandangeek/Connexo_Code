@@ -2,28 +2,15 @@ Ext.define('Mdc.view.setup.comservercomports.View', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.comServerComPortsView',
     itemId: 'comServerComPortsView',
-
+    serverId: null,
     requires: [
         'Mdc.view.setup.comservercomports.Grid',
         'Mdc.view.setup.comservercomports.Preview',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.comservercomports.AddMenu',
-        'Mdc.view.setup.comserver.SubMenu'
+        'Mdc.view.setup.comserver.SideMenu'
     ],
-
-    side: {
-        xtype: 'panel',
-        ui: 'medium',
-        title: Uni.I18n.translate('comserver.title.communicationServers', 'MDC', 'Communication servers'),
-        width: 300,
-        items: [
-            {
-                xtype: 'comserversubmenu',
-                itemId: 'comserversubmenu'
-            }
-        ]
-    },
 
     content: [
         {
@@ -59,5 +46,23 @@ Ext.define('Mdc.view.setup.comservercomports.View', {
                 }
             ]
         }
-    ]
+    ],
+
+    initComponent: function () {
+        var me = this;
+        me.side = {
+            xtype: 'panel',
+                ui: 'medium',
+                title: Uni.I18n.translate('comserver.title.communicationServers', 'MDC', 'Communication servers'),
+                width: 300,
+                items: [
+                {
+                    xtype: 'comserversidemenu',
+                    itemId: 'comserversubmenu',
+                    serverId: me.serverId
+                }
+            ]
+        };
+        me.callParent(arguments)
+    }
 });

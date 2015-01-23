@@ -4,7 +4,6 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
     itemId: 'deviceCommunicationTaskHistoryLogMain',
 
     requires: [
-        'Uni.view.navigation.SubMenu',
         'Mdc.view.setup.device.DeviceMenu',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
@@ -25,11 +24,11 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                         device: me.device,
                         toggleId: 'communicationTasksLink'
 
-                    },
-                    {
-                        xtype: 'deviceCommunicationTaskHistorySideFilter'
                     }
                 ]
+            },
+            {
+                xtype: 'deviceCommunicationTaskHistorySideFilter'
             }
         ];
 

@@ -1,7 +1,6 @@
 Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
-        'Uni.view.navigation.SubMenu',
         'Ext.form.field.TextArea',
         'Ext.button.Button'
     ],
@@ -12,7 +11,6 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
     deviceConfigurationId: null,
     actionButtonName: null,
     securityAction: null,
-
     content: [
         {
             xtype: 'panel',

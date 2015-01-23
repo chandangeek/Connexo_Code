@@ -175,7 +175,8 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
 
         // TODO: change this to activate infinite scrolling when JP-2844 is fixed
         //widget.down('#editRegisterGroupGridField').store.on('load', function () {
-        me.getStore('Mdc.store.RegisterTypes').load({
+        var store = me.getStore('Mdc.store.RegisterTypes');
+        store.load({
             limit: 500,
             callback: function (registerTypes) {
                 var registerGroup = Ext.create(Ext.ModelManager.getModel('Mdc.model.RegisterGroup'));
@@ -183,7 +184,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 widget.down('panel').setTitle(Uni.I18n.translate('registerGroup.create', 'MDC', 'Add register group'));
                 if(this.totalCount > 0){
                     widget.down('#editRegisterGroupSelectedField').setValue(Ext.String.format(Uni.I18n.translate('registerGroup.selectedRegisterTypes', 'MDC', '{0} register types selected'), 0));
-                    widget.down('#editRegisterGroupGridField').store.add(registerTypes);
+                    widget.down('#editRegisterGroupGridField').reconfigure(store);
                 }
                 widget.setLoading(false);
             }

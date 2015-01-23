@@ -93,46 +93,64 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             defaultAlign: 'tr-br',
             width: 400,
             layout: 'fit',
-            items: {  // Let's put an empty grid in just to illustrate fit layout
-                xtype: 'form',
-                border: false,
-                items: {
-                    xtype: 'textareafield',
-                    name: 'comment',
-                    fieldLabel: Uni.I18n.translate('device.flag.label.comment', 'MDC', 'Comment'),
-                    anchor: '100%',
-                    height: 100
-                }
-            },
-            buttons: [{
-                text: Uni.I18n.translate('device.flag.button.flag', 'MDC', 'Flag device'),
-                name: 'flag',
-                handler: function() {
-                    var form = button.window.down('form');
-                    var flag = form.getRecord();
-                    form.updateRecord();
-                    flag.set('category', {
-                        id: 'mdc.label.category.favorites',
-                        name: 'Favorites'
-                    });
-                    flag.save({
-                        callback: function () {
-                            flag.setId(flag.get('category').id);
-                            button.flag = flag;
-                            button.toggle(true, false);
+            items: [ // Let's put an empty grid in just to illustrate fit layout
+                {
+                    xtype: 'form',
+                    border: false,
+                    items: [
+                        {
+                            xtype: 'textareafield',
+                            name: 'comment',
+                            fieldLabel: Uni.I18n.translate('device.flag.label.comment', 'MDC', 'Comment'),
+                            anchor: '100%',
+                            height: 100
+                        },
+                        {
+                            xtype: 'fieldcontainer',
+//                            ui: 'actions',
+                            fieldLabel: '&nbsp',
+                            layout: {
+                                type: 'hbox'
+                            },
+                            items: [
+                                {
+                                    xtype: 'button',
+                                    text: Uni.I18n.translate('device.flag.button.flag', 'MDC', 'Flag device'),
+                                    ui: 'action',
+                                    name: 'flag',
+                                    handler: function () {
+                                        var form = button.window.down('form');
+                                        var flag = form.getRecord();
+                                        form.updateRecord();
+                                        flag.set('category', {
+                                            id: 'mdc.label.category.favorites',
+                                            name: 'Favorites'
+                                        });
+                                        flag.save({
+                                            callback: function () {
+                                                flag.setId(flag.get('category').id);
+                                                button.flag = flag;
+                                                button.toggle(true, false);
+                                            }
+                                        });
+                                        button.window.close();
+                                    }
+                                },
+                                {
+                                    xtype: 'button',
+                                    ui: 'link',
+                                    text: Uni.I18n.translate('device.flag.button.cancel', 'MDC', 'Cancel'),
+                                    name: 'cancel',
+                                    handler: function () {
+                                        button.toggle(false, false);
+                                        button.window.close();
+                                    }
+                                }
+                            ]
                         }
-                    });
-                    button.window.close();
+                    ]
                 }
-            }, {
-                ui: 'link',
-                text: Uni.I18n.translate('device.flag.button.cancel', 'MDC', 'Cancel'),
-                name: 'cancel',
-                handler: function() {
-                    button.toggle(false, false);
-                    button.window.close();
-                }
-            }]
+            ]
         });
 
         button.window.show();

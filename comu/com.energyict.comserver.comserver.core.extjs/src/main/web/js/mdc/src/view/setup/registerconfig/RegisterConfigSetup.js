@@ -10,7 +10,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
         'Mdc.view.setup.registerconfig.RegisterConfigGrid',
         'Mdc.view.setup.registerconfig.RegisterConfigFilter',
         'Mdc.view.setup.registerconfig.RegisterConfigPreview',
-        'Uni.view.navigation.SubMenu',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
@@ -48,8 +47,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
                         xtype: 'device-configuration-menu',
                         itemId: 'stepsMenu',
                         deviceTypeId: this.deviceTypeId,
-                        deviceConfigurationId: this.deviceConfigId,
-                        toggle: 1
+                        deviceConfigurationId: this.deviceConfigId
                     }
                 ]
             }

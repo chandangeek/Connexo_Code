@@ -3,7 +3,6 @@ Ext.define('Mdc.view.setup.devicelogbooks.Overview', {
     alias: 'widget.deviceLogbookOverview',
     itemId: 'deviceLogbookOverview',
     requires: [
-        'Mdc.view.setup.devicelogbooks.SubMenuPanel',
         'Mdc.view.setup.devicelogbooks.PreviewForm'
     ],
     router: null,

@@ -1,25 +1,23 @@
 Ext.define('Mdc.view.setup.devicegroup.Menu', {
-    extend: 'Uni.view.navigation.SubMenu',
+    extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.devicegroups-menu',
-    toggle: null,
-    router: null,
 
     deviceGroupId: null,
 
+    title: Uni.I18n.translate('general.deviceGroups', 'DES', 'Device groups'),
+
     initComponent: function () {
         var me = this;
-        me.callParent(me);
 
-        me.add(
+        me.menuItems = [
             {
                 text: Uni.I18n.translate('general.overview', 'DES', 'Overview'),
                 itemId: 'devicegroups-view-link',
-                href:  '#/devices/devicegroups/' + this.deviceGroupId,
-                hrefTarget: '_self'
+                href:  '#/devices/devicegroups/' + me.deviceGroupId
             }
-        );
+        ];
 
-        me.toggleMenuItem(me.toggle);
+        me.callParent(arguments);
     }
 });
 

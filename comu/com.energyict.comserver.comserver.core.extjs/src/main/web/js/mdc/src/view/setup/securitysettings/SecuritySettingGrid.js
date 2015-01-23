@@ -20,12 +20,12 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
             {
                 header: Uni.I18n.translate('securitySetting.name','MDC','Name'),
                 dataIndex: 'name',
-                flex: 0.2
+                flex: 2
             },
             {
                 header: Uni.I18n.translate('securitySetting.authenticationLevel','MDC','Authentication level'),
                 dataIndex: 'authenticationLevel',
-                flex: 0.3,
+                flex: 3,
                 renderer: function (value) {
                     return value.name;
                 }
@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
             {
                 header: Uni.I18n.translate('securitySetting.encryptionLevel','MDC','Encryption level'),
                 dataIndex: 'encryptionLevel',
-                flex: 0.3,
+                flex: 3,
                 renderer: function (value) {
                     return value.name;
                 }
@@ -63,7 +63,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
                         text:  Uni.I18n.translate('securitySetting.addSecuritySetting','MDC','Add security setting'),
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
                         action: 'addsecurityaction',                       
-                        href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/securitysettings/create'
+                        href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/securitysettings/add'
                     }
                 ]
             }

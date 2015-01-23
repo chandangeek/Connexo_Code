@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
     deviceTypeId: null,
 
     requires: [
-        'Mdc.view.setup.devicetype.DeviceTypeMenu',
+        'Mdc.view.setup.devicetype.SideMenu',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
                 ui: 'medium',
                 items: [
                     {
-                        xtype: 'deviceTypeMenu',
+                        xtype: 'deviceTypeSideMenu',
                         itemId: 'stepsMenu',
                         deviceTypeId: this.deviceTypeId,
                         toggle: 4

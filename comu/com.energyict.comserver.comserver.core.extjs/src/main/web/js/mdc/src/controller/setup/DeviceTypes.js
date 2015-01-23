@@ -109,13 +109,15 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
     showDeviceTypeDetailsView: function (deviceType) {
         var me = this;
-        var widget = Ext.widget('deviceTypeDetail', {deviceTypeId: deviceType});
+        var widget = Ext.widget('deviceTypeDetail', {
+            deviceTypeId: deviceType
+        });
         var model = Ext.ModelManager.getModel('Mdc.model.DeviceType');
         model.load(deviceType, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 var deviceTypeId = deviceType.get('id');
-
+                widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
                 me.getDeviceTypeDetailRegistersLink().getEl().set({href: '#/administration/devicetypes/' + deviceTypeId + '/registertypes'});
                 me.getDeviceTypeDetailRegistersLink().getEl().setHTML(deviceType.get('registerCount') + ' ' + Uni.I18n.translatePlural('devicetype.registers', deviceType.get('registerCount'), 'MDC', 'register types'));
                 me.getDeviceTypeDetailLogBookLink().getEl().set({href: '#/administration/devicetypes/' + deviceTypeId + '/logbooktypes'});
@@ -335,6 +337,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
                             me.getApplication().fireEvent('loadDeviceType', deviceType);
+                            widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
                             me.getDeviceTypeLogbookPanel().setTitle(Uni.I18n.translate('logbooktype.logbookTypes', 'MDC', 'Logbook types'));
                             widget.setLoading(false);
                         }

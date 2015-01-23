@@ -115,6 +115,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     success: function (deviceType) {
                         me.getApplication().fireEvent('loadDeviceType', deviceType);
                         me.getApplication().fireEvent('changecontentevent', widget);
+                        widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
                         me.getDeviceConfigurationsGrid().getSelectionModel().doSelect(0);
                     }
                 });
@@ -153,6 +154,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         deviceConfigModel.load(deviceconfiguration, {
             success: function (deviceConfiguration) {
                 me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
+                widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfiguration.get('name'));
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(devicetype, {
                     success: function (deviceType) {
                         me.getApplication().fireEvent('loadDeviceType', deviceType);
@@ -174,7 +176,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     createDeviceConfigurationHistory: function () {
-        location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/create';
+        location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/add';
     },
 
     editDeviceConfigurationHistory: function (record) {
@@ -470,6 +472,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             deviceConfigModel.load(deviceConfigurationId, {
                                 success: function (deviceConfiguration) {
                                     me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
+                                    widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfiguration.get('name'));
                                     widget.setLoading(false);
                                 }
                             });
