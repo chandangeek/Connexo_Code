@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -21,19 +22,11 @@ import com.energyict.mdc.tasks.TaskService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @Path("/communications")
 public class CommunicationResource {
@@ -47,15 +40,17 @@ public class CommunicationResource {
     private final TaskService taskService;
     private final ComTaskExecutionInfoFactory comTaskExecutionInfoFactory;
     private final MeteringGroupsService meteringGroupsService;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public CommunicationResource(CommunicationTaskService communicationTaskService, SchedulingService schedulingService, DeviceConfigurationService deviceConfigurationService, TaskService taskService, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory, MeteringGroupsService meteringGroupsService) {
+    public CommunicationResource(CommunicationTaskService communicationTaskService, SchedulingService schedulingService, DeviceConfigurationService deviceConfigurationService, TaskService taskService, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory, MeteringGroupsService meteringGroupsService, ExceptionFactory exceptionFactory) {
         this.communicationTaskService = communicationTaskService;
         this.schedulingService = schedulingService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.taskService = taskService;
         this.comTaskExecutionInfoFactory = comTaskExecutionInfoFactory;
         this.meteringGroupsService = meteringGroupsService;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -75,6 +70,30 @@ public class CommunicationResource {
         }
 
         return Response.ok(PagedInfoList.asJson("communicationTasks", comTaskExecutionInfos, queryParameters)).build();
+    }
+
+    @PUT
+    @Path("/{comTaskExecId}/run")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Response runCommunication(@PathParam("comTaskExecId") long comTaskExecId) {
+        ComTaskExecution comTaskExecution = communicationTaskService.findComTaskExecution(comTaskExecId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_COMMUNICATION_TASK, comTaskExecId));
+            comTaskExecution.scheduleNow();
+                return Response.status(Response.Status.OK).build();
+    }
+
+    @PUT
+    @Path("/{comTaskExecId}/runnow")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Response runCommunicationNow(@PathParam("comTaskExecId") long comTaskExecId) {
+        ComTaskExecution comTaskExecution = communicationTaskService.findComTaskExecution(comTaskExecId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_COMMUNICATION_TASK, comTaskExecId));
+            comTaskExecution.runNow();
+        return Response.status(Response.Status.OK).build();
     }
 
     private ComTaskExecutionFilterSpecification buildFilterFromJsonQuery(JsonQueryFilter jsonQueryFilter) throws Exception {
