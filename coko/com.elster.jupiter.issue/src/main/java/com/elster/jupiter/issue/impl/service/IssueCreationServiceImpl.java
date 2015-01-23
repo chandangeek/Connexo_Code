@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import com.elster.jupiter.users.UserService;
 import org.drools.compiler.compiler.RuleBaseLoader;
 import org.drools.core.common.ProjectClassLoader;
 import org.kie.api.KieBaseConfiguration;
@@ -54,6 +55,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     private volatile Thesaurus thesaurus;
     private volatile QueryService queryService;
     private volatile IssueService issueService;
+    private volatile UserService userService;
 
     private volatile KnowledgeBase knowledgeBase;
     private volatile KnowledgeBuilderFactoryService knowledgeBuilderFactoryService;
@@ -69,6 +71,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
             DataModel dataModel, 
             IssueService issueService,
             QueryService queryService,
+            UserService userService,
             KnowledgeBuilderFactoryService knowledgeBuilderFactoryService,
             KnowledgeBaseFactoryService knowledgeBaseFactoryService,
             KieResources resourceFactoryService,
@@ -76,6 +79,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         this.dataModel = dataModel;
         this.issueService = issueService;
         this.queryService = queryService;
+        this.userService = userService;
         this.knowledgeBaseFactoryService = knowledgeBaseFactoryService;
         this.knowledgeBuilderFactoryService = knowledgeBuilderFactoryService;
         this.resourceFactoryService = resourceFactoryService;
@@ -163,6 +167,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         baseIssue.setDueDate(Instant.ofEpochMilli(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
         baseIssue.setOverdue(false);
         baseIssue.setRule(firedRule);
+        baseIssue.addComment(firedRule.getComment(), userService.findUser("batch executor").orElse(null));
         baseIssue.setDevice(event.getEndDevice());
         Optional<? extends Issue> newIssue = template.createIssue(baseIssue, event);
         if (newIssue.isPresent()){
