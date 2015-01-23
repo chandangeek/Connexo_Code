@@ -70,9 +70,9 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         application.setTransactionService(transactionService);
         application.setRestQueryService(restQueryService);
         application.setUserService(userService);
+        when(issueService.getIssueActionService()).thenReturn(issueActionService);
         application.setIssueService(issueService);
         application.setIssueDataCollectionService(issueDataCollectionService);
-        application.setIssueActionService(issueActionService);
         application.setMeteringService(meteringService);
         application.setNlsService(nlsService);
         when(nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.REST)).thenReturn(thesaurus);

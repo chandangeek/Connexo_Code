@@ -77,11 +77,7 @@ public class IssueDataCollectionApplication extends Application implements Trans
     @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
-    }
-
-    @Reference
-    public void setIssueActionService(IssueActionService issueActionService) {
-        this.issueActionService = issueActionService;
+        this.issueActionService = issueService.getIssueActionService();
     }
 
     @Reference
