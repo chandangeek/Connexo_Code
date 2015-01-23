@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 @Component(name = "com.elster.jupiter.yellowfin", service = {YellowfinService.class, InstallService.class}, immediate = true, property = "name=" + YellowfinService.COMPONENTNAME)
 public class YellowfinServiceImpl implements YellowfinService, InstallService {
     private static final String YELLOWFIN_URL = "com.elster.jupiter.yellowfin.url";
+    private static final String YELLOWFIN_EXTERNAL_URL = "com.elster.jupiter.yellowfin.externalurl";
     private static final String YELLOWFIN_WEBSERVICES_USER = "com.elster.jupiter.yellowfin.user";
     private static final String YELLOWFIN_WEBSERVICES_PASSWORD = "com.elster.jupiter.yellowfin.password";
 
@@ -48,6 +49,7 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
     private static final String LOGOUT_QUEUE_SUBSC = "LogoutQueueSubsc";
 
     private String yellowfinUrl = DEFAULT_YELLOWFIN_URL;
+    private String yellowfinExternalUrl = DEFAULT_YELLOWFIN_URL;
     private String yellowfinHost = DEFAULT_YELLOWFIN_HOST;
     private int yellowfinPort = DEFAULT_YELLOWFIN_PORT;
 
@@ -65,6 +67,7 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
     public void activate(BundleContext context) {
 
         yellowfinUrl = context.getProperty(YELLOWFIN_URL);
+        yellowfinExternalUrl = context.getProperty(YELLOWFIN_EXTERNAL_URL);
 
         yellowfinWebServiceUser = context.getProperty(YELLOWFIN_WEBSERVICES_USER);
         yellowfinWebServiceUser = (yellowfinWebServiceUser == null) ? DEFAULT_YELLOWFIN_USER : yellowfinWebServiceUser;
@@ -83,6 +86,7 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
         }
 
         yellowfinUrl = (yellowfinUrl == null) ? DEFAULT_YELLOWFIN_URL : yellowfinUrl;
+        yellowfinExternalUrl = (yellowfinExternalUrl == null) ? yellowfinUrl : yellowfinExternalUrl;
     }
 
     @Reference
@@ -98,7 +102,7 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
 
     @Override
     public String getYellowfinUrl(){
-        return yellowfinUrl;
+        return yellowfinExternalUrl;
     }
 
     @Override
