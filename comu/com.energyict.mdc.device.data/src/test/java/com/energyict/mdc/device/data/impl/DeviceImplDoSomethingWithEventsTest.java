@@ -248,7 +248,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new PartyModule(),
                     new UserModule(),
                     new IdsModule(),
-                    new MeteringModule(),
+                    new MeteringModule(false),
                     new InMemoryMessagingModule(),
                     new OrmModule(),
                     new DataVaultModule(),
