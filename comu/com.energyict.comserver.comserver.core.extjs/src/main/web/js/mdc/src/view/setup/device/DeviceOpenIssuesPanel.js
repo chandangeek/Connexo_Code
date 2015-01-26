@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
 
         assignedFilter = {
             filter: {
-                status: 'status.open',
+                status: ['status.open', 'status.in.progress'],
                 meter: mRID,
                 sorting: [
                     {

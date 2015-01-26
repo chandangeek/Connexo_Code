@@ -166,7 +166,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                 }
             );
         }
-        Ext.resumeLayouts();
+        Ext.resumeLayouts(true);
     },
     changeRuleSetStatus: function () {
         var me = this,

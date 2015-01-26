@@ -42,6 +42,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
                 {
                     xtype: 'displayfield',
                     name: 'direction_visual',
+                    itemId: 'txt-comportpool-direction',
                     fieldLabel: Uni.I18n.translate('comports.preview.direction', 'MDC', 'Direction'),
                     hidden: true,
                     width: 600
