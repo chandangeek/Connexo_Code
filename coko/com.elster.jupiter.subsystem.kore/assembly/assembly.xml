@@ -39,8 +39,8 @@
     </fileSets>
 
     <dependencySets>
-    <dependencySet>
-            <includes>
+        <dependencySet>
+        <includes>
                 <!-- External dependencies. -->
                 <include>com.elster.jupiter.subsystem:third-party:zip</include>
             </includes>
@@ -61,6 +61,19 @@
             </outputFileNameMapping>
             <useTransitiveDependencies>true</useTransitiveDependencies>
             <useTransitiveFiltering>false</useTransitiveFiltering>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <scope>provided</scope>
+            <includes>
+                <include>com.elster.jupiter:launcher</include>
+            </includes>
+            <unpack>false</unpack>
+            <outputFileNameMapping>
+                ${artifact.groupId}.${artifact.artifactId}-${artifact.version}${dashClassifier?}.${artifact.extension}
+            </outputFileNameMapping>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
 
