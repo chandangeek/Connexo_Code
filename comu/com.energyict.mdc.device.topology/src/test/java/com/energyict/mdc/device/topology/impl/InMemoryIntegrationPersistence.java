@@ -173,7 +173,7 @@ public class InMemoryIntegrationPersistence {
                 new PartyModule(),
                 new UserModule(),
                 new IdsModule(),
-                new MeteringModule(),
+                new MeteringModule(false),
                 new MeteringGroupsModule(),
                 new InMemoryMessagingModule(),
                 new OrmModule(),
