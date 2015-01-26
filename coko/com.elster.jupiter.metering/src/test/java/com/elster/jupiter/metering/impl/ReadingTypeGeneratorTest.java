@@ -1,16 +1,14 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.Pair;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.util.HashSet;
 import java.util.List;
@@ -45,12 +43,12 @@ public class ReadingTypeGeneratorTest {
 
     @Test
     public void testGeneration() {
-    	List<ReadingType> generated = ReadingTypeGenerator.generate(meteringService);
+    	List<Pair<String, String>> generated = ReadingTypeGenerator.generate();
     	Set<String> mRIDs = new HashSet<>();
     	Set<String> aliases = new HashSet<>();
-    	for (ReadingType each : generated) {
-    		mRIDs.add(each.getMRID());
-    		aliases.add(each.getAliasName());
+    	for (Pair<String, String> each : generated) {
+    		mRIDs.add(each.getFirst());
+    		aliases.add(each.getLast());
     	}
         System.out.println(generated.size());
         assertThat(generated.size()).isEqualTo(mRIDs.size());

@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,16 +15,16 @@ public final class ReadingTypeGenerator {
     private ReadingTypeGenerator() {
     }
 
-    static List<ReadingType> generate(MeteringService meteringService) {
-        List<ReadingType> readingTypes = new ArrayList<>();
-        readingTypes.addAll(new ReadingTypeGeneratorForElectricity(meteringService).generateReadingTypes());
-        readingTypes.addAll(new ReadingTypeGeneratorForGas(meteringService).generateReadingTypes());
-        readingTypes.addAll(new ReadingTypeGeneratorForWater(meteringService).generateReadingTypes());
-        readingTypes.addAll(new ReadingTypeGeneratorForParameters(meteringService).generateReadingTypes());
+    static List<Pair<String, String>> generate() {
+        List<Pair<String, String>> readingTypes = new ArrayList<>();
+        readingTypes.addAll(new ReadingTypeGeneratorForElectricity().generateReadingTypes());
+        readingTypes.addAll(new ReadingTypeGeneratorForGas().generateReadingTypes());
+        readingTypes.addAll(new ReadingTypeGeneratorForWater().generateReadingTypes());
+        readingTypes.addAll(new ReadingTypeGeneratorForParameters().generateReadingTypes());
         return readingTypes;
     }
 
-    static List<ReadingType> generateSelectedReadingTypes(MeteringService meteringService,String... readingTypes){
+    static List<ReadingType> generateSelectedReadingTypes(MeteringService meteringService, String... readingTypes) {
         return Stream.of(readingTypes)
                 .filter(r -> !r.equals(""))
                 .map(readingType -> meteringService.createReadingType(readingType, readingType))

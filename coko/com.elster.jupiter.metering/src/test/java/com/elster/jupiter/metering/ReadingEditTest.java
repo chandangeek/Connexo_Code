@@ -80,7 +80,7 @@ public class ReadingEditTest {
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new IdsModule(),
-                new MeteringModule(),
+                new MeteringModule(false),
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),

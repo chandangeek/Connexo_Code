@@ -16,6 +16,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -30,6 +31,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -95,17 +97,18 @@ public class ReadingTypeGeneratorForGasTest {
             protected void doPerform() {
                 assertThat(getMeteringService().getAvailableReadingTypes()).hasSize(0).overridingErrorMessage("We should have started with 0 reading types");
 
-                ReadingTypeGeneratorForGas readingTypeGeneratorForGas = new ReadingTypeGeneratorForGas(getMeteringService());
-                readingTypeGeneratorForGas.generateReadingTypes();
+                ReadingTypeGeneratorForGas readingTypeGeneratorForGas = new ReadingTypeGeneratorForGas();
+                List<Pair<String, String>> readingTypes = readingTypeGeneratorForGas.generateReadingTypes();
+                getMeteringService().createAllReadingTypes(readingTypes);
 
-                assertThat(getMeteringService().getAvailableReadingTypes().size()).isGreaterThanOrEqualTo(1).overridingErrorMessage("We should have at least 1 reading types");
+                assertThat(getMeteringService().getAvailableReadingTypes()).hasSize(readingTypes.size()).overridingErrorMessage("Expected " + readingTypes.size() + " reading types");
             }
         });
 
     }
 
-    private MeteringService getMeteringService() {
-        return injector.getInstance(MeteringService.class);
+    private MeteringServiceImpl getMeteringService() {
+        return injector.getInstance(MeteringServiceImpl.class);
     }
 
     private TransactionService getTransactionService() {

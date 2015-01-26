@@ -189,8 +189,8 @@ class ReadingTypeGeneratorForGas extends AbstractReadingTypeGenerator {
         }
     }
 
-    ReadingTypeGeneratorForGas(MeteringService meteringService) {
-        super(meteringService);
+    ReadingTypeGeneratorForGas() {
+        super();
     }
 
     @Override

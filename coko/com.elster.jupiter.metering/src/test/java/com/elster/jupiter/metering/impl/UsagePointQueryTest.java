@@ -94,7 +94,7 @@ public class UsagePointQueryTest {
         			new MockModule(), 
         			inMemoryBootstrapModule, 
         			new IdsModule(), 
-        			new MeteringModule(), 
+        			new MeteringModule(false),
         			new PartyModule(), 
         			new EventsModule(),
         			new InMemoryMessagingModule(),

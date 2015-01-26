@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -33,6 +34,7 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
@@ -50,9 +52,11 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, InstallService.class}, property = "name=" + MeteringService.COMPONENTNAME)
 public class MeteringServiceImpl implements MeteringService, InstallService {
@@ -70,6 +74,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     private volatile String[] requiredReadingTypes;
 
     public MeteringServiceImpl() {
+        this.createAllReadingTypes = true;
     }
 
     @Inject
@@ -371,6 +376,24 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
         ReadingTypeImpl readingType = dataModel.getInstance(ReadingTypeImpl.class).init(mRID, aliasName);
         dataModel.persist(readingType);
         return readingType;
+    }
+
+    // bulk insert
+    public void createAllReadingTypes(List<Pair<String, String>> readingTypes) {
+        List<ReadingType> availableReadingTypes = getAvailableReadingTypes();
+        List<String> availableReadingTypeCodes = availableReadingTypes.parallelStream().map(ReadingType::getMRID).collect(Collectors.toList());
+        List<Pair<String, String>> filteredReadingTypes = readingTypes.parallelStream().filter(readingTypePair -> !availableReadingTypeCodes.contains(readingTypePair.getFirst())).collect(Collectors.toList());
+        List<ReadingType> preStoredReadingTypes = filteredReadingTypes.parallelStream().map(filteredReadingType -> dataModel.getInstance(ReadingTypeImpl.class).init(filteredReadingType.getFirst(), filteredReadingType.getLast())).collect(Collectors.toList());
+        List<List<ReadingType>> chunks = createChunksOf(preStoredReadingTypes, 1000);
+        chunks.stream().forEach(chunk -> dataModel.mapper(ReadingType.class).persist(chunk));
+    }
+
+    List<List<ReadingType>> createChunksOf(List<ReadingType> readingTypes, int chunkSize) {
+        List<List<ReadingType>> partitions = new LinkedList<>();
+        for (int i = 0; i < readingTypes.size(); i += chunkSize) {
+            partitions.add(readingTypes.subList(i, i + Math.min(chunkSize, readingTypes.size() - i)));
+        }
+        return partitions;
     }
 
     ServiceCategoryImpl createServiceCategory(ServiceKind serviceKind) {

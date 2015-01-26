@@ -114,8 +114,8 @@ class ReadingTypeGeneratorForParameters extends AbstractReadingTypeGenerator{
         }
     }
 
-    ReadingTypeGeneratorForParameters(MeteringService meteringService) {
-        super(meteringService);
+    ReadingTypeGeneratorForParameters() {
+        super();
     }
 
     @Override

@@ -22,6 +22,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.BufferedReaderIterable;
 
 import java.io.BufferedReader;
@@ -205,7 +206,8 @@ public class InstallerImpl {
     private void createReadingTypes() {
         try {
             if(createAllReadingTypes){
-                ReadingTypeGenerator.generate(meteringService);
+                List<Pair<String, String>> readingTypes = ReadingTypeGenerator.generate();
+                this.meteringService.createAllReadingTypes(readingTypes);
             } else if(requiredReadingTypes.length > 0){
                 ReadingTypeGenerator.generateSelectedReadingTypes(meteringService, requiredReadingTypes);
             }

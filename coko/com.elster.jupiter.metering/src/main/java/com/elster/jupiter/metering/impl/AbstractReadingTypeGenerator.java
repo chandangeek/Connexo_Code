@@ -7,6 +7,8 @@ import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.parties.PartyInRole;
+import com.elster.jupiter.util.Pair;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -80,16 +82,13 @@ abstract class AbstractReadingTypeGenerator {
         }
     }
 
-    private final MeteringService meteringService;
-
     private Set<Accumulation> possibleAccumulations = EnumSet.of(Accumulation.BULKQUANTITY, Accumulation.DELTADELTA, Accumulation.SUMMATION);
     private Set<TimeAttribute> possibleTimeAttributes = EnumSet.of(TimeAttribute.MINUTE10, TimeAttribute.MINUTE15, TimeAttribute.MINUTE30, TimeAttribute.MINUTE5, TimeAttribute.MINUTE60);
     private List<Integer> possibleTimeOfUseAttributes = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8);
     private Set<Phase> possiblePhases = EnumSet.of(Phase.NOTAPPLICABLE, Phase.PHASEA, Phase.PHASEB, Phase.PHASEC, Phase.PHASEABC);
     private Set<MetricMultiplier> possibleMultipliers = EnumSet.of(MetricMultiplier.MILLI, MetricMultiplier.ZERO, MetricMultiplier.KILO, MetricMultiplier.MEGA);
 
-    protected AbstractReadingTypeGenerator(MeteringService meteringService) {
-        this.meteringService = meteringService;
+    protected AbstractReadingTypeGenerator() {
     }
 
     /**
@@ -98,34 +97,38 @@ abstract class AbstractReadingTypeGenerator {
     abstract Stream<ReadingTypeTemplate> getReadingTypeTemplates();
 
 
-    public List<ReadingType> generateReadingTypes() {
-        return getReadingTypeTemplates().flatMap(readingTypeTemplate -> startGenerationBasedOnAccumulation(readingTypeTemplate).stream()).collect(Collectors.toList());
+    /**
+     * Generate a list of Pairs. The Pair contains a <b>ReadingTypeCode</b> and an <b>AliasNames</b>.
+     *
+     * @return a list of pairs
+     */
+    public List<Pair<String, String>> generateReadingTypes() {
+        return getReadingTypeTemplates().parallel().flatMap(this::startGenerationBasedOnAccumulation).collect(Collectors.toList());
     }
 
-    private List<ReadingType> startGenerationBasedOnAccumulation(ReadingTypeTemplate readingTypeTemplate) {
+    private Stream<Pair<String, String>> startGenerationBasedOnAccumulation(ReadingTypeTemplate readingTypeTemplate) {
         if (readingTypeTemplate.needsAccumulationExpansion()) {
             return possibleAccumulations.stream()
-                    .flatMap(possibleAccumulation -> continueGenerationWithTimeAttribute(readingTypeTemplate, possibleAccumulation).stream()).collect(Collectors.toList());
+                    .flatMap(possibleAccumulation -> continueGenerationWithTimeAttribute(readingTypeTemplate, possibleAccumulation));
         } else {
             return continueGenerationWithTimeAttribute(readingTypeTemplate, readingTypeTemplate.getReadingTypeCodeBuilder().getCurrentAccumulation());
         }
     }
 
-    private List<ReadingType> continueGenerationWithTimeAttribute(ReadingTypeTemplate readingTypeTemplate, Accumulation possibleAccumulation) {
+    private Stream<Pair<String, String>> continueGenerationWithTimeAttribute(ReadingTypeTemplate readingTypeTemplate, Accumulation possibleAccumulation) {
         if (readingTypeTemplate.needsTimeAttributeExpansion()) {
             return possibleTimeAttributes.stream()
-                    .flatMap(timeAttribute -> continueGenerationWithTimeOfUse(readingTypeTemplate, possibleAccumulation, timeAttribute).stream()).collect(Collectors.toList());
+                    .flatMap(timeAttribute -> continueGenerationWithTimeOfUse(readingTypeTemplate, possibleAccumulation, timeAttribute));
         } else {
             return continueGenerationWithTimeOfUse(readingTypeTemplate, possibleAccumulation, readingTypeTemplate.getReadingTypeCodeBuilder().getCurrentTimeAttribute());
         }
     }
 
-    private List<ReadingType> continueGenerationWithTimeOfUse(ReadingTypeTemplate readingTypeTemplate, Accumulation possibleAccumulation, TimeAttribute timeAttribute) {
+    private Stream<Pair<String, String>> continueGenerationWithTimeOfUse(ReadingTypeTemplate readingTypeTemplate, Accumulation possibleAccumulation, TimeAttribute timeAttribute) {
         if (readingTypeTemplate.needsTOUExpansion()) {
             return possibleTimeOfUseAttributes.stream()
                     .filter(tou -> inCaseOfBulkQuantity(possibleAccumulation, tou) || inCaseOfSummation(possibleAccumulation, tou) || inAnyOtherCase(possibleAccumulation))
-                    .flatMap(timeOfUseAttribute -> continueGenerationWithPhase(readingTypeTemplate, possibleAccumulation, timeAttribute, timeOfUseAttribute).stream())
-                    .collect(Collectors.toList());
+                    .flatMap(timeOfUseAttribute -> continueGenerationWithPhase(readingTypeTemplate, possibleAccumulation, timeAttribute, timeOfUseAttribute));
         } else {
             return continueGenerationWithPhase(readingTypeTemplate, possibleAccumulation, timeAttribute, readingTypeTemplate.getReadingTypeCodeBuilder().getCurrentTimeOfUseAttribute());
         }
@@ -143,31 +146,31 @@ abstract class AbstractReadingTypeGenerator {
         return !(possibleAccumulation.equals(Accumulation.BULKQUANTITY) || possibleAccumulation.equals(Accumulation.SUMMATION));
     }
 
-    private List<ReadingType> continueGenerationWithPhase(ReadingTypeTemplate readingTypeTemplate, Accumulation possibleAccumulation, TimeAttribute timeAttribute, Integer timeOfUseAttribute) {
+    private Stream<Pair<String, String>> continueGenerationWithPhase(ReadingTypeTemplate readingTypeTemplate, Accumulation possibleAccumulation, TimeAttribute timeAttribute, Integer timeOfUseAttribute) {
         if (readingTypeTemplate.needsPhaseExpansion()) {
             return possiblePhases.stream()
-                    .flatMap(phase -> continueGenerationWithMultiplier(readingTypeTemplate, possibleAccumulation, timeAttribute, timeOfUseAttribute, phase).stream()).collect(Collectors.toList());
+                    .flatMap(phase -> continueGenerationWithMultiplier(readingTypeTemplate, possibleAccumulation, timeAttribute, timeOfUseAttribute, phase));
         } else {
             return continueGenerationWithMultiplier(readingTypeTemplate, possibleAccumulation, timeAttribute, timeOfUseAttribute, readingTypeTemplate.getReadingTypeCodeBuilder().getCurrentPhase());
         }
     }
 
-    private List<ReadingType> continueGenerationWithMultiplier(ReadingTypeTemplate readingTypeTemplate, Accumulation possibleAccumulation, TimeAttribute timeAttribute, Integer timeOfUseAttribute, Phase phase) {
+    private Stream<Pair<String, String>> continueGenerationWithMultiplier(ReadingTypeTemplate readingTypeTemplate, Accumulation possibleAccumulation, TimeAttribute timeAttribute, Integer timeOfUseAttribute, Phase phase) {
         if (readingTypeTemplate.needsMetricMultiplierExpansion()) {
             return possibleMultipliers.stream()
-                    .map(metricMultiplier -> createReadingType(readingTypeTemplate, possibleAccumulation, timeAttribute, timeOfUseAttribute, phase, metricMultiplier)).collect(Collectors.toList());
+                    .map(metricMultiplier -> createReadingType(readingTypeTemplate, possibleAccumulation, timeAttribute, timeOfUseAttribute, phase, metricMultiplier));
         } else {
-            return Arrays.asList(createReadingType(readingTypeTemplate, possibleAccumulation, timeAttribute, timeOfUseAttribute, phase, readingTypeTemplate.getReadingTypeCodeBuilder().getCurrentMetricMultiplier()));
+            return Stream.of(createReadingType(readingTypeTemplate, possibleAccumulation, timeAttribute, timeOfUseAttribute, phase, readingTypeTemplate.getReadingTypeCodeBuilder().getCurrentMetricMultiplier()));
         }
     }
 
-    private ReadingType createReadingType(ReadingTypeTemplate readingTypeTemplate, Accumulation accumulation, TimeAttribute possibleTimeAttribute, Integer possibleTimeOfUseAttribute, Phase possiblePhase, MetricMultiplier possibleMultiplier) {
+    private Pair<String, String> createReadingType(ReadingTypeTemplate readingTypeTemplate, Accumulation accumulation, TimeAttribute possibleTimeAttribute, Integer possibleTimeOfUseAttribute, Phase possiblePhase, MetricMultiplier possibleMultiplier) {
         readingTypeTemplate.getReadingTypeCodeBuilder()
                 .accumulate(accumulation)
                 .period(possibleTimeAttribute)
                 .tou(possibleTimeOfUseAttribute)
                 .phase(possiblePhase)
                 .in(possibleMultiplier);
-        return meteringService.createReadingType(readingTypeTemplate.getReadingTypeCodeBuilder().code(), readingTypeTemplate.getName());
+        return Pair.of(readingTypeTemplate.getReadingTypeCodeBuilder().code(), readingTypeTemplate.getName());
     }
 }

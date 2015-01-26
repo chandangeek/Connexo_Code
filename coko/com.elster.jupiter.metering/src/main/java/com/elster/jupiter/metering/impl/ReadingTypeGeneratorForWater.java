@@ -146,8 +146,8 @@ class ReadingTypeGeneratorForWater extends AbstractReadingTypeGenerator {
         }
     }
 
-    ReadingTypeGeneratorForWater(MeteringService meteringService) {
-        super(meteringService);
+    ReadingTypeGeneratorForWater() {
+        super();
     }
 
     @Override

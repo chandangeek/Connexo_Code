@@ -393,8 +393,8 @@ class ReadingTypeGeneratorForElectricity extends AbstractReadingTypeGenerator {
     }
 
 
-    ReadingTypeGeneratorForElectricity(MeteringService meteringService) {
-        super(meteringService);
+    ReadingTypeGeneratorForElectricity() {
+        super();
     }
 
     @Override
