@@ -25,7 +25,6 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeFactory;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
@@ -54,6 +53,7 @@ import org.junit.runner.*;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -97,6 +97,8 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     private JobExecution.ServiceProvider jobExecutionServiceProvider;
     @Mock
     private CommandRoot.ServiceProvider commandRootServiceProvider;
+    @Mock
+    private MeteringService meteringService;
 
     private Clock clock = Clock.systemUTC();
     private Clock frozenClock;
@@ -113,6 +115,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         when(this.commandRootServiceProvider.clock()).thenReturn(clock);
         when(this.commandRootServiceProvider.deviceService()).thenReturn(this.deviceService);
         when(this.commandRootServiceProvider.identificationService()).thenReturn(this.identificationService);
+        when(this.commandRootServiceProvider.meteringService()).thenReturn(this.meteringService);
         when(this.commandRoot.getServiceProvider()).thenReturn(this.commandRootServiceProvider);
         List<CollectedData> collectedDataList = new ArrayList<>();
         collectedDataList.add(deviceLoadProfile);
@@ -133,7 +136,6 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     }
 
     private void initializeEndDeviceEventTypeFactory() {
-        MeteringService meteringService = mock(MeteringService.class);
         EndDeviceEventType hardwareError = mock(EndDeviceEventType.class);
         String hardwareErrorMRID = "0.0.0.79";
         when(hardwareError.getMRID()).thenReturn(hardwareErrorMRID);
@@ -144,15 +146,13 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         String configurationChangeEventMRID = "0.7.31.13";
         when(configurationChange.getMRID()).thenReturn(configurationChangeEventMRID);
         Optional<EndDeviceEventType> hardwareErrorOptional = Optional.of(hardwareError);
-        when(meteringService.getEndDeviceEventType(hardwareErrorMRID)).thenReturn(hardwareErrorOptional);
+        when(this.meteringService.getEndDeviceEventType(hardwareErrorMRID)).thenReturn(hardwareErrorOptional);
         Optional<EndDeviceEventType> powerDownEventOptional = Optional.of(powerDown);
-        when(meteringService.getEndDeviceEventType(powerDownEventMRID)).thenReturn(powerDownEventOptional);
+        when(this.meteringService.getEndDeviceEventType(powerDownEventMRID)).thenReturn(powerDownEventOptional);
         Optional<EndDeviceEventType> configurationChangeEventOptional = Optional.of(configurationChange);
-        when(meteringService.getEndDeviceEventType(configurationChangeEventMRID)).thenReturn(configurationChangeEventOptional);
-        EndDeviceEventTypeFactory endDeviceEventTypeFactory = new EndDeviceEventTypeFactory();
-        endDeviceEventTypeFactory.setMeteringService(meteringService);
-        endDeviceEventTypeFactory.activate();
-        // the getEventType will return null, if a specific result is required, then add it ot the meteringService MOCK
+        when(this.meteringService.getEndDeviceEventType(configurationChangeEventMRID)).thenReturn(configurationChangeEventOptional);
+        EndDeviceEventType otherEndDeviceEventType = mock(EndDeviceEventType.class, Mockito.RETURNS_DEEP_STUBS);
+        when(this.meteringService.getEndDeviceEventType(EndDeviceEventTypeMapping.OTHER.getEndDeviceEventTypeMRID())).thenReturn(Optional.of(otherEndDeviceEventType));
     }
 
     @Test
@@ -211,7 +211,15 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     private void verifyIntervalStateBitsWithMeterEvent(DeviceLogBook logBook, int meterEvent) {
         List<MeterProtocolEvent> expectedEventList = new ArrayList<>();
         Date time = new Date(getFrozenClock().millis() - DateTimeConstants.MILLIS_PER_SECOND * 30);    // 30 seconds before the end of the interval
-        expectedEventList.add(new MeterProtocolEvent(time, meterEvent, 0, EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(meterEvent), null, 0, 0));
+        expectedEventList.add(
+                new MeterProtocolEvent(
+                        time,
+                        meterEvent,
+                        0,
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(meterEvent, this.meteringService).orElseThrow(() -> new RuntimeException("event type for " + meterEvent + " was not setup correctly in this unit test")),
+                        null,
+                        0,
+                        0));
 
         assertThat(compareMeterEventList(expectedEventList, logBook.getCollectedMeterEvents())).isTrue();
     }

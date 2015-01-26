@@ -21,6 +21,7 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -65,6 +66,7 @@ public class LaunchComServer implements EngineService.DeactivationNotificationLi
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile SocketService socketService;
     private volatile SerialComponentService serialATComponentService;
+    private volatile MeteringService meteringService;
 
     private boolean autoStart;
     private ComServerLauncher launcher;
@@ -231,6 +233,11 @@ public class LaunchComServer implements EngineService.DeactivationNotificationLi
         this.engineService = engineService;
     }
 
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
     @Override
     public void engineServiceDeactivationStarted() {
         this.stopComServer();
@@ -295,6 +302,11 @@ public class LaunchComServer implements EngineService.DeactivationNotificationLi
         @Override
         public SerialComponentService serialAtComponentService() {
             return serialATComponentService;
+        }
+
+        @Override
+        public MeteringService meteringService() {
+            return meteringService;
         }
 
         @Override

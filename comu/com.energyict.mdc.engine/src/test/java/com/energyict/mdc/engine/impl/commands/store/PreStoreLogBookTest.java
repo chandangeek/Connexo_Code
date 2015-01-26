@@ -15,7 +15,6 @@ import com.energyict.mdc.engine.impl.commands.offline.OfflineLogBookImpl;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeFactory;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
@@ -149,14 +148,14 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         MeterProtocolEvent powerDownEvent = new MeterProtocolEvent(eventTime2,
                 MeterEvent.POWERDOWN,
                 UNKNOWN,
-                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERDOWN),
+                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERDOWN, this.getMeteringService()).orElseThrow(() -> new RuntimeException("Powerdown event type was not setup correctly in this unit test")),
                 "Power down",
                 UNKNOWN,
                 UNKNOWN);
         MeterProtocolEvent powerUpEvent = new MeterProtocolEvent(eventTime1,
                 MeterEvent.POWERDOWN,
                 UNKNOWN,
-                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERUP),
+                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERUP, this.getMeteringService()).orElseThrow(() -> new RuntimeException("Powerup event type was not setup correctly in this unit test")),
                 "Power up",
                 UNKNOWN,
                 UNKNOWN);
@@ -170,14 +169,14 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         MeterProtocolEvent powerDownEvent = new MeterProtocolEvent(futureIntervalEndTime1,
                 MeterEvent.POWERDOWN,
                 UNKNOWN,
-                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERDOWN),
+                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERDOWN, this.getMeteringService()).orElseThrow(() -> new RuntimeException("Powerdown event type was not setup correctly in this unit test")),
                 "Power down",
                 UNKNOWN,
                 UNKNOWN);
         MeterProtocolEvent powerUpEvent = new MeterProtocolEvent(eventTime1,
                 MeterEvent.POWERDOWN,
                 UNKNOWN,
-                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERUP),
+                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERUP, this.getMeteringService()).orElseThrow(() -> new RuntimeException("Powerup event type was not setup correctly in this unit test")),
                 "Power up",
                 UNKNOWN,
                 UNKNOWN);
@@ -191,14 +190,14 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         MeterProtocolEvent powerDownEvent = new MeterProtocolEvent(eventTime1,
                 MeterEvent.POWERDOWN,
                 UNKNOWN,
-                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERDOWN),
+                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERDOWN, this.getMeteringService()).orElseThrow(() -> new RuntimeException("Powerdown event type was not setup correctly in this unit test")),
                 "Power down",
                 UNKNOWN,
                 UNKNOWN);
         MeterProtocolEvent powerUpEvent = new MeterProtocolEvent(eventTime2,
                 MeterEvent.POWERDOWN,
                 UNKNOWN,
-                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERUP),
+                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERUP, this.getMeteringService()).orElseThrow(() -> new RuntimeException("Powerup event type was not setup correctly in this unit test")),
                 "Power up",
                 UNKNOWN,
                 UNKNOWN);
@@ -226,9 +225,6 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         when(meteringService.getEndDeviceEventType(powerUpEventMRID)).thenReturn(hardwareErrorOptional);
         Optional<EndDeviceEventType> powerDownEventOptional = Optional.of(powerDown);
         when(meteringService.getEndDeviceEventType(powerDownEventMRID)).thenReturn(powerDownEventOptional);
-        EndDeviceEventTypeFactory endDeviceEventTypeFactory = new EndDeviceEventTypeFactory();
-        endDeviceEventTypeFactory.setMeteringService(meteringService);
-        endDeviceEventTypeFactory.activate();
-        // the getEventType will return null, if a specific result is required, then add it ot the meteringService MOCK
     }
+
 }

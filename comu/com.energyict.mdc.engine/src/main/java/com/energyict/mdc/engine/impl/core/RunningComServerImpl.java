@@ -41,6 +41,7 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
@@ -91,6 +92,9 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         public HexService hexService();
 
         public SerialComponentService serialAtComponentService();
+
+        public MeteringService meteringService();
+
     }
 
     /**
@@ -1083,6 +1087,11 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         }
 
         @Override
+        public MeteringService meteringService() {
+            return serviceProvider.meteringService();
+        }
+
+        @Override
         public Clock clock() {
             return serviceProvider.clock();
         }
@@ -1153,6 +1162,11 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         @Override
         public HexService hexService() {
             return serviceProvider.hexService();
+        }
+
+        @Override
+        public MeteringService meteringService() {
+            return serviceProvider.meteringService();
         }
 
         @Override
