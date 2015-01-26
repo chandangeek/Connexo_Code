@@ -81,7 +81,7 @@ public class InMemoryPersistence {
                 new PartyModule(),
                 new UserModule(),
                 new IdsModule(),
-                new MeteringModule(),
+                new MeteringModule(false),
                 new MdcReadingTypeUtilServiceModule(),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
