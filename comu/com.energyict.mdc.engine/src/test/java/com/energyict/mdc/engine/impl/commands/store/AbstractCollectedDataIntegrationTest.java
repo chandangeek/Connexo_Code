@@ -121,7 +121,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new DomainUtilModule(),
                 new NlsModule(),
                 new UserModule(),
-                new MeteringModule(),
+                new MeteringModule(false),
                 new MeteringGroupsModule(),
                 new OrmModule(),
                 new DataVaultModule(),
