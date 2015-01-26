@@ -11,6 +11,7 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -63,15 +64,17 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
     private final Clock clock;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
+    private final MeteringService meteringService;
     private DLMSConnection dlmsConnection;
     private SimpleApplicationServiceObject aso;
 
     @Inject
-    public DlmsSerialNumberDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService, Clock clock, CollectedDataFactory collectedDataFactory) {
+    public DlmsSerialNumberDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService, Clock clock, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         super(propertySpecService, issueService, readingTypeUtilService, thesaurus, identificationService);
         this.clock = clock;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -94,7 +97,7 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
 
     private void setInboundConnection() {
         ComChannel comChannel = this.getComChannel();
-        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), this.clock, issueService, this.getReadingTypeUtilService(), collectedDataFactory, this.getThesaurus(), getIdentificationService()));
+        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), this.clock, this.issueService, this.getReadingTypeUtilService(), this.collectedDataFactory, this.meteringService, this.getThesaurus(), getIdentificationService()));
     }
 
     public void init() throws IOException {

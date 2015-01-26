@@ -7,6 +7,7 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocols.mdc.inbound.general.frames.AbstractInboundFrame;
@@ -41,6 +42,7 @@ public class InboundConnection {
     private final Clock clock;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
+    private final MeteringService meteringService;
     private final Thesaurus thesaurus;
     private IdentificationService identificationService;
     private ComChannel comChannel;
@@ -52,7 +54,7 @@ public class InboundConnection {
      */
     private List<AbstractInboundFrame> framesToAck;
 
-    public InboundConnection(ComChannel comChannel, int timeout, int retries, Clock clock, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, CollectedDataFactory collectedDataFactory, Thesaurus thesaurus, IdentificationService identificationService) {
+    public InboundConnection(ComChannel comChannel, int timeout, int retries, Clock clock, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, Thesaurus thesaurus, IdentificationService identificationService) {
         this.comChannel = comChannel;
         this.timeout = timeout;
         this.retries = retries;
@@ -60,6 +62,7 @@ public class InboundConnection {
         this.issueService = issueService;
         this.readingTypeUtilService = readingTypeUtilService;
         this.collectedDataFactory = collectedDataFactory;
+        this.meteringService = meteringService;
         this.thesaurus = thesaurus;
         this.identificationService = identificationService;
     }
@@ -159,10 +162,10 @@ public class InboundConnection {
             return new RequestFrame(frame, issueService, identificationService);
         }
         if (frame.contains(EVENT_TAG)) {
-            return new EventFrame(frame, issueService, thesaurus, identificationService, collectedDataFactory);
+            return new EventFrame(frame, issueService, thesaurus, identificationService, collectedDataFactory, meteringService);
         }
         if (frame.contains(EVENTPO_TAG)) {
-            return new EventPOFrame(frame, issueService, identificationService, collectedDataFactory);
+            return new EventPOFrame(frame, issueService, identificationService, collectedDataFactory, meteringService);
         }
         if (frame.contains(DEPLOY_TAG)) {
             return new DeployFrame(frame, issueService, identificationService, collectedDataFactory);

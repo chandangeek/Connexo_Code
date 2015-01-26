@@ -2,6 +2,8 @@ package com.energyict.protocolimplv2.edp.logbooks;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.protocolimplv2.edp.CX20009;
 
 import java.util.HashMap;
@@ -47,8 +49,8 @@ public class PublicLightingLogbookParser extends AbstractLogbookParser {
         DESCRIPTIONS.put(25, new EventInfo(MeterEvent.REMOTE_DISCONNECTION, "Direct command to disconnect the 2nd Public Lighting output"));
     }
 
-    public PublicLightingLogbookParser(CX20009 protocol) {
-        super(protocol);
+    public PublicLightingLogbookParser(CX20009 protocol, MeteringService meteringService) {
+        super(protocol, meteringService);
     }
 
     protected Map<Integer, EventInfo> getDescriptions() {

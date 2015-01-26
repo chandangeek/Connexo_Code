@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.edp.logbooks;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -24,8 +25,8 @@ public class ClockSyncLogbookParser extends AbstractLogbookParser {
         DESCRIPTIONS.put(98, new EventInfo(MeterEvent.SETCLOCK, "Event registered when a synchronization of the real time clock occurs"));
     }
 
-    public ClockSyncLogbookParser(CX20009 protocol) {
-        super(protocol);
+    public ClockSyncLogbookParser(CX20009 protocol, MeteringService meteringService) {
+        super(protocol, meteringService);
     }
 
     protected Map<Integer, EventInfo> getDescriptions() {

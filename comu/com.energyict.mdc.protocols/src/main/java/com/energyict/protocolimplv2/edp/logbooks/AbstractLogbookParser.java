@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.edp.logbooks;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -18,9 +19,11 @@ import java.util.*;
 public abstract class AbstractLogbookParser {
 
     private final CX20009 protocol;
+    private final MeteringService meteringService;
 
-    public AbstractLogbookParser(CX20009 protocol) {
+    public AbstractLogbookParser(CX20009 protocol, MeteringService meteringService) {
         this.protocol = protocol;
+        this.meteringService = meteringService;
     }
 
     public List<MeterProtocolEvent> parseEvents(byte[] bufferData) throws IOException {
@@ -33,7 +36,7 @@ public abstract class AbstractLogbookParser {
             EventInfo eventInfo = getEventInfo(eventCode);
             result.add(new MeterEvent(time, eventInfo.getEisEventCode(), eventCode, eventInfo.getDescription() + getExtraDescription(structure)));
         }
-        return MeterEvent.mapMeterEventsToMeterProtocolEvents(result);
+        return MeterEvent.mapMeterEventsToMeterProtocolEvents(result, this.meteringService);
     }
 
     protected String getExtraDescription(Structure structure) {

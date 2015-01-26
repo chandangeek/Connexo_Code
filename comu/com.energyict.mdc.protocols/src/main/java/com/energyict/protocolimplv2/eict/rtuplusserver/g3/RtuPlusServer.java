@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.ProtocolLink;
@@ -86,16 +87,18 @@ public class RtuPlusServer implements DeviceProtocol {
     private final IssueService issueService;
     private final IdentificationService identificationService;
     private final CollectedDataFactory collectedDataFactory;
+    private final MeteringService meteringService;
     private G3Topology g3Topology;
 
     @Inject
-    public RtuPlusServer(PropertySpecService propertySpecService, SocketService socketService, IssueService issueService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
+    public RtuPlusServer(PropertySpecService propertySpecService, SocketService socketService, IssueService issueService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         super();
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
         this.issueService = issueService;
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -259,7 +262,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     private G3GatewayEvents getG3GatewayEvents() {
         if (g3GatewayEvents == null) {
-            g3GatewayEvents = new G3GatewayEvents(getDlmsSession(), issueService, collectedDataFactory);
+            g3GatewayEvents = new G3GatewayEvents(getDlmsSession(), issueService, collectedDataFactory, meteringService);
         }
         return g3GatewayEvents;
     }

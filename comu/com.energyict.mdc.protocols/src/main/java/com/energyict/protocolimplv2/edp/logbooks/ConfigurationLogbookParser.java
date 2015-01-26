@@ -2,6 +2,8 @@ package com.energyict.protocolimplv2.edp.logbooks;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.protocolimplv2.edp.CX20009;
 
 import java.util.HashMap;
@@ -34,8 +36,8 @@ public class ConfigurationLogbookParser extends AbstractLogbookParser {
         DESCRIPTIONS.put(134, new EventInfo(MeterEvent.CONFIGURATIONCHANGE, "Event registered whenever a change is made to the daily billing configuration of the contract 2"));
     }
 
-    public ConfigurationLogbookParser(CX20009 protocol) {
-        super(protocol);
+    public ConfigurationLogbookParser(CX20009 protocol, MeteringService meteringService) {
+        super(protocol, meteringService);
     }
 
     protected Map<Integer, EventInfo> getDescriptions() {

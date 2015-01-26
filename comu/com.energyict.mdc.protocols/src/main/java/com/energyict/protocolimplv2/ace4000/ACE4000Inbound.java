@@ -10,6 +10,8 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
 
 import javax.inject.Inject;
@@ -29,14 +31,16 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final IdentificationService identificationService;
     private final CollectedDataFactory collectedDataFactory;
+    private final MeteringService meteringService;
     private InboundDiscoveryContext context;
 
     @Inject
-    public ACE4000Inbound(MdcReadingTypeUtilService readingTypeUtilService, PropertySpecService propertySpecService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
+    public ACE4000Inbound(MdcReadingTypeUtilService readingTypeUtilService, PropertySpecService propertySpecService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         super(propertySpecService, identificationService);
         this.readingTypeUtilService = readingTypeUtilService;
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -102,7 +106,7 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
 
     public ObjectFactory getObjectFactory() {
         if (objectFactory == null) {
-            objectFactory = new ObjectFactory(this, this.readingTypeUtilService, this.identificationService, this.collectedDataFactory);
+            objectFactory = new ObjectFactory(this, this.readingTypeUtilService, this.identificationService, this.collectedDataFactory, meteringService);
             objectFactory.setInbound(true);  //Important to store the parsed data in the list of collecteddatas
         }
         return objectFactory;

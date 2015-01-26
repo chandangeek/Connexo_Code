@@ -4,6 +4,7 @@ import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
@@ -13,6 +14,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
@@ -21,6 +23,8 @@ import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.protocolimplv2.identifiers.PrimeRegisterForChannelIdentifier;
 import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
@@ -38,6 +42,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 public class ProtocolHandler {
@@ -55,8 +60,10 @@ public class ProtocolHandler {
     private final Clock clock;
     private final IdentificationService identificationService;
     private final CollectedDataFactory collectedDataFactory;
+    private final MeteringService meteringService;
+    private final IssueService issueService;
 
-    public ProtocolHandler(ResponseWriter responseWriter, InboundDiscoveryContext inboundDiscoveryContext, Cryptographer cryptographer, Clock clock, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
+    public ProtocolHandler(ResponseWriter responseWriter, InboundDiscoveryContext inboundDiscoveryContext, Cryptographer cryptographer, Clock clock, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, IssueService issueService) {
         super();
         this.responseWriter = responseWriter;
         this.inboundDiscoveryContext = inboundDiscoveryContext;
@@ -64,6 +71,8 @@ public class ProtocolHandler {
         this.clock = clock;
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
+        this.meteringService = meteringService;
+        this.issueService = issueService;
     }
 
     private enum ContentType {
@@ -135,7 +144,13 @@ public class ProtocolHandler {
             if (meterEvents != null && !meterEvents.isEmpty()) {
                 List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
                 for (MeterEvent meterEvent : meterEvents) {
-                    meterProtocolEvents.add(createMeterEvent(meterEvent.getTime(), meterEvent.getProtocolCode(), meterEvent.getMessage(), meterEvent.getEiCode()));
+                    Optional<MeterProtocolEvent> meterProtocolEvent = createMeterEvent(meterEvent.getTime(), meterEvent.getProtocolCode(), meterEvent.getMessage(), meterEvent.getEiCode());
+                    if (meterProtocolEvent.isPresent()) {
+                        meterProtocolEvents.add(meterProtocolEvent.get());
+                    }
+                    else {
+                        // Todo: need to add failure information that the log book is not supported because the powerDown event type does not exist
+                    }
                 }
                 deviceLogBook.setMeterEvents(meterProtocolEvents);
             }
@@ -213,19 +228,32 @@ public class ProtocolHandler {
              * So they are just added to the description from the device.*/
             tag += " (channel " + channel + ")";
             /* status == 0 start of alarm, status == 1 stop of alarm */
-            int meterEvent;
+            int meterEventCode;
             if (status == 1) {
-                meterEvent = MeterEvent.APPLICATION_ALERT_START;
+                meterEventCode = MeterEvent.APPLICATION_ALERT_START;
             } else {
-                meterEvent = MeterEvent.APPLICATION_ALERT_STOP;
+                meterEventCode = MeterEvent.APPLICATION_ALERT_STOP;
             }
-            meterEvents.add(createMeterEvent(date, status, tag, meterEvent));
+            Optional<MeterProtocolEvent> meterEvent = createMeterEvent(date, status, tag, meterEventCode);
+            if (meterEvent.isPresent()) {
+                meterEvents.add(meterEvent.get());
+            }
+            else {
+                getDeviceLogBook().setFailureInformation(
+                        ResultType.NotSupported,
+                        this.issueService.newWarning(
+                                deviceLogBook,
+                                "endDeviceEventTypeXnotsupported",
+                                EndDeviceEventTypeMapping.OTHER.getEndDeviceEventTypeMRID()));
+            }
         }
         getDeviceLogBook().setMeterEvents(meterEvents);
     }
 
-    private MeterProtocolEvent createMeterEvent(Date date, int status, String message, int meterEvent) {
-        return new MeterProtocolEvent(date, meterEvent, meterEvent, EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(meterEvent), message, 0, status);
+    private Optional<MeterProtocolEvent> createMeterEvent(Date date, int status, String message, int meterEvent) {
+        return EndDeviceEventTypeMapping
+                .getEventTypeCorrespondingToEISCode(meterEvent, this.meteringService)
+                .map(endDeviceEventType -> new MeterProtocolEvent(date, meterEvent, meterEvent, endDeviceEventType, message, 0, status));
     }
 
     private Instant sevenDaysFromNow() {

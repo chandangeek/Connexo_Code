@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.edp.logbooks;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -25,8 +26,8 @@ public class FirmwareLogbookParser extends AbstractLogbookParser {
         DESCRIPTIONS.put(119, new EventInfo(MeterEvent.FIRMWARE_ACTIVATED, "Event registered whenever a firmware upgrade occurs in the communications module"));
     }
 
-    public FirmwareLogbookParser(CX20009 protocol) {
-        super(protocol);
+    public FirmwareLogbookParser(CX20009 protocol, MeteringService meteringService) {
+        super(protocol, meteringService);
     }
 
     protected Map<Integer, EventInfo> getDescriptions() {

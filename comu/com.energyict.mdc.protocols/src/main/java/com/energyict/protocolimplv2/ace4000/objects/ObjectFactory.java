@@ -14,6 +14,8 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
+
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.protocolimplv2.ace4000.ACE4000;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestState;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
@@ -50,6 +52,7 @@ public class ObjectFactory {
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final IdentificationService identificationService;
     private final CollectedDataFactory collectedDataFactory;
+    private final MeteringService meteringService;
     private Acknowledge acknowledge = null;
     private boolean sendAck = false;      //Indicates whether or not the parsed message must be ACK'ed.
     private int requestAttemptNumber = 0;
@@ -95,11 +98,12 @@ public class ObjectFactory {
     private Map<Tracker, RequestState> requestStates = new HashMap<>();
     private Map<Tracker, String> reasonDescriptions = new HashMap<>();
 
-    public ObjectFactory(ACE4000 ace4000, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
+    public ObjectFactory(ACE4000 ace4000, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         this.ace4000 = ace4000;
         this.readingTypeUtilService = readingTypeUtilService;
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
+        this.meteringService = meteringService;
     }
 
     /**
@@ -1063,7 +1067,7 @@ public class ObjectFactory {
 
     public CollectedLogBook getDeviceLogBook(LogBookIdentifier identifier) {
         CollectedLogBook deviceLogBook = this.collectedDataFactory.createCollectedLogBook(identifier);
-        deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(getAllMeterEvents()));
+        deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(getAllMeterEvents(), this.meteringService));
         return deviceLogBook;
     }
 

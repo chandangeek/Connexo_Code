@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.edp.logbooks;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -35,8 +36,8 @@ public class QualityOfServiceLogbookParser extends AbstractLogbookParser {
         DESCRIPTIONS.put(24, new EventInfo(MeterEvent.OTHER, "Event registered at the end of a long power failure in the phase L3"));
     }
 
-    public QualityOfServiceLogbookParser(CX20009 protocol) {
-        super(protocol);
+    public QualityOfServiceLogbookParser(CX20009 protocol, MeteringService meteringService) {
+        super(protocol, meteringService);
     }
 
     protected Map<Integer, EventInfo> getDescriptions() {

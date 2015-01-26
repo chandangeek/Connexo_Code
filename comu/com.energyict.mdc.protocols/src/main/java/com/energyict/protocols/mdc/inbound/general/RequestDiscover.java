@@ -5,6 +5,7 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -26,18 +27,20 @@ public class RequestDiscover extends AbstractDiscover {
 
     private final Clock clock;
     private final CollectedDataFactory collectedDataFactory;
+    private final MeteringService meteringService;
 
     @Inject
-    public RequestDiscover(Clock clock, PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
+    public RequestDiscover(Clock clock, PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         super(propertySpecService, issueService, readingTypeUtilService, thesaurus, identificationService);
         this.clock = clock;
         this.collectedDataFactory = collectedDataFactory;
+        this.meteringService = meteringService;
     }
 
     @Override
     public DiscoverResultType doDiscovery() {
         ComChannel comChannel = this.getComChannel();
-        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), this.clock, this.getIssueService(), this.getReadingTypeUtilService(), this.collectedDataFactory, this.getThesaurus(), getIdentificationService()));
+        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), this.clock, this.getIssueService(), this.getReadingTypeUtilService(), this.collectedDataFactory, this.meteringService, this.getThesaurus(), getIdentificationService()));
         boolean notTimedOut = true;
         while (notTimedOut) {
             try {

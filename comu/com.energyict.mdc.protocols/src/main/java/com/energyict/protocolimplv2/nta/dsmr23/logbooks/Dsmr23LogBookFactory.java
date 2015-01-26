@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.ProfileGeneric;
@@ -37,16 +38,18 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
     private final AbstractDlmsProtocol protocol;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
+    private final MeteringService meteringService;
 
     /**
      * List of obiscodes of the supported log books
      */
     private List<ObisCode> supportedLogBooks;
 
-    public Dsmr23LogBookFactory(AbstractDlmsProtocol protocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+    public Dsmr23LogBookFactory(AbstractDlmsProtocol protocol, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         this.protocol = protocol;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
+        this.meteringService = meteringService;
         supportedLogBooks = new ArrayList<>();
         try {
             supportedLogBooks.add(getMeterConfig().getEventLogObject().getObisCode());
@@ -115,7 +118,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
         } catch (ProtocolException e) {
             throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
-        return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
+        return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents, this.meteringService);
     }
 
     private boolean isSupported(LogBookReader logBookReader) {

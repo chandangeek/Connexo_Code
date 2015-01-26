@@ -39,14 +39,17 @@ import java.util.Collection;
 @Component(name = "com.energyict.mdc.service.inbounddeviceprotocols", service = InboundDeviceProtocolService.class, immediate = true)
 public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolService {
 
-    private Thesaurus thesaurus;
+    /* Services required by one of the actual protocol classes in this bundle
+     * and therefore must be available in the Module provided to the guice injector. */
     private volatile CollectedDataFactory collectedDataFactory;
     private volatile IssueService issueService;
     private volatile IdentificationService identificationService;
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
     private volatile PropertySpecService propertySpecService;
     private volatile Clock clock;
+
     private Injector injector;
+    private Thesaurus thesaurus;
 
     public InboundDeviceProtocolServiceImpl() {
     }

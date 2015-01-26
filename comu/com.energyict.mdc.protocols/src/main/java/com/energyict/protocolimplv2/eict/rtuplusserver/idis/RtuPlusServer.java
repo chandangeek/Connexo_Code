@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.idis;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
@@ -73,14 +74,16 @@ public class RtuPlusServer implements DeviceProtocol {
     private final IssueService issueService;
     private final IdentificationService identificationService;
     private final CollectedDataFactory collectedDataFactory;
+    private final MeteringService meteringService;
 
     @Inject
-    public RtuPlusServer(PropertySpecService propertySpecService, SocketService socketService, IssueService issueService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
+    public RtuPlusServer(PropertySpecService propertySpecService, SocketService socketService, IssueService issueService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
         this.issueService = issueService;
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -306,7 +309,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     public IDISGatewayEvents getIDISGatewayEvents() {
         if (this.idisGatewayEvents == null) {
-            this.idisGatewayEvents = new IDISGatewayEvents(getDlmsSession(), this.issueService, collectedDataFactory);
+            this.idisGatewayEvents = new IDISGatewayEvents(getDlmsSession(), this.issueService, collectedDataFactory, meteringService);
         }
         return this.idisGatewayEvents;
     }

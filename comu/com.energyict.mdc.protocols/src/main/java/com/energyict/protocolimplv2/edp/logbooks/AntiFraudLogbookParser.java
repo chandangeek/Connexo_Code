@@ -2,6 +2,8 @@ package com.energyict.protocolimplv2.edp.logbooks;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.protocolimplv2.edp.CX20009;
 
 import java.util.HashMap;
@@ -28,8 +30,8 @@ public class AntiFraudLogbookParser extends AbstractLogbookParser {
         DESCRIPTIONS.put(6, new EventInfo(MeterEvent.N_TIMES_WRONG_PASSWORD, "The event is registered when there is attempted of communication with the meter with a wrong password"));
     }
 
-    public AntiFraudLogbookParser(CX20009 protocol) {
-        super(protocol);
+    public AntiFraudLogbookParser(CX20009 protocol, MeteringService meteringService) {
+        super(protocol, meteringService);
     }
 
     protected Map<Integer, EventInfo> getDescriptions() {

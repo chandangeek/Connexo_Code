@@ -32,6 +32,7 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -75,9 +76,10 @@ public class GarnetConcentrator implements DeviceProtocol {
     private final Clock clock;
     private final IdentificationService identificationService;
     private final CollectedDataFactory collectedDataFactory;
+    private final MeteringService meteringService;
 
     @Inject
-    public GarnetConcentrator(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, Clock clock, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
+    public GarnetConcentrator(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, Clock clock, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
         this.serialComponentService = serialComponentService;
@@ -85,6 +87,7 @@ public class GarnetConcentrator implements DeviceProtocol {
         this.clock = clock;
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -321,7 +324,7 @@ public class GarnetConcentrator implements DeviceProtocol {
 
     public LogBookFactory getLogBookFactory() {
         if (this.logBookFactory == null) {
-            this.logBookFactory = new LogBookFactory(this, issueService, collectedDataFactory);
+            this.logBookFactory = new LogBookFactory(this, issueService, collectedDataFactory, meteringService);
         }
         return logBookFactory;
     }

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.ace4000;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
@@ -68,6 +69,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final IdentificationService identificationService;
     private final CollectedDataFactory collectedDataFactory;
+    private final MeteringService meteringService;
     private OfflineDevice offlineDevice;
     private DeviceProtocolCache deviceCache;
     private Logger logger;
@@ -76,13 +78,14 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     private DeviceProtocolSecurityPropertySet securityProperties;
 
     @Inject
-    public ACE4000Outbound(Clock clock, PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
+    public ACE4000Outbound(Clock clock, PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         super(propertySpecService, identificationService);
         this.clock = clock;
         this.issueService = issueService;
         this.readingTypeUtilService = readingTypeUtilService;
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -278,7 +281,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     public ObjectFactory getObjectFactory() {
         if (objectFactory == null) {
-            objectFactory = new ObjectFactory(this, this.readingTypeUtilService, identificationService, collectedDataFactory);
+            objectFactory = new ObjectFactory(this, this.readingTypeUtilService, identificationService, collectedDataFactory, meteringService);
             objectFactory.setInbound(false);
         }
         return objectFactory;

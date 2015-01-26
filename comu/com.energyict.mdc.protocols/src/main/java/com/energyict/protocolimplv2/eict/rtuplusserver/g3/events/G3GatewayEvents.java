@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
@@ -36,11 +37,13 @@ public class G3GatewayEvents {
     private final DlmsSession dlmsSession;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
+    private final MeteringService meteringService;
 
-    public G3GatewayEvents(DlmsSession dlmsSession, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+    public G3GatewayEvents(DlmsSession dlmsSession, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         this.dlmsSession = dlmsSession;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
+        this.meteringService = meteringService;
     }
 
     public List<CollectedLogBook> readEvents(List<LogBookReader> logBooks) {
@@ -57,7 +60,7 @@ public class G3GatewayEvents {
                             meterEvents.add(basicEvent.getMeterEvent());
                         }
                     }
-                    collectedLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
+                    collectedLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents, this.meteringService));
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, dlmsSession)) {
                         collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));

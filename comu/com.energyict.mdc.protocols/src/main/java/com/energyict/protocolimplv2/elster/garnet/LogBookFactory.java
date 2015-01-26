@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
 import com.energyict.protocolimplv2.elster.garnet.exception.NotExecutedException;
 import com.energyict.protocolimplv2.elster.garnet.structure.LogBookEventResponseStructure;
@@ -20,6 +21,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.NotExecutedErr
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author sva
@@ -32,11 +34,13 @@ public class LogBookFactory implements DeviceLogBookSupport {
     private final GarnetConcentrator deviceProtocol;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
+    private final MeteringService meteringService;
 
-    public LogBookFactory(GarnetConcentrator deviceProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+    public LogBookFactory(GarnetConcentrator deviceProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         this.deviceProtocol = deviceProtocol;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -68,7 +72,13 @@ public class LogBookFactory implements DeviceLogBookSupport {
                 eventDate = logBookEvent.getDateTimeOfEvent().getDate();
                 if (logBookEvent.getDateTimeOfEvent().getDate().after(Date.from(logBookReader.getLastLogBook()))) {
                     if (logBookEvent.getSourceOfEvent().getAddress() == concentratorId) {   // The event is not inherited from a downstream concentrator
-                        meterEvents.add(createMeterProtocolEventFor(logBookEvent));
+                        Optional<MeterProtocolEvent> meterProtocolEvent = createMeterProtocolEventFor(logBookEvent);
+                        if (meterProtocolEvent.isPresent()) {
+                            meterEvents.add(meterProtocolEvent.get());
+                        }
+                        else {
+                            collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(logBookReader.getLogBookObisCode(), "logBookXnotsupported", logBookReader.getLogBookObisCode()));
+                        }
                     }
                 }
                 currentEventNr--;
@@ -89,16 +99,18 @@ public class LogBookFactory implements DeviceLogBookSupport {
         return collectedLogBook;
     }
 
-    private MeterProtocolEvent createMeterProtocolEventFor(LogBookEventResponseStructure logBookEvent) {
-        return new MeterProtocolEvent(
-                logBookEvent.getDateTimeOfEvent().getDate(),
-                mapLogBookEventCodeToMeterEventCode(logBookEvent),
-                logBookEvent.getEventCode().getEventCode().getCode(),
-                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(mapLogBookEventCodeToMeterEventCode(logBookEvent)),
-                logBookEvent.getEventDescription(),
-                logBookEvent.getSourceOfEvent().getAddress(),
-                logBookEvent.getLogNr().getNr()
-        );
+    private Optional<MeterProtocolEvent> createMeterProtocolEventFor(LogBookEventResponseStructure logBookEvent) {
+        return EndDeviceEventTypeMapping
+                .getEventTypeCorrespondingToEISCode(mapLogBookEventCodeToMeterEventCode(logBookEvent), this.meteringService)
+                .map(endDeviceEventType ->
+                        new MeterProtocolEvent(
+                            logBookEvent.getDateTimeOfEvent().getDate(),
+                            mapLogBookEventCodeToMeterEventCode(logBookEvent),
+                            logBookEvent.getEventCode().getEventCode().getCode(),
+                            endDeviceEventType,
+                            logBookEvent.getEventDescription(),
+                            logBookEvent.getSourceOfEvent().getAddress(),
+                            logBookEvent.getLogNr().getNr()));
     }
 
     private int mapLogBookEventCodeToMeterEventCode(LogBookEventResponseStructure logBookEvent) {
