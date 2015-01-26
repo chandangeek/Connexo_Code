@@ -12,14 +12,13 @@ import com.elster.jupiter.time.RelativePeriodCategoryUsage;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.google.common.collect.Range;
-import com.google.inject.Inject;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Unique(fields = "name", groups = Save.Create.class, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
 public class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
