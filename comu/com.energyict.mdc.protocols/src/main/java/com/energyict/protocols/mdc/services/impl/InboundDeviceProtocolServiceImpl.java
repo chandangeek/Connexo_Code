@@ -1,5 +1,6 @@
 package com.energyict.protocols.mdc.services.impl;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -46,6 +47,7 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
     private volatile IdentificationService identificationService;
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
     private volatile PropertySpecService propertySpecService;
+    private volatile MeteringService meteringService;
     private volatile Clock clock;
 
     private Injector injector;
@@ -87,6 +89,7 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
                 bind(IdentificationService.class).toInstance(identificationService);
                 bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(MeteringService.class).toInstance(meteringService);
                 bind(Clock.class).toInstance(clock);
                 bind(InboundDeviceProtocolService.class).toInstance(InboundDeviceProtocolServiceImpl.this);
             }
@@ -121,6 +124,11 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     @Reference
