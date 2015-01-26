@@ -369,8 +369,13 @@ Ext.define('Apr.controller.AppServers', {
                             }
                         });
                     },
-                    failure: function () {
+                    failure: function (record, operation) {
                         me.getAddPage().setLoading(false);
+                        formErrorsPanel.show();
+                        var json = Ext.decode(operation.response.responseText);
+                        if (json && json.errors) {
+                            form.getForm().markInvalid(json.errors);
+                        }
                     }
                 });
             } else {
