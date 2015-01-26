@@ -83,7 +83,7 @@ abstract class AbstractReadingTypeGenerator {
     }
 
     private Set<Accumulation> possibleAccumulations = EnumSet.of(Accumulation.BULKQUANTITY, Accumulation.DELTADELTA, Accumulation.SUMMATION);
-    private Set<TimeAttribute> possibleTimeAttributes = EnumSet.of(TimeAttribute.MINUTE10, TimeAttribute.MINUTE15, TimeAttribute.MINUTE30, TimeAttribute.MINUTE5, TimeAttribute.MINUTE60);
+    private Set<TimeAttribute> possibleTimeAttributes = EnumSet.of(TimeAttribute.NOTAPPLICABLE, TimeAttribute.MINUTE10, TimeAttribute.MINUTE15, TimeAttribute.MINUTE30, TimeAttribute.MINUTE5, TimeAttribute.MINUTE60);
     private List<Integer> possibleTimeOfUseAttributes = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8);
     private Set<Phase> possiblePhases = EnumSet.of(Phase.NOTAPPLICABLE, Phase.PHASEA, Phase.PHASEB, Phase.PHASEC, Phase.PHASEABC);
     private Set<MetricMultiplier> possibleMultipliers = EnumSet.of(MetricMultiplier.MILLI, MetricMultiplier.ZERO, MetricMultiplier.KILO, MetricMultiplier.MEGA);

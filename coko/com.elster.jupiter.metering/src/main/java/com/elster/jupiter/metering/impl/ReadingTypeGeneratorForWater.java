@@ -70,10 +70,6 @@ class ReadingTypeGeneratorForWater extends AbstractReadingTypeGenerator {
 
     private enum ReadingTypesForPossibleDailyMonthlyLoadProfileUsage implements ReadingTypeTemplate {
 
-        WATER_VOLUME_M3("Water volume", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETER)),
-        WATER_VOLUME_LITRE("Water volume", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRE)),
-        WATER_VOLUME_BACKFLOW_M3("Water volume backflow", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).flow(FlowDirection.REVERSE).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETERCOMPENSATED)),
-        WATER_VOLUME_BACKFLOW_LITRE("Water volume backflow", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).flow(FlowDirection.REVERSE).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRECOMPENSATED)),
         DAILY_WATER_VOLUME_M3("Daily water volume", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.DAILY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETER)),
         DAILY_WATER_VOLUME_LITRE("Daily water volume", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.DAILY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRE)),
         DAILY_WATER_VOLUME_BACKFLOW_M3("Daily water volume backflow", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.DAILY).flow(FlowDirection.REVERSE).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETERCOMPENSATED)),
