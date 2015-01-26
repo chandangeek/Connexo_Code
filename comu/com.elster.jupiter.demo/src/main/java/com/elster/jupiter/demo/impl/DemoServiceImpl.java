@@ -877,7 +877,7 @@ public class DemoServiceImpl implements DemoService {
     private void createDevicesForDeviceConfiguration(Store store, DeviceConfiguration configuration){
         System.out.println("==> Creating Devices for Configuration...");
         String deviceTypeName = configuration.getDeviceType().getName();
-        for (int i = 1; i <= 1 /*Constants.DeviceType.from(deviceTypeName).get().getDeviceCount()*/; i++) {
+        for (int i = 1; i <= Constants.DeviceType.from(deviceTypeName).get().getDeviceCount(); i++) {
             deviceCounter++;
             String serialNumber = "01000001" + String.format("%04d", deviceCounter);
             String mrid = Constants.Device.STANDARD_PREFIX +  serialNumber;
