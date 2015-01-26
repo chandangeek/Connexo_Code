@@ -161,6 +161,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                     this.getStaticGridContainer().setVisible(false);
                     this.getDynamicGridContainer().setVisible(true);
                 } else {
+                    this.getApplication().getController('Mdc.controller.setup.DevicesAddGroupController').applyFilter();
                     this.getDynamicGridContainer().setVisible(false);
                     this.getStaticGridContainer().setVisible(true);
                 }

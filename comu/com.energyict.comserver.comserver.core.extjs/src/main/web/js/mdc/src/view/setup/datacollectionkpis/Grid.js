@@ -102,7 +102,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Grid', {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
                 dock: 'bottom',
-                itemsPerPageMsg: Uni.I18n.translate('datacollectionkpis.pagingtoolbarbottom.itemsPerPage', 'MDC', 'KPIs per page')
+                itemsPerPageMsg: Uni.I18n.translate('datacollectionkpis.pagingtoolbarbottom.kpisPerPage', 'MDC', 'Data collection KPIs per page')
             }
         ];
 
