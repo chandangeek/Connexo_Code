@@ -14,7 +14,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 public abstract class AbstractIssueAction implements IssueAction {
     
