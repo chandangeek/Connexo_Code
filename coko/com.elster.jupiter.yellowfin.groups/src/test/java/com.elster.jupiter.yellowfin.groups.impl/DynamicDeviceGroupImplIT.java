@@ -79,7 +79,7 @@ public class DynamicDeviceGroupImplIT {
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new IdsModule(),
-                new MeteringModule(),
+                new MeteringModule(false),
                 new MeteringGroupsModule(),
                 new YellowfinGroupsModule(),
                 new PartyModule(),
