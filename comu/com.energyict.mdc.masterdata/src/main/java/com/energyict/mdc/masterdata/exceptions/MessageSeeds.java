@@ -49,11 +49,11 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     LOAD_PROFILE_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(1500, "loadProfileType.cannotUpdateObisCode", "The obis code of the load profile type \"{0}\" cannot be updated because it is in use", SEVERE),
     LOAD_PROFILE_TYPE_INTERVAL_CANNOT_BE_UPDATED(1501, "loadProfileType.cannotUpdateInterval", "The interval of the load profile type \"{0}\" cannot be updated because it is in use", SEVERE),
     LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED(1502, Keys.LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED, "The obis code of a load profile type is required", SEVERE),
-    LOAD_PROFILE_TYPE_INTERVAL_IS_REQUIRED(1503, "loadProfileType.interval.required", "The interval of a load profile type is required", SEVERE),
+    LOAD_PROFILE_TYPE_INTERVAL_IS_REQUIRED(1503, Keys.LOAD_PROFILE_TYPE_INTERVAL_IS_REQUIRED, "The interval of a load profile type is required", SEVERE),
     LOAD_PROFILE_TYPE_INTERVAL_IN_WEEKS_IS_NOT_SUPPORTED(1504, "loadProfileType.interval.notsupported.weeks", "The interval of a load profile type cannot be expressed in number of weeks", SEVERE),
     INTERVAL_IN_DAYS_MUST_BE_ONE(1505, "loadProfileType.interval.notsupported.multipledays", "The number of days of the interval of a load profile type cannot be greater than 1 but got {0}", SEVERE),
     INTERVAL_IN_MONTHS_MUST_BE_ONE(1506, "loadProfileType.interval.notsupported.multiplemonths", "The number of months of the interval of a load profile type cannot be greater than 1 but got {0}", SEVERE),
-    INTERVAL_IN_YEARS_MUST_BE_ONE(1507, "loadProfileType.interval.notsupported.multipleyears", "The number of years of the interval of a load profile type cannot be greater than 1 but got {0}", SEVERE),
+    INTERVAL_IN_YEARS_MUST_BE_ONE(1507, Keys.INTERVAL_IN_YEARS_MUST_BE_ONE, "The number of years of the interval of a load profile type cannot be greater than 1 but got {0}", SEVERE),
     INTERVAL_MUST_BE_STRICTLY_POSITIVE(1508, "loadProfileType.interval.notsupported.negative", "The value of the interval of a load profile type must be a strictly positive number and not {0}", SEVERE),
     DUPLICATE_REGISTER_TYPE_IN_LOAD_PROFILE_TYPE(1509, "loadProfileType.registerType.duplicate", "The register type {0} was already added to the load profile type {1}", SEVERE),
     AT_LEAST_ONE_REGISTER_TYPE_REQUIRED(1510, Keys.AT_LEAST_ONE_REGISTER_TYPE_REQUIRED, "You should select at least one register type", SEVERE),
@@ -114,6 +114,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String CHANNEL_TYPE_WITH_REGISTER_TYPE_AND_INTERVAL_DUPLICATE = "duplicate.channelType.interval.registerType";
         public static final String AT_LEAST_ONE_REGISTER_TYPE_REQUIRED = "loadProfileType.registerTypes.mustHaveAtLeastOne";
         public static final String REGISTER_TYPES_AND_LOAD_PROFILE_TYPE_INTERVAL_NOT_SUPPORTED = "registerType.inLoadProfileType.unsupportedInterval";
+        public static final String LOAD_PROFILE_TYPE_INTERVAL_IS_REQUIRED = "loadProfileType.interval.required";
+        public static final String INTERVAL_IN_YEARS_MUST_BE_ONE = "loadProfileType.interval.notsupported.multipleyears";
     }
 
 }

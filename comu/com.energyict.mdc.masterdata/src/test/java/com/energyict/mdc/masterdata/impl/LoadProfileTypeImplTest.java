@@ -237,129 +237,16 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         // Asserts: see ExpectedConstraintViolation rule
     }
 
-    @Test(expected = IntervalIsRequiredException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CHANNEL_TYPE_INTERVAL_IS_REQUIRED + "}", strict = false)
     public void testCreateWithoutInterval() {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
 
-        try {
-            setupReadingTypeInExistingTransaction();
-            // Business method
-            masterDataService.newLoadProfileType("testCreateWithoutInterval", OBIS_CODE, null, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
-        }
-        catch (IntervalIsRequiredException e) {
-            // Asserts
-            Assertions.assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOAD_PROFILE_TYPE_INTERVAL_IS_REQUIRED);
-            throw e;
-        }
-    }
-
-    @Test(expected = IntervalIsRequiredException.class)
-    @Transactional
-    public void testCreateWithEmptyInterval() {
-        MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
-        TimeDuration interval = new TimeDuration(0, TimeDuration.TimeUnit.MINUTES);
-
-        try {
-            setupReadingTypeInExistingTransaction();
-            // Business method
-            masterDataService.newLoadProfileType("testCreateWithEmptyInterval", OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
-        }
-        catch (IntervalIsRequiredException e) {
-            // Asserts
-            Assertions.assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOAD_PROFILE_TYPE_INTERVAL_IS_REQUIRED);
-            throw e;
-        }
-    }
-
-    @Test(expected = UnsupportedIntervalException.class)
-    @Transactional
-    public void testCreateWithIntervalInWeeks() {
-        MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
-        TimeDuration interval = new TimeDuration(1, TimeDuration.TimeUnit.WEEKS);
-
-        try {
-            setupReadingTypeInExistingTransaction();
-            // Business method
-            masterDataService.newLoadProfileType("testCreateWithIntervalInWeeks", OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
-        }
-        catch (UnsupportedIntervalException e) {
-            // Asserts
-            Assertions.assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOAD_PROFILE_TYPE_INTERVAL_IN_WEEKS_IS_NOT_SUPPORTED);
-            throw e;
-        }
-    }
-
-    @Test(expected = UnsupportedIntervalException.class)
-    @Transactional
-    public void testCreateWithNegativeIntervalSeconds() {
-        MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
-        TimeDuration interval = new TimeDuration(-1, TimeDuration.TimeUnit.SECONDS);
-
-        try {
-            setupReadingTypeInExistingTransaction();
-            // Business method
-            masterDataService.newLoadProfileType("testCreateWithNegativeIntervalSeconds", OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
-        }
-        catch (UnsupportedIntervalException e) {
-            // Asserts
-            Assertions.assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INTERVAL_MUST_BE_STRICTLY_POSITIVE);
-            throw e;
-        }
-    }
-
-    @Test(expected = UnsupportedIntervalException.class)
-    @Transactional
-    public void testCreateWithMultipleDays() {
-        MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
-        TimeDuration interval = new TimeDuration(2, TimeDuration.TimeUnit.DAYS);
-
-        try {
-            setupReadingTypeInExistingTransaction();
-            // Business method
-            masterDataService.newLoadProfileType("testCreateWithMultipleDays", OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
-        }
-        catch (UnsupportedIntervalException e) {
-            // Asserts
-            Assertions.assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INTERVAL_IN_DAYS_MUST_BE_ONE);
-            throw e;
-        }
-    }
-
-    @Test(expected = UnsupportedIntervalException.class)
-    @Transactional
-    public void testCreateWithMultipleMonths() {
-        MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
-        TimeDuration interval = new TimeDuration(2, TimeDuration.TimeUnit.MONTHS);
-
-        try {
-            setupReadingTypeInExistingTransaction();
-            // Business method
-            masterDataService.newLoadProfileType("testCreateWithMultipleMonths", OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
-        }
-        catch (UnsupportedIntervalException e) {
-            // Asserts
-            Assertions.assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INTERVAL_IN_MONTHS_MUST_BE_ONE);
-            throw e;
-        }
-    }
-
-    @Test(expected = UnsupportedIntervalException.class)
-    @Transactional
-    public void testCreateWithMultipleYears() {
-        MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
-        TimeDuration interval = new TimeDuration(2, TimeDuration.TimeUnit.YEARS);
-
-        try {
-            setupReadingTypeInExistingTransaction();
-            // Business method
-            masterDataService.newLoadProfileType("testCreateWithMultipleYears", OBIS_CODE, interval, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
-        }
-        catch (UnsupportedIntervalException e) {
-            // Asserts
-            Assertions.assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INTERVAL_IN_YEARS_MUST_BE_ONE);
-            throw e;
-        }
+        setupReadingTypeInExistingTransaction();
+        // Business method
+        LoadProfileType loadProfileType = masterDataService.newLoadProfileType("testCreateWithoutInterval", OBIS_CODE, null, Arrays.asList(masterDataService.findRegisterTypeByReadingType(readingType).get()));
+        loadProfileType.save();
     }
 
     @Test
