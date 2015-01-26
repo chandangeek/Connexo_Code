@@ -11,6 +11,7 @@ Ext.define('Uni.view.user.Menu', {
     menu: [
         {
             text: 'Logout',
+            itemId: 'user-log-out',
             listeners: {
                 'click': function () {
                     Ext.Ajax.request({
