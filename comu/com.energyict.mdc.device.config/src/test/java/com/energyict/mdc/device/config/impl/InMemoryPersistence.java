@@ -100,14 +100,11 @@ public class InMemoryPersistence {
     private TransactionService transactionService;
     private EventServiceImpl eventService;
     private Publisher publisher;
-    private NlsService nlsService;
     private MasterDataService masterDataService;
     private TaskService taskService;
     private DeviceConfigurationServiceImpl deviceConfigurationService;
     private MeteringService meteringService;
     private MdcReadingTypeUtilService readingTypeUtilService;
-    private EngineConfigurationService engineConfigurationService;
-    private UserService userService;
     private DataModel dataModel;
     private Injector injector;
     private ValidationService validationService;
@@ -116,6 +113,7 @@ public class InMemoryPersistence {
     private PropertySpecService propertySpecService;
     private ProtocolPluggableService protocolPluggableService;
     private LogBookTypeUpdateEventHandler logBookTypeUpdateEventHandler;
+    private ComTaskDeletionEventHandler comTaskDeletionEventHandler;
     private LogBookTypeDeletionEventHandler logBookTypeDeletionEventHandler;
     private LoadProfileTypeUpdateEventHandler loadProfileTypeUpdateEventHandler;
     private LoadProfileTypeDeletionEventHandler loadProfileTypeDeletionEventHandler;
@@ -127,6 +125,9 @@ public class InMemoryPersistence {
     private LicensedProtocolService licensedProtocolService;
     private ConnectionTypeService connectionTypeService;
     private InMemoryBootstrapModule bootstrapModule;
+
+    public InMemoryPersistence() {
+    }
 
     public void initializeDatabaseWithMockedProtocolPluggableService(String testName, boolean showSqlLogging) {
         this.initializeDatabase(testName, showSqlLogging, true);
@@ -143,13 +144,13 @@ public class InMemoryPersistence {
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(OrmService.class);
-            this.userService = injector.getInstance(UserService.class);
+            injector.getInstance(UserService.class);
             this.publisher = injector.getInstance(Publisher.class);
             this.eventService = (EventServiceImpl) injector.getInstance(EventService.class);
-            this.nlsService = injector.getInstance(NlsService.class);
+            injector.getInstance(NlsService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
-            this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
+            injector.getInstance(EngineConfigurationService.class);
             this.masterDataService = injector.getInstance(MasterDataService.class);
             this.taskService = injector.getInstance(TaskService.class);
             this.validationService = injector.getInstance(ValidationService.class);
@@ -249,13 +250,6 @@ public class InMemoryPersistence {
         this.bootstrapModule.deactivate();
     }
 
-    private void deactivate(Object bootstrapModule) {
-        if (bootstrapModule instanceof InMemoryBootstrapModule) {
-            InMemoryBootstrapModule inMemoryBootstrapModule = (InMemoryBootstrapModule) bootstrapModule;
-            inMemoryBootstrapModule.deactivate();
-        }
-    }
-
     public EventService getEventService() {
         return eventService;
     }
@@ -305,6 +299,7 @@ public class InMemoryPersistence {
     }
 
     public void registerEventHandlers() {
+        this.comTaskDeletionEventHandler = this.registerTopicHandler(new ComTaskDeletionEventHandler(this.deviceConfigurationService));
         this.logBookTypeDeletionEventHandler = this.registerTopicHandler(new LogBookTypeDeletionEventHandler(this.deviceConfigurationService));
         this.logBookTypeUpdateEventHandler = this.registerTopicHandler(new LogBookTypeUpdateEventHandler(this.deviceConfigurationService));
         this.loadProfileTypeDeletionEventHandler = this.registerTopicHandler(new LoadProfileTypeDeletionEventHandler(this.deviceConfigurationService));
@@ -320,6 +315,7 @@ public class InMemoryPersistence {
     }
 
     public void unregisterEventHandlers() {
+        this.unregisterSubscriber(this.comTaskDeletionEventHandler);
         this.unregisterSubscriber(this.logBookTypeDeletionEventHandler);
         this.unregisterSubscriber(this.logBookTypeUpdateEventHandler);
         this.unregisterSubscriber(this.loadProfileTypeDeletionEventHandler);

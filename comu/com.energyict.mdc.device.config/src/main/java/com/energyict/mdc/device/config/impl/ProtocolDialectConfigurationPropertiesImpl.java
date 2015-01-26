@@ -35,7 +35,6 @@ import java.util.List;
  * @author sva
  * @since 5/03/13 - 16:12
  */
-//@ProtocolDialectConfigurationHasAllRequiredProperties(groups = {Save.Create.class, Save.Update.class})
 class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<ProtocolDialectConfigurationProperties> implements ProtocolDialectConfigurationProperties {
 
     private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
@@ -63,20 +62,6 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     ProtocolDialectConfigurationPropertiesImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(ProtocolDialectConfigurationProperties.class, dataModel, eventService, thesaurus);
         this.dataModel = dataModel;
-    }
-
-    static class PropertyValueValidator implements ConstraintValidator<ProtocolDialectConfigurationHasCorrectPropertyValues, ProtocolDialectConfigurationPropertiesImpl> {
-
-        @Override
-        public void initialize(ProtocolDialectConfigurationHasCorrectPropertyValues constraintAnnotation) {
-            //nothing for now
-        }
-
-        @Override
-        public boolean isValid(ProtocolDialectConfigurationPropertiesImpl value, ConstraintValidatorContext context) {
-            //TODO values atm are validated upon setting...
-            return true;
-        }
     }
 
     @Override
@@ -260,4 +245,5 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     protected boolean validateUniqueName() {
         return true;
     }
+
 }

@@ -100,14 +100,6 @@ public interface DeviceConfigurationService {
     public List<RegisterSpec> findRegisterSpecsByMeasurementType(MeasurementType measurementType);
 
     /**
-     * Finds a list of {@link ChannelSpec ChannelSpecs} which are linked to the given {@link LoadProfileSpec}
-     *
-     * @param loadProfileSpec the LoadProfileSpec
-     * @return the list of ChannelSpecs
-     */
-    public List<ChannelSpec> findChannelSpecsForLoadProfileSpec(LoadProfileSpec loadProfileSpec);
-
-    /**
      * Find the {@link LoadProfileSpec} with the given ID
      *
      * @param loadProfileSpecId the ID of the LoadProfileSpec
@@ -184,7 +176,8 @@ public interface DeviceConfigurationService {
     public Optional<ComTaskEnablement> findComTaskEnablement (ComTask comTask, DeviceConfiguration deviceConfiguration);
 
     /**
-     * Return a list of ComTasks that are legal for assignment to the ComSchedule. A ComTask can be assigned to the comSchedule IF all devices
+     * Return a list of ComTasks that are legal for assignment to the ComSchedule.
+     * A ComTask can be assigned to the comSchedule IF all devices
      * already linked to the schedule are enabled for the ComTask.
      * This list will include ComTasks already linked to the ComSchedule!
      *
@@ -205,7 +198,8 @@ public interface DeviceConfigurationService {
 
     public List<ReadingType> getReadingTypesRelatedToConfiguration(DeviceConfiguration configuration);
 
-    List<DeviceConfiguration> getLinkableDeviceConfigurations(ValidationRuleSet validationRuleSet);
+    public List<DeviceConfiguration> getLinkableDeviceConfigurations(ValidationRuleSet validationRuleSet);
 
     public List<SecurityPropertySet> findUniqueSecurityPropertySets();
+
 }

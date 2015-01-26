@@ -28,6 +28,7 @@ public class DeviceConfigurationModule extends AbstractModule {
         requireBinding(ValidationService.class);
 
         bind(DeviceConfigurationService.class).to(DeviceConfigurationServiceImpl.class).in(Scopes.SINGLETON);
+        bind(ServerDeviceConfigurationService.class).to(DeviceConfigurationServiceImpl.class).in(Scopes.SINGLETON);
     }
 
 }

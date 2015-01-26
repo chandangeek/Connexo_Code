@@ -322,9 +322,9 @@ public enum TableSpecs {
             Table<ProtocolDialectConfigurationProperty> table = dataModel.addTable(name(), ProtocolDialectConfigurationProperty.class);
             table.map(ProtocolDialectConfigurationProperty.class);
             Column id = table.column("ID").number().notNull().add();
-            Column name = table.column("NAME").varChar(255).notNull().map("name").add();
+            Column name = table.column("NAME").varChar().notNull().map("name").add();
             table.addAuditColumns();
-            table.column("VALUE").varChar(4000).notNull().map("value").add();
+            table.column("VALUE").varChar().notNull().map("value").add();
             table.foreignKey("FK_DTC_CONFPROPSATTR_PROPS").
                     on(id).
                     references(DTC_DIALECTCONFIGPROPERTIES.name()).
@@ -417,8 +417,8 @@ public enum TableSpecs {
             Table<PartialConnectionTaskPropertyImpl> table = dataModel.addTable(name(), PartialConnectionTaskPropertyImpl.class);
             table.map(PartialConnectionTaskPropertyImpl.class);
             Column partialconnectiontask = table.column("PARTIALCONNECTIONTASK").number().notNull().add();
-            Column name = table.column("NAME").varChar(255).notNull().map("name").add();
-            table.column("VALUE").varChar(4000).notNull().map("value").add();
+            Column name = table.column("NAME").varChar().notNull().map("name").add();
+            table.column("VALUE").varChar().notNull().map("value").add();
             table.addAuditColumns();
             table.foreignKey("FK_DTC_PARTIALCTPROPS_TASK").
                     on(partialconnectiontask).

@@ -115,11 +115,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, MasterDataService masterDataService, SchedulingService schedulingService, ValidationService validationService) {
-        this(ormService, eventService, nlsService, meteringService, mdcReadingTypeUtilService, protocolPluggableService, userService, engineConfigurationService, masterDataService, false, schedulingService, validationService);
-    }
-
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, ProtocolPluggableService protocolPluggableService, UserService userService, EngineConfigurationService engineConfigurationService, MasterDataService masterDataService, boolean createMasterData, SchedulingService schedulingService, ValidationService validationService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService) {
         this();
         this.setOrmService(ormService);
         this.setUserService(userService);
@@ -372,7 +368,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
 
-    Thesaurus getThesaurus() {
+    @Override
+    public Thesaurus getThesaurus() {
         return thesaurus;
     }
 
@@ -415,6 +412,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
             @Override
             public void configure() {
                 bind(DeviceConfigurationService.class).toInstance(DeviceConfigurationServiceImpl.this);
+                bind(ServerDeviceConfigurationService.class).toInstance(DeviceConfigurationServiceImpl.this);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
@@ -624,6 +622,14 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                                 .sorted((s3, s4) -> s4.getEncryptionDeviceAccessLevel().getId() - s3.getEncryptionDeviceAccessLevel().getId())
                                 .findFirst().get().getId())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean usedByDeviceConfigurations(ComTask comTask) {
+        return !this.dataModel
+                    .mapper(ComTaskEnablement.class)
+                    .find(ComTaskEnablementImpl.Fields.COM_TASK.fieldName(), comTask)
+                    .isEmpty();
     }
 
 }

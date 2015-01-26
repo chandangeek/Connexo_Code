@@ -8,7 +8,6 @@ import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
@@ -51,6 +50,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
@@ -72,6 +72,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
@@ -79,7 +80,6 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Scopes;
 import org.joda.time.DateTimeConstants;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
@@ -153,9 +153,7 @@ public class PartialOutboundConnectionTaskCrudIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
-            bind(EventService.class).to(SpyEventService.class).in(Scopes.SINGLETON);
         }
-
     }
 
     @BeforeClass
@@ -171,6 +169,7 @@ public class PartialOutboundConnectionTaskCrudIT {
                 new TransactionModule(false),
                 new UtilModule(),
                 new NlsModule(),
+                new EventsModule(),
                 new DomainUtilModule(),
                 new PartyModule(),
                 new UserModule(),
@@ -197,9 +196,9 @@ public class PartialOutboundConnectionTaskCrudIT {
                 new SchedulingModule());
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
-            injector.getInstance(OrmService.class);
-            eventService = (SpyEventService) injector.getInstance(EventService.class);
-            injector.getInstance(NlsService.class);
+            OrmService ormService = injector.getInstance(OrmService.class);
+            eventService = new SpyEventService(injector.getInstance(EventService.class));
+            NlsService nlsService = injector.getInstance(NlsService.class);
             PropertySpecServiceImpl propertySpecService = (PropertySpecServiceImpl) injector.getInstance(PropertySpecService.class);
             initializeConnectionTypes(propertySpecService);
             injector.getInstance(MeteringService.class);
@@ -213,7 +212,17 @@ public class PartialOutboundConnectionTaskCrudIT {
             injector.getInstance(TaskService.class);
             injector.getInstance(ValidationService.class);
             schedulingService = injector.getInstance(SchedulingService.class);
-            deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
+            deviceConfigurationService = new DeviceConfigurationServiceImpl(
+                    ormService,
+                    eventService,
+                    nlsService,
+                    injector.getInstance(MeteringService.class),
+                    injector.getInstance(MdcReadingTypeUtilService.class),
+                    injector.getInstance(UserService.class),
+                    protocolPluggableService,
+                    engineConfigurationService,
+                    schedulingService,
+                    injector.getInstance(ValidationService.class));
             DataModel dataModel = deviceConfigurationService.getDataModel();
             createOracleAliases(dataModel.getConnection(true));
             ctx.commit();
