@@ -30,8 +30,8 @@ Ext.define('Isu.view.issues.SideFilter', {
             fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISU', 'Assignee'),
             forceSelection: true,
             anyMatch: true,
-            emptyText: 'Select an assignee',
-            tooltipText: 'Start typing for assignee'
+            emptyText: 'Select an assignee'
+
         },
         {
             itemId: 'filter-by-reason',
@@ -53,10 +53,10 @@ Ext.define('Isu.view.issues.SideFilter', {
             queryParam: 'like',
             queryDelay: 100,
             queryCaching: false,
+            minChars: 0,
 
             anchor: '100%',
-            emptyText: 'Select a reason',
-            tooltipText: 'Start typing for reason'
+            emptyText: 'Select a reason'
         },
         {
             itemId: 'filter-by-meter',
@@ -78,10 +78,10 @@ Ext.define('Isu.view.issues.SideFilter', {
             queryParam: 'like',
             queryDelay: 100,
             queryCaching: false,
+            minChars: 0,
 
             anchor: '100%',
-            emptyText: 'Select a MRID of the meter',
-            tooltipText: 'Start typing for a MRID'
+            emptyText: 'Select a MRID of the meter'
         }
     ],
 
