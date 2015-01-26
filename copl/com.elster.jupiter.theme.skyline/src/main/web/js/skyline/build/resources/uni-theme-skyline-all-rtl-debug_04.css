@@ -4116,22 +4116,7 @@
 /* line 16, ../../sass/src/panel/TilePanel.scss */
 .x-panel-tile {
   margin-top: 16px;
-}
-
-/* line 22, ../../sass/src/panel/TilePanel.scss */
-.x-panel-tile.first {
-  margin-right: 24px;
-}
-
-/* line 28, ../../sass/src/panel/TilePanel.scss */
-.x-panel-tile.middle {
-  margin-right: 24px;
-  margin-left: 24px;
-}
-
-/* line 35, ../../sass/src/panel/TilePanel.scss */
-.x-panel-tile.last {
-  margin-left: 24px;
+  margin-right: 48px;
 }
 
 /* line 1, ../../sass/src/panel/Detail.scss */

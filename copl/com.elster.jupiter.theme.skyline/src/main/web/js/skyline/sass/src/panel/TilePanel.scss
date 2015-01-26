@@ -13,27 +13,31 @@ $ui-header-font-weight: $panel-tile-header-font-weight,
 $ui-body-color: $panel-tile-body-color
 );
 
+//todo: Checkit if it matches guidlines
 .#{$prefix}panel-tile {
     margin: {
         top: 16px;
+        right: 48px;
     }
 }
 
-.#{$prefix}panel-tile.first {
-    margin: {
-        right: 24px;
-    }
-}
 
-.#{$prefix}panel-tile.middle {
-    margin: {
-        right: 24px;
-        left: 24px;
-    }
-}
-
-.#{$prefix}panel-tile.last {
-    margin: {
-        left: 24px;
-    }
-}
+//
+//.#{$prefix}panel-tile.first {
+//    margin: {
+//
+//    }
+//}
+//
+//.#{$prefix}panel-tile.middle {
+//    margin: {
+//        right: 24px;
+//        left: 24px;
+//    }
+//}
+//
+//.#{$prefix}panel-tile.last {
+//    margin: {
+//        left: 24px;
+//    }
+//}
