@@ -13,8 +13,10 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -38,6 +40,7 @@ public class RetryConnectionTaskAction extends AbstractIssueAction {
             issue.save();
             ScheduledConnectionTask task = (ScheduledConnectionTask)((IssueDataCollection) issue).getConnectionTask().get();
             task.scheduleNow();
+            task.getScheduledComTasks().stream().filter(comTaskExecution -> comTaskExecution.getStatus().equals(TaskStatus.Failed)|| comTaskExecution.getStatus().equals(TaskStatus.Retrying)).forEach(ComTaskExecution::runNow);
             result.success(MessageSeeds.ACTION_RETRY_CONNECTION_SUCCESS.getTranslated(getThesaurus()));
         }
         return result;
