@@ -24,6 +24,7 @@ import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 
+import com.elster.jupiter.metering.MeteringService;
 import org.joda.time.DateTimeConstants;
 
 import java.io.IOException;
@@ -49,16 +50,18 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
     private final MeterProtocol meterProtocol;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
+    private final MeteringService meteringService;
 
     /**
      * The used <code>MeterProtocolClockAdapter</code> for the time handling of the {@link CollectedLoadProfile} interface
      */
     private final MeterProtocolClockAdapter meterProtocolClockAdapter;
 
-    public MeterProtocolLoadProfileAdapter(final MeterProtocol meterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+    public MeterProtocolLoadProfileAdapter(final MeterProtocol meterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         this.meterProtocol = meterProtocol;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
+        this.meteringService = meteringService;
         this.meterProtocolClockAdapter = new MeterProtocolClockAdapter(meterProtocol);
     }
 
@@ -246,7 +249,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
             ProfileData profileData = this.meterProtocol.getProfileData(Date.from(combinedLastReadingTime), true);
             deviceLoadProfile.setCollectedData(getIntervalDatas(profileData.getIntervalDatas(), Date.from(loadProfileReader.getStartReadingTime())), convertToProperChannelInfos(profileData, loadProfileReader.getChannelInfos(), deviceLoadProfile));
             deviceLoadProfile.setDoStoreOlderValues(profileData.shouldStoreOlderValues());
-            deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(profileData.getMeterEvents()));
+            deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(profileData.getMeterEvents(), this.meteringService));
         } catch (IOException e) {
             deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getProblem(loadProfileReader.getProfileObisCode(), "CouldNotReadoutLoadProfileData"));
             deviceLogBook.setFailureInformation(ResultType.NotSupported, getProblem(logBookReader.getLogBookObisCode(), "CouldNotReadoutLogBookData"));
@@ -264,7 +267,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
         CollectedLogBook deviceLogBook = this.collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
         try {
             ProfileData profileData = this.meterProtocol.getProfileData(Date.from(logBookReader.getLastLogBook()), true);
-            deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(profileData.getMeterEvents()));
+            deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(profileData.getMeterEvents(), this.meteringService));
         } catch (IOException e) {
             deviceLogBook.setFailureInformation(ResultType.NotSupported, getProblem(logBookReader.getLogBookObisCode(), "CouldNotReadoutLogBookData"));
         } catch (IndexOutOfBoundsException e) { // handles parsing errors

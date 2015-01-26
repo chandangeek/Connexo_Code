@@ -67,6 +67,7 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -132,6 +133,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     private volatile LicenseService licenseService;
     private volatile TransactionService transactionService;
     private volatile UserService userService;
+    private volatile MeteringService meteringService;
     private volatile DataVaultService dataVaultService;
 
     private volatile boolean installed = false;
@@ -149,16 +151,18 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             EventService eventService,
             NlsService nlsService,
             IssueService issueService,
+            UserService userService,
+            MeteringService meteringService,
             PropertySpecService propertySpecService,
             PluggableService pluggableService,
             RelationService relationService,
             LicenseService licenseService,
-            UserService userService,
             DataVaultService dataVaultService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
+        this.setMeteringService(meteringService);
         this.setIssueService(issueService);
         this.setPropertySpecService(propertySpecService);
         this.setRelationService(relationService);
@@ -594,6 +598,11 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.userService = userService;
     }
 
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addDeviceProtocolService(DeviceProtocolService deviceProtocolService) {
         this.deviceProtocolServices.add(deviceProtocolService);
@@ -827,6 +836,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 bind(IssueService.class).toInstance(issueService);
                 bind(LicenseService.class).toInstance(licenseService);
                 bind(UserService.class).toInstance(userService);
+                bind(MeteringService.class).toInstance(meteringService);
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(CollectedDataFactory.class).toInstance(new CompositeCollectedDataFactory());
                 bind(SecuritySupportAdapterMappingFactory.class).to(SecuritySupportAdapterMappingFactoryImpl.class);

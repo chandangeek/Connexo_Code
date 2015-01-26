@@ -15,12 +15,15 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -95,12 +98,15 @@ public class AdapterDeviceProtocolDialectTest {
                 new TransactionModule(),
                 new UtilModule(),
                 new NlsModule(),
+                new EventsModule(),
+                new IdsModule(),
+                new UserModule(),
+                new PartyModule(),
+                new MeteringModule(),
                 new DomainUtilModule(),
                 new InMemoryMessagingModule(),
-                new EventsModule(),
                 new OrmModule(),
                 new DataVaultModule(),
-                new UserModule(),
                 new IssuesModule(),
                 new PluggableModule(),
                 new MdcIOModule(),

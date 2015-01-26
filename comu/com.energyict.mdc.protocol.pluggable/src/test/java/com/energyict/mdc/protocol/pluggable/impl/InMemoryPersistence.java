@@ -24,6 +24,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
@@ -68,6 +69,7 @@ public class InMemoryPersistence {
     private NlsService nlsService;
     private DataModel dataModel;
     private UserService userService;
+    private MeteringService meteringService;
 
     private ConnectionTypeService connectionTypeService;
     private LegacySecurityPropertyConverter legacySecurityPropertyConverter;
@@ -94,7 +96,6 @@ public class InMemoryPersistence {
                 new MockModule(),
                 bootstrapModule,
                 new ThreadSecurityModule(this.principal),
-                new EventsModule(),
                 new PubSubModule(),
                 new TransactionModule(),
                 new UtilModule(),
@@ -152,6 +153,7 @@ public class InMemoryPersistence {
         this.deviceCacheMarshallingService = mock(DeviceCacheMarshallingService.class);
         this.licenseService = mock(LicenseService.class);
         this.userService = mock(UserService.class);
+        this.meteringService = mock(MeteringService.class);
     }
 
     private DataModel createNewProtocolPluggableService() {
@@ -161,11 +163,12 @@ public class InMemoryPersistence {
                         this.eventService,
                         this.nlsService,
                         this.issueService,
+                        this.userService,
+                        this.meteringService,
                         this.propertySpecService,
                         this.pluggableService,
                         this.relationService,
                         this.licenseService,
-                        this.userService,
                         this.dataVaultService);
         this.protocolPluggableService.addInboundDeviceProtocolService(this.inboundDeviceProtocolService);
         this.protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
@@ -191,6 +194,10 @@ public class InMemoryPersistence {
 
     public IssueService getIssueService() {
         return issueService;
+    }
+
+    public MeteringService getMeteringService() {
+        return meteringService;
     }
 
     public DeviceCacheMarshallingService getDeviceCacheMarshallingService() {

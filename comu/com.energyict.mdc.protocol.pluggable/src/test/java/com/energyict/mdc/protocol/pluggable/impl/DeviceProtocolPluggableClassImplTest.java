@@ -41,13 +41,17 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -56,6 +60,7 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
@@ -115,6 +120,10 @@ public class DeviceProtocolPluggableClassImplTest {
     public ExpectedConstraintViolationRule rule = new ExpectedConstraintViolationRule();
 
     @Mock
+    private UserService userService;
+    @Mock
+    private MeteringService meteringService;
+    @Mock
     private LicenseService licenseService;
     @Mock
     private LicensedProtocolService licensedProtocolService;
@@ -145,7 +154,6 @@ public class DeviceProtocolPluggableClassImplTest {
                 new EventsModule(),
                 new OrmModule(),
                 new DataVaultModule(),
-                new UserModule(),
                 new IssuesModule(),
                 new PluggableModule(),
                 new BasicPropertiesModule(),
@@ -393,6 +401,8 @@ public class DeviceProtocolPluggableClassImplTest {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
+            bind(UserService.class).toInstance(userService);
+            bind(MeteringService.class).toInstance(meteringService);
             bind(InboundDeviceProtocolService.class).toInstance(mock(InboundDeviceProtocolService.class));
             bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
             bind(ConnectionTypeService.class).toInstance(mock(ConnectionTypeService.class));

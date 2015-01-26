@@ -48,6 +48,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.Sma
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolRegisterAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolSecuritySupportAdapter;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 
@@ -78,7 +79,10 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
      * The use <code>IssueService</code> which can be used for this adapter
      */
     private final IssueService issueService;
+
     private final CollectedDataFactory collectedDataFactory;
+
+    private final MeteringService meteringService;
 
     /**
      * The DeviceSecuritySupport component that <i>can</i> be used during communication
@@ -145,8 +149,9 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
      */
     private PropertiesAdapter propertiesAdapter;
 
-    public SmartMeterProtocolAdapter(SmartMeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+    public SmartMeterProtocolAdapter(SmartMeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         super(propertySpecService, protocolPluggableService, securitySupportAdapterMappingFactory, dataModel);
+        this.meteringService = meteringService;
         this.protocolLogger = Logger.getAnonymousLogger(); // default for now
         this.meterProtocol = meterProtocol;
         this.issueService = issueService;
@@ -172,7 +177,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
         this.smartMeterProtocolClockAdapter = new SmartMeterProtocolClockAdapter(getSmartMeterProtocol());
         this.smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(getSmartMeterProtocol(), issueService, collectedDataFactory);
         this.deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter(issueService, collectedDataFactory);
-        this.smartMeterProtocolLogBookAdapter = new SmartMeterProtocolLogBookAdapter(getSmartMeterProtocol(), issueService, collectedDataFactory);
+        this.smartMeterProtocolLogBookAdapter = new SmartMeterProtocolLogBookAdapter(getSmartMeterProtocol(), issueService, collectedDataFactory, meteringService);
         this.smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(getSmartMeterProtocol(), issueService, collectedDataFactory);
 
         if (!DeviceMessageSupport.class.isAssignableFrom(getProtocolClass())) {

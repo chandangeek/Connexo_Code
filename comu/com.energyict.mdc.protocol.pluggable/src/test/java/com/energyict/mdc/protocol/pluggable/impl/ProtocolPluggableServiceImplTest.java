@@ -23,6 +23,7 @@ import com.energyict.mdc.protocol.api.services.NotAppropriateDeviceCacheMarshall
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.users.UserService;
@@ -75,6 +76,8 @@ public class ProtocolPluggableServiceImplTest {
     private LicenseService licenseService;
     @Mock
     private UserService userService;
+    @Mock
+    private MeteringService meteringService;
     @Mock
     private DataVaultService dataVaultService;
 
@@ -644,7 +647,7 @@ public class ProtocolPluggableServiceImplTest {
     }
 
     private ProtocolPluggableServiceImpl newTestInstance() {
-        return new ProtocolPluggableServiceImpl(this.ormService, this.eventService, this.nlsService, this.issueService, this.propertySpecService, this.pluggableService, this.relationService, this.licenseService, this.userService, this.dataVaultService);
+        return new ProtocolPluggableServiceImpl(this.ormService, this.eventService, this.nlsService, this.issueService, this.userService, this.meteringService, this.propertySpecService, this.pluggableService, this.relationService, this.licenseService, this.dataVaultService);
     }
 
 }

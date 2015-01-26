@@ -11,6 +11,8 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
 
+import com.elster.jupiter.metering.MeteringService;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,11 +32,13 @@ public class SmartMeterProtocolLogBookAdapter implements DeviceLogBookSupport {
     private final SmartMeterProtocol smartMeterProtocol;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
+    private final MeteringService meteringService;
 
-    public SmartMeterProtocolLogBookAdapter(SmartMeterProtocol smartMeterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+    public SmartMeterProtocolLogBookAdapter(SmartMeterProtocol smartMeterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         this.smartMeterProtocol = smartMeterProtocol;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -47,7 +51,7 @@ public class SmartMeterProtocolLogBookAdapter implements DeviceLogBookSupport {
                 try {
                     if (reader.getLogBookObisCode().equals(LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE)) {
                         final List<MeterEvent> meterEvents = smartMeterProtocol.getMeterEvents(Date.from(reader.getLastLogBook()));
-                        deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
+                        deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents, this.meteringService));
                     } else {
                         deviceLogBook.setFailureInformation(ResultType.NotSupported, getWarning(reader.getLogBookObisCode(), "logBookXnotsupported", reader.getLogBookObisCode()));
                     }

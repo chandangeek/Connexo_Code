@@ -50,6 +50,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolT
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 
@@ -80,6 +81,8 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     private final IssueService issueService;
 
     private final CollectedDataFactory collectedDataFactory;
+
+    private final MeteringService meteringService;
 
     /**
      * The used <code>RegisterProtocol</code> for which the adapter is working
@@ -146,8 +149,9 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
      */
     private HHUEnabler hhuEnabler;
 
-    public MeterProtocolAdapterImpl(MeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+    public MeterProtocolAdapterImpl(MeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         super(propertySpecService, protocolPluggableService, securitySupportAdapterMappingFactory, dataModel);
+        this.meteringService = meteringService;
         this.protocolLogger = Logger.getAnonymousLogger(); // default for now
         this.meterProtocol = meterProtocol;
         this.issueService = issueService;
@@ -177,7 +181,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     protected void initializeAdapters() {
         this.propertiesAdapter = new PropertiesAdapter();
         this.meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(registerProtocol, issueService, collectedDataFactory);
-        this.meterProtocolLoadProfileAdapter = new MeterProtocolLoadProfileAdapter(meterProtocol, issueService, collectedDataFactory);
+        this.meterProtocolLoadProfileAdapter = new MeterProtocolLoadProfileAdapter(meterProtocol, issueService, collectedDataFactory, meteringService);
         this.meterProtocolClockAdapter = new MeterProtocolClockAdapter(meterProtocol);
         this.deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter(issueService, collectedDataFactory);
 

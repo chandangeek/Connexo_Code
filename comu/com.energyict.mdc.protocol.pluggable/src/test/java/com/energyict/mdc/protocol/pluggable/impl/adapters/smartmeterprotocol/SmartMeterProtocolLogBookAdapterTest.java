@@ -4,7 +4,6 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -86,9 +85,6 @@ public class SmartMeterProtocolLogBookAdapterTest {
         when(this.otherEndDeviceEventType.getMRID()).thenReturn("0.0.0.0");
         Optional<EndDeviceEventType> optionalEndDeviceEvent = Optional.of(otherEndDeviceEventType);
         when(this.meteringService.getEndDeviceEventType(anyString())).thenReturn(optionalEndDeviceEvent);
-        EndDeviceEventTypeFactory endDeviceEventTypeFactory = new EndDeviceEventTypeFactory();
-        endDeviceEventTypeFactory.setMeteringService(this.meteringService);
-        endDeviceEventTypeFactory.activate();
     }
 
     @Before
@@ -119,7 +115,7 @@ public class SmartMeterProtocolLogBookAdapterTest {
         when(deviceProtocol.getMeterEvents(Date.from(LAST_LOGBOOK2))).thenReturn(meterEvents);
         when(deviceProtocol.getMeterEvents(Date.from(LAST_LOGBOOK3))).thenThrow(new IOException("IOException while reading logBook 3."));
 
-        SmartMeterProtocolLogBookAdapter smartMeterProtocolLogBookAdapter = new SmartMeterProtocolLogBookAdapter(deviceProtocol, issueService, collectedDataFactory);
+        SmartMeterProtocolLogBookAdapter smartMeterProtocolLogBookAdapter = new SmartMeterProtocolLogBookAdapter(deviceProtocol, issueService, collectedDataFactory, meteringService);
 
         // Business method
         List<CollectedLogBook> logBookData = smartMeterProtocolLogBookAdapter.getLogBookData(logBookReaders);
