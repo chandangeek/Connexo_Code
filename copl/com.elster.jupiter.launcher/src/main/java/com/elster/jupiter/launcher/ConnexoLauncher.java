@@ -60,9 +60,13 @@ public class ConnexoLauncher {
                 }
             }
         }
+        if (install) {
+            interactive = false;
+        }
         if (!interactive) {
             configMap.put("gosh.args", "--nointeractive");
         }
+        System.out.println("Starting Connexo" + (interactive ? " with interactive shell..." : "..."));
         startFramework(configMap, installDir);
         if (install) {
             initAll();
@@ -101,6 +105,7 @@ public class ConnexoLauncher {
             ArrayList<Bundle> installed = new ArrayList<Bundle>();
             for (URL url : findBundles(rootDir)) {
                 logger.info("Installing bundle [" + url + "]");
+                System.out.print(".");
                 Bundle bundle = bundleContext.installBundle(url.toExternalForm());
                 installed.add(bundle);
             }
@@ -108,11 +113,13 @@ public class ConnexoLauncher {
             for (Bundle bundle : installed) {
                 if (bundle.getHeaders().get(Constants.FRAGMENT_HOST) == null) {
                     logger.info("Starting bundle [" + bundle.getSymbolicName() + "]");
+                    System.out.print(".");
                     bundle.start();
                 }
             }
             framework.start();
             logger.info("OSGi framework started");
+            System.out.println("Connexo started");
         } catch (BundleException e) {
             logger.severe("Could start the OSGi framework ! " + e.getLocalizedMessage());
             System.exit(3);
@@ -124,7 +131,9 @@ public class ConnexoLauncher {
         if (serviceReference != null) {
             Object installService = framework.getBundleContext().getService(serviceReference);
             try {
+                System.out.println("Installing database schema !");
                 installService.getClass().getMethod("initAll").invoke(installService);
+                System.out.println("Database installation finished.");
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 logger.severe("Caught exception while installing " + e.getLocalizedMessage());
             }
@@ -134,12 +143,26 @@ public class ConnexoLauncher {
 
     private static Map<String, String> loadConfig(File rootDir) throws IOException {
         Properties props = new Properties();
-        props.load(new FileInputStream(new File(rootDir, "conf/config.properties")));
+        File configFile;
+        String systemConfigProperty = System.getProperty("felix.config.properties");
+        if (systemConfigProperty != null) {
+            configFile = new File(rootDir, systemConfigProperty);
+            if (!configFile.exists()) {
+                configFile = new File(systemConfigProperty);
+            }
+        } else {
+            configFile = new File(rootDir, "conf/config.properties");
+        }
+        props.load(new FileInputStream(configFile));
 
         HashMap<String, String> map = new HashMap<>();
         for (Object key : props.keySet()) {
             map.put(key.toString(), props.getProperty(key.toString()));
         }
+        map.remove("felix.auto.deploy.dir");
+        map.remove("felix.auto.deploy.action");
+        map.put("org.osgi.framework.storage", new File(rootDir, "felix-cache").getAbsolutePath());
+        map.put("org.osgi.framework.storage.clean", "onFirstInit");
         return map;
     }
 
