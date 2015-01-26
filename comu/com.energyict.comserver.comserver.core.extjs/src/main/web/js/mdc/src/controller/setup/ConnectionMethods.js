@@ -113,6 +113,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                         widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
                         widget.down('#connectionMethodSetupPanel').setTitle(Uni.I18n.translate('connectionmethod.connectionmethods', 'MDC', 'Connection methods'));
                         me.getApplication().fireEvent('changecontentevent', widget);
+                        me.getConnectionmethodsgrid().refresh();
                         me.getConnectionmethodsgrid().getSelectionModel().doSelect(0);
                     }
                 });
@@ -134,7 +135,6 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             var connectionMethodName = connectionMethod[0].get('name');
             this.getConnectionMethodPreview().getLayout().setActiveItem(1);
             this.getConnectionMethodPreview().setTitle(connectionMethodName);
-            this.getConnectionMethodPreviewForm().loadRecord(connectionMethod[0]);
             this.getConnectionMethodPreview().down('#toggleDefaultMenuItem').setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('connectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default'));
             this.getConnectionMethodPreview().down('property-form').loadRecord(connectionMethod[0]);
             if (connectionMethod[0].propertiesStore.data.items.length > 0) {
@@ -316,6 +316,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                     } else {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowlegment.save', 'MDC', 'Connection method saved'));
                     }
+              //      me.showConnectionMethods(me.deviceTypeId, me.deviceConfigurationId);
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);
