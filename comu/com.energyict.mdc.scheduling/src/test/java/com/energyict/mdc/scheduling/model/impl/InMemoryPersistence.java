@@ -14,6 +14,8 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -27,7 +29,9 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.pubsub.impl.PublisherImpl;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -44,7 +48,11 @@ import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
 import java.sql.SQLException;
+import java.util.Dictionary;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -64,6 +72,10 @@ public class InMemoryPersistence {
     private DataModel dataModel;
     private Injector injector;
     private InMemoryBootstrapModule bootstrapModule;
+    private Publisher publisher;
+    private EventServiceImpl eventService;
+    private ServerSchedulingService schedulingService;
+    private ComTaskDeletionEventHandler comTaskDeletionEventHandler;
 
     public void initializeDatabase(String testName, boolean showSqlLogging) {
         this.initializeMocks(testName);
@@ -97,20 +109,24 @@ public class InMemoryPersistence {
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(OrmService.class);
             injector.getInstance(UserService.class);
-            injector.getInstance(EventService.class);
+            this.publisher = injector.getInstance(Publisher.class);
+            this.eventService = (EventServiceImpl) injector.getInstance(EventService.class);
             injector.getInstance(Publisher.class);
             injector.getInstance(NlsService.class);
             injector.getInstance(MeteringService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
-            injector.getInstance(SchedulingService.class);
+            this.schedulingService = injector.getInstance(ServerSchedulingService.class);
             ctx.commit();
         }
     }
 
-
     private void initializeMocks(String testName) {
         this.bundleContext = mock(BundleContext.class);
+        when(this.bundleContext.registerService(eq(Subscriber.class), any(Subscriber.class), isNull(Dictionary.class))).thenAnswer(invocationOnMock -> {
+            ((PublisherImpl) publisher).addHandler((Subscriber) invocationOnMock.getArguments()[1]);
+            return null;
+        });
         this.eventAdmin = mock(EventAdmin.class);
         this.principal = mock(Principal.class);
         when(this.principal.getName()).thenReturn(testName);
@@ -120,10 +136,22 @@ public class InMemoryPersistence {
         this.bootstrapModule.deactivate();
     }
 
-    private void deactivate(Object bootstrapModule) {
-        if (bootstrapModule instanceof InMemoryBootstrapModule) {
-            InMemoryBootstrapModule inMemoryBootstrapModule = (InMemoryBootstrapModule) bootstrapModule;
-            inMemoryBootstrapModule.deactivate();
+    public void registerEventHandlers() {
+        this.comTaskDeletionEventHandler = this.registerTopicHandler(new ComTaskDeletionEventHandler(this.schedulingService));
+    }
+
+    <T extends TopicHandler> T registerTopicHandler(T topicHandler) {
+        this.eventService.addTopicHandler(topicHandler);
+        return topicHandler;
+    }
+
+    public void unregisterEventHandlers() {
+        this.unregisterSubscriber(this.comTaskDeletionEventHandler);
+    }
+
+    void unregisterSubscriber(TopicHandler topicHandler) {
+        if (topicHandler != null) {
+            this.eventService.removeTopicHandler(topicHandler);
         }
     }
 
