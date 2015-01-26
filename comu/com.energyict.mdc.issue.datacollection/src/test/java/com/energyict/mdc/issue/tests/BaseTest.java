@@ -1,5 +1,23 @@
 package com.energyict.mdc.issue.tests;
 
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import javax.validation.MessageInterpolator;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.kie.api.io.KieResources;
+import org.kie.internal.KnowledgeBaseFactoryService;
+import org.kie.internal.builder.KnowledgeBuilderFactoryService;
+import org.mockito.Matchers;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.log.LogService;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -8,14 +26,11 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
-import com.elster.jupiter.issue.impl.service.IssueCreationServiceImpl;
-import com.elster.jupiter.issue.impl.service.IssueMappingServiceImpl;
+import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
-import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
-import com.elster.jupiter.issue.share.service.IssueMappingService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
@@ -65,21 +80,6 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import java.util.List;
-import javax.validation.MessageInterpolator;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.kie.api.io.KieResources;
-import org.kie.internal.KnowledgeBaseFactoryService;
-import org.kie.internal.builder.KnowledgeBuilderFactoryService;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.log.LogService;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public abstract class BaseTest {
     private static Injector injector;
@@ -154,7 +154,6 @@ public abstract class BaseTest {
 
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             // initialize Issue tables
-            injector.getInstance(com.elster.jupiter.issue.impl.service.IssueMappingServiceImpl.class);
             injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(IssueDataCollectionService.class);
@@ -178,19 +177,7 @@ public abstract class BaseTest {
     protected IssueService getIssueService() {
         return injector.getInstance(IssueService.class);
     }
-
-    protected IssueMappingService getIssueMappingService() {
-        return injector.getInstance(IssueMappingService.class);
-    }
-
-    protected IssueCreationService getIssueCreationService() {
-        return injector.getInstance(IssueCreationService.class);
-    }
-
-    protected IssueActionService getIssueActionService() {
-        return injector.getInstance(IssueActionService.class);
-    }
-
+    
     protected JsonService getJsonService() {
         return injector.getInstance(JsonService.class);
     }
@@ -234,12 +221,14 @@ public abstract class BaseTest {
     }
 
     protected IssueCreationService getMockIssueCreationService() {
-        return new MockIssueCreationService();
+        IssueCreationService issueCreationService = mock(IssueCreationService.class);
+        doThrow(new DispatchCreationEventException("processed!")).when(issueCreationService).dispatchCreationEvent(Matchers.anyListOf(IssueEvent.class));
+        return issueCreationService;
     }
 
 
     protected CreationRule getCreationRule(String reasonKey) {
-        CreationRule rule = getIssueCreationService().createRule();
+        CreationRule rule = getIssueService().getIssueCreationService().createRule();
         rule.setName("Simple Rule");
         rule.setComment("Comment for rule");
         rule.setContent("Empty content");
@@ -254,16 +243,9 @@ public abstract class BaseTest {
     protected DataModel getDataModel() {
         return ((IssueDataCollectionServiceImpl) getIssueDataCollectionService()).getDataModel();
     }
-
+    
     protected DataModel getIssueDataModel() {
-        return ((IssueMappingServiceImpl) getIssueMappingService()).getDataModel();
-    }
-
-    protected class MockIssueCreationService extends IssueCreationServiceImpl {
-        @Override
-        public void dispatchCreationEvent(List<IssueEvent> events) {
-            throw new DispatchCreationEventException("processed!");
-        }
+        return ((IssueServiceImpl)getIssueService()).getDataModel();
     }
 
     protected static class DispatchCreationEventException extends RuntimeException {
