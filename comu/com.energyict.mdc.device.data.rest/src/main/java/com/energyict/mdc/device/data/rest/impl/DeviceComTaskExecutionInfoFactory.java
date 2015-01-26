@@ -38,7 +38,7 @@ public class DeviceComTaskExecutionInfoFactory extends BaseComTaskExecutionInfoF
         info.id = comTaskExecution.getId();
         info.comTask = new IdWithNameInfo(getComTask(comTaskExecution));
         info.isOnHold = comTaskExecution.isOnHold();
-        info.plannedDate = comTaskExecution.getPlannedNextExecutionTimestamp();
+        info.plannedDate = comTaskExecution.getNextExecutionTimestamp();
         ConnectionTask<?, ?> connectionTask = comTaskExecution.getConnectionTask();
         if (connectionTask != null) {
             info.connectionMethod = connectionTask.getPartialConnectionTask().getName();
