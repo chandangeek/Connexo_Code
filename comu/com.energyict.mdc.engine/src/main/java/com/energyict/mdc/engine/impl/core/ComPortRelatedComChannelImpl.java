@@ -106,8 +106,12 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
         if (byteRead != -1) {
             this.ensureBytesReadForLogging();
             this.bytesReadForLogging.write(byteRead);
+            this.afterReading(1);
+            return byteRead;
         }
-        return this.afterReading(byteRead);
+        else {
+            return this.afterReading(byteRead);
+        }
     }
 
     @Override
@@ -140,17 +144,19 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
 
     private int afterReading(int bytesRead) {
         this.talking.stop();
-        Counters sessionCounters = this.sessionCounters;
-        sessionCounters.bytesRead(bytesRead);
-        if (!sessionCounters.isReading()) {
-            sessionCounters.reading();
-            sessionCounters.packetRead();
-        }
-        Counters taskSessionCounters = this.taskSessionCounters;
-        taskSessionCounters.bytesRead(bytesRead);
-        if (!taskSessionCounters.isReading()) {
-            taskSessionCounters.reading();
-            taskSessionCounters.packetRead();
+        if (bytesRead != -1) {
+            Counters sessionCounters = this.sessionCounters;
+            sessionCounters.bytesRead(bytesRead);
+            if (!sessionCounters.isReading()) {
+                sessionCounters.reading();
+                sessionCounters.packetRead();
+            }
+            Counters taskSessionCounters = this.taskSessionCounters;
+            taskSessionCounters.bytesRead(bytesRead);
+            if (!taskSessionCounters.isReading()) {
+                taskSessionCounters.reading();
+                taskSessionCounters.packetRead();
+            }
         }
         return bytesRead;
     }
@@ -191,8 +197,11 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
         if (numberOfBytesWritten != -1) {
             this.ensureBytesWrittenForLogging();
             this.bytesWrittenForLogging.write(b);
+            return this.afterWriting(1);
         }
-        return this.afterWriting(numberOfBytesWritten);
+        else {
+            return this.afterWriting(numberOfBytesWritten);
+        }
     }
 
     @Override
@@ -214,17 +223,19 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
 
     private int afterWriting (int numberOfBytesWritten) {
         talking.stop();
-        Counters sessionCounters = this.sessionCounters;
-        sessionCounters.bytesSent(numberOfBytesWritten);
-        if (!sessionCounters.isWriting()) {
-            sessionCounters.writing();
-            sessionCounters.packetSent();
-        }
-        Counters taskSessionCounters = this.taskSessionCounters;
-        taskSessionCounters.bytesSent(numberOfBytesWritten);
-        if (!taskSessionCounters.isWriting()) {
-            taskSessionCounters.writing();
-            taskSessionCounters.packetSent();
+        if (numberOfBytesWritten != -1) {
+            Counters sessionCounters = this.sessionCounters;
+            sessionCounters.bytesSent(numberOfBytesWritten);
+            if (!sessionCounters.isWriting()) {
+                sessionCounters.writing();
+                sessionCounters.packetSent();
+            }
+            Counters taskSessionCounters = this.taskSessionCounters;
+            taskSessionCounters.bytesSent(numberOfBytesWritten);
+            if (!taskSessionCounters.isWriting()) {
+                taskSessionCounters.writing();
+                taskSessionCounters.packetSent();
+            }
         }
         return numberOfBytesWritten;
     }

@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
-import com.elster.jupiter.transaction.TransactionService;
-import java.time.Clock;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -19,6 +17,11 @@ import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.TopologyTask;
+
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.transaction.TransactionService;
+
+import java.time.Clock;
 
 /**
  * A CommandRoot contains all {@link ComCommand ComCommands} which are to be executed
@@ -46,6 +49,8 @@ public interface CommandRoot extends CompositeComCommand {
         public TransactionService transactionService();
 
         public IdentificationService identificationService();
+
+        public MeteringService meteringService();
 
     }
 

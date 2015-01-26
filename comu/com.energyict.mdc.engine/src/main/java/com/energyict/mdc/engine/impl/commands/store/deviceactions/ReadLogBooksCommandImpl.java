@@ -12,8 +12,12 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+
+import com.elster.jupiter.metering.MeteringService;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implementation for a ReadLogBooksCommand
@@ -26,16 +30,18 @@ public class ReadLogBooksCommandImpl extends SimpleComCommand implements ReadLog
     /**
      * List of {@link LogBookReader} which need to be collected from the device.<br/>
      */
-    private List<LogBookReader> logBooksToCollect = new ArrayList<LogBookReader>();
+    private List<LogBookReader> logBooksToCollect = new ArrayList<>();
 
     /**
      * The {@link LogBooksCommand} which owns this command
      */
     private LogBooksCommand logBooksCommand;
+    private final MeteringService meteringService;
 
     public ReadLogBooksCommandImpl(final LogBooksCommand logBooksCommand, final CommandRoot commandRoot) {
         super(commandRoot);
         this.logBooksCommand = logBooksCommand;
+        this.meteringService = commandRoot.getServiceProvider().meteringService();
     }
 
     @Override
@@ -60,6 +66,7 @@ public class ReadLogBooksCommandImpl extends SimpleComCommand implements ReadLog
     @Override
     public void addLogBooks(final List<LogBookReader> logBooksToCollect) {
         if (logBooksToCollect != null) {
+            // Do not attempt to use Streams here since canWeAddIt relies on side-effect
             for (LogBookReader logBookReader : logBooksToCollect) {
                 if (canWeAddIt(logBookReader)) {
                     this.logBooksToCollect.add(logBookReader);
@@ -88,8 +95,8 @@ public class ReadLogBooksCommandImpl extends SimpleComCommand implements ReadLog
     }
 
     private boolean sameLogBook(LogBookReader newReader, LogBookReader existingReader) {
-        LogBookIdentifier logBookIdentifier = (LogBookIdentifier) existingReader.getLogBookIdentifier();
-        LogBookIdentifier otherLogBookIdentifier = (LogBookIdentifier) newReader.getLogBookIdentifier();
+        LogBookIdentifier logBookIdentifier = existingReader.getLogBookIdentifier();
+        LogBookIdentifier otherLogBookIdentifier = newReader.getLogBookIdentifier();
         return logBookIdentifier.getLogBook().equals(otherLogBookIdentifier.getLogBook());
     }
 

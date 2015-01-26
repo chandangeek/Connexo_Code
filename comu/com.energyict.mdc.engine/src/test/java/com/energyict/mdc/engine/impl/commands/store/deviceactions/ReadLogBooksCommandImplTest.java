@@ -29,6 +29,7 @@ import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,7 +52,7 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
 
     @Test
     public void commandTypeTest() {
-        CommandRoot commandRoot = mock(CommandRoot.class);
+        CommandRoot commandRoot = mock(CommandRoot.class, Mockito.RETURNS_DEEP_STUBS);
         ReadLogBooksCommand readLogBooksCommand = new ReadLogBooksCommandImpl(mock(LogBooksCommand.class), commandRoot);
 
         // asserts

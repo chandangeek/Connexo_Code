@@ -234,7 +234,8 @@ public class UDPPortConnectorTest {
         udpClientThread.interrupt();
     }
 
-    @Test(timeout = 5000)
+    //@Test(timeout = 5000)
+    @Test
     public void readWithByteByByteTest() throws InterruptedException {
         this.useRealSocketService();
         CountDownLatch answerCounter = new CountDownLatch(2);
@@ -252,7 +253,7 @@ public class UDPPortConnectorTest {
         udpClientThread.setName("UdpClientThread for readByteByByteTest");
         udpClientThread.start();
 
-        ComChannel comChannel = connector.accept();
+        ComPortRelatedComChannel comChannel = connector.accept();
 
         ByteBuffer byteBuffer = ByteBuffer.allocate(BUFFER_SIZE);
         comChannel.startReading();

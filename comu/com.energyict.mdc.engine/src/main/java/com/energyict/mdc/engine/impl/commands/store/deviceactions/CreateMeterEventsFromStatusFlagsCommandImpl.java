@@ -83,7 +83,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImpl extends SimpleComComman
                         if (!meterEvents.isEmpty()) {
                             executedDeviceLoadProfile.noMeterEventsCreated = false;
                         }
-                        collectedMeterEvents.addAll(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
+                        collectedMeterEvents.addAll(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents, this.getCommandRoot().getServiceProvider().meteringService()));
                     }
                     DeviceIdentifier deviceIdentifier = loadProfileCommand.getOfflineDevice().getDeviceIdentifier();
                     IdentificationService identificationService = getCommandRoot().getServiceProvider().identificationService();

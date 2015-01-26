@@ -327,14 +327,8 @@ public class OfflineDeviceImpl implements OfflineDevice {
     }
 
     @Override
-    public List<OfflineRegister> getRegistersForRegisterGroup(final List<Long> deviceRegisterGroupIds) {
-        List<OfflineRegister> filteredRegisters = new ArrayList<>();
-        for (OfflineRegister register : getAllRegisters()) {
-            if (register.inAtLeastOneGroup(deviceRegisterGroupIds)) {
-                filteredRegisters.add(register);
-            }
-        }
-        return filteredRegisters;
+    public List<OfflineRegister> getRegistersForRegisterGroupAndMRID(final List<Long> deviceRegisterGroupIds, String mrid) {
+        return getAllRegisters().stream().filter(register -> register.inAtLeastOneGroup(deviceRegisterGroupIds) && register.getDeviceMRID().equals(mrid)).collect(Collectors.toList());
     }
 
     @Override
@@ -425,6 +419,11 @@ public class OfflineDeviceImpl implements OfflineDevice {
     @Override
     public DeviceIdentifier<?> getDeviceIdentifier() {
         return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(device);
+    }
+
+    @Override
+    public List<OfflineRegister> getAllRegistersForMRID(String mrid) {
+        return getAllRegisters().stream().filter(offlineRegister -> offlineRegister.getDeviceMRID().equals(mrid)).collect(Collectors.toList());
     }
 
     private void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {

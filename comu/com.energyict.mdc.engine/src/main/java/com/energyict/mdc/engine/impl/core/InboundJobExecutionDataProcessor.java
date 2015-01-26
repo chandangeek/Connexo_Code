@@ -29,6 +29,7 @@ import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.streams.Functions;
 
@@ -183,6 +184,11 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         @Override
         public IdentificationService identificationService() {
             return serviceProvider.identificationService();
+        }
+
+        @Override
+        public MeteringService meteringService() {
+            return serviceProvider.meteringService();
         }
 
     }

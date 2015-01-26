@@ -5,6 +5,8 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 
+import com.elster.jupiter.util.time.StopWatch;
+
 /**
  * Models a {@link DeviceCommand} that will create a ComSession
  * that contains the details of a complete communication session.
@@ -19,5 +21,7 @@ public interface CreateComSessionDeviceCommand extends DeviceCommand, DeviceComm
     public ConnectionTask getConnectionTask();
 
     public ComSession getComSession();
+
+    public void setStopWatch(StopWatch stopWatch);
 
 }

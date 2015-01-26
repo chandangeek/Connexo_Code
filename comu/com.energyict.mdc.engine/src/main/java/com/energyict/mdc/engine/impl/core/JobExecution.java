@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -22,6 +23,7 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.GenericDeviceProtocol;
+import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.OfflineDeviceForComTaskGroup;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
@@ -35,16 +37,14 @@ import com.energyict.mdc.engine.impl.commands.store.RescheduleSuccessfulExecutio
 import com.energyict.mdc.engine.impl.commands.store.UnlockScheduledJobDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
-import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.common.ComServerRuntimeException;
-import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.SerialNumberMismatchException;
 import com.energyict.mdc.protocol.api.exceptions.TimeDifferenceExceededException;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
@@ -55,6 +55,7 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 
@@ -106,6 +107,9 @@ public abstract class JobExecution implements ScheduledJob {
         public EventService eventService();
 
         public IdentificationService identificationService();
+
+        public MeteringService meteringService();
+
     }
 
     private final ComPort comPort;
@@ -602,6 +606,12 @@ public abstract class JobExecution implements ScheduledJob {
         public IdentificationService identificationService() {
             return JobExecution.this.serviceProvider.identificationService();
         }
+
+        @Override
+        public MeteringService meteringService() {
+            return JobExecution.this.serviceProvider.meteringService();
+        }
+
     }
 
     /**
