@@ -150,7 +150,7 @@ public class DeviceConfigValidationRuleSetUsageTest {
                 new MasterDataModule(),
                 new PartyModule(),
                 new IdsModule(),
-                new MeteringModule(),
+                new MeteringModule(false),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new ValidationModule(),

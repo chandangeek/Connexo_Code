@@ -170,7 +170,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new PartyModule(),
                 new UserModule(),
                 new IdsModule(),
-                new MeteringModule(),
+                new MeteringModule(false),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new OrmModule(),
