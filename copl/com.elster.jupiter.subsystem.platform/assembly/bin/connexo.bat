@@ -14,7 +14,7 @@ mkdir %JUPITER_INSTALLATION_DIR%\logs 2>NUL
 
 cd %JUPITER_INSTALLATION_DIR%
 echo Starting Connexo with interactive shell....
-%JAVA_HOME%\bin\java %VM_OPTIONS% -cp lib\org.apache.felix.main-4.4.1.jar;lib\javax.annotation-api-1.2.jar org.apache.felix.main.Main
+%JAVA_HOME%\bin\java %VM_OPTIONS% -cp lib\com.elster.jupiter.launcher.jar;lib\org.apache.felix.main-4.4.1.jar;lib\javax.annotation-api-1.2.jar com.elster.jupiter.launcher.ConnexoLauncher --interactive
 cd %CUR_DIR%
 
 :END
