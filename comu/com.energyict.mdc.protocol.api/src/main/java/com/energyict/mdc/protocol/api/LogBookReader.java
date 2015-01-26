@@ -88,4 +88,9 @@ public class LogBookReader {
         return logBookIdentifier;
     }
 
+    @Override
+    public String toString() {
+        return LogBookReader.class.getSimpleName() + ("(ObisCode:" + this.getLogBookObisCode() + ", LogBookIdentifier:" + this.getLogBookIdentifier().toString() + ", DeviceIdentifier:" + this.getDeviceIdentifier().toString() + ")");
+    }
+
 }

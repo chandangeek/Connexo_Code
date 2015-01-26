@@ -2,15 +2,18 @@ package com.energyict.mdc.protocol.api.device.events;
 
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * <p> Represents an event in a device
+ * Represents an event in a device.
  *
  * @author Karel
- *         </p>
  */
 public class MeterEvent implements java.io.Serializable, Comparable {
 
@@ -289,10 +292,6 @@ public class MeterEvent implements java.io.Serializable, Comparable {
      */
     public static final int VALVE_ALARM_MBUS = 64;
 
-    // Used by EIServer UI:
-    // !!! Keep this one in sync with the above !!!
-    public static final int MAX_NUMBER_OF_EVENTS = 64;
-
     private final Date time;
     private final int eiCode;
     private final int protocolCode;
@@ -516,90 +515,50 @@ public class MeterEvent implements java.io.Serializable, Comparable {
         this.deviceEventId = deviceEventId;
     }
 
-
-    /**
-     * <p></p>
-     *
-     * @return the event time
-     */
     public Date getTime() {
         return time;
-    } // end getTime
+    }
 
-    /**
-     * <p></p>
-     *
-     * @return the generic event code
-     */
     public int getEiCode() {
         return eiCode;
     } // end getEiCode
 
-    /**
-     * <p></p>
-     *
-     * @return the protocol specific event code
-     */
     public int getProtocolCode() {
         return protocolCode;
     } // end getProtocolCode
 
-    /**
-     * <p></p>
-     *
-     * @return the event's message
-     */
     public String getMessage() {
         return message;
     } // end getMessage
 
-    /**
-     * Compare another MeterEvent object to this MeterEvent object
-     *
-     * @param o Object MeterEvent
-     * @return Comparison result
-     */
     public int compareTo(Object o) {
         return (time.compareTo(((MeterEvent) o).getTime()));
     }
 
-    /**
-     * @return the {@link #eventLogId}
-     */
     public int getEventLogId() {
         return eventLogId;
     }
 
-    /**
-     * @return the {@link #deviceEventId}
-     */
     public int getDeviceEventId() {
         return deviceEventId;
     }
 
-    public static MeterProtocolEvent mapMeterEventToMeterProtocolEvent(MeterEvent event) {
-        return new MeterProtocolEvent(event.getTime(),
-                event.getEiCode(),
-                event.getProtocolCode(),
-                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(event.getEiCode()),
-                event.getMessage(),
-                UNKNOWN_ID,
-                UNKNOWN_ID);
-    }
-
-    public static List<MeterProtocolEvent> mapMeterEventsToMeterProtocolEvents(List<MeterEvent> meterEvents) {
+    public static List<MeterProtocolEvent> mapMeterEventsToMeterProtocolEvents(List<MeterEvent> meterEvents, MeteringService meteringService) {
         List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>(meterEvents.size());
         for (MeterEvent event : meterEvents) {
-            meterProtocolEvents.add(
-                    new MeterProtocolEvent(event.getTime(),
-                            event.getEiCode(),
-                            event.getProtocolCode(),
-                            EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(event.getEiCode()),
-                            event.getMessage(),
-                            UNKNOWN_ID,
-                            UNKNOWN_ID)
-            );
+            Optional<EndDeviceEventType> endDeviceEventType = EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(event.getEiCode(), meteringService);
+            if (endDeviceEventType.isPresent()) {
+                meterProtocolEvents.add(
+                        new MeterProtocolEvent(event.getTime(),
+                                event.getEiCode(),
+                                event.getProtocolCode(),
+                                endDeviceEventType.get(),
+                                event.getMessage(),
+                                UNKNOWN_ID,
+                                UNKNOWN_ID));
+            }
         }
         return meterProtocolEvents;
     }
+
 }
