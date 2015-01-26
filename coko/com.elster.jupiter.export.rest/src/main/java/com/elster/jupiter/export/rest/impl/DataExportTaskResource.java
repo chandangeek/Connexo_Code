@@ -270,7 +270,7 @@ public class DataExportTaskResource {
 
     private void updateReadingTypes(DataExportTaskInfo info, ReadingTypeDataExportTask task) {
         task.getReadingTypes().stream()
-                .filter(t -> info.readingTypes.stream().map(r -> r.mRID).anyMatch(m -> t.getMRID().equals(m)))
+                .filter(t -> info.readingTypes.stream().map(r -> r.mRID).noneMatch(m -> t.getMRID().equals(m)))
                 .forEach(task::removeReadingType);
         info.readingTypes.stream()
                 .map(r -> r.mRID)
