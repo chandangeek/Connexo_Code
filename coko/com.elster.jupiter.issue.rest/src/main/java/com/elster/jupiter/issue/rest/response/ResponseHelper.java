@@ -56,11 +56,8 @@ public abstract class ResponseHelper extends javax.ws.rs.core.Response {
         private ListResponse(List<? extends Object> data, Class<T> entityWrapper, long start, long limit) {
             validateEntityWrapper(entityWrapper);
             if (data != null) {
-                initDataField(data, entityWrapper);
                 total = start + data.size();
-                if (data.size() == limit) {
-                    total++;
-                }
+                initDataField(clipToLimit(data, limit), entityWrapper);
             }
         }
 
@@ -68,6 +65,13 @@ public abstract class ResponseHelper extends javax.ws.rs.core.Response {
             if (entityWrapper == null) {
                 throw new IllegalArgumentException("EntityWrapper class can't be null");
             }
+        }
+
+        private List<? extends Object> clipToLimit(List<? extends Object> result, long limit) {
+            if (limit >= 0 && limit < result.size()) {
+                return result.subList(0, (int)limit);
+            }
+            return result;
         }
 
         private final void initDataField(List<? extends Object> sourceData, Class<T> entityWrapperClass) {
