@@ -71,7 +71,7 @@
             </includes>
             <unpack>false</unpack>
             <outputFileNameMapping>
-                ${artifact.groupId}.${artifact.artifactId}-${artifact.version}${dashClassifier?}.${artifact.extension}
+                ${artifact.groupId}.${artifact.artifactId}.${artifact.extension}
             </outputFileNameMapping>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <useProjectArtifact>false</useProjectArtifact>
