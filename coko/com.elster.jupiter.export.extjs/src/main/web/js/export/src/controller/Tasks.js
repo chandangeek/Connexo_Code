@@ -24,7 +24,8 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.store.AdaptedReadingsForBulk',
         'Dxp.store.UnitsOfMeasure',
         'Dxp.store.TimeOfUse',
-        'Dxp.store.Intervals'
+        'Dxp.store.Intervals',
+        'Dxp.store.Clipboard'
 
     ],
     models: [
@@ -347,7 +348,7 @@ Ext.define('Dxp.controller.Tasks', {
                     view.down('#no-device').show();
                 }
                 fileFormatterCombo.store.load(function () {
-                    if (localStorage.getItem('addDataExportTaskValues')) {
+                    if (me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
                         me.setFormValues(view);
                     } else {
                         fileFormatterCombo.setValue(this.getAt(0));
@@ -401,7 +402,7 @@ Ext.define('Dxp.controller.Tasks', {
                             me.taskModel = record;
                             me.getApplication().fireEvent('dataexporttaskload', record);
                             taskForm.setTitle(Uni.I18n.translate('general.edit', 'DES', 'Edit') + " '" + record.get('name') + "'");
-                            if (localStorage.getItem('addDataExportTaskValues')) {
+                            if (me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
                                 me.setFormValues(view);
                             } else {
                                 taskForm.loadRecord(record);
@@ -1037,13 +1038,13 @@ Ext.define('Dxp.controller.Tasks', {
         });
 
         formValues.readingTypes = arrReadingTypes;
-        localStorage.setItem('addDataExportTaskValues', JSON.stringify(formValues));
+        me.getStore('Dxp.store.Clipboard').set('addDataExportTaskValues', formValues);
 
     },
 
     setFormValues: function (view) {
         var me = this,
-            obj = JSON.parse(localStorage.getItem('addDataExportTaskValues')),
+            obj = me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues'),
             page = me.getAddPage(),
             readingTypesArray = obj.readingTypes,
             readingTypesGrid = page.down('#readingTypesGridPanel'),
@@ -1070,13 +1071,14 @@ Ext.define('Dxp.controller.Tasks', {
     },
 
     checkRoute: function (token) {
-        var relativeRegexp = /administration\/relativeperiods\/add/,
+        var me = this,
+            relativeRegexp = /administration\/relativeperiods\/add/,
             readingRegexp = /administration\/dataexporttasks\/(.*)\/readingtypes/;
 
         Ext.util.History.un('change', this.checkRoute, this);
 
         if (token.search(relativeRegexp) == -1 && token.search(readingRegexp) == -1) {
-            localStorage.removeItem('addDataExportTaskValues');
+            me.getStore('Dxp.store.Clipboard').clear('addDataExportTaskValues');
         }
     },
 
