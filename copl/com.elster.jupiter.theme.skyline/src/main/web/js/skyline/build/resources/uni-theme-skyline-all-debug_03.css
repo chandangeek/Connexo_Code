@@ -1,3 +1,13 @@
+/* line 360, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-tag-large-tc {
+  height: 5px;
+}
+
+/* line 363, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-tag-large-bc {
+  height: 5px;
+}
+
 /* line 374, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-tag-large-tl,
 .x-btn-tag-large-bl,
@@ -16168,65 +16178,5 @@ div.x-form-spinner-down {
 /* line 246, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-default .x-tool-img {
   background-image: url(images/tools/tool-sprites-dark.png);
-  background-color: transparent;
-}
-
-/* line 257, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
-.x-window-header-default-vertical .x-window-header-text-container {
-  -webkit-transform: rotate(90deg);
-  -webkit-transform-origin: 0 0;
-  -moz-transform: rotate(90deg);
-  -moz-transform-origin: 0 0;
-  -o-transform: rotate(90deg);
-  -o-transform-origin: 0 0;
-  transform: rotate(90deg);
-  transform-origin: 0 0;
-}
-
-/* line 267, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
-.x-window-header-text-container-default {
-  color: #70bb51;
-  font-weight: bold;
-  line-height: 15px;
-  font-family: "Lato", helvetica, arial, verdana, sans-serif;
-  font-size: 13px;
-  padding: 6px 0 0 0;
-  text-transform: none;
-}
-
-/* line 137, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-default-top {
-  -moz-border-radius-topleft: 3px;
-  -webkit-border-top-left-radius: 3px;
-  border-top-left-radius: 3px;
-  -moz-border-radius-topright: 3px;
-  -webkit-border-top-right-radius: 3px;
-  border-top-right-radius: 3px;
-  -moz-border-radius-bottomright: 0;
-  -webkit-border-bottom-right-radius: 0;
-  border-bottom-right-radius: 0;
-  -moz-border-radius-bottomleft: 0;
-  -webkit-border-bottom-left-radius: 0;
-  border-bottom-left-radius: 0;
-  padding: 3px 8px 0 3px;
-  border-width: 0 0 0 0;
-  border-style: solid;
-  background-color: transparent;
-}
-
-/* line 187, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-default-top-mc {
-  background-color: transparent;
-}
-
-/* line 234, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-nbr .x-window-header-default-top {
-  padding: 0 !important;
-  border-width: 0 !important;
-  -webkit-border-radius: 0px;
-  -moz-border-radius: 0px;
-  -ms-border-radius: 0px;
-  -o-border-radius: 0px;
-  border-radius: 0px;
   background-color: transparent;
 }
