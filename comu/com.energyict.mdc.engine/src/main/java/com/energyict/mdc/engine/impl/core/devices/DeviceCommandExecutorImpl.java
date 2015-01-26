@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.devices;
 
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
@@ -8,7 +9,6 @@ import com.energyict.mdc.engine.impl.commands.store.NoResourcesAcquiredException
 import com.energyict.mdc.engine.impl.concurrent.ResizeableSemaphore;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.DeviceCommandExecutorLogHandler;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
@@ -19,19 +19,19 @@ import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-
-import java.time.Clock;
-import java.util.Arrays;
-import java.util.Optional;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 
 import java.text.MessageFormat;
+import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -124,7 +124,13 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     }
 
     private void startExecutorService() {
-        this.executorService = Executors.newFixedThreadPool(this.numberOfThreads, this.threadFactory);
+        this.executorService = new ThreadPoolExecutor(
+                this.numberOfThreads, this.numberOfThreads, // Fixed size
+                0L, TimeUnit.MILLISECONDS,                  // No need to terminate threads when fixed size
+                new PriorityBlockingQueue<>(                // Prioritize Workers as they are submitted
+                        this.getCapacity(),
+                        new WorkerComparator()),
+                this.threadFactory);
     }
 
     @Override
@@ -328,6 +334,32 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     @Override
     public String toString() {
         return this.name;
+    }
+
+    private class WorkerComparator implements Comparator<Runnable> {
+        @Override
+        public int compare(Runnable o1, Runnable o2) {
+            return this.doCompare((Worker) o1, (Worker) o2);
+        }
+
+        private int doCompare(Worker o1, Worker o2) {
+            if (o1.command instanceof FreeUnusedTokenDeviceCommand) {
+                if (o2.command instanceof FreeUnusedTokenDeviceCommand) {
+                    return 0;
+                }
+                else {
+                    return -1;
+                }
+            }
+            else {
+                if (o2.command instanceof FreeUnusedTokenDeviceCommand) {
+                    return 1;
+                }
+                else {
+                    return 0;
+                }
+            }
+        }
     }
 
     /**

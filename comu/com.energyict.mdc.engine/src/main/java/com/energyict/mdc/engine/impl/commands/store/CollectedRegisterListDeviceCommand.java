@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.config.ComServer;
