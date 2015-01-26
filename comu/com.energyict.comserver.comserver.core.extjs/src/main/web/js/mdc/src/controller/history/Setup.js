@@ -864,7 +864,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     controller: 'Mdc.controller.setup.DataCollectionKpi',
                     action: 'showDataCollectionKpiView',
                     items: {
-                        create: {
+                        add: {
                             title: Uni.I18n.translate('datacollectionkpis.addDataCollectionKpi', 'MDC', 'Add data collection KPI'),
                             route: 'add',
                             controller: 'Mdc.controller.setup.DataCollectionKpi',
