@@ -84,6 +84,8 @@ public final class Constants {
         public static final String DAILY_ELECTRICITY = "Daily Electricity";
         public static final String MONTHLY_ELECTRICITY = "Monthly Electricity";
         public static final String _15_MIN_ELECTRICITY = "15min Electricity";
+        public static final String ELSTER_A3_GENERIC = "Elster A3 Generic [15min]";
+
 
         private LoadProfileType() {}
     }
@@ -121,7 +123,8 @@ public final class Constants {
         public static final String MOCKED_REALISTIC_DEVICE = "DME";
         public static final String MOCKED_REALISTIC_SERIAL_NUMBER = "093000020359";
 
-        public static final String A3WIC16499990 = "A3WIC16499990";
+        public static final String A3_DEVICE = "DTech-A3-";
+        public static final String A3_SERIAL_NUMBER = "18358577";
 
         private Device() {}
     }

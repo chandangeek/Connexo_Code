@@ -23,12 +23,14 @@ public class DeviceFactory implements Factory<Device> {
     private String serialNumber;
     private DeviceConfiguration deviceConfiguration;
     private List<String> comSchedules;
+    private int yearOfCertification;
 
     @Inject
     public DeviceFactory(Store store, DeviceService deviceService, Provider<ComScheduleFinder> scheduleFinderProvider) {
         this.deviceService = deviceService;
         this.store = store;
         this.scheduleFinderProvider = scheduleFinderProvider;
+        this.yearOfCertification = 2013;
     }
 
     public DeviceFactory withMrid(String mrid){
@@ -55,11 +57,16 @@ public class DeviceFactory implements Factory<Device> {
         return this;
     }
 
+    public DeviceFactory withYearOfCertification(int year){
+        this.yearOfCertification = year;
+        return this;
+    }
+
     public Device get(){
         Log.write(this);
         Device device = deviceService.newDevice(deviceConfiguration, mrid, mrid);
         device.setSerialNumber(serialNumber);
-        device.setYearOfCertification(LocalDateTime.of(2013, 6, 1, 0, 0).toInstant(ZoneOffset.UTC));
+        device.setYearOfCertification(LocalDateTime.of(this.yearOfCertification, 6, 1, 0, 0).toInstant(ZoneOffset.UTC));
         if (comSchedules != null) {
             for (String comSchedule : comSchedules) {
                 device.newScheduledComTaskExecution(scheduleFinderProvider.get().withName(comSchedule).find()).add();

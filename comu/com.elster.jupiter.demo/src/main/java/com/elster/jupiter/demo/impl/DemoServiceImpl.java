@@ -2,6 +2,7 @@ package com.elster.jupiter.demo.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.demo.DemoService;
+import com.elster.jupiter.demo.impl.commands.CreateA3DeviceCommand;
 import com.elster.jupiter.demo.impl.commands.upload.UploadAllCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddIntervalChannelReadingsCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddNoneIntervalChannelReadingsCommand;
@@ -135,7 +136,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         "osgi.command.function=createAssignmentRules",
         "osgi.command.function=addIntervalChannelReadings",
         "osgi.command.function=addNoneIntervalChannelReadings",
-        "osgi.command.function=addRegisterReadings",
+        "osgi.command.function=addRegisterReadings"
 }, immediate = true)
 public class DemoServiceImpl implements DemoService {
     private final boolean rethrowExceptions;
@@ -408,7 +409,8 @@ public class DemoServiceImpl implements DemoService {
         executeTransaction(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                createA3DeviceImpl();
+                CreateA3DeviceCommand command = injector.getInstance(CreateA3DeviceCommand.class);
+                command.run();
             }
         });
     }
@@ -510,7 +512,7 @@ public class DemoServiceImpl implements DemoService {
         injector.getInstance(AssignmentRuleFactory.class)
                 .withName(Constants.AssignmentRule.ASSIGNMENTRULE_DEFAULT_TO_BOB)
                 .withDescription(Constants.AssignmentRule.ASSIGNMENTRULE_DEFAULT_TO_BOB)
-                .withRuleData(Constants.AssignmentRule.ASSIGNMENTRULE_TO_BOB.replace("@USERID",  Long.toString(bob.get().getId())))
+                .withRuleData(Constants.AssignmentRule.ASSIGNMENTRULE_TO_BOB.replace("@USERID", Long.toString(bob.get().getId())))
                 .get();
         
         Optional<User> sam = userService.findUser(Constants.User.SAM);
@@ -528,7 +530,7 @@ public class DemoServiceImpl implements DemoService {
                 .withName(Constants.AssignmentRule.ASSIGNMENTRULE_TO_SAM_UNBOUND_REASON)
                 .withDescription(Constants.AssignmentRule.ASSIGNMENTRULE_TO_SAM_UNBOUND_REASON)
                 .withRuleData(Constants.AssignmentRule.ASSIGNMENTRULE_TO_SAM
-                        .replace("@USERID",  Long.toString(sam.get().getId()))
+                        .replace("@USERID", Long.toString(sam.get().getId()))
                         .replace("@REASON", reason.get().getName()))
                 .get();
     }
@@ -990,76 +992,6 @@ public class DemoServiceImpl implements DemoService {
 
     public void createApplicationServerImpl(final String appServerName){
         injector.getInstance(AppServerFactory.class).withName(appServerName.toUpperCase()).get();
-    }
-
-    public void createA3DeviceImpl(){
-        List<DeviceProtocolPluggableClass> alphaA3Protocols = protocolPluggableService.findDeviceProtocolPluggableClassesByClassName("com.energyict.protocolimpl.elster.a3.AlphaA3");
-        if (alphaA3Protocols.isEmpty()){
-            throw new IllegalStateException("Unable to retrieve the ALPHA_A3 protocol. Please check that license was correctly installed and that indexing process was finished for protocols.");
-        }
-        DeviceType a3DeviceType = deviceConfigurationService.newDeviceType(Constants.DeviceType.Alpha_A3.getName()/* + getRandomInt(0, 10000)*/, alphaA3Protocols.get(0));
-        a3DeviceType.addLogBookType(injector.getInstance(LogBookFinder.class).withName(Constants.LogBookType.GENERIC_LOGBOOK).find());
-        a3DeviceType.save();
-
-        DeviceType.DeviceConfigurationBuilder configBuilder = a3DeviceType.newConfiguration("Default");
-        configBuilder.canActAsGateway(false);
-        configBuilder.isDirectlyAddressable(true);
-        configBuilder.newLogBookSpec(injector.getInstance(LogBookFinder.class).withName(Constants.LogBookType.GENERIC_LOGBOOK).find());
-        DeviceConfiguration configuration = configBuilder.add();
-        ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIp").get();
-        configuration
-                .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(5, TimeDuration.TimeUnit.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
-                .comPortPool(injector.getInstance(OutboundComPortPoolFinder.class).withName(Constants.ComPortPool.ORANGE).find())
-                .addProperty("host", "166.150.216.131")
-                .addProperty("portNumber", new BigDecimal(1153))
-                .asDefault(true).build();
-        SecurityPropertySet securityPropertySet = configuration.createSecurityPropertySet("Read-only authentication and encryption").authenticationLevel(2).encryptionLevel(2).build();
-        for (DeviceSecurityUserAction action : DeviceSecurityUserAction.values()) {
-            securityPropertySet.addUserAction(action);
-        }
-        securityPropertySet.update();
-        enableComTasksOnDeviceConfiguration(configuration,
-                Constants.CommunicationTask.READ_ALL,
-                Constants.CommunicationTask.READ_LOAD_PROFILE_DATA,
-                Constants.CommunicationTask.READ_LOG_BOOK_DATA,
-                Constants.CommunicationTask.READ_REGISTER_DATA);
-//        configuration.getDeviceProtocolProperties().setProperty("deviceTimeZone", "GMT-5");
-        configuration.activate();
-        configuration.save();
-
-        Device device = injector.getInstance(DeviceFactory.class)
-                .withMrid(Constants.Device.A3WIC16499990/* + getRandomInt(0, 10000)*/)
-                .withSerialNumber("16499990")
-                .withDeviceConfiguration(configuration)
-                .get();
-        PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
-        ScheduledConnectionTask deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
-                .setComPortPool(injector.getInstance(OutboundComPortPoolFinder.class).withName(Constants.ComPortPool.ORANGE).find())
-                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
-                .setNextExecutionSpecsFrom(null)
-                .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                .setProperty("host", "166.150.216.131")
-                .setProperty("portNumber", new BigDecimal(1153))
-                .setProperty("connectionTimeout", TimeDuration.minutes(1))
-                .setSimultaneousConnectionsAllowed(false)
-                .add();
-        connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
-        TypedProperties typedProperties = TypedProperties.empty();
-        typedProperties.setProperty("C12UserId", "0");
-        typedProperties.setProperty("C12User", "          ");
-        securityPropertySet.getPropertySpecs().stream().filter(ps -> ps.getName().equals("EncryptionKey")).findFirst().ifPresent(
-                ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("93B6F29D64C9AD7331DCCAABBB7D4680")));
-        typedProperties.setProperty("AnsiCalledAPTitle", "1.3.6.1.4.1.33507.1919.29674");
-        typedProperties.setProperty("Password", new Password("00000000000000000000"));
-        device.setSecurityProperties(securityPropertySet, typedProperties);
-        ComTaskEnablement taskEnablement = configuration.getComTaskEnablementFor(injector.getInstance(ComTaskFinder.class).withName(Constants.CommunicationTask.READ_LOG_BOOK_DATA).find()).get();
-        device.newManuallyScheduledComTaskExecution(taskEnablement, configuration.getProtocolDialectConfigurationPropertiesList().get(0), new TemporalExpression(TimeDuration.hours(1))).add();
-        device.setProtocolDialectProperty(device.getProtocolDialects().get(0).getDeviceProtocolDialectName(), "CalledAPTitle", "1.3.6.1.4.1.33507.1919.29674");
-        device.setProtocolDialectProperty(device.getProtocolDialects().get(0).getDeviceProtocolDialectName(), "SecurityKey", "93B6F29D64C9AD7331DCCAABBB7D4680");
-        device.setProtocolDialectProperty(device.getProtocolDialects().get(0).getDeviceProtocolDialectName(), "SecurityMode", "2");
-        device.setProtocolDialectProperty(device.getProtocolDialects().get(0).getDeviceProtocolDialectName(), "SecurityLevel", "2");
-        device.setProtocolProperty("deviceTimeZone", "GMT-5");
-        device.save();
     }
 
     private void createMockedDataDeviceImpl(String prefix, String serialNumber){
