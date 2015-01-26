@@ -574,8 +574,8 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             Column deviceMessage = table.column("DEVICEMESSAGE").number().conversion(NUMBER2LONG).notNull().add();
-            Column name = table.column("NAME").varChar(NAME_LENGTH).map("name").notNull().add();
-            table.column("VALUE").varChar(DESCRIPTION_LENGTH).map("stringValue").notNull().add();
+            Column name = table.column("NAME").varChar().map("name").notNull().add();
+            table.column("VALUE").varChar().map("stringValue").notNull().add();
 
             table.primaryKey("PK_DDC_DEVMESATTR").on(id).add();
             table.foreignKey("FK_DDC_DEVMESATTR_DEV")

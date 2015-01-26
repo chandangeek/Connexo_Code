@@ -12,7 +12,7 @@ import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 
 import java.util.Optional;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 import java.util.ArrayList;
 import java.util.List;

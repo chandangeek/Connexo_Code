@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.services.DefaultFinder;
@@ -20,14 +22,9 @@ import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.google.inject.Inject;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import javax.inject.Inject;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 

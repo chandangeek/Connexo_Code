@@ -5,7 +5,17 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
+import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
+import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
+import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -19,12 +29,13 @@ import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -35,8 +46,9 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.EventTypeBuilder;
-import com.elster.jupiter.events.impl.EventServiceImpl;
+import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
@@ -54,13 +66,14 @@ import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
@@ -78,7 +91,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
-import javax.inject.Inject;
 import java.security.Principal;
 import java.sql.SQLException;
 import java.time.Clock;
@@ -227,10 +239,10 @@ public class DeviceImplDoSomethingWithEventsTest {
         private ProtocolPluggableService protocolPluggableService;
         private MdcReadingTypeUtilService readingTypeUtilService;
         private DeviceDataModelService deviceDataModelService;
+        private IdentificationServiceImpl identificationService;
         private Clock clock = Clock.systemDefaultZone();
         private RelationService relationService;
         private EngineConfigurationService engineConfigurationService;
-        private TaskService taskService;
         private SchedulingService schedulingService;
         private LicenseService licenseService;
 
@@ -243,6 +255,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new ThreadSecurityModule(this.principal),
                     new PubSubModule(),
                     new TransactionModule(showSqlLogging),
+                    new EventsModule(),
                     new NlsModule(),
                     new DomainUtilModule(),
                     new PartyModule(),
@@ -268,26 +281,35 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new MeteringGroupsModule(),
                     new TaskModule(),
                     new TasksModule(),
-                    new SchedulingModule(),
-                    new DeviceDataModule());
+                    new SchedulingModule());
             this.transactionService = injector.getInstance(TransactionService.class);
             try (TransactionContext ctx = this.transactionService.getContext()) {
                 this.ormService = injector.getInstance(OrmService.class);
                 this.transactionService = injector.getInstance(TransactionService.class);
-                this.eventService = injector.getInstance(EventService.class);
+                this.eventService = new SpyEventService(injector.getInstance(EventService.class));
                 this.nlsService = injector.getInstance(NlsService.class);
                 this.meteringService = injector.getInstance(MeteringService.class);
                 injector.getInstance(MeteringGroupsService.class);
                 this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
                 injector.getInstance(MasterDataService.class);
-                this.taskService = injector.getInstance(TaskService.class);
                 this.validationService = injector.getInstance(ValidationService.class);
                 this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
                 this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
                 this.relationService = injector.getInstance(RelationService.class);
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
                 this.schedulingService = injector.getInstance(SchedulingService.class);
-                this.deviceDataModelService = injector.getInstance(DeviceDataModelServiceImpl.class);
+                this.deviceDataModelService =
+                        new DeviceDataModelServiceImpl(
+                                this.bundleContext,
+                                this.ormService, this.eventService, this.nlsService, this.clock,
+                                injector.getInstance(KpiService.class),
+                                injector.getInstance(TaskService.class),
+                                this.relationService, this.protocolPluggableService, this.engineConfigurationService,
+                                this.deviceConfigurationService, this.meteringService, this.validationService, this.schedulingService,
+                                injector.getInstance(MessageService.class),
+                                injector.getInstance(SecurityPropertyService.class),
+                                injector.getInstance(UserService.class),
+                                injector.getInstance(DeviceMessageSpecificationService.class));
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
             }
@@ -345,16 +367,34 @@ public class DeviceImplDoSomethingWithEventsTest {
                 bind(EventAdmin.class).toInstance(eventAdmin);
                 bind(BundleContext.class).toInstance(bundleContext);
                 bind(LicenseService.class).toInstance(licenseService);
-//                bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
-                bind(EventService.class).to(SpyEventService.class).in(Scopes.SINGLETON);
                 bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
                 bind(LogService.class).toInstance(mock(LogService.class));
+
+                bind(SecurityPropertyService.class).to(SecurityPropertyServiceImpl.class).in(Scopes.SINGLETON);
+                bind(ConnectionTaskService.class).to(ConnectionTaskServiceImpl.class).in(Scopes.SINGLETON);
+                bind(CommunicationTaskService.class).to(CommunicationTaskServiceImpl.class).in(Scopes.SINGLETON);
+                bind(LoadProfileService.class).to(LoadProfileServiceImpl.class).in(Scopes.SINGLETON);
+                bind(LogBookService.class).to(LogBookServiceImpl.class).in(Scopes.SINGLETON);
+                bind(DataCollectionKpiService.class).to(DataCollectionKpiServiceImpl.class).in(Scopes.SINGLETON);
+                bind(DeviceDataModelService.class).toProvider(new Provider<DeviceDataModelService>() {
+                    @Override
+                    public DeviceDataModelService get() {
+                        return deviceDataModelService;
+                    }
+                });
+                bind(IdentificationServiceImpl.class).toProvider(new Provider<IdentificationServiceImpl>() {
+                    @Override
+                    public IdentificationServiceImpl get() {
+                        return identificationService;
+                    }
+                });
                 bind(DataModel.class).toProvider(new Provider<DataModel>() {
                     @Override
                     public DataModel get() {
                         return dataModel;
                     }
                 });
+                bind(IdentificationService.class).to(IdentificationServiceImpl.class).in(Scopes.SINGLETON);
             }
 
         }
@@ -367,9 +407,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                 return eventService;
             }
 
-            @Inject
-            private SpyEventService(Clock clock, JsonService jsonService, Publisher publisher, BeanService beanService, OrmService ormService1, MessageService messageService, BundleContext bundleContext1, EventAdmin eventAdmin1, NlsService nlsService1) {
-                this.eventService = spy(new EventServiceImpl(clock, jsonService, publisher, beanService, ormService1, messageService, bundleContext1, eventAdmin1, nlsService1));
+            private SpyEventService(EventService realEventService) {
+                this.eventService = spy(realEventService);
             }
 
             @Override

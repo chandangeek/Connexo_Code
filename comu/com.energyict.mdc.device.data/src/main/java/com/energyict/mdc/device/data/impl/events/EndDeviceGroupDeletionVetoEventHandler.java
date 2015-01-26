@@ -3,9 +3,8 @@ package com.energyict.mdc.device.data.impl.events;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EventType;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceGroupEventData;
+import com.elster.jupiter.metering.groups.EventType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -50,10 +49,8 @@ public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
     public void handle(LocalEvent localEvent) {
         EndDeviceGroupEventData eventSource = (EndDeviceGroupEventData) localEvent.getSource();
         EndDeviceGroup endDeviceGroup = eventSource.getEndDeviceGroup();
-        if (endDeviceGroup instanceof QueryEndDeviceGroup) {
-            if (dataCollectionKpiService.findDataCollectionKpi((QueryEndDeviceGroup) endDeviceGroup).isPresent()) {
-                throw new VetoDeleteDeviceGroupException(thesaurus, endDeviceGroup);
-            }
+        if (dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup).isPresent()) {
+            throw new VetoDeleteDeviceGroupException(thesaurus, endDeviceGroup);
         }
     }
 

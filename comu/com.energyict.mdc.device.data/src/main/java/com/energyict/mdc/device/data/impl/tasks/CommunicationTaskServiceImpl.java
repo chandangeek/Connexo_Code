@@ -50,7 +50,7 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.collect.Range;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -533,12 +533,16 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" cte");
         sqlBuilder.append(" inner join ddc_device device on cte.device = device.id");
-        sqlBuilder.append(" inner join dtc_deviceconfig dcf on device.deviceconfigid = dcf.id");
-        sqlBuilder.append(" inner join dtc_devicecommconfig dcc on dcf.id = dcc.deviceconfiguration");
-        sqlBuilder.append(" inner join dtc_comtaskenablement ctn on dcc.id = ctn.devicecomconfig and cte.comtask = ctn.comtask");
-        sqlBuilder.append(" where ctn.id = ");
+        sqlBuilder.append(" inner join dtc_comtaskenablement ctn on ctn.devicecomconfig = device.deviceconfigid");
+        sqlBuilder.append(" where ((cte.discriminator = ");
+        sqlBuilder.addObject(ComTaskExecutionImpl.MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR);
+        sqlBuilder.append("    and cte.comtask = ctn.comtask and ctn.id =");
         sqlBuilder.addLong(comTaskEnablement.getId());
-        sqlBuilder.append(" and cte.obsolete_date is null");
+        sqlBuilder.append(") or (cte.discriminator = ");
+        sqlBuilder.addObject(ComTaskExecutionImpl.SHARED_SCHEDULE_COM_TASK_EXECUTION_DISCRIMINATOR);
+        sqlBuilder.append("and cte.comschedule in (select comschedule from sch_comtaskincomschedule where comtask = ");
+        sqlBuilder.addLong(comTaskEnablement.getComTask().getId());
+        sqlBuilder.append("))) and cte.obsolete_date is null");
         try (PreparedStatement statement = sqlBuilder.prepare(this.deviceDataModelService.dataModel().getConnection(true))) {
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {

@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * Represents a <i>typed</i> property of a Device
+ * Represents a <i>typed</i> property of a Device.
  * <p>
  * Copyrights EnergyICT
  * Date: 3/14/14
