@@ -29,7 +29,7 @@ public class DashboardApplicationInstaller implements InstallService {
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("USR");
+        return Arrays.asList("USR", "MDC");
     }
 
     @Override
