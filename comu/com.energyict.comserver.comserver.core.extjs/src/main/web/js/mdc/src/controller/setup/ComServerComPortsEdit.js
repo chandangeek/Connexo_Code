@@ -344,7 +344,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
 
     showEditView: function (id, direction, comPortId) {
         var me = this,
-            widget = Ext.widget('comportEdit'),
+            widget = Ext.widget('comportEdit', {serverId: id}),
             addComPortPoolsStore = me.getStore('Mdc.store.AddComPortPools'),
             outboundComPortPoolsStore = me.getStore('Mdc.store.OutboundComPortPools'),
             inboundStore = me.getStore('Mdc.store.InboundComPortPools'),
@@ -366,7 +366,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
 
         comServerModel.load(id, {
             success: function (record) {
-                widget.down('comserversubmenu').setServer(record);
+                widget.down('#comserversidemenu #comserverLink').setText(record.get('name'));
                 me.getApplication().fireEvent('comServerOverviewLoad', record);
             }
         });
@@ -468,7 +468,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
 
     showAddOutbound: function (id) {
         var me = this,
-            widget = Ext.widget('comportEdit'),
+            widget = Ext.widget('comportEdit', {serverId: id}),
             comServerModel = me.getModel('Mdc.model.ComServer');
 
         me.currentUrl = 'administration/comservers/detail/comports/addOutbound';
@@ -490,8 +490,8 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
 
         comServerModel.load(id, {
             success: function (record) {
-                if (widget.down('comserversubmenu')) {
-                    widget.down('comserversubmenu').setServer(record);
+                if (widget.down('#comserversidemenu')) {
+                    widget.down('#comserversidemenu #comserverLink').setText(record.get('name'));
                 }
                 me.getApplication().fireEvent('comServerOverviewLoad', record);
             }
@@ -503,7 +503,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
 
     showAddInbound: function (id) {
         var me = this,
-            widget = Ext.widget('comportEdit'),
+            widget = Ext.widget('comportEdit', {serverId: id}),
             comServerModel = me.getModel('Mdc.model.ComServer');
 
         me.currentUrl = 'administration/comservers/detail/comports/addInbound';
@@ -523,7 +523,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
 
         comServerModel.load(id, {
             success: function (record) {
-                widget.down('comserversubmenu').setServer(record);
+                widget.down('#comserversidemenu #comserverLink').setText(record.get('name'));
                 me.getApplication().fireEvent('comServerOverviewLoad', record);
             }
         });
