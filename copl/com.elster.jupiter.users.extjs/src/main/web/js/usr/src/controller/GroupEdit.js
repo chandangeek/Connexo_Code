@@ -21,16 +21,16 @@ Ext.define('Usr.controller.GroupEdit', {
         'Usr.view.group.Edit'
     ],
 
-//    refs: [
-//        {
-//            ref: 'selectApplicationsGrid',
-//            selector: 'groupEdit #applicationList'
-//        },
-//        {
-//            ref: 'selectFeaturesGrid',
-//            selector: 'groupEdit #featureList'
-//        }
-//    ],
+    refs: [
+        {
+            ref: 'selectApplicationsGrid',
+            selector: 'groupEdit #applicationList'
+        },
+        {
+            ref: 'selectFeaturesGrid',
+            selector: 'groupEdit #featureList'
+        }
+    ],
 
     init: function () {
         this.control({
@@ -55,18 +55,18 @@ Ext.define('Usr.controller.GroupEdit', {
                 click: this.systemFullControl
             },
             'groupEdit #featureList uni-actioncolumn': {
-                beforeshow:this.displayPermissionsMenu
+                beforeshow: this.displayPermissionsMenu
             }
         });
     },
 
-    getSelectApplicationsGrid: function () {
-        return this.widget.down("#applicationList");
-    },
-
-    getSelectFeaturesGrid: function () {
-        return this.widget.down("#featureList");
-    },
+//    getSelectApplicationsGrid: function () {
+//        return this.widget.down("#applicationList");
+//    },
+//
+//    getSelectFeaturesGrid: function () {
+//        return this.widget.down("#featureList");
+//    },
 
     backUrl: '#/administration/roles',
 
@@ -94,52 +94,54 @@ Ext.define('Usr.controller.GroupEdit', {
     },
 
     showOverview: function (record, title) {
-        var me = this,
-            widget = Ext.widget('groupEdit', {edit: (me.mode == 'edit')}),
-            panel = widget.getCenterContainer().items.getAt(0);
-
-        me.widget = widget;
-
-        widget.setLoading(true);
-        panel.setTitle(title);
-        if(record.get('id') == 1) {
-            panel.down('[itemId=alertmessagerole]').hidden = false;
-            panel.down('[name=name]').disable();
-            panel.down('[itemId=privilegesNoAccess]').hidden = true;
-            panel.down('[itemId=privilegesFullControl]').hidden = true;
-            panel.down('[itemId = applicationList]').columns[2].hidden = true;
-            panel.down('[itemId = featureList]').columns[3].hidden = true;
-        }
-        var name = '',
-            previousPermissions = '';
+        var me = this;
         me.getStore('Usr.store.Resources').clearFilter();
-        me.getStore('Usr.store.Resources').load(function () {
-            widget.down('form').loadRecord(record);
-            var allPrivileges, currentPrivileges = record.privileges(), index = 0;
-            for (var i = 0; i < this.data.items.length; i++) {
-                allPrivileges = this.data.items[i].privileges();
-                for (var j = 0; j < allPrivileges.data.items.length; j++) {
-                    index = currentPrivileges.indexOf(allPrivileges.data.items[j]);
-                    if (index >= 0) {
-                        allPrivileges.data.items[j].set('selected', true);
+        me.getStore('Usr.store.Resources').load({
+            callback: function () {
+                me.onPrivilegesStoreLoad();
+                var widget = Ext.widget('groupEdit', {edit: (me.mode == 'edit')}),
+                    panel = widget.getCenterContainer().items.getAt(0),
+                    name = '',
+                    previousPermissions = '';
+                me.widget = widget;
+                widget.setLoading(true);
+                panel.setTitle(title);
+                if (record.get('id') == 1) {
+                    panel.down('[itemId=alertmessagerole]').hidden = false;
+                    panel.down('[name=name]').disable();
+                    panel.down('[itemId=privilegesNoAccess]').hidden = true;
+                    panel.down('[itemId=privilegesFullControl]').hidden = true;
+                    panel.down('[itemId = applicationList]').columns[2].hidden = true;
+                    panel.down('[itemId = featureList]').columns[3].hidden = true;
+                }
 
-                        previousPermissions = this.data.items[i].data.permissions;
-                        if (previousPermissions) {
-                            previousPermissions += ', ';
+
+                widget.down('form').loadRecord(record);
+                var allPrivileges, currentPrivileges = record.privileges(), index = 0;
+
+                for (var i = 0; i < this.data.items.length; i++) {
+                    allPrivileges = this.data.items[i].privileges();
+                    for (var j = 0; j < allPrivileges.data.items.length; j++) {
+                        index = currentPrivileges.indexOf(allPrivileges.data.items[j]);
+                        if (index >= 0) {
+                            allPrivileges.data.items[j].set('selected', true);
+
+                            previousPermissions = this.data.items[i].data.permissions;
+                            if (previousPermissions) {
+                                previousPermissions += ', ';
+                            }
+                            name = currentPrivileges.data.items[index].data.name;
+                            this.data.items[i].set('permissions', previousPermissions + Uni.I18n.translate(name, 'USR', name));
+                            this.data.items[i].set('selected', this.data.items[i].data.selected + 1);
                         }
-                        name = currentPrivileges.data.items[index].data.name;
-                        this.data.items[i].set('permissions', previousPermissions + Uni.I18n.translate(name, 'USR', name));
-                        this.data.items[i].set('selected', this.data.items[i].data.selected + 1);
                     }
                 }
-            }
 
-            this.commitChanges();
-            me.onPrivilegesStoreLoad();
-            widget.setLoading(false);
+                this.commitChanges();
 
-            me.getApplication().getController('Usr.controller.Main').showContent(widget);
-        });
+                widget.setLoading(false);
+                me.getApplication().getController('Usr.controller.Main').showContent(widget);
+            }});
     },
 
     onPrivilegesStoreLoad: function () {

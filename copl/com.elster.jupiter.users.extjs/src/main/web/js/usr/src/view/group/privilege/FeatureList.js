@@ -26,17 +26,16 @@ Ext.define('Usr.view.group.privilege.FeatureList', {
                     flex: 3,
                     renderer: function (value, metadata, record) {
                         var name = Uni.I18n.translate(record.get('name'), 'USR', record.get('name'));
-                        if(record.get('selected') == 0){
-                            return '<img src="../sky/build/resources/images/grid/drop-no.png"/>&nbsp;' + name;
-                        }
-                        else{
-                            if(record.privileges().data.items.length == record.get('selected')){
-                                return '<img src="../sky/build/resources/images/grid/drop-yes.png"/>&nbsp;' + name;
-                            }
-                            else{
-                                return '<img src="../sky/build/resources/images/tree/drop-above.png" style="visibility:hidden"/>&nbsp;' + name;
+                        if (record.get('selected') == 0) {
+                            metadata.tdCls = 'uni-icon-drop-no';
+                        } else {
+                            if (record.privileges().data.items.length == record.get('selected')) {
+                                metadata.tdCls = 'uni-icon-drop-yes';
+                            } else {
+                                metadata.tdCls = 'uni-icon-drop-above';
                             }
                         }
+                        return name;
                     }
                 },
                 {
