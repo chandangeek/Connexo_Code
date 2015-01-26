@@ -9,19 +9,21 @@ Ext.define('Isu.util.IsuComboTooltip', {
      * Combobox must has 'tooltipText' property otherwise it sets default text.
      */
     setComboTooltip: function (combo) {
-        combo.tooltip = Ext.DomHelper.append(Ext.getBody(), {
-            tag: 'div',
-            html: combo.tooltipText || 'Start typing',
-            cls: 'isu-combo-tooltip'
-        }, true);
+        if (combo.tooltipText) {
+            combo.tooltip = Ext.DomHelper.append(Ext.getBody(), {
+                tag: 'div',
+                html: combo.tooltipText || 'Start typing',
+                cls: 'isu-combo-tooltip'
+            }, true);
 
-        combo.tooltip.hide();
+            combo.tooltip.hide();
 
-        combo.on('destroy', function () {
-            combo.tooltip.destroy();
-        });
-        combo.on('focus', this.onFocusComboTooltip, this);
-        combo.on('blur', this.onBlurComboTooltip, this);
+            combo.on('destroy', function () {
+                combo.tooltip.destroy();
+            });
+            combo.on('focus', this.onFocusComboTooltip, this);
+            combo.on('blur', this.onBlurComboTooltip, this);
+        }
     },
 
     /**
