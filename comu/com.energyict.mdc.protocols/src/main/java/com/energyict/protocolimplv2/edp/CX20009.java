@@ -26,6 +26,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
@@ -61,8 +62,8 @@ public class CX20009 extends AbstractDlmsProtocol {
     private EDPMessaging edpMessaging;
 
     @Inject
-    public CX20009(Clock clock, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
-        super(clock, propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, loadProfileFactory);
+    public CX20009(Clock clock, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory, MeteringService meteringService) {
+        super(clock, propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, meteringService, loadProfileFactory);
     }
 
     @Override
@@ -201,7 +202,7 @@ public class CX20009 extends AbstractDlmsProtocol {
 
     private LogbookReader getLogbookReader() {
         if (logbookReader == null) {
-            logbookReader = new LogbookReader(this, this.getIssueService(), this.getCollectedDataFactory());
+            logbookReader = new LogbookReader(this, this.getIssueService(), this.getCollectedDataFactory(), this.getMeteringService());
         }
         return logbookReader;
     }

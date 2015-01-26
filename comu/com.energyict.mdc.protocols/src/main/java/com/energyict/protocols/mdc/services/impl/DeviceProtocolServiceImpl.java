@@ -19,6 +19,7 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -56,11 +57,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Component(name = "com.energyict.mdc.service.deviceprotocols", service = {DeviceProtocolService.class, InstallService.class}, immediate = true, property = "name=" + DeviceProtocolService.COMPONENT_NAME)
 public class DeviceProtocolServiceImpl implements DeviceProtocolService, InstallService {
 
-    private volatile DataModel dataModel;
-    private volatile TransactionService transactionService;
+    /* Services required by one of the actual protocol classes in this bundle
+     * and therefore must be available in the Module provided to the guice injector. */
     private volatile Clock clock;
-    private volatile Thesaurus thesaurus;
-    private volatile OrmClient ormClient;
+    private volatile MeteringService meteringService;
     private volatile IssueService issueService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile PropertySpecService propertySpecService;
@@ -70,11 +70,15 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     private volatile SerialComponentService serialComponentService;
     private volatile IdentificationService identificationService;
     private volatile CollectedDataFactory collectedDataFactory;
-    private volatile List<LoadProfileFactory> loadProfileFactories = new CopyOnWriteArrayList<>();
     private volatile CodeFactory codeFactory;
     private volatile UserFileFactory userFileFactory;
 
     private Injector injector;
+    private volatile DataModel dataModel;
+    private volatile TransactionService transactionService;
+    private volatile Thesaurus thesaurus;
+    private volatile OrmClient ormClient;
+    private volatile List<LoadProfileFactory> loadProfileFactories = new CopyOnWriteArrayList<>();
 
     // For OSGi purposes
     public DeviceProtocolServiceImpl() {
@@ -83,8 +87,9 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     // For testing purposes
     @Inject
-    public DeviceProtocolServiceImpl(IssueService issueService, Clock clock, OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CodeFactory codeFactory, UserFileFactory userFileFactory, TransactionService transactionService, ProtocolPluggableService protocolPluggableService) {
+    public DeviceProtocolServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CodeFactory codeFactory, UserFileFactory userFileFactory, TransactionService transactionService, ProtocolPluggableService protocolPluggableService) {
         this();
+        this.setMeteringService(meteringService);
         this.setTransactionService(transactionService);
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
@@ -117,9 +122,10 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
             public void configure() {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(OrmClient.class).toInstance(ormClient);
                 bind(IssueService.class).toInstance(issueService);
                 bind(Clock.class).toInstance(clock);
-                bind(OrmClient.class).toInstance(ormClient);
+                bind(MeteringService.class).toInstance(meteringService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(SocketService.class).toInstance(socketService);
                 bind(SerialComponentService.class).toInstance(serialComponentService);
@@ -150,6 +156,11 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     public IssueService getIssueService() {
         return issueService;
+    }
+
+    @Reference
+    private void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     @Reference

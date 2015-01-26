@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.protocolimplv2.edp.CX20009;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
@@ -32,23 +33,23 @@ public class LogbookReader implements DeviceLogBookSupport {
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
 
-    public LogbookReader(CX20009 protocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+    public LogbookReader(CX20009 protocol, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         this.protocol = protocol;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
         logBookParsers = new ArrayList<>();
-        logBookParsers.add(new StandardLogbookParser(protocol));
-        logBookParsers.add(new ContractedPowerLogbookParser(protocol));
-        logBookParsers.add(new FirmwareLogbookParser(protocol));
-        logBookParsers.add(new ClockSyncLogbookParser(protocol));
-        logBookParsers.add(new ConfigurationLogbookParser(protocol));
-        logBookParsers.add(new DisconnectorLogbookParser(protocol));
-        logBookParsers.add(new PowerFailureLogbookParser(protocol));
-        logBookParsers.add(new QualityOfServiceLogbookParser(protocol));
-        logBookParsers.add(new AntiFraudLogbookParser(protocol));
-        logBookParsers.add(new DemandManagementLogbookParser(protocol));
-        logBookParsers.add(new CommunicationLogbookParser(protocol));
-        logBookParsers.add(new PublicLightingLogbookParser(protocol));
+        logBookParsers.add(new StandardLogbookParser(protocol, meteringService));
+        logBookParsers.add(new ContractedPowerLogbookParser(protocol, meteringService));
+        logBookParsers.add(new FirmwareLogbookParser(protocol, meteringService));
+        logBookParsers.add(new ClockSyncLogbookParser(protocol, meteringService));
+        logBookParsers.add(new ConfigurationLogbookParser(protocol, meteringService));
+        logBookParsers.add(new DisconnectorLogbookParser(protocol, meteringService));
+        logBookParsers.add(new PowerFailureLogbookParser(protocol, meteringService));
+        logBookParsers.add(new QualityOfServiceLogbookParser(protocol, meteringService));
+        logBookParsers.add(new AntiFraudLogbookParser(protocol, meteringService));
+        logBookParsers.add(new DemandManagementLogbookParser(protocol, meteringService));
+        logBookParsers.add(new CommunicationLogbookParser(protocol, meteringService));
+        logBookParsers.add(new PublicLightingLogbookParser(protocol, meteringService));
     }
 
     private AbstractLogbookParser getLogBookParser(LogBookReader logBookReader) {

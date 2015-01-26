@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.edp.logbooks;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -39,8 +40,8 @@ public class DisconnectorLogbookParser extends AbstractLogbookParser {
         DESCRIPTIONS.put(16, new EventInfo(MeterEvent.CONFIGURATIONCHANGE, "Event registered when the control mode of disconnector is changed"));
     }
 
-    public DisconnectorLogbookParser(CX20009 protocol) {
-        super(protocol);
+    public DisconnectorLogbookParser(CX20009 protocol, MeteringService meteringService) {
+        super(protocol, meteringService);
     }
 
     protected Map<Integer, EventInfo> getDescriptions() {

@@ -20,6 +20,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilitie
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.ProtocolLink;
@@ -81,9 +82,10 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final IdentificationService identificationService;
     private final CollectedDataFactory collectedDataFactory;
+    private final MeteringService meteringService;
     private final LoadProfileFactory loadProfileFactory;
 
-    protected AbstractDlmsProtocol(Clock clock, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
+    protected AbstractDlmsProtocol(Clock clock, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, LoadProfileFactory loadProfileFactory) {
         this.clock = clock;
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
@@ -93,7 +95,12 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         this.readingTypeUtilService = readingTypeUtilService;
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
+        this.meteringService = meteringService;
         this.loadProfileFactory = loadProfileFactory;
+    }
+
+    protected MeteringService getMeteringService() {
+        return meteringService;
     }
 
     protected Clock getClock() {
@@ -202,7 +209,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     public Dsmr23LogBookFactory getDeviceLogBookFactory() {
         if (logBookFactory == null) {
-            logBookFactory = new Dsmr23LogBookFactory(this, issueService, collectedDataFactory);
+            logBookFactory = new Dsmr23LogBookFactory(this, issueService, collectedDataFactory, meteringService);
         }
         return logBookFactory;
     }

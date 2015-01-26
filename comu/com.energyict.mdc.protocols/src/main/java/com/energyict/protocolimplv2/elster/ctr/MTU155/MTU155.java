@@ -39,6 +39,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilitie
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.events.CTRMeterEvent;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -109,14 +110,16 @@ public class MTU155 implements DeviceProtocol {
     private final IssueService issueService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final TopologyService topologyService;
+    private final MeteringService meteringService;
 
     @Inject
-    public MTU155(CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory, Clock clock, PropertySpecService propertySpecService, SerialComponentService serialComponentService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService) {
+    public MTU155(CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory, Clock clock, PropertySpecService propertySpecService, SerialComponentService serialComponentService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService, MeteringService meteringService) {
         this.collectedDataFactory = collectedDataFactory;
         this.loadProfileFactory = loadProfileFactory;
         this.clock = clock;
         this.readingTypeUtilService = readingTypeUtilService;
         this.topologyService = topologyService;
+        this.meteringService = meteringService;
         this.securityCapabilities = new Mtu155SecuritySupport(propertySpecService);
         this.propertySpecService = propertySpecService;
         this.serialComponentService = serialComponentService;
@@ -374,8 +377,10 @@ public class MTU155 implements DeviceProtocol {
                 try {
                     Date lastLogBookReading = Date.from(logBook.getLastLogBook());
                     CTRMeterEvent meterEvent = new CTRMeterEvent(getRequestFactory());
-                    List<MeterProtocolEvent> meterProtocolEvents = MeterEvent.mapMeterEventsToMeterProtocolEvents(
-                            meterEvent.getMeterEvents(lastLogBookReading));
+                    List<MeterProtocolEvent> meterProtocolEvents =
+                            MeterEvent.mapMeterEventsToMeterProtocolEvents(
+                                meterEvent.getMeterEvents(lastLogBookReading),
+                                this.meteringService);
 
                     collectedLogBook.setMeterEvents(meterProtocolEvents);
                 } catch (CTRException e) {

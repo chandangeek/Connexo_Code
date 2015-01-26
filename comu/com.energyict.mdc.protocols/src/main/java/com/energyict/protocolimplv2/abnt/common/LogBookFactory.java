@@ -11,6 +11,8 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.frame.field.Function;
 import com.energyict.protocolimplv2.abnt.common.structure.HistoryLogResponse;
@@ -21,6 +23,7 @@ import com.energyict.protocolimplv2.abnt.common.structure.field.PowerFailRecord;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author sva
@@ -34,11 +37,13 @@ public class LogBookFactory implements DeviceLogBookSupport {
     private final AbstractAbntProtocol meterProtocol;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
+    private final MeteringService meteringService;
 
-    public LogBookFactory(AbstractAbntProtocol meterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+    public LogBookFactory(AbstractAbntProtocol meterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         this.meterProtocol = meterProtocol;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -71,19 +76,24 @@ public class LogBookFactory implements DeviceLogBookSupport {
 
     private void addAllEventsFromLog(LogBookReader logBook, CollectedLogBook deviceLogBook, List<HistoryLogRecord> logRecords) throws ParsingException {
         List<MeterProtocolEvent> meterEvents = new ArrayList<>();
-        for (HistoryLogRecord historyLogRecord : logRecords) {
-            MeterProtocolEvent protocolEvent = new MeterProtocolEvent(
-                    historyLogRecord.getEventDate().getDate(getMeterProtocol().getTimeZone()),
-                    MeterEvent.CONFIGURATIONCHANGE,
-                    historyLogRecord.getEvent().getEventCode(),
-                    EndDeviceEventTypeMapping.CONFIGURATIONCHANGE.getEventType(),
-                    (("Reader " + historyLogRecord.getReaderSerialNumber().getSerialNumber().getText()) + " - ") + historyLogRecord.getEvent().getEventMessage(),
-                    Function.FunctionCode.HISTORY_LOG.getFunctionCode(),
-                    0
-            );
-            if (protocolEvent.getTime().after(Date.from(logBook.getLastLogBook()))) {
-                meterEvents.add(protocolEvent);
+        Optional<EndDeviceEventType> configurationChangeEventType = EndDeviceEventTypeMapping.CONFIGURATIONCHANGE.getEventType(this.meteringService);
+        if (configurationChangeEventType.isPresent()) {
+            for (HistoryLogRecord historyLogRecord : logRecords) {
+                MeterProtocolEvent protocolEvent = new MeterProtocolEvent(
+                        historyLogRecord.getEventDate().getDate(getMeterProtocol().getTimeZone()),
+                        MeterEvent.CONFIGURATIONCHANGE,
+                        historyLogRecord.getEvent().getEventCode(),
+                        configurationChangeEventType.get(),
+                        (("Reader " + historyLogRecord.getReaderSerialNumber().getSerialNumber().getText()) + " - ") + historyLogRecord.getEvent().getEventMessage(),
+                        Function.FunctionCode.HISTORY_LOG.getFunctionCode(),
+                        0);
+                if (protocolEvent.getTime().after(Date.from(logBook.getLastLogBook()))) {
+                    meterEvents.add(protocolEvent);
+                }
             }
+        }
+        else {
+            this.endDeviceEventTypeNotSupported(deviceLogBook, EndDeviceEventTypeMapping.CONFIGURATIONCHANGE.getEndDeviceEventTypeMRID());
         }
         deviceLogBook.setMeterEvents(meterEvents);
     }
@@ -93,19 +103,24 @@ public class LogBookFactory implements DeviceLogBookSupport {
             PowerFailLogResponse powerFailLog = getRequestFactory().readPowerFailLog();
 
             List<MeterProtocolEvent> meterEvents = new ArrayList<>();
-            for (PowerFailRecord powerFailRecord : powerFailLog.getPowerFailRecords()) {
-                MeterProtocolEvent protocolEvent = new MeterProtocolEvent(
-                        powerFailRecord.getEndOfPowerFail().getDate(getMeterProtocol().getTimeZone()),
-                        MeterEvent.POWERDOWN,
-                        0,
-                        EndDeviceEventTypeMapping.POWERDOWN.getEventType(),
-                        constructEventMessage(powerFailRecord),
-                        Function.FunctionCode.POWER_FAIL_LOG.getFunctionCode(),
-                        0
-                );
-                if (protocolEvent.getTime().after(Date.from(logBook.getLastLogBook()))) {
-                    meterEvents.add(protocolEvent);
+            Optional<EndDeviceEventType> powerDownEventType = EndDeviceEventTypeMapping.POWERDOWN.getEventType(this.meteringService);
+            if (powerDownEventType.isPresent()) {
+                for (PowerFailRecord powerFailRecord : powerFailLog.getPowerFailRecords()) {
+                    MeterProtocolEvent protocolEvent = new MeterProtocolEvent(
+                            powerFailRecord.getEndOfPowerFail().getDate(getMeterProtocol().getTimeZone()),
+                            MeterEvent.POWERDOWN,
+                            0,
+                            powerDownEventType.get(),
+                            constructEventMessage(powerFailRecord),
+                            Function.FunctionCode.POWER_FAIL_LOG.getFunctionCode(),
+                            0);
+                    if (protocolEvent.getTime().after(Date.from(logBook.getLastLogBook()))) {
+                        meterEvents.add(protocolEvent);
+                    }
                 }
+            }
+            else {
+                this.endDeviceEventTypeNotSupported(deviceLogBook, EndDeviceEventTypeMapping.POWERDOWN.getEndDeviceEventTypeMRID());
             }
             deviceLogBook.setMeterEvents(meterEvents);
         } catch (ParsingException e) {
@@ -125,6 +140,10 @@ public class LogBookFactory implements DeviceLogBookSupport {
 
     private void logBookNotSupported(CollectedLogBook deviceLogBook, ObisCode logBookObisCode) {
         deviceLogBook.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(deviceLogBook, "logBookXnotsupported", logBookObisCode));
+    }
+
+    private void endDeviceEventTypeNotSupported(CollectedLogBook deviceLogBook, String endDeviceEventTypeMRID) {
+        deviceLogBook.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(deviceLogBook, "endDeviceEventTypeXnotsupported", endDeviceEventTypeMRID));
     }
 
     private void logBookParsingException(CollectedLogBook deviceLogBook) {

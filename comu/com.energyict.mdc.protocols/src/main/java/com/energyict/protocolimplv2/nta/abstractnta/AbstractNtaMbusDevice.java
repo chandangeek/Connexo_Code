@@ -35,6 +35,7 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
@@ -70,11 +71,11 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
     private final int physicalAddress;
     private final TopologyService topologyService;
 
-    public AbstractNtaMbusDevice(Clock clock, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
+    public AbstractNtaMbusDevice(Clock clock, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, LoadProfileFactory loadProfileFactory) {
         this.propertySpecService = propertySpecService;
         this.topologyService = topologyService;
         //TODO, what? wait! Is this even correct?
-        this.meterProtocol = new WebRTUKP(clock, this.propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, loadProfileFactory);
+        this.meterProtocol = new WebRTUKP(clock, this.propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, meteringService, loadProfileFactory);
         this.serialNumber = "CurrentlyUnKnown";
         this.physicalAddress = -1;
     }

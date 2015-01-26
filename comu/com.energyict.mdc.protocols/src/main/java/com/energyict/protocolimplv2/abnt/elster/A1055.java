@@ -31,6 +31,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilitie
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.abnt.common.AbntProperties;
 import com.energyict.protocolimplv2.abnt.common.AbstractAbntProtocol;
@@ -79,15 +80,17 @@ public class A1055 extends AbstractAbntProtocol {
     private final Clock clock;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
+    private final MeteringService meteringService;
 
     @Inject
-    public A1055(PropertySpecService propertySpecService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+    public A1055(PropertySpecService propertySpecService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         this.propertySpecService = propertySpecService;
         this.serialComponentService = serialComponentService;
         this.readingTypeUtilService = readingTypeUtilService;
         this.clock = clock;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -333,7 +336,7 @@ public class A1055 extends AbstractAbntProtocol {
 
     public LogBookFactory getLogBookFactory() {
         if (this.logBookFactory == null) {
-            this.logBookFactory = new LogBookFactory(this, issueService, collectedDataFactory);
+            this.logBookFactory = new LogBookFactory(this, issueService, collectedDataFactory, meteringService);
         }
         return this.logBookFactory;
     }

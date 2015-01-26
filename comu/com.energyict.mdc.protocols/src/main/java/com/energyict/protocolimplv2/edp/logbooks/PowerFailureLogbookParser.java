@@ -2,6 +2,8 @@ package com.energyict.protocolimplv2.edp.logbooks;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.protocolimplv2.edp.CX20009;
 
 import java.util.HashMap;
@@ -34,8 +36,8 @@ public class PowerFailureLogbookParser extends AbstractLogbookParser {
         DESCRIPTIONS.put(12, new EventInfo(MeterEvent.PHASE_FAILURE, "Event registered in the beginning of a long power failure in the phase L3 (after T minutes without supply)"));
     }
 
-    public PowerFailureLogbookParser(CX20009 protocol) {
-        super(protocol);
+    public PowerFailureLogbookParser(CX20009 protocol, MeteringService meteringService) {
+        super(protocol, meteringService);
     }
 
     protected Map<Integer, EventInfo> getDescriptions() {

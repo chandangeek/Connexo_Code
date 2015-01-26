@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.edp.logbooks;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -24,8 +25,8 @@ public class ContractedPowerLogbookParser extends AbstractLogbookParser {
         DESCRIPTIONS.put(96, new EventInfo(MeterEvent.CONFIGURATIONCHANGE, "Event registered when a change is made to the values of contracted power"));
     }
 
-    public ContractedPowerLogbookParser(CX20009 protocol) {
-        super(protocol);
+    public ContractedPowerLogbookParser(CX20009 protocol, MeteringService meteringService) {
+        super(protocol, meteringService);
     }
 
     protected Map<Integer, EventInfo> getDescriptions() {

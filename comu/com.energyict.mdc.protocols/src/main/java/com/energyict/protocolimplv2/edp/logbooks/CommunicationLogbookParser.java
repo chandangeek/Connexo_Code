@@ -2,6 +2,8 @@ package com.energyict.protocolimplv2.edp.logbooks;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.protocolimplv2.edp.CX20009;
 
 import java.util.HashMap;
@@ -28,8 +30,8 @@ public class CommunicationLogbookParser extends AbstractLogbookParser {
         DESCRIPTIONS.put(6, new EventInfo(MeterEvent.OTHER, "Registers the end of a local communication by HAN interface"));
     }
 
-    public CommunicationLogbookParser(CX20009 protocol) {
-        super(protocol);
+    public CommunicationLogbookParser(CX20009 protocol, MeteringService meteringService) {
+        super(protocol, meteringService);
     }
 
     protected Map<Integer, EventInfo> getDescriptions() {

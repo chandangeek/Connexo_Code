@@ -8,6 +8,8 @@ import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 
@@ -27,8 +29,8 @@ import java.util.List;
 public class ACE4000MBus extends ACE4000Outbound {
 
     @Inject
-    public ACE4000MBus(Clock clock, PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
-        super(clock, propertySpecService, issueService, readingTypeUtilService, identificationService, collectedDataFactory);
+    public ACE4000MBus(Clock clock, PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
+        super(clock, propertySpecService, issueService, readingTypeUtilService, identificationService, collectedDataFactory, meteringService);
     }
 
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
