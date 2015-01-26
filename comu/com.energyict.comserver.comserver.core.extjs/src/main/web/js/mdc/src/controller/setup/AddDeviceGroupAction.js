@@ -456,7 +456,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                     } else {
                         router.getRoute('devices/devicegroups').forward();
                     }
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceGroup.edit.success.msg', 'MDC', 'Device group edited'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceGroup.edit.success.msg', 'MDC', 'Device group saved'));
                 },
                 callback: function () {
                     page.setLoading(false);
