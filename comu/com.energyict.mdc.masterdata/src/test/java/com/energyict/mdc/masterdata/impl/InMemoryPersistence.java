@@ -80,7 +80,7 @@ public class InMemoryPersistence {
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new OrmModule(),
-                new MeteringModule(),
+                new MeteringModule(false),
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule());
         this.transactionService = injector.getInstance(TransactionService.class);
