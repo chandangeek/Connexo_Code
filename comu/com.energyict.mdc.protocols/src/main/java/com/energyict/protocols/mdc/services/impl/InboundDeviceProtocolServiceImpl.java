@@ -57,7 +57,7 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
     }
 
     @Inject
-    public InboundDeviceProtocolServiceImpl(MdcReadingTypeUtilService readingTypeUtilService, PropertySpecService propertySpecService, Clock clock, NlsService nlsService, CollectedDataFactory collectedDataFactory, IssueService issueService, IdentificationService identificationService) {
+    public InboundDeviceProtocolServiceImpl(MdcReadingTypeUtilService readingTypeUtilService, PropertySpecService propertySpecService, Clock clock, NlsService nlsService, CollectedDataFactory collectedDataFactory, IssueService issueService, IdentificationService identificationService, MeteringService meteringService) {
         setReadingTypeUtilService(readingTypeUtilService);
         setPropertySpecService(propertySpecService);
         setClock(clock);
@@ -65,6 +65,7 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
         setCollectedDataFactory(collectedDataFactory);
         setIssueService(issueService);
         setIdentificationService(identificationService);
+        setMeteringService(meteringService);
 
         activate();
     }
