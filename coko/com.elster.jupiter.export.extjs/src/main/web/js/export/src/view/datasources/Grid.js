@@ -5,7 +5,8 @@ Ext.define('Dxp.view.datasources.Grid', {
     router: null,
     requires: [
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Uni.grid.column.ReadingType'
     ],
     initComponent: function () {
         var me = this;
@@ -26,6 +27,7 @@ Ext.define('Dxp.view.datasources.Grid', {
                 flex: 1
             },
             {
+                xtype: 'reading-type-column',
                 header: Uni.I18n.translate('general.readingType', 'DES', 'Reading type'),
                 dataIndex: 'readingType',
                 flex: 1
