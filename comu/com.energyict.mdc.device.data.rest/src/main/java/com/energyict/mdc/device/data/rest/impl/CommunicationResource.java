@@ -72,6 +72,30 @@ public class CommunicationResource {
     }
 
     @PUT
+    @Path("/{comTaskExecId}/activate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Response activate(@PathParam("mRID") String mRID, @PathParam("comTaskExecId") long comTaskExecId) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        ComTaskExecution comTaskExecution = findComTaskExecutionOrThrowException(device, comTaskExecId);
+        activateComTaskExecution(comTaskExecution);
+        return Response.ok(deviceComTaskExecutionInfoFactory.from(comTaskExecution, comTaskExecution.getLastSession())).build();
+    }
+
+    @PUT
+    @Path("/{comTaskExecId}/deactivate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Response deactivate(@PathParam("mRID") String mRID, @PathParam("comTaskExecId") long comTaskExecId) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        ComTaskExecution comTaskExecution = findComTaskExecutionOrThrowException(device, comTaskExecId);
+        deactivateComTaskExecution(comTaskExecution);
+        return Response.ok(deviceComTaskExecutionInfoFactory.from(comTaskExecution, comTaskExecution.getLastSession())).build();
+    }
+
+    @PUT
     @Path("/{comTaskExecId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
