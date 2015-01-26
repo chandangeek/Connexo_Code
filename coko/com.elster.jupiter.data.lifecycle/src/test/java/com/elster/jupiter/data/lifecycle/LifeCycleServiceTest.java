@@ -73,7 +73,7 @@ public class LifeCycleServiceTest {
     			new IdsModule(),
     			new EventsModule(),
     			new PartyModule(),
-    			new MeteringModule(),
+    			new MeteringModule(false),
     			new DataLifeCycleModule()
 		);
 		try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
