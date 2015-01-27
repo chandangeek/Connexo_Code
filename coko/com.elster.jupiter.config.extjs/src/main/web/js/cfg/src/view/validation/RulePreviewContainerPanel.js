@@ -3,7 +3,8 @@ Ext.define('Cfg.view.validation.RulePreviewContainerPanel', {
     alias: 'widget.rule-preview-container-panel',
     itemId: 'rulePreviewContainerPanel',
     title: Uni.I18n.translate('validation.validationRules', 'CFG', 'Validation rules'),
-    ui: 'large',
+    ui: 'medium',
+    padding: 0,
     ruleSetId: null,
     isSecondPagination: false,
     requires: [

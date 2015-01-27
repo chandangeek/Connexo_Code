@@ -53,9 +53,9 @@ Ext.define('Cfg.view.validation.RulePreview', {
             }
         },
         {
-            xtype: 'container',
-            itemId: 'readingTypesArea',
-            items: []
+            xtype: 'fieldcontainer',
+            fieldLabel: Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading types'),
+            itemId: 'readingTypesArea'
         },
         {
             xtype: 'property-form',
@@ -103,21 +103,12 @@ Ext.define('Cfg.view.validation.RulePreview', {
 
             this.down('#readingTypesArea').add(
                 {
-                    xtype: 'container',
-                    layout: {
-                        type: 'hbox'
-                    },
-                    items: [
-                        {
-                            xtype: 'reading-type-displayfield',
-                            fieldLabel: fieldlabel,
-                            labelWidth: 260,
-                            value: readingType
-                        }
-                    ]
+                    xtype: 'reading-type-displayfield',
+                    fieldLabel: undefined,
+                    value: readingType
                 }
             );
         }
-        Ext.resumeLayouts();
+        Ext.resumeLayouts(true);
     }
 });
