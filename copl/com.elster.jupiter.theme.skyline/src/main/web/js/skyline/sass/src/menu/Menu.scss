@@ -28,6 +28,17 @@
     .#{$prefix}menu-item:first-child {
         padding-top: 4px;
     }
+
+    .#{$prefix}menu-scroll-top {
+        height: 16px;
+        background-image: url('images/menu/scroll-top-white.png');
+    }
+
+    .#{$prefix}menu-scroll-bottom {
+        height: 16px;
+        background-image: url('images/menu/scroll-bottom-white.png');
+    }
+
 }
 
 .#{$prefix}panel-side-menu {
