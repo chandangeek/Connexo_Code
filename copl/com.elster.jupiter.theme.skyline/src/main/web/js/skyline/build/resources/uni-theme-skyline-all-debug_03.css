@@ -12179,6 +12179,11 @@
 .x-panel-filter-toolbar .x-panel-body {
   background: transparent;
 }
+/* line 155, ../../sass/src/panel/Panel.scss */
+.x-panel-filter-toolbar .x-form-item-label {
+  background: transparent;
+  top: 5px;
+}
 
 /* line 235, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-form-error-framed {
@@ -14108,12 +14113,12 @@
   border-width: 1px !important;
 }
 
-/* line 175, ../../sass/src/panel/Panel.scss */
+/* line 179, ../../sass/src/panel/Panel.scss */
 .x-uni-form-error-msg-icon {
   background-image: url("images/form/ico_warning.png");
 }
 
-/* line 179, ../../sass/src/panel/Panel.scss */
+/* line 183, ../../sass/src/panel/Panel.scss */
 *[class*='x-panel-'].no-side-padding {
   padding-right: 0;
   padding-left: 0;
@@ -15748,7 +15753,7 @@
   border-width: 1px !important;
 }
 
-/* line 16, ../../sass/src/panel/TilePanel.scss */
+/* line 17, ../../sass/src/panel/TilePanel.scss */
 .x-panel-tile {
   margin-top: 16px;
   margin-right: 48px;
@@ -16187,24 +16192,4 @@ div.x-form-spinner-down {
   font-size: 13px;
   padding: 6px 0 0 0;
   text-transform: none;
-}
-
-/* line 137, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-default-top {
-  -moz-border-radius-topleft: 3px;
-  -webkit-border-top-left-radius: 3px;
-  border-top-left-radius: 3px;
-  -moz-border-radius-topright: 3px;
-  -webkit-border-top-right-radius: 3px;
-  border-top-right-radius: 3px;
-  -moz-border-radius-bottomright: 0;
-  -webkit-border-bottom-right-radius: 0;
-  border-bottom-right-radius: 0;
-  -moz-border-radius-bottomleft: 0;
-  -webkit-border-bottom-left-radius: 0;
-  border-bottom-left-radius: 0;
-  padding: 3px 8px 0 3px;
-  border-width: 0 0 0 0;
-  border-style: solid;
-  background-color: transparent;
 }

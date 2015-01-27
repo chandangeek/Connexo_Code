@@ -152,6 +152,10 @@ $ui-body-background-color: $panel-filter-background-color
     .#{$prefix}panel-body {
         background: transparent;
     }
+    .#{$prefix}form-item-label {
+        background: transparent;
+        top: 5px !important
+    }
 }
 
 // Error message

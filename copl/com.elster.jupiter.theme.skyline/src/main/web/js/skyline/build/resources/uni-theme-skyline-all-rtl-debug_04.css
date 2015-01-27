@@ -246,6 +246,11 @@
 .x-panel-filter-toolbar .x-panel-body {
   background: transparent;
 }
+/* line 155, ../../sass/src/panel/Panel.scss */
+.x-panel-filter-toolbar .x-form-item-label {
+  background: transparent;
+  top: 5px;
+}
 
 /* line 235, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-form-error-framed {
@@ -2361,12 +2366,12 @@
   border-width: 1px !important;
 }
 
-/* line 175, ../../sass/src/panel/Panel.scss */
+/* line 179, ../../sass/src/panel/Panel.scss */
 .x-uni-form-error-msg-icon {
   background-image: url("images/form/ico_warning.png");
 }
 
-/* line 179, ../../sass/src/panel/Panel.scss */
+/* line 183, ../../sass/src/panel/Panel.scss */
 *[class*='x-panel-'].no-side-padding {
   padding-right: 0;
   padding-left: 0;
@@ -4113,7 +4118,7 @@
   border-width: 1px !important;
 }
 
-/* line 16, ../../sass/src/panel/TilePanel.scss */
+/* line 17, ../../sass/src/panel/TilePanel.scss */
 .x-panel-tile {
   margin-top: 16px;
   margin-right: 48px;
