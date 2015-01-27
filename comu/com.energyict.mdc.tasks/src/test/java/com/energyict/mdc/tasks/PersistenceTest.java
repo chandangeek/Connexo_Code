@@ -82,7 +82,7 @@ public class PersistenceTest {
                 new PartyModule(),
                 new IdsModule(),
                 new DomainUtilModule(),
-                new MeteringModule(false),
+                new MeteringModule(),
                 new MasterDataModule(),
                 new PluggableModule(),
                 new ProtocolApiModule(),
