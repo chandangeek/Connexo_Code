@@ -29,6 +29,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.generic.EncryptionStatus;
 import com.energyict.protocolimpl.generic.ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 
@@ -326,7 +327,13 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
             Quantity quantity = new Quantity(state ? "1" : "0", Unit.getUndefined());
             return new RegisterValue(register, quantity, null, null, null, new Date(), 0, "State: " + state);
         } else if (abstractDataType.isOctetString()) {
-            return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(abstractDataType.getContentByteArray()));
+            String text;
+            if (octetStringPrintableAsString((OctetString) abstractDataType)) {
+                text = new String(abstractDataType.getContentByteArray());
+            } else {
+                text = new String("HEX: " + ProtocolTools.getHexStringFromBytes(abstractDataType.getContentByteArray(), ""));
+            }
+            return new RegisterValue(register, null, null, null, null, new Date(), 0, text);
         } else if (abstractDataType.isTypeEnum()) {
             return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.getUndefined()));
         } else if (abstractDataType.isNumerical()) {
@@ -334,6 +341,22 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
         } else {
             throw new UnsupportedException("Register with obisCode " + rObisCode + " is not supported.");
         }
+    }
+
+    /**
+     * Tests if the content ByteArray of this OctetString contains only printable ASCII characters
+     *
+     * @param octetString the OctetString to test
+     * @return true if the OctetString contains only printable ASCII characters
+     *         false if the OctetString contains non-printable characters
+     */
+    private boolean octetStringPrintableAsString(OctetString octetString) {
+        for (byte b : octetString.getContentByteArray()) {
+            if(b < 31 || b > 127) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
