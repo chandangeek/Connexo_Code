@@ -98,11 +98,14 @@ Ext.define('Cfg.view.validation.RulePreview', {
         Ext.suspendLayouts();
         this.down('#readingTypesArea').removeAll();
         for (var i = 0; i < selectedRule.data.readingTypes.length; i++) {
+            var fieldlabel = i > 0 ? '&nbsp' : Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading types'),
+                readingType = selectedRule.data.readingTypes[i];
+
             this.down('#readingTypesArea').add(
                 {
                     xtype: 'reading-type-displayfield',
                     fieldLabel: undefined,
-                    value: selectedRule.data.readingTypes[i]
+                    value: readingType
                 }
             );
         }
