@@ -38,9 +38,11 @@ public class MasterDataGenerator {
 
     private enum FixedRegisterTypes {
         NOT_PRESENT("", null, null, -1),
-        ACTIVE_FIRMWARE_VERSION("0.0.0.0.0.41.92.0.0.0.0.0.0.0.0.0.114.0", ObisCode.fromString("1.0.0.2.8.255"), Unit.getUndefined(), 0),
-        AMR_PROFILE_STATUS("0.0.0.0.0.41.123.0.0.0.0.0.0.0.0.0.110.0", ObisCode.fromString("0.0.96.10.2.255"), Unit.getUndefined(), 0),
-        ALARM_REGISTER("0.0.0.0.0.41.118.0.0.0.0.0.0.0.0.0.110.0", ObisCode.fromString("0.0.97.98.0.255"), Unit.getUndefined(), 0);
+        SERIAL_NUMBER("0.0.0.0.0.41.92.0.0.0.0.0.0.0.0.0.114.0", ObisCode.fromString("0.0.96.1.0.255"), Unit.getUndefined(), 0),
+        ACTIVE_METER_FIRMWARE_VERSION("0.0.0.12.0.41.109.0.0.0.0.0.0.0.0.0.109.0", ObisCode.fromString("1.0.0.2.8.255"), Unit.getUndefined(), 0),
+        ACTIVE_MODEM_FIRMWARE_VERSION("0.0.0.12.0.3.109.0.0.0.0.0.0.0.0.0.114.0", ObisCode.fromString("1.1.0.2.8.255"), Unit.getUndefined(), 0),
+        METER_STATUS("0.0.0.12.0.41.139.0.0.0.0.0.0.0.0.0.109.0", ObisCode.fromString("0.0.97.97.0.255"), Unit.getUndefined(), 0),
+        METER_ALARM_STATUS("0.0.0.12.0.41.118.0.0.0.0.0.0.0.0.0.109.0", ObisCode.fromString("0.0.97.98.0.255"), Unit.getUndefined(), 0);
 
         private final String readingType;
         private final ObisCode obisCode;
