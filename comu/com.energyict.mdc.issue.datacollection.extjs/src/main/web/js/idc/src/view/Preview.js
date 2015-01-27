@@ -25,6 +25,7 @@ Ext.define('Idc.view.Preview', {
             href: location.href
         }
     },
+
     initComponent: function () {
         var me = this;
 
@@ -33,7 +34,7 @@ Ext.define('Idc.view.Preview', {
                 xtype: 'button',
                 itemId: 'data-collection-issues-preview-actions-button',
                 text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
-                hidden:  Uni.Auth.hasAnyPrivilege(['privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue',
+                hidden:  !Uni.Auth.hasAnyPrivilege(['privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue',
                                                 'privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
                 iconCls: 'x-uni-action-iconD',
                 menu: {
