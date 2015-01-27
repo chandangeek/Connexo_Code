@@ -40,8 +40,10 @@ import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -189,7 +191,15 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     public List<ValidationRule> getValidationRules() {
-        return getDeviceConfiguration().getValidationRules(Arrays.asList(getReadingType()));
+        Set<ReadingType> result = new HashSet<>();
+        ReadingType readingType = getReadingType();
+        if (readingType.isCumulative()) {
+            Optional<ReadingType> delta = readingType.getCalculatedReadingType();
+            if (delta.isPresent()) {
+                result.add(delta.get());
+            }
+        }
+        return getDeviceConfiguration().getValidationRules(result);
     }
 
     @Override
