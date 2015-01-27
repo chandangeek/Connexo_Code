@@ -534,10 +534,16 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             router = this.getController('Uni.controller.history.Router'),
             widget = Ext.widget('addComPortPool');
        // me.showAddOutbound(router.arguments.id);
-        me.saveState();
-        me.getApplication().fireEvent('changecontentevent', widget);
-        widget.updateCancelHref(me.comServerId, me.comPortId);
-        me.filterStore();
+        if (me.portModel) {
+            me.saveState();
+            me.getApplication().fireEvent('changecontentevent', widget);
+            widget.updateCancelHref(me.comServerId, me.comPortId);
+            me.filterStore();
+        } else {
+            this.currentUrl = 'administration/comservers/detail/comports/addOutbound';
+            router.getRoute(this.currentUrl).forward();
+        }
+
     },
 
     filterStoreByType: function (store, type) {
