@@ -44,6 +44,22 @@ Ext.define('Mdc.model.DeviceCommunication', {
         });
     },
 
+    activate: function(callback) {
+        Ext.Ajax.request({
+            method: 'PUT',
+            url: this.proxy.url + '/{id}/activate'.replace('{id}', this.getId()),
+            success: callback
+        });
+    },
+
+    deactivate: function(callback) {
+        Ext.Ajax.request({
+            method: 'PUT',
+            url: this.proxy.url + '/{id}/deactivate'.replace('{id}', this.getId()),
+            success: callback
+        });
+    },
+
     proxy: {
         type: 'rest',
         urlTpl: '/api/ddr/devices/{mRID}/communications',
