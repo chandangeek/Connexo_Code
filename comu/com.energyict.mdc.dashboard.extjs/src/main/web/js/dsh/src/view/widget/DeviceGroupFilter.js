@@ -25,7 +25,10 @@ Ext.define('Dsh.view.widget.DeviceGroupFilter', {
                 label: Uni.I18n.translate('overview.widget.headerSection.deviceGroupLabel', 'DSH', 'Device group') + ': ',
                 arrowAlign: 'right',
                 groupName:null, // yellowfin reports use names instead of id
+                menuAlign: 'tl-bl',
                 menu: {
+                    enableScrolling: true,
+                    maxHeight: 350,
                     router: me.router,
                     listeners: {
                         click: function (cmp, item) {
