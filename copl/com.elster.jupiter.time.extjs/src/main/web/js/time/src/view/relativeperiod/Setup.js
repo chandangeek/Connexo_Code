@@ -43,7 +43,8 @@ Ext.define('Tme.view.relativeperiod.Setup', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'relative-periods-preview'
+                        xtype: 'relative-periods-preview',
+                        itemId: 'pnl-relative-periods-preview'
                     }
                 }
             ]
