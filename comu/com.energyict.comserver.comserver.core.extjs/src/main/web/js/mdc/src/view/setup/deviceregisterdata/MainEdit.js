@@ -1,12 +1,11 @@
 Ext.define('Mdc.view.setup.deviceregisterdata.MainEdit', {
     extend: 'Uni.view.container.ContentContainer',
 
-    requires: [
-        'Uni.view.navigation.SubMenu'
-    ],
-
     edit: false,
     registerType: null,
+    requires: [
+        'Mdc.view.setup.device.DeviceMenu'
+    ],
 
     isEdit: function () {
         return this.edit
@@ -41,7 +40,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainEdit', {
                 ui: 'medium',
                 items: [
                     {
-                        xtype: 'navigationSubMenu',
+                        xtype: 'deviceMenu',
                         itemId: 'stepsMenu'
                     }
                 ]
