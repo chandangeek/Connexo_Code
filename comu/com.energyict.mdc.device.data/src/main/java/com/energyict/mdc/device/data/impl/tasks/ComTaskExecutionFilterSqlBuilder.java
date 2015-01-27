@@ -99,6 +99,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         super.appendNonStatusWhereClauses();
         this.appendCompletionCodeClause();
         this.appendLastSessionIntervalWhereClause();
+        this.appendDeviceInGroupSql();
     }
 
     private void appendCompletionCodeClause() {
