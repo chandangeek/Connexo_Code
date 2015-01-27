@@ -108,9 +108,19 @@ Ext.define('Sam.view.licensing.List', {
     initComponent: function () {
         var self = this,
             store;
+
         self.callParent(arguments);
+
+        var grid = this.down('grid'),
+            emptyText = this.down('panel[name="empty-text"]');
+
+        if (grid && emptyText) {
+            grid.hide();
+            emptyText.show();
+            Ext.getBody().mask( 'Loading...' );
+        }
+
         store = this.down('grid').getStore();
-        self.onStoreLoad(store);
         store.on({
             load: {
                 fn: self.onStoreLoad,
@@ -132,19 +142,8 @@ Ext.define('Sam.view.licensing.List', {
             });
             Ext.resumeLayouts();
             this.hideEmptyText();
-        } else {
-            this.showEmptyText();
         }
-    },
-
-    showEmptyText: function () {
-        var grid = this.down('grid'),
-            emptyText = this.down('panel[name="empty-text"]');
-        if (grid && emptyText) {
-            grid.hide();
-            emptyText.show();
-            Ext.getBody().mask( 'Loading...' );
-        }
+        Ext.getBody().unmask();
     },
 
     hideEmptyText: function () {
@@ -153,7 +152,6 @@ Ext.define('Sam.view.licensing.List', {
         if (grid && emptyText) {
             grid.show();
             emptyText.hide();
-            Ext.getBody().unmask();
         }
     }
 });
