@@ -10,58 +10,59 @@ Ext.define('Mdc.view.setup.deviceconfiguration.EditLogbookConfiguration', {
     deviceTypeId: null,
     content: [
         {
-            xtype: 'panel',
-            ui: 'large',
+            xtype: 'form',
             itemId: 'editLogbookPanel',
-            title: 'Edit logbook configuration',
+            ui: 'large',
+            width: '100%',
+            defaults: {
+                labelWidth: 250,
+                validateOnChange: false,
+                validateOnBlur: false
+            },
             items: [
                 {
-                    xtype: 'form',
-                    width: '50%',
-                    defaults: {
-                        labelWidth: 160,
-                        validateOnChange: false,
-                        validateOnBlur: false,
-                        anchor: '100%'
-                    },
+                    itemId: 'form-errors',
+                    xtype: 'uni-form-error-message',
+                    name: 'form-errors',
+                    margin: '0 0 10 0',
+                    hidden: true,
+                    width: 500
+                },
+                {
+                    xtype: 'displayfield',
+                    name: 'name',
+                    fieldLabel: Uni.I18n.translate('general.logbookType', 'MDC', 'Logbook type'),
+                    width: 500
+                },
+                {
+                    xtype: 'obis-displayfield',
+                    allowBlank: false,
+                    required: true,
+                    fieldLabel: Uni.I18n.translate('logbooktype.obis', 'MDC', 'OBIS code'),
+                    name: 'obisCode',
+                    width: 500
+                },
+                {
+                    xtype: 'obis-field',
+                    fieldLabel: 'Overruled OBIS code',
+                    required: false,
+                    name: 'overruledObisCode',
+                    width: 700
+                },
+                {
+                    xtype: 'fieldcontainer',
+                    ui: 'actions',
+                    fieldLabel: '&nbsp',
+                    layout: 'hbox',
                     items: [
                         {
-                            name: 'errors',
-                            layout: 'hbox',
-                            hidden: true,
-                            defaults: {
-                                xtype: 'container',
-                                cls: 'isu-error-panel'
-                            }
-                        },
-                        {
-                            xtype: 'displayfield',
-                            name: 'name',
-                            fieldLabel: 'Name'
-                        },
-                        {
-                            xtype: 'obis-displayfield',
-                            allowBlank: false,
-                            required: true,
-                            fieldLabel: 'Logbook OBIS code',
-                            name: 'obisCode'
-                        },
-                        {
-                            xtype: 'obis-field',
-                            allowBlank: false,
-                            required: true,
-                            fieldLabel: 'Overruled OBIS code',
-                            name: 'overruledObisCode'
-                        }
-                    ],
-                    buttons: [
-                        {
+                            xtype: 'button',
                             text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
                             action: 'save',
-                            ui: 'action',
-                            margin: '0 0 0 10'
+                            ui: 'action'
                         },
                         {
+                            xtype: 'button',
                             text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                             action: 'cancel',
                             ui: 'link',
