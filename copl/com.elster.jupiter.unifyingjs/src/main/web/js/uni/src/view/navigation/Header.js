@@ -66,7 +66,8 @@ Ext.define('Uni.view.navigation.Header', {
             hidden: true
         },
         {
-            xtype: 'userMenu'
+            xtype: 'userMenu',
+            itemId: 'user-menu'
         }
     ],
 

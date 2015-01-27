@@ -23,8 +23,8 @@ Ext.define('Uni.DateTime', {
     timeShortDefault: 'H:i',
     timeLongDefault: 'H:i:s',
 
-    dateTimeShortDefault: 'd M \'y H:i',
-    dateTimeLongDefault: 'D d M \'y H:i:s',
+    dateTimeShortDefault: 'd M \'y - H:i',
+    dateTimeLongDefault: 'D d M \'y - H:i:s',
 
     formatDateShort: function (date) {
         date = date || new Date();

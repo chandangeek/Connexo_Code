@@ -95,6 +95,8 @@ Ext.define('Uni.view.container.ContentContainer', {
         var side = this.side,
             content = this.content;
 
+        content.preserveScrollOnRefresh = true;
+
         if (!(side instanceof Ext.Component)) {
             // Never modify a passed config object, that could break the expectations of the using code.
             side = Ext.clone(side);
@@ -136,6 +138,28 @@ Ext.define('Uni.view.container.ContentContainer', {
      */
     getCenterContainer: function () {
         return this.down('#centerContainer');
-    }
+    },
 
+    onRender: function () {
+        this.callParent(arguments);
+        this.mon(this.getEl(), 'scroll', this.onScroll, this);
+    },
+
+
+    onScroll: function (e ,t, eOpts) {
+        this.lastScrollPosition = this.getEl().getScroll();
+    },
+
+    afterLayout: function () {
+        var el;
+
+        this.callParent(arguments);
+
+        if (this.lastScrollPosition) {
+            el = this.getEl();
+
+            el.scrollTo('left', this.lastScrollPosition.left);
+            el.scrollTo('top', this.lastScrollPosition.top);
+        }
+    }
 });

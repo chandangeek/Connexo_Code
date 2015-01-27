@@ -18,7 +18,7 @@ Ext.define('Uni.property.view.property.Base', {
         'Uni.property.view.DefaultButton'
     ],
 
-    width: 320,
+    width: 256,
     translationKey: 'UNI',
 
     layout: 'hbox',
@@ -208,7 +208,8 @@ Ext.define('Uni.property.view.property.Base', {
         return {
             xtype: 'displayfield',
             name: this.getName(),
-            itemId: this.key + 'displayfield'
+            itemId: this.key + 'displayfield',
+            cls: 'uni-property-displayfield'
         }
     },
 
@@ -306,7 +307,7 @@ Ext.define('Uni.property.view.property.Base', {
                 }
             });
             field.on('blur', function () {
-                if (field.getValue() !== '' && !me.getProperty().get('isInheritedOrDefaultValue') && field.getValue() === me.getProperty().get('default')) {
+                if (!field.hasNotValueSameAsDefaultMessage && field.getValue() !== '' && !me.getProperty().get('isInheritedOrDefaultValue') && field.getValue() === me.getProperty().get('default')) {
                     me.showPopupEnteredValueEqualsInheritedValue(field, me.getProperty());
                 }
                 if (field.getValue() === ''  && field.getValue() === me.getProperty().get('default')) {

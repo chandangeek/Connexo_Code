@@ -322,6 +322,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
 
             me.getView().height = gridHeight;
             me.headerCt.height = gridHeaderHeight;
+            me.setOverflowXY(undefined, undefined);
             me.doLayout();
         }
     },
@@ -369,5 +370,11 @@ Ext.define('Uni.view.grid.BulkSelection', {
 
     hideBottomToolbar: function () {
         this.getBottomToolbar().setVisible(false);
+    },
+
+    afterLayout: function () {
+        var me = this;
+        me.callParent(arguments);
+        me.getView().getEl().setStyle('overflow-x', 'hidden');
     }
 });

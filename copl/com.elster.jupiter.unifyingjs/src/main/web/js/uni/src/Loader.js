@@ -26,6 +26,7 @@ Ext.define('Uni.Loader', {
         'Uni.controller.Notifications',
         'Uni.controller.Portal',
         'Uni.controller.Search',
+        'Uni.controller.Session',
 
         'Uni.view.form.field.Vtypes',
         'Uni.component.filter.view.FilterTopPanel',
@@ -61,6 +62,7 @@ Ext.define('Uni.Loader', {
         'Uni.override.ux.window.Notification',
         'Uni.override.view.Table',
         'Uni.override.window.MessageBox',
+        'Uni.override.form.field.Picker',
         'Uni.form.field.ReadingTypeCombo'
     ],
 

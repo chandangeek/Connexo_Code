@@ -134,7 +134,9 @@ Ext.define('Uni.property.form.Property', {
         me.getRecord().properties().each(function (property) {
             var key = property.get('key');
             var field = me.getPropertyField(key);
-            values[key] = field.getValue(raw);
+            if (field !== undefined) {
+                values[key] = field.getValue(raw);
+            }
         });
 
         this.getForm().hydrator.hydrate(values, me.getRecord());
