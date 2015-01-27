@@ -1,5 +1,6 @@
 package com.energyict.mdc.metering.impl;
 
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -110,11 +111,17 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
     }
 
     @Override
-    public Optional<ReadingType> getIntervalAppliedReadingType(ReadingType readingType, TimeDuration interval, ObisCode registerObisCode) {
+    public Optional<ReadingType> getIntervalAppliedReadingType(ReadingType readingType, Optional<TimeDuration> interval, ObisCode registerObisCode) {
         ReadingTypeCodeBuilder readingTypeCodeBuilder = copyReadingTypeFields(readingType);
 
-        readingTypeCodeBuilder.period(MeasuringPeriodMapping.getMeasuringPeriodFor(registerObisCode, interval));
-        readingTypeCodeBuilder.period(MacroPeriodMapping.getMacroPeriodFor(registerObisCode, interval));
+        if(interval.isPresent() && interval.get().equals(TimeDuration.days(1))){
+            readingTypeCodeBuilder.period(MacroPeriod.DAILY);
+        } else if(interval.isPresent() && interval.get().equals(TimeDuration.months(1))){
+            readingTypeCodeBuilder.period(MacroPeriod.MONTHLY);
+        } else {
+            readingTypeCodeBuilder.period(MeasuringPeriodMapping.getMeasuringPeriodFor(registerObisCode, interval.orElse(null)));
+
+        }
 
         return this.meteringService.getReadingType(readingTypeCodeBuilder.code());
     }
