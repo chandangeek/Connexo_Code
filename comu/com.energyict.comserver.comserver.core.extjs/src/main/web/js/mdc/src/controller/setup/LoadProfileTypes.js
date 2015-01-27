@@ -273,7 +273,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                     }
                 },
                 callback: function (record) {
-                    form.setTitle(Uni.I18n.translate('loadProfileTypes.LoadProfileTypeEdit.editTitle', 'MDC', 'Edit') + " '" + record.get('name') + "'");
+                    form.setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + record.get('name') + "'");
                     form.setEdit(true, returnLink, addRegisterTypesLink);
                     widget.setLoading(false);
                 }
