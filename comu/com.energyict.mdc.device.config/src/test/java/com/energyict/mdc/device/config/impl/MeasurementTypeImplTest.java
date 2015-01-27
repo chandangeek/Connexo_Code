@@ -351,8 +351,8 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         }
 
         TimeDuration fifteenMinutes = TimeDuration.minutes(15);
-        Optional<ReadingType> intervalAppliedReadingType1 = inMemoryPersistence.getReadingTypeUtilService().getIntervalAppliedReadingType(readingType1, fifteenMinutes, obisCode1);
-        Optional<ReadingType> intervalAppliedReadingType2 = inMemoryPersistence.getReadingTypeUtilService().getIntervalAppliedReadingType(readingType2, fifteenMinutes, obisCode2);
+        Optional<ReadingType> intervalAppliedReadingType1 = inMemoryPersistence.getReadingTypeUtilService().getIntervalAppliedReadingType(readingType1, Optional.of(fifteenMinutes), obisCode1);
+        Optional<ReadingType> intervalAppliedReadingType2 = inMemoryPersistence.getReadingTypeUtilService().getIntervalAppliedReadingType(readingType2, Optional.of(fifteenMinutes), obisCode2);
         assertThat(intervalAppliedReadingType1.isPresent()).isTrue();
         assertThat(intervalAppliedReadingType2.isPresent()).isTrue();
         ChannelType firstChannelType = inMemoryPersistence.getMasterDataService().newChannelType(registerType, fifteenMinutes, intervalAppliedReadingType1.get());
