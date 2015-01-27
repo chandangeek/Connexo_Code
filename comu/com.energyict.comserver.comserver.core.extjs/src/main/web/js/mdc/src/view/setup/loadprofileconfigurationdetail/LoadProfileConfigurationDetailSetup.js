@@ -2,7 +2,8 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     extend: 'Uni.view.container.ContentContainer',
     requires: [
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationActionMenu'
     ],
     xtype: 'loadProfileConfigurationDetailSetup',
     router: null,
@@ -12,10 +13,26 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
 
         me.content = [
             {
-                xtype: 'loadProfileConfigurationDetailInfo',
-                itemId: 'loadProfileConfigurationDetailInfo',
-                ui: 'large',
-                title: '&nbsp;'
+                xtype: 'container',
+                layout: 'hbox',
+                items: [
+                    {
+                        xtype: 'loadProfileConfigurationDetailInfo',
+                        itemId: 'loadProfileConfigurationDetailInfo',
+                        ui: 'large',
+                        flex: 1,
+                        title: '&nbsp;'
+                    },
+                    {
+                        xtype: 'button',
+                        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                        iconCls: 'x-uni-action-iconD',
+                        margin: '20 0 0 0',
+                        menu: {
+                            xtype: 'load-profile-configuration-action-menu'
+                        }
+                    }
+                ]
             },
             {
                 xtype: 'panel',

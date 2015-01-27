@@ -91,33 +91,58 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
 
     editRecord: function () {
         var grid = this.getLoadConfigurationGrid(),
+            lastSelected,
+            me,
+            loadProfileConfigurationId;
+
+        if (grid) {
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
-        window.location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofiles/' + lastSelected.getData().id + '/edit';
+            me = this;
+            loadProfileConfigurationId = lastSelected.getData().id;
+        } else {
+            me = this.getController('Mdc.controller.setup.LoadProfileConfigurationDetails');
+            loadProfileConfigurationId = me.loadProfileConfigurationId;
+        }
+
+        window.location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofiles/' + loadProfileConfigurationId + '/edit';
     },
 
     showConfirmationPanel: function () {
-        var me = this,
-            grid = me.getLoadConfigurationGrid(),
-            lastSelected = grid.getView().getSelectionModel().getLastSelected();
+        var grid = this.getLoadConfigurationGrid(),
+            lastSelectedName;
+
+        if (grid) {
+            lastSelectedName = grid.getView().getSelectionModel().getLastSelected().get('name');
+        } else {
+            lastSelectedName = this.getController('Mdc.controller.setup.LoadProfileConfigurationDetails').loadProfileConfiguration.name;
+        }
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('loadProfileConfigurations.confirmWindow.removeMsg', 'MDC', 'This load profile configuration will be removed from the list.'),
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + " '" + lastSelected.get('name') + "'?",
+            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + " '" + lastSelectedName + "'?",
             config: {
-                me: me
+                me: this
             },
-            fn: me.confirmationPanelHandler
+            fn: this.confirmationPanelHandler
         });
     },
 
     confirmationPanelHandler: function (state, text, conf) {
         var me = conf.config.me,
-            grid = me.getLoadConfigurationGrid(),
-            lastSelected = grid.getView().getSelectionModel().getLastSelected();
+            lastSelectedId,
+            self;
+
+        if (me.getLoadConfigurationGrid()) {
+            self = me;
+            lastSelectedId = me.getLoadConfigurationGrid().getView().getSelectionModel().getLastSelected().getData().id;
+        } else {
+            self = me.getController('Mdc.controller.setup.LoadProfileConfigurationDetails');
+            lastSelectedId = self.loadProfileConfiguration.id;
+        }
 
         if (state === 'confirm') {
             Ext.Ajax.request({
-                url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + lastSelected.getData().id,
+                url: '/api/dtc/devicetypes/' + self.deviceTypeId + '/deviceconfigurations/' + self.deviceConfigurationId + '/loadprofileconfigurations/' + lastSelectedId,
                 method: 'DELETE',
                 waitMsg: 'Removing...',
                 success: function () {
@@ -216,7 +241,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
     },
 
     handleSuccessRequest: function (headerText) {
-        window.location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofiles';
+        var me = this.getLoadConfigurationGrid() ? this : this.getController('Mdc.controller.setup.LoadProfileConfigurationDetails');
+        window.location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofiles';
         this.getApplication().fireEvent('acknowledge', headerText);
     },
 
