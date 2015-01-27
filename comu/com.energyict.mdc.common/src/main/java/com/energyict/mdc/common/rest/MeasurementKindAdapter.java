@@ -136,5 +136,11 @@ public class MeasurementKindAdapter extends MapBasedXmlAdapter<MeasurementKind> 
         register("voltage",MeasurementKind.VOLTAGE);
         register("dc voltage",MeasurementKind.DCVOLTAGE);
         register("ac voltage peak",MeasurementKind.ACVOLTAGEPEAK);
-        register("ac voltage peak to peak",MeasurementKind.ACVOLTAGEPEAKTOPEAK);    }
+        register("ac voltage peak to peak",MeasurementKind.ACVOLTAGEPEAKTOPEAK);
+        register("CT Ratio",MeasurementKind.CTRATIO);
+        register("multiplier",MeasurementKind.MULTIPLIER);
+        register("Security state",MeasurementKind.SECURITYSTATE);
+        register("Blacklist table",MeasurementKind.BLACKLISTTABLE);
+
+    }
 }
