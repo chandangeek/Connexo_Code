@@ -31,20 +31,6 @@ public class StandardParametersBean {
         this.uriInfo = uriInfo;
     }
 
-/*    public Order[] getOrder() {
-        List<Order> orders = new ArrayList<Order>();
-        for (String field : this.sort) {
-            if(field.startsWith("-")) {
-                orders.add(Order.descending(field.substring(1)));
-            }
-            else {
-                orders.add(Order.ascending(field));
-            }
-        }
-        return orders.toArray(new Order[orders.size()]);
-    }
-*/
-
     public Order[] getOrder() {
         return getOrder("");
     }
