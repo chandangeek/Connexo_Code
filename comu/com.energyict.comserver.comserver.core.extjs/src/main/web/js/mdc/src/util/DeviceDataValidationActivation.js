@@ -19,6 +19,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + mRID + '/validationrulesets/validationstatus',
             method: 'GET',
+            timeout: 60000,
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
                 if (view.down('#dataValidationStatusPanel')) {
@@ -55,6 +56,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
             method: 'GET',
+            timeout: 60000,
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
                 me.hasValidation = res.hasValidation;

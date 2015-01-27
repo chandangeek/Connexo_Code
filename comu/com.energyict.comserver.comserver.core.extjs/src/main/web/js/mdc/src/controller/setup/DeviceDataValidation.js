@@ -59,6 +59,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                 Ext.Ajax.request({
                     url: '/api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
                     method: 'GET',
+                    timeout: 60000,
                     success: function () {
                         var widget = Ext.widget('deviceDataValidationRulesSetMainView', { device: device });
                         me.updateDataValidationStatusSection(mRID, widget);
@@ -86,8 +87,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
         var validationRuleSet = grid.lastSelected,
             rulesSetPreview = Ext.widget('deviceDataValidationRulesSetPreview', {
                 rulesSetId: validationRuleSet.get('id'),
-                title: validationRuleSet.get('name'),
-                height: 750
+                title: validationRuleSet.get('name')
             });
         this.getRulesSetPreviewCt().add(rulesSetPreview);
         var menuItem = this.getChangeRuleSetStateActionMenuItem();
@@ -166,7 +166,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                 }
             );
         }
-        Ext.resumeLayouts();
+        Ext.resumeLayouts(true);
     },
     changeRuleSetStatus: function () {
         var me = this,

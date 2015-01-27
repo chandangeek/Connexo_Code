@@ -160,7 +160,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         url: '/api/cts/comtasks/' + id,
                         method: 'DELETE',
                         success: function () {
-                            self.getApplication().fireEvent('acknowledge', 'Successfully removed');
+                            self.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comtasks.removeSuccessMsg', 'MDC', 'Communciation task removed'));
                             self.store.loadPage(1, {
                                 callback: function () {
                                     grid.getSelectionModel().select(0);

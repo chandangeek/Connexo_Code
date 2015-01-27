@@ -84,7 +84,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             criteriaContainer = searchItems.down('container[name=filter]').getContainer(),
             store = this.getStore('Mdc.store.Devices');
 
-        store.clearFilter();
+        store.clearFilter(true);
         store.getProxy().extraParams = {};
         if (searchItems.down('#mrid').getValue() != '') {
             var button = searchItems.down('button[name=mRIDBtn]');
@@ -225,22 +225,37 @@ Ext.define('Mdc.controller.setup.SearchItems', {
     saveState: function () {
         var me = this,
             searchItems = this.getSearchItems(),
-            state = {};
+            state = {},
+            sortContainer = searchItems.down('container[name=sortitemspanel]').getContainer(),
+            sortItems = [];
         state.mrid = searchItems.down('#mrid').getValue();
         state.sn = searchItems.down('#sn').getValue();
         state.type = searchItems.down('#type').getValue();
         state.conf = searchItems.down('#configuration').getValue();
+
+        if (sortContainer) {
+            sortContainer.items.each(function (btns) {
+                var dir = btns.sortDirection;
+                sortItems.push({property: btns.sortName, direction: dir, text: btns.text, name: btns.name, sortName: btns.sortName});
+            });
+        }
+        state.sort = sortItems;
         me.state = state;
     },
 
     restoreState: function () {
         if (this.state) {
             var me = this,
-                searchItems = me.getSearchItems();
+                searchItems = me.getSearchItems(),
+                sortContainer = searchItems.down('container[name=sortitemspanel]').getContainer();
             searchItems.down('#mrid').setValue(me.state.mrid);
             searchItems.down('#sn').setValue(me.state.sn);
             searchItems.down('#type').setValue(me.state.type);
             searchItems.down('#configuration').setValue(me.state.conf);
+            me.state.sort.forEach(function(sort){
+                var button = sortContainer.down('button[name=' + sort.name + ']');
+                me.createSortButton(button, sortContainer, sort.name, sort.property, sort.text, sort.direction);
+            });
             delete me.state;
             me.searchClick(me.getSearchButton());
         }
@@ -266,15 +281,15 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         }
     },
 
-    createSortButton: function (button, container, name, sortName, text) {
+    createSortButton: function (button, container, name, sortName, text, direction) {
         if (Ext.isEmpty(button)) {
             container.add({
                 xtype: 'sort-item-btn',
                 name: name,
                 sortName: sortName,
                 text: text,
-                iconCls: 'x-btn-sort-item-asc',
-                sortDirection: Uni.component.sort.model.Sort.ASC
+                iconCls: (direction == Uni.component.sort.model.Sort.DESC) ? 'x-btn-sort-item-desc' : 'x-btn-sort-item-asc',
+                sortDirection: direction ? direction : Uni.component.sort.model.Sort.ASC
             });
         }
     },
@@ -343,6 +358,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         var me = this;
         var router = this.getController('Uni.controller.history.Router');
 
+        me.saveState();
         var searchCriteria = {};
         var store = me.getStore('Mdc.store.Devices');
         Ext.apply(searchCriteria,store.getProxy().extraParams);

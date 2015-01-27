@@ -276,6 +276,9 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         this.getDeviceConnectionMethodEditView().down('#allowSimultaneousConnections').setDisabled(false);
         if (connectionMethod.get('connectionStrategy') === 'minimizeConnections') {
             this.getDeviceConnectionMethodEditView().down('form').down('#scheduleFieldContainer').setVisible(true);
+            if (connectionMethod.get('temporalExpression')) {
+                this.getDeviceConnectionMethodEditView().down('#scheduleField').setValue(connectionMethod.get('temporalExpression'));
+            }
             this.getDeviceConnectionMethodEditView().down('form').down('#allowSimultaneousConnections').setVisible(false);
         }
         if (connectionMethod.get('comWindowStart') || connectionMethod.get('comWindowEnd')) {

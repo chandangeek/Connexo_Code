@@ -223,6 +223,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             this.record.save({
                 success: function (record) {
                     location.href = '#/administration/communicationschedules';
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.added', 'MDC', 'Shared communication schedule added'));
                     editView.setLoading(false);
                 },
                 failure: function (record, operation) {
@@ -313,7 +314,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                     if (operation.wasSuccessful()) {
                         gridToolbarTop.totalCount = 0;
                         store.loadPage(1);
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.removed', 'MDC', 'Shared communication schedule successfully removed'));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.removed', 'MDC', 'Shared communication schedule removed'));
                     }
                 }
             });

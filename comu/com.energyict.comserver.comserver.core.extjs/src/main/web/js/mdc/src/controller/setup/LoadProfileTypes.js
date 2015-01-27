@@ -85,22 +85,18 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         if (state === 'confirm') {
             widget.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
             model.destroy({
-                callback: function (model, operation, success) {
-                    var json;
-
+                success: function () {
                     widget.setLoading(false);
-
-                    if (success) {
-                        me.handleSuccessRequest(Uni.I18n.translate('loadProfileTypes.removeSuccessMsg', 'MDC', 'Load profile type was removed successfully'));
-                        me.store.loadPage(1);
-                    } else {
-                        json = Ext.decode(operation.response.responseText, true);
-                        if (json && json.message) {
-                            me.getApplication().getController(
-                                'Uni.controller.Error').showError(Uni.I18n.translate('loadProfileTypes.removeErrorMsg', 'MDC', 'Error during removing of load profile'),
-                                json.message
-                            );
-                        }
+                        me.getApplication().fireEvent('acknowledge',Uni.I18n.translate('loadProfileTypes.removeSuccessMsg', 'MDC', 'Load profile type removed'));
+                },
+                failure: function(response){
+                    var json;
+                    json = Ext.decode(response.responseText, true);
+                    if (json && json.message) {
+                        me.getApplication().getController(
+                            'Uni.controller.Error').showError(Uni.I18n.translate('loadProfileTypes.removeErrorMsg', 'MDC', 'Error during removing of load profile'),
+                            json.message
+                        );
                     }
                 }
             });
@@ -278,7 +274,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                     }
                 },
                 callback: function (record) {
-                    form.setTitle(Uni.I18n.translate('loadProfileTypes.LoadProfileTypeEdit.editTitle', 'MDC', 'Edit') + " '" + record.get('name') + "'");
+                    form.setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + record.get('name') + "'");
                     form.setEdit(true, returnLink, addRegisterTypesLink);
                     widget.setLoading(false);
                 }

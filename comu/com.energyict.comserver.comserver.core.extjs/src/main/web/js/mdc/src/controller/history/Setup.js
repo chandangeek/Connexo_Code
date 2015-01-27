@@ -864,7 +864,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     controller: 'Mdc.controller.setup.DataCollectionKpi',
                     action: 'showDataCollectionKpiView',
                     items: {
-                        create: {
+                        add: {
                             title: Uni.I18n.translate('datacollectionkpis.addDataCollectionKpi', 'MDC', 'Add data collection KPI'),
                             route: 'add',
                             controller: 'Mdc.controller.setup.DataCollectionKpi',
@@ -934,7 +934,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Add device group',
                             route: 'add',
                             controller: 'Mdc.controller.setup.AddDeviceGroupAction',
-                            privileges: ['privilege.administrate.deviceGroup'],
+                            privileges: ['privilege.administrate.deviceGroup','privilege.administrate.deviceOfEnumeratedGroup','privilege.view.deviceGroupDetail'],
                             action: 'showAddDeviceGroupAction',
                             filter: 'Mdc.model.DeviceFilter'
                         },
@@ -942,6 +942,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Overview',
                             route: '{deviceGroupId}',
                             controller: 'Mdc.controller.setup.DeviceGroups',
+                            privileges: ['privilege.administrate.deviceGroup','privilege.administrate.deviceOfEnumeratedGroup','privilege.view.deviceGroupDetail'],
                             action: 'showDevicegroupDetailsView',
                             callback: function (route) {
                                 this.getApplication().on('loadDeviceGroup', function (record) {
@@ -956,6 +957,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                                     route: 'edit',
                                     controller: 'Mdc.controller.setup.AddDeviceGroupAction',
+                                    privileges: ['privilege.administrate.deviceGroup','privilege.administrate.deviceOfEnumeratedGroup','privilege.view.deviceGroupDetail'],
                                     action: 'showEditDeviceGroup',
                                     filter: 'Mdc.model.DeviceFilter'
                                 }

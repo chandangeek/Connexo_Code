@@ -81,9 +81,10 @@ Ext.define('Mdc.controller.setup.Devices', {
         var me = this;
         record.run(function () {
             me.getApplication().fireEvent('acknowledge',
-                Uni.I18n.translate('device.connection.run.now', 'MDC', 'Connection will run immediately')
+                Uni.I18n.translate('device.connection.run.now', 'MDC', 'Run succeeded')
             );
             record.set('nextExecution', new Date());
+            me.doRefresh();
         });
     },
 
@@ -106,26 +107,30 @@ Ext.define('Mdc.controller.setup.Devices', {
     communicationToggle: function (record) {
         var me = this;
         var status = !record.get('isOnHold');
-        record.set('isOnHold', status);
-        record.save({
-            callback: function (record, operation, success) {
-                if (success) {
-                    me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translate('device.communication.toggle.' + status, 'MDC', 'Communication status changed to: ' + status)
-                    );
-                }
-            }
-        });
+        if (status) {
+            record.deactivate(function () {
+                me.getApplication().fireEvent('acknowledge',
+                Uni.I18n.translate('device.communication.toggle.deactivate', 'MDC', 'Communication task deactivated'));
+                me.doRefresh();
+
+            });
+        } else {
+            record.activate(function () {
+                me.getApplication().fireEvent('acknowledge',
+                Uni.I18n.translate('device.communication.toggle.activate', 'MDC', 'Communication task activated'));
+                me.doRefresh();
+            });
+        }
     },
 
-    communicationActivateAll: function() {
+    communicationActivateAll: function () {
         var me = this,
             router = this.getController('Uni.controller.history.Router');
 
         Ext.Ajax.request({
             method: 'PUT',
             url: '/api/ddr/devices/{mRID}/communications/activate'.replace('{mRID}', router.arguments.mRID),
-            success: function() {
+            success: function () {
                 me.refreshCommunications();
                 me.getApplication().fireEvent('acknowledge',
                     Uni.I18n.translate('device.communication.activateAll', 'MDC', 'Communication tasks activated')
@@ -134,14 +139,14 @@ Ext.define('Mdc.controller.setup.Devices', {
         });
     },
 
-    communicationDeactivateAll: function() {
+    communicationDeactivateAll: function () {
         var me = this,
             router = this.getController('Uni.controller.history.Router');
 
         Ext.Ajax.request({
             method: 'PUT',
             url: '/api/ddr/devices/{mRID}/communications/deactivate'.replace('{mRID}', router.arguments.mRID),
-            success: function() {
+            success: function () {
                 me.refreshCommunications();
                 me.getApplication().fireEvent('acknowledge',
                     Uni.I18n.translate('device.communication.deactivateAll', 'MDC', 'Communication tasks deactivated')
@@ -154,19 +159,21 @@ Ext.define('Mdc.controller.setup.Devices', {
         var me = this;
         record.run(function () {
             me.getApplication().fireEvent('acknowledge',
-                Uni.I18n.translate('device.communication.run.wait', 'MDC', 'Communication task will wait')
+                Uni.I18n.translate('device.communication.run.wait', 'MDC', 'Run succeeded')
             );
             record.set('plannedDate', new Date());
+            me.doRefresh();
         });
     },
 
     communicationRunNow: function (record) {
         var me = this;
-        record.run(function () {
+        record.runNow(function () {
             me.getApplication().fireEvent('acknowledge',
-                Uni.I18n.translate('device.communication.run.now', 'MDC', 'Communication task will run immediately')
+                Uni.I18n.translate('device.communication.run.now', 'MDC', 'Run now succeeded')
             );
             record.set('plannedDate', new Date());
+            me.doRefresh();
         });
     },
 
@@ -184,7 +191,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                 var widget = Ext.widget('deviceSetup', {router: router, device: device});
                 var deviceLabelsStore = device.labels();
                 deviceLabelsStore.getProxy().setUrl(mRID);
-                deviceLabelsStore.load(function() {
+                deviceLabelsStore.load(function () {
                     widget.renderFlag(deviceLabelsStore);
                 });
 
@@ -200,7 +207,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                 me.getDeviceGeneralInformationForm().loadRecord(device);
 
                 if ((device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters'))
-                    && (Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDevice']))) {
+                    && (Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration', 'privilege.view.fineTuneValidationConfiguration.onDevice']))) {
                     me.updateDataValidationStatusSection(mRID, widget);
                 } else {
                     widget.down('device-data-validation-panel').hide();
@@ -216,7 +223,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         this.refreshCommunications();
     },
 
-    refreshConnections: function() {
+    refreshConnections: function () {
         var widget = this.getDeviceSetup();
         var device = widget.device;
         var lastUpdateField = widget.down('#deviceSetupPanel #last-updated-field');
@@ -231,7 +238,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         });
     },
 
-    refreshCommunications: function() {
+    refreshCommunications: function () {
         var widget = this.getDeviceSetup();
         var device = widget.device;
         var lastUpdateField = widget.down('#deviceSetupPanel #last-updated-field');
