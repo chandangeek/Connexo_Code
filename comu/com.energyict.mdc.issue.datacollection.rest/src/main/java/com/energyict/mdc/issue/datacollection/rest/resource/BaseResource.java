@@ -1,6 +1,7 @@
 package com.energyict.mdc.issue.datacollection.rest.resource;
 
 
+import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;

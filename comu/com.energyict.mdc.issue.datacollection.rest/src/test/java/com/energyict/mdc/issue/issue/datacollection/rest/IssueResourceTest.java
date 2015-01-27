@@ -233,7 +233,7 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
         Map<?, ?> map = target("issue/groupedlist").queryParam(ISSUE_TYPE, "datacollection")
                 .queryParam(START, 0).queryParam(LIMIT, 1).queryParam(FIELD, "reason").request().get(Map.class);
 
-        assertThat(map.get("total")).isEqualTo(2);
+        assertThat(map.get("total")).isEqualTo(1);
 
         List<?> groups = (List<?>) map.get("data");
         assertThat(groups).hasSize(1);

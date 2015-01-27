@@ -43,6 +43,7 @@ import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
 import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.request.PerformActionRequest;
+import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
@@ -97,7 +98,7 @@ public class IssueResource extends BaseResource {
         Query<? extends IssueDataCollection> query = getIssueDataCollectionService().query(apiClass, eagerClass, EndDevice.class, User.class, IssueReason.class,
                 IssueStatus.class, AssigneeRole.class, AssigneeTeam.class, IssueType.class);
         Condition condition = getQueryCondition(params);
-        List<? extends IssueDataCollection> list = query.select(condition, params.getFrom(), params.getTo() + 1, params.getOrder("baseIssue."));
+        List<? extends IssueDataCollection> list = query.select(condition, params.getFrom(), params.getTo(), params.getOrder("baseIssue."));
         return PagedInfoList.asJson("data", issuesInfoFactory.asInfos(list), queryParams);
     }
 
