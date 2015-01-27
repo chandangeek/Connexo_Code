@@ -969,8 +969,8 @@ public class DemoServiceImpl implements DemoService {
             configuration.save();
         }
 
-        Condition devicesForActivation = where("mRID").like(Constants.Device.STANDARD_PREFIX + "%");
-        devicesForActivation = devicesForActivation.or(where("mRID").like(Constants.Device.MOCKED_VALIDATION_DEVICE + "%"));
+        Condition devicesForActivation = /*where("mRID").like(Constants.Device.STANDARD_PREFIX + "%");
+        devicesForActivation = devicesForActivation.or(*/where("mRID").like(Constants.Device.MOCKED_VALIDATION_DEVICE + "%");
 
         List<Meter> meters = meteringService.getMeterQuery().select(devicesForActivation);
         for (Meter meter : meters) {
