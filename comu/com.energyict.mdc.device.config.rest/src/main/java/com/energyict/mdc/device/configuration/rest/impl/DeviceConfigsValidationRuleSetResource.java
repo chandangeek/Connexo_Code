@@ -116,7 +116,8 @@ public class DeviceConfigsValidationRuleSetResource {
                                                     @BeanParam QueryParameters queryParameters) {
         DeviceConfigurationInfos result = new DeviceConfigurationInfos();
         ValidationRuleSet validationRuleSet = getValidationRuleSet(validationRuleSetId);
-        List<DeviceConfiguration> allLinkableDeviceConfigurations = deviceConfigurationService.getLinkableDeviceConfigurations(validationRuleSet);
+        //List<DeviceConfiguration> allLinkableDeviceConfigurations = deviceConfigurationService.getLinkableDeviceConfigurations(validationRuleSet);
+        List<DeviceConfiguration> allLinkableDeviceConfigurations = allLinkableDeviceConfigurations(validationRuleSet);
 
         DeviceConfigurationInfos.DeviceConfigAndTypeInfo[] infos = new DeviceConfigurationInfos.DeviceConfigAndTypeInfo[allLinkableDeviceConfigurations.size()];
 
@@ -158,6 +159,12 @@ public class DeviceConfigsValidationRuleSetResource {
         for (ValidationRule validationRule : ruleSet.getRules()) {
             for (ReadingType readingType : validationRule.getReadingTypes()) {
                 readingTypesInRuleSet.add(readingType);
+                if (readingType.isCumulative()) {
+                    Optional<ReadingType> delta = readingType.getCalculatedReadingType();
+                    if (delta.isPresent()) {
+                        readingTypesInRuleSet.add(delta.get());
+                    }
+                }
             }
         }
         return readingTypesInRuleSet;
