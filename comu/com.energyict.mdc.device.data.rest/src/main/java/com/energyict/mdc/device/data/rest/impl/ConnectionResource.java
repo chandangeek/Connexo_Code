@@ -8,8 +8,10 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfoFactory;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.config.ComPortPool;
 
 import javax.annotation.security.RolesAllowed;
@@ -26,6 +28,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class ConnectionResource {
@@ -84,7 +87,9 @@ public class ConnectionResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask> task = resourceHelper.findConnectionTaskOrThrowException(device, connectionTaskId);
         if (task instanceof ScheduledConnectionTask) {
-            ((ScheduledConnectionTask) task).scheduleNow();
+            ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) task;
+            scheduledConnectionTask.scheduleNow();
+            scheduledConnectionTask.getScheduledComTasks().stream().filter(comTaskExecution -> comTaskExecution.getStatus().equals(TaskStatus.Failed)|| comTaskExecution.getStatus().equals(TaskStatus.Retrying)).forEach(ComTaskExecution::runNow);
         } else {
             throw exceptionFactory.newException(MessageSeeds.RUN_CONNECTIONTASK_IMPOSSIBLE);
         }
