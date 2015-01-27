@@ -15,17 +15,21 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
-import org.junit.Test;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
+import com.jayway.jsonpath.JsonModel;
+import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -303,5 +307,42 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         verify(comTaskExecutionBuilder, times(1)).add();
         verify(comTaskExecution, times(1)).scheduleNow();
+    }
+
+    @Test
+    public void testDeleteComTaskExecution() throws Exception {
+        Device device = mock(Device.class);
+        when(deviceService.findByUniqueMrid("ZAFB001")).thenReturn(device);
+
+        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        when(comTaskExecution.getId()).thenReturn(12L);
+        ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
+        when(comTaskExecution2.getId()).thenReturn(13L);
+
+        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution2, comTaskExecution));
+
+        Response response = target("/devices/ZAFB001/schedules/12").request().delete();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(device).removeComTaskExecution(comTaskExecution);
+    }
+
+    @Test
+    public void testDeleteNonExistingComTaskExecution() throws Exception {
+        Device device = mock(Device.class);
+        when(deviceService.findByUniqueMrid("ZAFB001")).thenReturn(device);
+
+        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        when(comTaskExecution.getId()).thenReturn(12L);
+        ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
+        when(comTaskExecution2.getId()).thenReturn(13L);
+
+        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution2, comTaskExecution));
+
+        Response response = target("/devices/ZAFB001/schedules/666").request().delete();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<Boolean>get("$.success")).isEqualTo(false);
+        assertThat(jsonModel.<String>get("$.message")).isEqualTo(MessageSeeds.NO_SUCH_COM_TASK_EXEC.getDefaultFormat());
+        assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.NO_SUCH_COM_TASK_EXEC.getKey());
     }
 }
