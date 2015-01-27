@@ -114,7 +114,7 @@ Ext.define('Idc.view.workspace.issues.AssignForm', {
         }
     ],
     assigneeTypeChange: function (combo, record) {
-        var value = record.get(combo.valueField);
+        var value = record.get(combo.valueField),
             assigneeCombo = combo.nextNode('combobox[name=assigneeCombo]'),
             tooltips = Ext.ComponentQuery.query('tooltip[name=assigneeTooltip]'),
             hint = 'Start typing for ' + combo.getRawValue().toLowerCase() + 's';
@@ -128,24 +128,33 @@ Ext.define('Idc.view.workspace.issues.AssignForm', {
             anchor: 'top'
         });
         assigneeCombo.emptyText = hint;
+        assigneeCombo.clearValue();
         switch (value) {
             case 'USER' :
                 var userStore = Ext.getStore('Idc.store.UserList');
-                assigneeCombo.bindStore(userStore);
-                assigneeCombo.store.load();
+                userStore.load(function (records) {
+                    if (!Ext.isEmpty(records)) {
+                        assigneeCombo.bindStore(userStore);
+                    }
+                });
                 break;
             case 'GROUP' :
                 var groupStore = Ext.getStore('Idc.store.UserGroupList');
-                assigneeCombo.bindStore(groupStore);
-                assigneeCombo.store.load();
+                groupStore.load(function (records) {
+                    if (!Ext.isEmpty(records)) {
+                        assigneeCombo.bindStore(groupStore);
+                    }
+                });
                 break;
             case 'ROLE' :
                 var roleStore = Ext.getStore('Idc.store.UserRoleList');
-                assigneeCombo.bindStore(roleStore);
-                assigneeCombo.store.load();
+                roleStore.load(function (records) {
+                    if (!Ext.isEmpty(records)) {
+                        assigneeCombo.bindStore(roleStore);
+                    }
+                });
                 break;
         }
-        assigneeCombo.clearValue();
     },
 
     loadRecord: function (record) {
