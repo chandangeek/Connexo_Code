@@ -17,11 +17,6 @@ Ext.define('Dxp.view.datasources.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.deviceStatus', 'DES', 'Device status'),
-                dataIndex: 'active',
-                flex: 1
-            },
-            {
                 header: Uni.I18n.translate('general.serialNumber', 'DES', 'Serial number'),
                 dataIndex: 'serialNumber',
                 flex: 1
