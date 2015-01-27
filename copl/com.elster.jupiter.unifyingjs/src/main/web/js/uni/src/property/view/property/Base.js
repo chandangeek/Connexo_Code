@@ -307,7 +307,7 @@ Ext.define('Uni.property.view.property.Base', {
                 }
             });
             field.on('blur', function () {
-                if (field.getValue() !== '' && !me.getProperty().get('isInheritedOrDefaultValue') && field.getValue() === me.getProperty().get('default')) {
+                if (!field.hasNotValueSameAsDefaultMessage && field.getValue() !== '' && !me.getProperty().get('isInheritedOrDefaultValue') && field.getValue() === me.getProperty().get('default')) {
                     me.showPopupEnteredValueEqualsInheritedValue(field, me.getProperty());
                 }
                 if (field.getValue() === ''  && field.getValue() === me.getProperty().get('default')) {

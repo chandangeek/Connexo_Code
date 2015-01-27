@@ -13,7 +13,6 @@ Ext.define('Uni.controller.Session', {
         this.lastResetTime = new Date();
         this.getTimeOutFromserver();
         this.initListeners();
-        this.start();
     },
 
     getTimeOutFromserver: function(){
@@ -38,34 +37,9 @@ Ext.define('Uni.controller.Session', {
         Ext.Ajax.on('beforerequest', this.checkRequestAndResetActivity, this);
     },
 
-    start: function () {
-        if (this.initialized) {
-            this.runner.start(
-                {
-                    run: this.checkActivity,
-                    interval: 1000 * 60,
-                    scope: this
-                }
-            )
-        }
-    },
     checkRequestAndResetActivity: function (con, options) {
         if (options.url !== '/api/apps/session/timeout') {
             this.resetActivity();
-        }
-    },
-
-    checkActivity : function(){
-        var me = this;
-        var currentTime = new Date();
-        me.log("Check Activity  ....");
-        if (currentTime - this.lastResetTime > this.maxInactive) {
-            // don't do anything since it possible to have active sessions in different tabs.
-            // other Connection sessions like opened reports, or sessions with Reports Designer
-            me.log("Inactivity timeout expired.");
-        }
-        else{
-            me.log("OK.");
         }
     },
 

@@ -28,7 +28,7 @@ Ext.define('Uni.controller.Acknowledgements', {
         msgWindow.setMessage(message);
         msgWindow.center();
         msgWindow.setPosition(msgWindow.x, 116, false);
-
+        msgWindow.doLayout();
         task.delay(5000);
     }
 });
