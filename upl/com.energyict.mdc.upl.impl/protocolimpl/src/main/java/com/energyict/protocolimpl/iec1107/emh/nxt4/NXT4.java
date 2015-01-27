@@ -349,6 +349,9 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
         return getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
     }
 
+    /**
+     * The protocol version date
+     */
     public String getProtocolVersion() {
         return "$Date$";
     }

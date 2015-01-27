@@ -146,6 +146,10 @@ public class NXT4Properties implements ConfigurationSupport {
         return getBooleanProperty("ReadUserLogBook", "0");
     }
 
+    public boolean reconnectAfterR6Read() {
+        return getBooleanProperty("ReconnectAfterR6Read", "1");
+    }
+
     public ProtocolChannelMap getProtocolChannelMap() {
         try {
             return new ProtocolChannelMap(getProperty("ChannelMap", "0,0,0,0"));
@@ -201,6 +205,7 @@ public class NXT4Properties implements ConfigurationSupport {
         result.add("Software7E1");
         result.add("DateFormat");
         result.add("ReadUserLogBook");
+        result.add("ReconnectAfterR6Read");
         return result;
     }
 

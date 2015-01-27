@@ -80,12 +80,25 @@ public class NXT4Profile extends VDEWProfile {
      * @throws IOException
      */
     private void disconnectAndReconnect() throws IOException {
-        boolean oldDataReadoutMode = getProtocol().getProperties().isDataReadout();
-        getProtocol().getFlagIEC1107Connection().getHhuSignOn().enableDataReadout(false);   // To prevent a 2th readout of the data dump, cause the dump has already been read out
-        getProtocol().setReconnect(true); // To prevent the 'Extended logging' is printed a 2th time
-        getProtocol().disconnect();
-        getProtocol().connect();
-        getProtocol().getFlagIEC1107Connection().getHhuSignOn().enableDataReadout(oldDataReadoutMode);
+        if (getProtocol().getProperties().reconnectAfterR6Read()) {
+            boolean oldDataReadoutMode = getProtocol().getProperties().isDataReadout();
+            // Disable datareadout, in order to prevent a 2th readout of the data dump during reconnect
+            getProtocol().getProperties().setDataReadout(false);
+            if (getProtocol().getFlagIEC1107Connection().getHhuSignOn() != null) {
+                getProtocol().getFlagIEC1107Connection().getHhuSignOn().enableDataReadout(false);
+            }
+            getProtocol().setReconnect(true); // To prevent the 'Extended logging' is printed a 2th time
+
+            // Do the disconnect and reconnect
+            getProtocol().disconnect();
+            getProtocol().connect();
+
+            // Restore datareadout properties
+            getProtocol().getProperties().setDataReadout(oldDataReadoutMode);
+            if (getProtocol().getFlagIEC1107Connection().getHhuSignOn() != null) {
+                getProtocol().getFlagIEC1107Connection().getHhuSignOn().enableDataReadout(oldDataReadoutMode);
+            }
+        }
     }
 
     /**
