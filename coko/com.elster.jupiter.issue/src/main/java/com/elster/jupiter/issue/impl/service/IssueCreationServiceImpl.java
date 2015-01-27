@@ -167,10 +167,10 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         baseIssue.setDueDate(Instant.ofEpochMilli(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
         baseIssue.setOverdue(false);
         baseIssue.setRule(firedRule);
-        baseIssue.addComment(firedRule.getComment(), userService.findUser("batch executor").orElse(null));
         baseIssue.setDevice(event.getEndDevice());
         Optional<? extends Issue> newIssue = template.createIssue(baseIssue, event);
-        if (newIssue.isPresent()){
+        if (newIssue.isPresent()) {
+            newIssue.get().addComment(firedRule.getComment(), userService.findUser("batch executor").orElse(null));
             newIssue.get().autoAssign();
             executeCreationActions(newIssue.get());
         }
