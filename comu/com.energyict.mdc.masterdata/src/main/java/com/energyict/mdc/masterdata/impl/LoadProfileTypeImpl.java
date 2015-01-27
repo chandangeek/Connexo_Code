@@ -277,7 +277,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
             return this.mdcReadingTypeUtilService
                     .getIntervalAppliedReadingType(
                             measurementTypeWithoutInterval.getReadingType(),
-                            getInterval(),
+                            Optional.ofNullable(getInterval()),
                             measurementTypeWithoutInterval.getObisCode())
                     .map(rt -> this.newChannelType(measurementTypeWithoutInterval, rt));
         } else {
