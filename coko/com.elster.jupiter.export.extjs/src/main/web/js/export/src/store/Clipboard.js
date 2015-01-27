@@ -37,6 +37,8 @@ Ext.define('Dxp.store.Clipboard', {
     clear: function (name) {
         var model = this.getById(name);
 
-        this.remove(model);
+        if (model) {
+            this.remove(model);
+        }
     }
 });

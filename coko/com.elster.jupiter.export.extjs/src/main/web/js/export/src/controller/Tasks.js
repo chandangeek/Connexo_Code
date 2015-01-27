@@ -334,6 +334,8 @@ Ext.define('Dxp.controller.Tasks', {
             recurrenceTypeCombo = view.down('#recurrence-type'),
             readingTypesStore = view.down('#readingTypesGridPanel').getStore();
 
+        me.getApplication().fireEvent('changecontentevent', view);
+
         Ext.util.History.on('change', this.checkRoute, this);
         me.taskModel = null;
         me.taskId = null;
@@ -354,7 +356,6 @@ Ext.define('Dxp.controller.Tasks', {
                         fileFormatterCombo.setValue(this.getAt(0));
                         recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
                     }
-                    me.getApplication().fireEvent('changecontentevent', view);
                 });
             });
         });
@@ -1068,6 +1069,13 @@ Ext.define('Dxp.controller.Tasks', {
         var formModel = Ext.create('Dxp.model.AddDataExportTaskForm', obj);
         view.down('#add-data-export-task-form').loadRecord(formModel);
         view.down('#recurrence-trigger').setValue({recurrence: formModel.get('recurrence')});
+        Ext.suspendLayouts();
+        Ext.Array.each(view.down('tasks-property-form').query('[isFormField=true]'), function (formItem) {
+            if (formItem.name in obj) {
+                formItem.setValue(obj[formItem.name]);
+            }
+        });
+        Ext.resumeLayouts(true);
     },
 
     checkRoute: function (token) {
