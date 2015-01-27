@@ -174,8 +174,9 @@ public class DeviceGroupResource {
         endDeviceGroup.setMRID("MDC:" + endDeviceGroup.getName());
         endDeviceGroup.save();
 
+        return Response.status(Response.Status.CREATED).entity(DeviceGroupInfo.from(endDeviceGroup, deviceConfigurationService, deviceService)).build();
 
-        return Response.ok().build();
+        //return Response.ok().build();
     }
 
     private void syncListWithInfo(EnumeratedEndDeviceGroup enumeratedEndDeviceGroup, DeviceGroupInfo deviceGroupInfo) {
