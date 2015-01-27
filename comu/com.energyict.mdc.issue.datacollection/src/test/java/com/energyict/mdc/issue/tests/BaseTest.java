@@ -118,7 +118,7 @@ public abstract class BaseTest {
                 new InMemoryMessagingModule(),
                 new IdsModule(),
                 new MeteringGroupsModule(),
-                new MeteringModule(false),
+                new MeteringModule(),
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),
