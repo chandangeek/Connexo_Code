@@ -41,6 +41,12 @@ public class ExceptionFactory {
             super(thesaurus, messageSeed, args);
         }
 
+        @Override
+        public String getLocalizedMessage() {
+            String message = super.getLocalizedMessage();
+            int codeEndIndex = message.indexOf(' ');
+            return message.substring(++codeEndIndex);
+        }
 
     }
 }
