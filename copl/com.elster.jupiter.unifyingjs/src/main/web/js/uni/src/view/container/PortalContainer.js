@@ -2,7 +2,6 @@ Ext.define('Uni.view.container.PortalContainer', {
     extend: 'Ext.panel.Panel',
     xtype: 'portal-container',
     ui: 'large',
-
     padding: '16px 0 0 0 ',
     layout: 'column',
     columnCount: 3,
@@ -13,24 +12,9 @@ Ext.define('Uni.view.container.PortalContainer', {
             index = model.get('index');
 
         if (index === '' || index === null || typeof index === 'undefined') {
-            this.add(component);
+            me.add(component);
         } else {
-            this.insert(index, component);
-        }
-
-        var count = this.items.items.length,
-            remainder = count % me.columnCount;
-
-        switch (remainder) {
-            case 1:
-                component.addCls('first');
-                break;
-            case 2:
-                component.addCls('middle');
-                break;
-            default:
-                component.addCls('last');
-                break;
+            me.insert(index, component);
         }
     },
 
