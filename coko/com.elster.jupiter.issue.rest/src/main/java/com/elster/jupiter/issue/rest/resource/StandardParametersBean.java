@@ -10,6 +10,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class StandardParametersBean {
@@ -30,7 +31,7 @@ public class StandardParametersBean {
         this.uriInfo = uriInfo;
     }
 
-    public Order[] getOrder() {
+/*    public Order[] getOrder() {
         List<Order> orders = new ArrayList<Order>();
         for (String field : this.sort) {
             if(field.startsWith("-")) {
@@ -38,6 +39,24 @@ public class StandardParametersBean {
             }
             else {
                 orders.add(Order.ascending(field));
+            }
+        }
+        return orders.toArray(new Order[orders.size()]);
+    }
+*/
+
+    public Order[] getOrder() {
+        return getOrder("");
+    }
+
+    public Order[] getOrder(String prefix) {
+        List<Order> orders = new ArrayList<Order>();
+        for (String field : this.sort) {
+            if(field.startsWith("-")) {
+                orders.add(Order.descending(prefix + field.substring(1)));
+            }
+            else {
+                orders.add(Order.ascending(prefix + field));
             }
         }
         return orders.toArray(new Order[orders.size()]);
@@ -60,7 +79,8 @@ public class StandardParametersBean {
     }
 
     public List<String> get(Object key) {
-        return getQueryParameters().get(key);
+        List<String> result = getQueryParameters().get(key);
+        return result != null ? result : Collections.<String>emptyList();
     }
 
     public String getFirst(Object key){
