@@ -22,10 +22,12 @@ Ext.define('Tme.view.relativeperiod.Setup', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'relative-periods-grid',
+                        itemId: 'grd-relative-periods',
                         router: me.router
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
+                        itemId: 'ctr-no-relative-period',
                         title: Uni.I18n.translate('relativePeriods.empty.title', 'TME', 'No relative periods found'),
                         reasons: [
                             Uni.I18n.translate('relativePeriods.empty.list.item1', 'TME', 'No relative periods have been defined yet.'),
