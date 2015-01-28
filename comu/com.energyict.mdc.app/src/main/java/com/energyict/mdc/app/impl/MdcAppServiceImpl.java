@@ -5,10 +5,9 @@ import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.DefaultStartPage;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.license.License;
-import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.security.Privileges;
 import com.energyict.mdc.app.MdcAppService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -18,19 +17,16 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Component(
         name = "com.energyict.mdc.app",
-        service = {MdcAppService.class, InstallService.class},
-        property = "name=" + MdcAppService.COMPONENTNAME,
+        service = {MdcAppService.class},
         immediate = true)
 @SuppressWarnings("unused")
-public class MdcAppServiceImpl implements MdcAppService, InstallService {
+public class MdcAppServiceImpl implements MdcAppService {
 
     private final Logger logger = Logger.getLogger(MdcAppServiceImpl.class.getName());
 
@@ -67,20 +63,9 @@ public class MdcAppServiceImpl implements MdcAppService, InstallService {
         registration.unregister();
     }
 
-    @Override
-    public void install() {
-        createDefaultRoles();
-        assignPrivilegesToDefaultRoles();
-    }
-
     @Reference(target = "(com.elster.jupiter.license.application.key=" + APP_KEY + ")")
     public void setLicense(License license) {
         this.license = license;
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList(UserService.COMPONENTNAME, "APS", "ISU", "DTC", "DDC", "MDC", "SCH", "VAL");
     }
 
     @Reference
@@ -88,37 +73,13 @@ public class MdcAppServiceImpl implements MdcAppService, InstallService {
         this.userService = userService;
     }
 
-    private void createDefaultRoles() {
-        try {
-            userService.createGroup(Roles.METER_EXPERT.value(), Roles.METER_EXPERT.description());
-            userService.createGroup(Roles.METER_OPERATOR.value(), Roles.METER_OPERATOR.description());
-        } catch (Exception e) {
-            this.logger.severe(e.getMessage());
-        }
-    }
-
-    private void assignPrivilegesToDefaultRoles() {
-        List<String> availablePrivileges = getAvailablePrivileges();
-        userService.grantGroupWithPrivilege(Roles.METER_EXPERT.value(), availablePrivileges.toArray(new String[availablePrivileges.size()]));
-        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, availablePrivileges.toArray(new String[availablePrivileges.size()]));
-        //TODO: workaround: attached Meter expert to user admin !!! to remove this line when the user can be created/added to system
-        userService.getUser(1).ifPresent(u -> u.join(userService.getGroups().stream().filter(e -> e.getName().equals(Roles.METER_EXPERT.value())).findFirst().get()));
-    }
-
-
     private boolean isAllowed(User user) {
-        List<? super Privileges> appPrivileges = getApplicationPrivileges();
+        List<? super Privilege> appPrivileges = getApplicationPrivileges();
         return user.getPrivileges().stream().anyMatch(appPrivileges::contains);
     }
 
-    private List<? super Privileges> getApplicationPrivileges() {
+    private List<? super Privilege> getApplicationPrivileges() {
         return userService.getResources(APPLICATION_KEY).stream().flatMap(resource -> resource.getPrivileges().stream()).collect(Collectors.toList());
-    }
-
-    public List<String> getAvailablePrivileges() {
-        List<String> privileges = new ArrayList<String>();
-        userService.getResources(MdcAppService.APPLICATION_KEY).forEach(e -> e.getPrivileges().forEach(p -> privileges.add(p.getName())));
-        return privileges;
     }
 
 }

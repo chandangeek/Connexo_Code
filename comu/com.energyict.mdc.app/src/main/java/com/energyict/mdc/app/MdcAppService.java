@@ -7,7 +7,8 @@ public interface MdcAppService {
 
     enum Roles {
         METER_EXPERT("Meter expert", "Full meter management privileges"),
-        METER_OPERATOR("Meter operator", "Meter operation privileges");
+        METER_OPERATOR("Meter operator", "Meter operation privileges"),
+        REPORT_VIEWER("Report viewer","Reports viewer privileges");
 
         private String role;
         private String description;
