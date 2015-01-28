@@ -60,7 +60,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     ISSUE_ACTION_CLASS_LOAD_FAIL(9005, "issue.action.class.load.fail", "Unable to load Action class \"{0}\" for \"{1}\" action type", Level.SEVERE),
     ISSUE_CREATION_RULE_VALIDATION_FAILED(9006, "issue.creation.rule.validation", "Creation rule validation failed", Level.SEVERE),
     ISSUE_CREATION_RULE_PARAMETER_ABSENT(9007, "issue.creation.parameter.absent", "Required parameter is absent", Level.SEVERE),
-    ISSUE_CREATION_RULE_INVALID_SRTING_PARAMETER(9008, "issue.creation.invalid.string.parameter", "String length should be between %s and %s simbols", Level.SEVERE),
+    ISSUE_CREATION_RULE_INVALID_SRTING_PARAMETER(9008, "issue.creation.invalid.string.parameter", "String length should be between %s and %s characters", Level.SEVERE),
     ISSUE_CREATION_RULE_INCORRECT_NUMBER_PARAMETER(9009, "issue.creation.incorrect.number.parameter", "Number should be between %s and %s", Level.SEVERE),
     ISSUE_CREATION_RULE_INVALID_NUMBER_PARAMETER(9010, "issue.creation.invalid.number.parameter", "%s is not a number", Level.SEVERE),
     NOT_UNIQUE_KEY(9011, "issue.not.unique.key", "The key '{0}' is already in use", Level.SEVERE),
