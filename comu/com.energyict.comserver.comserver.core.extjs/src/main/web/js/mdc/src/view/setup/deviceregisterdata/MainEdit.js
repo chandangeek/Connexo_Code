@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainEdit', {
     extend: 'Uni.view.container.ContentContainer',
 
     requires: [
-        'Uni.view.menu.SideMenu'
+        'Mdc.view.setup.device.DeviceMenu'
     ],
 
     edit: false,
@@ -39,18 +39,12 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainEdit', {
         me.side = [
             {
                 xtype: 'panel',
+                title: Uni.I18n.translate('deviceregisterconfiguration.registers', 'MDC', 'Registers'),
                 ui: 'medium',
                 items: [
                     {
-                        xtype: 'uni-view-menu-side',
-                        title: Uni.I18n.translate('deviceregisterconfiguration.registers', 'MDC', 'Registers'),
-                        itemId: 'stepsMenu',
-                        menuItems: [
-                            {
-                                itemId: 'editReading',
-                                href:  me.router.getRoute('devices/device/registers/registerdata/create').buildUrl({mRID: mRID, registerId: registerId})
-                            }
-                        ]
+                        xtype: 'deviceMenu',
+                        itemId: 'stepsMenu'
                     }
                 ]
             }
