@@ -7292,6 +7292,11 @@ h6 {
   padding-left: 0;
 }
 
+/* line 29, ../../sass/src/grid/DefaultColumn.scss */
+.x-grid-row-checker {
+  cursor: pointer;
+}
+
 /* line 1, ../../sass/src/grid/ValidationStatusColumn.scss */
 .icon-validation-cell {
   background-repeat: no-repeat;
