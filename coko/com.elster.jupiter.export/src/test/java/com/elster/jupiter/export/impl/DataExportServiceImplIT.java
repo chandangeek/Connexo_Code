@@ -195,8 +195,8 @@ public class DataExportServiceImplIT {
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             return null;
         });
-        readingType = meteringService.getReadingType("0.0.3.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-        anotherReadingType = meteringService.getReadingType("0.0.14.4.19.1.12.0.0.0.0.2.0.0.0.0.72.0").get();
+        readingType = meteringService.getReadingType("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+        anotherReadingType = meteringService.getReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0").get();
         dataExportService.addResource(dataProcessorFactory);
         when(dataProcessorFactory.getName()).thenReturn(FORMATTER);
         when(dataProcessorFactory.getProperties()).thenReturn(Arrays.asList(propertySpec));
