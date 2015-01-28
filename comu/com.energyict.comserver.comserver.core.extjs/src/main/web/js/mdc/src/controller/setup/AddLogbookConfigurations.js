@@ -24,7 +24,7 @@ Ext.define('Mdc.controller.setup.AddLogbookConfigurations', {
         var textLabel = Ext.ComponentQuery.query('add-logbook-configurations #logbook-count')[0];
         textLabel.setText(
             grid.view.getSelectionModel().getSelection().length >= 1 ? (grid.view.getSelectionModel().getSelection().length +
-                (grid.view.getSelectionModel().getSelection().length > 1 ? ' ' + Uni.I18n.translate('general.logbookConfigurations', 'MDC', 'logbook configurations') : '  ' + Uni.I18n.translate('general.logbookConfiguration', 'MDC', 'logbook configuration')) + ' ' + Uni.I18n.translate('general.selected', 'MDC', 'selected')) : Uni.I18n.translate('logbookConfiguration.noSelected', 'MDC', 'No logbook configurations selected'));
+                (grid.view.getSelectionModel().getSelection().length > 1 ? ' ' + Uni.I18n.translate('general.logbookConfigurations', 'MDC', 'logbook configurations') : '  ' + Uni.I18n.translate('general.logbookConfiguration', 'MDC', 'logbook configuration')) + ' ' + Uni.I18n.translate('general.selected', 'MDC', 'selected')) : Uni.I18n.translate('logbookConfiguration.zeroSelected', 'MDC', '0 logbook configurations selected'));
     },
 
     addLogbookType: function (btn) {
