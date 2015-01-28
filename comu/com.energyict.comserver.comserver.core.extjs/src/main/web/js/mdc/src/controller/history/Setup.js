@@ -722,7 +722,6 @@ Ext.define('Mdc.controller.history.Setup', {
                             privileges: ['privilege.administrate.communicationAdministration','privilege.view.communicationAdministration'],
                             controller: 'Mdc.controller.setup.ComPortPoolOverview',
                             action: 'showOverview',
-                            redirect: 'administration/comportpools/detail/overview',
                             callback: function (route) {
                                 this.getApplication().on('comPortPoolOverviewLoad', function (record) {
                                     route.setTitle(record.get('name'));
@@ -731,13 +730,6 @@ Ext.define('Mdc.controller.history.Setup', {
                                 return this;
                             },
                             items: {
-                                overview: {
-                                    title: 'Overview',
-                                    route: 'overview',
-                                    privileges: ['privilege.administrate.communicationAdministration','privilege.view.communicationAdministration'],
-                                    controller: 'Mdc.controller.setup.ComPortPoolOverview',
-                                    action: 'showOverview'
-                                },
                                 edit: {
                                     title: 'Edit',
                                     route: 'edit_',
