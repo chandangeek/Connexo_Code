@@ -67,6 +67,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
                     },
                     {
                         text: Uni.I18n.translate('comPortPool.addComPortPool', 'MDC', 'Add communication port pool'),
+                        itemId: 'btn-add-comport-pool-menu',
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.communicationAdministration'),
                         menu: {
                             plain: true,
@@ -76,11 +77,13 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
                             items: [
                                 {
                                     text: Uni.I18n.translate('comPortPool.inbound', 'MDC', 'Inbound'),
-                                    action: 'addInbound'
+                                    action: 'addInbound',
+                                    itemId: 'btn-add-inbound'
                                 },
                                 {
                                     text: Uni.I18n.translate('comPortPool.outbound', 'MDC', 'Outbound'),
-                                    action: 'addOutbound'
+                                    action: 'addOutbound',
+                                    itemId: 'btn-add-outbound'
                                 }
                             ]
                         }
