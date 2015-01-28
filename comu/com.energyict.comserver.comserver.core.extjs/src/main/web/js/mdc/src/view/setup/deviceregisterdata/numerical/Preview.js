@@ -41,9 +41,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                         name: 'reportedDateTime',
                         renderer: function (value) {
                             if (!Ext.isEmpty(value)) {
-                                return Uni.DateTime.formatDateLong(value)
+                                return Uni.DateTime.formatDateLong(new Date(value))
                                     + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
-                                    + Uni.DateTime.formatTimeLong(value);
+                                    + Uni.DateTime.formatTimeLong(new Date(value));
                             }
                         }
                     },
@@ -62,9 +62,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                                     var form = this.up('form'),
                                         record = form.getRecord();
                                     if (record && value) {
-                                        return value + ' ' + record.get('unitOfMeasure');
+                                        return Uni.Number.formatNumber(value, -1) + ' ' + record.get('unitOfMeasure');
                                     } else {
-                                        return null
+                                        return '-'
                                     }
                                 }
                             },
@@ -81,9 +81,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                             var form = this.up('form'),
                                 record = form.getRecord();
                             if (record && value) {
-                                return value + ' ' + record.get('unitOfMeasure');
+                                return Uni.Number.formatNumber(value, -1) + ' ' + record.get('unitOfMeasure');
                             } else {
-                                return null
+                                return '-'
                             }
                         }
                     },
