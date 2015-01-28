@@ -20,7 +20,8 @@ public enum MessageSeeds implements MessageSeed {
     ITEM_FATALLY_FAILED(1007, "dataexport.item.fatally.failed", "Item {0}:{1} fatally failed to export", Level.SEVERE),
     ITEM_EXPORTED_SUCCESFULLY(1008, "dataexport.item.success", "Item {0}:{1} exported succesfully for period {2} - {3}", Level.INFO),
     CANNOT_DELETE_WHILE_RUNNING(1009, "dataexport.cannot.delete", "Cannot delete a data export task (id = {0}) while it is running.", Level.SEVERE),
-    RELATIVE_PERIOD_USED(1010, "dataexport.using.relativeperiod", "Relative period is still in use by the following data export tasks: {0}", Level.SEVERE);
+    RELATIVE_PERIOD_USED(1010, "dataexport.using.relativeperiod", "Relative period is still in use by the following data export tasks: {0}", Level.SEVERE),
+    VETO_DEVICEGROUP_DELETION(1013, "deviceGroupXstillInUseByTask", "Device group {0} is still in use by an export task", Level.SEVERE);
 
     private final int number;
     private final String key;
