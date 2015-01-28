@@ -120,10 +120,12 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         widget.setLoading(true);
         widget.down('#card').getLayout().setActiveItem(0);
         if (id === undefined) {
+            me.mode = 'create';
             this.record = Ext.create(Mdc.model.CommunicationSchedule);
             widget.down('#communicationScheduleEditForm').setTitle(Uni.I18n.translate('communicationschedule.addCommunicationSchedule', 'MDC', 'Add shared communication schedule'));
             me.initComTaskStore(widget);
         } else {
+            me.mode = 'edit';
             Ext.ModelManager.getModel('Mdc.model.CommunicationSchedule').load(id, {
                 success: function (communicationSchedule) {
                     me.getApplication().fireEvent('loadCommunicationSchedule', communicationSchedule);
@@ -223,7 +225,11 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             this.record.save({
                 success: function (record) {
                     location.href = '#/administration/communicationschedules';
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.added', 'MDC', 'Shared communication schedule added'));
+                    if(me.mode == 'edit'){
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.saved', 'MDC', 'Shared communication schedule saved'));
+                    }else {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.added', 'MDC', 'Shared communication schedule added'));
+                    }
                     editView.setLoading(false);
                 },
                 failure: function (record, operation) {
