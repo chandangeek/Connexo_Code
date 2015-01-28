@@ -94,7 +94,7 @@ public class UserResource {
     public UserInfos getUsers(@Context UriInfo uriInfo) {
         try (TransactionContext context = transactionService.getContext()) {
             QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-            List<User> list = getUserRestQuery().select(queryParameters, Order.ascending("authenticationName"));
+            List<User> list = getUserRestQuery().select(queryParameters, Order.ascending("authenticationName").toLowerCase());
             UserInfos infos = new UserInfos(queryParameters.clipToLimit(list));
             infos.total = queryParameters.determineTotal(list.size());
             try {
