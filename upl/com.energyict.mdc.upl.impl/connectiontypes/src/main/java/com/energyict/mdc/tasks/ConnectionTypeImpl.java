@@ -11,7 +11,9 @@ import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialPort;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.exceptions.SerialPortException;
-import com.energyict.mdc.protocol.*;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.mdc.protocol.ServerComChannel;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.io.IOException;
@@ -147,7 +149,7 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
 
     @Override
     public boolean equals(Object obj) {
-        return this.getClass() == obj.getClass();
+        return obj != null && this.getClass() == obj.getClass();
     }
 
     /**
