@@ -37,6 +37,7 @@ import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -69,6 +70,8 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.elster.jupiter.appserver.AppService.*;
+
 /**
  * Copyrights EnergyICT
  * Date: 08/05/14
@@ -85,8 +88,6 @@ import java.util.concurrent.atomic.AtomicReference;
                     "osgi.command.function=scs"},
         immediate = true)
 public class EngineServiceImpl implements EngineService, InstallService, TranslationKeyProvider {
-
-    private static final String SERVER_NAME_PROPERTY_NAME = "com.elster.jupiter.server.name";
 
     private volatile BundleContext bundleContext;
     private volatile DataModel dataModel;
