@@ -5,6 +5,7 @@ import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.UserService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
@@ -16,8 +17,7 @@ import javax.inject.Inject;
 
 @Component(
         name = "com.elster.jupiter.bpm.app",
-        service = {BpmAppService.class, InstallService.class},
-        property = "name=" + BpmAppService.COMPONENTNAME,
+        service = {BpmAppService.class},
         immediate = true
 )
 public class BpmAppServiceImpl implements BpmAppService {
@@ -37,7 +37,7 @@ public class BpmAppServiceImpl implements BpmAppService {
 
     @Activate
     public final void activate(BundleContext context) {
-        App app = new App("BPM", "Flow", "connexo", bpmService.getBpmServer().getUrl(), user -> user.getPrivileges().stream().anyMatch(p -> "privilege.view.bpm".equals(p.getName())));
+        App app = new App("BPM", "Flow", "connexo", bpmService.getBpmServer().getUrl(), user -> user.getPrivileges().stream().anyMatch(p -> "privilege.design.bpm".equals(p.getName())));
         registration = context.registerService(App.class, app, null);
     }
 

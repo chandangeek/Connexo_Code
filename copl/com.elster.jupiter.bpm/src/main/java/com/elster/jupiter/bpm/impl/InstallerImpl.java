@@ -32,7 +32,7 @@ public class InstallerImpl {
     }
 
     private void createPrivileges(UserService userService) {
-        userService.createResourceWithPrivileges("SYS", "bpm.businessProcesses", "bpm.businessProcesses.description", new String[] {Privileges.VIEW_BPM});
+        userService.createResourceWithPrivileges("BPM", "bpm.businessProcesses", "bpm.businessProcesses.description", new String[] {Privileges.DESIGN_BPM});
     }
 
 }
