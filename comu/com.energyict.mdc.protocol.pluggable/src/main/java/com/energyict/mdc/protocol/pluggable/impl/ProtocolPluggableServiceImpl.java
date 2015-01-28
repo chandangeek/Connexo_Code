@@ -606,6 +606,9 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addDeviceProtocolService(DeviceProtocolService deviceProtocolService) {
         this.deviceProtocolServices.add(deviceProtocolService);
+        if (installed) {
+            registerDeviceProtocolPluggableClasses();
+        }
     }
 
     @SuppressWarnings("unused")
@@ -636,9 +639,6 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addLicensedProtocolService(LicensedProtocolService licensedProtocolService) {
         this.licensedProtocolServices.add(licensedProtocolService);
-        if (installed) {
-            registerDeviceProtocolPluggableClasses();
-        }
     }
 
     @SuppressWarnings("unused")
