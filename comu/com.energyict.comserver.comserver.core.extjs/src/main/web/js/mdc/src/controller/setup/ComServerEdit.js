@@ -61,7 +61,7 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
 
                 switch (comServerType) {
                     case 'Online':
-                        title = Uni.I18n.translate('comServer.title.editOnline', 'MDC', 'Edit') + " '" + record.get('name') + "'";
+                        title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + record.get('name') + "'";
                         break;
                 }
 

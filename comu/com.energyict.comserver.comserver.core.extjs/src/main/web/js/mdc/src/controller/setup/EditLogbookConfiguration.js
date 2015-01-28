@@ -56,8 +56,8 @@ Ext.define('Mdc.controller.setup.EditLogbookConfiguration', {
         var self = this,
             editView = self.getEditLogbookConfiguration(),
             form = editView.down('form').getForm(),
+            formErrorsPanel = editView.down('#form-errors'),
             record = form.getRecord(),
-            formErrorsPanel = Ext.ComponentQuery.query('edit-logbook-configuration panel[name=errors]')[0],
             jsonValues = Ext.JSON.encode(form.getValues()),
             url = '/api/dtc/devicetypes/' + editView.deviceTypeId + '/deviceconfigurations/' + editView.deviceConfigurationId + '/logbookconfigurations/' + editView.logbookConfigurationId,
             header = {
@@ -99,13 +99,6 @@ Ext.define('Mdc.controller.setup.EditLogbookConfiguration', {
                 }
             });
         } else {
-            formErrorsPanel.hide();
-            Ext.suspendLayouts();
-            formErrorsPanel.removeAll();
-            formErrorsPanel.add({
-                html: 'There are errors on this page that require your attention.'
-            });
-            Ext.resumeLayouts();
             formErrorsPanel.show();
         }
     }
