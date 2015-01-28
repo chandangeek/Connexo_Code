@@ -76,7 +76,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             },
             '#device-configuration-action-menu': {
                 click: this.chooseAction,
-                show: this.configureMenu
+                beforeshow: this.configureMenu
             },
             'deviceConfigurationEdit #createEditButton': {
                 click: this.createEditDeviceConfiguration
