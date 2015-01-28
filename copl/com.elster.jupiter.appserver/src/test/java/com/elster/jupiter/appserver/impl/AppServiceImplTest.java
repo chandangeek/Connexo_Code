@@ -192,7 +192,7 @@ public class AppServiceImplTest {
 
     @Test
     public void testActivateNamedListensToAllServerMessages() throws InterruptedException, SQLException {
-        when(context.getProperty("com.elster.jupiter.appserver.name")).thenReturn(APP_SERVER_NAME);
+        when(context.getProperty(AppService.SERVER_NAME_PROPERTY_NAME)).thenReturn(APP_SERVER_NAME);
         when(appServerFactory.getOptional(APP_SERVER_NAME)).thenReturn(Optional.<AppServer>of(appServer));
         when(messageService.getSubscriberSpec("AllServers", MESSAGING_NAME)).thenReturn(Optional.of(subscriberSpec));
 
@@ -209,7 +209,7 @@ public class AppServiceImplTest {
 
     @Test
     public void testDeactivateProperlyShutsDownListeningToAllServerMessages() throws InterruptedException, SQLException {
-        when(context.getProperty("com.elster.jupiter.appserver.name")).thenReturn(APP_SERVER_NAME);
+        when(context.getProperty(AppService.SERVER_NAME_PROPERTY_NAME)).thenReturn(APP_SERVER_NAME);
         when(appServerFactory.getOptional(APP_SERVER_NAME)).thenReturn(Optional.<AppServer>of(appServer));
         when(messageService.getSubscriberSpec("AllServers", MESSAGING_NAME)).thenReturn(Optional.of(subscriberSpec));
 
@@ -228,7 +228,7 @@ public class AppServiceImplTest {
 
     @Test
     public void testActivateNamedListensToAppServerMessages() throws InterruptedException, SQLException {
-        when(context.getProperty("com.elster.jupiter.appserver.name")).thenReturn(APP_SERVER_NAME);
+        when(context.getProperty(AppService.SERVER_NAME_PROPERTY_NAME)).thenReturn(APP_SERVER_NAME);
         when(appServerFactory.getOptional(APP_SERVER_NAME)).thenReturn(Optional.<AppServer>of(appServer));
         when(messageService.getSubscriberSpec(MESSAGING_NAME, MESSAGING_NAME)).thenReturn(Optional.of(subscriberSpec));
 
@@ -245,7 +245,7 @@ public class AppServiceImplTest {
 
     @Test
     public void testDeactivateProperlyShutsDownListeningToAppServerMessages() throws InterruptedException, SQLException {
-        when(context.getProperty("com.elster.jupiter.appserver.name")).thenReturn(APP_SERVER_NAME);
+        when(context.getProperty(AppService.SERVER_NAME_PROPERTY_NAME)).thenReturn(APP_SERVER_NAME);
         when(appServerFactory.getOptional(APP_SERVER_NAME)).thenReturn(Optional.<AppServer>of(appServer));
         when(messageService.getSubscriberSpec(MESSAGING_NAME, MESSAGING_NAME)).thenReturn(Optional.of(subscriberSpec));
 
@@ -264,7 +264,7 @@ public class AppServiceImplTest {
 
     @Test
     public void testLaunchesConfiguredRecurrentTasks() {
-        when(context.getProperty("com.elster.jupiter.appserver.name")).thenReturn(APP_SERVER_NAME);
+        when(context.getProperty(AppService.SERVER_NAME_PROPERTY_NAME)).thenReturn(APP_SERVER_NAME);
         when(appServerFactory.getOptional(APP_SERVER_NAME)).thenReturn(Optional.<AppServer>of(appServer));
         when(appServer.isRecurrentTaskActive()).thenReturn(true);
 
@@ -275,7 +275,7 @@ public class AppServiceImplTest {
 
     @Test
     public void testLaunchConfiguredFileImports() {
-        when(context.getProperty("com.elster.jupiter.appserver.name")).thenReturn(APP_SERVER_NAME);
+        when(context.getProperty(AppService.SERVER_NAME_PROPERTY_NAME)).thenReturn(APP_SERVER_NAME);
         when(appServerFactory.getOptional(APP_SERVER_NAME)).thenReturn(Optional.<AppServer>of(appServer));
         when(importScheduleOnAppServerFactory.find("appServer", appServer)).thenReturn(Arrays.asList(importTask1, importTask2));
 
@@ -290,7 +290,7 @@ public class AppServiceImplTest {
 
         when(invalidateCacheRequest.getComponentName()).thenReturn(COMPONENT_NAME);
         when(invalidateCacheRequest.getTableName()).thenReturn(TABLE_NAME);
-        when(context.getProperty("com.elster.jupiter.appserver.name")).thenReturn(APP_SERVER_NAME);
+        when(context.getProperty(AppService.SERVER_NAME_PROPERTY_NAME)).thenReturn(APP_SERVER_NAME);
         when(appServerFactory.getOptional(APP_SERVER_NAME)).thenReturn(Optional.<AppServer>of(appServer));
         when(messageService.getSubscriberSpec("AllServers", MESSAGING_NAME)).thenReturn(Optional.of(subscriberSpec));
         doReturn(null).when(subscriberSpec).receive();
@@ -312,7 +312,7 @@ public class AppServiceImplTest {
 
     @Test
     public void testActivateWithoutNameRunsAnonymously() {
-        when(context.getProperty("com.elster.jupiter.appserver.name")).thenReturn(null);
+        when(context.getProperty(AppService.SERVER_NAME_PROPERTY_NAME)).thenReturn(null);
         when(messageService.getSubscriberSpec("AllServers", MESSAGING_NAME)).thenReturn(Optional.of(subscriberSpec));
 
         appService.activate(context);
@@ -322,7 +322,7 @@ public class AppServiceImplTest {
 
     @Test
     public void testActivateWithUnknownNameRunsAnonymously() {
-        when(context.getProperty("com.elster.jupiter.appserver.name")).thenReturn(APP_SERVER_NAME);
+        when(context.getProperty(AppService.SERVER_NAME_PROPERTY_NAME)).thenReturn(APP_SERVER_NAME);
         when(appServerFactory.getOptional(APP_SERVER_NAME)).thenReturn(Optional.empty());
         when(messageService.getSubscriberSpec("AllServers", MESSAGING_NAME)).thenReturn(Optional.of(subscriberSpec));
 
@@ -334,7 +334,7 @@ public class AppServiceImplTest {
     @Test
     public void testStop() throws InterruptedException, SQLException, BundleException {
         arrivalLatch = new CountDownLatch(2);
-        when(context.getProperty("com.elster.jupiter.appserver.name")).thenReturn(APP_SERVER_NAME);
+        when(context.getProperty(AppService.SERVER_NAME_PROPERTY_NAME)).thenReturn(APP_SERVER_NAME);
         when(appServerFactory.getOptional(APP_SERVER_NAME)).thenReturn(Optional.<AppServer>of(appServer));
         when(messageService.getSubscriberSpec("AllServers", MESSAGING_NAME)).thenReturn(Optional.of(subscriberSpec));
         when(messageService.getSubscriberSpec(MESSAGING_NAME, MESSAGING_NAME)).thenReturn(Optional.of(subscriberSpec));
@@ -373,7 +373,7 @@ public class AppServiceImplTest {
 
     @Test
     public void testHandleStop() throws InterruptedException, SQLException, BundleException {
-        when(context.getProperty("com.elster.jupiter.appserver.name")).thenReturn(APP_SERVER_NAME);
+        when(context.getProperty(AppService.SERVER_NAME_PROPERTY_NAME)).thenReturn(APP_SERVER_NAME);
         when(appServerFactory.getOptional(APP_SERVER_NAME)).thenReturn(Optional.<AppServer>of(appServer));
         when(messageService.getSubscriberSpec("AllServers", MESSAGING_NAME)).thenReturn(Optional.of(subscriberSpec));
 
@@ -411,7 +411,7 @@ public class AppServiceImplTest {
 
     @Test
     public void testHandleInvalidateCache() throws InterruptedException, SQLException, BundleException {
-        when(context.getProperty("com.elster.jupiter.appserver.name")).thenReturn(APP_SERVER_NAME);
+        when(context.getProperty(AppService.SERVER_NAME_PROPERTY_NAME)).thenReturn(APP_SERVER_NAME);
         when(appServerFactory.getOptional(APP_SERVER_NAME)).thenReturn(Optional.<AppServer>of(appServer));
         when(messageService.getSubscriberSpec("AllServers", MESSAGING_NAME)).thenReturn(Optional.of(subscriberSpec));
 
@@ -445,7 +445,7 @@ public class AppServiceImplTest {
 
     @Test
     public void testHandleFileImportActivated() throws InterruptedException, SQLException, BundleException {
-        when(context.getProperty("com.elster.jupiter.appserver.name")).thenReturn(APP_SERVER_NAME);
+        when(context.getProperty(AppService.SERVER_NAME_PROPERTY_NAME)).thenReturn(APP_SERVER_NAME);
         when(appServerFactory.getOptional(APP_SERVER_NAME)).thenReturn(Optional.<AppServer>of(appServer));
         when(messageService.getSubscriberSpec("AllServers", MESSAGING_NAME)).thenReturn(Optional.of(subscriberSpec));
 

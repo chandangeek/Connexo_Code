@@ -8,6 +8,13 @@ import java.util.List;
 
 public interface AppService {
 
+    /**
+     * The name of the property that provides the name
+     * of the server on which the AppServer is running.
+     * When not set, the host name of the physical machine is used.
+     */
+    public static final String SERVER_NAME_PROPERTY_NAME = "com.elster.jupiter.server.name";
+
     String ALL_SERVERS = "AllServers";
     String COMPONENT_NAME = "APS";
 

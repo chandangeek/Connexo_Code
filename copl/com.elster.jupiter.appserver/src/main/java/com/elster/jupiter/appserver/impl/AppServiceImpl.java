@@ -60,7 +60,6 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
 
     private static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
 
-    private static final String APPSERVER_NAME = "com.elster.jupiter.appserver.name";
     private static final String COMPONENT_NAME_KEY = "componentName";
     private static final String TABLE_NAME = "tableName";
     private static final String ID = "id";
@@ -157,7 +156,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
     }
 
     private Optional<String> getAppServerNameFromProperty(BundleContext context) {
-        return Optional.ofNullable(context.getProperty(APPSERVER_NAME));
+        return Optional.ofNullable(context.getProperty(SERVER_NAME_PROPERTY_NAME));
     }
 
     private void activateAnonymously() {
