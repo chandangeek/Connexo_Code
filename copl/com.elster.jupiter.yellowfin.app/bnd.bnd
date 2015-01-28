@@ -1,4 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
-Bundle-Activator: com.elster.jupiter.yellowfin.app.Activator
-Private-Package: com.elster.jupiter.yellowfin.app
+Private-Package: com.elster.jupiter.yellowfin.app.impl
+Export-Package: com.elster.jupiter.yellowfin.app
