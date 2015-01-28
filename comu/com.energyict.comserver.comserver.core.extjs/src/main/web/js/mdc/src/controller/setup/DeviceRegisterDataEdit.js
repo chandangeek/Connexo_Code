@@ -109,7 +109,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                 callback: function (record, operation) {
                     if (operation.wasSuccessful()) {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.registerData.removed', 'MDC', 'Register data successfully removed'));
-                        router.getRoute('devices/device/registers/register/data').forward();
+                        router.getRoute('devices/device/registers/registerdata').forward();
                         dataStore.load();
                     }
                 }
@@ -148,9 +148,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             me.setRecordValues(record, values);
             record.getProxy().extraParams = ({mRID: router.arguments.mRID, registerId: router.arguments.registerId});
             record.save({
-                success: function (record) {
+                success: function () {
                     me.getApplication().fireEvent('acknowledge', cfg.successMessage);
-                    router.getRoute('devices/device/registers/register/data').forward();
+                    router.getRoute('devices/device/registers/registerdata').forward();
                 },
                 failure: function (record, resp) {
                     var response = resp.response;
@@ -171,7 +171,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
 
     setRecordValues: function (record, values) {
         if (!Ext.isEmpty(values.value)) {
-            record.set("value", values.value);
+            record.data.value = values.value;
         }
         record.set("timeStamp", values.timeStamp);
 
@@ -246,12 +246,15 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                         var widget = Ext.widget('deviceregisterreportedit-' + type, {
                             edit: false,
                             returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({mRID: mRID, registerId: registerId}),
-                            registerType: type
+                            registerType: type,
+                            mRID: mRID,
+                            registerId: registerId,
+                            router: router
                         });
                         widget.setValues(register);
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        widget.down('#stepsMenu').setTitle(Uni.I18n.translate('device.registerData.addReading', 'MDC', 'Add reading'));
+                        widget.down('#stepsMenu #editReading').setText(Uni.I18n.translate('device.registerData.addReading', 'MDC', 'Add reading'));
                     },
 
                     callback: function () {

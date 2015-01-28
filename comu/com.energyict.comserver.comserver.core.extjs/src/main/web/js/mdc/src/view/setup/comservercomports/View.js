@@ -58,7 +58,7 @@ Ext.define('Mdc.view.setup.comservercomports.View', {
                 items: [
                 {
                     xtype: 'comserversidemenu',
-                    itemId: 'comserversubmenu',
+                    itemId: 'comserversidemenu',
                     serverId: me.serverId
                 }
             ]

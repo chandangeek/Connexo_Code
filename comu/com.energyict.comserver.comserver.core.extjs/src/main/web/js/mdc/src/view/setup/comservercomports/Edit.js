@@ -6,19 +6,11 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
         'Mdc.view.setup.comservercomports.TCPForm',
         'Mdc.view.setup.comservercomports.UDPForm',
         'Mdc.view.setup.comservercomports.SerialForm',
-        'Mdc.view.setup.comservercomports.ComPortPoolsGrid'
+        'Mdc.view.setup.comservercomports.ComPortPoolsGrid',
+        'Mdc.view.setup.comserver.SideMenu'
     ],
     itemId: 'comPortEdit',
-    side: {
-        xtype: 'panel',
-        ui: 'medium',
-        title: Uni.I18n.translate('comserver.title.communicationServers', 'MDC', 'Communication servers'),
-        width: 300,
-        items: [{
-            xtype: 'comserversubmenu',
-            itemId: 'comserversubmenu'
-        }]
-    },
+
     content: [
         {
             xtype: 'form',
@@ -30,8 +22,8 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
             defaults: {
                 labelWidth: 250,
                 width: 600,
-                validateOnChange : false,
-                validateOnBlur : false
+                validateOnChange: false,
+                validateOnBlur: false
             },
             items: [
                 {
@@ -101,7 +93,6 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
         }
     ],
 
-
     showForm: function (portDirection, portType) {
         var me = this,
             nest = me.down('#addFormNest'),
@@ -153,6 +144,24 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
         }
         Ext.resumeLayouts();
         return form;
+    },
+
+    initComponent: function () {
+        var me = this;
+        me.side = {
+            xtype: 'panel',
+            ui: 'medium',
+            title: Uni.I18n.translate('comserver.title.communicationServers', 'MDC', 'Communication servers'),
+            width: 300,
+            items: [
+                {
+                    xtype: 'comserversidemenu',
+                    itemId: 'comserversidemenu',
+                    serverId: me.serverId
+                }
+            ]
+        };
+        me.callParent(arguments);
     }
 });
 

@@ -429,6 +429,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                 success: function (response) {
                                     var loadProfileConfiguration = Ext.JSON.decode(response.responseText).data[0],
                                         widget = Ext.widget('loadProfileConfigurationDetailSetup', {router: router});
+                                    me.loadProfileConfiguration = loadProfileConfiguration;
                                     me.getApplication().fireEvent('loadLoadProfile', loadProfileConfiguration);
                                     widget.down('#loadProfileConfigurationDetailInfo').setTitle(loadProfileConfiguration.name);
                                     me.deviceTypeName = deviceType.get('name');

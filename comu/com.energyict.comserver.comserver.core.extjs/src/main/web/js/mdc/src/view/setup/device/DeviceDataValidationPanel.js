@@ -20,10 +20,6 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                         xtype: 'form',
                         flex: 1,
                         itemId: 'deviceDataValidationForm',
-                        layout: {
-                            type: 'vbox',
-                            align: 'stretch'
-                        },
                         defaults: {
                             xtype: 'displayfield',
                             labelWidth: 150
@@ -63,32 +59,17 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                                 }
                             },
                             {
-                                xtype: 'fieldcontainer',
                                 fieldLabel: Uni.I18n.translate('device.lastValidation', 'MDC', 'Last validation'),
                                 itemId: 'lastValidationCont',
-                                layout: 'hbox',
-                                items: [
-                                    {
-                                        xtype: 'displayfield',
-                                        name: 'lastChecked',
-                                        renderer: function (value) {
-                                            if (value) {
-                                                return Uni.DateTime.formatDateTimeLong(value);
-                                            } else {
-                                                return Uni.I18n.translate('general.never', 'MDC', 'Never');
-                                            }
-                                        }
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        tooltip: Uni.I18n.translate('device.lastValidation.tooltip', 'MDC', 'The moment when the validation ran for the last time.'),
-                                        iconCls: 'icon-info-small',
-                                        ui: 'blank',
-                                        shadow: false,
-                                        margin: '6 0 0 10',
-                                        width: 16
-                                    }
-                                ]
+                                name: 'lastChecked',
+                                renderer: function (value) {
+                                    var icon = '<span style="display: inline-block; width: 16px; height: 16px; margin: 0 0 0 10px" class="uni-icon-info-small" data-qtip="'
+                                            + Uni.I18n.translate('device.lastValidation.tooltip', 'MDC', 'The moment when the validation ran for the last time.')
+                                            + '"></span>',
+                                        text = value ? Uni.DateTime.formatDateTimeLong(value) : Uni.I18n.translate('general.never', 'MDC', 'Never');
+
+                                    return text + icon;
+                                }
                             }
                         ]
                     }
