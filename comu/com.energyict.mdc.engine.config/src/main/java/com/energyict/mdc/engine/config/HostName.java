@@ -47,4 +47,5 @@ public final class HostName {
     private void setName (String name) {
         this.name = name;
     }
+
 }
