@@ -11,13 +11,15 @@ Ext.define('Isu.controller.ApplyIssueAction', {
 
     showOverview: function (issueModelClass, issueId, actionId, widgetItemId) {
         var me = this,
-            widget = Ext.widget('issue-action-view', {
-                router: me.getController('Uni.controller.history.Router'),
-                itemId: widgetItemId
-            }),
+            router = me.getController('Uni.controller.history.Router'),
+            widget = Ext.widget('issue-action-view', {router: router, itemId: widgetItemId}),
             form = widget.down('#issue-action-view-form'),
             issueModel = me.getModel(issueModelClass),
-            actionModel = Ext.create(issueModelClass).actions().model;
+            actionModel = Ext.create(issueModelClass).actions().model,
+            cancelLink = form.down('#issue-action-cancel'),
+            fromOverview = router.queryParams.fromOverview === 'true';
+
+        cancelLink.href = router.getRoute(router.currentRoute.replace(fromOverview ? '/action' : '/view/action', '')).buildUrl();
 
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
@@ -34,7 +36,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                 me.getApplication().fireEvent('issueActionLoad', record);
                 Ext.suspendLayouts();
                 form.setTitle(record.get('name'));
-                Ext.Object.each(record.get('parameters'), function(key, value) {
+                Ext.Object.each(record.get('parameters'), function (key, value) {
                     var formItem = me.createControl(value);
                     formItem && form.add(formItem);
                 });
@@ -51,7 +53,9 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             form = me.getForm(),
             basicForm = form.getForm(),
             errorPanel = form.down('#issue-action-view-form-errors'),
-            router = me.getController('Uni.controller.history.Router');
+            router = me.getController('Uni.controller.history.Router'),
+            fromOverview = router.queryParams.fromOverview === 'true';
+        ;
 
         errorPanel.hide();
         basicForm.clearInvalid();
@@ -60,13 +64,11 @@ Ext.define('Isu.controller.ApplyIssueAction', {
         form.getRecord().save({
             callback: function (model, operation, success) {
                 var responseText = Ext.decode(operation.response.responseText, true);
-
-                page.setLoading(false);
                 if (responseText) {
                     if (success) {
                         if (responseText.data.actions[0].success) {
                             me.getApplication().fireEvent('acknowledge', responseText.data.actions[0].message);
-                            router.getRoute(router.currentRoute.replace('/action', '')).forward();
+                            router.getRoute(router.currentRoute.replace(fromOverview ? '/action' : '/view/action', '')).forward();
                         } else {
                             me.getApplication().getController('Uni.controller.Error').showError(form.getRecord().get('name'), responseText.data.actions[0].message);
                         }
@@ -77,6 +79,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                         }
                     }
                 }
+                page.setLoading(false);
             }
         });
     }
