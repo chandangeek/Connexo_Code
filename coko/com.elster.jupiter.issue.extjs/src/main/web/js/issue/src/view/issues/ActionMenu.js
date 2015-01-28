@@ -98,7 +98,15 @@ Ext.define('Isu.view.issues.ActionMenu', {
             if (Ext.isEmpty(record.get('parameters'))) {
                 menuItem.actionRecord = record;
             } else {
-                menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/action').buildUrl({issueId: me.record.getId(), actionId: record.getId()});
+                menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/action').buildUrl(
+                    {
+                        issueId: me.record.getId(),
+                        actionId: record.getId()
+                    },
+                    {
+                        fromOverview: me.router.currentRoute.match('view') != null
+                    }
+                );
             }
             me.add(menuItem);
         });
@@ -117,7 +125,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
         }
 
         // add specific actions
-        if (Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'])) {
+        if (Uni.Auth.hasAnyPrivilege(['privilege.view.device', 'privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication'])) {
             deviceMRID = me.record.get('deviceMRID');
             if (deviceMRID) {
                 comTaskId = me.record.get('comTaskId');

@@ -126,7 +126,7 @@ Ext.define('Isu.controller.CreationRuleEdit', {
                             delete me.ruleModel.data.modificationDate;
                             if (widget.isVisible()) {
                                 me.modelToForm(record);
-                                title = Uni.I18n.translate('administration.issueCreationRules.title.editIssueCreationRule', 'ISU', 'Edit') + " '" + record.data.name + "'";
+                                title = Uni.I18n.translate('general.edit', 'ISU', 'Edit') + " '" + record.data.name + "'";
                                 me.getPageTitle().setTitle(title);
                                 me.getApplication().fireEvent('issueCreationRuleEdit', record);
                                 widget.on('afterrender', function () {
