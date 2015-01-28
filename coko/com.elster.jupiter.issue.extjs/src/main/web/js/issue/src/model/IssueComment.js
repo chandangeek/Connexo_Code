@@ -21,6 +21,17 @@ Ext.define('Isu.model.IssueComment', {
         {
             name: 'version',
             type: 'int'
+        },
+        {
+            name: 'splittedComments',
+            persist: false,
+            mapping: function (data) {
+                if (data.comment) {
+                   return data.comment.split('\n');
+                } else {
+                    return null;
+                }
+            }
         }
     ],
     proxy: {
