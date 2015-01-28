@@ -103,7 +103,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     }
                                 },
                                 loadprofiles: {
-                                    title: 'Load profiles',
+                                    title: 'Load profile types',
                                     route: 'loadprofiles',
                                     privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                                     controller: 'Mdc.controller.setup.LoadProfileTypesOnDeviceType',
