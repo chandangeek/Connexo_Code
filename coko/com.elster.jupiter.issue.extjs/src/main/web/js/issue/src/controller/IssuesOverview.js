@@ -50,10 +50,12 @@ Ext.define('Isu.controller.IssuesOverview', {
         this.getModel(record.$className).load(record.getId(), {
             success: function (record) {
                 if (!preview.isDestroyed) {
+                    Ext.suspendLayouts();
                     preview.loadRecord(record);
                     preview.down('issues-action-menu').record = record;
                     preview.down('#issue-view-details-link').setHref(preview.router.getRoute(preview.router.currentRoute + '/view').buildUrl({issueId: record.getId()}));
                     preview.setTitle(record.get('title'));
+                    Ext.resumeLayouts(true);
                 }
             },
             callback: function () {
@@ -246,12 +248,22 @@ Ext.define('Isu.controller.IssuesOverview', {
     },
 
     setGroupingType: function (combo, newValue) {
-        var filter = this.getController('Uni.controller.history.Router').filter;
+        var me = this,
+            filter = me.getController('Uni.controller.history.Router').filter;
 
         filter.set('grouping', {
             type: newValue
         });
-        filter.save();
+        if (newValue !== 'none') {
+            me.getGroupGrid().getStore().load({
+                params: me.getGroupProxyParams(),
+                callback: function (records) {
+                    me.setGroupingValue(null, records[0]);
+                }
+            });
+        } else {
+            filter.save();
+        }
     },
 
     setGroupingValue: function (selectionModel, record) {
@@ -261,36 +273,49 @@ Ext.define('Isu.controller.IssuesOverview', {
         filter.save();
     },
 
+    getGroupProxyParams: function () {
+        var me = this,
+            params = {
+                issueType: me.getStore('Isu.store.IssueStatuses').getProxy().extraParams.issueType
+            },
+            filter = me.getController('Uni.controller.history.Router').filter,
+            grouping = filter.get('grouping');
+
+        params.field = grouping.type;
+        Ext.iterate(filter.getData(), function (key, value) {
+            if (value) {
+                switch (key) {
+                    case 'assignee':
+                        params.assigneeId = value.split(':')[0];
+                        params.assigneeType = value.split(':')[1];
+                        break;
+                    case 'grouping':
+                        break;
+                    case 'sorting':
+                        break;
+                    case grouping.type:
+                        params.id = value;
+                        break;
+                    default:
+                        params[key] = value;
+                }
+            }
+        });
+
+        return params;
+    },
+
     setGrouping: function (filter) {
         var me = this,
             grouping = filter.get('grouping'),
             groupGrid = me.getGroupGrid(),
             groupStore = groupGrid.getStore(),
-            groupProxyParams = {issueType: 'datacollection'},
             previewContainer = me.getPreviewContainer();
 
         if (grouping && grouping.type !== 'none') {
             groupGrid.show();
-            groupProxyParams.field = grouping.type;
-            Ext.iterate(filter.getData(), function (key, value) {
-                if (value) {
-                    switch (key) {
-                        case 'assignee':
-                            groupProxyParams.assigneeId = value.split(':')[0];
-                            groupProxyParams.assigneeType = value.split(':')[1];
-                            break;
-                        case 'grouping':
-                            break;
-                        case grouping.type:
-                            groupProxyParams.id = value;
-                            break;
-                        default:
-                            groupProxyParams[key] = value;
-                    }
-                }
-            });
             groupStore.load({
-                params: groupProxyParams,
+                params: me.getGroupProxyParams(),
                 callback: function () {
                     var groupingTitle = me.getGroupingTitle(),
                         groupingRecord = groupStore.getById(grouping.value);
@@ -302,8 +327,10 @@ Ext.define('Isu.controller.IssuesOverview', {
                     } else {
                         groupingTitle.hide();
                     }
+                    Ext.resumeLayouts(true);
                 }
             });
+            Ext.suspendLayouts();
             if (!grouping.value) {
                 previewContainer.hide();
                 me.getNoGroupSelectedPanel().show();
