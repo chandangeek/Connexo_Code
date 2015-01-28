@@ -37,9 +37,9 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.ValidationPreview', {
                             } else {
                                 if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration'])) {
                                     url = me.router.getRoute('administration/rulesets/overview/rules').buildUrl({ruleSetId: rule.key.ruleSet.id, ruleId: rule.key.id});
-                                    result = '<a href="' + url + '"> ' + rule.key.name + '</a>';
+                                    result += '<a href="' + url + '"> ' + rule.key.name + '</a>';
                                 } else {
-                                    result = rule.key.name;
+                                    result += rule.key.name;
                                 }
                                 result += ' - ' + rule.value + ' ' + Uni.I18n.translate('general.suspects', 'MDC', 'suspects') + '<br>';
                             }
