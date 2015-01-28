@@ -27,7 +27,14 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 dataIndex: 'value',
                 align: 'right',
                 minWidth: 150,
-                flex: 1
+                flex: 1,
+                renderer: function (value) {
+                    if (!Ext.isEmpty(value)) {
+                        return Uni.Number.formatNumber(value, -1);
+                    } else {
+                        return '-'
+                    }
+                }
             },
             {
                 xtype: 'edited-column',
@@ -40,7 +47,14 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 align: 'right',
                 minWidth: 150,
                 hidden: true,
-                flex: 1
+                flex: 1,
+                renderer: function (value) {
+                    if (!Ext.isEmpty(value)) {
+                        return Uni.Number.formatNumber(value, -1);
+                    } else {
+                        return '-'
+                    }
+                }
             },
             {
                 xtype: 'uni-actioncolumn',

@@ -86,7 +86,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
                 var widget = Ext.widget('deviceCommunicationScheduleSetup', {device: device});
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getApplication().fireEvent('loadDevice', device);
-                viewport.setLoading(false);
 
                 var scheduleStore = me.getDeviceSchedulesStore();
                 scheduleStore.getProxy().setUrl(mrid);
@@ -149,6 +148,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
                             };
                             widget.down('#onRequestDeviceCommunicationScheduleSetupPanel').add(msg);
                         }
+                        viewport.setLoading(false);
                     }
                 });
             }
