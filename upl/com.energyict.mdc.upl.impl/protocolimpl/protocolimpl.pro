@@ -616,6 +616,8 @@
 -keepnames class com.energyict.protocolimpl.iec1107.emh.nxt4.NXT4
 
 -keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.DisconnectControlLog { public *; }
--keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.PowerFailureLog{ public *; }
--keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.events.AM540FraudDetectionLog{ public *; }
--keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.events.AM540StandardEventLog{ public *; }
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.PowerFailureLog { public *; }
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.events.AM540FraudDetectionLog { public *; }
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.events.AM540StandardEventLog { public *; }
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.events.AM540MBusLog { public *; }
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.events.AM540MbusControlLog; { public *; }
