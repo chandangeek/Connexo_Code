@@ -18,7 +18,7 @@ Ext.define('Isu.view.issues.Grid', {
         me.columns = [
             {
                 itemId: 'issues-grid-title',
-                header: Uni.I18n.translate('general.title.title', 'ISU', 'Title'),
+                header: Uni.I18n.translate('general.title.issue', 'ISU', 'Issue'),
                 dataIndex: 'title',
                 flex: 2,
                 renderer: function (value, metaData, record) {
