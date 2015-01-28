@@ -272,7 +272,11 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
     public TimeDuration(String stringValue) {
         String countAsString = stringValue.substring(0, stringValue.indexOf(" "));
         String timeUnitAsString = stringValue.substring(stringValue.indexOf(" ")+1);
-        this.count = Integer.parseInt(countAsString);
+        try {
+            this.count = Integer.parseInt(countAsString);
+        } catch (NumberFormatException ex) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_TIME_COUNT, "timeUnit", countAsString);
+        }
         switch (timeUnitAsString) {
             case MILLISECONDS_STRING: {
                 this.timeUnit = MILLISECONDS;
