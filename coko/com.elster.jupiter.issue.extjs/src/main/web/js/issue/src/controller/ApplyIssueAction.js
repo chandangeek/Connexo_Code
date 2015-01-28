@@ -42,6 +42,9 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                 });
                 Ext.resumeLayouts();
                 form.loadRecord(record);
+                if (form.title == 'Close issue') {
+                    form.down('#issue-action-apply').setText(Uni.I18n.translate('general.close', 'ISU', 'Close'));
+                }
                 widget.setLoading(false);
             }
         });
