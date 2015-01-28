@@ -44,7 +44,8 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 import com.elster.jupiter.validators.impl.DefaultValidatorFactory;
-import com.energyict.mdc.app.impl.MdcAppServiceImpl;
+
+import com.energyict.mdc.app.impl.MdcAppInstaller;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
@@ -307,8 +308,9 @@ public class DemoTest {
     }
 
     private void createDefaultStuff(){
-        MdcAppServiceImpl mdcAppService = new MdcAppServiceImpl();
-        mdcAppService.setUserService(injector.getInstance(UserService.class));
-        mdcAppService.install();
+        MdcAppInstaller mdcAppInstaller = new MdcAppInstaller();
+        mdcAppInstaller.setUserService(injector.getInstance(UserService.class));
+        mdcAppInstaller.install();
     }
+
 }
