@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
@@ -42,7 +43,23 @@ public class MasterDataGenerator {
         ACTIVE_METER_FIRMWARE_VERSION("0.0.0.12.0.41.109.0.0.0.0.0.0.0.0.0.109.0", ObisCode.fromString("1.0.0.2.8.255"), Unit.getUndefined(), 0),
         ACTIVE_MODEM_FIRMWARE_VERSION("0.0.0.12.0.3.109.0.0.0.0.0.0.0.0.0.114.0", ObisCode.fromString("1.1.0.2.8.255"), Unit.getUndefined(), 0),
         METER_STATUS("0.0.0.12.0.41.139.0.0.0.0.0.0.0.0.0.109.0", ObisCode.fromString("0.0.97.97.0.255"), Unit.getUndefined(), 0),
-        METER_ALARM_STATUS("0.0.0.12.0.41.118.0.0.0.0.0.0.0.0.0.109.0", ObisCode.fromString("0.0.97.98.0.255"), Unit.getUndefined(), 0);
+        METER_ALARM_STATUS("0.0.0.12.0.41.118.0.0.0.0.0.0.0.0.0.109.0", ObisCode.fromString("0.0.97.98.0.255"), Unit.getUndefined(), 0),
+
+        // fixed gas related registertypes
+        GAS_VOLUME("0.0.0.1.1.7.58.0.0.0.0.0.0.0.0.0.42.0", ObisCode.fromString("7.0.3.0.0.255"), Unit.get("m3"), 0),
+        GAS_VOLUME_CORRECTED("0.0.0.1.1.7.58.0.0.0.0.0.0.0.0.0.167.0", ObisCode.fromString("7.0.3.1.0.255"), Unit.get("m3"), 0),
+        GAS_FLOW("0.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.125.0", ObisCode.fromString("7.0.43.0.0.255"), Unit.get("m3/h"), 0),
+        GAS_FLOW_CORRECTED("0.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.126.0", ObisCode.fromString("7.0.43.1.0.255"), Unit.get("m3/h"), 0),
+        GAS_TEMP_K("0.0.0.12.0.7.46.0.0.0.0.0.0.0.0.0.6.0", ObisCode.fromString("7.0.41.0.0.255"), Unit.get(BaseUnit.KELVIN), 0),
+        GAS_TEMP_C("0.0.0.12.0.7.46.0.0.0.0.0.0.0.0.0.23.0", ObisCode.fromString("7.0.41.0.0.255"), Unit.get(BaseUnit.DEGREE_CELSIUS), 0),
+        GAS_TEMP_F("0.0.0.12.0.7.46.0.0.0.0.0.0.0.0.0.279.0", ObisCode.fromString("7.0.41.0.0.255"), Unit.get(BaseUnit.FAHRENHEIT), 0),
+        GAS_PRESSURE("0.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.39.0", ObisCode.fromString("7.0.41.0.0.255"), Unit.get(BaseUnit.PASCAL), 0),
+        GAS_CONVERSION_FACTOR("0.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.107.0", ObisCode.fromString("7.0.52.0.0.255"), Unit.get(BaseUnit.WATTHOURPERCUBICMETER), 0),
+
+        // fixed water related registertypes
+        WATER_VOLUME("0.0.0.1.1.9.58.0.0.0.0.0.0.0.0.0.42.0", ObisCode.fromString("8.0.1.0.0.255"), Unit.get("m3"), 0),
+        WATER_FLOW("0.2.0.6.0.9.58.0.0.0.0.0.0.0.0.0.125.0", ObisCode.fromString("8.0.2.0.0.255"), Unit.get("m3/h"), 0),
+        ;
 
         private final String readingType;
         private final ObisCode obisCode;
