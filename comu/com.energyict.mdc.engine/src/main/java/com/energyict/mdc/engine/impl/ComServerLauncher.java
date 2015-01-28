@@ -70,6 +70,10 @@ public final class ComServerLauncher {
         }
     }
 
+    public boolean isStarted() {
+        return this.runningComServer != null;
+    }
+
     public void stopComServer() {
         if (this.runningComServer != null) {
             this.runningComServer.shutdownImmediate();

@@ -10,9 +10,11 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.HostName;
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
+import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.io.LibraryType;
@@ -36,6 +38,7 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -49,6 +52,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -70,17 +74,32 @@ import java.util.concurrent.atomic.AtomicReference;
  * Date: 08/05/14
  * Time: 13:17
  */
-@Component(name = "com.energyict.mdc.engine", service = {EngineService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + EngineService.COMPONENTNAME, immediate = true)
+@Component(name = "com.energyict.mdc.engine",
+        service = {EngineService.class, InstallService.class, TranslationKeyProvider.class},
+        property = {"name=" + EngineService.COMPONENTNAME,
+                    "osgi.command.scope=mdc",
+                    "osgi.command.function=become",
+                    "osgi.command.function=launchComServer",
+                    "osgi.command.function=stopComServer",
+                    "osgi.command.function=lcs",
+                    "osgi.command.function=scs"},
+        immediate = true)
 public class EngineServiceImpl implements EngineService, InstallService, TranslationKeyProvider {
+
+    private static final String SERVER_NAME_PROPERTY_NAME = "com.elster.jupiter.server.name";
+
+    private volatile BundleContext bundleContext;
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
     private volatile Clock clock;
+    private volatile NlsService nlsService;
+    private volatile MeteringService meteringService;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     private volatile HexService hexService;
     private volatile EngineConfigurationService engineConfigurationService;
-    private volatile ThreadPrincipalService threadPrincipalService;
     private volatile IssueService issueService;
     private volatile ConnectionTaskService connectionTaskService;
     private volatile CommunicationTaskService communicationTaskService;
@@ -95,8 +114,8 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile SocketService socketService;
     private volatile SerialComponentService serialATComponentService;
-    private volatile NlsService nlsService;
     private OptionalIdentificationService identificationService = new OptionalIdentificationService();
+    private ComServerLauncher launcher;
 
     private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
 
@@ -105,6 +124,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
 
     @Inject
     public EngineServiceImpl(
+            BundleContext bundleContext,
             OrmService ormService, EventService eventService, NlsService nlsService, TransactionService transactionService, Clock clock, ThreadPrincipalService threadPrincipalService,
             HexService hexService, EngineConfigurationService engineConfigurationService, IssueService issueService,
             MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, DeviceConfigurationService deviceConfigurationService,
@@ -139,7 +159,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         this.setManagementBeanFactory(managementBeanFactory);
         this.addIdentificationService(identificationService);
         this.install();
-        activate();
+        this.activate(bundleContext);
     }
 
     @Override
@@ -273,6 +293,11 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     }
 
     @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
+    @Reference
     public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
     }
@@ -322,12 +347,26 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     }
 
     @Activate
-    public void activate() {
+    public void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
         this.dataModel.register(this.getModule());
+        this.tryStartComServer(bundleContext);
+    }
+
+    private void tryStartComServer(BundleContext context) {
+        Optional
+            .ofNullable(context.getProperty(SERVER_NAME_PROPERTY_NAME))
+            .ifPresent(HostName::setCurrent);
+        this.launcher = new ComServerLauncher(new RunningComServerServiceProvider());
+        this.launcher.startComServer();
+        if (!this.launcher.isStarted()) {
+            this.launcher = null;
+        }
     }
 
     @Deactivate
     public void deactivate() {
+        this.stopComServer();
         this.deactivationNotificationListeners.forEach(EngineService.DeactivationNotificationListener::engineServiceDeactivationStarted);
     }
 
@@ -349,6 +388,44 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList("ORM", "EVT", "NLS", "DDC", "MIO");
+    }
+
+    @SuppressWarnings("unused")
+    public void become(String serverName) {
+        this.stopComServer();
+        HostName.setCurrent(serverName);
+        this.launchComServer();
+    }
+
+    @SuppressWarnings("unused")
+    public void launchComServer() {
+        if (this.launcher == null) {
+            this.tryStartComServer(this.bundleContext);
+            if (this.launcher == null) {
+                System.out.println("ComServer with name " + HostName.getCurrent() + " is not configured or not active");
+            }
+        }
+        else {
+            System.out.println("ComServer " + HostName.getCurrent() + " is already running");
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public void lcs() {
+        this.launchComServer();
+    }
+
+    @SuppressWarnings("unused")
+    public void scs() {
+        this.stopComServer();
+    }
+
+    @SuppressWarnings("unused")
+    public void stopComServer() {
+        if (this.launcher != null) {
+            System.out.println("Stopping ComServer " + HostName.getCurrent());
+            this.launcher.stopComServer();
+        }
     }
 
     private static class OptionalIdentificationService implements IdentificationService {
@@ -504,4 +581,122 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
             super("IdentificationService missing in EngineService");
         }
     }
+
+    private class RunningComServerServiceProvider implements RunningComServerImpl.ServiceProvider {
+        @Override
+        public DeviceConfigurationService deviceConfigurationService() {
+            return deviceConfigurationService;
+        }
+
+        @Override
+        public LogBookService logBookService() {
+            return logBookService;
+        }
+
+        @Override
+        public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
+            return mdcReadingTypeUtilService;
+        }
+
+        @Override
+        public IssueService issueService() {
+            return issueService;
+        }
+
+        @Override
+        public ManagementBeanFactory managementBeanFactory() {
+            return managementBeanFactory;
+        }
+
+        @Override
+        public ThreadPrincipalService threadPrincipalService() {
+            return threadPrincipalService;
+        }
+
+        @Override
+        public UserService userService() {
+            return userService;
+        }
+
+        @Override
+        public NlsService nlsService() {
+            return nlsService;
+        }
+
+        @Override
+        public ProtocolPluggableService protocolPluggableService() {
+            return protocolPluggableService;
+        }
+
+        @Override
+        public SocketService socketService() {
+            return socketService;
+        }
+
+        @Override
+        public HexService hexService() {
+            return hexService;
+        }
+
+        @Override
+        public SerialComponentService serialAtComponentService() {
+            return serialATComponentService;
+        }
+
+        @Override
+        public MeteringService meteringService() {
+            return meteringService;
+        }
+
+        @Override
+        public Clock clock() {
+            return clock;
+        }
+
+        @Override
+        public EngineConfigurationService engineConfigurationService() {
+            return engineConfigurationService;
+        }
+
+        @Override
+        public ConnectionTaskService connectionTaskService() {
+            return connectionTaskService;
+        }
+
+        @Override
+        public CommunicationTaskService communicationTaskService() {
+            return communicationTaskService;
+        }
+
+        @Override
+        public DeviceService deviceService() {
+            return deviceService;
+        }
+
+        @Override
+        public TopologyService topologyService() {
+            return topologyService;
+        }
+
+        @Override
+        public EngineService engineService() {
+            return EngineServiceImpl.this;
+        }
+
+        @Override
+        public TransactionService transactionService() {
+            return transactionService;
+        }
+
+        @Override
+        public EventService eventService() {
+            return eventService;
+        }
+
+        @Override
+        public IdentificationService identificationService() {
+            return identificationService;
+        }
+    }
+
 }

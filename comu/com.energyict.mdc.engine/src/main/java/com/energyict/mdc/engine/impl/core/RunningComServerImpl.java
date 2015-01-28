@@ -65,7 +65,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-03 (09:58)
  */
-public abstract class RunningComServerImpl implements RunningComServer, Runnable, EngineService.DeactivationNotificationListener {
+public abstract class RunningComServerImpl implements RunningComServer, Runnable {
 
     public interface ServiceProvider extends ComServerDAOImpl.ServiceProvider {
 
@@ -377,21 +377,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     }
 
     private void installShutdownHooks() {
-        this.installEngineServiceShutdownHook();
         this.installVMShutdownHook();
-    }
-
-    private void removeShutdownHooks() {
-        this.serviceProvider.engineService().unregister(this);
-    }
-
-    @Override
-    public void engineServiceDeactivationStarted() {
-        this.shutdownImmediate();
-    }
-
-    private void installEngineServiceShutdownHook() {
-        this.serviceProvider.engineService().register(this);
     }
 
     private void installVMShutdownHook() {
@@ -430,7 +416,6 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
 
     private void shutdown(boolean immediate) {
         this.doShutdown();
-        this.removeShutdownHooks();
         this.shutdownNestedServerProcesses(immediate);
         if (!immediate) {
             this.awaitNestedServerProcessesAreShutDown();
