@@ -24,6 +24,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -92,8 +93,8 @@ public class ValidationEventHandlerTest {
     public void testOnEvent() {
         handler.handle(localEvent);
 
-        verify(validationService).validate(meterActivation1, date1);
-        verify(validationService).validate(meterActivation2, date4);
+        verify(validationService).validate(meterActivation1, ImmutableMap.of(channel1, interval(date1,date2), channel2 , interval(date3, date5)));
+        verify(validationService).validate(meterActivation2, ImmutableMap.of(channel3, interval(date4,date5)));
     }
 
 

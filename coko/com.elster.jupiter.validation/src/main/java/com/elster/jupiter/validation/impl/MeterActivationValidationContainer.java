@@ -3,9 +3,11 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,8 +35,8 @@ public class MeterActivationValidationContainer {
 		meterActivationValidations.forEach(meterActivationValidation -> meterActivationValidation.validate(readingType));		
 	}
 	
-	void moveLastCheckedBefore(Instant instant) {
-		meterActivationValidations.forEach( meterActivationValidation -> meterActivationValidation.moveLastCheckedBefore(instant));		
+	void moveLastCheckedBefore(Map<Channel,Range<Instant>> ranges) {
+		meterActivationValidations.forEach( meterActivationValidation -> meterActivationValidation.moveLastCheckedBefore(ranges));		
 	}
 	
 	void updateLastChecked(Instant instant) {

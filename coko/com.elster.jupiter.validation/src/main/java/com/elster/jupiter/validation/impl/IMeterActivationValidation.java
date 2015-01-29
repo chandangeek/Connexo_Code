@@ -4,9 +4,11 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -28,7 +30,7 @@ public interface IMeterActivationValidation  {
     void validate();
     void validate(ReadingType readingType);
     void updateLastChecked(Instant lastChecked);
-    void moveLastCheckedBefore(Instant instant);
+    void moveLastCheckedBefore(Map<Channel,Range<Instant>> ranges);
     boolean isAllDataValidated();
     Instant getMinLastChecked();
 

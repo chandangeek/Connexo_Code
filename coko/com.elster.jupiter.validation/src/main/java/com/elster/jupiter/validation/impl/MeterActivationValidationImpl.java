@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,6 +28,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.google.common.collect.Range;
 
 class MeterActivationValidationImpl implements IMeterActivationValidation {
 
@@ -260,9 +262,10 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     }
     
     @Override
-    public void moveLastCheckedBefore(Instant instant) {
-    	long updateCount = channelValidations.stream()
-    		.filter(channelValidation -> channelValidation.moveLastCheckedBefore(instant))
+    public void moveLastCheckedBefore(Map<Channel,Range<Instant>> ranges) {
+    	long updateCount = channelValidations.stream()    		
+    		.filter(channelValidation -> ranges.containsKey(channelValidation.getChannel()))
+    		.filter(channelValidation -> channelValidation.moveLastCheckedBefore(ranges.get(channelValidation.getChannel()).lowerEndpoint()))
     		.count();
     	if (updateCount > 0) {
     		save();

@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -75,6 +76,7 @@ import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
@@ -311,8 +313,9 @@ public class ValidationServiceImplTest {
         doReturn(Collections.singleton(readingType)).when(validationRule).getReadingTypes();
         doReturn(Arrays.asList(validationRule)).when(validationRuleSet).getRules(anyList());
         when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet));
-        validationService.validate(meterActivation, Instant.EPOCH);
-        verify(meterActivationValidation).moveLastCheckedBefore(Instant.ofEpochMilli(0L));      
+        Map<Channel, Range<Instant>> changeScope = ImmutableMap.of(channel1, Range.atLeast(Instant.EPOCH));
+        validationService.validate(meterActivation, changeScope);
+        verify(meterActivationValidation).moveLastCheckedBefore(changeScope);      
     }
 
     @Test
