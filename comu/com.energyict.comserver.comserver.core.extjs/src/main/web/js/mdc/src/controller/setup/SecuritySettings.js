@@ -180,7 +180,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     },
 
     loadGridItemDetail: function (rowmodel, record, index) {
-        debugger;
         var detailPanel = Ext.ComponentQuery.query('securitySettingSetup securitySettingPreview')[0],
             form = detailPanel.down('form'),
             preloader = Ext.create('Ext.LoadMask', {
