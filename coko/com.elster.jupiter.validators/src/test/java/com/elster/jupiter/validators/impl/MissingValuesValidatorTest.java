@@ -94,6 +94,7 @@ public class MissingValuesValidatorTest {
         startPlus40 = base.plus(40, ChronoUnit.MINUTES);
         startPlus50 = base.plus(50, ChronoUnit.MINUTES);
         end = base.plus(60, ChronoUnit.MINUTES);
+        when(channel.getFirstDateTime()).thenReturn(start);
     }
 
     @After

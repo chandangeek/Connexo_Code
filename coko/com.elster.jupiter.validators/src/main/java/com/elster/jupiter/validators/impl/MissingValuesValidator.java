@@ -55,7 +55,20 @@ class MissingValuesValidator extends AbstractValidator {
 
     @Override
     public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
-        instants = new HashSet<>(channel.toList(interval));
+    	Instant start = channel.getFirstDateTime();    	
+    	if (start == null) {
+    		instants = new HashSet<>();
+    	} else {
+    		if (start.isAfter(interval.lowerEndpoint())) {
+    			if (start.isAfter(interval.upperEndpoint())) {
+    				instants = new HashSet<>();
+    			} else {
+    				instants = new HashSet<>(channel.toList(Range.closed(start, interval.upperEndpoint())));
+    			}
+    		} else {
+    			instants = new HashSet<>(channel.toList(interval));
+    		}
+    	}
     }
 
     @Override
