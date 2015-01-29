@@ -118,7 +118,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     public void testGetValidationRulesNoRules() {
         mockValidationRuleSets(mockValidationRuleSet(13, false));
 
-        ValidationRuleInfos ruleInfos = target("/validation/rules/13").request().get(ValidationRuleInfos.class);
+        ValidationRuleInfos ruleInfos = target("/validation/13/rules").request().get(ValidationRuleInfos.class);
 
         assertThat(ruleInfos.total).isEqualTo(0);
         assertThat(ruleInfos.rules).hasSize(0);
@@ -128,7 +128,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     public void testGetValidationRules() {
         mockValidationRuleSets(mockValidationRuleSet(13, true));
 
-        ValidationRuleInfos ruleInfos = target("/validation/rules/13").request().get(ValidationRuleInfos.class);
+        ValidationRuleInfos ruleInfos = target("/validation/13/rules").request().get(ValidationRuleInfos.class);
 
         assertThat(ruleInfos.total).isEqualTo(1);
 
@@ -264,7 +264,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         ValidationRule rule = mockValidationRuleInRuleSet(ruleSet);
         when(ruleSet.addRule(Matchers.eq(ValidationAction.FAIL), Matchers.eq(info.implementation), Matchers.eq(info.name))).thenReturn(rule);
 
-        Response response = target("/validation/rules/13").request().post(entity);
+        Response response = target("/validation/13/rules").request().post(entity);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ValidationRuleInfos resultInfos = response.readEntity(ValidationRuleInfos.class);
@@ -280,9 +280,21 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     }
 
     @Test
+    public void testUpdateValidationRuleSet() throws Exception {
+        mockValidationRuleSet(15, true);
+
+
+        final ValidationRuleInfo info = new ValidationRuleInfo();
+        info.name = "MyRuleUpdated";
+        info.implementation = "com.blablabla.Validator";
+        info.properties = new ArrayList<>();
+
+        Response response = target("/validation/15").request().put(Entity.json(info));
+    }
+
+    @Test
     public void testEditValidationRule() {
         final ValidationRuleInfo info = new ValidationRuleInfo();
-        info.id = 1;
         info.name = "MyRuleUpdated";
         info.implementation = "com.blablabla.Validator";
         info.properties = new ArrayList<>();
@@ -299,7 +311,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
                 thenReturn(rule);
 
         Entity<ValidationRuleInfo> entity = Entity.json(info);
-        Response response = target("/validation/rules/13").request().put(entity);
+        Response response = target("/validation/13/rules/1").request().put(entity);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
@@ -312,7 +324,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     @Test
     public void testDeleteValidationRule() {
         mockValidationRuleSet(13, true);
-        Response response = target("/validation/rules/13").queryParam("id", "1").request().delete();
+        Response response = target("/validation/13/rules/1").request().delete();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
     }
@@ -321,7 +333,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     public void testDeleteValidationRuleNoRuleSet() {
         when(validationService.getValidationRuleSet(13)).thenReturn(Optional.empty());
 
-        Response response = target("/validation/rules/13").queryParam("id", "1").request().delete();
+        Response response = target("/validation/13/rules/12").request().delete();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
@@ -331,7 +343,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         mockValidationRuleSet(13, false);
         when(validationService.getValidationRule(1)).thenReturn(Optional.empty());
 
-        Response response = target("/validation/rules/13").queryParam("id", "1").request().delete();
+        Response response = target("/validation/13/rules/1").request().delete();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
