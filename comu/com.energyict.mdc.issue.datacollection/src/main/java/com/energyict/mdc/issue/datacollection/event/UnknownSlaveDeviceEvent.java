@@ -1,11 +1,5 @@
 package com.energyict.mdc.issue.datacollection.event;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import java.util.Map;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
@@ -21,6 +15,11 @@ import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 import com.google.inject.Injector;
 
+import javax.inject.Inject;
+import java.util.Map;
+
+import static com.elster.jupiter.util.conditions.Where.where;
+
 public class UnknownSlaveDeviceEvent extends DataCollectionEvent {
     protected String deviceMRID;
 
@@ -31,7 +30,7 @@ public class UnknownSlaveDeviceEvent extends DataCollectionEvent {
 
     @Override
     public void apply(Issue issue) {
-        if (issue instanceof OpenIssueDataCollection){
+        if (issue instanceof OpenIssueDataCollection) {
             OpenIssueDataCollection dcIssue = (OpenIssueDataCollection) issue;
             dcIssue.setDeviceMRID(deviceMRID);
         }
@@ -51,12 +50,11 @@ public class UnknownSlaveDeviceEvent extends DataCollectionEvent {
             Device masterDevice = getDeviceService().findByUniqueMrid(masterDeviceMrid);
             if (masterDevice != null) {
                 setDevice(masterDevice);
-                setEndDevice(findEndDeviceByMdcDevice());
             }
         }
     }
 
-    protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription){
+    protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription) {
         this.deviceMRID = (String) rawEvent.get(ModuleConstants.DEVICE_IDENTIFIER);
     }
 
