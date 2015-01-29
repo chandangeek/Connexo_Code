@@ -13,18 +13,6 @@ Ext.define('Idc.view.Preview', {
     },
     frame: true,
     router: null,
-    bbar: {
-        layout: {
-            type: 'vbox',
-            align: 'right'
-        },
-        items: {
-            text: Uni.I18n.translate('general.title.viewDetails', 'ISU', 'View details'),
-            itemId: 'issue-view-details-link',
-            ui: 'link',
-            href: location.href
-        }
-    },
 
     initComponent: function () {
         var me = this;
