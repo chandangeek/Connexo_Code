@@ -42,6 +42,7 @@ Ext.define('Isu.util.CreatingControl', {
     createTextField: function (obj) {
         var textField = {
             xtype: 'textfield',
+            itemId: 'issues-creation-rules-template-textfield',
             name: obj.key,
             fieldLabel: obj.label,
             allowBlank: !obj.constraint.required,
@@ -62,6 +63,7 @@ Ext.define('Isu.util.CreatingControl', {
     createNumberField: function (obj) {
         var numberField = {
             xtype: 'numberfield',
+            itemId: 'issues-creation-rules-template-numberfield',
             name: obj.key,
             fieldLabel: obj.label,
             allowBlank: !obj.constraint.required,
@@ -85,6 +87,7 @@ Ext.define('Isu.util.CreatingControl', {
             }),
             combobox = {
                 xtype: 'combobox',
+                itemId: 'issues-creation-rules-template-combobox',
                 name: obj.key,
                 fieldLabel: obj.label,
                 allowBlank: !obj.constraint.required,
@@ -169,6 +172,7 @@ Ext.define('Isu.util.CreatingControl', {
     createTrendPeriodControl: function (obj) {
         var trendPeriodControl = {
                 xtype: 'fieldcontainer',
+                itemId: 'issues-creation-rules-template-trendPeriod',
                 layout: 'hbox',
                 fieldLabel: obj.label,
                 name: obj.key,
@@ -249,6 +253,7 @@ Ext.define('Isu.util.CreatingControl', {
     createCheckBox: function (obj) {
         var checkBox = {
             xtype: 'checkboxfield',
+            itemId: 'issues-creation-rules-template-checkboxfield',
             name: obj.key,
             fieldLabel: obj.label,
             formBind: false

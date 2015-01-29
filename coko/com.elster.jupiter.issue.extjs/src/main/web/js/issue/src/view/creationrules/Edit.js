@@ -87,6 +87,7 @@ Ext.define('Isu.view.creationrules.Edit', {
                         },
                         {
                             xtype: 'fieldcontainer',
+                            itemId: 'issues-creation-rules-edit-field-container-due-date',
                             fieldLabel: 'Due date',
                             layout: 'hbox',
                             items: [
@@ -182,6 +183,7 @@ Ext.define('Isu.view.creationrules.Edit', {
                         {
                             xtype: 'fieldcontainer',
                             fieldLabel: 'Actions',
+                            itemId: 'issues-creation-rules-edit-field-container-actions',
                             width: 900,
                             items: [
                                 {
