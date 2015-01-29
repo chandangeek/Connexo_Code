@@ -76,7 +76,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             },
             '#device-configuration-action-menu': {
                 click: this.chooseAction,
-                show: this.configureMenu
+                beforeshow: this.configureMenu
             },
             'deviceConfigurationEdit #createEditButton': {
                 click: this.createEditDeviceConfiguration
@@ -522,7 +522,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     });
                     var numberOfLogbooksLabel = Ext.ComponentQuery.query('add-logbook-configurations #logbook-count')[0],
                         grid = Ext.ComponentQuery.query('add-logbook-configurations grid')[0];
-                    numberOfLogbooksLabel.setText(Uni.I18n.translate('logbookConfiguration.noSelected', 'MDC', 'No logbook configurations selected'));
+                    numberOfLogbooksLabel.setText(Uni.I18n.translate('logbookConfiguration.zeroSelected', 'MDC', '0 logbook configurations selected'));
                 }
             }
         );

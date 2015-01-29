@@ -89,8 +89,6 @@ Ext.define('Mdc.view.setup.comportpool.Overview', {
         me.side = {
             xtype: 'panel',
             ui: 'medium',
-            title: Uni.I18n.translate('', 'MDC', 'Communication port pools'),
-            width: 350,
             items: [
                 {
                     xtype: 'comportpoolsidemenu',

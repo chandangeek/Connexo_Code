@@ -137,7 +137,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             method: 'DELETE',
             waitMsg: 'Removing...',
             success: function () {
-                me.handleSuccessRequest('Channel was removed successfully');
+                me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.removeSuccessMsg', 'MDC', 'Channel configuration removed'));
                 me.store.load(function () {
                     if (this.getCount() === 0) {
                         me.getPage().down('#rulesForChannelPreviewContainer').destroy();
@@ -238,7 +238,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                         method: 'POST',
                         jsonData: jsonValues,
                         success: function () {
-                            me.handleSuccessRequest('Load profile configuration saved');
+                            me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.acknowlegment.added', 'MDC', 'Channel configuration added'));
                             router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward();
                         },
                         callback: function () {
@@ -257,7 +257,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                         method: 'PUT',
                         jsonData: jsonValues,
                         success: function () {
-                            me.handleSuccessRequest('Load profile configuration saved');
+                            me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.acknowlegment.saved', 'MDC', 'Channel configuration saved'));
                             router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.arguments);
                         },
                         callback: function () {

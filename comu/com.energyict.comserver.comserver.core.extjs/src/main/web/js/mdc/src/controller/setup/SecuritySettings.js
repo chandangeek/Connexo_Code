@@ -569,6 +569,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 executionLevelToDelete = cfg.config.executionLevelToDelete,
                 securitySetting = cfg.config.securitySetting;
             var securitySettingSelected = me.getSecurityGridPanel().getSelectionModel().getLastSelected();
+            var selectedIndex = me.store.indexOf(securitySettingSelected);
             Ext.Ajax.request({
                 url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/securityproperties/' + securitySetting + '/executionlevels/' + executionLevelToDelete.getData().id,
                 method: 'DELETE',
@@ -576,7 +577,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('executionlevel.acknowlegment.removed', 'MDC', 'Privilege removed'));
                     me.store.load(function(){
-                        me.getSecurityGridPanel().getSelectionModel().select(securitySettingSelected);
+                        me.getSecurityGridPanel().getSelectionModel().select(selectedIndex);
                     });
                 },
                 failure: function (response, request) {

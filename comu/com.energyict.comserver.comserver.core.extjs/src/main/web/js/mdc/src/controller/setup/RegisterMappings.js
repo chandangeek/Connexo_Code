@@ -66,6 +66,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             var registerMappingsName = this.getRegisterMappingPreviewForm().form.findField('name').getSubmitValue();
             this.getRegisterMappingPreview().getLayout().setActiveItem(1);
             this.getRegisterMappingPreview().setTitle(registerMappingsName);
+            this.getRegisterMappingPreviewForm().form.findField('unit').setValue(registerMappings[0].data.unitOfMeasure.localizedValue);
         } else {
             this.getRegisterMappingPreview().getLayout().setActiveItem(0);
         }

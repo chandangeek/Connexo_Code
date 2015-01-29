@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.comportpool.SideMenu', {
         me.menuItems = [
             {
                 itemId: 'comportpoolLink',
-                href: '#/administration/comportpools/' + poolId + '/overview'
+                href: '#/administration/comportpools/' + poolId
             },
             {
                 text: Uni.I18n.translate('comserver.sidemenu.comports', 'MDC', 'Communication ports'),

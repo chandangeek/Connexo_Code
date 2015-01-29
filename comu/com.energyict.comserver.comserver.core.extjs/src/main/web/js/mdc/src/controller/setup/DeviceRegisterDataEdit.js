@@ -210,13 +210,15 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                                 var widget = Ext.widget('deviceregisterreportedit-' + type, {
                                     edit: true,
                                     returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({mRID: mRID, registerId: registerId}),
-                                    registerType: type
+                                    registerType: type,
+                                    router: router
                                 });
                                 me.getApplication().fireEvent('loadRegisterConfiguration', register);
                                 widget.down('form').loadRecord(reading);
                                 widget.setValues(register);
                                 me.getApplication().fireEvent('changecontentevent', widget);
                                 widget.down('#stepsMenu').setTitle(Ext.util.Format.date(new Date(reading.get('timeStamp')), 'M j, Y \\a\\t G:i'));
+                                widget.down('#stepsMenu #editReading').setText(Uni.I18n.translate('device.registerData.editReading', 'MDC', 'Edit reading'));
                             },
 
                             callback: function () {

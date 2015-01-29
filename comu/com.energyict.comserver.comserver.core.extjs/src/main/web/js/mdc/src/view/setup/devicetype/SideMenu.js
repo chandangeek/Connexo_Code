@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
                 title: Uni.I18n.translate('devicetypemenu.datasources', 'MDC', 'Data sources'),
                 items: [
                     {
-                        text: Uni.I18n.translate('devicetypemenu.loadProfiles', 'MDC', 'Load profiles'),
+                        text: Uni.I18n.translate('devicetypemenu.loadProfiles', 'MDC', 'Load profile types'),
                         itemId: 'loadProfilesLink',
                         href: '#/administration/devicetypes/' + this.deviceTypeId + '/loadprofiles'
                     },
