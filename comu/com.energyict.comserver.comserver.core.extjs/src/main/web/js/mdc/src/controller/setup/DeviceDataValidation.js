@@ -117,33 +117,14 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
     onRulesGridSelectionChange: function (grid) {
         var rulePreview = this.getRulePreview(),
             validationRule = grid.lastSelected,
-            properties = validationRule.data.properties,
             readingTypes = validationRule.data.readingTypes;
 
         rulePreview.loadRecord(validationRule);
         rulePreview.setTitle(validationRule.get('name'));
         Ext.suspendLayouts();
-        rulePreview.down('#propertiesArea').removeAll();
-        for (var i = 0; i < properties.length; i++) {
-            var property = properties[i];
-            var propertyName = property.name;
-            var propertyValue = property.value;
-            var required = property.required;
-            var label = propertyName;
-            if (!required) {
-                label = label + ' (optional)';
-            }
-            rulePreview.down('#propertiesArea').add(
-                {
-                    xtype: 'displayfield',
-                    fieldLabel: label,
-                    value: propertyValue,
-                    labelWidth: 260
-                }
-            );
+        if (validationRule.properties() && validationRule.properties().count()) {
+            rulePreview.down('property-form').loadRecord(validationRule);
         }
-
-
         rulePreview.down('#readingTypesArea').removeAll();
         for (var i = 0; i < readingTypes.length; i++) {
             var fieldlabel = i > 0 ? '&nbsp' : Uni.I18n.translate('general.readingTypes', 'MDC', 'Reading types'),
