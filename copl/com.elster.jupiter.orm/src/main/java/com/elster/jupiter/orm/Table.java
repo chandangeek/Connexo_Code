@@ -1,10 +1,5 @@
 package com.elster.jupiter.orm;
 
-import static com.elster.jupiter.orm.ColumnConversion.CHAR2CURRENCY;
-import static com.elster.jupiter.orm.ColumnConversion.CHAR2UNIT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INTWRAPPER;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
