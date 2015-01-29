@@ -5,7 +5,13 @@ public interface Counter {
 
     void reset();
 
-    void increment();
+    default void increment() {
+        add(1);
+    }
+
+    default void decrement() {
+        add(-1);
+    }
 
     /**
      * @param value

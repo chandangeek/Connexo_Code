@@ -152,6 +152,11 @@ public enum Counters {
         }
 
         @Override
+        public void decrement() {
+            total--;
+        }
+
+        @Override
         public void add(int value) {
             total += value;
         }
@@ -183,6 +188,11 @@ public enum Counters {
         @Override
         public void increment() {
             this.total.incrementAndGet();
+        }
+
+        @Override
+        public void decrement() {
+            this.total.decrementAndGet();
         }
 
         @Override
