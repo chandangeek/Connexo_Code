@@ -12,7 +12,6 @@ import java.util.Optional;
 public class DataSourceInfo {
 
     public String mRID;
-    public boolean active;
     public String serialNumber;
     public String readingType;
     public Long lastRun;
@@ -21,7 +20,6 @@ public class DataSourceInfo {
 
     public DataSourceInfo(ReadingTypeDataExportItem item) {
         occurrenceId = item.getLastOccurrence().map(DataExportOccurrence::getId).orElse(null);
-        active = item.isActive();
 
         Optional<Instant> lastRunOptional = item.getLastRun();
         if (lastRunOptional.isPresent()) {
