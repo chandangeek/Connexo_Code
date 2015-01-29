@@ -29,7 +29,7 @@ Ext.define('Idc.view.workspace.issues.bulk.IssuesSelectionGrid', {
         items: [
             {
                 itemId: 'issues-grid-title',
-                header: Uni.I18n.translate('general.title.title', 'ISU', 'Title'),
+                header: Uni.I18n.translate('general.title.issue', 'ISU', 'Issue'),
                 dataIndex: 'title',
                 flex: 2
             },
