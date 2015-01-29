@@ -126,10 +126,16 @@ public final class ChannelImpl implements ChannelContract {
     	return timeSeries.get().getZoneId();
     }
 
+    @Override
     public Instant getLastDateTime() {
         return timeSeries.get().getLastDateTime();
     }
 
+    @Override
+    public Instant getFirstDateTime() {
+    	return timeSeries.get().getFirstDateTime();
+    }
+    
     Optional<TemporalAmount> getIntervalLength() {
         Iterator<ReadingTypeImpl> it = getReadingTypes().iterator();
         Optional<TemporalAmount> result = ((ReadingTypeImpl) it.next()).getIntervalLength();

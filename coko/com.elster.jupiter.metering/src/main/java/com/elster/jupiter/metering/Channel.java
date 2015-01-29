@@ -36,6 +36,7 @@ public interface Channel {
     boolean hasData();
 	void editReadings(List<? extends BaseReading> readings);
 	void removeReadings(List<? extends BaseReadingRecord> readings);
+	Instant getFirstDateTime();
 	Instant getLastDateTime();
 	List<Instant> toList(Range<Instant> range);
 	default boolean hasReadingType(ReadingType readingType) {
@@ -49,4 +50,6 @@ public interface Channel {
 			return Range.encloseAll(getReadingTimeStamps());
 		}
 	}
+
+	
 }
