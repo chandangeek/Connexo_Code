@@ -28,8 +28,17 @@ Ext.define('Uni.property.view.property.Multiselect', {
                             change: function (field, newValue) {
                                 var count = newValue.length;
 
-                                field.nextSibling('#multiselectSelectedItemsInfo').update(Ext.String.format(Uni.I18n.translatePlural('multiselect.selected', count, 'UNI', '{0} items selected'), count));
-                            },
+                                if (me.itemId == 'intervalFlags') {
+                                    if (count == 1) {
+                                        field.nextSibling('#multiselectSelectedItemsInfo').update(Ext.String.format(Uni.I18n.translatePlural('multiselect.intervalflags.selected[1]', count, 'UNI', '{0} interval flag selected'), count));
+                                    } else {
+                                        field.nextSibling('#multiselectSelectedItemsInfo').update(Ext.String.format(Uni.I18n.translatePlural('multiselect.intervalflags.selected', count, 'UNI', '{0} interval flags selected'), count));
+                                    }
+                                } else {
+                                    field.nextSibling('#multiselectSelectedItemsInfo').update(Ext.String.format(Uni.I18n.translatePlural('multiselect.selected', count, 'UNI', '{0} items selected'), count));
+
+                                }
+                                                            },
                             fieldvaliditychange: function (field, isValid) {
                                 field.nextSibling('#multiselectError').setVisible(!isValid);
                             }
@@ -38,7 +47,8 @@ Ext.define('Uni.property.view.property.Multiselect', {
                     {
                         xtype: 'component',
                         itemId: 'multiselectSelectedItemsInfo',
-                        html: Ext.String.format(Uni.I18n.translatePlural('multiselect.selected', 0, 'UNI', '{0} items selected'), 0)
+                        html: (me.itemId == 'intervalFlags')? Ext.String.format(Ext.String.format(Uni.I18n.translatePlural('multiselect.intervalflags.selected', 0, 'UNI', '{0} interval flags selected'), 0))
+                            :Ext.String.format(Uni.I18n.translatePlural('multiselect.selected', 0, 'UNI', '{0} items selected'), 0)
                     },
                     {
                         xtype: 'component',
