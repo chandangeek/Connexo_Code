@@ -28,7 +28,7 @@ public class ComServerBuilder extends NamedBuilder<ComServer, ComServerBuilder> 
 
     @Override
     public Optional<ComServer> find() {
-        return engineModelService.findComServer(getName());
+        return engineModelService.findComServer(getName().toUpperCase());
     }
 
     @Override
