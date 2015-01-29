@@ -1,6 +1,17 @@
 package com.energyict.mdc.issue.datacollection.event;
 
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.share.cep.IssueEvent;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -14,17 +25,6 @@ import com.energyict.mdc.issue.datacollection.impl.UnableToCreateEventException;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.share.cep.IssueEvent;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.time.Interval;
 import com.google.inject.Injector;
 
 import java.time.Instant;
@@ -47,7 +47,6 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     private final Thesaurus thesaurus;
 
     private Device device;
-    private EndDevice endDevice;
     private IssueStatus status;
     private EventDescription eventDescription;
     private Optional<? extends Issue> existingIssue;
@@ -103,10 +102,6 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
         this.device = device;
     }
 
-    protected void setEndDevice(EndDevice endDevice) {
-        this.endDevice = endDevice;
-    }
-
     protected void setEventDescription(EventDescription eventDescription) {
         this.eventDescription = eventDescription;
     }
@@ -132,14 +127,12 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     protected void getEventDevice(Map<?, ?> rawEvent) {
         Optional<Long> amrId = getLong(rawEvent, ModuleConstants.DEVICE_IDENTIFIER);
         device = getDeviceService().findDeviceById(amrId.orElse(0L));
-        if (device != null) {
-            endDevice = findEndDeviceByMdcDevice();
-        } else {
+        if (device == null) {
             throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, amrId);
         }
     }
 
-    public EndDevice findEndDeviceByMdcDevice() {
+    private EndDevice findEndDeviceByMdcDevice() {
         Optional<AmrSystem> amrSystemRef = getMeteringService().findAmrSystem(MDC_AMR_ID);
         if (amrSystemRef.isPresent()){
             Optional<Meter> meterRef = amrSystemRef.get().findMeter(String.valueOf(device.getId()));
@@ -208,7 +201,7 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
 
     @Override
     public EndDevice getEndDevice() {
-        return endDevice;
+        return findEndDeviceByMdcDevice();
     }
 
     public Device getDevice() {
@@ -243,7 +236,6 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     public DataCollectionEvent clone() {
         DataCollectionEvent clone = injector.getInstance(eventDescription.getEventClass());
         clone.eventDescription = eventDescription;
-        clone.endDevice = endDevice;
         clone.device = device;
         return clone;
     }
@@ -254,11 +246,9 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
         Optional<Device> physicalGateway = this.topologyService.getPhysicalGateway(this.device);
         if (physicalGateway.isPresent()) {
             clone.device = physicalGateway.get();
-            clone.endDevice = findEndDeviceByMdcDevice();
         }
         else {
             clone.device = null;
-            clone.endDevice = null;
         }
         return clone;
     }
