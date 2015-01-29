@@ -62,7 +62,7 @@ Ext.define('Isu.view.issues.SideFilter', {
             itemId: 'filter-by-meter',
             xtype: 'combobox',
             name: 'meter',
-            fieldLabel: Uni.I18n.translate('general.title.meter', 'ISU', 'Meter'),
+            fieldLabel: Uni.I18n.translate('general.title.device', 'ISU', 'Device'),
 
             displayField: 'name',
             valueField: 'name',
@@ -71,7 +71,7 @@ Ext.define('Isu.view.issues.SideFilter', {
 
             listConfig: {
                 cls: 'isu-combo-color-list',
-                emptyText: 'No meter found'
+                emptyText: Uni.I18n.translate('general.title.device', 'ISU', 'No device found')
             },
 
             queryMode: 'remote',
@@ -81,7 +81,7 @@ Ext.define('Isu.view.issues.SideFilter', {
             minChars: 0,
 
             anchor: '100%',
-            emptyText: 'Select a MRID of the meter'
+            emptyText: Uni.I18n.translate('general.device.selectmrid', 'ISU', 'Select MRID of the device ...')
         }
     ],
 
