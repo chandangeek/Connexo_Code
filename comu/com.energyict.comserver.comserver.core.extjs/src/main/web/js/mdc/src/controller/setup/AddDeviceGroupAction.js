@@ -253,6 +253,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 success: function () {
                     me.getController('Uni.controller.history.Router').getRoute('devices/devicegroups').forward();
                     me.getApplication().fireEvent('acknowledge', 'Device group added');
+                    me.createWidget = true;
                 },
                 failure: function (response) {
                     if (response.status == 400) {
