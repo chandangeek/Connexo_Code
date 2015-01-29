@@ -24,7 +24,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
 import java.time.Instant;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -61,15 +60,17 @@ public class DeviceGroupResource {
     private final MeteringService meteringService;
     private final DeviceService deviceService;
     private final ExceptionFactory exceptionFactory;
+    private final DeviceGroupInfoFactory deviceGroupInfoFactory;
 
     @Inject
-    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, RestQueryService restQueryService, DeviceService deviceService, ExceptionFactory exceptionFactory) {
+    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, RestQueryService restQueryService, DeviceService deviceService, ExceptionFactory exceptionFactory, DeviceGroupInfoFactory deviceGroupInfoFactory) {
         this.meteringGroupsService = meteringGroupsService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.meteringService = meteringService;
         this.restQueryService = restQueryService;
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
+        this.deviceGroupInfoFactory = deviceGroupInfoFactory;
     }
 
     @GET
@@ -133,7 +134,7 @@ public class DeviceGroupResource {
             syncListWithInfo((EnumeratedEndDeviceGroup) endDeviceGroup, deviceGroupInfo);
         }
         endDeviceGroup.save();
-        return Response.status(Response.Status.CREATED).entity(DeviceGroupInfo.from(endDeviceGroup, deviceConfigurationService, deviceService)).build();
+        return Response.status(Response.Status.CREATED).entity(deviceGroupInfoFactory.from(endDeviceGroup)).build();
     }
 
     @DELETE
@@ -174,13 +175,11 @@ public class DeviceGroupResource {
         endDeviceGroup.setMRID("MDC:" + endDeviceGroup.getName());
         endDeviceGroup.save();
 
-        return Response.status(Response.Status.CREATED).entity(DeviceGroupInfo.from(endDeviceGroup, deviceConfigurationService, deviceService)).build();
-
-        //return Response.ok().build();
+        return Response.status(Response.Status.CREATED).entity(deviceGroupInfoFactory.from(endDeviceGroup)).build();
     }
 
     private void syncListWithInfo(EnumeratedEndDeviceGroup enumeratedEndDeviceGroup, DeviceGroupInfo deviceGroupInfo) {
-        Stream<? extends Number> deviceIds = Optional.ofNullable((List<Integer>) deviceGroupInfo.devices).map(list -> list.stream()).orElse(null);
+        Stream<? extends Long> deviceIds = Optional.ofNullable(deviceGroupInfo.devices).map(list -> list.stream()).orElse(null);
         if (deviceIds == null) {
             deviceIds = deviceService.findAllDevices(getCondition(deviceGroupInfo)).find().stream()
                     .map(HasId::getId);
@@ -210,8 +209,8 @@ public class DeviceGroupResource {
     private Condition getCondition(DeviceGroupInfo deviceGroupInfo) {
         Condition condition = Condition.TRUE;
         Object filterParam = deviceGroupInfo.filter;
-        if ((filterParam != null) && (filterParam instanceof LinkedHashMap)) {
-            LinkedHashMap<String, Object> filter = (LinkedHashMap<String, Object>) deviceGroupInfo.filter;
+        if (filterParam != null) {
+            Map<String, Object> filter = deviceGroupInfo.filter;
             String mRID = (String) filter.get("mRID");
             if ((mRID != null) && (!"".equals(mRID))) {
                 mRID = replaceRegularExpression(mRID);
