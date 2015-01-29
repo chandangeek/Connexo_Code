@@ -253,6 +253,7 @@ Ext.define('Isu.util.CreatingControl', {
     createCheckBox: function (obj) {
         var checkBox = {
             xtype: 'checkboxfield',
+            itemId: 'issues-creation-rules-template-checkboxfield',
             name: obj.key,
             fieldLabel: obj.label,
             formBind: false
