@@ -203,7 +203,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                         method: 'POST',
                         jsonData: jsonValues,
                         success: function () {
-                            me.handleSuccessRequest('Load profile configuration saved');
+                            me.handleSuccessRequest(Uni.I18n.translate('loadprofileconfig.acknowlegment.added', 'MDC', 'Load profile configuration added'));
                         },
 //                        failure: function (response) {
 //                            me.handleFailureRequest(response, 'Error during create', 'loadprofileconfigurationnotificationerrorretry');
@@ -224,7 +224,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                         method: 'PUT',
                         jsonData: jsonValues,
                         success: function () {
-                            me.handleSuccessRequest('Load profile configuration saved');
+                            me.handleSuccessRequest(Uni.I18n.translate('loadprofileconfig.acknowlegment.saved', 'MDC', 'Load profile configuration saved'));
                         },
 //                        failure: function (response) {
 //                            me.handleFailureRequest(response, 'Error during update', 'loadprofileconfigurationnotificationerrorretry');
