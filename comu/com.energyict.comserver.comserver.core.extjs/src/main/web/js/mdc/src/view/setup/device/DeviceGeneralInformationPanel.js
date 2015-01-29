@@ -21,15 +21,18 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
             items: [
                 {
                     name: 'mRID',
+                    itemId: 'fld-device-mrid',
                     fieldLabel: Uni.I18n.translate('deviceGeneralInformation.mrid', 'MDC', 'MRID')
                 },
                 {
                     name: 'serialNumber',
+                    itemId: 'fld-device-serial',
                     fieldLabel: Uni.I18n.translate('deviceGeneralInformation.serialNumber', 'MDC', 'Serial number')
                 },
                 {
                     labelAlign: 'right',
                     xtype: 'fieldcontainer',
+                    itemId: 'fld-device-type-name',
                     fieldLabel: Uni.I18n.translate('deviceGeneralInformation.deviceType', 'MDC', 'Device type'),
                     margin: '0 0 13 0',
                     layout: {
@@ -53,6 +56,7 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
                 {
                     labelAlign: 'right',
                     xtype: 'fieldcontainer',
+                    itemId: 'fld-device-config-name',
                     margin: '0 0 13 0',
                     fieldLabel: Uni.I18n.translate('deviceGeneralInformation.deviceConfiguration', 'MDC', 'Device configuration'),
                     layout: {
@@ -75,18 +79,22 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
                 },
                 {
                     name: 'yearOfCertification',
+                    itemId: 'fld-year-of-certification',
                     fieldLabel: Uni.I18n.translate('deviceGeneralInformation.yearOfCertification', 'MDC', 'Year of certification')
                 },
                 {
                     name: 'usagePoint',
+                    itemId: 'fld-usage-point',
                     fieldLabel: Uni.I18n.translate('deviceGeneralInformation.usagePoint', 'MDC', 'Usage point')
                 },
                 {
                     name: 'serviceCategory',
+                    itemId: 'fld-service-category',
                     fieldLabel: Uni.I18n.translate('deviceGeneralInformation.serviceCategory', 'MDC', 'Service category')
                 },
                 {
                     name: 'batch',
+                    itemId: 'fld-device-batch',
                     fieldLabel: Uni.I18n.translate('deviceGeneralInformation.batch', 'MDC', 'Batch')
                 }
             ]
