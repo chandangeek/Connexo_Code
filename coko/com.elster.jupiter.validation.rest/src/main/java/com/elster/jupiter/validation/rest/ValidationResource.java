@@ -85,11 +85,11 @@ public class ValidationResource {
         if (optional.isPresent()) {
             ValidationRuleInfos infos = new ValidationRuleInfos();
             ValidationRuleSet set = optional.get();
-            List<ValidationRule> rules;
+            List<? extends ValidationRule> rules;
             if (params.size() == 0) {
-                rules = (List<ValidationRule>) set.getRules();
+                rules = set.getRules();
             } else {
-                rules = (List<ValidationRule>) set.getRules(params.getStart(), params.getLimit());
+                rules = set.getRules(params.getStart(), params.getLimit());
             }
             for (ValidationRule rule : rules) {
                 infos.add(rule);
