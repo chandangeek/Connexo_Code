@@ -1,7 +1,7 @@
 package com.elster.jupiter.demo.impl;
 
-import com.elster.jupiter.demo.impl.factories.Factory;
-import com.elster.jupiter.demo.impl.factories.NamedFactory;
+import com.elster.jupiter.demo.impl.builders.Builder;
+import com.elster.jupiter.demo.impl.builders.NamedBuilder;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
 
@@ -12,13 +12,13 @@ import java.lang.reflect.Modifier;
 public final class Log {
     private static final boolean IS_PRODUCTION = false;
 
-    public static <T extends Factory<?>> void write(T factory){
+    public static <T extends Builder<?>> void write(T factory){
         if (factory != null && !IS_PRODUCTION){
             StringBuilder log = new StringBuilder();
             boolean hasParameters = false;
             try {
-                if (factory instanceof NamedFactory){
-                    hasParameters = writeParameters(NamedFactory.class, factory, log);
+                if (factory instanceof NamedBuilder){
+                    hasParameters = writeParameters(NamedBuilder.class, factory, log);
                 }
                 hasParameters = hasParameters | writeParameters(factory.getClass(), factory, log);
                 if (hasParameters){
@@ -47,9 +47,9 @@ public final class Log {
         return hasParameters;
     }
 
-    private static <T extends Factory<?>> String whatCreate(T factory){
+    private static <T extends Builder<?>> String whatCreate(T factory){
         try {
-            Method getMethod = factory.getClass().getDeclaredMethod("get");
+            Method getMethod = factory.getClass().getDeclaredMethod("create");
             return getMethod.getReturnType().getSimpleName();
         } catch (NoSuchMethodException e) {
             // ignore it, this output is only for dev team

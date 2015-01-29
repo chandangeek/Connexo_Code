@@ -3,6 +3,7 @@ package com.elster.jupiter.demo;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.demo.impl.DemoServiceImpl;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -44,7 +45,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 import com.elster.jupiter.validators.impl.DefaultValidatorFactory;
-import com.energyict.mdc.app.impl.MdcAppServiceImpl;
+import com.energyict.mdc.app.impl.MdcAppInstaller;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
@@ -95,7 +96,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -107,7 +107,6 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -123,7 +122,7 @@ import static org.mockito.Mockito.when;
 public class DemoTest {
     private static final Logger LOG = Logger.getLogger(DemoTest.class.getName());
 
-    private static Injector injector;
+    protected static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
     private static class MockModule extends AbstractModule {
@@ -192,6 +191,7 @@ public class DemoTest {
                 new AppServiceModule(),
                 new TimeModule(),
                 new ExportModule(),
+                new MeteringModule(true),
 
                 new MdcIOModule(),
                 new MdcReadingTypeUtilServiceModule(),
@@ -226,9 +226,9 @@ public class DemoTest {
     @Test
     public void testDemoSetup() {
         doPreparations();
-        DemoService demoService = null;
+        DemoServiceImpl demoService = null;
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            demoService = injector.getInstance(DemoService.class);
+            demoService = injector.getInstance(DemoServiceImpl.class);
             ctx.commit();
         }
         try{
@@ -239,7 +239,7 @@ public class DemoTest {
         }
     }
 
-    private void doPreparations() {
+    protected void doPreparations() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             createOracleTablesSubstitutes();
             createRequiredProtocols();
@@ -307,8 +307,8 @@ public class DemoTest {
     }
 
     private void createDefaultStuff(){
-        MdcAppServiceImpl mdcAppService = new MdcAppServiceImpl();
-        mdcAppService.setUserService(injector.getInstance(UserService.class));
-        mdcAppService.install();
+        MdcAppInstaller mdcAppInstaller = new MdcAppInstaller();
+        mdcAppInstaller.setUserService(injector.getInstance(UserService.class));
+        mdcAppInstaller.install();
     }
 }

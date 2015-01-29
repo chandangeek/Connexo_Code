@@ -23,6 +23,6 @@ public class DemoModule extends AbstractModule {
         requireBinding(MeteringService.class);
         requireBinding(TaskService.class);
 
-        bind(DemoService.class).to(DemoServiceImpl.class).in(Scopes.SINGLETON);
+        bind(DemoServiceImpl.class).in(Scopes.SINGLETON);
     }
 }
