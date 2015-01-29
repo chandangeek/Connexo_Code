@@ -36,15 +36,8 @@ import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.Validator;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-
+import com.jayway.jsonpath.JsonModel;
+import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,10 +48,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationResourceTest extends BaseValidationRestTest {
@@ -261,7 +265,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         Entity<ValidationRuleInfo> entity = Entity.json(info);
 
         ValidationRuleSet ruleSet = mockValidationRuleSet(13, false);
-        ValidationRule rule = mockValidationRuleInRuleSet(ruleSet);
+        ValidationRule rule = mockValidationRuleInRuleSet(1L, ruleSet);
         when(ruleSet.addRule(Matchers.eq(ValidationAction.FAIL), Matchers.eq(info.implementation), Matchers.eq(info.name))).thenReturn(rule);
 
         Response response = target("/validation/13/rules").request().post(entity);
@@ -281,15 +285,60 @@ public class ValidationResourceTest extends BaseValidationRestTest {
 
     @Test
     public void testUpdateValidationRuleSet() throws Exception {
-        mockValidationRuleSet(15, true);
+        ValidationRuleSet ruleSet = mockValidationRuleSet(15, true);
 
-
-        final ValidationRuleInfo info = new ValidationRuleInfo();
+        final ValidationRuleSetInfo info = new ValidationRuleSetInfo();
         info.name = "MyRuleUpdated";
-        info.implementation = "com.blablabla.Validator";
-        info.properties = new ArrayList<>();
+        info.description = "blablabla";
 
         Response response = target("/validation/15").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        verify(ruleSet).setName(stringArgumentCaptor.capture());
+        assertThat(stringArgumentCaptor.getValue()).isEqualTo(info.name);
+        verify(ruleSet).setDescription(stringArgumentCaptor.capture());
+        assertThat(stringArgumentCaptor.getValue()).isEqualTo(info.description);
+        verify(ruleSet, times(1)).save();
+    }
+
+    @Test
+    public void testCreateValidationRuleSetInfo() throws Exception {
+        ValidationRuleSetInfo info = new ValidationRuleSetInfo();
+        info.name="ruleset";
+        info.description="desc";
+
+        ValidationRuleSet ruleSet = mockValidationRuleSet(12, false);
+        when(validationService.createValidationRuleSet(info.name, info.description)).thenReturn(ruleSet);
+        Response response = target("/validation").request().post(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+    }
+
+    @Test
+    public void testGetValidationRuleInfo() throws Exception {
+        ValidationRuleSet ruleSet = mockValidationRuleSet(12, false);
+        ValidationRule validationRule = mockValidationRuleInRuleSet(13, ruleSet);
+        doReturn(Arrays.asList(validationRule)).when(ruleSet).getRules();
+        Response response = target("/validation/12/rules/13").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<String>get("$.name")).isEqualTo("MyRule");
+        assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(13);
+    }
+
+    @Test
+    public void testDeleteRuleSet() throws Exception {
+        ValidationRuleSet validationRuleSet = mockValidationRuleSet(99, false);
+        Response response = target("/validation/99").request().delete();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
+        verify(validationRuleSet).delete();
+    }
+
+    @Test
+    public void testGetRuleSetUsage() throws Exception {
+        ValidationRuleSet validationRuleSet = mockValidationRuleSet(1, false);
+        when(validationService.isValidationRuleSetInUse(validationRuleSet)).thenReturn(true);
+        Response response = target("/validation/1/usage").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test
@@ -348,6 +397,19 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
+    @Test
+    public void testGetReadingTypes() throws Exception {
+        ValidationRuleSet validationRuleSet = mockValidationRuleSet(26, false);
+        ValidationRule validationRule = mockValidationRuleInRuleSet(1, validationRuleSet);
+        doReturn(Arrays.asList(validationRule)).when(validationRuleSet).getRules();
+        ReadingType readingType = mockReadingType();
+        when(validationRule.getReadingTypes()).thenReturn(new HashSet<>(Arrays.asList(readingType)));
+        Response response = target("/validation/26/rule/1/readingtypes").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+    }
+
     private void mockValidationRuleSets(ValidationRuleSet... validationRuleSets) {
         Query<ValidationRuleSet> query = mock(Query.class);
         when(validationService.getRuleSetQuery()).thenReturn(query);
@@ -363,7 +425,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         when(ruleSet.getDescription()).thenReturn("MyDescription");
 
         if (addRules) {
-            List rules = Arrays.asList(mockValidationRuleInRuleSet(ruleSet));
+            List rules = Arrays.asList(mockValidationRuleInRuleSet(1L, ruleSet));
             when(ruleSet.getRules()).thenReturn(rules);
         }
 
@@ -372,10 +434,10 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         return ruleSet;
     }
 
-    private ValidationRule mockValidationRuleInRuleSet(ValidationRuleSet ruleSet) {
+    private ValidationRule mockValidationRuleInRuleSet(long id, ValidationRuleSet ruleSet) {
         ValidationRule rule = mock(ValidationRule.class);
         when(rule.getName()).thenReturn("MyRule");
-        when(rule.getId()).thenReturn(1L);
+        when(rule.getId()).thenReturn(id);
         when(rule.getImplementation()).thenReturn("com.blablabla.Validator");
         when(rule.getDisplayName()).thenReturn("My rule");
         when(rule.isActive()).thenReturn(true);

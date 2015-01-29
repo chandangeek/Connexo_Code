@@ -105,13 +105,13 @@ public class ValidationResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
-    public ValidationRuleSetInfo createValidationRuleSet(final ValidationRuleSetInfo info) {
-        return new ValidationRuleSetInfo(Bus.getTransactionService().execute(new Transaction<ValidationRuleSet>() {
+    public Response createValidationRuleSet(final ValidationRuleSetInfo info) {
+        return Response.status(Response.Status.CREATED).entity(new ValidationRuleSetInfo(Bus.getTransactionService().execute(new Transaction<ValidationRuleSet>() {
             @Override
             public ValidationRuleSet perform() {
                 return Bus.getValidationService().createValidationRuleSet(info.name, info.description);
             }
-        }));
+        }))).build();
     }
 
     @PUT
@@ -149,11 +149,9 @@ public class ValidationResource {
         Bus.getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                Optional<? extends ValidationRuleSet> optional = Bus.getValidationService().getValidationRuleSet(ruleSetId);
-                if (!optional.isPresent()) {
-                    throw new WebApplicationException(Response.Status.NOT_FOUND);
-                }
-                optional.get().delete();
+                Bus.getValidationService().getValidationRuleSet(ruleSetId).
+                        orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)).
+                        delete();
             }
         });
         return Response.status(Response.Status.NO_CONTENT).build();
@@ -201,10 +199,7 @@ public class ValidationResource {
             public ValidationRule perform() {
                 ValidationRuleSet ruleSet = Bus.getValidationService().getValidationRuleSet(ruleSetId).orElseThrow(()->new WebApplicationException(Response.Status.NOT_FOUND));
 
-                ValidationRule rule = ruleSet.getRules().stream()
-                        .filter(input -> input.getId() == ruleId)
-                        .findAny()
-                        .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+                ValidationRule rule = getValidationRuleFromSetOrThrowException(ruleSet, ruleId);
 
                 List<String> mRIDs = new ArrayList<>();
                 for (ReadingTypeInfo readingTypeInfo : info.readingTypes) {
@@ -224,6 +219,26 @@ public class ValidationResource {
             }
         }));
         return result;
+    }
+
+    private ValidationRule getValidationRuleFromSetOrThrowException(ValidationRuleSet ruleSet, long ruleId) {
+        return ruleSet.getRules().stream()
+                            .filter(input -> input.getId() == ruleId)
+                            .findAny()
+                            .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    @GET
+    @Path("/{ruleSetId}/rules/{ruleId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    public Response getRule(@PathParam("ruleSetId") final long ruleSetId, @PathParam("ruleId") final long ruleId, final ValidationRuleInfo info, @Context SecurityContext securityContext) {
+        ValidationRule rule = Bus.getTransactionService().execute((Transaction<ValidationRule>) () -> {
+            ValidationRuleSet ruleSet = Bus.getValidationService().getValidationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+
+            return getValidationRuleFromSetOrThrowException(ruleSet, ruleId);
+        });
+        return Response.ok(new ValidationRuleInfo(rule)).build();
     }
 
     @DELETE
@@ -279,20 +294,18 @@ public class ValidationResource {
     }
 
     @GET
-    @Path("/{ruleSetId}/readingtypes/")
+    @Path("/{ruleSetId}/rule/{ruleId}/readingtypes")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION})
-    public ReadingTypeInfos getReadingTypesForRule(@PathParam("ruleSetId") long ruleSetId) {
+    public ReadingTypeInfos getReadingTypesForRule(@PathParam("ruleSetId") long ruleSetId, @PathParam("ruleId") long ruleId, @Context SecurityContext securityContext) {
         ReadingTypeInfos infos = new ReadingTypeInfos();
-        Optional<ValidationRule> optional = Bus.getValidationService().getValidationRule(ruleSetId);
-        if (optional.isPresent()) {
-            ValidationRule rule = optional.get();
-            Set<ReadingType> readingTypes = rule.getReadingTypes();
-            for (ReadingType readingType : readingTypes) {
-                infos.add(readingType);
-            }
-            infos.total = readingTypes.size();
+        ValidationRuleSet validationRuleSet = fetchValidationRuleSet(ruleSetId, securityContext);
+        ValidationRule validationRule = getValidationRuleFromSetOrThrowException(validationRuleSet, ruleId);
+        Set<ReadingType> readingTypes = validationRule.getReadingTypes();
+        for (ReadingType readingType : readingTypes) {
+            infos.add(readingType);
         }
+        infos.total = readingTypes.size();
         return infos;
     }
 
