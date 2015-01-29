@@ -119,6 +119,7 @@ public class IssueResource extends BaseResource {
                     .withAssigneeId(params.getFirstLong(ASSIGNEE_ID)) // Id of selected assignee
                     .withMeterMrid(params.getFirst(METER)) // Filter by meter MRID
                     .groupBy(params.getFirst(FIELD)) // Main grouping column
+                    .setAscOrder(false) // Sorting (descending direction)
                     .from(params.getFrom()).to(params.getTo()); // Pagination
             resultList = getIssueService().getIssueGroupList(filter);
             context.commit();
