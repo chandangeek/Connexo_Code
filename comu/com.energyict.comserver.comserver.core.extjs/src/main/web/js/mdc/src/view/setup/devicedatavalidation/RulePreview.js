@@ -45,13 +45,6 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulePreview', {
             width: '100%',
             isEdit: false
         }
-
-       /* {
-            xtype: 'container',
-            margin: '5 0 0 0',
-            itemId: 'propertiesArea',
-            items: []
-        }*/
     ],
     initComponent: function () {
         this.callParent(arguments);

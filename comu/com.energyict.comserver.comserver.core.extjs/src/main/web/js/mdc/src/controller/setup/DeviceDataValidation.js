@@ -122,6 +122,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
         rulePreview.loadRecord(validationRule);
         rulePreview.setTitle(validationRule.get('name'));
         Ext.suspendLayouts();
+        rulePreview.down('property-form').removeAll();
         if (validationRule.properties() && validationRule.properties().count()) {
             rulePreview.down('property-form').loadRecord(validationRule);
         }
