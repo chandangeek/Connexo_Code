@@ -89,7 +89,6 @@ Ext.define('Usr.view.user.Edit', {
                             },
                             {
                                 xtype: 'fieldcontainer',
-                                ui: 'actions',
                                 fieldLabel: '&nbsp',
                                 layout: {
                                     type: 'hbox',
