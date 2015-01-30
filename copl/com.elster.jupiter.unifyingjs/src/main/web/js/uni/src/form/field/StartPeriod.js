@@ -80,7 +80,8 @@ Ext.define('Uni.form.field.StartPeriod', {
                         value: new Date(),
                         maxValue: new Date(),
                         width: 128,
-                        margin: '0 0 0 6'
+                        margin: '0 0 0 6',
+                        format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                     }
                 ]
             });
