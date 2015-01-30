@@ -65,11 +65,13 @@ public class YellowfinReportInfoResource {
             if (reportUUID != null) {
                 ReportInfos reportInfos = new ReportInfos();
                 reportInfos.addAll(
-                        yellowfinService.getUserReports(user.getName(), null, null, reportUUID).orElseThrow(() -> new WebApplicationException("Connection to Connexo Facts engine failed.", Response.Status.SERVICE_UNAVAILABLE)));
+                        yellowfinService.getUserReports(user.getName(), null, null, reportUUID).
+                            orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("error.facts.unavailable").build())));
                 if (reportInfos.total > 0) {
                     List<ReportInfo> reportInfo = reportInfos.reports;
                     filterInfos.addAll(
-                            yellowfinService.getReportFilters(reportInfo.get(0).getReportId()).orElseThrow(() -> new WebApplicationException("Connection to Connexo Facts engine failed.", Response.Status.SERVICE_UNAVAILABLE)));
+                            yellowfinService.getReportFilters(reportInfo.get(0).getReportId()).
+                                    orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("error.facts.unavailable").build())));
                 }
 
             }
@@ -96,12 +98,14 @@ public class YellowfinReportInfoResource {
             if (reportUUID != null) {
                 ReportInfos reportInfos = new ReportInfos();
                 reportInfos.addAll(
-                        yellowfinService.getUserReports(user.getName(), null, null, reportUUID).orElseThrow(() -> new WebApplicationException("Connection to Connexo Facts engine failed.", Response.Status.SERVICE_UNAVAILABLE)));
+                        yellowfinService.getUserReports(user.getName(), null, null, reportUUID).
+                                orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("error.facts.unavailable").build())));
                 if (reportInfos.total > 0) {
                     List<ReportInfo> reportInfo = new ArrayList<>();
                     reportInfo = reportInfos.reports;
                     filterInfos.addAll(
-                            yellowfinService.getFilterListItems(filterId, reportInfo.get(0).getReportId()).orElseThrow(() -> new WebApplicationException("Connection to Connexo Facts engine failed.", Response.Status.SERVICE_UNAVAILABLE)));
+                            yellowfinService.getFilterListItems(filterId, reportInfo.get(0).getReportId()).
+                                    orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("error.facts.unavailable").build())));
                 }
             }
         }

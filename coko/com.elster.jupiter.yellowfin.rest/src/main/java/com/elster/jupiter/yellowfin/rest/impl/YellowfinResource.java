@@ -36,8 +36,10 @@ public class YellowfinResource {
 	public YellowfinInfo login(HttpServletResponse response, @Context SecurityContext securityContext) {
 		User user = (User) securityContext.getUserPrincipal();
 
-        yellowfinService.logout(user.getName()).orElseThrow(() -> new WebApplicationException("Connection to Connexo Facts engine failed.", Response.Status.SERVICE_UNAVAILABLE));
-        String webServiceLoginToken = yellowfinService.login(user.getName()).orElseThrow(() -> new WebApplicationException("Connection to Connexo Facts engine failed.", Response.Status.SERVICE_UNAVAILABLE));
+        yellowfinService.logout(user.getName()).
+                orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("error.facts.unavailable").build()));
+        String webServiceLoginToken = yellowfinService.login(user.getName()).
+                orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("error.facts.unavailable").build()));
 
 		YellowfinInfo info = new YellowfinInfo();
 		info.token = webServiceLoginToken;
@@ -51,7 +53,8 @@ public class YellowfinResource {
 	public YellowfinInfo token(HttpServletResponse response, @Context SecurityContext securityContext) {
 		User user = (User) securityContext.getUserPrincipal();
 
-		String webServiceLoginToken = yellowfinService.login(user.getName()).orElseThrow(() -> new WebApplicationException("Connection to Connexo Facts engine failed.", Response.Status.SERVICE_UNAVAILABLE));
+		String webServiceLoginToken = yellowfinService.login(user.getName()).
+                orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("error.facts.unavailable").build()));
 
 		YellowfinInfo info = new YellowfinInfo();
 		info.token = webServiceLoginToken;
