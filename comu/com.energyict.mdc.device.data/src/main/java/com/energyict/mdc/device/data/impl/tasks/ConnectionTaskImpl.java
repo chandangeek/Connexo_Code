@@ -1,17 +1,9 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.data.ConnectionTaskFields;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteUsedDefaultConnectionTaskException;
@@ -53,6 +45,16 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
@@ -160,6 +162,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             this.isDefault = partialConnectionTask.isDefault();
         }
     }
+
 
     @Override
     public void lock() {
@@ -315,10 +318,10 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     public void makeObsolete() {
         this.reloadComServerAndObsoleteDate();
         this.validateMakeObsolete();
-        this.obsoleteDate = clock.instant();
+        this.obsoleteDate = this.clock.instant();
         this.makeDependentsObsolete();
         this.unRegisterConnectionTaskFromComTasks();
-        this.post();
+        this.validateAndUpdate();
     }
 
     /**
@@ -385,21 +388,22 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return this.communicationTaskService.findComTaskExecutionsByConnectionTask(this).find();
     }
 
-    // Keep as reference for ConnectionTaskExecutionAspects implementation in the mdc.engine bundle
-    public void executionStarted(final ComServer comServer) {
-        this.doExecutionStarted(comServer);
-        this.post();
+    public void executionStarted(ComServer comServer) {
+        List<String> updatedColumns = new ArrayList<>();
+        this.doExecutionStarted(comServer, updatedColumns);
+        this.update(updatedColumns);
     }
 
-    protected void doExecutionStarted(ComServer comServer) {
+    protected void doExecutionStarted(ComServer comServer, List<String> updatedColumns) {
         this.setExecutingComServer(comServer);
-        this.lastCommunicationStart = clock.instant();
+        updatedColumns.add(ConnectionTaskFields.COM_SERVER.fieldName());
+        this.lastCommunicationStart = this.clock.instant();
+        updatedColumns.add(ConnectionTaskFields.LAST_COMMUNICATION_START.fieldName());
     }
 
-    // Keep as reference for ConnectionTaskExecutionAspects implementation in the mdc.engine bundle
     public void executionCompleted() {
         this.doExecutionCompleted();
-        this.post();
+        this.update();
     }
 
     protected void doExecutionCompleted() {
@@ -656,13 +660,23 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     public void sessionCreated(ComSession session) {
         if (this.lastSession.isPresent()) {
             if (session.endsAfter(this.lastSession.get())) {
-                this.setLastSession(session);
-                this.post();
+                this.setLastSessionAndUpdate(session);
             }
         } else {
-            this.setLastSession(session);
-            this.post();
+            this.setLastSessionAndUpdate(session);
         }
+    }
+
+    private void setLastSessionAndUpdate(ComSession session) {
+        this.setLastSession(session);
+/*      Bug in the DataModel that does not support foreign key columns in the update method
+        this.getDataModel()
+                .update(this,
+                        ConnectionTaskFields.LAST_SESSION.fieldName(),
+                        ConnectionTaskFields.LAST_SESSION_SUCCESS_INDICATOR.fieldName(),
+                        ConnectionTaskFields.LAST_SESSION_STATUS.fieldName());
+*/
+        this.update();
     }
 
     private void setLastSession(ComSession session) {
@@ -716,7 +730,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     // To be used by the DeviceServiceImpl only that now has the responsibility to switch defaults
     public void setAsDefault() {
         this.doSetAsDefault();
-        this.post();
+        this.update();
     }
 
     protected void doSetAsDefault() {
@@ -727,7 +741,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     // To be used by the ConnectionTaskServiceImpl only that now has the responsibility to switch defaults
     void clearDefault() {
         this.isDefault = false;
-        this.post();
+        this.update();
     }
 
     @Override
@@ -812,13 +826,13 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @Override
     public void deactivate() {
         this.status = ConnectionTaskLifecycleStatus.INACTIVE;
-        post();
+        this.update();
     }
 
     @Override
     public void activate() {
         this.status = ConnectionTaskLifecycleStatus.ACTIVE;
-        post();
+        this.update();
     }
 
     boolean isActive() {
@@ -826,11 +840,19 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
-    protected void post() {
+    protected void validateAndUpdate() {
         if (this.pluggableClass == null) {
             this.loadPluggableClass();
         }
-        super.post();
+        super.validateAndUpdate();
+    }
+
+    @Override
+    protected void update() {
+        if (this.pluggableClass == null) {
+            this.loadPluggableClass();
+        }
+        super.update();
     }
 
     @Override
@@ -845,6 +867,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     public void setExecutingComServer(ComServer comServer) {
         this.comServer.set(comServer);
+    }
+
+    public void updateExecutingComServer(ComServer comServer) {
+        this.comServer.set(comServer);
+        this.update(ConnectionTaskFields.COM_SERVER.fieldName());
     }
 
     @XmlElement(name = "type")

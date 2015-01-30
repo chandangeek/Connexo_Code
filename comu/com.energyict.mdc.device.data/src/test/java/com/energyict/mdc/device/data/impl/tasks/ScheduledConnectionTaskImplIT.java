@@ -709,7 +709,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
 
         ComTaskExecution reloadedComTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
-        assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isTrue();
         assertThat(reloadedComTaskExecution.getConnectionTask()).isNull();
     }
 

@@ -192,7 +192,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      *
      * @return true if this ComTask is scheduled for the default ConnectionTask, false otherwise.
      */
-    public boolean useDefaultConnectionTask();
+    public boolean usesDefaultConnectionTask();
 
     /**
      * Gets the timestamp on which this ComTaskExecution started

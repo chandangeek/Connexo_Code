@@ -24,7 +24,6 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import org.junit.Test;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -166,7 +165,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
         device.save();
 
         // Asserts
-        assertThat(comTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(comTaskExecution.usesDefaultConnectionTask()).isTrue();
         assertThat(comTaskExecution.getConnectionTask()).isNull();
     }
 
@@ -193,7 +192,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
 
         // Asserts
         ComTaskExecution reloadedComTaskExecution = this.reloadManuallyScheduledComTaskExecution(device, comTaskExecution);
-        assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isEqualTo(testUseDefault);
+        assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isEqualTo(testUseDefault);
     }
 
     @Test
@@ -212,7 +211,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
         device.save();
 
         // Asserts
-        assertThat(comTaskExecution.useDefaultConnectionTask()).isFalse();
+        assertThat(comTaskExecution.usesDefaultConnectionTask()).isFalse();
         assertThat(comTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
     }
 
@@ -234,7 +233,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
         device.save();
 
         ComTaskExecution reloadedComTaskExecution = this.reloadManuallyScheduledComTaskExecution(device, comTaskExecution);
-        assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isFalse();
+        assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isFalse();
         assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
     }
 

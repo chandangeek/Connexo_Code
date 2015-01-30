@@ -30,7 +30,6 @@ import org.junit.Test;
 
 import java.time.Instant;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -62,7 +61,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         assertThat(comTaskExecution.getNextExecutionSpecs().isPresent()).isFalse();
         assertThat(comTaskExecution.getDevice().getId()).isEqualTo(device.getId());
         assertThat(comTaskExecution.getConnectionTask()).isNull();
-        assertThat(comTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(comTaskExecution.usesDefaultConnectionTask()).isTrue();
         assertThat(comTaskExecution.getExecutingComPort()).isNull();
         assertThat(comTaskExecution.getCurrentTryCount()).isEqualTo(1);
         assertThat(comTaskExecution.getExecutionStartedTimestamp()).isNull();
@@ -191,7 +190,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         device.save();
 
         // Asserts
-        assertThat(comTaskExecution.useDefaultConnectionTask()).isEqualTo(testUseDefault);
+        assertThat(comTaskExecution.usesDefaultConnectionTask()).isEqualTo(testUseDefault);
     }
 
     @Test
@@ -216,7 +215,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
         // Asserts
         ComTaskExecution reloadedComTaskExecution = reloadManuallyScheduledComTaskExecution(device, comTaskExecution);
-        assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isEqualTo(testUseDefault);
+        assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isEqualTo(testUseDefault);
     }
 
     @Test
@@ -280,7 +279,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         device.save();
 
         // Asserts
-        assertThat(comTaskExecution.useDefaultConnectionTask()).isFalse();
+        assertThat(comTaskExecution.usesDefaultConnectionTask()).isFalse();
     }
 
     @Test
@@ -320,7 +319,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         device.save();
 
         ComTaskExecution reloadedComTaskExecution = reloadManuallyScheduledComTaskExecution(device, comTaskExecution);
-        assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isFalse();
+        assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isFalse();
     }
 
     @Test
@@ -699,7 +698,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         // Asserts
         ComTaskExecution reloadedComTaskExecution = reloadManuallyScheduledComTaskExecution(device, comTaskExecution);
         assertThat(reloadedComTaskExecution.getConnectionTask()).isNull();
-        assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isTrue();
     }
 
     @Test

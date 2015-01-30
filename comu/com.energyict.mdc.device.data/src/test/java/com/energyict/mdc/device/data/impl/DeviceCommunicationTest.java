@@ -450,8 +450,10 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         Device reloadedDevice = getReloadedDevice(device);
         List<ConnectionTask<?, ?>> connectionTasks = reloadedDevice.getConnectionTasks();
         assertThat(connectionTasks).hasSize(1);
-        assertThat(((ScheduledConnectionTask) connectionTasks.get(0)).getConnectionStrategy()).isEqualTo(ConnectionStrategy.MINIMIZE_CONNECTIONS);
-        assertThat(((ScheduledConnectionTask) connectionTasks.get(0)).getNextExecutionSpecs().getTemporalExpression()).isEqualTo(newTemporalExpression);
+        ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTasks.get(0);
+        assertThat(scheduledConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.MINIMIZE_CONNECTIONS);
+        assertThat(scheduledConnectionTask.getNextExecutionSpecs()).isNotNull();
+        assertThat(scheduledConnectionTask.getNextExecutionSpecs().getTemporalExpression()).isEqualTo(newTemporalExpression);
     }
 
     @Test
@@ -474,9 +476,10 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         Device reloadedDevice = getReloadedDevice(device);
 
         assertThat(reloadedDevice.getConnectionTasks().get(0).getComPortPool().getId()).isEqualTo(otherOutboundComPortPool.getId());
-        assertThat(((ScheduledConnectionTask) reloadedDevice.getConnectionTasks().get(0)).getNextExecutionSpecs().getTemporalExpression()).isEqualTo(nextExecutionSpecTempExpression);
-        assertThat(((ScheduledConnectionTask) reloadedDevice.getConnectionTasks().get(0)).getCommunicationWindow()).isEqualTo(communicationWindow);
-        assertThat(((ScheduledConnectionTask) reloadedDevice.getConnectionTasks().get(0)).getConnectionStrategy()).isEqualTo(minimizeConnectionStrategy);
+        ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) reloadedDevice.getConnectionTasks().get(0);
+        assertThat(scheduledConnectionTask.getNextExecutionSpecs().getTemporalExpression()).isEqualTo(nextExecutionSpecTempExpression);
+        assertThat(scheduledConnectionTask.getCommunicationWindow()).isEqualTo(communicationWindow);
+        assertThat(scheduledConnectionTask.getConnectionStrategy()).isEqualTo(minimizeConnectionStrategy);
     }
 
     @Test

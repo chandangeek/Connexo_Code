@@ -7,6 +7,8 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 
+import java.util.List;
+
 /**
  * Provides code reuse opportunities for entities in this bundle
  * that are persistable and have a unique ID
@@ -53,11 +55,11 @@ public abstract class PersistentIdObject<D> {
 
     public void save () {
         if (this.id > 0) {
-            this.post();
+            this.validateAndUpdate();
             this.notifyUpdated();
         }
         else {
-            this.postNew();
+            this.validateAndCreate();
             this.notifyCreated();
         }
     }
@@ -91,17 +93,42 @@ public abstract class PersistentIdObject<D> {
     protected abstract DeleteEventType deleteEventType();
 
     /**
-     * Saves this object for the first time.
+     * Validates and saves this object for the first time.
      */
-    protected void postNew() {
+    protected void validateAndCreate() {
         Save.CREATE.save(this.dataModel, this);
     }
 
     /**
-     * Updates the changes made to this object.
+     * Validates and updates the changes made to this object.
      */
-    protected void post() {
+    protected void validateAndUpdate() {
         Save.UPDATE.save(this.dataModel, this);
+    }
+
+    /**
+     * Updates the changes made to this object without running validation.
+     */
+    protected void update() {
+        this.getDataModel().update(this);
+    }
+
+    /**
+     * Updates the changes made to specified fields on this object without running validation.
+     *
+     * @param fieldNames The name of the fields that have changed and need updating
+     */
+    protected void update(String... fieldNames) {
+        this.getDataModel().update(this);
+    }
+
+    /**
+     * Updates the changes made to specified fields on this object without running validation.
+     *
+     * @param fieldNames The name of the fields that have changed and need updating
+     */
+    protected void update(List<String> fieldNames) {
+        this.update(fieldNames.toArray(new String[fieldNames.size()]));
     }
 
     /**

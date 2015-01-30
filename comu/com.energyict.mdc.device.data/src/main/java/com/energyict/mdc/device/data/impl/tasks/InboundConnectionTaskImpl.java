@@ -5,6 +5,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import java.time.Clock;import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.data.ConnectionTaskFields;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -39,7 +40,7 @@ public class InboundConnectionTaskImpl extends ConnectionTaskImpl<PartialInbound
     @Override
     public void executionFailed() {
         this.setExecutingComServer(null);
-        this.post();
+        this.update(ConnectionTaskFields.COM_SERVER.fieldName());
     }
 
     @Override

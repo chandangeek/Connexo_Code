@@ -35,7 +35,7 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
 
     @Inject
     public ScheduledComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, SchedulingService schedulingService) {
-        super(dataModel, eventService, thesaurus, clock, connectionTaskService, communicationTaskService, schedulingService);
+        super(dataModel, eventService, thesaurus, clock, communicationTaskService, schedulingService);
     }
 
     public ScheduledComTaskExecutionImpl initialize(Device device, ComSchedule comSchedule) {
@@ -49,9 +49,9 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
     }
 
     @Override
-    protected void postNew() {
+    protected void validateAndCreate() {
         this.recalculateNextAndPlannedExecutionTimestamp();
-        super.postNew();
+        super.validateAndCreate();
     }
 
     @Override
@@ -174,11 +174,6 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
             protocolTasks.addAll(comTask.getProtocolTasks());
         }
         return protocolTasks;
-    }
-
-    @Override
-    public boolean performsIdenticalTask(ComTaskExecutionImpl comTaskExecution) {
-        return comTaskExecution != null && comTaskExecution.executesComSchedule(this.getComSchedule());
     }
 
     class ScheduledComTaskExecutionUpdaterImpl

@@ -1,28 +1,21 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
+import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.EventType;
-import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteComTaskExecutionException;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.CreateEventType;
 import com.energyict.mdc.device.data.impl.DeleteEventType;
+import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.PersistentIdObject;
+import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.UpdateEventType;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ComTasksMustBeEnabledByDeviceConfiguration;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ConnectionTaskIsRequiredWhenNotUsingDefault;
@@ -38,6 +31,15 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.time.TimeDuration;
 import com.google.common.collect.ImmutableMap;
 import org.hibernate.validator.constraints.Range;
 
@@ -70,7 +72,6 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
                     MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR, ManuallyScheduledComTaskExecutionImpl.class);
 
     private final Clock clock;
-    private final ServerConnectionTaskService connectionTaskService;
     private final CommunicationTaskService communicationTaskService;
     private final SchedulingService schedulingService;
 
@@ -109,10 +110,9 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     private boolean ignoreNextExecutionSpecsForInbound;
 
     @Inject
-    public ComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, SchedulingService schedulingService) {
+    public ComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, CommunicationTaskService communicationTaskService, SchedulingService schedulingService) {
         super(ComTaskExecution.class, dataModel, eventService, thesaurus);
         this.clock = clock;
-        this.connectionTaskService = connectionTaskService;
         this.communicationTaskService = communicationTaskService;
         this.schedulingService = schedulingService;
     }
@@ -203,7 +203,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     }
 
     @Override
-    public boolean useDefaultConnectionTask() {
+    public boolean usesDefaultConnectionTask() {
         return this.useDefaultConnectionTask;
     }
 
@@ -228,8 +228,8 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     public void makeObsolete() {
         reloadMyselfForObsoleting();
         validateMakeObsolete();
-        this.obsoleteDate = clock.instant();
-        this.post();
+        this.obsoleteDate = this.clock.instant();
+        this.update(ComTaskExecutionFields.OBSOLETEDATE.fieldName());
     }
 
     /**
@@ -301,13 +301,23 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     public void sessionCreated(ComTaskExecutionSession session) {
         if (this.lastSession.isPresent()) {
             if (session.endsAfter(this.lastSession.get())) {
-                this.setLastSession(session);
-                this.post();
+                this.setLastSessionAndUpdate(session);
             }
         } else {
-            this.setLastSession(session);
-            this.post();
+            this.setLastSessionAndUpdate(session);
         }
+    }
+
+    private void setLastSessionAndUpdate(ComTaskExecutionSession session) {
+        this.setLastSession(session);
+/*      Bug in the DataModel that does not support foreign key columns in the update method
+        this.getDataModel()
+                .update(this,
+                        ComTaskExecutionFields.LAST_SESSION.fieldName(),
+                        ComTaskExecutionFields.LAST_SESSION_HIGHEST_PRIORITY_COMPLETION_CODE.fieldName(),
+                        ComTaskExecutionFields.LAST_SESSION_SUCCESSINDICATOR.fieldName());
+*/
+        this.update();
     }
 
     private void setLastSession(ComTaskExecutionSession session) {
@@ -358,7 +368,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     @Override
     public void updateNextExecutionTimestamp() {
         recalculateNextAndPlannedExecutionTimestamp();
-        post();
+        this.update();
     }
 
     void recalculateNextAndPlannedExecutionTimestamp() {
@@ -503,26 +513,26 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         if (connectionTask instanceof ScheduledConnectionTask) {
             ((ScheduledConnectionTask) connectionTask).scheduleNow();
         }
-        this.post();
+        this.update();
     }
 
     @Override
     public void schedule(Instant when) {
         this.schedule(when, this.getPlannedNextExecutionTimestamp());
-        post();
+        this.update();
     }
 
     @Override
     public void setLockedComPort(ComPort comPort) {
         setExecutingComPort(comPort);
-        post();
+        this.update(ComTaskExecutionFields.COMPORT.fieldName());
     }
 
     @Override
     public void executionCompleted() {
         this.markSuccessfullyCompleted();
         this.doReschedule(calculateNextExecutionTimestamp(clock.instant()));
-        post();
+        this.update();
     }
 
     /**
@@ -545,7 +555,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         } else {
             this.doExecutionFailed();
         }
-        post();
+        this.update();
     }
 
     protected void doExecutionAttemptFailed() {
@@ -623,13 +633,13 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     @Override
     public void executionStarted(ComPort comPort) {
         this.doExecutionStarted(comPort);
-        this.post();    // update myself!
+        this.update();
     }
 
     private void doExecutionStarted(ComPort comPort) {
-        Instant now = clock.instant();
+        Instant now = this.clock.instant();
         this.setExecutionStartedTimestamp(now);
-        this.lastExecutionTimestamp = clock.instant();
+        this.lastExecutionTimestamp = now;
         this.lastExecutionFailed = false;
         this.setNextExecutionTimestamp(this.calculateNextExecutionTimestamp(this.getExecutionStartedTimestamp()));
         this.setExecutingComPort(comPort);
@@ -639,7 +649,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     public void connectionTaskRemoved() {
         this.setConnectionTask(null);
         this.setUseDefaultConnectionTask(true);
-        this.post();
+        this.update();
     }
 
     @Override
@@ -666,13 +676,6 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     protected void validateDelete() {
         // nothing to validate
     }
-
-    /**
-     * Return true if this comTaskExecution and the parameter denote the same job, that is:
-     * - ScheduledComTaskExecs with the same schedule
-     * - AdHocComTasks with the same comTask
-     */
-    public abstract boolean performsIdenticalTask(ComTaskExecutionImpl comTaskExecution);
 
     /**
      * We don't do our own persistence, our device will take care of that.

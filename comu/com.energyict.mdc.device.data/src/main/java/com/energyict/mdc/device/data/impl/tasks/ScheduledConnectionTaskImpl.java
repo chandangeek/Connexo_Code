@@ -108,11 +108,11 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
-    protected void postNew() {
+    protected void validateAndCreate() {
         if (this.nextExecutionSpecs.isPresent()) {
             this.getNextExecutionSpecs().save();
         }
-        super.postNew();
+        super.validateAndCreate();
         if (this.getNextExecutionSpecs() != null) {
             this.doUpdateNextExecutionTimestamp(PostingMode.NOW);
         } else {
@@ -128,9 +128,16 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
-    protected void post() {
+    protected void validateAndUpdate() {
         this.updateStrategy.prepare();
-        super.post();
+        super.validateAndUpdate();
+        this.updateStrategy.complete();
+    }
+
+    @Override
+    protected void update() {
+        this.updateStrategy.prepare();
+        super.update();
         this.updateStrategy.complete();
     }
 
@@ -617,7 +624,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         NOW {
             @Override
             void executeOn(ScheduledConnectionTaskImpl connectionTask) {
-                connectionTask.post();
+                connectionTask.update();
             }
         },
 

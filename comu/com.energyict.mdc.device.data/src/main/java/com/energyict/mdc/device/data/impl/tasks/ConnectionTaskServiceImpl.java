@@ -479,8 +479,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
             T lockedConnectionTask = (T) lockResult.get();
             if (lockedConnectionTask.getExecutingComServer() == null) {
                 try {
-                    ((ConnectionTaskImpl) lockedConnectionTask).setExecutingComServer(comServer);
-                    lockedConnectionTask.save();
+                    ((ConnectionTaskImpl) lockedConnectionTask).updateExecutingComServer(comServer);
                     return lockedConnectionTask;
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -502,8 +501,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     }
 
     private void unlockConnectionTask(ConnectionTaskImpl connectionTask) {
-        connectionTask.setExecutingComServer(null);
-        connectionTask.save();
+        connectionTask.updateExecutingComServer(null);
     }
 
     @Override

@@ -54,7 +54,7 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
 
     @Inject
     public ManuallyScheduledComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, SchedulingService schedulingService) {
-        super(dataModel, eventService, thesaurus, clock, connectionTaskService, communicationTaskService, schedulingService);
+        super(dataModel, eventService, thesaurus, clock, communicationTaskService, schedulingService);
     }
 
     public ManuallyScheduledComTaskExecutionImpl initialize(Device device, ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, TemporalExpression temporalExpression) {
@@ -73,7 +73,7 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
     }
 
     @Override
-    protected void postNew() {
+    protected void validateAndCreate() {
         this.recalculateNextAndPlannedExecutionTimestamp();
         if (this.isAdHoc()) {
             Save.CREATE.save(this.getDataModel(), this, SaveAdHoc.class);
@@ -83,7 +83,7 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
     }
 
     @Override
-    protected void post() {
+    protected void validateAndUpdate() {
         if (this.isAdHoc()) {
             Save.UPDATE.save(this.getDataModel(), this, SaveAdHoc.class);
         } else {
@@ -232,11 +232,6 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
     @Override
     public boolean executesComTask(ComTask comTask) {
         return comTask != null && comTask.getId() == this.getComTask().getId();
-    }
-
-    @Override
-    public boolean performsIdenticalTask(ComTaskExecutionImpl comTaskExecution) {
-        return comTaskExecution != null && comTaskExecution.executesComTask(this.getComTask());
     }
 
     @Override

@@ -3,8 +3,13 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import java.time.Clock;import com.elster.jupiter.time.TimeDuration;
+import java.time.Clock;
+import java.util.List;
+
+import com.elster.jupiter.time.TimeDuration;
+
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.data.ConnectionTaskFields;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.dynamic.relation.RelationService;
@@ -39,9 +44,9 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
     }
 
     @Override
-    protected void doExecutionStarted(ComServer comServer) {
-        super.doExecutionStarted(comServer);
-        this.lastExecutionFailed = false;
+    protected void doExecutionStarted(ComServer comServer, List<String> updatedColumns) {
+        super.doExecutionStarted(comServer, updatedColumns);
+        updatedColumns.add(ConnectionTaskFields.LAST_EXECUTION_FAILED.fieldName());
     }
 
     @Override
@@ -59,7 +64,7 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
         } else {
             this.doExecutionFailed();
         }
-        this.post();
+        this.update();
     }
 
     protected boolean doWeNeedToRetryTheConnectionTask() {
