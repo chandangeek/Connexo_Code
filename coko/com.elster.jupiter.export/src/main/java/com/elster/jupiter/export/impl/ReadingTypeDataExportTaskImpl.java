@@ -251,7 +251,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return dataExportService.getDataProcessorFactory(dataProcessor).orElseThrow(IllegalArgumentException::new).getProperties();
+        return dataExportService.getDataProcessorFactory(dataProcessor).orElseThrow(()->new IllegalArgumentException("No such data processor: "+dataProcessor)).getProperties();
     }
 
     @Override
