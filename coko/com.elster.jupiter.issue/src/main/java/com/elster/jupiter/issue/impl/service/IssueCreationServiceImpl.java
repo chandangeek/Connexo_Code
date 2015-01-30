@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import com.elster.jupiter.users.UserService;
+
 import org.drools.compiler.compiler.RuleBaseLoader;
 import org.drools.core.common.ProjectClassLoader;
 import org.kie.api.KieBaseConfiguration;
@@ -38,6 +39,7 @@ import com.elster.jupiter.issue.share.entity.CreationRuleAction;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -163,7 +165,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         CreationRuleTemplate template = firedRule.getTemplate();
         Issue baseIssue = dataModel.getInstance(OpenIssueImpl.class);
         baseIssue.setReason(firedRule.getReason());
-        baseIssue.setStatus(event.getStatus());
+        baseIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).orElse(null));
         baseIssue.setDueDate(Instant.ofEpochMilli(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
         baseIssue.setOverdue(false);
         baseIssue.setRule(firedRule);

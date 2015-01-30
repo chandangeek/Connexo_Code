@@ -250,9 +250,7 @@ public class BaseTest {
     }
 
     protected IssueEvent getMockIssueEvent() {
-        IssueEvent event = mock(IssueEvent.class);
-        when(event.getStatus()).thenReturn(getIssueService().findStatus(IssueStatus.OPEN).get());
-        return event;
+        return mock(IssueEvent.class);
     }
 
     protected IssueActionFactory getMockIssueActionFactory() {
