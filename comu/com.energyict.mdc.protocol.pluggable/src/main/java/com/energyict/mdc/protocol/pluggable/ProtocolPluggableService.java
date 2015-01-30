@@ -26,6 +26,8 @@ public interface ProtocolPluggableService {
 
     public static String COMPONENTNAME = "PPC";
 
+    public ProtocolDeploymentListenerRegistration register(ProtocolDeploymentListener listener);
+
     /**
      * Creates an instance of the pluggable protocol class with the specified name
      * from whichever OSGi bundle actually contains the class.

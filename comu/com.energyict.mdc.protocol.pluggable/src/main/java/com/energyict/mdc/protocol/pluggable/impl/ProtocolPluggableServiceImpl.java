@@ -56,6 +56,8 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
+import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
+import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
@@ -138,6 +140,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
 
     private volatile boolean installed = false;
     private List<ReferencePropertySpecFinderProvider> factoryProviders = new ArrayList<>();
+    private volatile List<ProtocolDeploymentListenerRegistrationImpl> registrations = new CopyOnWriteArrayList<>();
 
     // For OSGi purposes
     public ProtocolPluggableServiceImpl() {
@@ -172,6 +175,18 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.setDataVaultService(dataVaultService);
         this.activate();
         this.install();
+    }
+
+    @Override
+    public ProtocolDeploymentListenerRegistration register(ProtocolDeploymentListener listener) {
+        ProtocolDeploymentListenerRegistrationImpl registration = new ProtocolDeploymentListenerRegistrationImpl(listener);
+        this.registrations.add(registration);
+        registration.notifyAlreadyDeployedServices();
+        return registration;
+    }
+
+    private void unregister(ProtocolDeploymentListenerRegistrationImpl registration) {
+        this.registrations.remove(registration);
     }
 
     @Override
@@ -606,6 +621,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addDeviceProtocolService(DeviceProtocolService deviceProtocolService) {
         this.deviceProtocolServices.add(deviceProtocolService);
+        this.registrations.forEach(each -> each.notifyAdded(deviceProtocolService));
         if (installed) {
             registerDeviceProtocolPluggableClasses();
         }
@@ -614,6 +630,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @SuppressWarnings("unused")
     public void removeDeviceProtocolService(DeviceProtocolService deviceProtocolService) {
         this.deviceProtocolServices.remove(deviceProtocolService);
+        this.registrations.forEach(each -> each.notifyRemove(deviceProtocolService));
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -649,6 +666,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addInboundDeviceProtocolService(InboundDeviceProtocolService inboundDeviceProtocolService) {
         this.inboundDeviceProtocolServices.add(inboundDeviceProtocolService);
+        this.registrations.forEach(each -> each.notifyAdded(inboundDeviceProtocolService));
         if (installed) {
             registerInboundDeviceProtocolPluggableClasses();
         }
@@ -657,6 +675,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @SuppressWarnings("unused")
     public void removeInboundDeviceProtocolService(InboundDeviceProtocolService inboundDeviceProtocolService) {
         this.inboundDeviceProtocolServices.remove(inboundDeviceProtocolService);
+        this.registrations.forEach(each -> each.notifyRemove(inboundDeviceProtocolService));
     }
 
     public PropertySpecService getPropertySpecService() {
@@ -689,6 +708,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addConnectionTypeService(ConnectionTypeService connectionTypeService) {
         this.connectionTypeServices.add(connectionTypeService);
+        this.registrations.forEach(each -> each.notifyAdded(connectionTypeService));
         if (installed) {
             registerConnectionTypePluggableClasses();
         }
@@ -697,6 +717,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @SuppressWarnings("unused")
     public void removeConnectionTypeService(ConnectionTypeService connectionTypeService) {
         this.connectionTypeServices.remove(connectionTypeService);
+        this.registrations.forEach(each -> each.notifyRemove(connectionTypeService));
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -1028,6 +1049,50 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         @Override
         public CollectedDeviceInfo createCollectedDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, PropertySpec propertySpec, Object propertyValue) {
             return this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(deviceIdentifier, propertySpec, propertyValue);
+        }
+    }
+
+    private class ProtocolDeploymentListenerRegistrationImpl implements ProtocolDeploymentListenerRegistration {
+        private final ProtocolDeploymentListener listener;
+
+        private ProtocolDeploymentListenerRegistrationImpl(ProtocolDeploymentListener listener) {
+            super();
+            this.listener = listener;
+        }
+
+        private void notifyAlreadyDeployedServices() {
+            deviceProtocolServices.forEach(this::notifyAdded);
+            inboundDeviceProtocolServices.forEach(this::notifyAdded);
+            connectionTypeServices.forEach(this::notifyAdded);
+        }
+
+        private void notifyAdded(DeviceProtocolService service) {
+            this.listener.deviceProtocolServiceDeployed(service);
+        }
+
+        private void notifyRemove(DeviceProtocolService service) {
+            this.listener.deviceProtocolServiceUndeployed(service);
+        }
+
+        private void notifyAdded(InboundDeviceProtocolService service) {
+            this.listener.inboundDeviceProtocolServiceDeployed(service);
+        }
+
+        private void notifyRemove(InboundDeviceProtocolService service) {
+            this.listener.inboundDeviceProtocolServiceUndeployed(service);
+        }
+
+        private void notifyAdded(ConnectionTypeService service) {
+            this.listener.connectionTypeServiceDeployed(service);
+        }
+
+        private void notifyRemove(ConnectionTypeService service) {
+            this.listener.connectionTypeServiceUndeployed(service);
+        }
+
+        @Override
+        public void unregister() {
+            ProtocolPluggableServiceImpl.this.unregister(this);
         }
     }
 

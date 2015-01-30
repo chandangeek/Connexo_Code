@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingException;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
@@ -19,6 +20,8 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.api.services.NotAppropriateDeviceCacheMarshallingTargetException;
+import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
+import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
@@ -644,6 +647,113 @@ public class ProtocolPluggableServiceImplTest {
 
         // Asserts
         assertThat(marshalled).isEmpty();
+    }
+
+    @Test
+    public void registeredListenerReceivesPreviouslyAddedServices() {
+        DeviceProtocolService deviceProtocolService = mock(DeviceProtocolService.class);
+        InboundDeviceProtocolService inboundDeviceProtocolService = mock(InboundDeviceProtocolService.class);
+        ConnectionTypeService connectionTypeService = mock(ConnectionTypeService.class);
+        ProtocolPluggableServiceImpl service = this.newTestInstance();
+        service.addDeviceProtocolService(deviceProtocolService);
+        service.addInboundDeviceProtocolService(inboundDeviceProtocolService);
+        service.addConnectionTypeService(connectionTypeService);
+        ProtocolDeploymentListener listener = mock(ProtocolDeploymentListener.class);
+
+        // Business method
+        service.register(listener);
+
+        // Asserts
+        verify(listener).deviceProtocolServiceDeployed(deviceProtocolService);
+        verify(listener).inboundDeviceProtocolServiceDeployed(inboundDeviceProtocolService);
+        verify(listener).connectionTypeServiceDeployed(connectionTypeService);
+    }
+
+    @Test
+    public void registeredListenerReceivesAddedDeviceProtocolService() {
+        DeviceProtocolService deviceProtocolService = mock(DeviceProtocolService.class);
+        ProtocolPluggableServiceImpl service = this.newTestInstance();
+        ProtocolDeploymentListener listener = mock(ProtocolDeploymentListener.class);
+        service.register(listener);
+
+        // Business method
+        service.addDeviceProtocolService(deviceProtocolService);
+
+        // Asserts
+        verify(listener).deviceProtocolServiceDeployed(deviceProtocolService);
+    }
+
+    @Test
+    public void unregisteredListenerNoLongerReceivesAddedDeviceProtocolService() {
+        DeviceProtocolService deviceProtocolService = mock(DeviceProtocolService.class);
+        ProtocolPluggableServiceImpl service = this.newTestInstance();
+        ProtocolDeploymentListener listener = mock(ProtocolDeploymentListener.class);
+        ProtocolDeploymentListenerRegistration registration = service.register(listener);
+        registration.unregister();
+
+        // Business method
+        service.addDeviceProtocolService(deviceProtocolService);
+
+        // Asserts
+        verify(listener, never()).deviceProtocolServiceDeployed(deviceProtocolService);
+    }
+
+    @Test
+    public void registeredListenerReceivesAddedInboundDeviceProtocolService() {
+        InboundDeviceProtocolService inboundDeviceProtocolService = mock(InboundDeviceProtocolService.class);
+        ProtocolPluggableServiceImpl service = this.newTestInstance();
+        ProtocolDeploymentListener listener = mock(ProtocolDeploymentListener.class);
+        service.register(listener);
+
+        // Business method
+        service.addInboundDeviceProtocolService(inboundDeviceProtocolService);
+
+        // Asserts
+        verify(listener).inboundDeviceProtocolServiceDeployed(inboundDeviceProtocolService);
+    }
+
+    @Test
+    public void unregisteredListenerNoLongerReceivesAddedInboundDeviceProtocolService() {
+        InboundDeviceProtocolService inboundDeviceProtocolService = mock(InboundDeviceProtocolService.class);
+        ProtocolPluggableServiceImpl service = this.newTestInstance();
+        ProtocolDeploymentListener listener = mock(ProtocolDeploymentListener.class);
+        ProtocolDeploymentListenerRegistration registration = service.register(listener);
+        registration.unregister();
+
+        // Business method
+        service.addInboundDeviceProtocolService(inboundDeviceProtocolService);
+
+        // Asserts
+        verify(listener, never()).inboundDeviceProtocolServiceDeployed(inboundDeviceProtocolService);
+    }
+
+    @Test
+    public void registeredListenerReceivesAddedConnectionTypeService() {
+        ConnectionTypeService connectionTypeService = mock(ConnectionTypeService.class);
+        ProtocolPluggableServiceImpl service = this.newTestInstance();
+        ProtocolDeploymentListener listener = mock(ProtocolDeploymentListener.class);
+        service.register(listener);
+
+        // Business method
+        service.addConnectionTypeService(connectionTypeService);
+
+        // Asserts
+        verify(listener).connectionTypeServiceDeployed(connectionTypeService);
+    }
+
+    @Test
+    public void unregisteredListenerNoLongerReceivesAddedConnectionTypeService() {
+        ConnectionTypeService connectionTypeService = mock(ConnectionTypeService.class);
+        ProtocolPluggableServiceImpl service = this.newTestInstance();
+        ProtocolDeploymentListener listener = mock(ProtocolDeploymentListener.class);
+        ProtocolDeploymentListenerRegistration registration = service.register(listener);
+        registration.unregister();
+
+        // Business method
+        service.addConnectionTypeService(connectionTypeService);
+
+        // Asserts
+        verify(listener, never()).connectionTypeServiceDeployed(connectionTypeService);
     }
 
     private ProtocolPluggableServiceImpl newTestInstance() {
