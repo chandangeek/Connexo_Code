@@ -36,17 +36,12 @@ public class YellowfinResource {
 	public YellowfinInfo login(HttpServletResponse response, @Context SecurityContext securityContext) {
 		User user = (User) securityContext.getUserPrincipal();
 
-		yellowfinService.logout(user.getName());
-		String webServiceLoginToken = yellowfinService.login(user.getName());
+        yellowfinService.logout(user.getName()).orElseThrow(() -> new WebApplicationException("Connection to Connexo Facts engine failed.", Response.Status.SERVICE_UNAVAILABLE));
+        String webServiceLoginToken = yellowfinService.login(user.getName()).orElseThrow(() -> new WebApplicationException("Connection to Connexo Facts engine failed.", Response.Status.SERVICE_UNAVAILABLE));
 
 		YellowfinInfo info = new YellowfinInfo();
-		if(webServiceLoginToken!=null) {
-			info.token = webServiceLoginToken;
-			info.url = yellowfinService.getYellowfinUrl();
-		}
-		else{
-			throw new WebApplicationException(Response.Status.FORBIDDEN);
-		}
+		info.token = webServiceLoginToken;
+		info.url = yellowfinService.getYellowfinUrl();
 		return info;
 	}
 	@POST
@@ -56,16 +51,11 @@ public class YellowfinResource {
 	public YellowfinInfo token(HttpServletResponse response, @Context SecurityContext securityContext) {
 		User user = (User) securityContext.getUserPrincipal();
 
-		String webServiceLoginToken = yellowfinService.login(user.getName());
+		String webServiceLoginToken = yellowfinService.login(user.getName()).orElseThrow(() -> new WebApplicationException("Connection to Connexo Facts engine failed.", Response.Status.SERVICE_UNAVAILABLE));
 
 		YellowfinInfo info = new YellowfinInfo();
-		if(webServiceLoginToken!=null) {
-			info.token = webServiceLoginToken;
-			info.url = yellowfinService.getYellowfinUrl();
-		}
-		else{
-			throw new WebApplicationException(Response.Status.FORBIDDEN);
-		}
+		info.token = webServiceLoginToken;
+		info.url = yellowfinService.getYellowfinUrl();
 		return info;
 	}
 

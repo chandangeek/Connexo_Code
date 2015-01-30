@@ -2,17 +2,17 @@ package com.elster.jupiter.yellowfin.rest.impl;
 
 
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.yellowfin.YellowfinReportInfo;
 import com.elster.jupiter.yellowfin.YellowfinService;
 import com.elster.jupiter.yellowfin.security.Privileges;
+import com.fasterxml.jackson.databind.util.JSONWrappedObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +40,10 @@ public class YellowfinReportInfoResource {
 
         User user = (User) securityContext.getUserPrincipal();
         ReportInfos reportInfos = new ReportInfos();
-        reportInfos.addAll(yellowfinService.getUserReports(user.getName(), category, subCategory,reportUUID));
+        reportInfos.addAll(
+                yellowfinService.getUserReports(user.getName(), category, subCategory, reportUUID).
+                        orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("error.facts.unavailable").build())));
+
         return reportInfos;
 
     }
@@ -56,14 +59,17 @@ public class YellowfinReportInfoResource {
         User user = (User) securityContext.getUserPrincipal();
 
         if (reportId!=0) {
-            filterInfos.addAll(yellowfinService.getReportFilters(reportId));
+            filterInfos.addAll(
+                    yellowfinService.getReportFilters(reportId).orElseThrow(() -> new WebApplicationException("Connection to Connexo Facts engine failed.", Response.Status.SERVICE_UNAVAILABLE)));
         }else {
             if (reportUUID != null) {
                 ReportInfos reportInfos = new ReportInfos();
-                reportInfos.addAll(yellowfinService.getUserReports(user.getName(), null, null, reportUUID));
+                reportInfos.addAll(
+                        yellowfinService.getUserReports(user.getName(), null, null, reportUUID).orElseThrow(() -> new WebApplicationException("Connection to Connexo Facts engine failed.", Response.Status.SERVICE_UNAVAILABLE)));
                 if (reportInfos.total > 0) {
                     List<ReportInfo> reportInfo = reportInfos.reports;
-                    filterInfos.addAll(yellowfinService.getReportFilters(reportInfo.get(0).getReportId()));
+                    filterInfos.addAll(
+                            yellowfinService.getReportFilters(reportInfo.get(0).getReportId()).orElseThrow(() -> new WebApplicationException("Connection to Connexo Facts engine failed.", Response.Status.SERVICE_UNAVAILABLE)));
                 }
 
             }
@@ -84,43 +90,21 @@ public class YellowfinReportInfoResource {
         User user = (User) securityContext.getUserPrincipal();
 
         if (reportId!=0) {
-            filterInfos.addAll(yellowfinService.getFilterListItems(filterId, reportId));
+            filterInfos.addAll(
+                    yellowfinService.getFilterListItems(filterId, reportId).orElseThrow(() -> new WebApplicationException("Connection to Connexo Facts engine failed.", Response.Status.SERVICE_UNAVAILABLE)));
         }else {
             if (reportUUID != null) {
                 ReportInfos reportInfos = new ReportInfos();
-                reportInfos.addAll(yellowfinService.getUserReports(user.getName(), null, null, reportUUID));
+                reportInfos.addAll(
+                        yellowfinService.getUserReports(user.getName(), null, null, reportUUID).orElseThrow(() -> new WebApplicationException("Connection to Connexo Facts engine failed.", Response.Status.SERVICE_UNAVAILABLE)));
                 if (reportInfos.total > 0) {
                     List<ReportInfo> reportInfo = new ArrayList<>();
                     reportInfo = reportInfos.reports;
-                    filterInfos.addAll(yellowfinService.getFilterListItems(filterId, reportInfo.get(0).getReportId()));
+                    filterInfos.addAll(
+                            yellowfinService.getFilterListItems(filterId, reportInfo.get(0).getReportId()).orElseThrow(() -> new WebApplicationException("Connection to Connexo Facts engine failed.", Response.Status.SERVICE_UNAVAILABLE)));
                 }
-
             }
         }
         return filterInfos;
-
-
     }
-
-//    @GET
-//    @Produces(MediaType.APPLICATION_JSON)
-//    @Path("/a")
-//    public String getAllFiltersList(@QueryParam("id") int id,
-//                                      @QueryParam("filterID") String filterID){
-//
-////        ReportRow[] reportRow = null;
-////        System.out.println();
-////        reportRow = yellowfinService.getFilterList("54856",54855);
-//
-//
-//
-//
-//        return "jasjda";
-//
-//    }
-
-
-
-
-
 }
