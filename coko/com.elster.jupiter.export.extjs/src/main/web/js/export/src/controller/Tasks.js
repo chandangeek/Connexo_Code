@@ -263,13 +263,16 @@ Ext.define('Dxp.controller.Tasks', {
             router = me.getController('Uni.controller.history.Router'),
             store = me.getStore('Dxp.store.DataExportTasksHistory'),
             taskModel = me.getModel('Dxp.model.DataExportTask'),
-            view = Ext.widget('data-export-tasks-history', {
-                router: router,
-                taskId: currentTaskId
-            });
+            view;
 
-        me.getApplication().fireEvent('changecontentevent', view);
+
+
         store.getProxy().setUrl(router.arguments);
+        view = Ext.widget('data-export-tasks-history', {
+            router: router,
+            taskId: currentTaskId
+        });
+        me.getApplication().fireEvent('changecontentevent', view);
         me.initFilter();
         var grid = me.getHistory().down('tasks-history-grid');
 
@@ -283,16 +286,22 @@ Ext.define('Dxp.controller.Tasks', {
             });
         });
 
+
         taskModel.load(currentTaskId, {
             success: function (record) {
+                var previewForm = view.down('tasks-preview-form');
+
+                previewForm.taskModel = record;
+
+                Ext.suspendLayouts();
                 view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
-                store.load(function (records, operation, success) {
-                    records.map(function (r) {
-                        r.set(Ext.apply({}, r.raw, record.raw));
-                        r.propertiesStore = record.propertiesStore;
-                    });
-                    me.showHistoryPreview(grid.getSelectionModel(), records[0]);
-                });
+                if (store.getCount()) {
+                    previewForm.loadRecord(record);
+                }
+                if (record.properties() && record.properties().count()) {
+                    previewForm.down('property-form').loadRecord(record);
+                }
+                Ext.resumeLayouts(true);
             }
         });
     },
@@ -301,10 +310,10 @@ Ext.define('Dxp.controller.Tasks', {
         var me = this,
             page = me.getHistory(),
             preview = page.down('tasks-preview'),
-            previewForm = page.down('tasks-preview-form'),
-            propertyForm = previewForm.down('property-form');
+            previewForm = page.down('tasks-preview-form');
 
         if (record) {
+            Ext.suspendLayouts();
             preview.setTitle(record.get('startedOn_formatted'));
             previewForm.down('displayfield[name=lastRun]').setVisible(false);
             previewForm.down('displayfield[name=nextRun_formatted]').setVisible(false);
@@ -319,9 +328,10 @@ Ext.define('Dxp.controller.Tasks', {
             } else {
                 previewForm.down('#reason-field').hide();
             }
-            if (record.properties() && record.properties().count()) {
-                propertyForm.loadRecord(record);
+            if (previewForm.taskModel) {
+                previewForm.loadRecord(previewForm.taskModel);
             }
+            Ext.resumeLayouts(true);
         }
     },
 

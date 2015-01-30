@@ -64,7 +64,6 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                deferLoading: true,
                 itemsPerPageMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbarbottom.itemsPerPage', 'DES', 'Data export tasks per page'),
                 dock: 'bottom'
             }
