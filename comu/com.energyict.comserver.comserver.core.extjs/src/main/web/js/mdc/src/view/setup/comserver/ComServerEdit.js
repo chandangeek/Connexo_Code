@@ -38,6 +38,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                 {
                     xtype: 'textfield',
                     name: 'name',
+                    itemId: 'txt-communication-server-name',
                     fieldLabel: Uni.I18n.translate('general.formFieldLabel.name', 'MDC', 'Name'),
                     allowBlank: false,
                     maxLength: 75,
@@ -54,6 +55,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                 {
                     xtype: 'combobox',
                     name: 'serverLogLevel',
+                    itemId: 'cbo-server-log-level',
                     fieldLabel: Uni.I18n.translate('comServer.formFieldLabel.serverLogLevel', 'MDC', 'Server log level'),
                     store: 'Mdc.store.LogLevels',
                     queryMode: 'local',
@@ -68,6 +70,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                 {
                     xtype: 'combobox',
                     name: 'communicationLogLevel',
+                    itemId: 'cbo-communication-log-level',
                     fieldLabel: Uni.I18n.translate('comServer.formFieldLabel.communicationLogLevel', 'MDC', 'Communication log level'),
                     store: 'Mdc.store.LogLevels',
                     queryMode: 'local',
@@ -80,6 +83,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                 },
                 {
                     xtype: 'fieldcontainer',
+                    itemId: 'fld-changes-inter-poll-delay',
                     columnWidth: 0.5,
                     fieldLabel: Uni.I18n.translate('comServer.formFieldLabel.changesInterPollDelay', 'MDC', 'Changes inter poll delay'),
                     required: true,
@@ -96,6 +100,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                             items: [
                                 {
                                     xtype: 'numberfield',
+                                    itemId: 'num-changes-inter-poll-delay',
                                     name: 'changesInterPollDelay[count]',
                                     width: 150,
                                     margin: '0 10 0 0',
@@ -104,6 +109,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                                 {
                                     xtype: 'combobox',
                                     name: 'changesInterPollDelay[timeUnit]',
+                                    itemId: 'cbo-changes-inter-poll-delay',
                                     store: 'TimeUnitsWithoutMilliseconds',
                                //     queryMode: 'local',
                                     editable: false,
@@ -115,12 +121,14 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                         },
                         {
                             xtype: 'fieldContainerHelpMessage',
+                            itemId: 'msg-changes-inter-poll-delay',
                             text: Uni.I18n.translate('comServer.formFieldNote.minimalAcceptableDelayIs60Seconds', 'MDC', 'The minimal acceptable delay is 60 seconds')
                         }
                     ]
                 },
                 {
                     xtype: 'fieldcontainer',
+                    itemId: 'fld-scheduling-inter-poll-delay',
                     columnWidth: 0.5,
                     fieldLabel: Uni.I18n.translate('comServer.formFieldLabel.schedulingInterPollDelay', 'MDC', 'Scheduling inter poll delay'),
                     required: true,
@@ -137,6 +145,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                             items: [
                                 {
                                     xtype: 'numberfield',
+                                    itemId: 'num-scheduling-inter-poll-delay',
                                     name: 'schedulingInterPollDelay[count]',
                                     width: 150,
                                     margin: '0 10 0 0',
@@ -144,6 +153,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                                 },
                                 {
                                     xtype: 'combobox',
+                                    itemId: 'cbo-scheduling-inter-poll-delay',
                                     name: 'schedulingInterPollDelay[timeUnit]',
                                     store: 'TimeUnitsWithoutMilliseconds',
                            //         queryMode: 'local',
@@ -156,12 +166,14 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                         },
                         {
                             xtype: 'fieldContainerHelpMessage',
+                            itemId: 'msg-scheduling-inter-poll-delay',
                             text: Uni.I18n.translate('comServer.formFieldNote.minimalAcceptableDelayIs60Seconds', 'MDC', 'The minimal acceptable delay is 60 seconds')
                         }
                     ]
                 },
                 {
                     xtype: 'numberfield',
+                    itemId: 'num-store-task-queue-size',
                     name: 'storeTaskQueueSize',
                     fieldLabel: Uni.I18n.translate('comServer.formFieldLabel.storeTaskQueueSize', 'MDC', 'Store task queue size'),
                     allowBlank: false,
@@ -171,6 +183,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                 },
                 {
                     xtype: 'numberfield',
+                    itemId: 'num-store-task-thread-count',
                     name: 'numberOfStoreTaskThreads',
                     fieldLabel: Uni.I18n.translate('comServer.formFieldLabel.storeTaskThreadCount', 'MDC', 'Store task thread count'),
                     allowBlank: false,
@@ -180,6 +193,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                 },
                 {
                     xtype: 'numberfield',
+                    itemId: 'num-store-task-queue-priority',
                     name: 'storeTaskThreadPriority',
                     fieldLabel: Uni.I18n.translate('comServer.formFieldLabel.storeTaskQueuePriority', 'MDC', 'Store task queue priority'),
                     allowBlank: false,
