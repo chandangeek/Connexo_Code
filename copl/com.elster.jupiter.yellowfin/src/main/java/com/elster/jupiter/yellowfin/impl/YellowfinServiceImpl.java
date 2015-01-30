@@ -514,11 +514,8 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
     }
 
     private void createPrivileges(UserService userService) {
-        userService.createResourceWithPrivileges("SYS", "reportSys.reports", "reportSys.reports.description",
-                new String[] {
-                        Privileges.VIEW_REPORTS,
-                        Privileges.DESIGN_REPORTS
-                });
+        userService.createResourceWithPrivileges("MDC", "reportMdc.reports", "reportMdc.reports.description", new String[] { Privileges.VIEW_REPORTS });
+        userService.createResourceWithPrivileges("YFN", "reportYfn.reports", "reportYfn.reports.description", new String[] { Privileges.DESIGN_REPORTS });
     }
 
 }
