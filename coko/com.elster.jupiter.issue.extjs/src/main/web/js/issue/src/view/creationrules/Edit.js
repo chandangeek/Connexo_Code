@@ -195,6 +195,7 @@ Ext.define('Isu.view.creationrules.Edit', {
                                 },
                                 {
                                     xtype: 'issues-creation-rules-actions-list',
+                                    itemId: 'issues-creation-rules-actions-grid',
                                     hidden: true
                                 },
                                 {

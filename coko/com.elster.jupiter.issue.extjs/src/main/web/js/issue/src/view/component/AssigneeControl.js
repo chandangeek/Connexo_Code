@@ -1,6 +1,7 @@
 Ext.define('Isu.view.component.AssigneeControl', {
     extend: 'Ext.form.FieldContainer',
     alias: 'widget.issues-assignee-control',
+    itemId: 'issues-assignee-control',
     mixins: {
         field: 'Ext.form.field.Field'
     },
