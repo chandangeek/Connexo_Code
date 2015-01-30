@@ -53,7 +53,6 @@ Ext.define('Isu.controller.IssuesOverview', {
                     Ext.suspendLayouts();
                     preview.loadRecord(record);
                     preview.down('issues-action-menu').record = record;
-                    preview.down('#issue-view-details-link').setHref(preview.router.getRoute(preview.router.currentRoute + '/view').buildUrl({issueId: record.getId()}));
                     preview.setTitle(record.get('title'));
                     Ext.resumeLayouts(true);
                 }
