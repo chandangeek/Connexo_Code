@@ -74,7 +74,7 @@ public class DeviceComTaskInfoFactory {
         }
         deviceComTasksInfo.lastCommunicationStart = comTaskExecution.getLastExecutionStartTimestamp();
         deviceComTasksInfo.status = thesaurus.getString(taskStatusAdapter.marshal(comTaskExecution.getStatus()),taskStatusAdapter.marshal(comTaskExecution.getStatus()));
-        if (comTaskExecution.useDefaultConnectionTask()) {
+        if (comTaskExecution.usesDefaultConnectionTask()) {
             if(comTaskExecution.getConnectionTask()!=null){
                 deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT.getKey(),MessageSeeds.DEFAULT.getKey()) +
                         " (" + comTaskExecution.getConnectionTask().getName() + ")";
@@ -111,7 +111,7 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.scheduleType = thesaurus.getString("masterSchedule","Shared schedule");
         deviceComTasksInfo.lastCommunicationStart = comTaskExecution.getLastExecutionStartTimestamp();
         deviceComTasksInfo.status = thesaurus.getString(taskStatusAdapter.marshal(comTaskExecution.getStatus()),taskStatusAdapter.marshal(comTaskExecution.getStatus()));
-        if (comTaskExecution.useDefaultConnectionTask()) {
+        if (comTaskExecution.usesDefaultConnectionTask()) {
             if(comTaskExecution.getConnectionTask()!=null){
                 deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT.getKey(),MessageSeeds.DEFAULT.getKey()) +
                         " (" + comTaskExecution.getConnectionTask().getName() + ")";
