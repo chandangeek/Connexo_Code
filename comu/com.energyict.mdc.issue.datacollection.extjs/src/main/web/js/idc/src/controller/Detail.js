@@ -31,6 +31,9 @@ Ext.define('Idc.controller.Detail', {
             'data-collection-issue-detail #data-collection-issue-comments #issue-comments-add-comment-button': {
                 click: this.showCommentForm
             },
+            'data-collection-issue-detail #data-collection-issue-comments #empty-message-add-comment-button': {
+                click: this.showCommentForm
+            },
             'data-collection-issue-detail #data-collection-issue-comments #issue-comment-cancel-adding-button': {
                 click: this.hideCommentForm
             },
