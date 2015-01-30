@@ -558,10 +558,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                             readingTypeDisplayField.setValue(channel.measurementType.readingType);
                                             readingTypeDisplayField.show();
                                         }
-                                        me.phenomenasStore.load({callback: function () {
-                                            unitOfMeasureCombobox.store = me.phenomenasStore;
-                                            unitOfMeasureCombobox.setValue(channel.unitOfMeasure.id);
-                                        }});
 
                                         me.availableMeasurementTypesStore.load({
                                             callback: function () {
@@ -573,7 +569,11 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                                 readingTypeCombo.bindStore(readingTypesStore);
                                                 channel.measurementType.phenomenon = channel.unitOfMeasure;
                                                 readingTypeCombo.setValue(channel.measurementType.readingType.mRID);
-                                                preloader.destroy();
+                                                me.phenomenasStore.load({callback: function () {
+                                                    unitOfMeasureCombobox.bindStore(me.phenomenasStore);
+                                                    unitOfMeasureCombobox.setValue(channel.unitOfMeasure.id);
+                                                    preloader.destroy();
+                                                }});
                                             }
                                         });
 
