@@ -19,6 +19,10 @@
     background-image: url('images/grid/defaultItem.png');
 }
 
+.uni-infinite-scrolling-grid-view {
+  min-height: 100%;
+}
+
 .uni-selection-grid {
     .#{$prefix}grid-row .#{$prefix}grid-cell-first + .#{$prefix}grid-cell .#{$prefix}grid-cell-inner,
     .#{$prefix}box-target  .#{$prefix}column-header-first + .#{$prefix}column-header .#{$prefix}column-header-inner {
