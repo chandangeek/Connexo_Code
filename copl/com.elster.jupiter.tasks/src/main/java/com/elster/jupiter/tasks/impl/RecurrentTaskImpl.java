@@ -1,5 +1,6 @@
 package com.elster.jupiter.tasks.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
@@ -12,8 +13,6 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
-
-import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -21,7 +20,9 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.inject.Inject;
 
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NOT_UNIQUE + "}")
 class RecurrentTaskImpl implements RecurrentTask {
 
     private static final Logger LOGGER = Logger.getLogger(RecurrentTaskImpl.class.getName());
@@ -122,11 +123,10 @@ class RecurrentTaskImpl implements RecurrentTask {
     @Override
     public void save() {
         if (id == 0) {
-            dataModel.mapper(RecurrentTask.class).persist(this);
+            Save.CREATE.save(dataModel, this);
         } else {
-            dataModel.mapper(RecurrentTask.class).update(this);
+            Save.UPDATE.save(dataModel, this);
         }
-
     }
 
     @Override

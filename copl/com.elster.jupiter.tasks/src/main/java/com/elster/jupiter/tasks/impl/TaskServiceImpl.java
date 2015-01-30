@@ -3,6 +3,11 @@ package com.elster.jupiter.tasks.impl;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
@@ -24,23 +29,25 @@ import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = "com.elster.jupiter.tasks", service = {TaskService.class, InstallService.class}, property = "name=" + TaskService.COMPONENTNAME, immediate = true)
-public class TaskServiceImpl implements TaskService, InstallService {
+@Component(name = "com.elster.jupiter.tasks",
+           service = { TaskService.class, InstallService.class, TranslationKeyProvider.class },
+           property = "name=" + TaskService.COMPONENTNAME, immediate = true)
+public class TaskServiceImpl implements TaskService, InstallService, TranslationKeyProvider {
 
     private DueTaskFetcher dueTaskFetcher;
     private volatile Clock clock;
@@ -52,6 +59,7 @@ public class TaskServiceImpl implements TaskService, InstallService {
 
     private Thread schedulerThread;
     private volatile DataModel dataModel;
+    private volatile Thesaurus thesaurus;
 
     // For OSGi framework
     public TaskServiceImpl() {
@@ -75,7 +83,6 @@ public class TaskServiceImpl implements TaskService, InstallService {
 
     @Activate
     public void activate() {
-
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -85,6 +92,9 @@ public class TaskServiceImpl implements TaskService, InstallService {
                 bind(QueryService.class).toInstance(queryService);
                 bind(MessageService.class).toInstance(messageService);
                 bind(TransactionService.class).toInstance(transactionService);
+                bind(TaskService.class).toInstance(TaskServiceImpl.this);
+                bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
             }
         });
     }
@@ -147,7 +157,7 @@ public class TaskServiceImpl implements TaskService, InstallService {
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM");
+        return Arrays.asList("ORM", "NLS");
     }
 
     @Override
@@ -217,6 +227,11 @@ public class TaskServiceImpl implements TaskService, InstallService {
     }
 
     @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
+    }
+
+    @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
@@ -230,5 +245,20 @@ public class TaskServiceImpl implements TaskService, InstallService {
             dueTaskFetcher = new DueTaskFetcher(dataModel, messageService, scheduleExpressionParser, clock);
         }
         return dueTaskFetcher;
+    }
+
+    @Override
+    public String getComponentName() {
+        return COMPONENTNAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
     }
 }
