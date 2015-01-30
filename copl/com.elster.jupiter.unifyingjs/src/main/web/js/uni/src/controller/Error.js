@@ -105,6 +105,10 @@ Ext.define('Uni.controller.Error', {
                 'Unexpected connection problems. Please check that server is available.'
             );
         }
+        else{
+            title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed');
+            message = Uni.I18n.translate(message, 'UNI', message);
+        }
 
         switch (response.status) {
             case 400: // Bad request.
