@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadFactory;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -402,7 +400,10 @@ public class DeviceCommandExecutorImplTest {
         CountDownLatch stopLatch = new CountDownLatch(numberOfExecutingCommands);
         DeviceCommandExecutor deviceCommandExecutor = null;
         try {
-            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, CAPACITY - 1, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+            /* Restrict the execution of the commands to only 2 threads,
+             * freeing the tokens runs at higher priority then normal commands
+             * so the tokens should normally be freed before the execution of the last command. */
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, 2, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfExecutingCommands + 2);
             DeviceCommandExecutionToken unused1 = alreadyPrepared.remove(0);

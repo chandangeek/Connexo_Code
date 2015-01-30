@@ -52,8 +52,8 @@ public class CompositeComCommandTest extends CommonCommandImplTests {
     @Test(expected = ComCommandException.class)
     public void uniqueCommandViolationTest(){
         CommandRoot commandRoot = createCommandRoot();
-        commandRoot.addCommand(new TimeDifferenceCommandImpl(commandRoot), comTaskExecution);
-        commandRoot.addCommand(new TimeDifferenceCommandImpl(commandRoot), comTaskExecution);
+        commandRoot.addUniqueCommand(new TimeDifferenceCommandImpl(commandRoot), comTaskExecution);
+        commandRoot.addUniqueCommand(new TimeDifferenceCommandImpl(commandRoot), comTaskExecution);
     }
 
     @Test
@@ -72,10 +72,10 @@ public class CompositeComCommandTest extends CommonCommandImplTests {
         when(clockTask.getMinimumClockDifference()).thenReturn(Optional.of(MIN_CLOCK_DIFF));
 
         CommandRoot commandRoot = createCommandRoot();
-        commandRoot.addCommand(new TimeDifferenceCommandImpl(commandRoot), comTaskExecution);
-        commandRoot.addCommand(new TopologyCommandImpl(commandRoot, TopologyAction.UPDATE, this.offlineDevice, comTaskExecution), comTaskExecution);
-        commandRoot.addCommand(new LoadProfileCommandImpl(loadProfilesTask, mock(OfflineDevice.class), commandRoot, comTaskExecution), comTaskExecution);
-        commandRoot.addCommand(new ClockCommandImpl(clockTask, commandRoot, comTaskExecution), comTaskExecution);
+        commandRoot.addUniqueCommand(new TimeDifferenceCommandImpl(commandRoot), comTaskExecution);
+        commandRoot.addUniqueCommand(new TopologyCommandImpl(commandRoot, TopologyAction.UPDATE, this.offlineDevice, comTaskExecution), comTaskExecution);
+        commandRoot.addUniqueCommand(new LoadProfileCommandImpl(loadProfilesTask, mock(OfflineDevice.class), commandRoot, comTaskExecution), comTaskExecution);
+        commandRoot.addUniqueCommand(new ClockCommandImpl(clockTask, commandRoot, comTaskExecution), comTaskExecution);
 
         int count = 0;
         for (ComCommand command : commandRoot) {

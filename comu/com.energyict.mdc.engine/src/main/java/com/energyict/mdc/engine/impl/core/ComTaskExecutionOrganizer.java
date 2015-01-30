@@ -2,18 +2,18 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
+import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-import java.util.Optional;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * This class will try to group and organize the ComTaskExecutions for a specific connection.
@@ -39,23 +40,11 @@ import java.util.Map;
  * Time: 16:38
  */
 public final class ComTaskExecutionOrganizer {
-    /**
-     * Represents a DeviceProtocolSecurityPropertySet which does basically nothing.
-     * The Encryption- and AuthenticationAccessLevel are defined as NOT USED.
-     * The TypedProperty object doesn't contain any properties.
-     */
-    static final DeviceProtocolSecurityPropertySet EMPTY_DEVICE_PROTOCOL_SECURITY_PROPERTY_SET =
-            new DeviceProtocolSecurityPropertySetImpl(
-                    DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID,
-                    DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID,
-                    TypedProperties.empty());
 
-    private final DeviceConfigurationService deviceConfigurationService;
     private final TopologyService topologyService;
 
-    public ComTaskExecutionOrganizer(DeviceConfigurationService deviceConfigurationService, TopologyService topologyService) {
+    public ComTaskExecutionOrganizer(TopologyService topologyService) {
         super();
-        this.deviceConfigurationService = deviceConfigurationService;
         this.topologyService = topologyService;
     }
 
@@ -114,20 +103,16 @@ public final class ComTaskExecutionOrganizer {
     }
 
     private DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet(SecurityPropertySet securityPropertySet, Device masterDevice) {
-        if (securityPropertySet != null) {
             /* The actual retrieving of the properties must be done on the given masterDevice */
-            List<SecurityProperty> protocolSecurityProperties = masterDevice.getSecurityProperties(securityPropertySet);
-            TypedProperties securityProperties = TypedProperties.empty();
-            for (SecurityProperty protocolSecurityProperty : protocolSecurityProperties) {
-                securityProperties.setProperty(protocolSecurityProperty.getName(), protocolSecurityProperty.getValue());
-            }
-            return new DeviceProtocolSecurityPropertySetImpl(
-                    securityPropertySet.getAuthenticationDeviceAccessLevel().getId(),
-                    securityPropertySet.getEncryptionDeviceAccessLevel().getId(),
-                    securityProperties);
-        } else {
-            return EMPTY_DEVICE_PROTOCOL_SECURITY_PROPERTY_SET;
+        List<SecurityProperty> protocolSecurityProperties = masterDevice.getSecurityProperties(securityPropertySet);
+        TypedProperties securityProperties = TypedProperties.empty();
+        for (SecurityProperty protocolSecurityProperty : protocolSecurityProperties) {
+            securityProperties.setProperty(protocolSecurityProperty.getName(), protocolSecurityProperty.getValue());
         }
+        return new DeviceProtocolSecurityPropertySetImpl(
+                securityPropertySet.getAuthenticationDeviceAccessLevel().getId(),
+                securityPropertySet.getEncryptionDeviceAccessLevel().getId(),
+                securityProperties);
     }
 
     private Device getMasterDeviceIfAvailable(Device device) {
@@ -144,25 +129,25 @@ public final class ComTaskExecutionOrganizer {
         }
     }
 
-    private SecurityPropertySet getProperSecurityPropertySet(ComTaskEnablement comTaskEnablement, Device masterDevice, ComTaskExecution comTaskExecution) {
+    private Optional<SecurityPropertySet> getProperSecurityPropertySet(ComTaskEnablement comTaskEnablement, Device masterDevice, ComTaskExecution comTaskExecution) {
         if (comTaskEnablement != null) {
             final SecurityPropertySet securityPropertySet = comTaskEnablement.getSecurityPropertySet();
-            if (masterDevice.equals(comTaskExecution.getDevice())) {
-                return securityPropertySet;
+            if (masterDevice.getId()== comTaskExecution.getDevice().getId()) {
+                return Optional.of(securityPropertySet);
             } else {
-                /* In the exception case where the masterDevice is different then the device on the ComTaskEnablement
-                 * then we need to search for the corresponding securitySet of the master */
+                /* In the exception case where the masterDevice is different then the device on the ComTaskExecution
+                 * then we need to search for the corresponding securitySet on the master */
                 final List<SecurityPropertySet> securityPropertySets = masterDevice.getDeviceConfiguration().getSecurityPropertySets();
-                for (SecurityPropertySet propertySet : securityPropertySets) {
-                    if (propertySet.getAuthenticationDeviceAccessLevel().getId() == securityPropertySet.getAuthenticationDeviceAccessLevel().getId()
-                            && propertySet.getEncryptionDeviceAccessLevel().getId() == securityPropertySet.getEncryptionDeviceAccessLevel().getId()) {
-                        return propertySet;
+                for (SecurityPropertySet masterPropertySet : securityPropertySets) {
+                    if (   masterPropertySet.getAuthenticationDeviceAccessLevel().getId() == securityPropertySet.getAuthenticationDeviceAccessLevel().getId()
+                        && masterPropertySet.getEncryptionDeviceAccessLevel().getId() == securityPropertySet.getEncryptionDeviceAccessLevel().getId()) {
+                        return Optional.of(masterPropertySet);
                     }
                 }
-                return null;
+                return Optional.empty();
             }
         } else {
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -184,14 +169,16 @@ public final class ComTaskExecutionOrganizer {
         for (Map.Entry<DeviceKey, List<ComTaskExecution>> entry : comTaskExecutionGroupsPerDevice.entrySet()) {
             Device device = entry.getKey().device;
             for (ComTaskExecution comTaskExecution : entry.getValue()) {
-                List<ComTask> comTasks = comTaskExecution.getComTasks();
-                for (ComTask comTask : comTasks) {
-                    Key key = toKey(device, comTaskExecution, comTask);
-                    if (!result.containsKey(key)) {
-                        result.put(key, new ArrayList<>());
-                    }
-                    result.get(key).add(comTaskExecution);
+                /* ScheduledComTaskExecutions:
+                 *   1. have at least one ComTasks (so get(0) is not returning null)
+                 *   2. all ComTasks in the ComSchedule must use the same SecurityPropertySet
+                 * Therefore, it suffices to take the first ComTask. */
+                ComTask comTask = comTaskExecution.getComTasks().get(0);
+                Key key = toKey(device, comTaskExecution, comTask);
+                if (!result.containsKey(key)) {
+                    result.put(key, new ArrayList<>());
                 }
+                result.get(key).add(comTaskExecution);
             }
         }
         return result;
@@ -204,8 +191,14 @@ public final class ComTaskExecutionOrganizer {
     }
 
     private Key toKey(Device device, ComTaskExecution comTaskExecution, ComTask comTask) {
-        Optional<ComTaskEnablement> foundComTaskEnablement = deviceConfigurationService.findComTaskEnablement(comTask, device.getDeviceConfiguration());
-        SecurityPropertySet securityPropertySet = getProperSecurityPropertySet(foundComTaskEnablement.orElse(null), device, comTaskExecution);
+        Optional<ComTaskEnablement> foundComTaskEnablement = device.getDeviceConfiguration().getComTaskEnablementFor(comTask);
+        SecurityPropertySet securityPropertySet =
+                foundComTaskEnablement
+                    .flatMap(cte -> this.getProperSecurityPropertySet(cte, device, comTaskExecution))
+                    .orElseThrow(() -> new DeviceConfigurationException(
+                            MessageSeeds.COMTASK_NOT_ENABLED_ON_CONFIGURATION,
+                            comTask.getName(),
+                            device.getDeviceConfiguration().getName()));
         return Key.of(device, securityPropertySet);
     }
 
@@ -297,9 +290,9 @@ public final class ComTaskExecutionOrganizer {
 
         @Override
         public int hashCode() {
-            int result = device.hashCode();
-            result = 31 * result + (securityPropertySet != null ? securityPropertySet.hashCode() : 0);
-            return result;
+            long result = device.getId();
+            result = 31 * result + securityPropertySet.getId();
+            return (int) result;
         }
 
         private Key(Device device, SecurityPropertySet securityPropertySet) {
@@ -312,12 +305,9 @@ public final class ComTaskExecutionOrganizer {
         }
 
         private boolean isSameSecurityPropertySet(Key that) {
-            if (this.securityPropertySet != null && that.securityPropertySet != null) {
-                return securityPropertySet.getId() == that.securityPropertySet.getId();
-            } else {
-                return this.securityPropertySet == null && that.securityPropertySet == null;
-            }
+            return securityPropertySet.getId() == that.securityPropertySet.getId();
         }
 
     }
+
 }

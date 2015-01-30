@@ -59,6 +59,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     COLLECTED_DEVICE_TOPOLOGY_FOR_UN_KNOWN_DEVICE(143, "collectedDeviceTopologyForUnKnownDevice", "The collected topology is for an unknown device '{0}'", Level.SEVERE),
     UNKNOWN_SERIALS_ADDED_TO_TOPOLOGY(144, "unknownSerialsAddedToTopology", "The following unknown devices were found in the topology: '{0}'", Level.SEVERE),
     PROPERTY_VALIDATION_FAILED(145, "propertyValidationFailed", "The validation of property '{0}' with value '{1}' failed", Level.SEVERE),
+    COMTASK_NOT_ENABLED_ON_CONFIGURATION(146, "comTaskNotEnabled", "The communication task '{0}' is not enabled for execution on devices of configuration '{1}'", Level.SEVERE),
     ;
 
     private final int number;

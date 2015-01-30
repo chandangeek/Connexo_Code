@@ -32,6 +32,15 @@ public interface ComServerLauncherLogger {
     @Configuration(format = "Starting ComServer {0}...", logLevel = LogLevel.INFO)
     public void starting (String name);
 
+    @Configuration(format = "Starting ComServer {0} is delayed because no inbound device protocol services are active yet", logLevel = LogLevel.INFO)
+    public void startingDelayedBecauseOfMisingInboundDeviceProtocolServices (String name);
+
+    @Configuration(format = "Starting ComServer {0} is delayed because no device protocol services are active yet", logLevel = LogLevel.INFO)
+    public void startingDelayedBecauseOfMisingDeviceProtocolServices (String name);
+
+    @Configuration(format = "Starting ComServer {0} is delayed because no connection type services are active yet", logLevel = LogLevel.INFO)
+    public void startingDelayedBecauseOfMisingConnectionTypeServices (String name);
+
     @Configuration(format = "The ComServerLauncher is configured to start an online ComServer. This is a {0}", logLevel = LogLevel.ERROR)
     public void notAnOnlineComeServer (String comServerClassName);
 

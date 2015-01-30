@@ -165,8 +165,6 @@ public class InboundCommunicationHandlerTest {
         when(this.comSessionBuilder.addComTaskExecutionSession(any(ComTaskExecution.class), any(ComTask.class), any(Device.class), any(Instant.class))).thenReturn(comTaskExecutionSessionBuilder);
         when(this.serviceProvider.protocolPluggableService()).thenReturn(this.protocolPluggableService);
         when(this.serviceProvider.deviceConfigurationService()).thenReturn(this.deviceConfigurationService);
-        // The following prohibits the execution of every ComTask on all devices
-        when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), any(DeviceConfiguration.class))).thenReturn(Optional.empty());
         when(this.serviceProvider.engineService()).thenReturn(this.engineService);
         when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
         when(this.serviceProvider.transactionService()).thenReturn(this.transactionService);
@@ -182,6 +180,8 @@ public class InboundCommunicationHandlerTest {
 
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
         when(this.deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(this.comTaskEnablement));
+        // The following prohibits the execution of every ComTask on all devices of the configuration
+        when(this.deviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.empty());
     }
 
     // Todo (JP-3084)

@@ -138,11 +138,11 @@ public class CommandRootImplTest extends CommonCommandImplTests {
 
         LoadProfileCommand loadProfileCommand = mock(LoadProfileCommand.class);
         when(loadProfileCommand.getCommandType()).thenReturn(ComCommandTypes.LOAD_PROFILE_COMMAND);
-        commandRoot.addCommand(loadProfileCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(loadProfileCommand, comTaskExecution);
 
         ClockCommand clockCommand = mock(ClockCommand.class);
         when(clockCommand.getCommandType()).thenReturn(ComCommandTypes.CLOCK_COMMAND);
-        commandRoot.addCommand(clockCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(clockCommand, comTaskExecution);
 
         //MessagesCommand messagesCommand = mock(MessagesCommand.class);
         //when(messagesCommand.getCommandType()).thenReturn(ComCommandTypes.MESSAGES_COMMAND);
@@ -150,11 +150,11 @@ public class CommandRootImplTest extends CommonCommandImplTests {
 
         RegisterCommand registerCommand = mock(RegisterCommand.class);
         when(registerCommand.getCommandType()).thenReturn(ComCommandTypes.REGISTERS_COMMAND);
-        commandRoot.addCommand(registerCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(registerCommand, comTaskExecution);
 
         LogBooksCommand logBooksCommand = mock(LogBooksCommand.class);
         when(logBooksCommand.getCommandType()).thenReturn(ComCommandTypes.LOGBOOKS_COMMAND);
-        commandRoot.addCommand(logBooksCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(logBooksCommand, comTaskExecution);
 
         // Business method
         commandRoot.getCollectedData();
@@ -173,13 +173,13 @@ public class CommandRootImplTest extends CommonCommandImplTests {
 
         LoadProfileCommand loadProfileCommand = mock(LoadProfileCommand.class);
         when(loadProfileCommand.getCommandType()).thenReturn(ComCommandTypes.LOAD_PROFILE_COMMAND);
-        commandRoot.addCommand(loadProfileCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(loadProfileCommand, comTaskExecution);
         ServerCollectedData loadProfileCollectedData = mock(ServerCollectedData.class);
         when(loadProfileCommand.getCollectedData()).thenReturn(Arrays.<CollectedData>asList(loadProfileCollectedData));
 
         ClockCommand clockCommand = mock(ClockCommand.class);
         when(clockCommand.getCommandType()).thenReturn(ComCommandTypes.CLOCK_COMMAND);
-        commandRoot.addCommand(clockCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(clockCommand, comTaskExecution);
         ServerCollectedData clockCollectedData = mock(ServerCollectedData.class);
         when(clockCommand.getCollectedData()).thenReturn(Arrays.<CollectedData>asList(clockCollectedData));
 
@@ -191,13 +191,13 @@ public class CommandRootImplTest extends CommonCommandImplTests {
 
         RegisterCommand registerCommand = mock(RegisterCommand.class);
         when(registerCommand.getCommandType()).thenReturn(ComCommandTypes.REGISTERS_COMMAND);
-        commandRoot.addCommand(registerCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(registerCommand, comTaskExecution);
         ServerCollectedData registerCollectedData = mock(ServerCollectedData.class);
         when(registerCommand.getCollectedData()).thenReturn(Arrays.<CollectedData>asList(registerCollectedData));
 
         LogBooksCommand logBooksCommand = mock(LogBooksCommand.class);
         when(logBooksCommand.getCommandType()).thenReturn(ComCommandTypes.LOGBOOKS_COMMAND);
-        commandRoot.addCommand(logBooksCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(logBooksCommand, comTaskExecution);
         ServerCollectedData logBooksCollectedData = mock(ServerCollectedData.class);
         when(logBooksCommand.getCollectedData()).thenReturn(Arrays.<CollectedData>asList(logBooksCollectedData));
 
@@ -228,9 +228,9 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         AddPropertiesCommand addPropertiesCommand = mock(AddPropertiesCommand.class);
         when(addPropertiesCommand.getCommandType()).thenReturn(ComCommandTypes.ADD_PROPERTIES_COMMAND);
         Mockito.doThrow(new DataParseException(new IndexOutOfBoundsException("Some message"), mock(MessageSeed.class))).when(addPropertiesCommand).doExecute(deviceProtocol, executionContext);
-        commandRoot.addCommand(addPropertiesCommand, comTaskExecution);
-        commandRoot.addCommand(deviceProtocolTerminateCommand, comTaskExecution);
-        commandRoot.addCommand(deviceProtocolUpdateCacheCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(addPropertiesCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(deviceProtocolTerminateCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(deviceProtocolUpdateCacheCommand, comTaskExecution);
 
         try {
             commandRoot.execute(deviceProtocol, executionContext);
@@ -254,9 +254,9 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         AddPropertiesCommand addPropertiesCommand = mock(AddPropertiesCommand.class);
         when(addPropertiesCommand.getCommandType()).thenReturn(ComCommandTypes.ADD_PROPERTIES_COMMAND);
         Mockito.doThrow(new ConnectionTimeOutException(MessageSeeds.CONNECTION_TIMEOUT, 5)).when(addPropertiesCommand).doExecute(deviceProtocol, executionContext);
-        commandRoot.addCommand(addPropertiesCommand, comTaskExecution);
-        commandRoot.addCommand(deviceProtocolTerminateCommand, comTaskExecution);
-        commandRoot.addCommand(deviceProtocolUpdateCacheCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(addPropertiesCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(deviceProtocolTerminateCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(deviceProtocolUpdateCacheCommand, comTaskExecution);
 
         try {
             commandRoot.execute(deviceProtocol, executionContext);
@@ -280,9 +280,9 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         ReadRegistersCommandImpl readRegistersCommand = mock(ReadRegistersCommandImpl.class);
         when(readRegistersCommand.getCommandType()).thenReturn( ComCommandTypes.READ_REGISTERS_COMMAND);
         Mockito.doThrow(new ConnectionTimeOutException(MessageSeeds.CONNECTION_TIMEOUT, 5)).when(addPropertiesCommand).doExecute(deviceProtocol, executionContext);
-        commandRoot.addCommand(addPropertiesCommand, comTaskExecution);
-        commandRoot.addCommand(forceClockCommand, comTaskExecution);
-        commandRoot.addCommand(readRegistersCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(addPropertiesCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(forceClockCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(readRegistersCommand, comTaskExecution);
 
         try {
             commandRoot.execute(deviceProtocol, executionContext);
@@ -305,9 +305,9 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         DaisyChainedLogOffCommand daisyChainedLogOffCommand = mock(DaisyChainedLogOffCommand.class);
         when(daisyChainedLogOffCommand.getCommandType()).thenReturn(ComCommandTypes.DAISY_CHAINED_LOGOFF);
         Mockito.doThrow(new ConnectionTimeOutException(MessageSeeds.CONNECTION_TIMEOUT, 5)).when(addPropertiesCommand).doExecute(deviceProtocol, executionContext);
-        commandRoot.addCommand(addPropertiesCommand, comTaskExecution);
-        commandRoot.addCommand(daisyChainedLogOffCommand, comTaskExecution);
-        commandRoot.addCommand(logOffCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(addPropertiesCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(daisyChainedLogOffCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(logOffCommand, comTaskExecution);
 
         try {
             commandRoot.execute(deviceProtocol, executionContext);
@@ -329,9 +329,9 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         DaisyChainedLogOffCommand daisyChainedLogOffCommand = mock(DaisyChainedLogOffCommand.class);
         when(daisyChainedLogOffCommand.getCommandType()).thenReturn(ComCommandTypes.DAISY_CHAINED_LOGOFF);
         Mockito.doThrow(new DataParseException(new IndexOutOfBoundsException("Some message"), mock(MessageSeed.class))).when(addPropertiesCommand).doExecute(deviceProtocol, executionContext);
-        commandRoot.addCommand(addPropertiesCommand, comTaskExecution);
-        commandRoot.addCommand(daisyChainedLogOffCommand, comTaskExecution);
-        commandRoot.addCommand(logOffCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(addPropertiesCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(daisyChainedLogOffCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(logOffCommand, comTaskExecution);
 
         try {
             commandRoot.execute(deviceProtocol, executionContext);
@@ -365,7 +365,7 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         final ExecutionContext executionContext = commandRoot.getExecutionContext();
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ComCommand comCommand = mock(ComCommand.class);
-        commandRoot.addCommand(comCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(comCommand, comTaskExecution);
 
         JobExecution.PreparedComTaskExecution preparedComTaskExecution = mock(JobExecution.PreparedComTaskExecution.class);
         when(preparedComTaskExecution.getDeviceProtocol()).thenReturn(deviceProtocol);
@@ -382,7 +382,7 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         final ExecutionContext executionContext = commandRoot.getExecutionContext();
         ComCommand comCommand = mock(ComCommand.class);
         ComTaskExecution comTaskExecution = executionContext.getComTaskExecution();
-        commandRoot.addCommand(comCommand, comTaskExecution);
+        commandRoot.addUniqueCommand(comCommand, comTaskExecution);
 
         JobExecution.PreparedComTaskExecution preparedComTaskExecution = mock(JobExecution.PreparedComTaskExecution.class);
         when(preparedComTaskExecution.getComTaskExecution()).thenReturn(comTaskExecution);

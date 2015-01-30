@@ -2,8 +2,8 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.tasks.ComTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ public class DeviceOrganizedComTaskExecution {
         this.device = device;
     }
 
-    public void addComTaskWithConnectionSteps(final ComTaskExecution comTaskExecution, final ComTaskExecutionConnectionSteps connectionSteps, final DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+    public void addComTaskWithConnectionSteps(ComTaskExecution comTaskExecution, ComTaskExecutionConnectionSteps connectionSteps, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         this.comTasksWithStepsAndSecurity.add(new ComTaskWithSecurityAndConnectionSteps(comTaskExecution, connectionSteps, deviceProtocolSecurityPropertySet));
     }
 
@@ -69,4 +69,5 @@ public class DeviceOrganizedComTaskExecution {
             return deviceProtocolSecurityPropertySet;
         }
     }
+
 }

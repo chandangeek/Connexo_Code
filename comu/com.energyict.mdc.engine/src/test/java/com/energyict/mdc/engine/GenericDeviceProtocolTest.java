@@ -78,8 +78,8 @@ public class GenericDeviceProtocolTest {
         when(this.executionContextServiceProvider.deviceService()).thenReturn(this.deviceService);
         when(this.executionContextServiceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
         CommandRootImpl root = new CommandRootImpl(offlineDevice, newTestExecutionContext(this.executionContextServiceProvider), this.commandRootServiceProvider);
-        root.addCommand(readRegistersCommand, null);
-        root.addCommand(setClockCommand, null);
+        root.addUniqueCommand(readRegistersCommand, null);
+        root.addUniqueCommand(setClockCommand, null);
 
         CommandRoot result = protocol.organizeComCommands(root);
         assertThat(result.getCommands()).hasSize(root.getCommands().size() - 1);

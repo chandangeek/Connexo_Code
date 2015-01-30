@@ -105,14 +105,14 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
                 null, comTaskExecutionConnectionStep, null, issueService);
 
         InOrder order = Mockito.inOrder(root);
-        order.verify(root).addCommand(any(DeviceProtocolSetCacheCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addCommand(any(InitializeLoggerCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addCommand(any(AddPropertiesCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addCommand(any(DeviceProtocolInitializeCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addCommand(any(LogOnCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addCommand(any(LogOffCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addCommand(any(DeviceProtocolTerminateCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addCommand(any(DeviceProtocolUpdateCacheCommand.class), any(ComTaskExecution.class));
+        order.verify(root).addUniqueCommand(any(DeviceProtocolSetCacheCommand.class), any(ComTaskExecution.class));
+        order.verify(root).addUniqueCommand(any(InitializeLoggerCommand.class), any(ComTaskExecution.class));
+        order.verify(root).addUniqueCommand(any(AddPropertiesCommand.class), any(ComTaskExecution.class));
+        order.verify(root).addUniqueCommand(any(DeviceProtocolInitializeCommand.class), any(ComTaskExecution.class));
+        order.verify(root).addUniqueCommand(any(LogOnCommand.class), any(ComTaskExecution.class));
+        order.verify(root).addUniqueCommand(any(LogOffCommand.class), any(ComTaskExecution.class));
+        order.verify(root).addUniqueCommand(any(DeviceProtocolTerminateCommand.class), any(ComTaskExecution.class));
+        order.verify(root).addUniqueCommand(any(DeviceProtocolUpdateCacheCommand.class), any(ComTaskExecution.class));
     }
 
     @Test
@@ -139,15 +139,15 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
                 null, comTaskExecutionConnectionStep, null, issueService);
 
         InOrder order = Mockito.inOrder(root);
-        order.verify(root).addCommand(any(DeviceProtocolSetCacheCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addCommand(any(InitializeLoggerCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addCommand(any(AddPropertiesCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addCommand(any(DeviceProtocolInitializeCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addCommand(any(HandHeldUnitEnablerCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addCommand(any(LogOnCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addCommand(any(LogOffCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addCommand(any(DeviceProtocolTerminateCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addCommand(any(DeviceProtocolUpdateCacheCommand.class), any(ComTaskExecution.class));
+        order.verify(root).addUniqueCommand(any(DeviceProtocolSetCacheCommand.class), any(ComTaskExecution.class));
+        order.verify(root).addUniqueCommand(any(InitializeLoggerCommand.class), any(ComTaskExecution.class));
+        order.verify(root).addUniqueCommand(any(AddPropertiesCommand.class), any(ComTaskExecution.class));
+        order.verify(root).addUniqueCommand(any(DeviceProtocolInitializeCommand.class), any(ComTaskExecution.class));
+        order.verify(root).addUniqueCommand(any(HandHeldUnitEnablerCommand.class), any(ComTaskExecution.class));
+        order.verify(root).addUniqueCommand(any(LogOnCommand.class), any(ComTaskExecution.class));
+        order.verify(root).addUniqueCommand(any(LogOffCommand.class), any(ComTaskExecution.class));
+        order.verify(root).addUniqueCommand(any(DeviceProtocolTerminateCommand.class), any(ComTaskExecution.class));
+        order.verify(root).addUniqueCommand(any(DeviceProtocolUpdateCacheCommand.class), any(ComTaskExecution.class));
     }
 
     private ExecutionContext newTestExecutionContext() {

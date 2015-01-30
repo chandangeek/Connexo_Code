@@ -8,6 +8,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -44,6 +45,9 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -231,6 +235,7 @@ public class MultiThreadedScheduledComPortTest {
         }
     }
 
+    @Before
     public void setupServiceProvider() {
         when(this.serviceProvider.eventPublisher()).thenReturn(this.eventPublisher);
         when(this.serviceProvider.eventService()).thenReturn(this.eventService);
@@ -245,31 +250,22 @@ public class MultiThreadedScheduledComPortTest {
         when(this.serviceProvider.engineService()).thenReturn(engineService);
         when(this.serviceProvider.threadPrincipalService()).thenReturn(threadPrincipalService);
         when(this.serviceProvider.managementBeanFactory()).thenReturn(this.managementBeanFactory);
+    }
+
+    public void setupEventPublisher() {
+        this.setupServiceProvider();
+    }
+
+    @Before
+    public void initializeMocksAndFactories() throws ConnectionException, BusinessException {
         when(this.managementBeanFactory.findOrCreateFor(any(ScheduledComPort.class))).thenReturn(this.scheduledComPortMonitor);
         ScheduledComPortMonitor comPortMonitor = (ScheduledComPortMonitor) this.scheduledComPortMonitor;
         when(comPortMonitor.getOperationalStatistics()).thenReturn(this.operationalStatistics);
         when(this.userService.findUser(anyString())).thenReturn(Optional.of(user));
         when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Instant.class))).
                 thenReturn(comSessionBuilder);
-        when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), any(DeviceConfiguration.class))).thenReturn(Optional.empty());
         when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
         when(comSessionBuilder.addComTaskExecutionSession(Matchers.<ComTaskExecution>any(), any(ComTask.class), any(Device.class), any(Instant.class))).thenReturn(comTaskExecutionSessionBuilder);
-    }
-
-    @Before
-    public void setupEventPublisher() {
-        this.setupServiceProvider();
-        when(comTask.getId()).thenAnswer(new Answer<Long>() {
-            long counter = 0;
-            @Override
-            public Long answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return counter++;
-            }
-        });
-    }
-
-    @Before
-    public void initializeMocksAndFactories() throws ConnectionException, BusinessException {
         when(this.protocolDialectProperties.getId()).thenReturn(PROTOCOL_DIALECT_PROPERTIES);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
         when(this.deviceProtocolPluggableClass.getJavaClassName()).thenReturn(MultiThreadedScheduledComPortTest.class.getName());
@@ -279,6 +275,26 @@ public class MultiThreadedScheduledComPortTest {
         when(this.device.getId()).thenReturn(DEVICE_ID);
         when(this.deviceCommandExecutor.getLogLevel()).thenReturn(ComServer.LogLevel.ERROR);
         when(this.device.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
+        when(comTask.getId()).thenAnswer(new Answer<Long>() {
+            long counter = 0;
+
+            @Override
+            public Long answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return counter++;
+            }
+        });
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+        when(comTaskEnablement.getComTask()).thenReturn(this.comTask);
+        when(comTaskEnablement.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);
+        SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
+        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
+        when(authenticationDeviceAccessLevel.getId()).thenReturn(DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID);
+        when(securityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
+        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel = mock(EncryptionDeviceAccessLevel.class);
+        when(encryptionDeviceAccessLevel.getId()).thenReturn(DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID);
+        when(securityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
+        when(comTaskEnablement.getSecurityPropertySet()).thenReturn(securityPropertySet);
+        when(this.deviceConfiguration.getComTaskEnablementFor(this.comTask)).thenReturn(Optional.of(comTaskEnablement));
 
         DeviceProtocolService deviceProtocolService = mock(DeviceProtocolService.class);
         when(deviceProtocolService.createProtocol(MultiThreadedScheduledComPortTest.class.getName())).thenReturn(new MultiThreadedScheduledComPortTest());
@@ -879,8 +895,8 @@ public class MultiThreadedScheduledComPortTest {
         }
 
         @Override
-        protected ScheduledComTaskExecutionJob newComTaskJob(ComTaskExecution comTask) {
-            return new AlwaysAttemptScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, serviceProvider, comTask);
+        protected ScheduledComTaskExecutionJob newComTaskJob(ComTaskExecution comTaskExecution) {
+            return new AlwaysAttemptScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, serviceProvider, comTaskExecution);
         }
 
         @Override
@@ -939,8 +955,8 @@ public class MultiThreadedScheduledComPortTest {
         }
 
         @Override
-        protected ScheduledComTaskExecutionJob newComTaskJob(ComTaskExecution comTask) {
-            return new NeverAttemptScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, getServiceProvider(), comTask);
+        protected ScheduledComTaskExecutionJob newComTaskJob(ComTaskExecution comTaskExecution) {
+            return new NeverAttemptScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, getServiceProvider(), comTaskExecution);
         }
 
         @Override
@@ -999,8 +1015,8 @@ public class MultiThreadedScheduledComPortTest {
         }
 
         @Override
-        protected ScheduledComTaskExecutionJob newComTaskJob(ComTaskExecution comTask) {
-            return new AlwaysAttemptScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, serviceProvider, comTask);
+        protected ScheduledComTaskExecutionJob newComTaskJob(ComTaskExecution comTaskExecution) {
+            return new AlwaysAttemptScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, serviceProvider, comTaskExecution);
         }
 
         @Override
@@ -1069,8 +1085,8 @@ public class MultiThreadedScheduledComPortTest {
         }
 
         @Override
-        protected ScheduledComTaskExecutionJob newComTaskJob(ComTaskExecution comTask) {
-            return new NoLongerPendingScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, serviceProvider, comTask);
+        protected ScheduledComTaskExecutionJob newComTaskJob(ComTaskExecution comTaskExecution) {
+            return new NoLongerPendingScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, serviceProvider, comTaskExecution);
         }
 
         @Override

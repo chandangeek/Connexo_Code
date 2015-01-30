@@ -29,12 +29,12 @@ public final class CreateComTaskExecutionSessionCommandType implements ComComman
 
     @Override
     public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-        root.getCreateComTaskSessionTask((CreateComTaskExecutionSessionTask) protocolTask, root, comTaskExecution);
+        root.createComTaskSessionTask((CreateComTaskExecutionSessionTask) protocolTask, root, comTaskExecution);
     }
 
     @Override
     public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-        root.getCreateComTaskSessionTask((CreateComTaskExecutionSessionTask) protocolTask, root, comTaskExecution);
+        root.createComTaskSessionTask((CreateComTaskExecutionSessionTask) protocolTask, root, comTaskExecution);
     }
 
     @Override

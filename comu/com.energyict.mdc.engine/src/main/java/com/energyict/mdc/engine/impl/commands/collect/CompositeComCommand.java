@@ -5,10 +5,13 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import java.util.Map;
 
 /**
- * A CompositeComCommand can contain several {@link ComCommand ComCommands} which are executed in the order the
- * {@link ComCommand} itself desires. We are responsible for creating/fetching our own {@link ComCommand ComCommands}.
- * We are also responsible for making sure that all {@link ComCommand ComCommands} in the {@link CommandRoot root}
- * are unique by {@link ComCommandTypes ComCommandType}, if not an exception will be thrown.
+ * A CompositeComCommand can contain several {@link ComCommand}s which are executed in the order the
+ * {@link ComCommand} itself desires. We are responsible for creating/fetching our own {@link ComCommand}s.
+ * We are also responsible for making sure that all {@link ComCommand}s in the {@link CommandRoot root}
+ * are unique by {@link ComCommandType}, if not an exception will be thrown.
+ * The only exception to that rule is the {@link CreateComTaskExecutionSessionCommand}
+ * that can appear multiple times, one for every {@link com.energyict.mdc.tasks.ComTask}
+ * that is part of a {@link com.energyict.mdc.scheduling.model.ComSchedule}.
  *
  * @author gna
  * @since 10/05/12 - 16:03
@@ -16,14 +19,22 @@ import java.util.Map;
 public interface CompositeComCommand extends Iterable<ComCommand>, ComCommand {
 
     /**
-     * Add the given ComCommand to the command list.<br/>
+     * Adds the given ComCommand to the command list.<br/>
      * <b>Note:</b> a ComCommandException#uniqueCommandViolation(ComCommand) will be thrown
      * if the given {@link ComCommand#getCommandType()} already exists in the {@link CommandRoot}.
      *
      * @param command the command to add
      * @param comTaskExecution the referred ComTaskExecution
      */
-    public void addCommand(final ComCommand command, ComTaskExecution comTaskExecution);
+    public void addUniqueCommand(final ComCommand command, ComTaskExecution comTaskExecution);
+
+    /**
+     * Adds the given CreateComTaskExecutionSessionCommand to the command list.
+     *
+     * @param command the command to add
+     * @param comTaskExecution the referred ComTaskExecution
+     */
+    public void addCommand(CreateComTaskExecutionSessionCommand command, ComTaskExecution comTaskExecution);
 
     /**
      * Get the List of ComCommands

@@ -81,7 +81,7 @@ public final class CommandFactory {
      *                                  the securityProperty set for this command
      */
     public static void createAddProperties(CommandRoot root, ComTaskExecution comTaskExecution, TypedProperties deviceProperties, TypedProperties protocolDialectProperties, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        root.addCommand(new AddPropertiesCommand(root, deviceProperties, protocolDialectProperties, deviceProtocolSecurityPropertySet), comTaskExecution);
+        root.addUniqueCommand(new AddPropertiesCommand(root, deviceProperties, protocolDialectProperties, deviceProtocolSecurityPropertySet), comTaskExecution);
     }
 
     /**
@@ -92,7 +92,7 @@ public final class CommandFactory {
      * @param comChannelPlaceHolder The place holder for the ComChannel where all read/write actions are going to be performed
      */
     public static void createDeviceProtocolInitialization(CommandRoot root, ComTaskExecution comTaskExecution, OfflineDevice offlineDevice, ComChannelPlaceHolder comChannelPlaceHolder) {
-        root.addCommand(new DeviceProtocolInitializeCommand(root, offlineDevice, comChannelPlaceHolder), comTaskExecution);
+        root.addUniqueCommand(new DeviceProtocolInitializeCommand(root, offlineDevice, comChannelPlaceHolder), comTaskExecution);
     }
 
     /**
@@ -101,7 +101,7 @@ public final class CommandFactory {
      * @param root the root to add the created commands to
      */
     public static void createDeviceProtocolTerminate(CommandRoot root, ComTaskExecution comTaskExecution) {
-        root.addCommand(new DeviceProtocolTerminateCommand(root), comTaskExecution);
+        root.addUniqueCommand(new DeviceProtocolTerminateCommand(root), comTaskExecution);
     }
 
     /**
@@ -110,7 +110,7 @@ public final class CommandFactory {
      * @param root the root to add the created commands to
      */
     public static void createLogOnCommand(CommandRoot root, ComTaskExecution comTaskExecution) {
-        root.addCommand(new LogOnCommand(root), comTaskExecution);
+        root.addUniqueCommand(new LogOnCommand(root), comTaskExecution);
     }
 
     /**
@@ -119,7 +119,7 @@ public final class CommandFactory {
      * @param root the root to add the created commands to
      */
     public static void createDaisyChainedLogOnCommand(CommandRoot root, ComTaskExecution comTaskExecution) {
-        root.addCommand(new DaisyChainedLogOnCommand(root), comTaskExecution);
+        root.addUniqueCommand(new DaisyChainedLogOnCommand(root), comTaskExecution);
     }
 
     /**
@@ -128,7 +128,7 @@ public final class CommandFactory {
      * @param root the root to add the created commands to
      */
     public static void createLogOffCommand(CommandRoot root, ComTaskExecution comTaskExecution) {
-        root.addCommand(new LogOffCommand(root), comTaskExecution);
+        root.addUniqueCommand(new LogOffCommand(root), comTaskExecution);
     }
 
     /**
@@ -137,7 +137,7 @@ public final class CommandFactory {
      * @param root the root to add the created commands to
      */
     public static void createDaisyChainedLogOffCommand(CommandRoot root, ComTaskExecution comTaskExecution) {
-        root.addCommand(new DaisyChainedLogOffCommand(root), comTaskExecution);
+        root.addUniqueCommand(new DaisyChainedLogOffCommand(root), comTaskExecution);
     }
 
     /**
@@ -148,7 +148,7 @@ public final class CommandFactory {
      * @param root the root to add the created commands to
      */
     public static void createLegacyInitLoggerCommand(CommandRoot root, ComTaskExecution comTaskExecution) {
-        root.addCommand(new InitializeLoggerCommand(root), comTaskExecution);
+        root.addUniqueCommand(new InitializeLoggerCommand(root), comTaskExecution);
     }
 
     /**
@@ -175,7 +175,7 @@ public final class CommandFactory {
      * @param comChannelPlaceHolder The communication channel which will be used to talk to the device
      */
     public static void createHandHeldUnitEnabler(CommandRoot root, ComTaskExecution comTaskExecution, ComChannelPlaceHolder comChannelPlaceHolder) {
-        root.addCommand(new HandHeldUnitEnablerCommand(root, comChannelPlaceHolder), comTaskExecution);
+        root.addUniqueCommand(new HandHeldUnitEnablerCommand(root, comChannelPlaceHolder), comTaskExecution);
     }
 
     /**
@@ -185,7 +185,7 @@ public final class CommandFactory {
      * @param offlineDevice the offlineDevice used for modeling the command
      */
     public static void createSetDeviceCacheCommand(CommandRoot root, ComTaskExecution comTaskExecution, OfflineDevice offlineDevice) {
-        root.addCommand(new DeviceProtocolSetCacheCommand(offlineDevice, root), comTaskExecution);
+        root.addUniqueCommand(new DeviceProtocolSetCacheCommand(offlineDevice, root), comTaskExecution);
     }
 
     /**
@@ -195,7 +195,7 @@ public final class CommandFactory {
      * @param offlineDevice the offlineDevice used for modeling the command
      */
     public static void createUpdateDeviceCacheCommand(CommandRoot root, ComTaskExecution comTaskExecution, OfflineDevice offlineDevice) {
-        root.addCommand(new DeviceProtocolUpdateCacheCommand(offlineDevice, root), comTaskExecution);
+        root.addUniqueCommand(new DeviceProtocolUpdateCacheCommand(offlineDevice, root), comTaskExecution);
     }
 
     /**

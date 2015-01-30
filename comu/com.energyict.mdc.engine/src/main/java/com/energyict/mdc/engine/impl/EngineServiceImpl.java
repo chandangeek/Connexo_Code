@@ -35,9 +35,9 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -89,7 +89,6 @@ import static com.elster.jupiter.appserver.AppService.*;
         immediate = true)
 public class EngineServiceImpl implements EngineService, InstallService, TranslationKeyProvider {
 
-    private volatile BundleContext bundleContext;
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
@@ -119,6 +118,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     private ComServerLauncher launcher;
 
     private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
+    private ProtocolDeploymentListenerRegistration protocolDeploymentListenerRegistration;
 
     public EngineServiceImpl() {
     }
@@ -349,19 +349,26 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
 
     @Activate
     public void activate(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
         this.dataModel.register(this.getModule());
-        this.tryStartComServer(bundleContext);
+        this.setHostNameIfOverruled(bundleContext);
+        this.tryStartComServer();
     }
 
-    private void tryStartComServer(BundleContext context) {
+    private void setHostNameIfOverruled(BundleContext context) {
         Optional
             .ofNullable(context.getProperty(SERVER_NAME_PROPERTY_NAME))
             .ifPresent(HostName::setCurrent);
+    }
+
+    private void tryStartComServer() {
         this.launcher = new ComServerLauncher(new RunningComServerServiceProvider());
+        this.protocolDeploymentListenerRegistration = this.protocolPluggableService.register(this.launcher);
         this.launcher.startComServer();
-        if (!this.launcher.isStarted()) {
-            this.launcher = null;
+        if (this.launcher.isStarted()) {
+            System.out.println("ComServer " + HostName.getCurrent() + " started!");
+        }
+        else {
+            System.out.println("ComServer with name " + HostName.getCurrent() + " is not configured, not active or start is delayed because not all required services are active yet (see OSGi log service)");
         }
     }
 
@@ -401,10 +408,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     @SuppressWarnings("unused")
     public void launchComServer() {
         if (this.launcher == null) {
-            this.tryStartComServer(this.bundleContext);
-            if (this.launcher == null) {
-                System.out.println("ComServer with name " + HostName.getCurrent() + " is not configured or not active");
-            }
+            this.tryStartComServer();
         }
         else {
             System.out.println("ComServer " + HostName.getCurrent() + " is already running");
@@ -425,7 +429,9 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     public void stopComServer() {
         if (this.launcher != null) {
             System.out.println("Stopping ComServer " + HostName.getCurrent());
+            this.protocolDeploymentListenerRegistration.unregister();
             this.launcher.stopComServer();
+            this.launcher = null;
         }
     }
 

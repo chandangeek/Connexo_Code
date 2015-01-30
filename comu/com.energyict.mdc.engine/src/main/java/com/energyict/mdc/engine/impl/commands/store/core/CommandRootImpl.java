@@ -116,10 +116,10 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     }
 
     @Override
-    public void addCommand(ComCommand command, ComTaskExecution comTaskExecution) {
+    public void addUniqueCommand(ComCommand command, ComTaskExecution comTaskExecution) {
         ComTaskExecutionComCommand comTaskExecutionComCommand = this.getComTaskRoot(comTaskExecution);
-        comTaskExecutionComCommand.addCommand(command, comTaskExecution);
-        super.addCommand(command, comTaskExecution);
+        comTaskExecutionComCommand.addUniqueCommand(command, comTaskExecution);
+        super.addUniqueCommand(command, comTaskExecution);
     }
 
     @Override
@@ -176,7 +176,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     private LoadProfileCommand createLoadProfileCommand(LoadProfilesTask loadProfilesTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
         LoadProfileCommand loadProfileCommand = new LoadProfileCommandImpl(loadProfilesTask, this.offlineDevice, this, comTaskExecution);
-        possibleCommandOwner.addCommand(loadProfileCommand, comTaskExecution);
+        possibleCommandOwner.addUniqueCommand(loadProfileCommand, comTaskExecution);
         return loadProfileCommand;
     }
 
@@ -191,7 +191,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     private RegisterCommand createRegisterCommand(RegistersTask registersTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
         RegisterCommand registerCommand = new RegisterCommandImpl(registersTask, this.offlineDevice, this, comTaskExecution);
-        possibleCommandOwner.addCommand(registerCommand, comTaskExecution);
+        possibleCommandOwner.addUniqueCommand(registerCommand, comTaskExecution);
         return registerCommand;
     }
 
@@ -206,7 +206,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     private LogBooksCommand createLogBooksCommand(LogBooksTask logBooksTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
         LogBooksCommand logBooksCommand = new LogBooksCommandImpl(logBooksTask, this.offlineDevice, this, comTaskExecution);
-        possibleCommandOwner.addCommand(logBooksCommand, comTaskExecution);
+        possibleCommandOwner.addUniqueCommand(logBooksCommand, comTaskExecution);
         return logBooksCommand;
     }
 
@@ -221,7 +221,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     private LegacyLoadProfileLogBooksCommand createLegacyLoadProfileLogBooksCommand(LoadProfilesTask loadProfilesTask, LogBooksTask logBooksTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
         LegacyLoadProfileLogBooksCommand legacyCommand = new LegacyLoadProfileLogBooksCommandImpl(loadProfilesTask, logBooksTask, this.offlineDevice, this, comTaskExecution);
-        possibleCommandOwner.addCommand(legacyCommand, comTaskExecution);
+        possibleCommandOwner.addUniqueCommand(legacyCommand, comTaskExecution);
         return legacyCommand;
     }
 
@@ -236,7 +236,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     public BasicCheckCommand createBasicCheckCommand(BasicCheckTask basicCheckTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
         BasicCheckCommand basicCheckCommand = new BasicCheckCommandImpl(basicCheckTask, this, comTaskExecution);
-        possibleCommandOwner.addCommand(basicCheckCommand, comTaskExecution);
+        possibleCommandOwner.addUniqueCommand(basicCheckCommand, comTaskExecution);
         return basicCheckCommand;
     }
 
@@ -251,7 +251,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     public StatusInformationCommand createStatusInformationCommand(CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
         StatusInformationCommand statusInformationCommand = new StatusInformationCommandImpl(this.offlineDevice, this, comTaskExecution);
-        possibleCommandOwner.addCommand(statusInformationCommand, comTaskExecution);
+        possibleCommandOwner.addUniqueCommand(statusInformationCommand, comTaskExecution);
         return statusInformationCommand;
     }
 
@@ -266,7 +266,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     public ReadRegistersCommand createReadRegistersCommand(CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
         ReadRegistersCommandImpl readRegistersCommand = new ReadRegistersCommandImpl(possibleCommandOwner,  this);
-        possibleCommandOwner.addCommand(readRegistersCommand, comTaskExecution);
+        possibleCommandOwner.addUniqueCommand(readRegistersCommand, comTaskExecution);
         return readRegistersCommand;
     }
 
@@ -281,7 +281,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     public ReadLogBooksCommand createReadLogBooksCommand(LogBooksCommand logBooksCommand, ComTaskExecution comTaskExecution) {
         ReadLogBooksCommandImpl readLogBooksCommand = new ReadLogBooksCommandImpl(logBooksCommand, this);
-        logBooksCommand.addCommand(readLogBooksCommand, comTaskExecution);
+        logBooksCommand.addUniqueCommand(readLogBooksCommand, comTaskExecution);
         return readLogBooksCommand;
     }
 
@@ -296,7 +296,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     public ClockCommand createClockCommand(ClockTask clockTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, this, comTaskExecution);
-        possibleCommandOwner.addCommand(clockCommand, comTaskExecution);
+        possibleCommandOwner.addUniqueCommand(clockCommand, comTaskExecution);
         return clockCommand;
     }
 
@@ -311,7 +311,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     public MessagesCommand createMessagesCommand(MessagesTask messagesTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
         MessagesCommand messagesCommand = new MessagesCommandImpl(messagesTask, this.offlineDevice, this, comTaskExecution);
-        possibleCommandOwner.addCommand(messagesCommand, comTaskExecution);
+        possibleCommandOwner.addUniqueCommand(messagesCommand, comTaskExecution);
         return messagesCommand;
     }
 
@@ -326,7 +326,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     public TimeDifferenceCommand createTimeDifferenceCommand(CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
         TimeDifferenceCommand timeDifferenceCommand = new TimeDifferenceCommandImpl(this);
-        possibleCommandOwner.addCommand(timeDifferenceCommand, comTaskExecution);
+        possibleCommandOwner.addUniqueCommand(timeDifferenceCommand, comTaskExecution);
         return timeDifferenceCommand;
     }
 
@@ -341,7 +341,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     public VerifyTimeDifferenceCommand createVerifyTimeDifferenceCommand(BasicCheckCommand basicCheckCommand, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
         VerifyTimeDifferenceCommand verifyTimeDifferenceCommand = new VerifyTimeDifferenceCommandImpl(basicCheckCommand, this);
-        possibleCommandOwner.addCommand(verifyTimeDifferenceCommand, comTaskExecution);
+        possibleCommandOwner.addUniqueCommand(verifyTimeDifferenceCommand, comTaskExecution);
         return verifyTimeDifferenceCommand;
     }
 
@@ -356,7 +356,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     public VerifyLoadProfilesCommand createVerifyLoadProfilesCommand(LoadProfileCommand loadProfileCommand, ComTaskExecution comTaskExecution) {
         VerifyLoadProfilesCommand verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, this);
-        loadProfileCommand.addCommand(verifyLoadProfilesCommand, comTaskExecution);
+        loadProfileCommand.addUniqueCommand(verifyLoadProfilesCommand, comTaskExecution);
         return verifyLoadProfilesCommand;
     }
 
@@ -371,7 +371,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     public ReadLoadProfileDataCommand createReadLoadProfileDataCommand(LoadProfileCommand loadProfileCommand, ComTaskExecution comTaskExecution) {
         ReadLoadProfileDataCommand readLoadProfileDataCommand = new ReadLoadProfileDataCommandImpl(loadProfileCommand, this);
-        loadProfileCommand.addCommand(readLoadProfileDataCommand, comTaskExecution);
+        loadProfileCommand.addUniqueCommand(readLoadProfileDataCommand, comTaskExecution);
         return readLoadProfileDataCommand;
     }
 
@@ -386,7 +386,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     public ReadLegacyLoadProfileLogBooksDataCommand createReadLegacyLoadProfileLogBooksDataCommand(LegacyLoadProfileLogBooksCommand legacyLoadProfileLogBooksCommand, ComTaskExecution comTaskExecution) {
         ReadLegacyLoadProfileLogBooksDataCommand readLegacyLoadProfileLogBooksDataCommand = new ReadLegacyLoadProfileLogBooksDataCommandImpl(legacyLoadProfileLogBooksCommand, this);
-        legacyLoadProfileLogBooksCommand.addCommand(readLegacyLoadProfileLogBooksDataCommand, comTaskExecution);
+        legacyLoadProfileLogBooksCommand.addUniqueCommand(readLegacyLoadProfileLogBooksDataCommand, comTaskExecution);
         return readLegacyLoadProfileLogBooksDataCommand;
     }
 
@@ -401,7 +401,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     public MarkIntervalsAsBadTimeCommand createMarkIntervalsAsBadTimeCommand(LoadProfileCommand loadProfileCommand, ComTaskExecution comTaskExecution) {
         MarkIntervalsAsBadTimeCommand markIntervalsAsBadTimeCommand = new MarkIntervalsAsBadTimeCommandImpl(loadProfileCommand, this);
-        loadProfileCommand.addCommand(markIntervalsAsBadTimeCommand, comTaskExecution);
+        loadProfileCommand.addUniqueCommand(markIntervalsAsBadTimeCommand, comTaskExecution);
         return markIntervalsAsBadTimeCommand;
     }
 
@@ -416,7 +416,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     public CreateMeterEventsFromStatusFlagsCommand createMeterEventsFromStatusFlagsCommand(LoadProfileCommand loadProfileCommand, ComTaskExecution comTaskExecution) {
         CreateMeterEventsFromStatusFlagsCommand createMeterEventsFromStatusFlagsCommand = new CreateMeterEventsFromStatusFlagsCommandImpl(loadProfileCommand, this);
-        loadProfileCommand.addCommand(createMeterEventsFromStatusFlagsCommand, comTaskExecution);
+        loadProfileCommand.addUniqueCommand(createMeterEventsFromStatusFlagsCommand, comTaskExecution);
         return createMeterEventsFromStatusFlagsCommand;
     }
 
@@ -431,7 +431,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     public ForceClockCommand createForceClockCommand(ClockCommand clockCommand, ComTaskExecution comTaskExecution) {
         ForceClockCommand forceClockCommand = new ForceClockCommandImpl(this);
-        clockCommand.addCommand(forceClockCommand, comTaskExecution);
+        clockCommand.addUniqueCommand(forceClockCommand, comTaskExecution);
         return forceClockCommand;
     }
 
@@ -446,7 +446,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     public SetClockCommand createSetClockCommand(ClockCommand clockCommand, ComTaskExecution comTaskExecution) {
         SetClockCommand setClockCommand = new SetClockCommandImpl(clockCommand, this, comTaskExecution);
-        clockCommand.addCommand(setClockCommand, comTaskExecution);
+        clockCommand.addUniqueCommand(setClockCommand, comTaskExecution);
         return setClockCommand;
     }
 
@@ -461,7 +461,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     public SynchronizeClockCommand createSynchronizeClockCommand(ClockCommand clockCommand, ComTaskExecution comTaskExecution) {
         SynchronizeClockCommand synchronizeClockCommand = new SynchronizeClockCommandImpl(clockCommand, this, comTaskExecution);
-        clockCommand.addCommand(synchronizeClockCommand, comTaskExecution);
+        clockCommand.addUniqueCommand(synchronizeClockCommand, comTaskExecution);
         return synchronizeClockCommand;
     }
 
@@ -476,7 +476,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     public TopologyCommand createTopologyCommand(TopologyTask topologyTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
         TopologyCommand topologyCommand = new TopologyCommandImpl(this, topologyTask.getTopologyAction(), this.offlineDevice, comTaskExecution);
-        possibleCommandOwner.addCommand(topologyCommand, comTaskExecution);
+        possibleCommandOwner.addUniqueCommand(topologyCommand, comTaskExecution);
         return topologyCommand;
     }
 
@@ -491,12 +491,12 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     public VerifySerialNumberCommand createVerifySerialNumberCommand(BasicCheckCommand comCommands, ComTaskExecution comTaskExecution) {
         VerifySerialNumberCommand verifySerialNumberCommand = new VerifySerialNumberCommandImpl(this.offlineDevice, this);
-        comCommands.addCommand(verifySerialNumberCommand, comTaskExecution);
+        comCommands.addUniqueCommand(verifySerialNumberCommand, comTaskExecution);
         return verifySerialNumberCommand;
     }
 
     @Override
-    public CreateComTaskExecutionSessionCommand getCreateComTaskSessionTask(CreateComTaskExecutionSessionTask protocolTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
+    public CreateComTaskExecutionSessionCommand createComTaskSessionTask(CreateComTaskExecutionSessionTask protocolTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
         CreateComTaskExecutionSessionCommandImpl createComTaskSessionCommand = new CreateComTaskExecutionSessionCommandImpl(protocolTask, this, comTaskExecution);
         possibleCommandOwner.addCommand(createComTaskSessionCommand, comTaskExecution);
         return createComTaskSessionCommand;

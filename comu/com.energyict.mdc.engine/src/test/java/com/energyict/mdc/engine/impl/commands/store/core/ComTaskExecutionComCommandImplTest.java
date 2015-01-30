@@ -111,9 +111,9 @@ public class ComTaskExecutionComCommandImplTest {
         ComCommand comCommand3 = mock(ComCommand.class);
         when(comCommand3.getCommandType()).thenReturn(ComCommandTypes.READ_LOGBOOKS_COMMAND);
         ComTaskExecutionComCommandImpl command = new ComTaskExecutionComCommandImpl(this.commandRoot, this.comTaskExecution);
-        command.addCommand(comCommand1, this.comTaskExecution);
-        command.addCommand(comCommand2, this.comTaskExecution);
-        command.addCommand(comCommand3, this.comTaskExecution);
+        command.addUniqueCommand(comCommand1, this.comTaskExecution);
+        command.addUniqueCommand(comCommand2, this.comTaskExecution);
+        command.addUniqueCommand(comCommand3, this.comTaskExecution);
 
         // Business method
         List<CollectedData> collectedDataList = command.getCollectedData();
@@ -142,9 +142,9 @@ public class ComTaskExecutionComCommandImplTest {
         ServerCollectedData collectedData3 = mock(ServerCollectedData.class);
         when(comCommand3.getCollectedData()).thenReturn(Arrays.<CollectedData>asList(collectedData3));
         ComTaskExecutionComCommandImpl command = new ComTaskExecutionComCommandImpl(this.commandRoot, this.comTaskExecution);
-        command.addCommand(comCommand1, this.comTaskExecution);
-        command.addCommand(comCommand2, this.comTaskExecution);
-        command.addCommand(comCommand3, this.comTaskExecution);
+        command.addUniqueCommand(comCommand1, this.comTaskExecution);
+        command.addUniqueCommand(comCommand2, this.comTaskExecution);
+        command.addUniqueCommand(comCommand3, this.comTaskExecution);
 
         // Business method
         List<CollectedData> collectedDataList = command.getCollectedData();
@@ -167,8 +167,8 @@ public class ComTaskExecutionComCommandImplTest {
         ComCommand comCommand3 = mock(ComCommand.class);
         when(comCommand3.getCommandType()).thenReturn(ComCommandTypes.READ_LOGBOOKS_COMMAND);
         ComTaskExecutionComCommandImpl command = new ComTaskExecutionComCommandImpl(this.commandRoot, this.comTaskExecution);
-        command.addCommand(comCommand1, this.comTaskExecution);
-        command.addCommand(comCommand3, this.comTaskExecution);
+        command.addUniqueCommand(comCommand1, this.comTaskExecution);
+        command.addUniqueCommand(comCommand3, this.comTaskExecution);
 
         // Business method
         boolean contains1 = command.contains(comCommand1);

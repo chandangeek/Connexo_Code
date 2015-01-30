@@ -8,6 +8,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -47,6 +48,9 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
@@ -122,6 +126,8 @@ public class ScheduledJobImplTest {
     private DeviceConfiguration deviceConfiguration;
     @Mock
     private ComTaskEnablement comTaskEnablement;
+    @Mock
+    private SecurityPropertySet securityPropertySet;
     @Mock(extraInterfaces = OfflineDeviceContext.class)
     private BasicCheckTask basicCheckTask;
     @Mock(extraInterfaces = OfflineDeviceContext.class)
@@ -172,7 +178,6 @@ public class ScheduledJobImplTest {
         when(this.userService.findUser(anyString())).thenReturn(Optional.of(user));
         when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Instant.class))).
                 thenReturn(comSessionBuilder);
-        when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), any(DeviceConfiguration.class))).thenReturn(Optional.empty());
         when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
         when(comSessionBuilder.addComTaskExecutionSession(Matchers.<ComTaskExecution>any(), any(ComTask.class), any(Device.class), any(Instant.class))).thenReturn(comTaskExecutionSessionBuilder);
     }
@@ -182,7 +187,16 @@ public class ScheduledJobImplTest {
         when(this.comPortPool.getId()).thenReturn(COM_PORT_POOL_ID);
         when(this.comPortPool.getComPortType()).thenReturn(ComPortType.TCP);
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
+        when(this.deviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(this.comTaskEnablement));
         when(this.basicCheckTask.getMaximumClockDifference()).thenReturn(Optional.<TimeDuration>empty());
+        when(this.comTaskEnablement.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);
+        when(this.comTaskEnablement.getSecurityPropertySet()).thenReturn(this.securityPropertySet);
+        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
+        when(authenticationDeviceAccessLevel.getId()).thenReturn(DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID);
+        when(this.securityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
+        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel = mock(EncryptionDeviceAccessLevel.class);
+        when(encryptionDeviceAccessLevel.getId()).thenReturn(DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID);
+        when(this.securityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
     }
 
     @Test
@@ -197,6 +211,7 @@ public class ScheduledJobImplTest {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundConnectionTask connectionTask = createMockScheduledConnectionTask();
         ComTask comTask = createMockComTask();
+        when(this.comTaskEnablement.getComTask()).thenReturn(comTask);
         ProtocolDialectConfigurationProperties mockProtocolDialectConfigurationProperties = createMockProtocolDialectConfigurationProperties();
 
         ComTaskExecution scheduledComTask = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
@@ -231,6 +246,7 @@ public class ScheduledJobImplTest {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         ScheduledConnectionTask connectionTask = createMockScheduledConnectionTask();
         ComTask comTask = createMockComTask();
+        when(this.comTaskEnablement.getComTask()).thenReturn(comTask);
         ProtocolDialectConfigurationProperties mockProtocolDialectConfigurationProperties = createMockProtocolDialectConfigurationProperties();
 
         ComTaskExecution comTask1 = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);

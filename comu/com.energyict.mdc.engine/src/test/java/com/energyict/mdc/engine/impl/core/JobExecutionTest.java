@@ -226,8 +226,7 @@ public class JobExecutionTest {
                 thenReturn(mock(ComTaskExecutionSessionBuilder.class));
         when(this.connectionTaskService.buildComSession(eq(this.connectionTask), eq(this.comPortPool), eq(this.comPort), any(Instant.class))).
                 thenReturn(comSessionBuilder);
-        when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), eq(this.deviceConfiguration))).
-                thenReturn(Optional.of(this.comTaskEnablement));
+        when(this.deviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(this.comTaskEnablement));
         when(this.comTaskEnablement.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);
         when(this.comTaskEnablement.getSecurityPropertySet()).thenReturn(this.securityPropertySet);
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mock(AuthenticationDeviceAccessLevel.class);

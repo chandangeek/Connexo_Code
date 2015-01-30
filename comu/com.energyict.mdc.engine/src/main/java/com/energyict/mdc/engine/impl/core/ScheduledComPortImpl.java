@@ -1,8 +1,15 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.time.TimeDuration;
+
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.events.ComPortLogHandler;
@@ -15,21 +22,37 @@ import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.BasicCheckTask;
+import com.energyict.mdc.tasks.ClockTask;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.tasks.StatusInformationTask;
+import com.energyict.mdc.tasks.TopologyTask;
+
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 
 import org.joda.time.DateTimeConstants;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link ScheduledComPort} interface.
@@ -258,8 +281,8 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         public void scheduleAll(List<ComJob> jobs);
     }
 
-    protected ScheduledComTaskExecutionJob newComTaskJob (ComTaskExecution comTask) {
-        return new ScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, comTask, this.serviceProvider);
+    protected ScheduledComTaskExecutionJob newComTaskJob (ComTaskExecution comTaskExecution) {
+        return new ScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, comTaskExecution, this.serviceProvider);
     }
 
     protected ScheduledComTaskExecutionGroup newComTaskGroup (ScheduledConnectionTask connectionTask) {

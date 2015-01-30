@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.config.OutboundComPort;
 
 import com.elster.jupiter.users.User;
 
@@ -218,11 +218,11 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
          * is slower than the {@link com.energyict.mdc.engine.config.ComServer}'s
          * scheduling interpoll delay.
          *
-         * @param comTask The ComTaskExecution
+         * @param comTaskExecution The ComTaskExecution
          */
-        private void scheduleNow(final ComTaskExecution comTask) {
+        private void scheduleNow(ComTaskExecution comTaskExecution) {
             try {
-                ScheduledComTaskExecutionJob job = newComTaskJob(comTask);
+                ScheduledComTaskExecutionJob job = newComTaskJob(comTaskExecution);
                 try {
                     jobQueue.put(job);
                 } catch (InterruptedException e) {
@@ -230,7 +230,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
                 }
             }
             catch (RejectedExecutionException e) {
-                MultiThreadedScheduledComPort.this.cannotSchedule(comTask);
+                MultiThreadedScheduledComPort.this.cannotSchedule(comTaskExecution);
             }
         }
 

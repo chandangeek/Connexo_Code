@@ -6,6 +6,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.CreateComTaskExecutionSessionCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -108,10 +109,19 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
     }
 
     @Override
-    public void addCommand(final ComCommand command, ComTaskExecution comTaskExecution) {
+    public void addUniqueCommand(ComCommand command, ComTaskExecution comTaskExecution) {
         if (checkCommandTypeExistence(command.getCommandType(), getCommandRoot().getCommands())) {
             throw ComCommandException.uniqueCommandViolation(command);
         }
+        this.doAddCommand(command);
+    }
+
+    @Override
+    public void addCommand(CreateComTaskExecutionSessionCommand command, ComTaskExecution comTaskExecution) {
+        this.doAddCommand(command);
+    }
+
+    private void doAddCommand(ComCommand command) {
         this.comCommands.put(command.getCommandType(), command);
     }
 

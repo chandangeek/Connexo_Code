@@ -691,7 +691,7 @@ public abstract class JobExecution implements ScheduledJob {
         @Override
         public List<PreparedComTaskExecution> perform() {
             List<PreparedComTaskExecution> result = new ArrayList<>();
-            ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(serviceProvider.deviceConfigurationService(), serviceProvider.topologyService());
+            ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(serviceProvider.topologyService());
             for (DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution : organizer.defineComTaskExecutionOrders(comTaskExecutions)) {
                 ComTaskPreparationContext comTaskPreparationContext = new ComTaskPreparationContext(deviceOrganizedComTaskExecution).invoke();
                 for (DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps comTaskWithSecurityAndConnectionSteps : deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity()) {
@@ -719,13 +719,47 @@ public abstract class JobExecution implements ScheduledJob {
         }
     }
 
+    private class PrepareComScheduleTasksTransaction implements Transaction<List<PreparedComTaskExecution>> {
+        private final ScheduledComTaskExecution scheduledComTaskExecution;
+
+        public List<PreparedComTaskExecution> perform() {
+            List<PreparedComTaskExecution> result = new ArrayList<>();
+            ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(serviceProvider.topologyService());
+            for (DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution : organizer.defineComTaskExecutionOrders(Arrays.asList(scheduledComTaskExecution))) {
+                ComTaskPreparationContext comTaskPreparationContext = new ComTaskPreparationContext(deviceOrganizedComTaskExecution).invoke();
+                for (DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps comTaskWithSecurityAndConnectionSteps : deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity()) {
+                    ComTaskExecution comTaskExecution = comTaskWithSecurityAndConnectionSteps.getComTaskExecution();
+                    ComTaskExecutionConnectionSteps connectionSteps = comTaskWithSecurityAndConnectionSteps.getComTaskExecutionConnectionSteps();
+                    DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = comTaskWithSecurityAndConnectionSteps.getDeviceProtocolSecurityPropertySet();
+                    PreparedComTaskExecution preparedComTaskExecution =
+                            getPreparedComTaskExecution(
+                                    comTaskPreparationContext,
+                                    comTaskExecution,
+                                    connectionSteps,
+                                    deviceProtocolSecurityPropertySet);
+                    result.add(preparedComTaskExecution);
+                }
+                //GenericDeviceProtocols can reorganize the commands
+                if (GenericDeviceProtocol.class.isAssignableFrom(comTaskPreparationContext.getDeviceProtocol().getClass())) {
+                    comTaskPreparationContext.setRoot(((GenericDeviceProtocol) comTaskPreparationContext.getDeviceProtocol()).organizeComCommands(comTaskPreparationContext.getRoot()));
+                }
+            }
+            return result;
+        }
+
+        private PrepareComScheduleTasksTransaction(ScheduledComTaskExecution scheduledComTaskExecution) {
+            super();
+            this.scheduledComTaskExecution = scheduledComTaskExecution;
+        }
+    }
+
     private class PrepareTransaction implements Transaction<PreparedComTaskExecution> {
 
         private final ComTaskExecution comTaskExecution;
 
         @Override
         public PreparedComTaskExecution perform() {
-            ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(serviceProvider.deviceConfigurationService(), serviceProvider.topologyService());
+            ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(serviceProvider.topologyService());
             final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = organizer.defineComTaskExecutionOrders(Arrays.asList(comTaskExecution));
             final DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution = deviceOrganizedComTaskExecutions.get(0);
             if (deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().size() == 1) {
