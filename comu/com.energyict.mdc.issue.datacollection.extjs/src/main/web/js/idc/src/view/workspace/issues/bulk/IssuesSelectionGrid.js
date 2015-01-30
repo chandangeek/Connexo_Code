@@ -37,8 +37,9 @@ Ext.define('Idc.view.workspace.issues.bulk.IssuesSelectionGrid', {
                 itemId: 'issues-grid-due-date',
                 header: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
                 dataIndex: 'dueDate',
-                xtype: 'datecolumn',
-                format: 'M d Y',
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateShort(value) : '';
+                },
                 width: 140
             },
             {
