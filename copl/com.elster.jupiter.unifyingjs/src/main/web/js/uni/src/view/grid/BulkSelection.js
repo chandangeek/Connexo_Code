@@ -370,11 +370,5 @@ Ext.define('Uni.view.grid.BulkSelection', {
 
     hideBottomToolbar: function () {
         this.getBottomToolbar().setVisible(false);
-    },
-
-    afterLayout: function () {
-        var me = this;
-        me.callParent(arguments);
-        me.getView().getEl().setStyle('overflow-x', 'hidden');
     }
 });

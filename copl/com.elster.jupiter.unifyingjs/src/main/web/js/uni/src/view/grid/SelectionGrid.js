@@ -25,6 +25,7 @@ Ext.define('Uni.view.grid.SelectionGrid', {
     overflowY: 'auto',
     maxHeight: 450,
 
+
     extraTopToolbarComponent: undefined,
 
     /**
@@ -129,5 +130,11 @@ Ext.define('Uni.view.grid.SelectionGrid', {
         me.getTopToolbarContainer().add(
             me.extraTopToolbarComponent
         )
+    },
+
+    afterLayout: function () {
+        var me = this;
+        me.callParent(arguments);
+        me.getView().getEl().setStyle('overflow-x', 'hidden');
     }
 });
