@@ -241,8 +241,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
     },
 
     handleSuccessRequest: function (headerText) {
-        var me = this.getLoadConfigurationGrid() ? this : this.getController('Mdc.controller.setup.LoadProfileConfigurationDetails');
-        window.location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofiles';
+        var router = this.getController('Uni.controller.history.Router');
+        router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles').forward();
         this.getApplication().fireEvent('acknowledge', headerText);
     },
 
