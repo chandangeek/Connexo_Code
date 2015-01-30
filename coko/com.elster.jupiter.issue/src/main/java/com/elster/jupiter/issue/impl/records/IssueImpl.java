@@ -146,7 +146,6 @@ public class IssueImpl extends EntityImpl implements Issue {
         this.setReason(issue.getReason());
         this.setStatus(issue.getStatus());
         this.setDevice(issue.getDevice());
-        this.setDevice(issue.getDevice());
         this.setRule(issue.getRule());
         this.assignTo(issue.getAssignee());
         return this;
