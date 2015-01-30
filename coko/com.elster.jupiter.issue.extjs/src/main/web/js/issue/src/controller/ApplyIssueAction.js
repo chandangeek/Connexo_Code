@@ -44,6 +44,8 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                 form.loadRecord(record);
                 if (form.title == 'Close issue') {
                     form.down('#issue-action-apply').setText(Uni.I18n.translate('general.close', 'ISU', 'Close'));
+                } else if (form.title == 'Notify user') {
+                    form.down('#issue-action-apply').setText(Uni.I18n.translate('general.notify', 'ISU', 'Notify'));
                 }
                 widget.setLoading(false);
             }
