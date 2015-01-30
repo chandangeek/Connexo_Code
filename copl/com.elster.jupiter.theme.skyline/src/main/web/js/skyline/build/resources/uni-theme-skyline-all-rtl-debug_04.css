@@ -4244,10 +4244,30 @@
 .x-form-radio {
   height: 15px !important;
   width: 15px !important;
+  background-position: -15px 0 !important;
 }
-/* line 5, ../../sass/src/form/field/RadioButton.scss */
+/* line 6, ../../sass/src/form/field/RadioButton.scss */
 .x-form-radio:hover {
   cursor: pointer;
+}
+
+/* line 11, ../../sass/src/form/field/RadioButton.scss */
+.x-form-cb-checked .x-form-radio {
+  background-position: -15px -15px !important;
+}
+
+/* line 16, ../../sass/src/form/field/RadioButton.scss */
+.x-item-disabled.x-form-cb-checked .x-form-radio {
+  background-position: 0 -15px !important;
+}
+/* line 19, ../../sass/src/form/field/RadioButton.scss */
+.x-item-disabled .x-form-radio {
+  opacity: 1;
+  background-position: 0 0 !important;
+}
+/* line 22, ../../sass/src/form/field/RadioButton.scss */
+.x-item-disabled .x-form-radio:hover {
+  cursor: default;
 }
 
 /* line 1, ../../sass/src/form/field/Trigger.scss */
@@ -11660,12 +11680,17 @@ div.x-form-spinner-down {
   cursor: pointer;
 }
 
-/* line 10, ../../sass/src/form/field/Checkbox.scss */
+/* line 12, ../../sass/src/form/field/Checkbox.scss */
+.x-item-disabled .x-form-cb-label:hover {
+  cursor: default;
+}
+
+/* line 18, ../../sass/src/form/field/Checkbox.scss */
 .x-form-checkbox {
   height: 15px !important;
   width: 15px !important;
 }
-/* line 14, ../../sass/src/form/field/Checkbox.scss */
+/* line 22, ../../sass/src/form/field/Checkbox.scss */
 .x-form-checkbox:hover {
   cursor: pointer;
 }

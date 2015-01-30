@@ -5461,7 +5461,7 @@ h6 {
   padding-left: 0;
 }
 
-/* line 29, ../../sass/src/grid/DefaultColumn.scss */
+/* line 33, ../../sass/src/grid/DefaultColumn.scss */
 .x-grid-row-checker {
   cursor: pointer;
 }
@@ -16350,11 +16350,4 @@ a:hover, a.x-btn:hover {
 .x-btn-tag-large-br,
 .x-btn-tag-large-mr {
   padding-right: 5px;
-}
-
-/* line 356, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-tag-large-tl,
-.x-btn-tag-large-bl,
-.x-btn-tag-large-ml {
-  padding-left: 5px;
 }

@@ -1,3 +1,39 @@
+/* line 240, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
+.x-window-header-default {
+  font-size: 13px;
+  border-color: transparent;
+  zoom: 1;
+  background-color: transparent;
+}
+/* line 246, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
+.x-window-header-default .x-tool-img {
+  background-image: url(images/tools/tool-sprites-dark.png);
+  background-color: transparent;
+}
+
+/* line 257, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
+.x-window-header-default-vertical .x-window-header-text-container {
+  -webkit-transform: rotate(90deg);
+  -webkit-transform-origin: 0 0;
+  -moz-transform: rotate(90deg);
+  -moz-transform-origin: 0 0;
+  -o-transform: rotate(90deg);
+  -o-transform-origin: 0 0;
+  transform: rotate(90deg);
+  transform-origin: 0 0;
+}
+
+/* line 267, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
+.x-window-header-text-container-default {
+  color: #70bb51;
+  font-weight: bold;
+  line-height: 15px;
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
+  font-size: 13px;
+  padding: 6px 0 0 0;
+  text-transform: none;
+}
+
 /* line 137, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-top {
   -moz-border-radius-topleft: 3px;
@@ -6853,12 +6889,17 @@
   cursor: pointer;
 }
 
-/* line 10, ../../sass/src/form/field/Checkbox.scss */
+/* line 12, ../../sass/src/form/field/Checkbox.scss */
+.x-item-disabled .x-form-cb-label:hover {
+  cursor: default;
+}
+
+/* line 18, ../../sass/src/form/field/Checkbox.scss */
 .x-form-checkbox {
   height: 15px !important;
   width: 15px !important;
 }
-/* line 14, ../../sass/src/form/field/Checkbox.scss */
+/* line 22, ../../sass/src/form/field/Checkbox.scss */
 .x-form-checkbox:hover {
   cursor: pointer;
 }

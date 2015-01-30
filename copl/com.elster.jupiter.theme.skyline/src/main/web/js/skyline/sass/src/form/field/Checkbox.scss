@@ -7,6 +7,14 @@
     }
 }
 
+.#{$prefix}item-disabled {
+  .#{$prefix}form-cb-label {
+    &:hover {
+      cursor: default;
+    }
+  }
+}
+
 .#{$prefix}form-checkbox {
     height: 15px !important;
     width: 15px !important;
