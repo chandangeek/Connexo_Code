@@ -4,15 +4,17 @@ import com.elster.jupiter.yellowfin.YellowfinService;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.Component;
 
-@Component(name = "com.elster.jupiter.yellowfin.console", service = {YellowfinConsoleService.class}, property = {"name=" + "YFN" + ".console", "osgi.command.scope=jupiter", "osgi.command.function=importYFN"}, immediate = true)
+import java.io.File;
+
+@Component(name = "com.elster.jupiter.yellowfin.console", service = {YellowfinConsoleService.class}, property = {"name=" + "YFN" + ".console", "osgi.command.scope=jupiter", "osgi.command.function=importFacts"}, immediate = true)
 
 public class YellowfinConsoleService {
 
     private volatile YellowfinService yellowfinService;
 
-    public void importYFN(String filePath){
+    public void importFacts(String filePath){
 
-        if (chkPath(filePath)) {
+        if (fileExists(filePath)) {
             if(yellowfinService.importContent(filePath)){
                 System.out.println("Import successful!");
             }else{
@@ -23,12 +25,17 @@ public class YellowfinConsoleService {
         }
     }
 
-    public void importYFN(){
+    public void importFacts(){
         System.out.println("Please add file path!");
     }
 
-    public boolean chkPath(String filePath){
-        return filePath.contains("/");
+    public boolean fileExists(String filePath){
+        File f = new File(filePath);
+        if(f.exists() && !f.isDirectory()) {
+            return true;
+        }
+
+        return false;
     }
 
     @Reference

@@ -4,19 +4,20 @@ import com.elster.jupiter.yellowfin.impl.YellowfinReportInfoImpl;
 import com.hof.mi.web.service.ReportRow;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface YellowfinService {
     String COMPONENTNAME = "YFN";
 
     String getYellowfinUrl();
 
-    String login(String username);
-    boolean logout(String username);
+    Optional<String> login(String username);
+    Optional<Boolean> logout(String username);
 
     boolean importContent(String filePath);
 
-    List<YellowfinReportInfo> getUserReports(String userName, String category, String subCategory,String reportUUId);
-    List<YellowfinFilterInfo> getReportFilters(int reportId);
-    List<YellowfinFilterListItemInfo> getFilterListItems(String filterId,int reportId);
+    Optional<List<YellowfinReportInfo>> getUserReports(String userName, String category, String subCategory,String reportUUId);
+    Optional<List<YellowfinFilterInfo>> getReportFilters(int reportId);
+    Optional<List<YellowfinFilterListItemInfo>> getFilterListItems(String filterId,int reportId);
 
 }

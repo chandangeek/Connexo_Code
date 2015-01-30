@@ -25,6 +25,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -37,9 +38,10 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
     private static final String YELLOWFIN_WEBSERVICES_USER = "com.elster.jupiter.yellowfin.user";
     private static final String YELLOWFIN_WEBSERVICES_PASSWORD = "com.elster.jupiter.yellowfin.password";
 
-    private static final String DEFAULT_YELLOWFIN_URL = "http://localhost:8081";
+    private static final String DEFAULT_YELLOWFIN_URL = "http://localhost";
     private static final String DEFAULT_YELLOWFIN_HOST = "localhost";
-    private static final int DEFAULT_YELLOWFIN_PORT = 8081;
+    private static final int DEFAULT_YELLOWFIN_PORT = 80;
+    private static final String DEFAULT_YELLOWFIN_ROOT = "";
 
     private static final String DEFAULT_YELLOWFIN_USER = "admin";
     private static final String DEFAULT_YELLOWFIN_PASSWORD = "admin";
@@ -52,15 +54,25 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
     private String yellowfinExternalUrl = DEFAULT_YELLOWFIN_URL;
     private String yellowfinHost = DEFAULT_YELLOWFIN_HOST;
     private int yellowfinPort = DEFAULT_YELLOWFIN_PORT;
+    private String yellowfinRoot = DEFAULT_YELLOWFIN_ROOT;
 
     private String yellowfinWebServiceUser = DEFAULT_YELLOWFIN_USER;
     private String yellowfinWebServicePassword = DEFAULT_YELLOWFIN_PASSWORD;
+
+    private boolean useSecureConnection = false;
 
     private volatile MessageService messageService;
     private volatile UserService userService;
 
     public YellowfinServiceImpl(){
+    }
 
+    void setYellowfinConnection(String url, String user, String password){
+        yellowfinUrl = url;
+        yellowfinWebServiceUser = user;
+        yellowfinWebServicePassword = password;
+
+        parseUrl();
     }
 
     @Activate
@@ -75,13 +87,24 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
         yellowfinWebServicePassword = context.getProperty(YELLOWFIN_WEBSERVICES_PASSWORD);
         yellowfinWebServicePassword = (yellowfinWebServicePassword == null) ? DEFAULT_YELLOWFIN_PASSWORD : yellowfinWebServicePassword;
 
+        parseUrl();
+    }
+
+    private void parseUrl() {
         if(yellowfinUrl != null){
-            Pattern pattern = Pattern.compile("(https?://)([^:^/]*):([0-9]\\d*)?(.*)?");
+            Pattern pattern = Pattern.compile("(https?://)([^:^/]*):?([0-9]\\d*)?(.*)?");
             Matcher matcher = pattern.matcher(yellowfinUrl);
             matcher.find();
             if(matcher.matches()){
                 yellowfinHost   = matcher.group(2);
-                yellowfinPort   = Integer.parseInt(matcher.group(3));
+                if(matcher.group(3) != null){
+                    yellowfinPort   = Integer.parseInt(matcher.group(3));
+                }
+                yellowfinRoot   = matcher.group(4);
+
+                if(yellowfinUrl.startsWith("https")){
+                    useSecureConnection = true;
+                }
             }
         }
 
@@ -117,7 +140,7 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
 
             AdministrationServiceResponse rs = null;
             AdministrationServiceRequest rsr = new AdministrationServiceRequest();
-            AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, "/services/AdministrationService", false);
+            AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
             AdministrationServiceSoapBindingStub rssbs = null;
             try {
                 rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
@@ -127,7 +150,6 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
 
             rsr.setLoginId(yellowfinWebServiceUser);
             rsr.setPassword(yellowfinWebServicePassword);
-            //rsr.setPassword(null);
             rsr.setOrgId(new Integer(1));
             rsr.setFunction("IMPORTCONTENT");
             rsr.setParameters( new String[] { Base64.encodeBytes(data) } );
@@ -166,11 +188,11 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
     }
 
     @Override
-    public String login(String username)  {
+    public Optional<String> login(String username)  {
 
         AdministrationServiceResponse rs = null;
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
-        AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, "/services/AdministrationService", false);
+        AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
         AdministrationServiceSoapBindingStub rssbs = null;
         try {
             rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
@@ -180,12 +202,10 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
 
         rsr.setLoginId(yellowfinWebServiceUser);
         rsr.setPassword(yellowfinWebServicePassword);
-        //rsr.setPassword(null);
         rsr.setOrgId(new Integer(1));
         rsr.setFunction("LOGINUSERNOPASSWORD");
         AdministrationPerson ap = new AdministrationPerson();
         ap.setUserId(username);
-        //ap.setPassword("admin");
         rsr.setPerson(ap);
 
         if (rssbs != null) {
@@ -193,10 +213,10 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
                 rs = rssbs.remoteAdministrationCall(rsr);
                 if (rs != null){
                     if("SUCCESS".equals(rs.getStatusCode()) ) {
-                        return rs.getLoginSessionId();
+                        return Optional.of(rs.getLoginSessionId());
                     }
                     if(rs.getErrorCode() == 9) { // license breach
-                        return "LICENSE_BREACH";
+                        return Optional.of("LICENSE_BREACH");
                     }
                 }
 
@@ -205,16 +225,16 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
             }
         }
 
-        return null;
+        return Optional.empty();
     }
 
 
 
     @Override
-    public boolean logout(String username)  {
+    public Optional<Boolean> logout(String username)  {
         AdministrationServiceResponse rs = null;
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
-        AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, "/services/AdministrationService", false);
+        AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
         AdministrationServiceSoapBindingStub rssbs = null;
         try {
             rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
@@ -228,30 +248,30 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
         rsr.setFunction("LOGOUTUSER");
         AdministrationPerson ap = new AdministrationPerson();
         ap.setUserId(username);
-        //ap.setPassword("admin");
         rsr.setPerson(ap);
 
-        // This is the Session ID
-        //rsr.setLoginSessionId(sessionId);
         if (rssbs != null) {
             try {
                 rs = rssbs.remoteAdministrationCall(rsr);
                 if (rs != null && "SUCCESS".equals(rs.getStatusCode()) ) {
-                    return true;
+                    return Optional.of(true);
+                }
+                else{
+                    return Optional.of(false);
                 }
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
         }
 
-        return false;
+        return Optional.empty();
     }
 
    public String reloadLicense(String username)  {
 
         AdministrationServiceResponse rs = null;
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
-        AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, "/services/AdministrationService", false);
+        AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
         AdministrationServiceSoapBindingStub rssbs = null;
         try {
             rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
@@ -273,9 +293,6 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
                     if("SUCCESS".equals(rs.getStatusCode()) ) {
                         return rs.getSessionId();
                     }
-                    if(rs.getErrorCode() == 9) { // license breach
-                        return "LICENSE_BREACH";
-                    }
                 }
 
             } catch (RemoteException e) {
@@ -287,13 +304,13 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
    }
 
     @Override
-    public List<YellowfinReportInfo> getUserReports(String username, String category, String subCategory,String reportUUId)  {
+    public Optional<List<YellowfinReportInfo>> getUserReports(String username, String category, String subCategory,String reportUUId)  {
 
         List<YellowfinReportInfo> userReports = new ArrayList<>();
         try {
             AdministrationServiceResponse rs = null;
             AdministrationServiceRequest rsr = new AdministrationServiceRequest();
-            AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, "/services/AdministrationService", false);
+            AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
             AdministrationServiceSoapBindingStub rssbs = null;
 
             rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
@@ -334,21 +351,23 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
 
                 } catch (RemoteException e) {
                     e.printStackTrace();
+                    return Optional.empty();
                 }
             }
         } catch (ServiceException e) {
             e.printStackTrace();
+            return Optional.empty();
         }
 
 
-        return userReports;
+        return Optional.of(userReports);
     }
 
     @Override
-    public List<YellowfinFilterInfo> getReportFilters(int reportId) {
+    public Optional<List<YellowfinFilterInfo>> getReportFilters(int reportId) {
         List<YellowfinFilterInfo> userFilters = new ArrayList<>();
         try {
-            ReportServiceService ts = new ReportServiceServiceLocator(yellowfinHost, yellowfinPort, "/services/ReportService", false);
+            ReportServiceService ts = new ReportServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/ReportService", useSecureConnection);
             ReportServiceSoapBindingStub rssbs;
             ReportServiceRequest rsr = new ReportServiceRequest();
 
@@ -380,27 +399,24 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
                                 userFilter.setFilterMaxValue(rs[i].getMaximumValue());
                                 userFilter.setFilterMinValue(rs[i].getMinimumValue());
                                 userFilters.add(userFilter);
-                                //ReportRow[] reportRows = getFilterList(rs[i].getFilterId().toString(),reportId);
-                                //for(int j=0;j<reportRows.length;j++){
-                                //    System.out.println(reportRows[j].getDataValue()[0]);
-
-                                //}
                             }
                         }
                     }
                 }
             } catch (RemoteException e) {
                 e.printStackTrace();
+                return Optional.empty();
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return Optional.empty();
         }
-        return userFilters;
+        return Optional.of(userFilters);
 
     }
 
     public ReportRow[] getFilterList(String filterId,int reportId) {
-        ReportServiceService ts = new ReportServiceServiceLocator(yellowfinHost, yellowfinPort, "/services/ReportService", false);
+        ReportServiceService ts = new ReportServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/ReportService", useSecureConnection);
         ReportServiceSoapBindingStub rssbs;
         ReportServiceRequest rsr = new ReportServiceRequest();
         ReportRow[] reportRows = null;
@@ -431,10 +447,10 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
     }
 
 
-    public List<YellowfinFilterListItemInfo> getFilterListItems(String filterId,int reportId) {
+    public Optional<List<YellowfinFilterListItemInfo>> getFilterListItems(String filterId,int reportId) {
         List<YellowfinFilterListItemInfo> listItems = new ArrayList<>();
         try {
-            ReportServiceService ts = new ReportServiceServiceLocator(yellowfinHost, yellowfinPort, "/services/ReportService", false);
+            ReportServiceService ts = new ReportServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/ReportService", useSecureConnection);
             ReportServiceSoapBindingStub rssbs;
             ReportServiceRequest rsr = new ReportServiceRequest();
 
@@ -466,11 +482,13 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
 
             } catch (RemoteException e) {
                 e.printStackTrace();
+                return Optional.empty();
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return Optional.empty();
         }
-        return listItems;
+        return Optional.of(listItems);
     }
 
 
