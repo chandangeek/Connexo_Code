@@ -15,6 +15,8 @@ Ext.define('Isu.view.component.AssigneeColumn', {
             if (value.name) {
                 result += value.name;
             }
+        } else {
+            result = ' '
         }
 
         return result || this.columns[colIndex].emptyText;
