@@ -11,7 +11,7 @@ Ext.define('Uni.property.view.property.Period', {
             {
                 xtype: 'numberfield',
                 itemId: me.key + 'numberfield',
-                name: this.getName() + '.numberfield',
+                name: this.getName(),
                 width: me.width,
                 required: me.required,
                 readOnly: me.isReadOnly

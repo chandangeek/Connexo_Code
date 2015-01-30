@@ -15,5 +15,12 @@ Ext.define('Uni.store.Apps', {
             type: 'json',
             root: ''
         }
-    }
+    },
+
+    sorters: [
+        {
+            property: 'name',
+            direction: 'ASC'
+        }
+    ]
 });

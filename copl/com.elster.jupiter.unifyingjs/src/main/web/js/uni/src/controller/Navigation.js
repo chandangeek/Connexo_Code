@@ -44,7 +44,7 @@ Ext.define('Uni.controller.Navigation', {
     searchEnabled: Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
     onlineHelpEnabled: false,
 
-    init: function () {
+    init: function (app) {
         var me = this;
 
         Ext.util.History.addListener('change', function () {
@@ -69,9 +69,11 @@ Ext.define('Uni.controller.Navigation', {
             }
         });
 
-        me.getApplication().on('changemaincontentevent', me.showContent, me);
-        me.getApplication().on('changemainbreadcrumbevent', me.initTitle, me);
-        me.getApplication().on('changemainbreadcrumbevent', me.setBreadcrumb, me);
+        me.getApplication().on('changemaincontentevent', me.showContent,me);
+        me.getApplication().on('changemainbreadcrumbevent', me.setBreadcrumb,me);
+        me.getApplication().on('onnavigationtitlechanged', me.onNavigationTitleChanged,me);
+        me.getApplication().on('onnavigationtogglesearch', me.onNavigationToggleSearch,me);
+        me.getApplication().on('ononlinehelpenabled', me.onOnlineHelpEnabled,me);
 
         me.getController('Uni.controller.history.Router').on('routematch', me.initBreadcrumbs, me);
         me.getController('Uni.controller.history.Router').on('routechange', me.initBreadcrumbs, me);
@@ -79,6 +81,17 @@ Ext.define('Uni.controller.Navigation', {
 
     initApps: function () {
         Uni.store.Apps.load();
+    },
+
+    onNavigationTitleChanged: function(title){
+        this.applicationTitle = title;
+    },
+    onNavigationToggleSearch: function(enabled){
+        this.searchEnabled = enabled;
+    },
+
+    onOnlineHelpEnabled: function(enabled){
+       this.onlineHelpEnabled = enabled;
     },
 
     initTitle: function (breadcrumbItem) {
@@ -154,7 +167,7 @@ Ext.define('Uni.controller.Navigation', {
                             },
                             callback: function () {
                                 helpBtn.show();
-                            },
+                            }
                         });
                     } else {
                         helpBtn.show();
@@ -292,7 +305,9 @@ Ext.define('Uni.controller.Navigation', {
     },
 
     showContent: function (content, side) {
-        this.getContentWrapper().removeAll();
+        var panel = this.getContentWrapper();
+
+        panel.removeAll();
 
         if (content instanceof Uni.view.container.ContentContainer) {
             side = content.side;
@@ -304,8 +319,8 @@ Ext.define('Uni.controller.Navigation', {
             side: side
         });
 
-        this.getContentWrapper().add(contentContainer);
-        this.getContentWrapper().doComponentLayout();
+        panel.add(contentContainer);
+        Ext.resumeLayouts();
     },
 
     setBreadcrumb: function (breadcrumbItem) {

@@ -248,6 +248,10 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
                 itemId: 'pagingCombo',
                 store: me.pageSizeStore,
                 width: 64,
+                fieldStyle: 'text-align:right; padding-right: 0',
+                listConfig: {
+                    style: 'text-align:right'
+                },
                 queryMode: 'local',
                 displayField: 'value',
                 valueField: 'value',

@@ -18,6 +18,9 @@ Ext.define('Uni.util.FormInfoMessage', {
 
     renew: function () {
         var me = this;
+
+        Ext.suspendLayouts();
+
         me.removeAll(true);
         me.add([
             {
@@ -26,6 +29,8 @@ Ext.define('Uni.util.FormInfoMessage', {
                 html: me.text
             }
         ]);
+
+        Ext.resumeLayouts();
     },
 
     setText: function (text) {

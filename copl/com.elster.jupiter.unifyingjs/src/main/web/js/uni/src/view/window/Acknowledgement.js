@@ -22,11 +22,15 @@ Ext.define('Uni.view.window.Acknowledgement', {
     setMessage: function (message) {
         var msgPanel = this.down('#msgmessage');
 
+        Ext.suspendLayouts();
+
         msgPanel.removeAll();
         msgPanel.add({
             xtype: 'label',
             html: message
         });
+
+        Ext.resumeLayouts();
     },
 
     initComponent: function () {

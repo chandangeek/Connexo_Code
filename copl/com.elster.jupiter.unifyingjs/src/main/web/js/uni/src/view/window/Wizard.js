@@ -171,6 +171,8 @@ Ext.define('Uni.view.window.Wizard', {
         var me = this,
             stepsMenu = this.getStepsMenuCmp();
 
+        Ext.suspendLayouts();
+
         for (var i = 0; i < steps.length; i++) {
             var step = steps[i];
 
@@ -184,6 +186,8 @@ Ext.define('Uni.view.window.Wizard', {
                 me.goToStep(this.stepIndex);
             });
         }
+
+        Ext.resumeLayouts();
 
         me.checkNavigationState();
     },
@@ -273,6 +277,7 @@ Ext.define('Uni.view.window.Wizard', {
      * @param {String/Ext.Component} htmlOrCmp
      */
     setDescription: function (htmlOrCmp) {
+        Ext.suspendLayouts();
         this.getDescriptionCmp().removeAll();
 
         if (!(htmlOrCmp instanceof Ext.Component)) {
@@ -281,6 +286,7 @@ Ext.define('Uni.view.window.Wizard', {
         }
 
         this.getDescriptionCmp().add(htmlOrCmp);
+        Ext.resumeLayouts();
     },
 
     getTitleCmp: function () {

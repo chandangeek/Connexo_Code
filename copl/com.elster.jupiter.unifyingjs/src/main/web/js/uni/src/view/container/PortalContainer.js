@@ -2,7 +2,6 @@ Ext.define('Uni.view.container.PortalContainer', {
     extend: 'Ext.panel.Panel',
     xtype: 'portal-container',
     ui: 'large',
-
     padding: '16px 0 0 0 ',
     layout: 'column',
     columnCount: 3,
@@ -13,24 +12,9 @@ Ext.define('Uni.view.container.PortalContainer', {
             index = model.get('index');
 
         if (index === '' || index === null || typeof index === 'undefined') {
-            this.add(component);
+            me.add(component);
         } else {
-            this.insert(index, component);
-        }
-
-        var count = this.items.items.length,
-            remainder = count % me.columnCount;
-
-        switch (remainder) {
-            case 1:
-                component.addCls('first');
-                break;
-            case 2:
-                component.addCls('middle');
-                break;
-            default:
-                component.addCls('last');
-                break;
+            me.insert(index, component);
         }
     },
 
@@ -39,6 +23,7 @@ Ext.define('Uni.view.container.PortalContainer', {
             title = model.get('title'),
             items = model.get('items'),
             itemId = model.get('itemId'),
+            afterrender = model.get('afterrender'),
             widget;
 
         itemId = (Ext.isString(itemId) && itemId.length) ? itemId : undefined;
@@ -52,6 +37,7 @@ Ext.define('Uni.view.container.PortalContainer', {
             itemId:itemId,
             columnWidth: 1 / me.columnCount,
             height: 256,
+            overflowY:true,
             items: [
                 {
                     xtype: 'menu',
@@ -63,10 +49,16 @@ Ext.define('Uni.view.container.PortalContainer', {
             refresh : function (items) {
                 var me = this;
                 var menu = me.down('menu');
-                menu.removeAll();
-                menu.add(items);
+                if(menu) {
+                    menu.removeAll();
+                    menu.add(items);
+                }
             }
         });
+
+        if(afterrender){
+            widget.on('afterrender',afterrender );
+        }
 
         return widget;
     }

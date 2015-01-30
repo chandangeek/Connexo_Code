@@ -5,45 +5,28 @@ Ext.define('Uni.view.grid.SelectionGrid', {
     extend: 'Ext.grid.Panel',
     xtype: 'selection-grid',
 
+    bottomToolbarHeight: 27,
+
     requires: [
         'Ext.grid.plugin.BufferedRenderer'
     ],
 
-    bottomToolbarHeight: 27,
+    plugins: [
+        'bufferedrenderer'
+    ],
 
     selType: 'checkboxmodel',
     selModel: {
         mode: 'MULTI',
         showHeaderCheckbox: false
     },
+    cls: 'uni-selection-grid',
 
     overflowY: 'auto',
     maxHeight: 450,
 
-    extraTopToolbarComponent: undefined,
 
-    plugins: [
-        {
-            ptype: 'bufferedrenderer',
-            trailingBufferZone: 5,
-            leadingBufferZone: 5,
-            scrollToLoadBuffer: 10,
-            onViewResize: function (view, width, height, oldWidth, oldHeight) {
-                if (!oldHeight || height !== oldHeight) {
-                    var me = this,
-                        newViewSize,
-                        scrollRange;
-                    if (view.all.getCount()) {
-                        delete me.rowHeight;
-                    }
-                    scrollRange = me.getScrollHeight();
-                    newViewSize = 18;
-                    me.viewSize = me.setViewSize(newViewSize);
-                    me.stretchView(view, scrollRange);
-                }
-            }
-        }
-    ],
+    extraTopToolbarComponent: undefined,
 
     /**
      * @cfg counterTextFn
@@ -90,12 +73,17 @@ Ext.define('Uni.view.grid.SelectionGrid', {
                         margin: '0 8 0 0'
                     },
                     {
-                        xtype: 'button',
-                        itemId: 'uncheckAllButton',
-                        text: me.uncheckText,
-                        action: 'uncheckAll',
-                        margin: '0 0 0 8',
-                        disabled: true
+                        xtype: 'container',
+                        items: [
+                            {
+                                xtype: 'button',
+                                itemId: 'uncheckAllButton',
+                                text: me.uncheckText,
+                                action: 'uncheckAll',
+                                margin: '0 0 0 8',
+                                disabled: true
+                            }
+                        ]
                     }
                 ]
             }
@@ -142,5 +130,11 @@ Ext.define('Uni.view.grid.SelectionGrid', {
         me.getTopToolbarContainer().add(
             me.extraTopToolbarComponent
         )
+    },
+
+    afterLayout: function () {
+        var me = this;
+        me.callParent(arguments);
+        me.getView().getEl().setStyle('overflow-x', 'hidden');
     }
 });

@@ -183,7 +183,8 @@ Ext.define('Uni.controller.Error', {
             msg: message,
             modal: false,
             ui: 'message-error',
-            icon: Ext.MessageBox.ERROR
+            icon: 'icon-warning2',
+            style: 'font-size: 34px;'
         });
 
         var box = Ext.create('Ext.window.MessageBox', {
@@ -193,7 +194,7 @@ Ext.define('Uni.controller.Error', {
                     text: Uni.I18n.translate('general.close', 'UNI', 'Close'),
                     action: 'close',
                     name: 'close',
-                    ui: 'action',
+                    ui: 'remove',
                     handler: function () {
                         box.close();
                     }

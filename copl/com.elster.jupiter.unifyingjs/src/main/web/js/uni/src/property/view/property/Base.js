@@ -18,8 +18,7 @@ Ext.define('Uni.property.view.property.Base', {
         'Uni.property.view.DefaultButton'
     ],
 
-    width: 320,
-    resetButtonHidden: false,
+    width: 256,
     translationKey: 'UNI',
 
     layout: 'hbox',
@@ -28,7 +27,8 @@ Ext.define('Uni.property.view.property.Base', {
 
     items: [
         {
-            xtype: 'uni-default-button'
+            xtype: 'uni-default-button',
+            visible: true
         }
     ],
 
@@ -112,17 +112,28 @@ Ext.define('Uni.property.view.property.Base', {
      * Updates the reset button state and tooltip
      */
     updateResetButton: function () {
-        var resetButtonHidden = this.resetButtonHidden;
         var button = this.getResetButton();
 
-        if (!resetButtonHidden && this.isEdit) {
-            button.setTooltip(
-                    Uni.I18n.translate('general.restoreDefaultValue', this.translationKey, 'Restore to default value')
-                    + ' &quot; ' + this.getProperty().get('default') + '&quot;'
-            );
+        if (this.isEdit) {
+            if(!this.getProperty().get('isInheritedOrDefaultValue')){
+                if (!this.getProperty().get('default')) {
+                    button.setTooltip(Uni.I18n.translate('general.clearAll', 'UNI', 'Clear all'));
+                } else {
+                    button.setTooltip(
+                            Uni.I18n.translate('general.restoreDefaultValue', this.translationKey, 'Restore to default value')
+                            + ' &quot; ' + this.getProperty().get('default') + '&quot;'
+                    );
+                }
 
-            button.setVisible(!this.getProperty().get('isInheritedOrDefaultValue'));
+                button.setDisabled(false);
+            } else {
+                button.setTooltip(null);
+                button.setDisabled(true);
+            }
+        } else {
+            button.setVisible(false);
         }
+        
         this.fireEvent('checkRestoreAll', this);
     },
 
@@ -197,7 +208,8 @@ Ext.define('Uni.property.view.property.Base', {
         return {
             xtype: 'displayfield',
             name: this.getName(),
-            itemId: this.key + 'displayfield'
+            itemId: this.key + 'displayfield',
+            cls: 'uni-property-displayfield'
         }
     },
 
@@ -295,7 +307,7 @@ Ext.define('Uni.property.view.property.Base', {
                 }
             });
             field.on('blur', function () {
-                if (field.getValue() !== '' && !me.getProperty().get('isInheritedOrDefaultValue') && field.getValue() === me.getProperty().get('default')) {
+                if (!field.hasNotValueSameAsDefaultMessage && field.getValue() !== '' && !me.getProperty().get('isInheritedOrDefaultValue') && field.getValue() === me.getProperty().get('default')) {
                     me.showPopupEnteredValueEqualsInheritedValue(field, me.getProperty());
                 }
                 if (field.getValue() === ''  && field.getValue() === me.getProperty().get('default')) {

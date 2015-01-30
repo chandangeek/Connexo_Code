@@ -75,17 +75,20 @@ Ext.define('Uni.controller.AppController', {
     packages: [],
     // </debug>
 
-    init: function () {
+    init: function (app) {
 
         var me = this;
         me.initCrossroads();
 
-        me.getController('Uni.controller.Navigation').applicationTitle = me.applicationTitle;
-        me.getController('Uni.controller.Navigation').searchEnabled = me.searchEnabled;
-        me.getController('Uni.controller.Navigation').onlineHelpEnabled = me.onlineHelpEnabled;
+        me.getController('Uni.controller.Navigation');
+        me.getApplication().fireEvent('onnavigationtitlechanged', me.applicationTitle);
+        me.getApplication().fireEvent('onnavigationtogglesearch', me.searchEnabled);
+        me.getApplication().fireEvent('ononlinehelpenabled', me.onlineHelpEnabled);
+
         me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
         me.getApplication().on('changecontentevent', me.showContent, me);
         me.getApplication().on('sessionexpired', me.redirectToLogin, me);
+        
         if (Uni.Auth.hasAnyPrivilege(me.privileges)) {
             me.checkLicenseStatus();
             me.loadControllers();
@@ -116,33 +119,41 @@ Ext.define('Uni.controller.AppController', {
     },
 
     showContent: function (widget) {
-        this.getContentPanel().removeAll();
-        this.getContentPanel().add(widget);
-        this.getContentPanel().doComponentLayout();
+        var panel = this.getContentPanel();
+
+        Ext.suspendLayouts();
+
+        panel.removeAll();
+        panel.add(widget);
+
+        Ext.resumeLayouts();
+
+        panel.doComponentLayout();
     },
 
     checkLicenseStatus: function () {
         var me = this;
-        if (typeof me.applicationKey !== 'undefined' && me.applicationKey !== 'SYS'){
+        if (typeof me.applicationKey !== 'undefined' && me.applicationKey !== 'SYS') {
             Ext.Ajax.request({
-                url: '/api/apps/apps/status/'+me.applicationKey,
+                url: '/api/apps/apps/status/' + me.applicationKey,
                 method: 'GET',
                 async: false,
                 success: function(response){
-                    me.licenseStatus = response.responseText;
+                    var data = Ext.JSON.decode(response.responseText);
+                    me.licenseStatus = data.status;
                     if (me.licenseStatus === 'EXPIRED') {
                         me.controllers = [];
-                        me.getController('Uni.controller.Navigation').searchEnabled  = false;
+                        me.getController('Uni.controller.Navigation').searchEnabled = false;
                     }
                 },
-                failure: function(response) {
+                failure: function (response) {
                     me.licenseStatus = 'NO_LICENSE';
                 }
             });
         }
     },
 
-    showLicenseGraced : function () {
+    showLicenseGraced: function () {
         if (!isNaN(this.licenseStatus) && !Ext.state.Manager.get('licenseGraced')) {
             Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
             Ext.state.Manager.set('licenseGraced', 'Y');
