@@ -10,6 +10,7 @@ Ext.define('Isu.controller.IssueDetail', {
             });
 
         me.getApplication().fireEvent('changecontentevent', widget);
+        me.issueModel = issueModel;
         widget.setLoading(true);
         me.getModel(issueModel).load(id, {
             callback: function () {
@@ -49,7 +50,9 @@ Ext.define('Isu.controller.IssueDetail', {
             if (!commentsView.isDestroyed) {
                 commentsStore.add(records);
                 commentsView.setLoading(false);
+                commentsView.show();
                 commentsView.previousSibling('#no-issue-comments').setVisible(!records.length);
+                commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length);
             }
         });
         if (this.getController('Uni.controller.history.Router').queryParams.addComment) {
@@ -62,15 +65,28 @@ Ext.define('Isu.controller.IssueDetail', {
 
         commentsPanel.down('#issue-add-comment-form').show();
         commentsPanel.down('#issue-add-comment-area').focus();
+        commentsPanel.down('#no-issue-comments').hide();
         commentsPanel.down('#issue-comments-add-comment-button').hide();
     },
 
     hideCommentForm: function () {
-        var commentsPanel = this.getCommentsPanel();
+        var me = this,
+            commentsPanel = me.getCommentsPanel(),
+            router = me.getController('Uni.controller.history.Router');
+
+        commentsPanel.setLoading();
+        commentsPanel.down('#issue-comments-view').hide();
 
         commentsPanel.down('#issue-add-comment-form').hide();
         commentsPanel.down('#issue-add-comment-area').reset();
-        commentsPanel.down('#issue-comments-add-comment-button').show();
+        me.getModel(me.issueModel).load(router.arguments.issueId, {
+            callback: function () {
+                commentsPanel.setLoading(false);
+            },
+            success: function (record) {
+                me.loadComments(record);
+            }
+        });
     },
 
     validateCommentForm: function (textarea, newValue) {
@@ -84,7 +100,6 @@ Ext.define('Isu.controller.IssueDetail', {
 
         commentsStore.add(commentsPanel.down('#issue-add-comment-form').getValues());
         commentsStore.sync();
-        commentsPanel.down('#no-issue-comments').hide();
         me.hideCommentForm();
     },
 

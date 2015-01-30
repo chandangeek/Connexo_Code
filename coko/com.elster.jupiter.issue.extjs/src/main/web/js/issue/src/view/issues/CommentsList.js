@@ -16,6 +16,14 @@ Ext.define('Isu.view.issues.CommentsList', {
             reasons: [
                 'No comments created yet on this issue'
             ],
+            stepItems: [
+                {
+                    itemId: 'empty-message-add-comment-button',
+                    text: 'Add comment',
+                    hidden: Uni.Auth.hasNoPrivilege('privilege.comment.issue'),
+                    action: 'add'
+                }
+            ],
             hidden: true
         },
         {
@@ -51,7 +59,6 @@ Ext.define('Isu.view.issues.CommentsList', {
     buttons: [
         {
             itemId: 'issue-comments-add-comment-button',
-            ui: 'action',
             text: 'Add comment',
             hidden: Uni.Auth.hasNoPrivilege('privilege.comment.issue'),
             action: 'add'
