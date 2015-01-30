@@ -9,6 +9,7 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -31,6 +32,15 @@ import com.elster.jupiter.util.time.Never;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,15 +52,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -71,6 +74,7 @@ public class RecurrentTaskIT {
     private TaskService taskService;
     private MessageService messageService;
     private TransactionService transactionService;
+    private NlsService nlsService;
 
     @Mock
     private UserService userService;
@@ -89,7 +93,7 @@ public class RecurrentTaskIT {
         protected void configure() {
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);      
+            bind(EventAdmin.class).toInstance(eventAdmin);
         }
     }
 
@@ -118,6 +122,7 @@ public class RecurrentTaskIT {
             public Void perform() {
                 taskService = injector.getInstance(TaskService.class);
                 messageService = injector.getInstance(MessageService.class);
+                nlsService = injector.getInstance(NlsService.class);
                 return null;
             }
         });
@@ -186,6 +191,35 @@ public class RecurrentTaskIT {
         }
         RecurrentTask recurrentTask = taskService.getRecurrentTask(id).get();
         assertThat(recurrentTask.getScheduleExpression()).isEqualTo(Never.NEVER);
+    }
+
+    @Test
+    public void testDuplicateRecurrentTask() {
+        try (TransactionContext context = transactionService.getContext()) {
+            QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+            DestinationSpec destination = queueTableSpec.createDestinationSpec("Destiny", 60);
+            RecurrentTask recurrentTask = taskService.newBuilder()
+                    .setScheduleExpressionString("0 0 18 * * ? *")
+                    .scheduleImmediately()
+                    .setName("DUPLICATED")
+                    .setPayLoad(PAY_LOAD)
+                    .setDestination(destination)
+                    .build();
+            recurrentTask.save();
+            RecurrentTask recurrentTask2 = taskService.newBuilder()
+                    .setScheduleExpressionString("0 0 18 * * ? *")
+                    .scheduleImmediately()
+                    .setName("DUPLICATED")
+                    .setPayLoad(PAY_LOAD)
+                    .setDestination(destination)
+                    .build();
+            recurrentTask2.save();
+            fail("violation expected");
+        } catch (ConstraintViolationException cve) {
+            ConstraintViolation<?> constraintViolation = cve.getConstraintViolations().iterator().next();
+            assertThat(constraintViolation.getMessage()).isEqualTo("NotUnique");
+            assertThat(constraintViolation.getPropertyPath().iterator().next().getName()).isEqualTo("name");
+        }
     }
 
     @Test

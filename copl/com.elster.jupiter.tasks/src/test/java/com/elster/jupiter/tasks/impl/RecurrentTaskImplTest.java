@@ -10,6 +10,14 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.HashSet;
+import java.util.Optional;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,15 +28,10 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -64,6 +67,10 @@ public class RecurrentTaskImplTest {
     private JsonService jsonService;
     @Mock
     private MessageBuilder builder;
+    @Mock
+    private ValidatorFactory validatorFactory;
+    @Mock
+    private Validator validator;
 
     @Before
     public void setUp() {
@@ -75,6 +82,9 @@ public class RecurrentTaskImplTest {
         });
         when(dataModel.mapper(TaskOccurrence.class)).thenReturn(taskOccurrenceFactory);
         when(dataModel.mapper(RecurrentTask.class)).thenReturn(recurrentTaskFactory);
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(validatorFactory.getValidator()).thenReturn(validator);
+        when(validator.validate(anyObject())).thenReturn(new HashSet<>());
 
         recurrentTask = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock).init(NAME, cronExpression, destination, PAYLOAD);
 
@@ -119,7 +129,7 @@ public class RecurrentTaskImplTest {
     public void testSave() {
         recurrentTask.save();
 
-        verify(recurrentTaskFactory).persist(recurrentTask);
+        verify(dataModel).persist(recurrentTask);
     }
 
     @Test
@@ -135,7 +145,7 @@ public class RecurrentTaskImplTest {
         recurrentTask.suspend();
 
         assertThat(recurrentTask.getNextExecution()).isNull();
-        verify(recurrentTaskFactory).persist(recurrentTask);
+        verify(dataModel).persist(recurrentTask);
     }
 
     @Test
@@ -143,7 +153,7 @@ public class RecurrentTaskImplTest {
         recurrentTask.resume();
 
         assertThat(recurrentTask.getNextExecution()).isEqualTo(NEXT);
-        verify(recurrentTaskFactory).persist(recurrentTask);
+        verify(dataModel).persist(recurrentTask);
 
     }
 
@@ -158,7 +168,7 @@ public class RecurrentTaskImplTest {
 
         verify(destination).message(SERIALIZED1);
         verify(builder).send();
-        verify(dataModel.mapper(RecurrentTask.class)).update(recurrentTask);
+        verify(dataModel).update(recurrentTask);
         assertThat(taskOccurrence).isNotNull();
 
     }

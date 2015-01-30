@@ -2,6 +2,7 @@ package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -26,7 +27,8 @@ public class UniqueTaskNameValidator implements ConstraintValidator<UniqueName, 
 
     @Override
     public boolean isValid(RecurrentTask recurrentTask, ConstraintValidatorContext context) {
-        if (taskService.getRecurrentTask(recurrentTask.getName()).isPresent()) {
+        Optional<RecurrentTask> taskOptional = taskService.getRecurrentTask(recurrentTask.getName());
+        if (taskOptional.isPresent() && taskOptional.get().getId()!=recurrentTask.getId()) {
                 context.buildConstraintViolationWithTemplate(message).addPropertyNode("name").addConstraintViolation().disableDefaultConstraintViolation();
                 return false;
         }

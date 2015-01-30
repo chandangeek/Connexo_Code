@@ -10,6 +10,14 @@ import com.elster.jupiter.tasks.TaskStatus;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,13 +25,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,6 +45,10 @@ public class TaskOccurrenceImplTest {
     private DataMapper<RecurrentTask> mapper;
     @Mock
     private DataMapper<TaskOccurrence> occurrenceMapper;
+    @Mock
+    private ValidatorFactory validatorFactory;
+    @Mock
+    private Validator validator;
 
     @Before
     public void setUp() {
@@ -50,6 +57,9 @@ public class TaskOccurrenceImplTest {
         when(dataModel.getInstance(TaskLogEntryImpl.class)).thenAnswer(invocation -> new TaskLogEntryImpl());
         when(dataModel.mapper(RecurrentTask.class)).thenReturn(mapper);
         when(dataModel.mapper(TaskOccurrence.class)).thenReturn(occurrenceMapper);
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(validatorFactory.getValidator()).thenReturn(validator);
+        when(validator.validate(anyObject())).thenReturn(new HashSet<>());
 
         when(clock.instant()).thenReturn(now, instant2);
         recurrentTask = RecurrentTaskImpl.from(dataModel, NAME, mock(ScheduleExpression.class), mock(DestinationSpec.class), "payload");
