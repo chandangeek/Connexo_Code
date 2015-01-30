@@ -36,7 +36,7 @@ public class ComTaskIsEnabledOnlyOncePerConfigurationValidator implements Constr
         DeviceConfiguration deviceConfiguration = comTaskEnablement.getDeviceConfiguration();
         // Both ComTask and DeviceConfiguration are required but other validators are responsible for checking that
         if (comTask != null && deviceConfiguration != null) {
-            Optional<ComTaskEnablement> otherComTaskEnablement = this.deviceConfigurationService.findComTaskEnablement(comTask, deviceConfiguration);
+            Optional<ComTaskEnablement> otherComTaskEnablement = deviceConfiguration.getComTaskEnablementFor(comTask);
             // Validation is @ creation time only, so if another is found, it really must be another one
             if (otherComTaskEnablement.isPresent()) {
                 context.disableDefaultConstraintViolation();

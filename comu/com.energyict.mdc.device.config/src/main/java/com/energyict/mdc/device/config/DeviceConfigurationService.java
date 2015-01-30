@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.config;
 
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -14,8 +12,12 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-import java.util.Optional;
+
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.validation.ValidationRuleSet;
+
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides services that relate to {@link DeviceType}s, {@link DeviceConfiguration}s?
@@ -164,16 +166,6 @@ public interface DeviceConfigurationService {
     public boolean isPhenomenonInUse(Phenomenon phenomenon);
 
     public Optional<ComTaskEnablement> findComTaskEnablement (long id);
-
-    /**
-     * Finds the {@link ComTaskEnablement} that enables the execution
-     * of the {@link ComTask} on devices of the specified {@link DeviceConfiguration}.
-     *
-     * @param comTask The ComTask
-     * @param deviceConfiguration The DeviceConfiguration
-     * @return The ComTaskEnablement
-     */
-    public Optional<ComTaskEnablement> findComTaskEnablement (ComTask comTask, DeviceConfiguration deviceConfiguration);
 
     /**
      * Return a list of ComTasks that are legal for assignment to the ComSchedule.

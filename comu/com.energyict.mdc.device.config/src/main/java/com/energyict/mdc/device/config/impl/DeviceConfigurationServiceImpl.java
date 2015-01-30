@@ -336,15 +336,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return dataModel.mapper(ComTaskEnablement.class).getUnique("id", id);
     }
 
-    @Override
-    public Optional<ComTaskEnablement> findComTaskEnablement(ComTask comTask, DeviceConfiguration deviceConfiguration) {
-        return dataModel.
-                mapper(ComTaskEnablement.class).
-                getUnique(
-                        ComTaskEnablementImpl.Fields.COM_TASK.fieldName(), comTask,
-                        ComTaskEnablementImpl.Fields.CONFIGURATION.fieldName(), deviceConfiguration);
-    }
-
     @Reference
     public void setOrmService(OrmService ormService) {
         DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "DeviceType and configurations");
