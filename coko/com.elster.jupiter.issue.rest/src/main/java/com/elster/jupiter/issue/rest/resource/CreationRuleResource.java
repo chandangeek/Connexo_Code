@@ -27,17 +27,15 @@ public class CreationRuleResource extends BaseResource {
     /**
      * <b>API link</b>: <a href="http://confluence.eict.vpdc/display/JUPU/REST+API#RESTAPI-Getcreationrules">Get creation rules</a><br />
      * <b>Pagination</b>: true<br />
-     * <b>Mandatory parameters</b>: '{@value com.elster.jupiter.issue.rest.request.RequestHelper#START}', '{@value com.elster.jupiter.issue.rest.request.RequestHelper#LIMIT}'<br />
+     * <b>Mandatory parameters</b>: none<br />
      * <b>Optional parameters</b>: none<br />
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_CREATION_RULE,Privileges.VIEW_CREATION_RULE})
-    public Response getCreationRules(@BeanParam StandardParametersBean params){
-        validateMandatory(params, START, LIMIT);
-
+    public Response getCreationRules(@BeanParam StandardParametersBean params, @QueryParam("start") Integer start){
         Query<CreationRule> query = getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
-        List<CreationRule> rules = query.select(Condition.TRUE, params.getFrom(), params.getTo());
+        List<CreationRule> rules = start != null ? query.select(Condition.TRUE, params.getFrom(), params.getTo()) : query.select(Condition.TRUE);
         return entity(rules, CreationRuleInfo.class, params.getStart(), params.getLimit()).build();
     }
 

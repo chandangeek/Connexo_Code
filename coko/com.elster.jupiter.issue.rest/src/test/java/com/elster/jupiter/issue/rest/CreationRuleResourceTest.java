@@ -25,8 +25,15 @@ public class CreationRuleResourceTest extends Mocks {
 
     @Test
     public void testGetCreationRulesWOParams(){
+        List<CreationRule> rules = new ArrayList<>(2);
+        rules.add(mockCreationRule(1, "rule 1"));
+        rules.add(mockCreationRule(2, "rule 2"));
+        Query<CreationRule> query = mock(Query.class);
+        when(query.select(Matchers.any(Condition.class), Matchers.anyInt(), Matchers.anyInt())).thenReturn(rules);
+        when(issueCreationService.getCreationRuleQuery(IssueReason.class, IssueType.class)).thenReturn(query);
+
         Response response = target("/creationrules").request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test
