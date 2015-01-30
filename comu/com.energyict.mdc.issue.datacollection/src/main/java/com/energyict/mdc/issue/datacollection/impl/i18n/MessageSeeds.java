@@ -49,7 +49,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     EVENT_TITLE_DEVICE_EVENT(708, "EventTitleDeviceCreated", "Device Created", Level.INFO),
     EVENT_BAD_DATA_NO_EVENT_IDENTIFIER(709, "EventBadDataNoVentIdentifier", "Unable to process issue creation event because target event identifier wasn't found", Level.SEVERE),
     EVENT_BAD_DATA_WRONG_EVENT_TYPE(710, "EventBadDataWrongEventType", "Unable to process issue creation event because endDeviceEventType doesn't match to eventRecord type mrId", Level.SEVERE),
-    EVENT_BAD_DATA_NO_STATUS(711, "EventBadDataNoStatus", "Unable to process issue creation event because there is no open status", Level.SEVERE),
 
     // Reasons & issue types 1000 - 1099
     ISSUE_TYPE_DATA_COLELCTION(1000, "IssueTypeDataCollection", "Data Collection", Level.INFO),

@@ -1,7 +1,6 @@
 package com.energyict.mdc.issue.datacollection.event;
 
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Condition;
@@ -24,11 +23,11 @@ import static com.elster.jupiter.util.Checks.is;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public class DeviceCommunicationFailureEvent extends ConnectionEvent {
-    private Optional<ComTaskExecution> comTask;
+    private Optional<Long> comTaskId = Optional.empty();
 
     @Inject
-    public DeviceCommunicationFailureEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, TopologyService topologyService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService, Thesaurus thesaurus, Injector injector) {
-        super(issueDataCollectionService, issueService, meteringService, deviceService, topologyService, communicationTaskService, connectionTaskService, thesaurus, injector);
+    public DeviceCommunicationFailureEvent(IssueDataCollectionService issueDataCollectionService, MeteringService meteringService, DeviceService deviceService, TopologyService topologyService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService, Thesaurus thesaurus, Injector injector) {
+        super(issueDataCollectionService, meteringService, deviceService, topologyService, communicationTaskService, connectionTaskService, thesaurus, injector);
     }
 
     @Override
@@ -36,7 +35,7 @@ public class DeviceCommunicationFailureEvent extends ConnectionEvent {
         super.wrapInternal(rawEvent, eventDescription);
         String comTaskIdAsStr = (String) rawEvent.get(ModuleConstants.FAILED_TASK_IDS);
         if (!is(comTaskIdAsStr).emptyOrOnlyWhiteSpace()) {
-            setComTask(Long.parseLong(comTaskIdAsStr.trim()));
+            setComTaskId(Long.parseLong(comTaskIdAsStr.trim()));
         }
     }
 
@@ -55,18 +54,17 @@ public class DeviceCommunicationFailureEvent extends ConnectionEvent {
     }
 
     protected Optional<ComTaskExecution> getComTask() {
-        return comTask;
-    }
-
-    protected void setComTask(long comTaskId) {
-        this.comTask = getCommunicationTaskService().findComTaskExecution(comTaskId);
+        return comTaskId.map(cti -> getCommunicationTaskService().findComTaskExecution(cti)).orElse(Optional.empty());
     }
 
     @Override
     public DeviceCommunicationFailureEvent clone() {
         DeviceCommunicationFailureEvent clone = (DeviceCommunicationFailureEvent) super.clone();
-        clone.comTask = comTask;
+        clone.comTaskId = comTaskId;
         return clone;
     }
-
+    
+    protected void setComTaskId(Long comTaskId) {
+        this.comTaskId = Optional.of(comTaskId);
+    }
 }

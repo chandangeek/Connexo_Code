@@ -3,8 +3,6 @@ package com.energyict.mdc.issue.datacollection.event;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
@@ -39,7 +37,6 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     private static final int MDC_AMR_ID = 1;
 
     private final IssueDataCollectionService issueDataCollectionService;
-    private final IssueService issueService;
     private final MeteringService meteringService;
     private final CommunicationTaskService communicationTaskService;
     private final DeviceService deviceService;
@@ -47,24 +44,18 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     private final Thesaurus thesaurus;
 
     private Device device;
-    private IssueStatus status;
     private EventDescription eventDescription;
     private Optional<? extends Issue> existingIssue;
     private Injector injector;
 
-    public DataCollectionEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, TopologyService topologyService, Thesaurus thesaurus, Injector injector) {
+    public DataCollectionEvent(IssueDataCollectionService issueDataCollectionService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, TopologyService topologyService, Thesaurus thesaurus, Injector injector) {
         this.issueDataCollectionService = issueDataCollectionService;
-        this.issueService = issueService;
         this.meteringService = meteringService;
         this.communicationTaskService = communicationTaskService;
         this.deviceService = deviceService;
         this.topologyService = topologyService;
         this.thesaurus = thesaurus;
         this.injector = injector;
-    }
-
-    protected IssueService getIssueService() {
-        return issueService;
     }
 
     protected IssueDataCollectionService getIssueDataCollectionService() {
@@ -108,21 +99,11 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
 
     public void wrap(Map<?, ?> rawEvent, EventDescription eventDescription){
         this.eventDescription = eventDescription;
-        setDefaultIssueStatus();
         getEventDevice(rawEvent);
         wrapInternal(rawEvent, eventDescription);
     }
 
     protected abstract void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription);
-
-    protected void setDefaultIssueStatus() {
-        Optional<IssueStatus> statusRef = getIssueService().findStatus(IssueStatus.OPEN);
-        if (!statusRef.isPresent()) {
-            throw new UnableToCreateEventException(thesaurus, MessageSeeds.EVENT_BAD_DATA_NO_STATUS);
-        } else {
-            this.status = statusRef.get();
-        }
-    }
 
     protected void getEventDevice(Map<?, ?> rawEvent) {
         Optional<Long> amrId = getLong(rawEvent, ModuleConstants.DEVICE_IDENTIFIER);
@@ -172,7 +153,6 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
         return numberOfDevicesWithEvents;
     }
 
-    @SuppressWarnings("unused")
     // Used in rule engine
     public double computeCurrentThreshold() {
         Optional<Device> concentrator = this.topologyService.getPhysicalGateway(this.device);
@@ -192,11 +172,6 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     @Override
     public String getEventType() {
         return eventDescription.getUniqueKey();
-    }
-
-    @Override
-    public IssueStatus getStatus() {
-        return status;
     }
 
     @Override
@@ -240,7 +215,6 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
         return clone;
     }
 
-    @SuppressWarnings("unused")
     public DataCollectionEvent cloneForAggregation(){
         DataCollectionEvent clone = this.clone();
         Optional<Device> physicalGateway = this.topologyService.getPhysicalGateway(this.device);

@@ -6,11 +6,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 
 import org.osgi.service.component.annotations.Component;
@@ -23,14 +19,12 @@ import java.time.Clock;
 public class MeterReadingEventHandlerFactory implements MessageHandlerFactory {
     private volatile JsonService jsonService;
     private volatile IssueCreationService issueCreationService;
-    private volatile IssueService issueService;
     private volatile MeteringService meteringService;
-    private volatile Thesaurus thesaurus;
     private volatile Clock clock;
 
     @Override
     public MessageHandler newMessageHandler() {
-        return new MeterReadingEventHandler(jsonService, issueService, issueCreationService, meteringService, clock);
+        return new MeterReadingEventHandler(jsonService, issueCreationService, meteringService, clock);
     }
 
     @Reference
@@ -40,18 +34,12 @@ public class MeterReadingEventHandlerFactory implements MessageHandlerFactory {
 
     @Reference
     public final void setIssueService(IssueService issueService) {
-        this.issueService = issueService;
         this.issueCreationService = issueService.getIssueCreationService();
     }
 
     @Reference
     public final void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
-    }
-
-    @Reference
-    public final void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference

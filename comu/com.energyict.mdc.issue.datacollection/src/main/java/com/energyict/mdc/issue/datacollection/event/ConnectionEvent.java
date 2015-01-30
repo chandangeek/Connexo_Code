@@ -1,7 +1,6 @@
 package com.energyict.mdc.issue.datacollection.event;
 
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Condition;
@@ -23,25 +22,18 @@ import java.util.Optional;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public abstract class ConnectionEvent extends DataCollectionEvent implements Cloneable {
-    private Optional<ConnectionTask> connectionTask;
-    private Optional<ComSession> comSession;
+    private Optional<Long> connectionTaskId;
+    private Optional<Long> comSessionId;
     private final ConnectionTaskService connectionTaskService;
 
-    public ConnectionEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, TopologyService topologyService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService, Thesaurus thesaurus, Injector injector) {
-        super(issueDataCollectionService, issueService, meteringService, deviceService, communicationTaskService, topologyService, thesaurus, injector);
+    public ConnectionEvent(IssueDataCollectionService issueDataCollectionService, MeteringService meteringService, DeviceService deviceService, TopologyService topologyService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService, Thesaurus thesaurus, Injector injector) {
+        super(issueDataCollectionService, meteringService, deviceService, communicationTaskService, topologyService, thesaurus, injector);
         this.connectionTaskService = connectionTaskService;
     }
 
     protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription){
-        Optional<Long> connectionTaskId = getLong(rawEvent, ModuleConstants.CONNECTION_TASK_ID);
-        if (connectionTaskId.isPresent()){
-            setConnectionTask(connectionTaskId.get());
-        }
-
-        Optional<Long> comSessionId = getLong(rawEvent, ModuleConstants.COM_SESSION_ID);
-        if (comSessionId.isPresent()){
-            setComSession(comSessionId.get());
-        }
+        this.connectionTaskId = getLong(rawEvent, ModuleConstants.CONNECTION_TASK_ID);
+        this.comSessionId = getLong(rawEvent, ModuleConstants.COM_SESSION_ID);
     }
 
     @Override
@@ -63,26 +55,18 @@ public abstract class ConnectionEvent extends DataCollectionEvent implements Clo
     }
 
     protected Optional<ConnectionTask> getConnectionTask() {
-        return this.connectionTask;
+        return connectionTaskId.map(cti -> getConnectionTaskService().findConnectionTask(cti)).orElse(Optional.empty());
     }
 
     protected Optional<ComSession> getComSession() {
-        return comSession;
-    }
-
-    protected void setConnectionTask(long connectionTaskId) {
-        this.connectionTask = getConnectionTaskService().findConnectionTask(connectionTaskId);
-    }
-
-    protected void setComSession(long comSessionId) {
-        this.comSession = getConnectionTaskService().findComSession(comSessionId);
+        return comSessionId.map(csi -> getConnectionTaskService().findComSession(csi)).orElse(Optional.empty());
     }
 
     @Override
     public ConnectionEvent clone() {
         ConnectionEvent clone = (ConnectionEvent) super.clone();
-        clone.connectionTask = connectionTask;
-        clone.comSession = comSession;
+        clone.connectionTaskId = connectionTaskId;
+        clone.comSessionId = comSessionId;
         return clone;
     }
 }

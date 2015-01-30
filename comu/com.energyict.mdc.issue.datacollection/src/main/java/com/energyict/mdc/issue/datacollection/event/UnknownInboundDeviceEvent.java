@@ -4,7 +4,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.CommunicationTaskService;
@@ -16,9 +15,9 @@ import com.google.inject.Injector;
 public class UnknownInboundDeviceEvent extends UnknownSlaveDeviceEvent {
 
     @Inject
-    public UnknownInboundDeviceEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService,
+    public UnknownInboundDeviceEvent(IssueDataCollectionService issueDataCollectionService, MeteringService meteringService,
             DeviceService deviceService, TopologyService topologyService, CommunicationTaskService communicationTaskService, Thesaurus thesaurus, Injector injector) {
-        super(issueDataCollectionService, issueService, meteringService, deviceService, topologyService, communicationTaskService, thesaurus, injector);
+        super(issueDataCollectionService, meteringService, deviceService, topologyService, communicationTaskService, thesaurus, injector);
     }
 
     @Override

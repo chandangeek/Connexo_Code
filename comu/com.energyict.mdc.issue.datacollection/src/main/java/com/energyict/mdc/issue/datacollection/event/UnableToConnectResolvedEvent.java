@@ -3,7 +3,6 @@ package com.energyict.mdc.issue.datacollection.event;
 import javax.inject.Inject;
 
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.CommunicationTaskService;
@@ -16,8 +15,8 @@ import com.google.inject.Injector;
 public class UnableToConnectResolvedEvent extends UnableToConnectEvent {
 
     @Inject
-    public UnableToConnectResolvedEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, TopologyService topologyService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService, Thesaurus thesaurus, Injector injector) {
-        super(issueDataCollectionService, issueService, meteringService, deviceService, topologyService, communicationTaskService, connectionTaskService, thesaurus, injector);
+    public UnableToConnectResolvedEvent(IssueDataCollectionService issueDataCollectionService, MeteringService meteringService, DeviceService deviceService, TopologyService topologyService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService, Thesaurus thesaurus, Injector injector) {
+        super(issueDataCollectionService, meteringService, deviceService, topologyService, communicationTaskService, connectionTaskService, thesaurus, injector);
     }
 
     @Override

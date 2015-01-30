@@ -1,7 +1,6 @@
 package com.energyict.mdc.issue.datacollection.event;
 
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.CommunicationTaskService;
@@ -21,15 +20,15 @@ import static com.elster.jupiter.util.Checks.is;
 public class DeviceCommunicationFailureResolvedEvent extends DeviceCommunicationFailureEvent {
 
     @Inject
-    public DeviceCommunicationFailureResolvedEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, TopologyService topologyService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService, Thesaurus thesaurus, Injector injector) {
-        super(issueDataCollectionService, issueService, meteringService, deviceService, topologyService, communicationTaskService, connectionTaskService, thesaurus, injector);
+    public DeviceCommunicationFailureResolvedEvent(IssueDataCollectionService issueDataCollectionService, MeteringService meteringService, DeviceService deviceService, TopologyService topologyService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService, Thesaurus thesaurus, Injector injector) {
+        super(issueDataCollectionService, meteringService, deviceService, topologyService, communicationTaskService, connectionTaskService, thesaurus, injector);
     }
 
     @Override
     protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription){
         String comTaskIdAsStr = (String) rawEvent.get(ModuleConstants.SUCCESS_TASK_IDS);
         if (!is(comTaskIdAsStr).emptyOrOnlyWhiteSpace()){
-            setComTask(Long.parseLong(comTaskIdAsStr.trim()));
+            setComTaskId(Long.parseLong(comTaskIdAsStr.trim()));
         }
     }
 
