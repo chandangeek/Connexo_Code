@@ -20,6 +20,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.TableView', {
 
         me.emptyComponent = {
             xtype: 'no-items-found-panel',
+            itemId: 'no-load-profile-data',
             title: Uni.I18n.translate('deviceloadprofiles.data.empty.title', 'MDC', 'No readings found'),
             reasons: [
                 Uni.I18n.translate('deviceloadprofiles.data.empty.list.item1', 'MDC', 'No readings have been defined yet.')
