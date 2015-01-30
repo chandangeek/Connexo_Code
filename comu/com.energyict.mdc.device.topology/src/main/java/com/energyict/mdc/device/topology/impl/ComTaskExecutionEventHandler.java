@@ -5,7 +5,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
-import org.osgi.service.component.annotations.Reference;
 
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -42,7 +41,7 @@ public abstract class ComTaskExecutionEventHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         ComTaskExecution comTaskExecution = (ComTaskExecution) localEvent.getSource();
-        if (comTaskExecution.useDefaultConnectionTask()) {
+        if (comTaskExecution.usesDefaultConnectionTask()) {
             this.handle(comTaskExecution);
         }
         else {

@@ -53,7 +53,7 @@ public class ComTaskExecutionObsoleteEventHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         ComTaskExecution comTaskExecution = (ComTaskExecution) localEvent.getSource();
-        if (comTaskExecution.useDefaultConnectionTask()) {
+        if (comTaskExecution.usesDefaultConnectionTask()) {
             this.handle(comTaskExecution);
         }
         else {

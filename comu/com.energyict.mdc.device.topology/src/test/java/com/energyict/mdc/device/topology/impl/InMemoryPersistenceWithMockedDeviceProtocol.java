@@ -31,6 +31,8 @@ import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
+import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -289,6 +291,11 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         private MockProtocolPluggableService() {
             super();
             this.protocolPluggableService = mock(ProtocolPluggableService.class);
+        }
+
+        @Override
+        public ProtocolDeploymentListenerRegistration register(ProtocolDeploymentListener listener) {
+            return mock(ProtocolDeploymentListenerRegistration.class);
         }
 
         @Override

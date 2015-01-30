@@ -67,7 +67,7 @@ public class ManuallyScheduledComTaskExecutionInTopologyTest extends AbstractCom
         device.save();
 
         // Asserts
-        assertThat(comTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(comTaskExecution.usesDefaultConnectionTask()).isTrue();
         assertThat(comTaskExecution.getConnectionTask()).isNull();
     }
 
@@ -91,7 +91,7 @@ public class ManuallyScheduledComTaskExecutionInTopologyTest extends AbstractCom
         device.save();
 
         ComTaskExecution reloadedComTaskExecution = this.reloadManuallyScheduledComTaskExecution(device, comTaskExecution);
-        assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isTrue();
         assertThat(reloadedComTaskExecution.getConnectionTask()).isNull();
     }
 

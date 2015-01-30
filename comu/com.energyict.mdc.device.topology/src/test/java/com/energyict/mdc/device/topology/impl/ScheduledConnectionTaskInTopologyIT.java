@@ -186,7 +186,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         // Asserts
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         assertThat(connectionTask.getNextExecutionTimestamp()).isEqualTo(earliestNextExecutionTimestamp);
-        assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isTrue();
         assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
     }
 
@@ -248,7 +248,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         inMemoryPersistence.getConnectionTaskService().clearDefaultConnectionTask(connectionTask.getDevice());
 
         ComTaskExecution reloadedComTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
-        assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isTrue();
         assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId()); // should not be updated
     }
 
@@ -260,7 +260,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         ScheduledComTaskExecution comTaskExecution = createComTaskExecution();
 
         // Prologue asserts
-        assertThat(comTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(comTaskExecution.usesDefaultConnectionTask()).isTrue();
         assertThat(comTaskExecution.getConnectionTask()).isNull();
 
         // Business method
@@ -268,7 +268,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
 
         // Asserts
         ComTaskExecution reloadedComTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
-        assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isTrue();
         assertThat(reloadedComTaskExecution.getConnectionTask()).isNotNull();
         assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(myDefaultConnectionTask.getId());
     }
@@ -286,7 +286,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
 
         // Asserts
-        assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isTrue();
         assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
     }
 
