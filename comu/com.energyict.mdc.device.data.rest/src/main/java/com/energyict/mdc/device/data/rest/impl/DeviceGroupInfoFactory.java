@@ -12,33 +12,28 @@ import com.energyict.mdc.device.data.DeviceService;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import javax.inject.Inject;
 
-public class DeviceGroupInfo {
+/**
+ * Created by bvn on 1/27/15.
+ */
+public class DeviceGroupInfoFactory {
 
-    public long id;
-    public String mRID;
-    public String name;
-    public boolean dynamic;
-    public List<SearchCriteriaInfo> criteria = new ArrayList<>(); //backend => frontend
-    public Map<String, Object> filter;  // frontend => backend (contains filter criteria for a dynamic group)
-    public List<Long> devices;  // frontend <=> backend (contains selected devices ids for a static group)
+    private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceService deviceService;
 
-    public List<Long> deviceTypeIds = new ArrayList<>();  //backend => frontend
-    public List<Long> deviceConfigurationIds = new ArrayList<>(); //backend => frontend
-    public List<Long> selectedDevices = new ArrayList<>(); //backend => frontend
-
-
-    public DeviceGroupInfo() {
+    @Inject
+    public DeviceGroupInfoFactory(DeviceConfigurationService deviceConfigurationService, DeviceService deviceService) {
+        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceService = deviceService;
     }
 
-    public static DeviceGroupInfo from(EndDeviceGroup endDeviceGroup, DeviceConfigurationService deviceConfigurationService, DeviceService deviceService) {
+    public DeviceGroupInfo from(EndDeviceGroup endDeviceGroup) {
         DeviceGroupInfo deviceGroupInfo = new DeviceGroupInfo();
         deviceGroupInfo.id = endDeviceGroup.getId();
         deviceGroupInfo.mRID = endDeviceGroup.getMRID();
         deviceGroupInfo.name = endDeviceGroup.getName();
-        deviceGroupInfo.dynamic = endDeviceGroup.isDynamic();
         if (endDeviceGroup.isDynamic()) {
             DeviceType deviceType = null;
             List<SearchCriteria> searchCriteria =
@@ -85,16 +80,16 @@ public class DeviceGroupInfo {
         return deviceGroupInfo;
     }
 
-    public static List<DeviceGroupInfo> from(List<EndDeviceGroup> endDeviceGroups, DeviceConfigurationService deviceConfigurationService, DeviceService deviceService) {
+    public List<DeviceGroupInfo> from(List<EndDeviceGroup> endDeviceGroups) {
         List<DeviceGroupInfo> deviceGroupsInfos = new ArrayList<>();
         for (EndDeviceGroup endDeviceGroup : endDeviceGroups) {
-            deviceGroupsInfos.add(DeviceGroupInfo.from(endDeviceGroup, deviceConfigurationService, deviceService));
+            deviceGroupsInfos.add(from(endDeviceGroup));
         }
         return deviceGroupsInfos;
     }
 
 
-    static List<SearchCriteria> translateCriteria(List<SearchCriteria> criteria, DeviceConfigurationService deviceConfigurationService) {
+    public List<SearchCriteria> translateCriteria(List<SearchCriteria> criteria, DeviceConfigurationService deviceConfigurationService) {
         List<SearchCriteria> result = new ArrayList<>();
         for (SearchCriteria criterium : criteria) {
             String criteriaName = criterium.getCriteriaName();
