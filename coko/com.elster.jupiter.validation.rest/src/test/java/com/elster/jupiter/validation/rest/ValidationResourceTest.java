@@ -270,7 +270,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
 
         Response response = target("/validation/13/rules").request().post(entity);
 
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         ValidationRuleInfos resultInfos = response.readEntity(ValidationRuleInfos.class);
         assertThat(resultInfos.total).isEqualTo(1);
         assertThat(resultInfos.rules).hasSize(1);
@@ -281,6 +281,20 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         verify(rule).addProperty("boolean", true);
         verify(rule).addProperty("text", "string");
         verify(rule).addProperty(Matchers.eq("listvalue"), Matchers.any(ListValue.class));
+    }
+
+    @Test
+    public void testAddValidationRuleToNonExistingRuleSet() {
+        final ValidationRuleInfo info = new ValidationRuleInfo();
+        info.name = "MyRule";
+        info.implementation = "com.blablabla.Validator";
+        info.properties = createPropertyInfos();
+
+        Entity<ValidationRuleInfo> entity = Entity.json(info);
+
+        when(validationService.getValidationRuleSet(666)).thenReturn(Optional.empty());
+        Response response = target("/validation/666/rules").request().post(entity);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
