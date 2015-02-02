@@ -33,7 +33,6 @@ public enum EventType {
                 .component(LicenseService.COMPONENTNAME)
                 .category("Crud")
                 .scope("System")
-                .shouldPublish()
                 .withProperty("appKey", ValueType.STRING, "applicationKey")
                 .withProperty("version", ValueType.LONG, "version");
         builder.create().save();
