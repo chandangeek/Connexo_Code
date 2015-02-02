@@ -1,11 +1,10 @@
 package com.energyict.mdc.engine.config.impl;
 
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.orm.TransactionRequired;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 
 /**
  * Models the different event types that are produced by this "engine configuration bundle".
@@ -37,8 +36,7 @@ public enum EventType {
                 .name(name())
                 .component(EngineConfigurationService.COMPONENT_NAME)
                 .category("Crud")
-                .scope("System")
-                .shouldPublish();
+                .scope("System");
         this.addCustomProperties(builder).create().save();
     }
 
