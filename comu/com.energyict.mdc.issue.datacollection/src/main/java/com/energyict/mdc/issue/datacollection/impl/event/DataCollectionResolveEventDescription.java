@@ -7,7 +7,6 @@ import com.energyict.mdc.issue.datacollection.event.DeviceCommunicationFailureRe
 import com.energyict.mdc.issue.datacollection.event.UnableToConnectResolvedEvent;
 import com.energyict.mdc.issue.datacollection.event.UnknownDeviceResolvedEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
-
 import org.osgi.service.event.EventConstants;
 
 import java.util.ArrayList;
@@ -59,8 +58,7 @@ public enum DataCollectionResolveEventDescription implements EventDescription {
 
     UNABLE_TO_CONNECT_AUTO_RESOLVE(
             "com/energyict/mdc/connectiontask/COMPLETION",
-            UnableToConnectResolvedEvent.class){
-
+            UnableToConnectResolvedEvent.class) {
         @Override
         public String getUniqueKey() {
             return DataCollectionEventDescription.UNABLE_TO_CONNECT.getUniqueKey();
@@ -69,18 +67,16 @@ public enum DataCollectionResolveEventDescription implements EventDescription {
 
     UNKNOWN_INBOUND_DEVICE_EVENT_AUTO_RESOLVE(
             "com/energyict/mdc/device/data/device/CREATED",
-            UnknownDeviceResolvedEvent.class){
-
+            UnknownDeviceResolvedEvent.class) {
         @Override
         public String getUniqueKey() {
             return DataCollectionEventDescription.UNKNOWN_INBOUND_DEVICE.getUniqueKey();
         }
     },
-    
+
     UNKNOWN_OUTBOUND_DEVICE_EVENT_AUTO_RESOLVE(
             "com/energyict/mdc/device/data/device/CREATED",
-            UnknownDeviceResolvedEvent.class){
-
+            UnknownDeviceResolvedEvent.class) {
         @Override
         public String getUniqueKey() {
             return DataCollectionEventDescription.UNKNOWN_OUTBOUND_DEVICE.getUniqueKey();
@@ -141,5 +137,9 @@ public enum DataCollectionResolveEventDescription implements EventDescription {
             }
         }
         return eventDataList;
+    }
+
+    public String getTopic() {
+        return topic;
     }
 }

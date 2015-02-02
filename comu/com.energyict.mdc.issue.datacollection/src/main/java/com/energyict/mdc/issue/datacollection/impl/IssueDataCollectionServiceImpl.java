@@ -2,6 +2,7 @@ package com.energyict.mdc.issue.datacollection.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -10,7 +11,11 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueProvider;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
@@ -26,14 +31,12 @@ import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.impl.install.Installer;
 import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
 import com.google.inject.AbstractModule;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -45,6 +48,7 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
     private volatile MessageService messageService;
     private volatile QueryService queryService;
     private volatile Thesaurus thesaurus;
+    private volatile EventService eventService;
 
     private volatile TopologyService topologyService;
     private volatile DeviceService deviceService;
@@ -52,17 +56,19 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
 
     // For OSGi framework
     @SuppressWarnings("unused")
-    public IssueDataCollectionServiceImpl() {}
+    public IssueDataCollectionServiceImpl() {
+    }
 
     // For unit testing
     @Inject
-    public IssueDataCollectionServiceImpl(IssueService issueService, 
+    public IssueDataCollectionServiceImpl(IssueService issueService,
                                           MessageService messageService,
                                           NlsService nlsService,
                                           OrmService ormService,
                                           QueryService queryService,
                                           TopologyService topologyService,
-                                          DeviceService deviceService){
+                                          DeviceService deviceService,
+                                          EventService eventService) {
         setMessageService(messageService);
         setIssueService(issueService);
         setNlsService(nlsService);
@@ -70,6 +76,7 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
         setQueryService(queryService);
         setTopologyService(topologyService);
         setDeviceService(deviceService);
+        setEventService(eventService);
 
         activate();
         if (!dataModel.isInstalled()) {
@@ -78,7 +85,7 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
     }
 
     @Activate
-    public final void activate(){
+    public final void activate() {
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -95,12 +102,12 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
 
     @Override
     public void install() {
-        new Installer(dataModel, issueService, issueActionService, messageService).install();
+        new Installer(dataModel, issueService, issueActionService, messageService, eventService).install();
     }
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("NLS", "ISU", "MSG", "ORM", "DDC");
+        return Arrays.asList("NLS", "ISU", "MSG", "ORM", "DDC", "MTR", "CES", "DDC");
     }
 
     @Reference
@@ -127,7 +134,7 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
         }
     }
 
-    public DataModel getDataModel(){
+    public DataModel getDataModel() {
         return this.dataModel;
     }
 
@@ -146,10 +153,15 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
         this.queryService = queryService;
     }
 
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+
     @Override
     public Optional<IssueDataCollection> findIssue(long id) {
         Optional<? extends IssueDataCollection> issue = findOpenIssue(id);
-        if (!issue.isPresent()){
+        if (!issue.isPresent()) {
             issue = findHistoricalIssue(id);
         }
         return (Optional<IssueDataCollection>) issue;
@@ -198,12 +210,12 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
     public List<TranslationKey> getKeys() {
         return Arrays.asList(MessageSeeds.values());
     }
-    
+
     @Override
     public Optional<? extends OpenIssue> getOpenIssue(OpenIssue issue) {
         return issue instanceof OpenIssueDataCollection ? Optional.of(issue) : findOpenIssue(issue.getId());
     }
-    
+
     @Override
     public Optional<? extends HistoricalIssue> getHistoricalIssue(HistoricalIssue issue) {
         return issue instanceof HistoricalIssueDataCollection ? Optional.of(issue) : findHistoricalIssue(issue.getId());

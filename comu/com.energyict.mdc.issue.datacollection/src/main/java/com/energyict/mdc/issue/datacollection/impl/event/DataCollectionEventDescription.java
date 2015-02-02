@@ -10,14 +10,13 @@ import com.energyict.mdc.issue.datacollection.event.UnknownInboundDeviceEvent;
 import com.energyict.mdc.issue.datacollection.event.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
+import org.osgi.service.event.EventConstants;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.osgi.service.event.EventConstants;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -138,5 +137,9 @@ public enum DataCollectionEventDescription implements EventDescription {
             }
         }
         return eventDataList;
+    }
+
+    public String getTopic() {
+        return topic;
     }
 }
