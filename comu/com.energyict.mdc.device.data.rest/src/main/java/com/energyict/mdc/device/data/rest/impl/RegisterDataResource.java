@@ -3,7 +3,9 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -145,8 +147,11 @@ public class RegisterDataResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         Meter meter = resourceHelper.getMeterFor(device);
-        Channel channel = resourceHelper.getRegisterChannel(register, meter).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CHANNELS_ON_REGISTER, register.getRegisterSpec().getRegisterType().getName()));
+        return editOrAddRegisterData(readingInfo, register, meter);
+    }
 
+    private Response editOrAddRegisterData(ReadingInfo readingInfo, Register<?> register, Meter meter) {
+        Channel channel = resourceHelper.getRegisterChannel(register, meter).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CHANNELS_ON_REGISTER, register.getRegisterSpec().getRegisterType().getName()));
         List<BaseReading> readings = new ArrayList<>();
         readings.add(readingInfo.createNew(register));
         channel.editReadings(readings);
@@ -154,12 +159,37 @@ public class RegisterDataResource {
         return Response.status(Response.Status.OK).build();
     }
 
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_DATA)
     public Response addRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, ReadingInfo readingInfo) {
-        return editRegisterData(mRID, registerId, readingInfo);
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
+        Meter meter = resourceHelper.getMeterFor(device);
+        if (meter.getMeterActivations().isEmpty()) {
+            meter.activate(readingInfo.timeStamp);
+        }
+        List<MeterActivation> activations = resourceHelper.getMeterActivationsMostCurrentFirst(meter);
+        findChannel(register, resourceHelper.getMeterActivationsMostCurrentFirst(meter), readingInfo.timeStamp).orElseGet(() ->{
+            MeterActivation meterActivation = activations.stream().filter(a -> a.getInterval().toClosedRange().contains(readingInfo.timeStamp)).findFirst().orElse(activations.get(0));
+            return meterActivation.createChannel(register.getReadingType());
+        });
+        return editOrAddRegisterData(readingInfo, register, meter);
+    }
+
+    private Optional<Channel> findChannel(Register<?> register, List<MeterActivation> activations, Instant when) {
+        for (MeterActivation activation : activations) {
+            if (activation.getInterval().toClosedRange().contains(when)) {
+                for (Channel channel : activation.getChannels()) {
+                    if (channel.getReadingTypes().contains(register.getReadingType())) {
+                        return Optional.of(channel);
+                    }
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     @DELETE
