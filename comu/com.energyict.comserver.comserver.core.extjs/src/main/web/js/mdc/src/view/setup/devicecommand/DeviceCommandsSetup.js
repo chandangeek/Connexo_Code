@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsSetup', {
                             xtype: 'no-items-found-panel',
                             title: Uni.I18n.translate('deviceCommand.overview.emptyMsg', 'MDC', 'No commands found'),
                             reasons: [
-                                Uni.I18n.translate('deviceCommand.overview.emptyReason', 'MDC', 'No commands added yet')
+                                Uni.I18n.translate('deviceCommand.overview.emptyReason', 'MDC', 'Device protocol did not specify any commands')
                             ],
                             stepItems: [
                                 {
