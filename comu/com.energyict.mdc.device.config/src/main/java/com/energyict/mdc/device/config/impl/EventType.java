@@ -146,8 +146,7 @@ public enum EventType {
                 .name(name())
                 .component(DeviceConfigurationService.COMPONENTNAME)
                 .category("Crud")
-                .scope("System")
-                .shouldPublish();
+                .scope("System");
         this.addCustomProperties(builder).create().save();
     }
 
