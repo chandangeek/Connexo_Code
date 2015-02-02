@@ -143,6 +143,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                     buttonAlign: 'left',
                     buttons: [{
                         text: Uni.I18n.translate('dashboard.widget.connections.link', 'DSH', 'View connections overview'),
+                        itemId: 'lnk-connections-overview',
                         ui: 'link',
                         href: typeof me.router.getRoute('workspace/connections') !== 'undefined'
                             ? me.router.getRoute('workspace/connections').buildUrl(null, me.router.queryParams) : ''
@@ -157,6 +158,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                     buttonAlign: 'left',
                     buttons: [{
                         text: Uni.I18n.translate('dashboard.widget.communications.link', 'DSH', 'View communications overview'),
+                        itemId: 'lnk-communications-overview',
                         ui: 'link',
                         href: typeof me.router.getRoute('workspace/communications') !== 'undefined'
                             ? me.router.getRoute('workspace/communications').buildUrl(null, me.router.queryParams) : ''
