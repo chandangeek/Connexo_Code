@@ -1,11 +1,10 @@
 package com.energyict.mdc.tasks.impl;
 
-import com.energyict.mdc.tasks.TaskService;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.orm.TransactionRequired;
+import com.energyict.mdc.tasks.TaskService;
 
 /**
  * Models the different event types that are produced by this task bundle.
@@ -35,7 +34,6 @@ public enum EventType {
                 .component(TaskService.COMPONENT_NAME)
                 .category("Crud")
                 .scope("System")
-                .shouldPublish()
                 .withProperty("id", ValueType.LONG, "id");
         this.addCustomProperties(builder).create().save();
     }
