@@ -13,9 +13,9 @@ import java.util.logging.Logger;
  */
 public interface Table<T> {
 
-    public static final int NAME_LENGTH = 80;
-    public static final int SHORT_DESCRIPTION_LENGTH = 256;
-    public static final int DESCRIPTION_LENGTH = 4000;
+    int NAME_LENGTH = 80;
+    int SHORT_DESCRIPTION_LENGTH = 256;
+    int DESCRIPTION_LENGTH = 4000;
 
     // datamodel construction api
     Column.Builder column(String name);

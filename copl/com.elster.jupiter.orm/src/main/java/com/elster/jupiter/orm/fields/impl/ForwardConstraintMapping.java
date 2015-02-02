@@ -2,7 +2,7 @@ package com.elster.jupiter.orm.fields.impl;
 
 import java.util.List;
 
-import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Contains;
@@ -35,7 +35,7 @@ public class ForwardConstraintMapping extends ConstraintMapping {
 	}
 	
 	@Override
-	public List<? extends Column> getColumns() {
+	public List<ColumnImpl> getColumns() {
 		return getConstraint().getColumns();
 	}
 	
