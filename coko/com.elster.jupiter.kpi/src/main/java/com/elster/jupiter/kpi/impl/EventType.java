@@ -27,7 +27,6 @@ public enum EventType {
                 .component(KpiService.COMPONENT_NAME)
                 .category("KPI")
                 .scope("System")
-                .shouldPublish()
                 .withProperty("id", ValueType.LONG, "id")
                 .withProperty("position", ValueType.INTEGER, "position")
                 .withProperty("timestamp", ValueType.LONG, "timestamp");
