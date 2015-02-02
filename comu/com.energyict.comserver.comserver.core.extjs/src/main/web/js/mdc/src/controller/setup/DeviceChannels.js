@@ -239,15 +239,14 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
     activateDataValidation: function (record, confWindow) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
-            mRID = me.mRID ? me.mRID : router.arguments.mRID,
-            loadProfileId = me.loadProfileId ? me.loadProfileId : router.arguments.loadProfileId;
+            mRID = me.mRID ? me.mRID : router.arguments.mRID;
 
         if (confWindow.down('#validateChannelFromDate').getValue() > me.dataValidationLastChecked) {
             confWindow.down('#validateChannelDateErrors').update(Uni.I18n.translate('deviceloadprofiles.activation.error', 'MDC', 'The date should be before or equal to the default date.'));
             confWindow.down('#validateChannelDateErrors').setVisible(true);
         } else {
             Ext.Ajax.request({
-                url: '../../api/ddr/devices/' + mRID + '/loadprofiles/' + loadProfileId + '/channels/' + record.get('id') + '/validate',
+                url: '../../api/ddr/devices/' + mRID + '/channels/' + record.get('id') + '/validate',
                 method: 'PUT',
                 jsonData: {
                     lastChecked: confWindow.down('#validateChannelFromDate').getValue().getTime()

@@ -21,11 +21,6 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
         },
         {
             xtype: 'displayfield',
-            fieldLabel: 'Load profile configuration',
-            itemId: 'loadProfileConfigLink'
-        },
-        {
-            xtype: 'displayfield',
             fieldLabel: 'Load profile type',
             name: 'name'
         },
