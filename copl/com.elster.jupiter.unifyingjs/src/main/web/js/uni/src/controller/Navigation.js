@@ -122,7 +122,6 @@ Ext.define('Uni.controller.Navigation', {
         var breadcrumbs = me.getBreadcrumbs();
         var child, breadcrumb;
 
-        breadcrumbs.removeAll();
         _.map(router.buildBreadcrumbs(), function (route) {
             var title = route.getTitle();
 
