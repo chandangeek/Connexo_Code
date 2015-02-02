@@ -38,7 +38,6 @@ public class Dsmr23Properties extends DlmsProtocolProperties {
         optional.add(DlmsProtocolProperties.CLIENT_MAC_ADDRESS);
         optional.add(DlmsProtocolProperties.SERVER_MAC_ADDRESS);
         optional.add(DlmsProtocolProperties.CONNECTION);
-        optional.add(DlmsProtocolProperties.SERVER_MAC_ADDRESS);
         optional.add(DlmsProtocolProperties.FORCED_DELAY);
         optional.add(DlmsProtocolProperties.DELAY_AFTER_ERROR);
         optional.add(DlmsProtocolProperties.INFORMATION_FIELD_SIZE);

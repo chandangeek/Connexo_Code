@@ -33,13 +33,13 @@ import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
-import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
@@ -52,8 +52,10 @@ import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.AM540Messag
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.AM540Messaging;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.profiles.AM540LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.registers.Dsmr50RegisterFactory;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540Cache;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -331,53 +333,47 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         return "$Date$";
     }
 
-    //TODO complete & describe
     @Override
     public TypedProperties formatLegacyProperties(TypedProperties legacyProperties) {
         TypedProperties result = TypedProperties.empty();
 
-        for (String key : legacyProperties.propertyNames()) {
-
-            Object oldValue = legacyProperties.getProperty(key);
-            PropertySpec propertySpec = getPropertySpecByName(key);
-            if (propertySpec != null) {
-                Object newValue = null;
-                String newKey = key;
-                if (oldValue instanceof String) {
-                    String oldStringValue = (String) oldValue;
-
-
+        // Map 'ServerMacAddress' to 'ServerUpperMacAddress' and 'ServerLowerMacAddress'
+        Object serverMacAddress = legacyProperties.getProperty(DlmsProtocolProperties.SERVER_MAC_ADDRESS);
+        if (serverMacAddress != null) {
+            String[] macAddress = ((String) serverMacAddress).split(":");
+            if (macAddress.length >= 1) {
+                String upperMacAddress = macAddress[0];
+                if (upperMacAddress.toLowerCase().equals("x")) {
+                    result.setProperty(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, new BigDecimal(-1));
                 } else {
-                    if (propertySpec.getValueFactory().getValueType() == TimeZoneInUse.class) {
-                        if (oldValue instanceof TimeZoneInUse) {
-                            newValue = oldValue;
-                            newKey = DlmsProtocolProperties.TIMEZONE;
-                        }
-                    }
+                    result.setProperty(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, mapToBigDecimal(upperMacAddress));
                 }
+            }
 
-                if (newValue != null) {
-                    result.setProperty(newKey, newValue);
+            if (macAddress.length >= 2) {
+                String lowerMacAddress = macAddress[1];
+                if (lowerMacAddress.toLowerCase().equals("x")) {
+                    result.setProperty(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, new BigDecimal(-1));
+                } else {
+                    result.setProperty(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, mapToBigDecimal(lowerMacAddress));
                 }
             }
         }
+
+        // Map 'ForcedToReadCache' to 'ReadCache'
+        Object readCache = legacyProperties.getProperty(Dsmr40Properties.PROPERTY_FORCED_TO_READ_CACHE);
+        if (readCache != null) {
+            result.setProperty(DSMR50Properties.READCACHE_PROPERTY, ProtocolTools.getBooleanFromString((String) readCache));
+        }
+
         return result;
     }
 
-    private PropertySpec getPropertySpecByName(String key) {
-        List<PropertySpec> allPropertySpecs = new ArrayList<>();
-        allPropertySpecs.addAll(getOptionalProperties());
-        allPropertySpecs.addAll(getRequiredProperties());
-        for (DeviceProtocolDialect deviceProtocolDialect : getDeviceProtocolDialects()) {
-            allPropertySpecs.addAll(deviceProtocolDialect.getRequiredProperties());
-            allPropertySpecs.addAll(deviceProtocolDialect.getOptionalProperties());
+    private BigDecimal mapToBigDecimal(String text) {
+        try {
+            return new BigDecimal(text);
+        } catch (NumberFormatException e) {
+            return null;
         }
-
-        for (PropertySpec propertySpec : allPropertySpecs) {
-            if (propertySpec.getName().equals(key)) {
-                return propertySpec;
-            }
-        }
-        return null;
     }
 }

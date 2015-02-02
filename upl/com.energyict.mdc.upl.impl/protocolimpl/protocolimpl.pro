@@ -100,7 +100,9 @@
 -keepnames class com.energyict.protocolimpl.dlms.common.NTASecurityProvider
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40SecurityProvider
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23Properties
--keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties {
+    public *;
+}
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.Dsmr50Properties
 -keepnames class com.energyict.protocolimpl.dlms.g3.G3Properties {
     static final String PSK;
