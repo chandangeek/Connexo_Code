@@ -24,8 +24,7 @@ public enum EventType {
     RELATIVE_PERIOD_DELETED("relativeperiod/DELETED", withId()),
     RELATIVE_PERIOD_CATEGORY_CREATED("relativeperiodcategory/CREATED", withId()),
     RELATIVE_PERIOD_CATEGORY_UPDATED("relativeperiodcategory/UPDATED", withId()),
-    RELATIVE_PERIOD_CATEGORY_DELETED("relativeperiodcategory/DELETED", withId()),
-    ;
+    RELATIVE_PERIOD_CATEGORY_DELETED("relativeperiodcategory/DELETED", withId()),;
 
     private static PropertyAdder withId() {
         return b -> b.withProperty("id", ValueType.LONG, "id");
@@ -50,8 +49,7 @@ public enum EventType {
                 .name(name())
                 .component(TimeService.COMPONENT_NAME)
                 .category("Crud")
-                .scope("System")
-                .shouldPublish();
+                .scope("System");
         this.addCustomProperties(builder).create().save();
     }
 
