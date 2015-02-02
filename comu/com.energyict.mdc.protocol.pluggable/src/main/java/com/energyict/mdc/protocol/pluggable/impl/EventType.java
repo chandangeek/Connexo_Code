@@ -41,7 +41,6 @@ public enum EventType {
                 .component(ProtocolPluggableService.COMPONENTNAME)
                 .category("Crud")
                 .scope("System")
-                .shouldPublish()
                 .withProperty("id", ValueType.LONG, "id");
         this.addCustomProperties(builder).create().save();
     }
