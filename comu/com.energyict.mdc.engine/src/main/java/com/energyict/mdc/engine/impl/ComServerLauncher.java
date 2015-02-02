@@ -110,12 +110,14 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
     }
 
     private void doStartComServer() {
-        if (this.shouldStartRemote()) {
-            this.startRemoteComServer();
+        if (!isStarted()) {
+            if (this.shouldStartRemote()) {
+                this.startRemoteComServer();
+            } else {
+                this.startOnlineComServer();
+            }
         }
-        else {
-            this.startOnlineComServer();
-        }
+
     }
 
     public boolean isStarted() {
@@ -144,13 +146,11 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
                 this.remoteQueryApiUrl = remoteComServerProperties.getProperty("remoteQueryApiUrl");
                 this.logger.remoteComServerPropertiesDetected();
                 this.logger.remoteQueryAPIURLPropertyFound(this.remoteQueryApiUrl);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 this.logger.failedToLoadRemoteComServerProperties(e);
                 this.remoteQueryApiUrl = null;
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             // could not load file, not remote ComServer
         }
     }
@@ -164,19 +164,16 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
     private void doStartOnlineComServer() {
         if (this.comServer == null) {
             this.logger.comServerNotFound(HostName.getCurrent());
-        }
-        else if (!this.comServer.isActive()) {
+        } else if (!this.comServer.isActive()) {
             this.logger.comServerNotActive(HostName.getCurrent());
-        }
-        else {
+        } else {
             if (this.comServer.isOnline()) {
                 if (this.validateServices((OnlineComServer) this.comServer)) {
                     this.logger.starting(this.comServer.getName());
                     this.runningComServer = new RunningOnlineComServerImpl((OnlineComServer) this.comServer, serviceProvider);
                     this.runningComServer.start();
                 }
-            }
-            else {
+            } else {
                 this.logger.notAnOnlineComeServer(this.comServer.getClass().getSimpleName());
             }
         }
@@ -184,20 +181,19 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
 
     private boolean validateServices(OnlineComServer comServer) {
         return this.validateInboundServices(comServer, comServer.getName())
-            && this.validateOutboundServices(comServer, comServer.getName());
+                && this.validateOutboundServices(comServer, comServer.getName());
     }
 
     private boolean validateServices(RemoteComServer comServer) {
         return this.validateInboundServices(comServer, comServer.getName())
-            && this.validateOutboundServices(comServer, comServer.getName());
+                && this.validateOutboundServices(comServer, comServer.getName());
     }
 
     private boolean validateInboundServices(InboundCapable comServer, String comServerName) {
         if (!comServer.getInboundComPorts().isEmpty() && this.inboundDeviceProtocolServices.getValue() <= 0) {
             this.logger.startingDelayedBecauseOfMisingInboundDeviceProtocolServices(comServerName);
             return false;
-        }
-        else {
+        } else {
             return true;
         }
     }
@@ -213,8 +209,7 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
                 return false;
             }
             return true;
-        }
-        else {
+        } else {
             return true;
         }
     }
@@ -230,29 +225,26 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
         try {
             if (this.comServer == null) {
                 this.logger.comServerNotFound(HostName.getCurrent());
-            }
-            else if (!this.comServer.isActive()) {
+            } else if (!this.comServer.isActive()) {
                 this.logger.comServerNotActive(HostName.getCurrent());
-            }
-            else {
+            } else {
                 if (this.comServer.isRemote()) {
                     if (this.validateServices((RemoteComServer) this.comServer)) {
                         this.logger.starting(this.comServer.getName());
                         this.runningComServer = new RunningRemoteComServerImpl((RemoteComServer) this.comServer, comServerDAO, serviceProvider);
                         this.runningComServer.start();
                     }
-                }
-                else {
+                } else {
                     this.logger.notARemoteComeServer(this.comServer.getClass().getSimpleName());
                 }
             }
-        }
-        catch (ApplicationException e) {
+        } catch (ApplicationException e) {
             this.logger.failedToStartQueryApi(e.getCause(), this.remoteQueryApiUrl);
         }
     }
 
     private class ComServerDaoServiceProvider implements ComServerDAOImpl.ServiceProvider {
+
         @Override
         public Clock clock() {
             return serviceProvider.clock();
@@ -306,6 +298,7 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
     }
 
     private class RemoteComServerDaoServiceProvider implements RemoteComServerDAOImpl.ServiceProvider {
+
         @Override
         public Clock clock() {
             return serviceProvider.clock();

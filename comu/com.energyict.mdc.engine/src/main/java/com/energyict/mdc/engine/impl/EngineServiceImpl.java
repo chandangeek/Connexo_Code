@@ -407,7 +407,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
 
     @SuppressWarnings("unused")
     public void launchComServer() {
-        if (this.launcher == null) {
+        if (this.launcher == null || !this.launcher.isStarted()) {
             this.tryStartComServer();
         }
         else {
