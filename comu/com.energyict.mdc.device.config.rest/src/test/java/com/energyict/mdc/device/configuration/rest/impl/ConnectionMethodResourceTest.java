@@ -88,7 +88,7 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
         assertThat(jsonModel.<Boolean>get("$.success")).isEqualTo(false);
         assertThat(jsonModel.<String>get("$.errors[0].id")).startsWith("properties.");
-        assertThat(jsonModel.<String>get("$.errors[0].msg")).isEqualTo("Invalid value");
+        assertThat(jsonModel.<String>get("$.errors[0].msg")).isEqualTo("Unknown time unit '" + timeDurationInfo.timeUnit + "'");
     }
 
     @Test

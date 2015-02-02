@@ -184,7 +184,7 @@ public class ConnectionMethodResource {
                     }
                 }
             } catch (LocalizedFieldValidationException e) {
-                throw new LocalizedFieldValidationException(e.getMessageSeed(), "properties."+e.getViolatingProperty());
+                throw new LocalizedFieldValidationException(e.getMessageSeed(), "properties."+e.getViolatingProperty(), e.getArgs());
             }
         }
     }
