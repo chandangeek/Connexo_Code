@@ -60,12 +60,14 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
         dockedLinksContainer.add([
             {
                 xtype: 'button',
+                itemId: 'lnk-assigned-issues-link',
                 text: Ext.String.format(Uni.I18n.translate('overview.widget.openDataCollectionIssues.assignedToMe', 'DSH', 'Assigned to me ({0})'), assigned.get('total')),
                 ui: 'link',
                 href: me.router.getRoute('workspace/datacollectionissues').buildUrl(null, {filter: assignedFilter})
             },
             {
                 xtype: 'button',
+                itemId: 'lnk-unassigned-issues-link',
                 text: Ext.String.format(Uni.I18n.translate('overview.widget.openDataCollectionIssues.unassigned', 'DSH', 'Unassigned ({0})'), unassigned.get('total')),
                 ui: 'link',
                 href: me.router.getRoute('workspace/datacollectionissues').buildUrl(null, {filter: unassignedFilter})
