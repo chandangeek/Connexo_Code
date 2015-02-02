@@ -35,7 +35,6 @@ public enum EventType {
                 .component(PluggableService.COMPONENTNAME)
                 .category("Crud")
                 .scope("System")
-                .shouldPublish()
                 .withProperty("id", ValueType.LONG, "id");
         this.addCustomProperties(builder).create().save();
     }
