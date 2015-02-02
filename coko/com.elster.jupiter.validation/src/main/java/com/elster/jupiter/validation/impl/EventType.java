@@ -38,7 +38,6 @@ public enum EventType {
                 .component(ValidationService.COMPONENTNAME)
                 .category("Crud")
                 .scope("System")
-                .shouldPublish()
                 .withProperty("id", ValueType.LONG, "id")
                 .withProperty("version", ValueType.LONG, "version");
         if (hasMRID) {
