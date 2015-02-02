@@ -32,7 +32,6 @@ public enum EventType {
                 .component(MeteringGroupsService.COMPONENTNAME)
                 .category("Crud")
                 .scope("System")
-                .shouldPublish()
                 .withProperty("id", ValueType.LONG, "id");
         addCustomProperties(builder).create().save();
     }
