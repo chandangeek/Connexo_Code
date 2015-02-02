@@ -212,10 +212,12 @@ public class MdcPropertyUtils {
         } else if (Objects.equals(propertySpec.getValueFactory().getValueType(), TimeDuration.class)) {
             Integer count = (Integer) ((LinkedHashMap<String, Object>) value).get("count");
             String timeUnit = (String) ((LinkedHashMap<String, Object>) value).get("timeUnit");
-            if (!TimeDuration.isValidTimeUnitDescription(timeUnit)) {
-                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, propertySpec.getName());
+            try {
+                return new TimeDuration("" + count + " " + timeUnit);
             }
-            return new TimeDuration("" + count + " " + timeUnit);
+            catch (LocalizedFieldValidationException e) {
+                throw new LocalizedFieldValidationException(e.getMessageSeed(), propertySpec.getName() + "." + e.getViolatingProperty(), e.getArgs());
+            }
         } else if (Objects.equals(propertySpec.getValueFactory().getValueType(), String.class)) {
             return value;
         } else if (Objects.equals(propertySpec.getValueFactory().getValueType(), Boolean.class)) {
