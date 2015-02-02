@@ -48,8 +48,7 @@ public enum EventType {
     },
     DEVICEMESSAGE_CREATED("deviceMessage/CREATED"),
     DEVICEMESSAGE_UPDATED("deviceMessage/UPDATED"),
-    DEVICEMESSAGE_DELETED("deviceMessage/DELETED"),
-    ;
+    DEVICEMESSAGE_DELETED("deviceMessage/DELETED"),;
 
     private static final String NAMESPACE = "com/energyict/mdc/device/data/";
     private final String topic;
@@ -68,8 +67,7 @@ public enum EventType {
                 .name(name())
                 .component(DeviceDataServices.COMPONENT_NAME)
                 .category("Crud")
-                .scope("System")
-                .shouldPublish();
+                .scope("System");
         this.addCustomProperties(builder).create().save();
     }
 
