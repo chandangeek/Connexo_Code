@@ -119,6 +119,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
             targetContainer.add(
                 {
                     xtype: 'button',
+                    itemId: 'lnk-view-all-communication-servers',
                     ui: 'link',
                     text: Uni.I18n.translate('overview.widget.communicationServers.viewAll', 'DSH', 'View all'),
                     href: typeof me.router.getRoute('administration/comservers') !== 'undefined'
