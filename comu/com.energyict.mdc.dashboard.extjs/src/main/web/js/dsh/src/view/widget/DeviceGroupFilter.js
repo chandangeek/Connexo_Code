@@ -29,6 +29,7 @@ Ext.define('Dsh.view.widget.DeviceGroupFilter', {
                 menu: {
                     enableScrolling: true,
                     maxHeight: 350,
+                    itemId: 'mnu-device-group-filter',
                     router: me.router,
                     listeners: {
                         click: function (cmp, item) {
