@@ -1,11 +1,10 @@
 package com.energyict.mdc.engine.impl;
 
-import com.energyict.mdc.masterdata.MasterDataService;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.orm.TransactionRequired;
+import com.energyict.mdc.masterdata.MasterDataService;
 
 /**
  * Models the different event types that are produced by the mdc engine bundle.
@@ -90,8 +89,7 @@ public enum EventType {
                 .name(name())
                 .component(MasterDataService.COMPONENTNAME)
                 .category("Crud")
-                .scope("System")
-                .shouldPublish();
+                .scope("System");
         this.addCustomProperties(builder).create().save();
     }
 
