@@ -65,7 +65,7 @@ public class EIWebPlusConnectionType implements ConnectionType {
 
     @Override
     public Set<ComPortType> getSupportedComPortTypes() {
-        return EnumSet.of(ComPortType.TCP);
+        return EnumSet.of(ComPortType.EXTERNAL_SERVLET);
     }
 
     @Override
