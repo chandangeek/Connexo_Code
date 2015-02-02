@@ -58,6 +58,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskSetup'
     getEmptyComponent: function () {
             return  {
                 xtype: 'no-items-found-panel',
+                itemId: 'no-device-communication-tasks',
                 title: Uni.I18n.translate('devicecommunicationTask.empty.title', 'MDC', 'No communication tasks found'),
                 reasons: [
                     Uni.I18n.translate('devicecommunicationTask.empty.list.item1', 'MDC', 'No communication tasks have been added to the device configuration.')
