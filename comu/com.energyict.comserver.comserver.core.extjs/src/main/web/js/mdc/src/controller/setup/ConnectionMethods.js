@@ -293,6 +293,10 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         var me = this;
         var propertyForm = me.getConnectionMethodEditView().down('property-form');
         if (record) {
+            if (propertyForm.down('#connectionTimeoutnumberfield')) {
+                propertyForm.down('#connectionTimeoutnumberfield').clearInvalid();
+                propertyForm.down('#connectionTimeoutcombobox').clearInvalid();
+            }
             record.beginEdit();
             record.set(values);
             if (values.connectionStrategy === 'asSoonAsPossible') {
@@ -323,6 +327,14 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                     if (json && json.errors) {
                         me.getConnectionMethodEditForm().getForm().markInvalid(json.errors);
                         propertyForm.getForm().markInvalid(json.errors);
+                        Ext.Array.each(json.errors, function (item) {
+                            if (item.id.indexOf("timeCount") !== -1) {
+                                propertyForm.down('#connectionTimeoutnumberfield').markInvalid(item.msg);
+                            }
+                            if (item.id.indexOf("timeUnit") !== -1) {
+                                propertyForm.down('#connectionTimeoutcombobox').markInvalid(item.msg);
+                            }
+                        });
                     }
                 }
             });

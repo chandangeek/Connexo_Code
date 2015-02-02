@@ -380,6 +380,10 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
 
     saveRecord: function (record, isNewRecord) {
         var me = this;
+        if (me.getDeviceConnectionMethodEditView().down('property-form').down('#connectionTimeoutnumberfield')) {
+            me.getDeviceConnectionMethodEditView().down('property-form').down('#connectionTimeoutnumberfield').clearInvalid();
+            me.getDeviceConnectionMethodEditView().down('property-form').down('#connectionTimeoutcombobox').clearInvalid();
+        }
         record.getProxy().extraParams = ({mrid: me.mrid});
         record.save({
             success: function (record) {
@@ -413,9 +417,15 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                     } else {
                         me.getDeviceConnectionMethodEditForm().getForm().markInvalid(json.errors);
                         me.getDeviceConnectionMethodEditView().down('property-form').getForm().markInvalid(json.errors);
+                        Ext.Array.each(json.errors, function (item) {
+                            if (item.id.indexOf("timeCount") !== -1) {
+                                me.getDeviceConnectionMethodEditView().down('property-form').down('#connectionTimeoutnumberfield').markInvalid(item.msg);
+                            }
+                            if (item.id.indexOf("timeUnit") !== -1) {
+                                me.getDeviceConnectionMethodEditView().down('property-form').down('#connectionTimeoutcombobox').markInvalid(item.msg);
+                            }
+                        });
                     }
-
-
                 }
             }
         });
