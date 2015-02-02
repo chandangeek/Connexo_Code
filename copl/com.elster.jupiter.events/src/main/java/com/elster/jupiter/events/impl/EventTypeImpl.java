@@ -10,10 +10,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.json.JsonService;
-import java.time.Clock;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +24,7 @@ public class EventTypeImpl implements EventType, PersistenceAware {
     private String scope;
     private String category;
     private String name;
-    private boolean publish = true;
+    private boolean publish = false;
     private final List<EventPropertyType> eventPropertyTypes = new ArrayList<>();
     private transient boolean fromDB = true;
     private final DataModel dataModel;
@@ -36,7 +36,7 @@ public class EventTypeImpl implements EventType, PersistenceAware {
     private final Thesaurus thesaurus;
 
     @Inject
-	EventTypeImpl(DataModel dataModel, Clock clock, JsonService jsonService, EventConfiguration eventConfiguration, MessageService messageService, BeanService beanService, Thesaurus thesaurus) {
+    EventTypeImpl(DataModel dataModel, Clock clock, JsonService jsonService, EventConfiguration eventConfiguration, MessageService messageService, BeanService beanService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.clock = clock;
         this.jsonService = jsonService;
