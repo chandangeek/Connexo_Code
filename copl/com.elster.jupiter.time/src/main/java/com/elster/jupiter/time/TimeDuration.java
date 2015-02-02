@@ -275,7 +275,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
         try {
             this.count = Integer.parseInt(countAsString);
         } catch (NumberFormatException ex) {
-            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_TIME_COUNT, "timeUnit", countAsString);
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_TIME_COUNT, "timeCount", countAsString);
         }
         switch (timeUnitAsString) {
             case MILLISECONDS_STRING: {

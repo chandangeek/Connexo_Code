@@ -16,8 +16,8 @@ public enum MessageSeeds implements MessageSeed {
     NAME_MUST_BE_UNIQUE(7, Keys.NAME_MUST_BE_UNIQUE, "Relative period with such name already exists", Level.SEVERE),
     RELATIVE_PERIOD_IN_USE(8, Keys.RELATIVE_PERIOD_IN_USE, "{0} category(s) can't be deleted, relative period is in use.", Level.SEVERE),
     CATEGORY_MUST_BE_UNIQUE(9, Keys.CATEGORY_MUST_BE_UNIQUE, "Category is not unique", Level.SEVERE),
-    UNKNOWN_TIME_UNIT (10, Keys.UNKNOWN_TIME_UNIT, "Unknown time unit '{0}'", Level.SEVERE),
-    INVALID_TIME_COUNT (10, Keys.INVALID_TIME_COUNT, "Time duration count is not a number: '{0}'", Level.SEVERE),
+    UNKNOWN_TIME_UNIT (10, Keys.UNKNOWN_TIME_UNIT, "Unknown time unit ''{0}''", Level.SEVERE),
+    INVALID_TIME_COUNT (11, Keys.INVALID_TIME_COUNT, "{0} is not a number", Level.SEVERE),
     ;
 
     private final int number;
