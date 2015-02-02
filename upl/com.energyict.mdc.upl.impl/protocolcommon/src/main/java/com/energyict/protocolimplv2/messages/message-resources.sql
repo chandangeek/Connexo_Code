@@ -39,3 +39,4 @@ insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_
 
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('MBusSetupDeviceMessage.WriteMBusCapturePeriod', 'Write MBus capture period', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('MBusSetupDeviceMessage.WriteCaptureDefinitionForAllInstances', 'Write MBus capture definitions', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('TYPE_EXTERNAL_SERVLET', 'External servlet', 'L', 'Y', 'N', 'MDW', sysdate);
