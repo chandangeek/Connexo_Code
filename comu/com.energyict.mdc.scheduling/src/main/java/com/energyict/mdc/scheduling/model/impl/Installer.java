@@ -1,14 +1,13 @@
 package com.energyict.mdc.scheduling.model.impl;
 
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.events.EventType;
-import com.energyict.mdc.scheduling.security.Privileges;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.events.EventType;
+import com.energyict.mdc.scheduling.security.Privileges;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,7 +44,7 @@ public class Installer {
     }
 
     private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", "sharedCommunicationSchedule.sharedCommunicationSchedules", "sharedCommunicationSchedule.sharedCommunicationSchedules.description", new String[] {Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.VIEW_SHARED_COMMUNICATION_SCHEDULE});
+        this.userService.createResourceWithPrivileges("MDC", "sharedCommunicationSchedule.sharedCommunicationSchedules", "sharedCommunicationSchedule.sharedCommunicationSchedules.description", new String[]{Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.VIEW_SHARED_COMMUNICATION_SCHEDULE});
     }
 
     private void createEventTypes() {
@@ -61,8 +60,7 @@ public class Installer {
                     .name(eventType.name())
                     .component(SchedulingService.COMPONENT_NAME)
                     .category("Crud")
-                    .scope("System")
-                    .shouldPublish();
+                    .scope("System");
             eventType.addCustomProperties(eventTypeBuilder);
             eventTypeBuilder.create().save();
         }
