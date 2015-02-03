@@ -65,6 +65,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             '#deviceConfigurationPreview menuitem[action=editDeviceConfiguration]': {
                 click: this.editDeviceConfigurationHistoryFromPreview
             },
+            'add-logbook-configurations add-logbook-configurations-grid': {
+                selectionchange: this.enableAddBtn
+            },
             '#deviceConfigurationPreview menuitem[action=deleteDeviceConfiguration]': {
                 click: this.deleteDeviceConfigurationFromPreview
             },
@@ -86,6 +89,14 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             }
         });
     },
+
+    enableAddBtn: function (selectionModel) {
+        var addBtn = Ext.ComponentQuery.query('add-logbook-configurations #logbookConfAdd')[0];
+        if (addBtn) {
+            selectionModel.getSelection().length > 0 ? addBtn.enable() : addBtn.disable();
+        }
+    },
+
 
     configureMenu: function (menu) {
         var activate = menu.down('#activateDeviceconfigurationMenuItem'),
@@ -507,7 +518,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             {
                 callback: function () {
                     me.getApplication().fireEvent('changecontentevent', widget);
-                    if (!this.getCount()) { widget.down('button[action=add]').disable(); }
+                    if (!this.getCount()) {
+                        widget.down('button[action=add]').disable();
+                    }
                     widget.setLoading(true);
                     model.load(deviceTypeId, {
                         success: function (deviceType) {

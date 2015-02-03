@@ -102,7 +102,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: "This security setting configuration will no longer be available",
-            title: "Remove " + ' ' + lastSelected.getData().name + '?',
+            title: "Remove " + ' \'' + lastSelected.getData().name + '\'?',
             config: {
                 securitySettingToDelete: lastSelected,
                 me: me
@@ -208,7 +208,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         executionLevelsTitle.show();
         executionLevelscontainer.show();
 
-        this.getExecutionLevelsForSecuritySettingPreview().setTitle(Ext.String.format(Uni.I18n.translate('executionLevel.gridTitle', 'MDC', 'Privileges of {0}'), record.getData().name));
+        this.getExecutionLevelsForSecuritySettingPreview().setTitle(Ext.String.format(Uni.I18n.translate('securitySetting.executionLevel.gridTitle', 'MDC', "Privileges of '{0}'"), record.getData().name));
 
         executionLevelsgrid.down('pagingtoolbartop').store = record.executionLevels();
         executionLevelsgrid.down('pagingtoolbartop').store.totalCount = record.executionLevels().getCount();
@@ -553,7 +553,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             securitySetting = securitySettingsGrid.getView().getSelectionModel().getLastSelected().getData().id;
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('executionlevel.removeExecutionLevel', 'MDC', 'The privilege will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + '\'' + lastSelected.getData().name + '\'?',
+            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' \'' + lastSelected.getData().name + '\'?',
             config: {
                 executionLevelToDelete: lastSelected,
                 securitySetting: securitySetting,

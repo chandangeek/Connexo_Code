@@ -34,7 +34,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurationsGrid', {
                     },
                     {
                         xtype: 'button',
-                        text: Uni.I18n.translate('logbookConfigurations.manage', 'MDC', 'Manage logbook configurations'),
+                        text: Uni.I18n.translate('logbooktype.managelogbooktypes', 'MDC', 'Manage logbook types'),
                         action: 'manage',
                         ui: 'link',
                         listeners: {
