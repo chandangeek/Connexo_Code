@@ -11,7 +11,6 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeGrid', {
         'Mdc.view.setup.logbooktype.LogbookTypeActionMenu',
         'Uni.grid.column.Obis'
     ],
-    store: 'Mdc.store.LogbookTypes',
 
     initComponent: function () {
         var me = this;

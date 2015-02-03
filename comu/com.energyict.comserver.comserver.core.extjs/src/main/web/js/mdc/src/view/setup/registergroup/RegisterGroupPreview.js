@@ -37,19 +37,11 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                         itemId: 'registerTypeEmptyGrid',
                         grid: {
                             xtype: 'registerTypeGrid',
-                            withPaging: true,
-                            topPagging: {
-                                xtype: 'pagingtoolbartop',
-                                store: 'AvailableRegisterTypesForRegisterGroup',
-                                dock: 'top',
-                                displayMsg: Uni.I18n.translate('registerTypes.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} register types'),
-                                displayMoreMsg: Uni.I18n.translate('registerTypes.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} register types'),
-                                emptyMsg: Uni.I18n.translate('registerTypes.pagingtoolbartop.emptyMsg', 'MDC', 'There are no register types to display')
-                            },
+                            itemId: 'register-groups-register-types-grid',
+                            withPaging: false,
                             bottomPagging: false,
                             withActions: false,
-                            store: 'AvailableRegisterTypesForRegisterGroup',
-                            maxHeight: 650
+                            store: 'AvailableRegisterTypesForRegisterGroup'
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
