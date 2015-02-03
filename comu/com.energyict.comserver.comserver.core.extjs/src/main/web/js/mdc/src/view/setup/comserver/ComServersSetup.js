@@ -20,6 +20,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersSetup', {
                 },
                 emptyComponent: {
                     xtype: 'no-items-found-panel',
+                    itemId: 'ctr-no-comservers',
                     title: Uni.I18n.translate('comserver.empty.title', 'MDC', 'No communication servers found'),
                     reasons: [
                         Uni.I18n.translate('comserver.empty.list.item1', 'MDC', 'No communication servers created yet')

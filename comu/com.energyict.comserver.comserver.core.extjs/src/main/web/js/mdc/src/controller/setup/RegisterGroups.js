@@ -20,7 +20,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
 
     refs: [
         {ref: 'registerGroupSetup', selector: '#registerGroupSetup'},
-        {ref: 'registerTypeGrid', selector: '#registertypegrid'},
+        {ref: 'registerTypeGrid', selector: '#register-groups-register-types-grid'},
         {ref: 'registerGroupGrid', selector: '#registerGroupGrid'},
         {ref: 'registerGroupPreviewForm', selector: '#registerGroupPreviewForm'},
         {ref: 'registerGroupPreview', selector: '#registerGroupPreview'},
@@ -42,7 +42,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
             '#registerGroupEdit #editRegisterGroupGridField': {
                 selectionchange: this.checkboxChanged
             },
-            '#registerGroupSetup #registertypegrid': {
+            '#registerGroupSetup #register-groups-register-types-grid': {
                 selectionchange: this.previewRegisterType
             },
             '#registerGroupSetup #registerGroupGrid': {
@@ -91,16 +91,14 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     previewRegisterGroup: function (grid, record) {
         var registerGroups = this.getRegisterGroupGrid().getSelectionModel().getSelection();
         if (registerGroups.length == 1) {
-            var me=this;
-
-            this.getRegisterTypeGrid().store.getProxy().setExtraParam('registerGroup', registerGroups[0].get('id'));
-            this.getRegisterTypeGrid().store.load({
-                callback: function (store) {
-                    if(this.totalCount > 0){
+            var me = this;
+            me.getRegisterTypeGrid().getStore().getProxy().setExtraParam('registerGroup', registerGroups[0].get('id'));
+            me.getRegisterTypeGrid().getStore().load({
+                callback: function (records) {
+                    if (records.length > 0) {
                         me.getRegisterGroupPreview().setTitle(Uni.I18n.translate('registerGroup.previewGroup', 'MDC', 'Register types of {0}', [registerGroups[0].get('name')]));
                         me.getRegisterTypeGrid().getSelectionModel().doSelect(0);
-                    }
-                    else{
+                    } else {
                         me.getRegisterGroupPreview().setTitle(Uni.I18n.translate('registerGroup.previewGroup', 'MDC', 'Register types of {0}', [registerGroups[0].get('name')]));
                     }
                     me.getRegisterTypeEmptyGrid().setVisible(true);
@@ -152,7 +150,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                     callback: function (registerTypes) {
                         widget.down('form').loadRecord(registerGroup);
                         widget.down('panel').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + registerGroup.get('name') + '\'');
-                        if(this.data.items.length > 0){
+                        if (this.data.items.length > 0) {
                             widget.down('#editRegisterGroupGridField').getSelectionModel().doSelect(registerGroup.registerTypes().data.items);
                             widget.down('#editRegisterGroupGridField').store.add(registerTypes);
                         }
@@ -182,7 +180,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 var registerGroup = Ext.create(Ext.ModelManager.getModel('Mdc.model.RegisterGroup'));
                 widget.down('form').loadRecord(registerGroup);
                 widget.down('panel').setTitle(Uni.I18n.translate('registerGroup.create', 'MDC', 'Add register group'));
-                if(this.totalCount > 0){
+                if (this.totalCount > 0) {
                     widget.down('#editRegisterGroupSelectedField').setValue(Ext.String.format(Uni.I18n.translate('registerGroup.selectedRegisterTypes', 'MDC', '{0} register types selected'), 0));
                     widget.down('#editRegisterGroupGridField').reconfigure(store);
                 }
@@ -206,20 +204,20 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         record.registerTypes().removeAll();
         record.registerTypes().add(selected);
 
-        var me=this;
+        var me = this;
         record.save({
             success: function (record) {
                 var message;
-                if(me.mode == 'edit'){
+                if (me.mode == 'edit') {
                     message = Uni.I18n.translatePlural('registergroup.saved', record.get('name'), 'USM', 'Register group saved.');
                 }
-                else{
+                else {
                     message = Uni.I18n.translatePlural('registergroup.added', record.get('name'), 'USM', 'Register group added.');
                 }
                 me.getApplication().fireEvent('acknowledge', message);
                 location.href = '#/administration/registergroups/';
             },
-            failure: function(record,operation){
+            failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
                     me.getRegisterGroupEditForm().getForm().markInvalid(json.errors);
