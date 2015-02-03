@@ -2,9 +2,13 @@ package com.elster.jupiter.yellowfin.groups.impl;
 
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.yellowfin.groups.AdHocDeviceGroup;
 
 import javax.inject.Inject;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +17,9 @@ import java.util.stream.Collectors;
 
 public class AdHocDeviceGroupImpl implements AdHocDeviceGroup {
 
-    public String ADHOC_GROUP_NAME_PREFIX = "__##SEARCH_RESULTS##__";
+    private String ADHOC_GROUP_NAME_PREFIX = "__##SEARCH_RESULTS##__";
+    private int SECONDS_IN_DAY = 24*60*60;
+    private int ROWCOUNT_ITEMS = 100;
 
     long id;
     String name;
@@ -38,6 +44,44 @@ public class AdHocDeviceGroupImpl implements AdHocDeviceGroup {
     static AdHocDeviceGroupImpl from(DataModel dataModel, long id, List<Long> devices) {
         return dataModel.getInstance(AdHocDeviceGroupImpl.class).init(id, devices);
     }
+
+    static AdHocDeviceGroupImpl from(DataModel dataModel) {
+        return dataModel.getInstance(AdHocDeviceGroupImpl.class);
+    }
+
+    public void purgeAdHocSearch(int lastDays){
+
+        Instant instant = Instant.now();
+        instant = instant.minusSeconds(lastDays*SECONDS_IN_DAY);
+
+        try (Connection conn = dataModel.getConnection(false)) {
+            PreparedStatement statement = buildStatement(conn, buildCreateSQL(instant));
+
+            int removedItems = 0;
+            do{
+                removedItems = statement.executeUpdate();
+            }while (removedItems>0);
+
+        } catch (SQLException sqlEx){
+
+        }
+    }
+
+    protected SqlBuilder buildCreateSQL(Instant instant){
+        SqlBuilder builder = new SqlBuilder();
+        builder.append("delete from " + TableSpecs.YFN_ADHOC_DG );
+        builder.append(" where CREATETIME < " + instant.getEpochSecond() * 1000 + " and rownum < " + ROWCOUNT_ITEMS);
+        return builder;
+    }
+
+    protected PreparedStatement buildStatement(Connection connection, SqlBuilder sql) throws SQLException{
+        if (connection == null){
+            throw new IllegalArgumentException("Connection can't be null");
+        }
+        return sql.prepare(connection);
+    }
+
+
 
     @Override
     public long getId() {

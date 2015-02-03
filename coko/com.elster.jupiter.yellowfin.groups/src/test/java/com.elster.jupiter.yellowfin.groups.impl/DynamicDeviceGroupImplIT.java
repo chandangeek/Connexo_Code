@@ -19,6 +19,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -90,7 +91,8 @@ public class DynamicDeviceGroupImplIT {
                 new ThreadSecurityModule(),
                 new PubSubModule(),
                 new TransactionModule(),
-                new NlsModule()
+                new NlsModule(),
+                new TaskModule()
         );
 
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {

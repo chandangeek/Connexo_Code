@@ -1,11 +1,11 @@
 package com.elster.jupiter.yellowfin.groups.impl;
 
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.*;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+
+import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 
 public enum TableSpecs {
     YFN_ADHOC_DG {
@@ -25,8 +25,7 @@ public enum TableSpecs {
             Column deviceIdColumn = table.column("ENDDEVICEID").number().notNull().conversion(NUMBER2LONG).map("deviceId").add();
             Column groupIdColumn = table.column("DEVICEGROUPID").number().notNull().conversion(NUMBER2LONG).map("groupId").add();
             table.primaryKey("YFG_PK_DEVICEINAHG").on(deviceIdColumn , groupIdColumn).add();
-            //table.foreignKey("YFG_FK_DEVICEINAHG2GROUP").references(YFN_ADHOC_DG.name()).onDelete(CASCADE).map("groupId").on(groupIdColumn).add();
-            //table.foreignKey("YFG_FK_DEVICEINAHG2DEVICE").references(MeteringService.COMPONENTNAME, "MTR_ENDDEVICE").onDelete(CASCADE).map("deviceId").on(deviceIdColumn).add();
+            table.foreignKey("YFG_FK_DEVICEINAHG").references(YFN_ADHOC_DG.name()).onDelete(CASCADE).map("groupId").on(groupIdColumn).add();
         }
     },
     YFN_ED_IN_DG {
@@ -36,8 +35,6 @@ public enum TableSpecs {
             Column deviceIdColumn = table.column("ENDDEVICEID").number().notNull().conversion(NUMBER2LONG).map("deviceId").add();
             Column groupIdColumn = table.column("DEVICEGROUPID").number().notNull().conversion(NUMBER2LONG).map("groupId").add();
             table.primaryKey("YFG_PK_DEVICEINDG").on(deviceIdColumn , groupIdColumn).add();
-            //table.foreignKey("YFG_FK_DEVICEINDG2GROUP").references(MeteringGroupsService.COMPONENTNAME, "MTG_ED_GROUP").onDelete(CASCADE).map("groupId").on(groupIdColumn).add();
-            //table.foreignKey("YFG_FK_DEVICEINDG2DEVICE").references(MeteringService.COMPONENTNAME, "MTR_ENDDEVICE").onDelete(CASCADE).map("deviceId").on(deviceIdColumn).add();
         }
     };
 

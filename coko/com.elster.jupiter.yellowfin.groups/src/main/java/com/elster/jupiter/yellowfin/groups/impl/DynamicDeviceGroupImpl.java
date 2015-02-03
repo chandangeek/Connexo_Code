@@ -3,14 +3,11 @@ package com.elster.jupiter.yellowfin.groups.impl;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.collections.ArrayDiffList;
-import com.elster.jupiter.util.collections.DiffList;
-import com.google.common.collect.FluentIterable;
-
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class DynamicDeviceGroupImpl  {
     protected long id;
@@ -93,19 +90,14 @@ public class DynamicDeviceGroupImpl  {
 
     public void save() {
         List<DynamicEntryImpl> existingEntries = entryFactory().find("groupId", id);
-        entryFactory().remove(existingEntries);
-        entryFactory().persist(entries);
 
-        /*DiffList<DynamicEntryImpl> entryDiff = ArrayDiffList.fromOriginal(existingEntries);
+        List<DynamicEntryImpl> toRemoveEntries = existingEntries.stream().filter(entry -> !entries.contains(entry)).
+                collect(Collectors.toList());
+        entryFactory().remove(toRemoveEntries);
 
-        entryDiff.clear();
-        for(DynamicEntryImpl entry : entries){
-            entryDiff.add(DynamicEntryImpl.from(dataModel, id, entry.getDeviceId()));
-        }
-
-        entryFactory().remove(FluentIterable.from(entryDiff.getRemovals()).toList());
-        entryFactory().update(FluentIterable.from(entryDiff.getRemaining()).toList());
-        entryFactory().persist(FluentIterable.from(entryDiff.getAdditions()).toList());*/
+        List<DynamicEntryImpl> toAddEntries = entries.stream().filter(entry -> !existingEntries.contains(entry)).
+                collect(Collectors.toList());
+        entryFactory().persist(toAddEntries);
     }
 
     private DataMapper<DynamicEntryImpl> entryFactory() {

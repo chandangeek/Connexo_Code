@@ -1,14 +1,17 @@
 package com.elster.jupiter.yellowfin.groups.impl;
 
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.yellowfin.groups.AdHocDeviceGroup;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.google.inject.AbstractModule;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -23,17 +26,28 @@ import java.util.Optional;
 @Component(name = "com.elster.jupiter.yellowfin.groups", service = {YellowfinGroupsService.class, InstallService.class}, property = "name=" + YellowfinGroupsService.COMPONENTNAME, immediate = true)
 public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, InstallService {
 
+    private static final String YELLOWFIN_LAST_DAYS = "com.elster.jupiter.yellowfin.groups.last";
+    private static final int DEFAULT_LAST = 2;
+
     private volatile DataModel dataModel;
+    private volatile OrmService ormService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile MessageService messageService;
+    private volatile TaskService taskService;
+
+    private int lastDays;
 
     public YellowfinGroupsServiceImpl() {
+        lastDays = DEFAULT_LAST;
     }
 
     @Inject
-    public YellowfinGroupsServiceImpl(OrmService ormService, MeteringGroupsService meteringGroupsService) {
+    public YellowfinGroupsServiceImpl(OrmService ormService, MeteringGroupsService meteringGroupsService, MessageService messageService, TaskService taskService) {
         setOrmService(ormService);
         setMeteringGroupsService(meteringGroupsService);
-        activate();
+        setMessageService(messageService);
+        setTaskService(taskService);
+        activate(null);
         if (!dataModel.isInstalled()) {
             install();
         }
@@ -42,15 +56,16 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Insta
     @Override
     public void install() {
         dataModel.install(true, true);
+        new Installer(dataModel, messageService, taskService).install();
     }
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "MTG");
+        return Arrays.asList(OrmService.COMPONENTNAME, MeteringGroupsService.COMPONENTNAME, MessageService.COMPONENTNAME, TaskService.COMPONENTNAME);
     }
 
     @Activate
-    public void activate() {
+    public void activate(BundleContext context) {
         try {
             dataModel.register(new AbstractModule() {
                 @Override
@@ -60,6 +75,19 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Insta
                     bind(DataModel.class).toInstance(dataModel);
                 }
             });
+
+            try {
+                String readLastDays;
+                if (context != null) {
+                    readLastDays = context.getProperty(YELLOWFIN_LAST_DAYS);
+
+                    if (readLastDays != null) {
+                        lastDays = Integer.parseInt(readLastDays);
+                    }
+                }
+            } catch (Exception e) {
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -76,11 +104,22 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Insta
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
+        this.ormService = ormService;
     }
 
     @Reference
     public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
+    }
+
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
     }
 
     @Override
@@ -103,4 +142,11 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Insta
         cachedDeviceGroup.save();
         return Optional.of(cachedDeviceGroup);
     }
+
+    @Override
+    public void purgeAdHocSearch(){
+        AdHocDeviceGroupImpl cachedDeviceGroup = AdHocDeviceGroupImpl.from(dataModel);
+        cachedDeviceGroup.purgeAdHocSearch(lastDays);
+    }
+
 }
