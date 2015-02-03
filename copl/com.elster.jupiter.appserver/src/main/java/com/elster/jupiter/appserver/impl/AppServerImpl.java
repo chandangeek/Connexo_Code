@@ -2,13 +2,13 @@ package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.*;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.domain.util.UniqueCaseInsensitive;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
@@ -21,12 +21,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@UniqueCaseInsensitive(fields = "name", groups = Save.Create.class, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
 public class AppServerImpl implements AppServer {
-
+    // Application server name should be less then 25 characters due to DB constrains (including "APPSERVER_" prefix)
+    private static final int APP_SERVER_NAME_SIZE = 14;
     private static final String APP_SERVER = "AppServer";
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY +"}")
-    @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80+"}")
-    @Pattern(regexp="[a-zA-Z0-9\\.\\-]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.APPSERVER_NAME_INVALID_CHARS +"}")
+    @Size(max=APP_SERVER_NAME_SIZE, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_14 +"}")
+    @Pattern(regexp="[a-zA-Z0-9\\-]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.APPSERVER_NAME_INVALID_CHARS +"}")
     private String name;
     private String cronString;
     private transient CronExpression scheduleFrequency;
@@ -103,7 +105,7 @@ public class AppServerImpl implements AppServer {
     }
 
     String messagingName() {
-        return APP_SERVER + '_' + getName();
+        return APP_SERVER + '_' + getName().replaceAll("-", "_");
     }
 
     public boolean isRecurrentTaskActive() {
