@@ -94,5 +94,20 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERIAL', {
                 }
             ]
         }
-    ]
+    ],
+
+    showData: function (direction) {
+        var isInbound = direction === 'Inbound';
+
+        this.down('displayfield[name=modemInitStrings]').setVisible(isInbound);
+        this.down('displayfield[name=addressSelector]').setVisible(isInbound);
+        this.down('displayfield[name=serialPortConf]').setVisible(isInbound);
+        this.down('displayfield[name=ringCount]').setVisible(isInbound);
+        this.down('displayfield[name=maximumNumberOfDialErrors]').setVisible(isInbound);
+        this.down('displayfield[name=connectTimeout]').setVisible(isInbound);
+        this.down('displayfield[name=delayAfterConnect]').setVisible(isInbound);
+        this.down('displayfield[name=delayBeforeSend]').setVisible(isInbound);
+        this.down('displayfield[name=atCommandTimeout]').setVisible(isInbound);
+        this.down('displayfield[name=atCommandTry]').setVisible(isInbound);
+    }
 });
