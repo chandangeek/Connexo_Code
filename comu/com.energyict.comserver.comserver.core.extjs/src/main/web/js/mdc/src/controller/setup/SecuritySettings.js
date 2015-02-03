@@ -102,7 +102,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: "This security setting configuration will no longer be available",
-            title: "Remove " + ' ' + lastSelected.getData().name + '?',
+            title: "Remove " + ' \'' + lastSelected.getData().name + '\'?',
             config: {
                 securitySettingToDelete: lastSelected,
                 me: me
@@ -121,7 +121,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 method: 'DELETE',
                 waitMsg: 'Removing...',
                 success: function () {
-                    me.getApplication().fireEvent('acknowledge', 'Security setting was removed successfully');
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.remove', 'MDC', 'Security setting removed'));
                     me.store.load();
                 },
                 failure: function (response, request) {
@@ -359,7 +359,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         method: 'POST',
                         jsonData: jsonValues,
                         success: function (response) {
-                            me.handleSuccessRequest(response, 'Security setting saved');
+                            me.handleSuccessRequest(response,Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.added', 'MDC', 'Security setting added'));
                         },
                         failure: function (response) {
                             me.handleFailureRequest(response, 'Error during create');
@@ -380,7 +380,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         method: 'PUT',
                         jsonData: jsonValues,
                         success: function (response) {
-                            me.handleSuccessRequest(response, 'Security setting saved');
+                            me.handleSuccessRequest(response, Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.edit', 'MDC', 'Security setting saved'));
                         },
                         failure: function (response) {
                             me.handleFailureRequest(response, 'Error during update');
@@ -553,7 +553,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             securitySetting = securitySettingsGrid.getView().getSelectionModel().getLastSelected().getData().id;
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('executionlevel.removeExecutionLevel', 'MDC', 'The privilege will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + '\'' + lastSelected.getData().name + '\'?',
+            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' \'' + lastSelected.getData().name + '\'?',
             config: {
                 executionLevelToDelete: lastSelected,
                 securitySetting: securitySetting,

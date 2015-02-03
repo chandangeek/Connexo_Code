@@ -34,7 +34,7 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                                 }
                             },
                             {
-                                itemid: 'allDataValidatedField',
+                                itemId: 'allDataValidatedField',
                                 fieldLabel: Uni.I18n.translate('device.registerData.allDataValidated', 'MDC', 'All data validated'),
                                 name: 'allDataValidated',
                                 renderer: function (value) {
