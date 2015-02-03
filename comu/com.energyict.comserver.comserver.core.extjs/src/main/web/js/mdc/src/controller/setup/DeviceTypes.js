@@ -357,28 +357,19 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     showAddLogbookTypesView: function (deviceTypeId) {
         var me = this,
             model = Ext.ModelManager.getModel('Mdc.model.DeviceType'),
-            store = Ext.data.StoreManager.lookup('AvailableLogbookTypes');
+            store = Ext.data.StoreManager.lookup('AvailableLogbookTypes'),
+            widget = Ext.widget('add-logbook-types', {deviceTypeId: deviceTypeId});
         store.getProxy().setExtraParam('deviceType', deviceTypeId);
         store.getProxy().setExtraParam('available', true);
-        store.load(
-            {
-                callback: function () {
-                    var self = this,
-                        widget = Ext.widget('add-logbook-types', {deviceTypeId: deviceTypeId});
-                    me.getApplication().fireEvent('changecontentevent', widget);
-                    widget.setLoading(true);
-                    model.load(deviceTypeId, {
-                        success: function (deviceType) {
-                            me.getApplication().fireEvent('loadDeviceType', deviceType);
-                            me.getAddLogbookPanel().setTitle(Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'logbook types');
-                            store.load(function(){
-                                widget.down('#logbook-type-add-grid').getSelectionModel().deselectAll();
-                            });
-                            widget.setLoading(false);
-                        }
-                    });
-                }
+        store.load();
+        me.getApplication().fireEvent('changecontentevent', widget);
+        widget.setLoading(true);
+        model.load(deviceTypeId, {
+            success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
+                me.getAddLogbookPanel().setTitle(Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'logbook types');
+                widget.setLoading(false);
             }
-        );
+        });
     }
 });
