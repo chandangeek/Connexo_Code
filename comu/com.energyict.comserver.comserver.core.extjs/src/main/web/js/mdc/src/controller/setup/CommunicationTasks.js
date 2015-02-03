@@ -344,7 +344,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('communicationtasks.deleteCommunicationTask.message', 'MDC', 'On this device configuration it wont be possible anymore to execute this communication task'),
-            title: Uni.I18n.translate('communicationtasks.deleteCommunicationTask.title', 'MDC', 'Remove') + ' ' + lastSelected.get('comTask').name + '?',
+            title: Uni.I18n.translate('communicationtasks.deleteCommunicationTask.title', 'MDC', 'Remove') + ' \'' + lastSelected.get('comTask').name + '\'?',
             config: {
                 communicationTaskToDelete: lastSelected,
                 me: me
