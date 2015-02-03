@@ -156,7 +156,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("properties.connectionTimeout");
+        assertThat(jsonModel.<String>get("$.errors[0].id")).contains("properties.connectionTimeout");
     }
 
     private ScheduledConnectionTask mockConnectionTask(long id) {
