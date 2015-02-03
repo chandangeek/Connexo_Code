@@ -102,7 +102,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: "This security setting configuration will no longer be available",
-            title: "Remove " + ' ' + lastSelected.getData().name + '?',
+            title: "Remove " + ' \'' + lastSelected.getData().name + '\'?',
             config: {
                 securitySettingToDelete: lastSelected,
                 me: me
