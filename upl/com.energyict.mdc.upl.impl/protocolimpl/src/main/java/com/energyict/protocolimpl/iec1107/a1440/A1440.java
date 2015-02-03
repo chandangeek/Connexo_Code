@@ -656,21 +656,22 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             }
 
 			Quantity q;
-            if (obis.getUnitElectricity(this.scaler).isUndefined()) {
+            Unit obisUnit = obis.getUnitElectricity(this.scaler);
+            if (obisUnit.isUndefined()) {
                 q = new Quantity(bd, obis.getUnitElectricity(0));
             } else {
                 if (readUnit != null) {
-                    if (!readUnit.equals(obis.getUnitElectricity(this.scaler))) {
+                    if (!readUnit.getBaseUnit().equals(obisUnit.getBaseUnit())) {
                         String message = "Unit or scaler from obiscode is different from register Unit in meter!!! ";
                         message += " (Unit from meter: " + readUnit;
-                        message += " -  Unit from obiscode: " + obis.getUnitElectricity(this.scaler) + ")\n";
+                        message += " -  Unit from obiscode: " + obisUnit + ")\n";
                         getLogger().info(message);
                         if (this.failOnUnitMismatch == 1) {
                             throw new InvalidPropertyException(message);
                         }
                     }
                 }
-                q = new Quantity(bd, obis.getUnitElectricity(this.scaler));
+                q = new Quantity(bd, readUnit == null ? obisUnit : readUnit);
             }
 
             return new RegisterValue(obis, q, eventTime, toTime);
