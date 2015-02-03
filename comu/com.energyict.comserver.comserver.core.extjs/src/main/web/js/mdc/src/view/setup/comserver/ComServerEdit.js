@@ -33,6 +33,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                 },
                 {
                     xtype: 'hiddenfield',
+                    itemId: 'fld-server-type',
                     name: 'comServerType'
                 },
                 {
