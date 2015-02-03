@@ -54,6 +54,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
                 width: 30
             },
             {
+                xtype: 'validation-flag-column',
                 dataIndex: 'deltaValue',
                 align: 'right',
                 minWidth: 150,

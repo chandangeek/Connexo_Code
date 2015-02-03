@@ -28,11 +28,21 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 align: 'right',
                 minWidth: 150,
                 flex: 1,
-                renderer: function (value) {
-                    if (!Ext.isEmpty(value)) {
-                        return Uni.Number.formatNumber(value, -1);
-                    } else {
-                        return '-'
+                renderer: function (data, metaData, record) {
+                    if (record.data.validationStatus) {
+                        var result = record.data.validationResult,
+                            status = result.split('.')[1],
+                            cls = 'icon-validation-cell';
+                        if (status === 'suspect') {
+                            cls +=  ' icon-validation-red'
+                        }
+                        if (status === 'notValidated') {
+                            cls +=  ' icon-validation-black'
+                        }
+                        metaData.tdCls = cls;
+                    }
+                    if (!Ext.isEmpty(data)) {
+                        return Uni.Number.formatNumber(data, -1);
                     }
                 }
             },
@@ -43,16 +53,27 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 width: 30
             },
             {
+                xtype: 'validation-flag-column',
                 dataIndex: 'deltaValue',
                 align: 'right',
                 minWidth: 150,
                 hidden: true,
                 flex: 1,
-                renderer: function (value) {
-                    if (!Ext.isEmpty(value)) {
-                        return Uni.Number.formatNumber(value, -1);
-                    } else {
-                        return '-'
+                renderer: function (data, metaData, record) {
+                    if (record.data.validationStatus) {
+                        var result = record.data.validationResult,
+                            status = result.split('.')[1],
+                            cls = 'icon-validation-cell';
+                        if (status === 'suspect') {
+                            cls +=  ' icon-validation-red'
+                        }
+                        if (status === 'notValidated') {
+                            cls +=  ' icon-validation-black'
+                        }
+                        metaData.tdCls = cls;
+                    }
+                    if (!Ext.isEmpty(data)) {
+                        return Uni.Number.formatNumber(data, -1);
                     }
                 }
             },
