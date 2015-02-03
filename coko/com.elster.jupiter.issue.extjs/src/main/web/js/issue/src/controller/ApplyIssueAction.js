@@ -42,10 +42,9 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                 });
                 Ext.resumeLayouts();
                 form.loadRecord(record);
-                if (form.title == 'Close issue') {
-                    form.down('#issue-action-apply').setText(Uni.I18n.translate('general.close', 'ISU', 'Close'));
-                } else if (form.title == 'Notify user') {
-                    form.down('#issue-action-apply').setText(Uni.I18n.translate('general.notify', 'ISU', 'Notify'));
+                //todo: this definitely should be refactored. BE should send action button translation istead of this splitting
+                if (form.title === 'Close issue' || form.title === 'Notify user' || form.title === 'Assign issue' ) {
+                    form.down('#issue-action-apply').setText(form.title.split(' ')[0]);
                 }
                 widget.setLoading(false);
             }
