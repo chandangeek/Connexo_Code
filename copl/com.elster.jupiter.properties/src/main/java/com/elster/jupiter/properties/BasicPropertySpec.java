@@ -89,7 +89,7 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
                 }
             }
             else if (ListValueFactory.class.equals(this.getValueFactory().getClass())) {
-                String stringValue = (String) value;
+                String stringValue = this.getValueFactory().toStringValue(value);
                 if (stringValue.length() > ListValueFactory.MAX_SIZE) {
                     throw new InvalidValueException("XisToBig", "The value \"{0}\" is too large for this property (max length=" + ListValueFactory.MAX_SIZE + ")", this.getName());
                 }
