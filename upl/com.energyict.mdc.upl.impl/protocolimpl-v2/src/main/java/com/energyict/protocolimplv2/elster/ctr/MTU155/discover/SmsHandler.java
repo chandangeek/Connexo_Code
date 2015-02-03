@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
-import com.energyict.comserver.adapters.common.AdapterDeviceProtocolProperties;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedData;
@@ -13,6 +12,7 @@ import com.energyict.mdc.meterdata.DeviceProtocolMessageAcknowledgement;
 import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierByDeviceAndProtocolInfoParts;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierByDeviceAndObisCode;
 import com.energyict.mdc.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.obis.ObisCode;
@@ -293,9 +293,9 @@ public class SmsHandler {
     }
 
     public String getCallHomeID() throws CTRException {
-        String callHomeId = (String) getAllProperties().getProperty(AdapterDeviceProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "");
+        String callHomeId = (String) getAllProperties().getProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "");
         if (callHomeId.isEmpty()) {
-            throw new CTRException("Required property " + AdapterDeviceProtocolProperties.CALL_HOME_ID_PROPERTY_NAME + " is missing.");
+            throw new CTRException("Required property " + LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME + " is missing.");
         }
         return callHomeId;
     }

@@ -1,12 +1,12 @@
 package com.energyict.mdc.channels.ip;
 
-import com.energyict.comserver.adapters.common.AdapterDeviceProtocolProperties;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.VoidComChannel;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
@@ -27,16 +27,16 @@ import java.util.Set;
 public class CTRInboundDialHomeIdConnectionType extends ConnectionTypeImpl {
 
     private PropertySpec callHomeIdPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(AdapterDeviceProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
+        return PropertySpecFactory.stringPropertySpec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
     }
 
     protected String callHomeIdPropertyValue() {
-        return (String) this.getProperty(AdapterDeviceProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
+        return (String) this.getProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
     }
 
     @Override
     public PropertySpec getPropertySpec(String name) {
-        if (AdapterDeviceProtocolProperties.CALL_HOME_ID_PROPERTY_NAME.equals(name)) {
+        if (LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME.equals(name)) {
             return this.callHomeIdPropertySpec();
         }
         return null;
@@ -44,7 +44,7 @@ public class CTRInboundDialHomeIdConnectionType extends ConnectionTypeImpl {
 
     @Override
     public boolean isRequiredProperty(String name) {
-        return AdapterDeviceProtocolProperties.CALL_HOME_ID_PROPERTY_NAME.equals(name);
+        return LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME.equals(name);
     }
 
     @Override
