@@ -914,7 +914,9 @@ Ext.define('Cfg.controller.Validation', {
                 record.readingTypes().add(readingTypeRecord);
             });
         }
+        record.beginEdit();
         record.set('active', !isActive);
+        record.endEdit(true);
         if (!ruleSetWithRulesView) {
             view.setLoading('Loading...');
         } else {
@@ -926,46 +928,25 @@ Ext.define('Cfg.controller.Validation', {
                 ruleId: record.get('id')
             },
             success: function (record, operation) {
-                if (grid) {
-                    if (ruleSetWithRulesView) {
-                        var gridRuleSet = ruleSetWithRulesView.down('#validationrulesetList'),
-                            ruleSetSelModel = gridRuleSet.getSelectionModel(),
-                            ruleSet = ruleSetSelModel.getLastSelected();
-                        ruleSetWithRulesView.down('#rulesTopPagingToolbar').totalCount = 0;
-                        gridRuleSet.getStore().load({
-                            callback: function () {
-                                Ext.Function.defer(function () {
-                                    ruleSetSelModel.select(ruleSet);
-                                    Ext.Function.defer(function () {
-                                        var gridRule = ruleSetWithRulesView.down('#validationruleList');
-                                        var ruleSelModel = gridRule.getSelectionModel();
-                                        ruleSelModel.select(rule);
-                                        ruleSetWithRulesView.setLoading(false);
-                                    }, 3000);
-                                }, 3000);
-                            }
-                        });
-                    } else {
-                        grid.getView().refresh();
-                        view.down('validation-rule-preview').loadRecord(record);
-                    }
-                    if (isActive) {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.deactivateRuleSuccess.msg', 'CFG', 'Validation rule deactivated'));
-                    } else {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.activateRuleSuccess.msg', 'CFG', 'Validation rule activated'));
-                    }
+                var ruleSet;
+                if (ruleSetWithRulesView) {
+                    ruleSet = ruleSetWithRulesView.down('#validationrulesetList').getSelectionModel().getLastSelected();
+                    ruleSet.set('numberOfInactiveRules', isActive ? ruleSet.get('numberOfInactiveRules') + 1 : ruleSet.get('numberOfInactiveRules') - 1);
+                    ruleSet.commit();
+                }
+                view.down('validation-rule-preview').loadRecord(record);
+                if (isActive) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.deactivateRuleSuccess.msg', 'CFG', 'Validation rule deactivated'));
                 } else {
-                    var itemForm = view.down('validation-rule-preview');
-                    itemForm.loadRecord(record);
-                    if (isActive) {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.deactivateRuleSuccess.msg', 'CFG', 'Validation rule deactivated'));
-                    } else {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.activateRuleSuccess.msg', 'CFG', 'Validation rule activated'));
-                    }
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.activateRuleSuccess.msg', 'CFG', 'Validation rule activated'));
                 }
             },
             callback: function () {
-                view.setLoading(false);
+                if (!ruleSetWithRulesView) {
+                    view.setLoading(false);
+                } else {
+                    ruleSetWithRulesView.setLoading(false);
+                }
             }
         });
     },
