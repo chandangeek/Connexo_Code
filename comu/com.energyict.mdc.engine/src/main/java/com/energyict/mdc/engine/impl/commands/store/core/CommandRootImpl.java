@@ -123,6 +123,13 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     }
 
     @Override
+    public void addCommand(CreateComTaskExecutionSessionCommand command, ComTaskExecution comTaskExecution) {
+        ComTaskExecutionComCommand comTaskExecutionComCommand = this.getComTaskRoot(comTaskExecution);
+        comTaskExecutionComCommand.addCommand(command, comTaskExecution);
+        super.addCommand(command, comTaskExecution);
+    }
+
+    @Override
     public List<Issue> getIssues () {
         Set<Issue> uniqueIssues = new HashSet<>(super.getIssues());
         for (ComCommand child : this) {
