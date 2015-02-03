@@ -40,7 +40,9 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurations', {
                     items: [
                         {
                             text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                            disabled: true,
                             action: 'add',
+                            itemId: 'logbookConfAdd',
                             ui: 'action'
                         },
                         {
