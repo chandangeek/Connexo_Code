@@ -73,10 +73,6 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             selector: '#step1-adddevicegroup-errors'
         },
         {
-            ref: 'step1FormNameErrorMessage',
-            selector: '#step1-adddevicegroup-name-errors'
-        },
-        {
             ref: 'step2FormErrorMessage',
             selector: '#step2-adddevicegroup-errors'
         },
@@ -140,17 +136,23 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
     nextClick: function () {
         this.createWidget = false;
-        var layout = this.getAddDeviceGroupWizard().getLayout();
+        var layout = this.getAddDeviceGroupWizard().getLayout(),
+            nameField = this.getNameTextField(),
+            step1ErrorMsg = this.getStep1FormErrorMessage();
         if ((layout.getNext().name == 'deviceGroupWizardStep2') &&
-            (this.getNameTextField().getValue() == '')) {
-            this.getStep1FormErrorMessage().setVisible(true);
-            this.getStep1FormNameErrorMessage().setVisible(false);
+            (nameField.getValue() == '')) {
+            Ext.suspendLayouts();
+            step1ErrorMsg.show();
+            nameField.markInvalid(Uni.I18n.translate('general.nameIsRequired', 'MDC', 'Name is required'));
+            Ext.resumeLayouts(true);
             this.createWidget = true;
         } else if ((layout.getNext().name == 'deviceGroupWizardStep2') &&
-            (this.getNameTextField().getValue() !== '') &&
+            (nameField.getValue() !== '') &&
             (this.nameExists())) {
-            this.getStep1FormNameErrorMessage().setVisible(true);
-            this.getStep1FormErrorMessage().setVisible(false);
+            Ext.suspendLayouts();
+            step1ErrorMsg.show();
+            nameField.markInvalid(Uni.I18n.translate('devicegroup.duplicatename', 'MDC', 'A device group with this name already exists.'));
+            Ext.resumeLayouts(true);
             this.createWidget = true;
         } else {
             if (this.createWidget) {
@@ -166,8 +168,10 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                     this.getStaticGridContainer().setVisible(true);
                 }
             }
-            this.getStep1FormErrorMessage().setVisible(false);
-            this.getStep1FormNameErrorMessage().setVisible(false);
+            Ext.suspendLayouts();
+            step1ErrorMsg.hide();
+            nameField.clearInvalid();
+            Ext.resumeLayouts(true);
             this.getNavigationMenu().moveNextStep();
             this.changeContent(layout.getNext(), layout.getActiveItem());
             if (layout.getActiveItem().name == 'deviceGroupWizardStep2') {
@@ -414,7 +418,9 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         var me = this,
             page = me.getEditPage(),
             router = me.getController('Uni.controller.history.Router'),
-            nameValue = me.getNameTextField().getValue(),
+            step1ErrorMsg = me.getStep1FormErrorMessage(),
+            nameField = me.getNameTextField(),
+            nameValue = nameField.getValue(),
             record = me.deviceGroup,
             numberOfDevices,
             selection;
@@ -424,11 +430,15 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         }
 
         if (nameValue == '') {
-            me.getStep1FormErrorMessage().setVisible(true);
-            me.getStep1FormNameErrorMessage().setVisible(false);
+            Ext.suspendLayouts();
+            step1ErrorMsg.show();
+            nameField.markInvalid(Uni.I18n.translate('general.nameIsRequired', 'MDC', 'Name is required.'));
+            Ext.resumeLayouts(true);
         } else if ((nameValue !== me.deviceGroupName) && me.nameExists()) {
-            me.getStep1FormNameErrorMessage().setVisible(true);
-            me.getStep1FormErrorMessage().setVisible(false);
+            Ext.suspendLayouts();
+            step1ErrorMsg.show();
+            nameField.markInvalid(Uni.I18n.translate('devicegroup.duplicatename', 'MDC', 'A device group with this name already exists.'));
+            Ext.resumeLayouts(true);
         } else if (!me.dynamic && (selection.length == 0) && !me.getStaticGrid().allChosenByDefault) {
             me.getStep2FormErrorMessage().setVisible(true);
         } else {
