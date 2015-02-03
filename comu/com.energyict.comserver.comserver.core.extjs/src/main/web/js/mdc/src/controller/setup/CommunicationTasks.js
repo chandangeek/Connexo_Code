@@ -367,7 +367,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 method: 'PUT',
                 success: function () {
                     var messageKey = ((suspended == true) ? 'communicationtasks.activated' : 'communicationtasks.deactivated');
-                    var messageText = ((suspended == true) ? 'Communication task successfully activated' : 'Communication task successfully deactivated');
+                    var messageText = ((suspended == true) ? 'Communication task activated' : 'Communication task deactivated');
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate(messageKey, 'MDC', messageText));
                     me.loadCommunicationTasksStore();
                 },
