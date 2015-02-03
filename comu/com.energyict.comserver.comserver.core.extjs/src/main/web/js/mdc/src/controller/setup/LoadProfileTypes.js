@@ -316,7 +316,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
 
         router.getRoute(router.currentRoute.replace('/addregistertypes', '')).forward();
 
-        registerTypesStore.removeAll();
+        //registerTypesStore.removeAll();
         registerTypesStore.add(selection);
         registerTypesGrid.setVisible(!all);
         page.down('#all-register-types').setVisible(all);
