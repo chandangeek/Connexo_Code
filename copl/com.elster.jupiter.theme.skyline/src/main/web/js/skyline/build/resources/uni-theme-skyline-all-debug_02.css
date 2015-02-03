@@ -5453,15 +5453,17 @@ h6 {
 /* line 22, ../../sass/src/grid/DefaultColumn.scss */
 .uni-infinite-scrolling-grid-view {
   min-height: 100%;
+  overflow-x: hidden !important;
+  overflow-y: auto;
 }
 
-/* line 28, ../../sass/src/grid/DefaultColumn.scss */
+/* line 30, ../../sass/src/grid/DefaultColumn.scss */
 .uni-selection-grid .x-grid-row .x-grid-cell-first + .x-grid-cell .x-grid-cell-inner,
 .uni-selection-grid .x-box-target .x-column-header-first + .x-column-header .x-column-header-inner {
   padding-left: 0;
 }
 
-/* line 33, ../../sass/src/grid/DefaultColumn.scss */
+/* line 35, ../../sass/src/grid/DefaultColumn.scss */
 .x-grid-row-checker {
   cursor: pointer;
 }

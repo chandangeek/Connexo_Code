@@ -21,6 +21,8 @@
 
 .uni-infinite-scrolling-grid-view {
   min-height: 100%;
+  overflow-x: hidden !important;
+  overflow-y: auto;
 }
 
 .uni-selection-grid {
