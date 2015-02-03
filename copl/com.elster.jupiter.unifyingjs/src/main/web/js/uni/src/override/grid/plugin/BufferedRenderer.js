@@ -13,7 +13,7 @@ Ext.define('Uni.override.grid.plugin.BufferedRenderer', {
 
     bindStore: function(store) {
         var me = this;
-        me.trailingBufferZone = 10; // No idea why this needs to be 0, without it some grids don't work.
+        me.trailingBufferZone = 0; // No idea why this needs to be 0, without it some grids don't work.
         me.leadingBufferZone = store.pageSize;
         me.callParent(arguments);
     }
