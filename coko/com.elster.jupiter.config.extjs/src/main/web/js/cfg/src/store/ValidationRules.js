@@ -23,8 +23,9 @@ Ext.define('Cfg.store.ValidationRules', {
                 url += '/';
             }
 
-            url += 'rules/';
             url += id;
+            url += '/rules';
+
 
             if (format) {
                 if (!url.match(/\.$/)) {

@@ -72,14 +72,22 @@ Ext.define('Cfg.model.ValidationRule', {
             var me = this,
                 format = me.format,
                 url = me.getUrl(request),
-                id = request.params.id;
+                id = request.params.id,
+                ruleId = request.params.ruleId;
 
             if (!url.match(/\/$/)) {
                 url += '/';
             }
 
-            url += 'rules/';
             url += id;
+
+            url += '/rules';
+
+            if (ruleId !== null && ruleId !== undefined) {
+                url += '/';
+                url += ruleId;
+            }
+
 
             if (format) {
                 if (!url.match(/\.$/)) {

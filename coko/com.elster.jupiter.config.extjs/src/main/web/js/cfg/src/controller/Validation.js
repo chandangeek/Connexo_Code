@@ -243,7 +243,8 @@ Ext.define('Cfg.controller.Validation', {
         me.getAddRule().setLoading('Loading...');
         record.save({
             params: {
-                id: ruleSetId
+                id: me.ruleSetId,
+                ruleId: me.ruleId
             },
             success: function (record, operation) {
                 var messageText;
@@ -921,7 +922,8 @@ Ext.define('Cfg.controller.Validation', {
         }
         record.save({
             params: {
-                id: me.ruleSetId
+                id: me.ruleSetId,
+                ruleId: record.get('id')
             },
             success: function (record, operation) {
                 if (grid) {
