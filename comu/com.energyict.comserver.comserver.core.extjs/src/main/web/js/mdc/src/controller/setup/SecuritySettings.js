@@ -121,7 +121,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 method: 'DELETE',
                 waitMsg: 'Removing...',
                 success: function () {
-                    me.getApplication().fireEvent('acknowledge', 'Security setting was removed successfully');
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.remove', 'MDC', 'Security setting removed'));
                     me.store.load();
                 },
                 failure: function (response, request) {
@@ -358,7 +358,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         method: 'POST',
                         jsonData: jsonValues,
                         success: function (response) {
-                            me.handleSuccessRequest(response, 'Security setting saved');
+                            me.handleSuccessRequest(response,Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.added', 'MDC', 'Security setting added'));
                         },
                         failure: function (response) {
                             me.handleFailureRequest(response, 'Error during create');
@@ -379,7 +379,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         method: 'PUT',
                         jsonData: jsonValues,
                         success: function (response) {
-                            me.handleSuccessRequest(response, 'Security setting saved');
+                            me.handleSuccessRequest(response, Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.edit', 'MDC', 'Security setting saved'));
                         },
                         failure: function (response) {
                             me.handleFailureRequest(response, 'Error during update');
