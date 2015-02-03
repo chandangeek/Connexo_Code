@@ -31,19 +31,19 @@ public abstract class ConnectionEvent extends DataCollectionEvent implements Clo
         this.connectionTaskService = connectionTaskService;
     }
 
-    protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription){
+    protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription) {
         this.connectionTaskId = getLong(rawEvent, ModuleConstants.CONNECTION_TASK_ID);
         this.comSessionId = getLong(rawEvent, ModuleConstants.COM_SESSION_ID);
     }
 
     @Override
     protected Condition getConditionForExistingIssue() {
-        return where("connectionTask").isEqualTo(getConnectionTask().get()).and(where("comTask").isNull());
+        return where("connectionTask").isEqualTo(connectionTaskId.get()).and(where("comTask").isNull());
     }
 
     @Override
     public void apply(Issue issue) {
-        if (issue instanceof OpenIssueDataCollection){
+        if (issue instanceof OpenIssueDataCollection) {
             OpenIssueDataCollection dcIssue = (OpenIssueDataCollection) issue;
             dcIssue.setConnectionTask(getConnectionTask().get());
             dcIssue.setComSession(getComSession().get());
