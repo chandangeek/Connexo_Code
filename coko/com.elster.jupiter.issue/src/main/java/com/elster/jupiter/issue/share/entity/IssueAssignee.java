@@ -11,8 +11,5 @@ public interface IssueAssignee {
         private Types(){}
 
         public static final String USER = "USER";
-        public static final String GROUP = "GROUP";
-        public static final String ROLE = "ROLE";
-
     }
 }

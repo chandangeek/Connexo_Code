@@ -41,51 +41,6 @@ public class IssueServiceImplTest extends BaseTest{
         assertThat(issue).isNotNull();
     }
 
-    @Test
-    public void testIssueAssignee(){
-        AssigneeRole role = getIssueService().createAssigneeRole();
-        try (TransactionContext context = getContext()) {
-            assertSaveConstraintException(role, true);
-            role.setName("name");
-            assertSaveConstraintException(role, true);
-            role.setDescription("description");
-            assertSaveConstraintException(role, false);
-            context.commit();
-        }
-        try (TransactionContext context = getContext()) {
-            OpenIssue issue = getDataModel().getInstance(OpenIssueImpl.class);
-            issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
-            issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orElse(null));
-            issue.setRule(getSimpleCreationRule());
-            issue.assignTo(null);
-            issue.assignTo(role);
-            issue.save();
-        }
-        // Check that we save correct assignee for closed issues
-        try (TransactionContext context = getContext()) {
-            OpenIssue issue = getDataModel().getInstance(OpenIssueImpl.class);
-            issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
-            issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orElse(null));
-            issue.setRule(getSimpleCreationRule());
-            issue.assignTo(null);
-            issue.assignTo(role);
-            issue.save();
-            issue.close(getIssueService().findStatus(IssueStatus.RESOLVED).orElse(null));
-            Issue closedIssue = getIssueService().findHistoricalIssue(issue.getId()).orElse(null);
-            assertThat(closedIssue).isNotNull();
-            IssueAssignee assignee = closedIssue.getAssignee();
-            assertThat(assignee).isNotNull();
-            assertThat(getIssueService().findAssigneeTeam(closedIssue.getAssignee().getId())).isEqualTo(Optional.empty());
-            assertThat(getIssueService().findAssigneeRole(closedIssue.getAssignee().getId())).isNotEqualTo(Optional.empty());
-            assertThat(assignee.getId()).isEqualTo(role.getId());
-            assertThat(assignee.getName()).isEqualTo(role.getName());
-            assertThat(getIssueService().checkIssueAssigneeType("ALIEN")).isFalse();
-            assertThat(getIssueService().checkIssueAssigneeType(assignee.getType())).isTrue();
-            assertThat(getIssueService().findIssueAssignee("extraterrestre", 1)).isNull();
-            assertThat(getIssueService().findIssueAssignee(assignee.getType(), assignee.getId())).isNotNull();
-        }
-    }
-
     private void assertSaveConstraintException(Entity entity, boolean expeceted){
         try {
             entity.save();
@@ -112,17 +67,6 @@ public class IssueServiceImplTest extends BaseTest{
         Optional<IssueComment> commentRef = getIssueService().findComment(issueCommentList.get(0).getId());
         assertThat(commentRef).isNotEqualTo(Optional.empty());
         assertThat(commentRef.get().getComment()).isEqualTo("comment");
-    }
-
-    @Test
-    public void testAssigneeTeamCreation() {
-        AssigneeTeam team = getIssueService().createAssigneeTeam();
-        try (TransactionContext context = getContext()) {
-            assertSaveConstraintException(team, true);
-            team.setName("name");
-            assertSaveConstraintException(team, false);
-            context.commit();
-        }
     }
 
     @Test

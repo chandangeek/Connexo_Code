@@ -20,8 +20,6 @@ public final class DatabaseConst {
     public static final String ISSUE_COLUMN_DEVICE_ID = "DEVICE_ID";
     public static final String ISSUE_COLUMN_ASSIGNEE_TYPE = "ASSIGNEE_TYPE";
     public static final String ISSUE_COLUMN_USER_ID = "ASSIGNEE_USER_ID";
-    public static final String ISSUE_COLUMN_GROUP_ID = "ASSIGNEE_GROUP_ID";
-    public static final String ISSUE_COLUMN_ROLE_ID = "ASSIGNEE_ROLE_ID";
     public static final String ISSUE_COLUMN_RULE_ID = "RULE_ID";
     public static final String ISSUE_COLUMN_OVERDUE = "OVERDUE";
 
@@ -30,8 +28,6 @@ public final class DatabaseConst {
     public static final String OPEN_ISSUE_FK_TO_REASON = "ISU_OPEN_FK_TO_REASON";
     public static final String OPEN_ISSUE_FK_TO_STATUS = "ISU_OPEN_FK_TO_STATUS";
     public static final String OPEN_ISSUE_FK_TO_USER = "ISU_OPEN_FK_TO_USER";
-    public static final String OPEN_ISSUE_FK_TO_TEAM = "ISU_OPEN_FK_TO_TEAM";
-    public static final String OPEN_ISSUE_FK_TO_ROLE = "ISU_OPEN_FK_TO_ROLE";
     public static final String OPEN_ISSUE_FK_TO_RULE = "ISU_OPEN_FK_TO_RULE";
 
     public static final String ISSUE_PK_NAME = "ISU_PK_ISSUE";
@@ -39,8 +35,6 @@ public final class DatabaseConst {
     public static final String ISSUE_FK_TO_REASON = "ISU_FK_TO_REASON";
     public static final String ISSUE_FK_TO_STATUS = "ISU_FK_TO_STATUS";
     public static final String ISSUE_FK_TO_USER = "ISU_FK_TO_USER";
-    public static final String ISSUE_FK_TO_TEAM = "ISU_FK_TO_TEAM";
-    public static final String ISSUE_FK_TO_ROLE = "ISU_FK_TO_ROLE";
     public static final String ISSUE_FK_TO_RULE = "ISU_FK_TO_RULE";
 
 // Issue Reason table
@@ -60,13 +54,6 @@ public final class DatabaseConst {
 
     public static final String ISSUE_STATUS_PK_NAME = "ISU_PK_ISSUE_STATUS";
 
-// Issue Assignee tables
-    public static final String ISSUE_ASSIGNEE_NAME = "ASSIGNEE_NAME";
-    public static final String ISSUE_ASSIGNEE_DESCRIPTION = "DESCRIPTION";
-
-    public static final String ISSUE_ASSIGNEE_TEAM_PK_NAME = "ISU_PK_ISSUE_ASSIGNEE_TEAM";
-    public static final String ISSUE_ASSIGNEE_ROLE_PK_NAME = "ISU_PK_ISSUE_ASSIGNEE_ROLE";
-
 // Issue Type
     public static final String ISSUE_TYPE_COLUMN_KEY = "KEY";
     public static final String ISSUE_TYPE_COLUMN_DEFAULT_NAME = "DEFAULT_NAME";
@@ -82,8 +69,6 @@ public final class DatabaseConst {
     public static final String ISSUE_HIST_FK_TO_REASON = "ISU_HIST_FK_TO_REASON";
     public static final String ISSUE_HIST_FK_TO_STATUS = "ISU_HIST_FK_TO_STATUS";
     public static final String ISSUE_HIST_FK_TO_USER = "ISU_HIST_FK_TO_USER";
-    public static final String ISSUE_HIST_FK_TO_TEAM = "ISU_HIST_FK_TO_TEAM";
-    public static final String ISSUE_HIST_FK_TO_ROLE = "ISU_HIST_FK_TO_ROLE";
     public static final String ISSUE_HIST_FK_TO_RULE = "ISU_HIST_FK_TO_RULE";
 
 // Assignment rules table

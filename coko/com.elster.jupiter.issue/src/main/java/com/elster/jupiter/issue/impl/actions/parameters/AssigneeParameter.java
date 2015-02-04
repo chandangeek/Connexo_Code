@@ -18,25 +18,13 @@ public class AssigneeParameter extends AbstractParameterDefinition {
 
     private static class AssigneeControl implements ParameterControl {
         private final AssigneeUserParameter userParameter;
-        private final AssigneeRoleParameter roleParameter;
-        private final AssigneeGroupParameter groupParameter;
 
         public AssigneeControl(IssueService issueService, UserService userService, Thesaurus thesaurus) {
             userParameter = new AssigneeUserParameter(thesaurus, userService);
-            roleParameter = new AssigneeRoleParameter(thesaurus, issueService);
-            groupParameter = new AssigneeGroupParameter(thesaurus, issueService);
         }
 
         public ParameterDefinition getUserControl(){
             return  userParameter;
-        }
-
-        public ParameterDefinition getRoleControl() {
-            return roleParameter;
-        }
-
-        public ParameterDefinition getGroupControl() {
-            return groupParameter;
         }
 
         @Override
@@ -82,9 +70,7 @@ public class AssigneeParameter extends AbstractParameterDefinition {
             @Override
             public List<ParameterViolation> validate(String value, String paramKey) {
                 List<ParameterViolation> errors = new ArrayList<>();
-                if (!IssueAssignee.Types.USER.equalsIgnoreCase(value)
-                        && IssueAssignee.Types.GROUP.equalsIgnoreCase(value)
-                        && IssueAssignee.Types.ROLE.equalsIgnoreCase(value)){
+                if (!IssueAssignee.Types.USER.equalsIgnoreCase(value)){
                     errors.add(new ParameterViolation(paramKey, MessageSeeds.ACTION_WRONG_ASSIGNEE.getTranslated(thesaurus)));
                 }
                 return errors;

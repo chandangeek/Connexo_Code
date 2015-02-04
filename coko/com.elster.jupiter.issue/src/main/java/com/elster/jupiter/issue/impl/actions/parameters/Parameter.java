@@ -9,8 +9,6 @@ public enum Parameter {
     COMMENT("issueComment", MessageSeeds.PARAMETER_COMMENT),
     ASSIGNEE("issueAssignee", MessageSeeds.PARAMETER_ASSIGNEE),
     ASSIGNEE_USER("issueAssigneeUser", MessageSeeds.PARAMETER_ASSIGNEE_USER),
-    ASSIGNEE_ROLE("issueAssigneeRole", MessageSeeds.PARAMETER_ASSIGNEE_ROLE),
-    ASSIGNEE_GROUP("issueAssigneeGroup", MessageSeeds.PARAMETER_ASSIGNEE_GROUP),
     ;
 
     private String key;

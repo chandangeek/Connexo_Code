@@ -3,12 +3,21 @@ package com.elster.jupiter.issue.share.service;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.IssueActionFactory;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.Entity;
+import com.elster.jupiter.issue.share.entity.HistoricalIssue;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueGroup;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.List;
 
 public interface IssueService {
     
@@ -27,10 +36,6 @@ public interface IssueService {
     Optional<IssueComment> findComment(long id);
 
     Optional<IssueType> findIssueType(String key);
-
-    Optional<AssigneeRole> findAssigneeRole(long id);
-
-    Optional<AssigneeTeam> findAssigneeTeam(long id);
 
     IssueAssignee findIssueAssignee(String type, long id);
 
@@ -61,10 +66,6 @@ public interface IssueService {
      * @return instance of issue type (it is already saved into database)
      */
     IssueType createIssueType(String key, MessageSeed seed);
-
-    AssigneeRole createAssigneeRole();
-
-    AssigneeTeam createAssigneeTeam();
 
     <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers);
 

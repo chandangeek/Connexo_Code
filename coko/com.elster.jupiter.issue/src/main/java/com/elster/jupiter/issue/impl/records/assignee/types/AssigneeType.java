@@ -7,8 +7,7 @@ import com.elster.jupiter.users.UserService;
 
 public enum AssigneeType {
     USER(new UserType()),
-    GROUP(new GroupType()),
-    ROLE(new RoleType());
+   ;
 
     private AssigneeTypeImpl typeImpl;
 

@@ -2,10 +2,15 @@ package com.elster.jupiter.issue.impl.records;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.impl.records.assignee.AssigneeRoleImpl;
-import com.elster.jupiter.issue.impl.records.assignee.AssigneeTeamImpl;
 import com.elster.jupiter.issue.impl.records.assignee.types.AssigneeType;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.HistoricalIssue;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueForAssign;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
@@ -18,12 +23,11 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import java.util.Optional;
 
 import javax.inject.Inject;
-
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -38,8 +42,6 @@ public class IssueImpl extends EntityImpl implements Issue {
     //work around
     private AssigneeType assigneeType;
     private Reference<User> user = ValueReference.absent();
-    private Reference<AssigneeTeamImpl> group = ValueReference.absent();
-    private Reference<AssigneeRoleImpl> role = ValueReference.absent();
 
     private Reference<EndDevice> device = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
@@ -155,14 +157,6 @@ public class IssueImpl extends EntityImpl implements Issue {
         return user.orNull();
     }
 
-    public AssigneeTeamImpl getGroup(){
-        return group.orNull();
-    }
-
-    public AssigneeRoleImpl getRole(){
-        return role.orNull();
-    }
-
     public void setAssigneeType(AssigneeType assigneeType) {
         this.assigneeType = assigneeType;
     }
@@ -171,19 +165,9 @@ public class IssueImpl extends EntityImpl implements Issue {
         this.user.set(user);
     }
 
-    public void setGroup(AssigneeTeamImpl team) {
-        this.group.set(team);
-    }
-
-    public void setRole(AssigneeRoleImpl role) {
-        this.role.set(role);
-    }
-
     protected void resetAssignee(){
         assigneeType = null;
         setUser(null);
-        setGroup(null);
-        setRole(null);
     }
 
     public HistoricalIssue close(IssueStatus status){

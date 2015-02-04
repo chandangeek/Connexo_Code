@@ -98,9 +98,8 @@ public class AssignIssueActionTest {
         params.put(Parameter.ASSIGNEE.getKey(), null);
         assertThat(action.validate(params)).hasSize(1);
 
-        params.put(Parameter.ASSIGNEE.getKey(), IssueAssignee.Types.ROLE);
-        params.put(Parameter.ASSIGNEE_USER.getKey(), "1");
-        params.put(Parameter.ASSIGNEE_GROUP.getKey(), null);
+        params.put(Parameter.ASSIGNEE.getKey(), IssueAssignee.Types.USER);
+        params.put(Parameter.ASSIGNEE_USER.getKey(), null);
         assertThat(action.validate(params)).hasSize(1);
     }
 

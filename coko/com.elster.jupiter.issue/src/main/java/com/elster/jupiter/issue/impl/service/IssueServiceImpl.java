@@ -1,29 +1,5 @@
 package com.elster.jupiter.issue.impl.service;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
-
-import org.kie.api.io.KieResources;
-import org.kie.internal.KnowledgeBaseFactoryService;
-import org.kie.internal.builder.KnowledgeBuilderFactoryService;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.impl.database.TableSpecs;
@@ -33,13 +9,9 @@ import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.records.IssueReasonImpl;
 import com.elster.jupiter.issue.impl.records.IssueStatusImpl;
 import com.elster.jupiter.issue.impl.records.IssueTypeImpl;
-import com.elster.jupiter.issue.impl.records.assignee.AssigneeRoleImpl;
-import com.elster.jupiter.issue.impl.records.assignee.AssigneeTeamImpl;
 import com.elster.jupiter.issue.impl.records.assignee.types.AssigneeType;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.IssueActionFactory;
-import com.elster.jupiter.issue.share.entity.AssigneeRole;
-import com.elster.jupiter.issue.share.entity.AssigneeTeam;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -80,6 +52,28 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
+import org.kie.api.io.KieResources;
+import org.kie.internal.KnowledgeBaseFactoryService;
+import org.kie.internal.builder.KnowledgeBuilderFactoryService;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.issue",
     service = {IssueService.class, InstallService.class, TranslationKeyProvider.class},
@@ -365,16 +359,6 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     }
 
     @Override
-    public Optional<AssigneeRole> findAssigneeRole(long id) {
-        return find(AssigneeRole.class, id);
-    }
-
-    @Override
-    public Optional<AssigneeTeam> findAssigneeTeam(long id) {
-        return find(AssigneeTeam.class, id);
-    }
-
-    @Override
     public IssueStatus createStatus(String key, boolean isHistorical, MessageSeed seed) {
         if(findStatus(key).isPresent()){
             throw new NotUniqueKeyException(thesaurus, key);
@@ -405,16 +389,6 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         IssueTypeImpl issueType = dataModel.getInstance(IssueTypeImpl.class);
         issueType.init(key, seed).save();
         return issueType;
-    }
-
-    @Override
-    public AssigneeRole createAssigneeRole() {
-        return dataModel.getInstance(AssigneeRoleImpl.class);
-    }
-
-    @Override
-    public AssigneeTeam createAssigneeTeam() {
-        return dataModel.getInstance(AssigneeTeamImpl.class);
     }
 
     private void installEntityTranslation(MessageSeed seed) {
