@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.rest;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
 
@@ -66,6 +67,7 @@ public class ReadingTypeInfo {
     	public String timeOfUse;
     	public String timeAttribute;
     	public String unitOfMeasure;
+        public String phase;
     	
      	ReadingTypeNames() {
     	}
@@ -74,6 +76,11 @@ public class ReadingTypeInfo {
     		this.timeOfUse = readingType.getTou() == 0 ? "" : "ToU " + readingType.getTou();
     		this.timeAttribute = readingType.getMeasuringPeriod().equals(TimeAttribute.NOTAPPLICABLE) ? "" : readingType.getMeasuringPeriod().getDescription();
     		this.unitOfMeasure = readingType.getMultiplier().getSymbol() + readingType.getUnit().getSymbol();
+            if (!readingType.getPhases().equals(Phase.NOTAPPLICABLE)) {
+                this.phase = readingType.getPhases().getDescription();
+            } else {
+                this.phase = "";
+            }
     	}
     }
 }
