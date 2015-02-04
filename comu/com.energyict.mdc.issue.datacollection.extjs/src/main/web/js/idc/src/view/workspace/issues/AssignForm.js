@@ -4,8 +4,7 @@ Ext.define('Idc.view.workspace.issues.AssignForm', {
         border: false
     },
     requires: [
-        'Ext.form.Panel',
-        'Ext.form.RadioGroup'
+        'Ext.form.Panel'
     ],
     ui: 'medium',
     title: 'Assign issue',
@@ -13,7 +12,6 @@ Ext.define('Idc.view.workspace.issues.AssignForm', {
     items: [
         {
             xtype: 'panel',
-            margin: '0 0 20 0',
             layout: {
                 type: 'vbox',
                 align: 'left'
@@ -26,135 +24,50 @@ Ext.define('Idc.view.workspace.issues.AssignForm', {
             }
         },
         {
-            margin: '0 0 0 100',
+            margin: '0 0 0 50',
             defaults: {
-                border: false
+                border: false,
+                width: 500
             },
             items: [
                 {
-                    layout: 'hbox',
-                    defaults: {
-                        border: false
-                    },
-                    items: [
-                        {
-                            width: 80,
-                            items: {
-                                itemId: 'AssignTo',
-                                xtype: 'label',
-                                text: 'Assign to *'
-                            }
-                        },
-                        {
-                            xtype: 'combobox',
-                            store: 'Idc.store.AssigneeTypes',
-                            queryMode: 'local',
-                            valueField: 'id',
-                            emptyText: 'Start typing for assignee type',
-                            allowBlank: false,
-                            validateOnChange: false,
-                            name: 'assigneeType',
-                            displayField: 'localizedValue',
-                            listeners: {
-                                afterrender: {
-                                    fn: function (combo) {
-                                        Ext.create('Ext.tip.ToolTip', {
-                                            target:  combo.getEl(),
-                                            html: 'Start typing for assignee type',
-                                            anchor: 'top'
-                                        });
-                                    }
-                                },
-                                select: {
-                                    fn: function (combo, records) {
-                                        var form = combo.up('issues-assign-form');
-                                        form.assigneeTypeChange(combo, records[0]);
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            xtype: 'combobox',
-                            margin: '0 0 0 37',
-                            queryMode: 'local',
-                            valueField: 'id',
-                            allowBlank: false,
-                            validateOnChange: false,
-                            name: 'assigneeCombo',
-                            displayField: 'name'
-                        }
-                    ]
+                    xtype: 'combobox',
+                    fieldLabel: 'Assignee',
+                    required: true,
+                    queryMode: 'local',
+                    valueField: 'id',
+                    allowBlank: false,
+                    validateOnChange: false,
+                    name: 'assigneeCombo',
+                    emptyText: 'Start typing for users',
+                    displayField: 'name'
                 },
                 {
-                    layout: 'hbox',
-                    margin: '20 0 0 0',
-                    defaults: {
-                        border: false
-                    },
-                    items: [
-                        {
-                            width: 80,
-                            items: {
-                                itemId: 'Comment',
-                                xtype: 'label',
-                                text: 'Comment'
-                            }
-                        },
-                        {
-                            itemId: 'commentarea',
-                            xtype: 'textareafield',
-                            name: 'comment',
-                            emptyText: 'Provide a comment \r\n(optionally)',
-                            width: 390,
-                            height: 150
-                        }
-                    ]
+                    itemId: 'commentarea',
+                    xtype: 'textareafield',
+                    fieldLabel: 'Comment',
+                    name: 'comment',
+                    emptyText: 'Provide a comment \r\n(optionally)',
+                    height: 150
                 }
             ]
         }
     ],
-    assigneeTypeChange: function (combo, record) {
-        var value = record.get(combo.valueField),
-            assigneeCombo = combo.nextNode('combobox[name=assigneeCombo]'),
-            tooltips = Ext.ComponentQuery.query('tooltip[name=assigneeTooltip]'),
-            hint = 'Start typing for ' + combo.getRawValue().toLowerCase() + 's';
-        Ext.each(tooltips, function (tooltip) {
-           tooltip.destroy();
+
+    initComponent: function(){
+        var me = this,
+            userStore = Ext.getStore('Idc.store.UserList'),
+            step3 = Ext.ComponentQuery.query('bulk-step3')[0],
+            assigneeCombo;
+        me.callParent(arguments);
+        assigneeCombo = me.down('combobox[name=assigneeCombo]');
+        Ext.getBody().mask( 'Loading...' );
+        userStore.load(function (records) {
+            Ext.getBody().unmask();
+            if (!Ext.isEmpty(records)) {
+                assigneeCombo.bindStore(userStore);
+            }
         });
-        Ext.create('Ext.tip.ToolTip', {
-            target:  assigneeCombo.getEl(),
-            html: hint,
-            name: 'assigneeTooltip',
-            anchor: 'top'
-        });
-        assigneeCombo.emptyText = hint;
-        assigneeCombo.clearValue();
-        switch (value) {
-            case 'USER' :
-                var userStore = Ext.getStore('Idc.store.UserList');
-                userStore.load(function (records) {
-                    if (!Ext.isEmpty(records)) {
-                        assigneeCombo.bindStore(userStore);
-                    }
-                });
-                break;
-            case 'GROUP' :
-                var groupStore = Ext.getStore('Idc.store.UserGroupList');
-                groupStore.load(function (records) {
-                    if (!Ext.isEmpty(records)) {
-                        assigneeCombo.bindStore(groupStore);
-                    }
-                });
-                break;
-            case 'ROLE' :
-                var roleStore = Ext.getStore('Idc.store.UserRoleList');
-                roleStore.load(function (records) {
-                    if (!Ext.isEmpty(records)) {
-                        assigneeCombo.bindStore(roleStore);
-                    }
-                });
-                break;
-        }
     },
 
     loadRecord: function (record) {

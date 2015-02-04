@@ -159,20 +159,14 @@ Ext.define('Idc.view.workspace.issues.bulk.BulkWizard', {
     processValidateOnStep3: function (wizard) {
         var assignForm = wizard.down('bulk-step3 issues-assign-form'),
             formErrorsPanel,
-            assigneeTypeCombo,
             comboBox;
 
         if (!Ext.isEmpty(assignForm)) {
             formErrorsPanel = assignForm.down('[name=form-errors]');
             formErrorsPanel.hide();
-            //      formErrorsPanel.removeAll();
-            assigneeTypeCombo = assignForm.down('[name=assigneeType]');
             comboBox = wizard.down('bulk-step3 issues-assign-form combobox[name=assigneeCombo]');
             if (Ext.isEmpty(comboBox.getValue())) {
-                /*formErrorsPanel.add({
-                 text: 'You must choose \'' + activeRadioButton.boxLabel + '\' before you can proceed'
-                 });*/
-                formErrorsPanel.setText('You must choose \'' + assigneeTypeCombo.getRawValue() + '\' before you can proceed');
+                formErrorsPanel.setText('You must choose user before you can proceed');
                 formErrorsPanel.show();
                 return false;
             }

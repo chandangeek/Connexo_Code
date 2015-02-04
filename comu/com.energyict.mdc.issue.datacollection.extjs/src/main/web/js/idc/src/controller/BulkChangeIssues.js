@@ -4,10 +4,7 @@ Ext.define('Idc.controller.BulkChangeIssues', {
     stores: [
         'Idc.store.Issues',
         'Idc.store.BulkChangeIssues',
-        'Idc.store.AssigneeTypes',
         'Idc.store.UserList',
-        'Idc.store.UserGroupList',
-        'Idc.store.UserRoleList',
         'Isu.store.IssueStatuses'
     ],
 
@@ -468,11 +465,10 @@ Ext.define('Idc.controller.BulkChangeIssues', {
 
             switch (operation) {
                 case 'assign':
-                    var assigneeTypeCombo = formPanel.down('[name=assigneeType]'),
-                        activeCombo = formPanel.down('combo[name=assigneeCombo]');
+                    var activeCombo = formPanel.down('combo[name=assigneeCombo]');
                     record.set('assignee', {
                         id: activeCombo.getValue(),
-                        type: assigneeTypeCombo.getRawValue(),
+                        type: "User",
                         title: activeCombo.rawValue
                     });
                     message = '<h3>Assign ' + record.get('issues').length + (record.get('issues').length > 1 ? ' issues' : ' issue') + ' to ' + record.get('assignee').title + '?</h3><br>'
