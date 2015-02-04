@@ -32,7 +32,6 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: 'test',
                 itemId: 'deviceCommunicationProtocolEditCreateTitle',
                 overflowY: true,
                 layout: {

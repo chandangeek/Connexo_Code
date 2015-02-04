@@ -8,6 +8,7 @@ Ext.define('Mdc.store.SecuritySettingsOfDeviceConfiguration', {
     storeId: 'SecuritySettingsOfDeviceConfiguration',
     proxy: {
         type: 'rest',
+        timeout: 120000,
         url: '/api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/securityproperties',
         pageParam: false,
         startParam: false,
