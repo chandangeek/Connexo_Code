@@ -15,6 +15,7 @@ Ext.define('Uni.view.grid.SelectionGrid', {
     selType: 'checkboxmodel',
     selModel: {
         mode: 'MULTI',
+        checkOnly: true,
         showHeaderCheckbox: false
     },
     cls: 'uni-selection-grid',
