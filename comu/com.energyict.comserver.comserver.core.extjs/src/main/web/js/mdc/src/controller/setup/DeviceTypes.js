@@ -91,6 +91,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     previewDeviceType: function (grid, record) {
         var deviceTypes = this.getDeviceTypeGrid().getSelectionModel().getSelection();
         if (deviceTypes.length == 1) {
+            Ext.suspendLayouts();
             var deviceTypeId = deviceTypes[0].get('id');
             this.getDeviceTypeRegisterLink().getEl().set({href: '#/administration/devicetypes/' + deviceTypeId + '/registertypes'});
             this.getDeviceTypeRegisterLink().getEl().setHTML(deviceTypes[0].get('registerCount') + ' ' + Uni.I18n.translatePlural('devicetype.registers', deviceTypes[0].get('registerCount'), 'MDC', 'register types'));
@@ -104,6 +105,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             this.getDeviceConfigurationsLink().getEl().setHTML(deviceTypes[0].get('deviceConfigurationCount') + ' ' + Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceTypes[0].get('deviceConfigurationCount'), 'MDC', 'device configurations'));
             //this.getDeviceTypePreview().getHeader().setTitle(deviceTypes[0].get('name'));
             this.getDeviceTypePreview().setTitle(deviceTypes[0].get('name'));
+            Ext.resumeLayouts(true);
         }
     },
 
