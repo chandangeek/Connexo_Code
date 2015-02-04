@@ -71,6 +71,8 @@ public interface DestinationSpec extends HasName {
     @TransactionRequired
     SubscriberSpec subscribe(String name);
 
+    SubscriberSpec subscribe(String name, boolean systemManaged);
+
     void save();
     
     boolean isBuffered();
