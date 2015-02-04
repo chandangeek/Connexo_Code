@@ -23,6 +23,7 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -35,6 +36,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -52,6 +54,7 @@ public class MeterReadingStorer {
     private final Thesaurus thesaurus;
     private final Provider<EndDeviceEventRecordImpl> deviceEventFactory;
     private final Map<Channel, Map<Instant, BaseReading>> channelReadings = new HashMap<>();
+    private final Map<String, ReadingType> readingTypes = new HashMap<>();
 
     MeterReadingStorer(DataModel dataModel, MeteringService meteringService, Meter meter,
                        MeterReading meterReading, Thesaurus thesaurus, EventService eventService, Provider<EndDeviceEventRecordImpl> deviceEventFactory) {
@@ -66,6 +69,7 @@ public class MeterReadingStorer {
     }
 
     void store() {
+    	getReadingTypes();
         List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
         if (meterActivations.isEmpty()) {
             createDefaultMeterActivation();
@@ -79,6 +83,11 @@ public class MeterReadingStorer {
         eventService.postEvent(EventType.METERREADING_CREATED.topic(), new EventSource(meter.getId(), facade.getRange().lowerEndpoint().toEpochMilli(), facade.getRange().upperEndpoint().toEpochMilli()));
     }
 
+    private void getReadingTypes() {
+    	facade.readingTypeCodes().forEach(this::findOrCreateReadingType);
+    }
+    
+    
     private void removeOldReadingQualities() {
         Range<Instant> range = facade.getRange();
         if (range != null) {
@@ -209,7 +218,7 @@ public class MeterReadingStorer {
     }
 
     private void store(IntervalReading reading, String readingTypeCode) {
-    	ReadingType readingType = findOrCreateReadingType(readingTypeCode);
+    	ReadingType readingType = Objects.requireNonNull(readingTypes.get(readingTypeCode));
     	if (!readingType.isRegular()) {
     		throw new IllegalArgumentException(readingTypeCode + " is not valid for interval readings ");
     	}
@@ -220,19 +229,28 @@ public class MeterReadingStorer {
         }
     }
 
-    private ReadingType findOrCreateReadingType(String code) {
+    private void findOrCreateReadingType(String code) {
+    	readingTypes.put(code, doFindOrCreateReadingType(code));
+    }
+    
+    private ReadingType doFindOrCreateReadingType(String code) {
         Optional<ReadingType> readingTypeHolder = dataModel.mapper(ReadingType.class).getOptional(code);
         if (readingTypeHolder.isPresent()) {
             return readingTypeHolder.get();
         } else {
-            ReadingType readingType = meteringService.createReadingType(code, "");
-            MessageSeeds.READINGTYPE_ADDED.log(logger, thesaurus, code, meter.getMRID());
-            return readingType;
+        	try {
+        		ReadingType readingType = meteringService.createReadingType(code, "");
+        		MessageSeeds.READINGTYPE_ADDED.log(logger, thesaurus, code, meter.getMRID());
+        		return readingType;
+        	} catch (UnderlyingSQLFailedException e) {
+        		// maybe some other thread beat us in the race, if not rethrow exception
+        		return dataModel.mapper(ReadingType.class).getOptional(code).orElseThrow(() -> e);
+        	}
         }
     }
 
     private Channel findOrCreateChannel(Reading reading, MeterActivation meterActivation) {
-        ReadingType readingType = findOrCreateReadingType(reading.getReadingTypeCode());
+        ReadingType readingType = Objects.requireNonNull(readingTypes.get(reading.getReadingTypeCode()));
         for (Channel each : meterActivation.getChannels()) {
             if (each.getReadingTypes().contains(readingType)) {
                 return each;

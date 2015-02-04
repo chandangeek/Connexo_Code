@@ -1,6 +1,11 @@
 package com.elster.jupiter.metering.impl;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.IntervalBlock;
@@ -52,5 +57,11 @@ public class MeterReadingFacade {
 	
 	public MeterReading getMeterReading() {
 		return meterReading;
+	}
+	
+	List<String> readingTypeCodes() {
+		Stream<String> first = meterReading.getReadings().stream().map(Reading::getReadingTypeCode);
+		Stream<String> second = meterReading.getIntervalBlocks().stream().map(IntervalBlock::getReadingTypeCode);
+		return Stream.concat(first,second).distinct().sorted().collect(Collectors.toList());
 	}
 }
