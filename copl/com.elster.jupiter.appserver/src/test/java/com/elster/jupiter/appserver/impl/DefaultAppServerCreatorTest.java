@@ -116,7 +116,7 @@ public class DefaultAppServerCreatorTest {
         new DefaultAppServerCreator(dataModel, messageService).createAppServer(NAME, cronExpression);
 
         verify(queueTableSpec).createDestinationSpec(anyString(), anyInt());
-        verify(newDestination).subscribe(anyString());
+        verify(newDestination).subscribeSystemManaged(anyString());
     }
 
     @Test
@@ -124,7 +124,7 @@ public class DefaultAppServerCreatorTest {
 
         new DefaultAppServerCreator(dataModel, messageService).createAppServer(NAME, cronExpression);
 
-        verify(allServersDestination).subscribe(anyString());
+        verify(allServersDestination).subscribeSystemManaged(anyString());
     }
 
 
