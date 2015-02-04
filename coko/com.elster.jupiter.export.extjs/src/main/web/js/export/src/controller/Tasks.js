@@ -143,6 +143,16 @@ Ext.define('Dxp.controller.Tasks', {
             },
             '#AddReadingTypesToTaskSetup rt-side-filter button[action=clearfilter]': {
                 click: this.clearAllCombos
+            },
+            'history-filter-form  button[action=applyfilter]': {
+                click: this.applyHistoryFilter
+            },
+            'history-filter-form  button[action=clearfilter]': {
+                click: this.clearHistoryFilter
+            },
+            '#tasks-history-filter-top-panel': {
+                removeFilter: this.removeHistoryFilter,
+                clearAllFilters: this.clearHistoryFilter
             }
         });
     },
@@ -1199,8 +1209,23 @@ Ext.define('Dxp.controller.Tasks', {
         readingTypeNameText.setValue(null);
     },
 
-    clearAllFilters: function () {
-        this.clearAllCombos();
-        this.loadReadingTypes();
+    applyHistoryFilter: function () {
+        this.getSideFilterForm().updateRecord();
+        this.getSideFilterForm().getRecord().save();
+    },
+
+    clearHistoryFilter: function () {
+        this.getSideFilterForm().getForm().reset();
+        this.getFilterTopPanel().setVisible(false);
+        this.getSideFilterForm().getRecord().getProxy().destroy();
+    },
+
+    removeHistoryFilter: function (key) {
+        var router = this.getController('Uni.controller.history.Router'),
+            record = router.filter;
+        if (record) {
+            delete record.data[key];
+            record.save();
+        }
     }
 });
