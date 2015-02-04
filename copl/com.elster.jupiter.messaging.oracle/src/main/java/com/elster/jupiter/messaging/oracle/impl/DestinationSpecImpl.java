@@ -140,8 +140,13 @@ class DestinationSpecImpl implements DestinationSpec {
         return subscribe(name, false);
     }
 
+
     @Override
-    public SubscriberSpec subscribe(String name, boolean systemManaged) {
+    public SubscriberSpec subscribeSystemManaged(String name) {
+        return subscribe(name, true);
+    }
+
+    private SubscriberSpec subscribe(String name, boolean systemManaged) {
         if (!isActive()) {
             throw new InactiveDestinationException(thesaurus, this, name);
         }
