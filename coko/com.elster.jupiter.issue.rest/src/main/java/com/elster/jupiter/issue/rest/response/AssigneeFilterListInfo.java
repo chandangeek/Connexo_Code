@@ -1,7 +1,5 @@
 package com.elster.jupiter.issue.rest.response;
 
-import com.elster.jupiter.issue.share.entity.AssigneeRole;
-import com.elster.jupiter.issue.share.entity.AssigneeTeam;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.User;
@@ -9,7 +7,9 @@ import com.elster.jupiter.users.User;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.*;
+import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.ISSUE_ASSIGNEE_ME;
+import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.ISSUE_ASSIGNEE_UNASSIGNED;
+import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.getString;
 
 public class AssigneeFilterListInfo {
     private List<IssueAssigneeInfo> data = new ArrayList<>();
@@ -17,17 +17,9 @@ public class AssigneeFilterListInfo {
     public AssigneeFilterListInfo() {
     }
 
-    public AssigneeFilterListInfo(List<AssigneeTeam> teamList, List<AssigneeRole> roleList, List<User> userList) {
-        addAll(teamList);
-        addAll(roleList);
+    public AssigneeFilterListInfo(List<User> userList) {
         for (User user : userList) {
             data.add(new IssueAssigneeInfo(IssueAssignee.Types.USER, user.getId(), user.getName()));
-        }
-    }
-
-    private final void addAll(List<? extends IssueAssignee> list){
-        for (IssueAssignee assignee : list) {
-            data.add(new IssueAssigneeInfo(assignee.getType(), assignee.getId(), assignee.getName()));
         }
     }
 

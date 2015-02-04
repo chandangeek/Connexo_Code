@@ -1,12 +1,32 @@
 package com.elster.jupiter.issue.rest;
 
-import com.elster.jupiter.issue.rest.resource.*;
+import com.elster.jupiter.issue.rest.resource.ActionResource;
+import com.elster.jupiter.issue.rest.resource.AssigneeResource;
+import com.elster.jupiter.issue.rest.resource.CreationRuleResource;
+import com.elster.jupiter.issue.rest.resource.IssueTypeResource;
+import com.elster.jupiter.issue.rest.resource.MeterResource;
+import com.elster.jupiter.issue.rest.resource.ReasonResource;
+import com.elster.jupiter.issue.rest.resource.RuleResource;
+import com.elster.jupiter.issue.rest.resource.StatusResource;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleOrActionValidationExceptionMapper;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.cep.ParameterDefinition;
-import com.elster.jupiter.issue.share.entity.*;
-import com.elster.jupiter.issue.share.service.*;
+import com.elster.jupiter.issue.share.entity.AssignmentRule;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.CreationRuleAction;
+import com.elster.jupiter.issue.share.entity.DueInType;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.service.IssueActionService;
+import com.elster.jupiter.issue.share.service.IssueAssignmentService;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -19,8 +39,6 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import java.util.Optional;
-
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -38,13 +56,16 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
-
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
 
 @Ignore("Mocks")
 public class Mocks extends JerseyTest {
@@ -198,7 +219,7 @@ public class Mocks extends JerseyTest {
     }
 
     protected IssueAssignee getDefaultAssignee(){
-        return mockAssignee(1, "Admin",IssueAssignee.Types.USER);
+        return mockAssignee(1, "Admin", IssueAssignee.Types.USER);
     }
 
     protected AssignmentRule mockAssignmentRule(long id, String title, String description, long version, IssueAssignee assignee){
@@ -232,22 +253,6 @@ public class Mocks extends JerseyTest {
     protected CreationRuleTemplate getDefaultCreationRuleTemplate(){
         IssueType issueType = getDefaultIssueType();
         return mockCreationRuleTemplate("0-1-2", "Template 1", "Description", issueType, null);
-    }
-
-    protected AssigneeRole mockRole(long id, String name) {
-        AssigneeRole assigneeRole = mock(AssigneeRole.class);
-        when(assigneeRole.getType()).thenReturn(IssueAssignee.Types.ROLE);
-        when(assigneeRole.getId()).thenReturn(id);
-        when(assigneeRole.getName()).thenReturn(name);
-        return assigneeRole;
-    }
-
-    protected AssigneeTeam mockTeam(long id, String name) {
-        AssigneeTeam assigneeTeam = mock(AssigneeTeam.class);
-        when(assigneeTeam.getType()).thenReturn(IssueAssignee.Types.GROUP);
-        when(assigneeTeam.getId()).thenReturn(id);
-        when(assigneeTeam.getName()).thenReturn(name);
-        return assigneeTeam;
     }
 
     protected User mockUser(long id, String name) {

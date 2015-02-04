@@ -4,25 +4,31 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.response.AssigneeFilterListInfo;
 import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.entity.AssigneeRole;
-import com.elster.jupiter.issue.share.entity.AssigneeTeam;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-import java.util.Collections;
 import java.util.List;
 
 import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.ISSUE_ASSIGNEE_UNASSIGNED;
 import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.getString;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_TYPE;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.LIKE;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.ME;
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -43,20 +49,11 @@ public class AssigneeResource extends BaseResource {
 
         if (searchText != null && !searchText.isEmpty()) {
             String dbSearchText = "%" + searchText + "%";
-
-            Condition condition = where("name").likeIgnoreCase(dbSearchText);
             Condition conditionUser = where("authenticationName").likeIgnoreCase(dbSearchText);
-
-            Query<AssigneeTeam> queryTeam = getIssueService().query(AssigneeTeam.class);
-            List<AssigneeTeam> listTeam = queryTeam.select(condition, Order.ascending("name"));
-
-            Query<AssigneeRole> queryRole = getIssueService().query(AssigneeRole.class);
-            List<AssigneeRole> listRole = queryRole.select(condition, Order.ascending("name"));
-
             Query<User> queryUser = getUserService().getUserQuery();
             List<User> listUsers = queryUser.select(conditionUser, Order.ascending("authname"));
 
-            return new AssigneeFilterListInfo(listTeam, listRole, listUsers);
+            return new AssigneeFilterListInfo(listUsers);
         }
         return AssigneeFilterListInfo.defaults((User)securityContext.getUserPrincipal(), getThesaurus(), findMe);
     }
@@ -85,38 +82,6 @@ public class AssigneeResource extends BaseResource {
         return entity(new IssueAssigneeInfo(assignee)).build();
     }
 
-    /**
-     * <b>API link</b>: <a href="http://confluence.eict.vpdc/display/JUPU/REST+API#RESTAPI-Getassigneegroups%28teams%29">Get assignee groups (teams)</a><br />
-     * <b>Pagination</b>: false<br />
-     * <b>Mandatory parameters</b>: none<br />
-     * <b>Optional parameters</b>: none<br />
-     */
-    @GET
-    @Path("/groups")
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
-    public Response getGroups() {
-        Query<AssigneeTeam> query = getIssueService().query(AssigneeTeam.class);
-        List<AssigneeTeam> list = query.select(Condition.TRUE);
-        return entity(list, IssueAssigneeInfo.class).build();
-    }
-
-    /**
-     * <b>API link</b>: <a href="http://confluence.eict.vpdc/display/JUPU/REST+API#RESTAPI-Getassigneeroles">Get assignee roles</a><br />
-     * <b>Pagination</b>: false<br />
-     * <b>Mandatory parameters</b>: none<br />
-     * <b>Optional parameters</b>: none<br />
-     */
-    @GET
-    @Path("/roles")
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
-    public Response getTeams() {
-        Query<AssigneeRole> query = getIssueService().query(AssigneeRole.class);
-        List<AssigneeRole> list = query.select(Condition.TRUE);
-        return entity(list, IssueAssigneeInfo.class).build();
-    }
-
     @GET
     @Path("/users")
     @Produces(MediaType.APPLICATION_JSON)
@@ -130,6 +95,6 @@ public class AssigneeResource extends BaseResource {
         }
         Query<User> query = getUserService().getUserQuery();
         List<User> list = query.select(condition, Order.ascending("authenticationName"));
-        return Response.ok(new AssigneeFilterListInfo(Collections.<AssigneeTeam>emptyList(), Collections.<AssigneeRole>emptyList(), list)).build();
+        return Response.ok(new AssigneeFilterListInfo(list)).build();
     }
 }

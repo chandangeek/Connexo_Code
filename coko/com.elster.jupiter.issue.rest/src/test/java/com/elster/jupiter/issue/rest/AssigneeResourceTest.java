@@ -3,8 +3,6 @@ package com.elster.jupiter.issue.rest;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.i18n.MessageSeeds;
 import com.elster.jupiter.issue.rest.request.RequestHelper;
-import com.elster.jupiter.issue.share.entity.AssigneeRole;
-import com.elster.jupiter.issue.share.entity.AssigneeTeam;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
@@ -13,7 +11,10 @@ import org.junit.Test;
 import org.mockito.Matchers;
 
 import javax.ws.rs.core.Response;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_TYPE;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.LIKE;
@@ -63,43 +64,22 @@ public class AssigneeResourceTest extends Mocks {
     
     @Test
     public void testGetAllAssigneesWithLike() {
-        List<AssigneeTeam> teams = Arrays.asList(mockTeam(1L, "dream team"));
-        List<AssigneeRole> roles = Arrays.asList(mockRole(2L, "dream role"));
         List<User> users = Arrays.asList(mockUser(3L, "dream user"));
-        
-        Query<AssigneeTeam> queryTeam = mock(Query.class);
-        when(queryTeam.select(Matchers.<Condition>anyObject(), Matchers.<Order>anyObject())).thenReturn(teams);
-        when(issueService.query(AssigneeTeam.class)).thenReturn(queryTeam);
-        
-        Query<AssigneeRole> queryRole = mock(Query.class);
-        when(queryRole.select(Matchers.<Condition>anyObject(), Matchers.<Order>anyObject())).thenReturn(roles);
-        when(issueService.query(AssigneeRole.class)).thenReturn(queryRole);
-
         Query<User> queryUser = mock(Query.class);
         when(queryUser.select(Matchers.<Condition>anyObject(), Matchers.<Order>anyObject())).thenReturn(users);
         when(userService.getUserQuery()).thenReturn(queryUser);
         
         Map<String, Object> map = target("/assignees").queryParam(RequestHelper.LIKE, "dream").request().get(Map.class);
 
-        assertThat(map.get("total")).isEqualTo(3);
+        assertThat(map.get("total")).isEqualTo(1);
         List<?> assigneesList = (List<?>) map.get("data");
-        assertThat(assigneesList).hasSize(3);
+        assertThat(assigneesList).hasSize(1);
         
-        Map<?,?> firstAssignee = (Map<?,?>) assigneesList.get(0);
-        Map<?,?> secondAssignee = (Map<?,?>) assigneesList.get(1);
-        Map<?,?> thirdAssignee = (Map<?,?>) assigneesList.get(2);
-        
-        assertThat(firstAssignee.get("id")).isEqualTo(1);
-        assertThat(firstAssignee.get("name")).isEqualTo("dream team");
-        assertThat(firstAssignee.get("type")).isEqualTo(IssueAssignee.Types.GROUP);
+        Map<?,?> assignee = (Map<?,?>) assigneesList.get(0);
 
-        assertThat(secondAssignee.get("id")).isEqualTo(2);
-        assertThat(secondAssignee.get("name")).isEqualTo("dream role");
-        assertThat(secondAssignee.get("type")).isEqualTo(IssueAssignee.Types.ROLE);
-        
-        assertThat(thirdAssignee.get("id")).isEqualTo(3);
-        assertThat(thirdAssignee.get("name")).isEqualTo("dream user");
-        assertThat(thirdAssignee.get("type")).isEqualTo(IssueAssignee.Types.USER);
+        assertThat(assignee.get("id")).isEqualTo(3);
+        assertThat(assignee.get("name")).isEqualTo("dream user");
+        assertThat(assignee.get("type")).isEqualTo(IssueAssignee.Types.USER);
     }
     
     @Test
@@ -131,7 +111,7 @@ public class AssigneeResourceTest extends Mocks {
         IssueAssignee issueAssignee = getDefaultAssignee();
         when(issueService.findIssueAssignee(IssueAssignee.Types.USER, 1)).thenReturn(issueAssignee);
 
-        Response response = target("/assignees/1").queryParam(ASSIGNEE_TYPE, IssueAssignee.Types.GROUP).request().get();
+        Response response = target("/assignees/1").queryParam(ASSIGNEE_TYPE, "some").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
@@ -141,64 +121,6 @@ public class AssigneeResourceTest extends Mocks {
         when(issueService.findIssueAssignee(IssueAssignee.Types.USER, 1)).thenReturn(null);
         Response response = target("/assignees/1").queryParam(ASSIGNEE_TYPE, IssueAssignee.Types.USER).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-    }
-
-    @Test
-    public void testGetGroups() {
-        List<AssigneeTeam> teams = Arrays.asList(mockTeam(1L, "Team"));
-
-        Query<AssigneeTeam> query = mock(Query.class);
-        when(query.select(Condition.TRUE)).thenReturn(teams);
-        when(issueService.query(AssigneeTeam.class)).thenReturn(query);
-
-        Map<String, Object> map = target("/assignees/groups").request().get(Map.class);
-
-        assertThat(map.get("total")).isEqualTo(1);
-        assertThat((List<?>) map.get("data")).hasSize(1);
-        Map<?,?> team = (Map<?,?>) ((List<?>) map.get("data")).get(0);
-        assertThat(team.get("id")).isEqualTo(1);
-        assertThat(team.get("type")).isEqualTo(IssueAssignee.Types.GROUP);
-        assertThat(team.get("name")).isEqualTo("Team");
-    }
-
-    @Test
-    public void testNoAssigneeGroups() {
-        Query<AssigneeTeam> query = mock(Query.class);
-        when(query.select(Condition.TRUE)).thenReturn(Collections.EMPTY_LIST);
-        when(issueService.query(AssigneeTeam.class)).thenReturn(query);
-        Map<String, Object> map = target("/assignees/groups").request().get(Map.class);
-
-        assertThat(map.get("total")).isEqualTo(0);
-        assertThat((List<?>) map.get("data")).hasSize(0);
-    }
-    
-    @Test
-    public void testGetRoles() {
-        List<AssigneeRole> roles = Arrays.asList(mockRole(1L, "Role"));
-
-        Query<AssigneeRole> query = mock(Query.class);
-        when(query.select(Condition.TRUE)).thenReturn(roles);
-        when(issueService.query(AssigneeRole.class)).thenReturn(query);
-
-        Map<String, Object> map = target("/assignees/roles").request().get(Map.class);
-
-        assertThat(map.get("total")).isEqualTo(1);
-        assertThat((List<?>) map.get("data")).hasSize(1);
-        Map<?,?> team = (Map<?,?>) ((List<?>) map.get("data")).get(0);
-        assertThat(team.get("id")).isEqualTo(1);
-        assertThat(team.get("type")).isEqualTo(IssueAssignee.Types.ROLE);
-        assertThat(team.get("name")).isEqualTo("Role");
-    }
-    
-    @Test
-    public void testNoAssigneeRoles() {
-        Query<AssigneeRole> query = mock(Query.class);
-        when(query.select(Condition.TRUE)).thenReturn(Collections.EMPTY_LIST);
-        when(issueService.query(AssigneeRole.class)).thenReturn(query);
-        Map<String, Object> map = target("/assignees/roles").request().get(Map.class);
-
-        assertThat(map.get("total")).isEqualTo(0);
-        assertThat((List<?>) map.get("data")).hasSize(0);
     }
 
     @Test
