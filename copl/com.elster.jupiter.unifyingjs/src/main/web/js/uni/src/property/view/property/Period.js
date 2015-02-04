@@ -11,7 +11,7 @@ Ext.define('Uni.property.view.property.Period', {
             {
                 xtype: 'numberfield',
                 itemId: me.key + 'numberfield',
-                name: this.getName(),
+                name: me.getName(),
                 width: me.width,
                 required: me.required,
                 readOnly: me.isReadOnly
@@ -20,9 +20,9 @@ Ext.define('Uni.property.view.property.Period', {
                 xtype: 'combobox',
                 margin: '0 0 0 16',
                 itemId: me.key + 'combobox',
-                name: this.getName() + '.combobox',
+                name: me.getName() + '.combobox',
                 store: 'Uni.property.store.TimeUnits',
-              //  queryMode: 'local',
+                //  queryMode: 'local',
                 displayField: 'timeUnit',
                 valueField: 'timeUnit',
                 width: me.width,
@@ -45,7 +45,7 @@ Ext.define('Uni.property.view.property.Period', {
         //clear store
         store.loadData([], false);
         this.getProperty().getPossibleValues().each(function (item) {
-            var timeDurationValue = item.get('count') + " " + item.get('timeUnit');
+            var timeDurationValue = item.get('count') + ' ' + item.get('timeUnit');
             store.add({key: timeDurationValue, value: timeDurationValue});
         });
 
@@ -82,16 +82,55 @@ Ext.define('Uni.property.view.property.Period', {
         }
     },
 
-    getValue: function (values) {
-        var me = this;
-        if (!me.isCombo()) {
+    updateResetButton: function () {
+        var me = this,
+            button = me.getResetButton(),
+            countValue = me.getField().getValue(),
+            timeUnitValue = me.getComboField().getValue();
+
+        if (me.isEdit) {
+            if (!me.getProperty().get('isInheritedOrDefaultValue')
+                && typeof countValue !== 'undefined' && countValue !== null
+                && typeof timeUnitValue !== 'undefined' && timeUnitValue !== null
+            ) {
+                if (!me.getProperty().get('default')) {
+                    button.setTooltip(Uni.I18n.translate('general.clearAll', 'UNI', 'Clear all'));
+                } else {
+                    button.setTooltip(
+                        Uni.I18n.translate('general.restoreDefaultValue', me.translationKey, 'Restore to default value')
+                        + ' &quot; ' + me.getProperty().get('default') + '&quot;'
+                    );
+                }
+
+                button.setDisabled(false);
+            } else {
+                button.setTooltip(null);
+                button.setDisabled(true);
+            }
+        } else {
+            button.setVisible(false);
+        }
+
+        me.fireEvent('checkRestoreAll', me);
+    },
+
+    getValue: function () {
+        var me = this,
+            countValue = me.getField().getValue(),
+            timeUnitValue = me.getComboField().getValue();
+
+        if (!me.isCombo()
+            && typeof countValue !== 'undefined' && countValue !== null
+            && typeof timeUnitValue !== 'undefined' && timeUnitValue !== null
+        ) {
             var result = {};
-            result.count = me.getField().getValue();
-            result.timeUnit = me.getComboField().getValue();
+
+            result.count = countValue;
+            result.timeUnit = timeUnitValue;
 
             return result;
-        } else {
-            return value;
         }
+
+        return null;
     }
 });
