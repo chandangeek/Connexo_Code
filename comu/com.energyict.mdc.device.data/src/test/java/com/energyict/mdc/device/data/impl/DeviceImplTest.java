@@ -745,6 +745,42 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
+    public void testGetLoadProfileDataMonthlyMeterActivationNotAlignedWithMidnight() {
+        // cfr JP-8199
+        TimeZone UTC = TimeZone.getTimeZone("GMT+1"); // Paris time zone
+        when(inMemoryPersistence.getClock().getZone()).thenReturn(UTC.toZoneId());
+        when(inMemoryPersistence.getClock().instant()).thenAnswer(invocationOnMock -> Instant.now());
+
+        Instant requestIntervalStart = Instant.ofEpochMilli(1385851500000L); //   11/30/2013, 11:45:00 PM (UTC)
+        Instant requestIntervalEnd = Instant.ofEpochMilli(1420066800000L); // 1/1/2015, 12:00:00 AM (UTC)
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(TimeDuration.months(1));
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+        Optional<AmrSystem> amrSystem = inMemoryPersistence.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId());
+        Optional<Meter> meter = amrSystem.get().findMeter("" + device.getId());
+        meter.get().activate(Instant.ofEpochMilli(1385851500000L));//Sat, 30 Nov 2013 22:45:00 GMT
+
+        String code = getForwardEnergyReadingTypeCodeBuilder()
+                .period(MacroPeriod.MONTHLY)
+                .code();
+        IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(code);
+        Instant readingTimeStamp = Instant.ofEpochMilli(1385852400000L);//  Sat, 30 Nov 2013 23:00:00 GMT
+        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(readingTimeStamp, BigDecimal.ZERO));
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        meterReading.addIntervalBlock(intervalBlock2);
+        device.store(meterReading);
+
+
+        Instant lastReading = Instant.ofEpochMilli(1420802100000L); // Fri, 09 Jan 2015 11:15:00 GMT
+        device.getLoadProfileUpdaterFor(device.getLoadProfiles().get(0)).setLastReading(lastReading).update();
+
+        Device reloadedDevice = getReloadedDevice(device);
+        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(requestIntervalStart, requestIntervalEnd));
+        assertThat(readings.get(13).getRange().upperEndpoint()).isEqualTo(Instant.ofEpochMilli(1385852400000L)); // Sat, 30 Nov 2013 23:00:00 GMT
+    }
+
+    @Test
+    @Transactional
     public void testGetLoadProfileDataIfExternalMeterActivationDoesNotAlignWithChannelIntervalBoundary() {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
         Instant requestIntervalStart = Instant.ofEpochMilli(1420761600000L); // Fri, 09 Jan 2015 00:00:00 GMT
