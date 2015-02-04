@@ -1,24 +1,9 @@
 package com.energyict.mdc.issue.issue.datacollection.rest;
 
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.time.Instant;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.ws.rs.core.Application;
-
-import org.mockito.Mock;
-
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.cep.ParameterDefinition;
-import com.elster.jupiter.issue.share.entity.AssigneeRole;
-import com.elster.jupiter.issue.share.entity.AssigneeTeam;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
@@ -46,6 +31,17 @@ import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.rest.IssueDataCollectionApplication;
 import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
+import org.mockito.Mock;
+
+import javax.ws.rs.core.Application;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
@@ -180,22 +176,6 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
     protected CreationRuleTemplate getDefaultCreationRuleTemplate() {
         IssueType issueType = getDefaultIssueType();
         return mockCreationRuleTemplate("0-1-2", "Template 1", "Description", issueType, null);
-    }
-
-    protected AssigneeRole mockRole(long id, String name) {
-        AssigneeRole assigneeRole = mock(AssigneeRole.class);
-        when(assigneeRole.getType()).thenReturn(IssueAssignee.Types.ROLE);
-        when(assigneeRole.getId()).thenReturn(id);
-        when(assigneeRole.getName()).thenReturn(name);
-        return assigneeRole;
-    }
-
-    protected AssigneeTeam mockTeam(long id, String name) {
-        AssigneeTeam assigneeTeam = mock(AssigneeTeam.class);
-        when(assigneeTeam.getType()).thenReturn(IssueAssignee.Types.GROUP);
-        when(assigneeTeam.getId()).thenReturn(id);
-        when(assigneeTeam.getName()).thenReturn(name);
-        return assigneeTeam;
     }
 
     protected User mockUser(long id, String name) {
