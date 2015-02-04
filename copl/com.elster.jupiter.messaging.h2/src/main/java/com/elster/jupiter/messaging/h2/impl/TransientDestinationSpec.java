@@ -101,6 +101,11 @@ class TransientDestinationSpec implements DestinationSpec {
     }
 
     @Override
+    public SubscriberSpec subscribeSystemManaged(String name) {
+        return subscribe(name);
+    }
+
+    @Override
     public String getName() {
         return name;
     }
