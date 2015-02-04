@@ -37,10 +37,10 @@ public class DefaultAppServerCreator implements AppServerCreator {
         QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
         DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(server.messagingName(), DEFAULT_RETRY_DELAY_IN_SECONDS);
         destinationSpec.activate();
-        destinationSpec.subscribe(server.messagingName());
+        destinationSpec.subscribe(server.messagingName(), true);
         Optional<DestinationSpec> allServersTopic = messageService.getDestinationSpec(AppService.ALL_SERVERS);
         if (allServersTopic.isPresent()) {
-            allServersTopic.get().subscribe(server.messagingName());
+            allServersTopic.get().subscribe(server.messagingName(), true);
         }
         return server;
     }
