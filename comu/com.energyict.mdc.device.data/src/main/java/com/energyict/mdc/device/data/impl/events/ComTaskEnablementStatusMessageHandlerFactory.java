@@ -14,7 +14,7 @@ import org.osgi.service.component.annotations.Component;
 @Component(name = "com.energyict.mdc.device.data.update.comtaskenablement.status.messagehandlerfactory", property = {"subscriber=CTESMH", "destination=" + EventService.JUPITER_EVENTS}, service = MessageHandlerFactory.class, immediate = true)
 public class ComTaskEnablementStatusMessageHandlerFactory extends ComTaskEnablementMessageHandlerFactory {
 
-    private static final String SUBSCRIBER_NAME = "CTESMH";
+    public static final String SUBSCRIBER_NAME = "CTESMH";
 
     public ComTaskEnablementStatusMessageHandlerFactory() {
         super(SUBSCRIBER_NAME);

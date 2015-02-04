@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMessageHandlerFactory;
+import com.energyict.mdc.device.data.impl.events.ComTaskEnablementPriorityMessageHandlerFactory;
+import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
 import com.energyict.mdc.device.data.security.Privileges;
 
@@ -10,6 +13,7 @@ import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.UserService;
 
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,8 +57,19 @@ public class Installer {
         }
         this.createEventTypes();
         this.createMessageHandlers();
+        this.addJupiterEventSubscribers();
         this.createMasterData();
         this.createKpiCalculatorDestination();
+    }
+
+    private void addJupiterEventSubscribers() {
+        Optional<DestinationSpec> destinationSpec = this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS);
+        if(destinationSpec.isPresent()){
+            DestinationSpec jupiterEvents = destinationSpec.get();
+            jupiterEvents.subscribe(ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_NAME);
+            jupiterEvents.subscribe(ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_NAME);
+            jupiterEvents.subscribe(ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_NAME);
+        }
     }
 
     private void createKpiCalculatorDestination() {
