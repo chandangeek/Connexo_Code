@@ -13,6 +13,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -186,7 +187,7 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     @Override
     public Optional<? extends Issue> findExistingIssue() {
         if (existingIssue == null) {
-            Query<OpenIssueDataCollection> query = getIssueDataCollectionService().query(OpenIssueDataCollection.class, ComSession.class);
+            Query<OpenIssueDataCollection> query = getIssueDataCollectionService().query(OpenIssueDataCollection.class, ConnectionTask.class, ComTaskExecution.class, ComSession.class);
             List<OpenIssueDataCollection> theSameIssues = query.select(getConditionForExistingIssue());
             if (!theSameIssues.isEmpty()) {
                 existingIssue = Optional.of(theSameIssues.get(0));

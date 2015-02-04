@@ -41,7 +41,7 @@ public class DeviceCommunicationFailureEvent extends ConnectionEvent {
 
     @Override
     protected Condition getConditionForExistingIssue() {
-        return where("comTask").isEqualTo(comTaskId.get());
+        return where("comTask.id").isEqualTo(comTaskId.get());
     }
 
     @Override
@@ -63,7 +63,7 @@ public class DeviceCommunicationFailureEvent extends ConnectionEvent {
         clone.comTaskId = comTaskId;
         return clone;
     }
-    
+
     protected void setComTaskId(Long comTaskId) {
         this.comTaskId = Optional.of(comTaskId);
     }

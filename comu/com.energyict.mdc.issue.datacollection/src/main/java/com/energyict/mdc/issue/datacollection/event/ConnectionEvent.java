@@ -38,7 +38,7 @@ public abstract class ConnectionEvent extends DataCollectionEvent implements Clo
 
     @Override
     protected Condition getConditionForExistingIssue() {
-        return where("connectionTask").isEqualTo(connectionTaskId.get()).and(where("comTask").isNull());
+        return where("connectionTask.id").isEqualTo(connectionTaskId.get()).and(where("comTask").isNull());
     }
 
     @Override
