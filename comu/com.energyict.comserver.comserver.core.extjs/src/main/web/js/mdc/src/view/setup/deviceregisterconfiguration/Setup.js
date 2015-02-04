@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Setup', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: Uni.I18n.translate('registerconfiguration.registers', 'MDC', 'Register configurations'),
+                title: Uni.I18n.translate('deviceregisterconfiguration.registers', 'MDC', 'Registers'),
                 items: [
                     {
                         xtype: 'preview-container',
@@ -44,9 +44,9 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Setup', {
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
                             itemId: 'ctr-no-device-register-config',
-                            title: Uni.I18n.translate('registerconfiguration.empty.title', 'MDC', 'No register configurations found'),
+                            title: Uni.I18n.translate('deviceregisterconfiguration.empty.title', 'MDC', 'No registers found'),
                             reasons: [
-                                Uni.I18n.translate('registerconfiguration.empty.list.item1', 'MDC', 'No register configurations have been defined yet.')
+                                Uni.I18n.translate('deviceregisterconfiguration.empty.list.item1', 'MDC', 'No registers have been defined yet.')
                             ]
                         },
                         previewComponent: {
