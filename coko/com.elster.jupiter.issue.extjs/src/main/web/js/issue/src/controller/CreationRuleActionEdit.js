@@ -125,6 +125,7 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
                     boxLabel: record.get('title'),
                     name: 'phase',
                     inputValue: record.get('uuid'),
+                    itemId: 'when-to-perform-radio-button-'+record.get('uuid'),
                     afterSubTpl: '<span style="color: #686868; font-style: italic">' + record.get('description') + '</span>',
                     checked: !index
                 });
