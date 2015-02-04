@@ -8,9 +8,12 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 import com.google.common.base.Strings;
+
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.jackson.JacksonFeature;
+import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.filter.EncodingFilter;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.osgi.framework.BundleContext;
@@ -24,6 +27,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Application;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -144,11 +148,12 @@ public class WhiteBoard {
         if (configuration.debug()) {
             secureConfig.register(LoggingFilter.class);
         }
+        EncodingFilter.enableFor(secureConfig, GZipEncoder.class);
         try (ContextClassLoaderResource ctx = ContextClassLoaderResource.of(application.getClass())) {
             ServletContainer container = new ServletContainer(secureConfig);
             HttpServlet wrapper = new EventServletWrapper(new ServletWrapper(container,threadPrincipalService),this);
             httpService.registerServlet(alias.get(), wrapper, null, httpContext);
-        } catch (ServletException | NamespaceException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error while registering " + alias.get() + ": " + e.getMessage() , e);
             throw new RuntimeException(e);
         }
