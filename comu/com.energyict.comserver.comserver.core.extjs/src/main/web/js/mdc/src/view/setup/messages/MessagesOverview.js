@@ -37,10 +37,9 @@ Ext.define('Mdc.view.setup.messages.MessagesOverview', {
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('commands.categoriesGrid.empty.title', 'MDC', 'Device protocol did not specify any commands.'),
+                            title: Uni.I18n.translate('commands.categoriesGrid.empty.title', 'MDC', 'No commands found'),
                             reasons: [
-                                Uni.I18n.translate('commands.CategoriesGrid.emptyCmp.item1', 'MDC', 'No command categories have been defined yet.'),
-                                Uni.I18n.translate('commands.CategoriesGrid.emptyCmp.item2', 'MDC', 'No command categories available for this device configuration.')
+                                Uni.I18n.translate('commands.CategoriesGrid.emptyCmp.item1', 'MDC', 'Device protocol did not specify any commands')
                             ]
                         },
                         previewComponent: {
