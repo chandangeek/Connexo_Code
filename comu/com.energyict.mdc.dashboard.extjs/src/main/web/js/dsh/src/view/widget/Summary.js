@@ -37,7 +37,7 @@ Ext.define('Dsh.view.widget.Summary', {
                     '<tr>' +
                     '<td class="label">' +
                     '<tpl if="href">' +
-                    '<a href="{href}">{displayName}</a><tpl else>{displayName}</tpl>' +
+                    '<a id="label-{displayName}" href="{href}">{displayName}</a><tpl else>{displayName}</tpl>' +
                     '</td>' +
                     '<td width="100%" id="bar-{[parentIndex]}" class="bar-{[parentIndex]} bar-{name}"></td>' +
                     '</tr>' +
