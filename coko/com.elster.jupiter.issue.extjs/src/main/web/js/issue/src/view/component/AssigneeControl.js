@@ -14,10 +14,11 @@ Ext.define('Isu.view.component.AssigneeControl', {
     },
 
     getValue: function () {
-        return this.down('radiofield[checked=true]').inputValue;
+        //this was done in scope of JP-8241. We will have only users assignee for now
+        return 'issueAssigneeUser';
     },
 
     markInvalid: function (errors) {
-        this.down('radiofield[checked=true]').nextSibling().markInvalid(errors);
+        this.down('combobox').markInvalid(errors);
     }
 });

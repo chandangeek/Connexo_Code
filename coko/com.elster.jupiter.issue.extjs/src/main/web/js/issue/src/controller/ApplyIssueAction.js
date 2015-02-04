@@ -29,7 +29,6 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                 me.getApplication().fireEvent('issueLoad', record);
             }
         });
-
         actionModel.getProxy().url = issueModel.getProxy().url + '/' + issueId + '/actions';
         actionModel.load(actionId, {
             success: function (record) {
@@ -42,7 +41,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                 });
                 Ext.resumeLayouts();
                 form.loadRecord(record);
-                //todo: this definitely should be refactored. BE should send action button translation istead of this splitting
+                //todo: this definitely should be refactored. BE should send action button translation instead of this splitting
                 if (form.title === 'Close issue' || form.title === 'Notify user' || form.title === 'Assign issue' ) {
                     form.down('#issue-action-apply').setText(form.title.split(' ')[0]);
                 }
@@ -59,7 +58,6 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             errorPanel = form.down('#issue-action-view-form-errors'),
             router = me.getController('Uni.controller.history.Router'),
             fromOverview = router.queryParams.fromOverview === 'true';
-        ;
 
         errorPanel.hide();
         basicForm.clearInvalid();

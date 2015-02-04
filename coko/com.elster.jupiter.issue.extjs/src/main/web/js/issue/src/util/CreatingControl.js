@@ -201,47 +201,19 @@ Ext.define('Isu.util.CreatingControl', {
                 required: obj.constraint.required,
                 items: []
             },
+           //this was done in scope of JP-8241. We will have only users assignee for now
             controls = [
-                obj.control.userControl,
-                obj.control.groupControl,
-                obj.control.roleControl
+                obj.control.userControl
             ];
 
         Ext.Array.each(controls, function (item, index) {
-            var control = me.createControl(item),
-                radio = {
-                    xtype: 'radiofield',
-                    name: obj.key,
-                    boxLabel: item.label,
-                    inputValue: item.key,
-                    checked: index === 0 ? true : false,
-                    width: 100,
-                    listeners: {
-                        focus: {
-                            fn: function () {
-                                var combo = this.nextSibling();
-                                Ext.Array.each(this.up('issues-assignee-control').query('radiofield'), function (radiofield) {
-                                    radiofield.nextSibling().allowBlank = true;
-                                });
-                                combo.allowBlank = false;
-                                combo.focus();
-                            }
-                        }
-                    }
-                };
+            var control = me.createControl(item);
+
             control.fieldLabel = '';
-            control.allowBlank = index !== 0 ? true : false;
-            control.listeners = {
-                focus: {
-                    fn: function () {
-                        this.previousSibling().setValue(true);
-                    }
-                }
-            };
+            control.allowBlank = false;
             control.flex = 1;
             issueAssigneeControl.items.push({
                 items: [
-                    radio,
                     control
                 ]
             });
