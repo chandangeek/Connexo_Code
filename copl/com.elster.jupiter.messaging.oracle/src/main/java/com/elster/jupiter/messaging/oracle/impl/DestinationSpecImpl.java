@@ -137,6 +137,11 @@ class DestinationSpecImpl implements DestinationSpec {
 
     @Override
     public SubscriberSpec subscribe(String name) {
+        return subscribe(name, false);
+    }
+
+    @Override
+    public SubscriberSpec subscribe(String name, boolean systemManaged) {
         if (!isActive()) {
             throw new InactiveDestinationException(thesaurus, this, name);
         }
@@ -149,7 +154,7 @@ class DestinationSpecImpl implements DestinationSpec {
         if (isQueue() && !currentConsumers.isEmpty()) {
             throw new AlreadyASubscriberForQueueException(thesaurus, this);
         }
-        SubscriberSpecImpl result = SubscriberSpecImpl.from(dataModel, this, name);
+        SubscriberSpecImpl result = SubscriberSpecImpl.from(dataModel, this, name, systemManaged);
         result.subscribe();
         subscribers.add(result);
         dataModel.mapper(DestinationSpec.class).update(this);
@@ -260,8 +265,8 @@ class DestinationSpecImpl implements DestinationSpec {
                 '}';
     }
 
-	@Override
-	public boolean isBuffered() {
-		return buffered;
-	}
+    @Override
+    public boolean isBuffered() {
+        return buffered;
+    }
 }

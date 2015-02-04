@@ -44,6 +44,8 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
+    private boolean systemManaged;
 
     private final Reference<DestinationSpec> destination = ValueReference.absent();
 
@@ -57,13 +59,22 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     }
 
     SubscriberSpecImpl init(DestinationSpec destination, String name) {
+        return this.init(destination, name, false);
+    }
+
+    SubscriberSpecImpl init(DestinationSpec destination, String name, boolean systemManaged) {
         this.destination.set(destination);
         this.name = name;
+        this.systemManaged = systemManaged;
         return this;
     }
 
     static SubscriberSpecImpl from(DataModel dataModel, DestinationSpec destinationSpec, String name) {
         return dataModel.getInstance(SubscriberSpecImpl.class).init(destinationSpec, name);
+    }
+
+    static SubscriberSpecImpl from(DataModel dataModel, DestinationSpec destinationSpec, String name, boolean systemManaged) {
+        return dataModel.getInstance(SubscriberSpecImpl.class).init(destinationSpec, name, systemManaged);
     }
 
     @Override
@@ -148,8 +159,8 @@ public class SubscriberSpecImpl implements SubscriberSpec {
             options.setNavigation(AQDequeueOptions.NavigationOption.FIRST_MESSAGE);
         }
         if (getDestination().isBuffered()) {
-        	options.setVisibility(AQDequeueOptions.VisibilityOption.IMMEDIATE);
-        	options.setDeliveryFilter(AQDequeueOptions.DeliveryFilter.BUFFERED);
+            options.setVisibility(AQDequeueOptions.VisibilityOption.IMMEDIATE);
+            options.setDeliveryFilter(AQDequeueOptions.DeliveryFilter.BUFFERED);
         }
         return options;
     }
