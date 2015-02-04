@@ -1086,7 +1086,7 @@ public class DeviceImpl implements Device, CanLock {
                     .ofInstant(
                         requestedIntervalClippedToMeterActivation.lowerEndpoint(),
                         zoneId)
-                    .with(ChronoField.DAY_OF_MONTH,1);
+                    .with(ChronoField.DAY_OF_MONTH, 1).toLocalDate().atStartOfDay(zoneId);
 
         while (nextAttempt.toInstant().isAfter(requestedIntervalClippedToMeterActivation.lowerEndpoint()) || nextAttempt.toInstant().equals(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {
             nextAttempt = nextAttempt.minus(this.intervalLength(loadProfile));
