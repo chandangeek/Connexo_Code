@@ -32,7 +32,6 @@ Ext.define('Uni.override.grid.plugin.BufferedRenderer', {
         if (!(me.disabled || totalCount < me.viewSize)) {
 
             vscrollDistance = scrollTop - me.position;
-            console.log(scrollTop, me.position);
             scrollDirection = vscrollDistance >= 0 ? 1 : -1;
             if (Math.abs(vscrollDistance) >= 20 || (scrollDirection !== me.lastScrollDirection)) {
                 me.lastScrollDirection = scrollDirection;
