@@ -9,12 +9,18 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationActionMenu', {
         {
             text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
             itemId: 'activateDeviceconfigurationMenuItem',
-            action: 'activateDeviceConfiguration'
+            action: 'activateDeviceConfiguration',
+            visible: function() {
+                return !this.record.get('active')
+            }
         },
         {
             text: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
             itemId: 'deactivateDeviceconfigurationMenuItem',
-            action: 'deactivateDeviceConfiguration'
+            action: 'deactivateDeviceConfiguration',
+            visible: function() {
+                return !!this.record.get('active')
+            }
         },
         {
             text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
@@ -26,5 +32,14 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationActionMenu', {
             itemId: 'deleteDeviceconfigurationMenuItem',
             action: 'deleteDeviceConfiguration'
         }
-    ]
+    ],
+
+    listeners: {
+        beforeshow: function() {
+            var me = this;
+            me.items.each(function(item){
+                (item.visible && !item.visible.call(me)) ? item.hide() : item.show();
+            })
+        }
+    }
 });
