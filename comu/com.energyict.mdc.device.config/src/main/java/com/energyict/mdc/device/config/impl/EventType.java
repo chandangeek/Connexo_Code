@@ -6,6 +6,8 @@ import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 
+import javax.xml.ws.Service;
+
 /**
  * Models the different event types that are produced by this "device type and configurations bundle".
  *
@@ -25,8 +27,18 @@ public enum EventType {
     COMTASKENABLEMENT_UPDATED("comtaskenablement/UPDATED"),
     COMTASKENABLEMENT_DELETED("comtaskenablement/DELETED"),
     COMTASKENABLEMENT_VALIDATEDELETE("comtaskenablement/VALIDATEDELETE"),
-    COMTASKENABLEMENT_SUSPEND("comtaskenablement/SUSPEND"),
-    COMTASKENABLEMENT_RESUME("comtaskenablement/RESUME"),
+    COMTASKENABLEMENT_SUSPEND("comtaskenablement/SUSPEND") {
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
+    },
+    COMTASKENABLEMENT_RESUME("comtaskenablement/RESUME") {
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
+    },
     COMTASKENABLEMENT_PRIORITY_UPDATED("comtaskenablement/PRIORITY_UPDATED") {
         @Override
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
@@ -35,6 +47,11 @@ public enum EventType {
             eventTypeBuilder.withProperty("newPriority", ValueType.INTEGER, "newPriority");
             return eventTypeBuilder;
         }
+
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
     },
     COMTASKENABLEMENT_SWITCH_ON_DEFAULT("comtaskenablement/SWITCH_ON_DEFAULT") {
         @Override
@@ -42,12 +59,22 @@ public enum EventType {
             eventTypeBuilder.withProperty("comTaskEnablementId", ValueType.LONG, "comTaskEnablementId");
             return eventTypeBuilder;
         }
+
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
     },
     COMTASKENABLEMENT_SWITCH_OFF_DEFAULT("comtaskenablement/SWITCH_OFF_DEFAULT") {
         @Override
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
             eventTypeBuilder.withProperty("comTaskEnablementId", ValueType.LONG, "comTaskEnablementId");
             return eventTypeBuilder;
+        }
+
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
         }
     },
     COMTASKENABLEMENT_SWITCH_FROM_DEFAULT_TO_TASK("comtaskenablement/SWITCH_FROM_DEFAULT_TO_TASK") {
@@ -57,6 +84,11 @@ public enum EventType {
             eventTypeBuilder.withProperty("partialConnectionTaskId", ValueType.LONG, "partialConnectionTaskId");
             return eventTypeBuilder;
         }
+
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
     },
     COMTASKENABLEMENT_SWITCH_FROM_TASK_TO_DEFAULT("comtaskenablement/SWITCH_FROM_TASK_TO_DEFAULT") {
         @Override
@@ -64,6 +96,11 @@ public enum EventType {
             eventTypeBuilder.withProperty("comTaskEnablementId", ValueType.LONG, "comTaskEnablementId");
             eventTypeBuilder.withProperty("partialConnectionTaskId", ValueType.LONG, "partialConnectionTaskId");
             return eventTypeBuilder;
+        }
+
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
         }
     },
     COMTASKENABLEMENT_SWITCH_BETWEEN_TASKS("comtaskenablement/SWITCH_BETWEEN_TASKS") {
@@ -74,6 +111,11 @@ public enum EventType {
             eventTypeBuilder.withProperty("newPartialConnectionTaskId", ValueType.LONG, "newPartialConnectionTaskId");
             return eventTypeBuilder;
         }
+
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
     },
     COMTASKENABLEMENT_START_USING_TASK("comtaskenablement/USE_TASK") {
         @Override
@@ -81,12 +123,22 @@ public enum EventType {
             eventTypeBuilder.withProperty("comTaskEnablementId", ValueType.LONG, "comTaskEnablementId");
             return eventTypeBuilder;
         }
+
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
     },
     COMTASKENABLEMENT_REMOVE_TASK("comtaskenablement/REMOVE_TASK") {
         @Override
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
             eventTypeBuilder.withProperty("partialConnectionTaskId", ValueType.LONG, "partialConnectionTaskId");
             return eventTypeBuilder;
+        }
+
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
         }
     },
     LOGBOOKSPEC_CREATED("logbookspec/CREATED"),
@@ -147,7 +199,12 @@ public enum EventType {
                 .component(DeviceConfigurationService.COMPONENTNAME)
                 .category("Crud")
                 .scope("System");
-        this.addCustomProperties(builder).create().save();
+        this.addCustomProperties(builder);
+        this.shouldPublish(builder).create().save();
+    }
+
+    EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+        return eventTypeBuilder.shouldNotPublish();
     }
 
     protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
