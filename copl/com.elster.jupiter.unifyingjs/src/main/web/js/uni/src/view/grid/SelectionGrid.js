@@ -11,13 +11,11 @@ Ext.define('Uni.view.grid.SelectionGrid', {
         'Ext.grid.plugin.BufferedRenderer'
     ],
 
-    plugins: [
-        'bufferedrenderer'
-    ],
 
     selType: 'checkboxmodel',
     selModel: {
         mode: 'MULTI',
+        checkOnly: true,
         showHeaderCheckbox: false
     },
     cls: 'uni-selection-grid',
@@ -130,11 +128,5 @@ Ext.define('Uni.view.grid.SelectionGrid', {
         me.getTopToolbarContainer().add(
             me.extraTopToolbarComponent
         )
-    },
-
-    afterLayout: function () {
-        var me = this;
-        me.callParent(arguments);
-        me.getView().getEl().setStyle('overflow-x', 'hidden');
     }
 });

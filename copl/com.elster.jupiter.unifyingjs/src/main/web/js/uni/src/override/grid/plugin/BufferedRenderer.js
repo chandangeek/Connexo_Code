@@ -10,11 +10,40 @@ Ext.define('Uni.override.grid.plugin.BufferedRenderer', {
             grid.view.refresh();
         });
     },
-
     bindStore: function(store) {
         var me = this;
-        me.trailingBufferZone = 10; // No idea why this needs to be 0, without it some grids don't work.
+        me.trailingBufferZone = 0; // No idea why this needs to be 0, without it some grids don't work.
         me.leadingBufferZone = store.pageSize;
         me.callParent(arguments);
+    },
+
+    onViewScroll: function(e, t) {
+        var me = this,
+            store = me.store,
+            totalCount = (store.buffered ? store.getTotalCount() : store.getCount()),
+            vscrollDistance,
+            scrollDirection,
+            scrollTop = me.scrollTop = me.view.el.dom.scrollTop,
+            scrollHandled = false;
+        if (me.ignoreNextScrollEvent) {
+            me.ignoreNextScrollEvent = false;
+            return;
+        }
+        if (!(me.disabled || totalCount < me.viewSize)) {
+
+            vscrollDistance = scrollTop - me.position;
+            console.log(scrollTop, me.position);
+            scrollDirection = vscrollDistance >= 0 ? 1 : -1;
+            if (Math.abs(vscrollDistance) >= 20 || (scrollDirection !== me.lastScrollDirection)) {
+                me.lastScrollDirection = scrollDirection;
+                me.handleViewScroll(me.lastScrollDirection);
+                scrollHandled = true;
+            }
+        }
+        if (!scrollHandled) {
+            if (me.lockingPartner && me.lockingPartner.scrollTop !== scrollTop) {
+                me.lockingPartner.view.el.dom.scrollTop = scrollTop;
+            }
+        }
     }
 });

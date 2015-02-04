@@ -72,7 +72,7 @@ Ext.define('Uni.view.container.PreviewContainer', {
      * Hide empty compoonent if set to true.
      */
     hasNotEmptyComponent: false,
-
+    hasBufferedRendererPlugin: false,
     mixins: {
         bindable: 'Ext.util.Bindable'
     },
@@ -137,9 +137,9 @@ Ext.define('Uni.view.container.PreviewContainer', {
 
         me.grid = me.getWrapperCt().items.items[0];
         me.previewComponent = me.getWrapperCt().items.items[1];
-        me.hasBufferedRendererPlugin = Ext.Array.findBy(me.grid.plugins, function (item) {
-            return item.ptype === 'bufferedrenderer';
-        })
+        Ext.Array.findBy(me.grid.plugins, function (item) {
+            me.hasBufferedRendererPlugin = item.ptype === 'bufferedrenderer';
+        });
 
         me.bindStore(me.grid.store || 'ext-empty-store', true);
         me.initChildPagingBottom();
