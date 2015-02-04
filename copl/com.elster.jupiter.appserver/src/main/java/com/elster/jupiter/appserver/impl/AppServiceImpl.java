@@ -30,6 +30,7 @@ import com.elster.jupiter.util.Registration;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
+import static com.elster.jupiter.util.conditions.Where.where;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -125,6 +126,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
                     bind(FileImportService.class).toInstance(fileImportService);
                     bind(Thesaurus.class).toInstance(thesaurus);
                     bind(MessageInterpolator.class).toInstance(thesaurus);
+                    bind(AppService.class).toInstance(AppServiceImpl.this);
                 }
             });
 
@@ -325,7 +327,8 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
 
     @Override
     public Optional<AppServer> findAppServer(String name) {
-        return dataModel.mapper(AppServer.class).getOptional(name);
+        List<AppServer> appServers = dataModel.mapper(AppServer.class).select(where("name").isEqualToIgnoreCase(name));
+        return appServers.isEmpty() ? Optional.<AppServer>empty() : Optional.of(appServers.get(0));
     }
 
     @Reference
