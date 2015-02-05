@@ -124,6 +124,7 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -185,7 +186,7 @@ public class DeviceImpl implements Device, CanLock {
     @Size(max = 32, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String timeZoneId;
     private TimeZone timeZone;
-    private Instant yearOfCertification;
+    private Integer yearOfCertification;
     private String userName;
     private long version;
     private Instant createTime;
@@ -480,12 +481,12 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
-    public void setYearOfCertification(Instant yearOfCertification) {
+    public void setYearOfCertification(Integer yearOfCertification) {
         this.yearOfCertification = yearOfCertification;
     }
-
     @Override
-    public Instant getYearOfCertification() {
+
+    public Integer getYearOfCertification() {
         return this.yearOfCertification;
     }
 

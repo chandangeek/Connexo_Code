@@ -70,7 +70,7 @@ public enum TableSpecs {
             table.column("SERIALNUMBER").varChar().map(DeviceFields.SERIALNUMBER.fieldName()).add();
             table.column("TIMEZONE").varChar().map(DeviceFields.TIMEZONE.fieldName()).add();
             Column externid = table.column("MRID").varChar().map(DeviceFields.MRID.fieldName()).add();
-            table.column("CERTIF_DATE").type("DATE").conversion(ColumnConversion.DATE2INSTANT).map("yearOfCertification").add();
+            table.column("CERTIF_YEAR").number().map("yearOfCertification").conversion(ColumnConversion.NUMBER2INT).add();
             Column deviceType = table.column("DEVICETYPE").number().notNull().add();
             Column configuration = table.column("DEVICECONFIGID").number().notNull().add();
             table.foreignKey("FK_DDC_DEVICE_DEVICECONFIG").
