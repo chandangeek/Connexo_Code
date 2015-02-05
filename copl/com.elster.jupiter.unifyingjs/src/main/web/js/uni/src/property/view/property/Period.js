@@ -94,7 +94,7 @@ Ext.define('Uni.property.view.property.Period', {
                 && typeof timeUnitValue !== 'undefined' && timeUnitValue !== null
             ) {
                 if (!me.getProperty().get('default')) {
-                    button.setTooltip(Uni.I18n.translate('general.clearAll', 'UNI', 'Clear all'));
+                    button.setTooltip(Uni.I18n.translate('general.clear', 'UNI', 'Clear'));
                 } else {
                     button.setTooltip(
                         Uni.I18n.translate('general.restoreDefaultValue', me.translationKey, 'Restore to default value')
