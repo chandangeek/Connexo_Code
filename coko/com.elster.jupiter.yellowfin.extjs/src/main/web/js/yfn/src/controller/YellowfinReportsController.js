@@ -62,7 +62,7 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
         me.reportUUID = router.queryParams.reportUUID;
         var widget = Ext.widget('report-view');
         this.getApplication().fireEvent('changecontentevent', widget);
-        this.loadReportFilters(me.reportUUID);
+        this.createAdHocGroup(me.reportUUID);
     },
 
     resizeReportPanel: function(component) {
@@ -120,6 +120,65 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
         var me = this;
         eval("javascript:yellowfin.reports.exportReport("+me.reportId+", '"+button.exportType+"')");
     },
+
+    createAdHocGroup:function(reportUUID) {
+        var me = this;
+        var router = me.getController('Uni.controller.history.Router');
+
+        if (!router.queryParams.search){
+            // refresh group
+            var filter = Ext.JSON.decode(decodeURIComponent(router.queryParams.filter)) || {};
+            var selectedGroups = filter[GROUPNAME];
+            if( _.isArray(selectedGroups)) {
+                var groups = [];
+                for (var i = 0; i < selectedGroups.length; i++) {
+                    groups.push({name: selectedGroups[i]});
+                }
+
+                Ext.Ajax.request({
+                    url: '/api/yfn/cachegroups/dynamic',
+                    method: 'POST',
+                    timeout:180000,
+                    //async: false,
+                    jsonData:{
+                        total:groups.length,
+                        groups:groups
+                    },
+                    success: function () {
+                        debugger;
+                        me.generateReportWizardWidget.setLoading(false);
+
+                        // load report
+                        this.loadReportFilters(reportUUID);
+                    },
+                    failure: function(response, opts) {
+                        me.generateReportWizardWidget.setLoading(false);
+                    }
+                });
+            }
+            return;
+        }
+        else {
+            var searchCriteria = {};
+            Ext.apply(searchCriteria, Ext.JSON.decode(router.queryParams.params));
+
+            var url = '/api/ddr/cachegroups/adhoc?' + router.queryParamsToString(searchCriteria);
+            Ext.Ajax.request({
+                url: url,
+                method: 'POST',
+                params: searchCriteria,
+                async: false,
+                success: function (response) {
+                    data = Ext.JSON.decode(response.responseText);
+                    me.GROUPNAME = data.name;
+
+                    // load report
+                    me.loadReportFilters(reportUUID);
+                }
+            });
+        }
+    },
+
     loadReportFilters: function (reportUUID) {
         var me = this;
         var router = me.getController('Uni.controller.history.Router');
@@ -164,7 +223,8 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
                     var filterName = filterRecord.get('filterName');
                     var filterDisplayType = filterRecord.get('filterDisplayType');
                     var filterDescription = filterRecord.get('filterDisplayName') || filterName;
-                    me.filterValues[filterRecord.get('id')] = me.getFilterValue(filterRecord, me.reportFilters[filterName]);
+                    me.filterValues[filterRecord.get('id')] = me.getFilterValue(filterRecord,
+                            ((filterName == 'GROUPNAME') && (me.reportFilters[filterName])) == '__##SEARCH_RESULTS##__' ? me.GROUPNAME: me.reportFilters[filterName]);
 
                     var value =  me.filterValues[filterRecord.get('id')];
                     if(value && value.toString().indexOf("__##SEARCH_RESULTS##__")!=-1){

@@ -148,39 +148,16 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
     finishClick: function () {
         var me = this;
         var link = me.getGenerateReportLink();
-        me.generateReportWizardWidget.setLoading(Uni.I18n.translate('generatereport.preparingReport', 'YFN', 'Preparing report. Please wait ...'));
-        var selectedGroups = me.selectedFilterValues['GROUPNAME'];
+        //me.generateReportWizardWidget.setLoading(Uni.I18n.translate('generatereport.preparingReport', 'YFN', 'Preparing report. Please wait ...'));
 
-        if( _.isArray(selectedGroups)){
-            var groups = [];
-            for(var i=0;i<selectedGroups.length;i++){
-                groups.push({name:selectedGroups[i]});
-            }
-            Ext.Ajax.request({
-                url: '/api/yfn/cachegroups/dynamic',
-                method: 'POST',
-                timeout:180000,
-                //async: false,
-                jsonData:{
-                    total:groups.length,
-                    groups:groups
-                },
-                success: function () {
-                    me.generateReportWizardWidget.setLoading(false);
-                    var href = '#/reports/view?reportUUID='+me.selectedReportUUID+'&filter='+encodeURIComponent(Ext.JSON.encode(me.selectedFilterValues));
-                    link.getEl().dom.href = href;
-                    link.getEl().dom.target = '_blank';
-                    link.getEl().dom.click();
-                    Ext.util.History.back();
-                },
-                failure: function(response, opts) {
-                    //console.log('server-side failure with status code ' + response.status);
-                    me.generateReportWizardWidget.setLoading(false);
-                }
-            });
-
-        }
-
+        var href = '#/reports/view?reportUUID='+me.selectedReportUUID+'&filter='+encodeURIComponent(Ext.JSON.encode(me.selectedFilterValues))+
+            '&params='+encodeURIComponent(me.getController('Uni.controller.history.Router').queryParams.params) +
+            '&search='+(me.getController('Uni.controller.history.Router').queryParams.search ? true:false);
+        link.getEl().dom.href = href;
+        link.getEl().dom.target = '_blank';
+        link.getEl().dom.click();
+        Ext.util.History.back();
+        return;
     },
 
     cancelClick: function () {
