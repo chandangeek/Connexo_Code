@@ -90,6 +90,11 @@ public class TransientMessageService implements MessageService, InstallService {
     }
 
     @Override
+    public List<SubscriberSpec> getNonSystemManagedSubscribers() {
+        return getSubscribers();
+    }
+
+    @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList("ORM");
     }
