@@ -13,6 +13,7 @@ import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.UserService;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -66,9 +67,12 @@ public class Installer {
         Optional<DestinationSpec> destinationSpec = this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS);
         if(destinationSpec.isPresent()){
             DestinationSpec jupiterEvents = destinationSpec.get();
-            jupiterEvents.subscribe(ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_NAME);
-            jupiterEvents.subscribe(ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_NAME);
-            jupiterEvents.subscribe(ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_NAME);
+            Arrays.asList(
+                    ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_NAME,
+                    ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_NAME,
+                    ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_NAME).stream().
+                    filter(subscriber->!jupiterEvents.getSubscribers().stream().anyMatch(s->s.getName().equals(subscriber))).
+                    forEach(jupiterEvents::subscribe);
         }
     }
 
