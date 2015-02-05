@@ -70,14 +70,14 @@ class ReadingTypeGeneratorForWater extends AbstractReadingTypeGenerator {
 
     private enum ReadingTypesForPossibleDailyMonthlyLoadProfileUsage implements ReadingTypeTemplate {
 
-        DAILY_WATER_VOLUME_M3("Daily water volume", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.DAILY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETER)),
-        DAILY_WATER_VOLUME_LITRE("Daily water volume", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.DAILY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRE)),
-        DAILY_WATER_VOLUME_BACKFLOW_M3("Daily water volume backflow", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.DAILY).flow(FlowDirection.REVERSE).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETERCOMPENSATED)),
-        DAILY_WATER_VOLUME_BACKFLOW_LITRE("Daily water volume backflow", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.DAILY).flow(FlowDirection.REVERSE).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRECOMPENSATED)),
-        MONTHLY_WATER_VOLUME_M3("Monthly water volume", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.MONTHLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETER)),
-        MONTHLY_WATER_VOLUME_LITRE("Monthly water volume", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.MONTHLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRE)),
-        MONTHLY_WATER_VOLUME_BACKFLOW_M3("Monthly water volume backflow", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.MONTHLY).flow(FlowDirection.REVERSE).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETERCOMPENSATED)),
-        MONTHLY_WATER_VOLUME_BACKFLOW_LITRE("Monthly water volume backflow", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.MONTHLY).flow(FlowDirection.REVERSE).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRECOMPENSATED)),;
+        DAILY_WATER_VOLUME_M3("Water volume", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.DAILY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETER)),
+        DAILY_WATER_VOLUME_LITRE("Water volume", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.DAILY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRE)),
+        DAILY_WATER_VOLUME_BACKFLOW_M3("Water volume backflow", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.DAILY).flow(FlowDirection.REVERSE).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETERCOMPENSATED)),
+        DAILY_WATER_VOLUME_BACKFLOW_LITRE("Water volume backflow", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.DAILY).flow(FlowDirection.REVERSE).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRECOMPENSATED)),
+        MONTHLY_WATER_VOLUME_M3("Water volume", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.MONTHLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETER)),
+        MONTHLY_WATER_VOLUME_LITRE("Water volume", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.MONTHLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRE)),
+        MONTHLY_WATER_VOLUME_BACKFLOW_M3("Water volume backflow", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.MONTHLY).flow(FlowDirection.REVERSE).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETERCOMPENSATED)),
+        MONTHLY_WATER_VOLUME_BACKFLOW_LITRE("Water volume backflow", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.MONTHLY).flow(FlowDirection.REVERSE).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRECOMPENSATED)),;
 
         final String name;
         final ReadingTypeCodeBuilder readingTypeCodeBuilder;

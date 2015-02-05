@@ -95,14 +95,14 @@ class ReadingTypeGeneratorForGas extends AbstractReadingTypeGenerator {
 
     private enum ReadingTypesForPossibleDailyMonthlyLoadProfileUsage implements ReadingTypeTemplate {
 
-        DAILY_GAS_VOLUME_M3("Daily gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.DAILY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETER)),
-        DAILY_GAS_VOLUME_LITRE("Daily gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.DAILY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRE)),
-        DAILY_GAS_VOLUME_NORM_M3("Daily gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.DAILY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETERCOMPENSATED)),
-        DAILY_GAS_VOLUME_NORM_LITRE("Daily gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.DAILY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRECOMPENSATED)),
-        MONTHLY_GAS_VOLUME_M3("Monthly gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.MONTHLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETER)),
-        MONTHLY_GAS_VOLUME_LITRE("Monthly gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.MONTHLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRE)),
-        MONTHLY_GAS_VOLUME_NORM_M3("Monthly gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.MONTHLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETERCOMPENSATED)),
-        MONTHLY_GAS_VOLUME_NORM_LITRE("Monthly gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.MONTHLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRECOMPENSATED)),;
+        DAILY_GAS_VOLUME_M3("Gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.DAILY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETER)),
+        DAILY_GAS_VOLUME_LITRE("Gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.DAILY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRE)),
+        DAILY_GAS_VOLUME_NORM_M3("Gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.DAILY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETERCOMPENSATED)),
+        DAILY_GAS_VOLUME_NORM_LITRE("Gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.DAILY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRECOMPENSATED)),
+        MONTHLY_GAS_VOLUME_M3("Gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.MONTHLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETER)),
+        MONTHLY_GAS_VOLUME_LITRE("Gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.MONTHLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRE)),
+        MONTHLY_GAS_VOLUME_NORM_M3("Gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.MONTHLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETERCOMPENSATED)),
+        MONTHLY_GAS_VOLUME_NORM_LITRE("Gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.MONTHLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRECOMPENSATED)),;
 
         final String name;
         final ReadingTypeCodeBuilder readingTypeCodeBuilder;
