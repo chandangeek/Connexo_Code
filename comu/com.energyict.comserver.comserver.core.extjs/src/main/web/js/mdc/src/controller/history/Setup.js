@@ -76,15 +76,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     route: 'edit',
                                     privileges: ['privilege.administrate.deviceType'],
                                     controller: 'Mdc.controller.setup.DeviceTypes',
-                                    action: 'showDeviceTypeEditView',
-                                    callback: function (route) {
-                                        this.getApplication().on('loadDeviceType', function (record) {
-                                            route.setTitle('Edit' + " '" + record.get('name') + "'");
-                                            return true;
-                                        }, {single: true});
-
-                                        return this;
-                                    }
+                                    action: 'showDeviceTypeEditView'
                                 },
                                 logbooktypes: {
                                     title: 'Logbook types',
@@ -148,19 +140,11 @@ Ext.define('Mdc.controller.history.Setup', {
                                             },
                                             items: {
                                                 edit: {
-                                                    title: 'Edit device configuration',
+                                                    title: 'Edit',
                                                     route: 'edit',
                                                     privileges: ['privilege.administrate.deviceType'],
                                                     controller: 'Mdc.controller.setup.DeviceConfigurations',
-                                                    action: 'showDeviceConfigurationEditView',
-                                                    callback: function (route) {
-                                                        this.getApplication().on('loadDeviceConfiguration', function (record) {
-                                                            route.setTitle('Edit' + " '" + record.get('name') + "'");
-                                                            return true;
-                                                        }, {single: true});
-
-                                                        return this;
-                                                    }
+                                                    action: 'showDeviceConfigurationEditView'
                                                 },
                                                 generalattributes: {
                                                     title: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
