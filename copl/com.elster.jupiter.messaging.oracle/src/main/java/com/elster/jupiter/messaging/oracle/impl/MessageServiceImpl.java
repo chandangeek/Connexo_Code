@@ -106,8 +106,13 @@ public class MessageServiceImpl implements MessageService, InstallService {
     }
 
     @Override
-    public List<SubscriberSpec> getSubscribers() {
+     public List<SubscriberSpec> getSubscribers() {
         return dataModel.mapper(SubscriberSpec.class).find();
+    }
+
+    @Override
+    public List<SubscriberSpec> getNonSystemManagedSubscribers() {
+        return dataModel.mapper(SubscriberSpec.class).find("systemManaged", false);
     }
 
     @Reference
