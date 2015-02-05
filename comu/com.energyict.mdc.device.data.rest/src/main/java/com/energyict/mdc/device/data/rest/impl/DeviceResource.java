@@ -175,7 +175,7 @@ public class DeviceResource {
 
         Device newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID);
         newDevice.setSerialNumber(info.serialNumber);
-        newDevice.setYearOfCertification(ZonedDateTime.of(Integer.parseInt(info.yearOfCertification), 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+        newDevice.setYearOfCertification(Integer.valueOf(info.yearOfCertification));
         newDevice.save();
 
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date

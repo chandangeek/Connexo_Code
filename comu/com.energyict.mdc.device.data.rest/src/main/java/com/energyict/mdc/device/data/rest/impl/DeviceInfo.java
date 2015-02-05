@@ -61,10 +61,8 @@ public class DeviceInfo {
         deviceInfo.deviceConfigurationId = device.getDeviceConfiguration().getId();
         deviceInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
         deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().getId();
-        if (device.getYearOfCertification()!= null) {
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy").withZone(ZoneId.of("UTC"));
-            deviceInfo.yearOfCertification = dateTimeFormatter.format(device.getYearOfCertification());
-        }
+        deviceInfo.yearOfCertification = device.getYearOfCertification() != null ? device.getYearOfCertification().toString() : null;
+
         Optional<Batch> optionalBatch = deviceImportService.findBatch(device.getId());
         if (optionalBatch.isPresent()) {
             deviceInfo.batch = optionalBatch.get().getName();
