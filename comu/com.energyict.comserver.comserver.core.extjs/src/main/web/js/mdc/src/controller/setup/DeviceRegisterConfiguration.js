@@ -73,11 +73,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
-                var widget = Ext.widget('deviceRegisterConfigurationSetup', {device: device, router: me.getController('Uni.controller.history.Router')});
-                me.getApplication().fireEvent('loadDevice', device);
-                me.getApplication().fireEvent('changecontentevent', widget);
-                viewport.setLoading(false);
-                me.getDeviceRegisterConfigurationGrid().getSelectionModel().select(0);
+                        var widget = Ext.widget('deviceRegisterConfigurationSetup', {device: device, router: me.getController('Uni.controller.history.Router')});
+                        me.getApplication().fireEvent('loadDevice', device);
+                        me.getApplication().fireEvent('changecontentevent', widget);
+                        viewport.setLoading(false);
             }
         });
     },
@@ -258,11 +257,11 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         });
     }
 
-   /* showValidationActivationErrors: function (errors) {
-        if (Ext.ComponentQuery.query('#validateNowRegisterConfirmationWindow')[0]) {
-            Ext.ComponentQuery.query('#validateNowRegisterConfirmationWindow')[0].down('#validateRegisterDateErrors').update(errors);
-            Ext.ComponentQuery.query('#validateNowRegisterConfirmationWindow')[0].down('#validateRegisterDateErrors').setVisible(true);
-        }
-    }*/
+   // showValidationActivationErrors: function (errors) {
+   //     if (Ext.ComponentQuery.query('#validateNowRegisterConfirmationWindow')[0]) {
+   //         Ext.ComponentQuery.query('#validateNowRegisterConfirmationWindow')[0].down('#validateRegisterDateErrors').update(errors);
+   //         Ext.ComponentQuery.query('#validateNowRegisterConfirmationWindow')[0].down('#validateRegisterDateErrors').setVisible(true);
+   //     }
+   //}
 });
 

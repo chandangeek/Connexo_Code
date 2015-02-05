@@ -359,39 +359,30 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         var router = this.getController('Uni.controller.history.Router');
 
         me.saveState();
+
         var searchCriteria = {};
         var store = me.getStore('Mdc.store.Devices');
         Ext.apply(searchCriteria,store.getProxy().extraParams);
 
-        var url  = '/api/ddr/cachegroups/adhoc?'+router.queryParamsToString(searchCriteria);
-        Ext.Ajax.request({
-            url: url,
-            method: 'POST',
-            params:searchCriteria,
-            async: false,
-            success: function (response) {
-                data = Ext.JSON.decode(response.responseText);
-                var reportFilter = {};
-                reportFilter['search'] = true;
-                reportFilter['GROUPNAME'] = data.name;
+        var reportFilter = {};
+        reportFilter['search'] = true;
 
-                // add device type and device config value
-                var searchItems = me.getSearchItems();
-                if (searchItems.down('#type').getValue() != '') {
-                    reportFilter['DEVICETYPE'] = searchItems.down('#type').getRawValue();
-                }
-                if (searchItems.down('#configuration').getValue() != "") {
-                    reportFilter['DEVICECONFIG'] = searchItems.down('#configuration').getRawValue();
-                }
-
-                router.getRoute('generatereport').forward(null, {
-                    category:'MDC',
-                    filter : reportFilter
-                });
-
-            }
+        // add device type and device config value
+        var searchItems = me.getSearchItems();
+        if (searchItems.down('#type').getValue() != '') {
+            reportFilter['DEVICETYPE'] = searchItems.down('#type').getRawValue();
+        }
+        if (searchItems.down('#configuration').getValue() != "") {
+            reportFilter['DEVICECONFIG'] = searchItems.down('#configuration').getRawValue();
+        }
+        reportFilter['GROUPNAME'] = "__##SEARCH_RESULTS##__";
+        router.getRoute('generatereport').forward(null, {
+            category:'MDC',
+            filter : reportFilter,
+            params: searchCriteria,
+            search: true
         });
 
-
+        return;
     }
 });
