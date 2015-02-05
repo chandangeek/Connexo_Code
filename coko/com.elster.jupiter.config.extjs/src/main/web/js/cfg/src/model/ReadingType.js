@@ -23,7 +23,14 @@ Ext.define('Cfg.model.ReadingType', {
         {name: 'unit', type: 'string'},
         {name: 'currency', type: 'string'},
         {name: 'version', type: 'number', useNull: true},
-        {name: 'names', type: 'auto', useNull: true, defaultValue: {}}
+        {name: 'names', type: 'auto', useNull: true, defaultValue: {}},
+        {
+            name: 'readingType',
+            persist: false,
+            mapping: function (data) {
+                return data;
+            }
+        }
     ],
     associations: [
         {

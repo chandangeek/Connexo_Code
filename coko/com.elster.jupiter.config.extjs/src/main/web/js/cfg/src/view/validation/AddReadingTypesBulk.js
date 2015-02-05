@@ -1,11 +1,15 @@
 Ext.define('Cfg.view.validation.AddReadingTypesBulk', {
     extend: 'Uni.view.grid.SelectionGrid',
     alias: 'widget.addReadingTypesBulk',
-    store: 'AdaptedReadingTypes',
+    store: 'Cfg.store.ReadingTypesToAddForRule',
 
     requires: [
         'Uni.grid.column.ReadingType'
     ],
+
+    plugins: {
+        ptype: 'bufferedrenderer'
+    },
 
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(

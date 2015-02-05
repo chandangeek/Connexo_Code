@@ -6,11 +6,11 @@ Ext.define('Cfg.controller.Validation', {
         'ValidationRules',
         'Validators',
         'UnitsOfMeasure',
-        'ReadingTypesToAddForRule',
         'Intervals',
         'TimeOfUse',
         'ReadingTypesForRule',
-        'AdaptedReadingTypes'
+        'AdaptedReadingTypes',
+        'Cfg.store.ReadingTypesToAddForRule'
     ],
 
     requires: [
@@ -431,12 +431,11 @@ Ext.define('Cfg.controller.Validation', {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             widget = this.getAddReadingTypesSetup(),
-            readingTypeStore = Ext.create('Cfg.store.ReadingTypesToAddForRule'),
+            readingTypeStore = me.getStore('Cfg.store.ReadingTypesToAddForRule'),
             unitOfMeasureCombo = widget.down('#unitsOfMeasureCombo'),
             intervalsCombo = widget.down('#intervalsCombo'),
             timeOfUseCombo = widget.down('#timeOfUseCombo'),
             readingTypeNameText = widget.down('#readingTypeNameTextField'),
-            adaptedReadingTypeStore = Ext.create('Cfg.store.AdaptedReadingTypes'),
             unitOfMeasureComboValue = unitOfMeasureCombo.getValue(),
             filter = widget.down('#filterReadingTypes'),
             filterBtns = Ext.ComponentQuery.query('#filterReadingTypes tag-button'),
@@ -446,14 +445,12 @@ Ext.define('Cfg.controller.Validation', {
             intervalsRecord,
             previewContainer;
 
-        widget.setLoading(true);
-
         previewContainer = {
             xtype: 'preview-container',
             grid: {
                 itemId: 'addReadingTypesGrid',
                 xtype: 'addReadingTypesBulk',
-                store: 'AdaptedReadingTypes'
+                store: 'Cfg.store.ReadingTypesToAddForRule'
             },
             emptyComponent: {
                 xtype: 'no-items-found-panel',
@@ -509,23 +506,26 @@ Ext.define('Cfg.controller.Validation', {
         }
 
         readingTypeStore.getProxy().setExtraParam('filter', Ext.encode(properties));
+        readingTypeStore.removeAll();
         bulkGridContainer.add(previewContainer);
-        adaptedReadingTypeStore = bulkGridContainer.down('#addReadingTypesGrid').getStore();
-        readingTypeStore.load({
-            callback: function () {
-                this.each(function (record) {
-                    if (!me.checkMridAlreadyAdded(me.validationRuleRecord.get('readingTypes'), record)) {
-                        adaptedReadingTypeStore.add({readingType: record.getData()});
-                    }
-                });
-                adaptedReadingTypeStore.fireEvent('load');
-                bulkGridContainer.down('#addReadingTypesGrid').fireEvent('selectionchange');
+        readingTypeStore.load(function (records) {
+            var selectionModel;
 
-                widget.setLoading(false);
-                if (adaptedReadingTypeStore.getCount() < 1) {
+            if (me.validationRuleRecord) {
+                readingTypeStore.filterBy(function (record) {
+                    var recordMrid = record.get('mRID');
+                    return !Ext.Array.findBy(me.validationRuleRecord.get('readingTypes'), function (item) {
+                        return item.mRID === recordMrid;
+                    });
+                });
+
+                selectionModel = widget.down('#addReadingTypesGrid').getSelectionModel();
+                if (!selectionModel.getSelection().length && records.length) {
+                    selectionModel.select([records[0]]);
+                }
+                if (!records.length) {
                     widget.down('#buttonsContainer button[name=add]').setDisabled(true);
                 }
-
             }
         });
     },
