@@ -142,6 +142,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                     currentForm && currentForm.hide();
                     if (form) {
                         form.show();
+                        if (record.get('comPortType') === 'SERIAL') {
+                            form.showData(record.get('direction'));
+                        }
                         comServerNameField = form.down('displayfield[name=comServerName]');
                         if (showComServer === true) {
                             comServerNameField.show();

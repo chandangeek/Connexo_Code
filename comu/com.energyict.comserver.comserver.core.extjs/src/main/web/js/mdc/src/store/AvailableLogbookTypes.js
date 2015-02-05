@@ -6,12 +6,11 @@ Ext.define('Mdc.store.AvailableLogbookTypes', {
     ],
     model: 'Mdc.model.LogbookTypeOfDeviceType',
     storeId: 'AvailableLogbookTypes',
+    pageSize: 10,
+    buffered: true,
     proxy: {
         type: 'rest',
         url: '/api/dtc/devicetypes/{deviceType}/logbooktypes',
-        pageParam: false,
-        startParam: false,
-        limitParam: false,
         reader: {
             type: 'json',
             root: 'logbookTypes'

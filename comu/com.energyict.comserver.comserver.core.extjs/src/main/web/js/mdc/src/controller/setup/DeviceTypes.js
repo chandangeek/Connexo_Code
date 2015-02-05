@@ -91,6 +91,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     previewDeviceType: function (grid, record) {
         var deviceTypes = this.getDeviceTypeGrid().getSelectionModel().getSelection();
         if (deviceTypes.length == 1) {
+            Ext.suspendLayouts();
             var deviceTypeId = deviceTypes[0].get('id');
             this.getDeviceTypeRegisterLink().getEl().set({href: '#/administration/devicetypes/' + deviceTypeId + '/registertypes'});
             this.getDeviceTypeRegisterLink().getEl().setHTML(deviceTypes[0].get('registerCount') + ' ' + Uni.I18n.translatePlural('devicetype.registers', deviceTypes[0].get('registerCount'), 'MDC', 'register types'));
@@ -104,6 +105,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             this.getDeviceConfigurationsLink().getEl().setHTML(deviceTypes[0].get('deviceConfigurationCount') + ' ' + Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceTypes[0].get('deviceConfigurationCount'), 'MDC', 'device configurations'));
             //this.getDeviceTypePreview().getHeader().setTitle(deviceTypes[0].get('name'));
             this.getDeviceTypePreview().setTitle(deviceTypes[0].get('name'));
+            Ext.resumeLayouts(true);
         }
     },
 
@@ -357,28 +359,19 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     showAddLogbookTypesView: function (deviceTypeId) {
         var me = this,
             model = Ext.ModelManager.getModel('Mdc.model.DeviceType'),
-            store = Ext.data.StoreManager.lookup('AvailableLogbookTypes');
+            store = Ext.data.StoreManager.lookup('AvailableLogbookTypes'),
+            widget = Ext.widget('add-logbook-types', {deviceTypeId: deviceTypeId});
         store.getProxy().setExtraParam('deviceType', deviceTypeId);
         store.getProxy().setExtraParam('available', true);
-        store.load(
-            {
-                callback: function () {
-                    var self = this,
-                        widget = Ext.widget('add-logbook-types', {deviceTypeId: deviceTypeId});
-                    me.getApplication().fireEvent('changecontentevent', widget);
-                    widget.setLoading(true);
-                    model.load(deviceTypeId, {
-                        success: function (deviceType) {
-                            me.getApplication().fireEvent('loadDeviceType', deviceType);
-                            me.getAddLogbookPanel().setTitle(Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'logbook types');
-                            store.load(function(){
-                                widget.down('#logbook-type-add-grid').getSelectionModel().deselectAll();
-                            });
-                            widget.setLoading(false);
-                        }
-                    });
-                }
+        store.load();
+        me.getApplication().fireEvent('changecontentevent', widget);
+        widget.setLoading(true);
+        model.load(deviceTypeId, {
+            success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
+                me.getAddLogbookPanel().setTitle(Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'logbook types');
+                widget.setLoading(false);
             }
-        );
+        });
     }
 });

@@ -35,6 +35,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
+                            itemId: 'no-shared-communication-schedules',
                             layout: {
                                 type: 'vbox',
                                 align: 'stretch'

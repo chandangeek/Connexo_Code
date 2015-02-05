@@ -107,20 +107,13 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
 
                         var widget = Ext.widget('tabbedDeviceRegisterView', {device: device, router: me.getController('Uni.controller.history.Router')});
                         widget.down('#registerTabPanel').setTitle(register.get('name'));
-
-
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
                         me.getApplication().fireEvent('changecontentevent', widget);
-
                         var dataReport = Ext.widget('deviceregisterreportsetup-' + type, {mRID: mRID, registerId: registerId});
                         me.getRegisterFilter().setTitle(register.get('name'));
-
                         widget.down('#register-data').add(dataReport);
-                        dataStore.load();
-
                         var valueColumn = widget.down('grid').down('[dataIndex=value]');
                         valueColumn.setText(Uni.I18n.translate('device.registerData.value', 'MDC', 'Value') + ' (' + register.get('lastReading')['unitOfMeasure'] + ')');
-
                         if (type === 'billing' || type === 'numerical') {
                             me.getRegisterFilter().show();
                             if (Ext.isEmpty(router.filter.data.onlyNonSuspect)) {
@@ -133,15 +126,12 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                             dataStore.setFilterModel(router.filter);
                             me.getSideFilterForm().loadRecord(router.filter);
                             me.setFilterView();
-
                             var deltaValueColumn = widget.down('grid').down('[dataIndex=deltaValue]');
                             deltaValueColumn.setText(Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value') + ' (' + register.get('lastReading')['unitOfMeasure'] + ')');
                             deltaValueColumn.setVisible(register.get('isCumulative'));
                         }
-
-
+                        dataStore.load();
                     },
-
                     callback: function () {
                         contentPanel.setLoading(false);
                         tabController.showTab(1);
