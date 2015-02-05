@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
  */
 public class AdapterDeviceProtocolDialect implements DeviceProtocolDialect {
 
+    private static final String REMOVABLE_SECURITY_LEVEL_PROPERTY = "SecurityLevel";
+
     private final ProtocolPluggableService protocolPluggableService;
     private final HasDynamicProperties withDynamicProperties;
     private final Set<String> removablePropertyNames;
@@ -41,6 +43,7 @@ public class AdapterDeviceProtocolDialect implements DeviceProtocolDialect {
         for (PropertySpec removablePropertyName : removablePropertySpecs) {
             this.removablePropertyNames.add(removablePropertyName.getName());
         }
+        this.removablePropertyNames.add(REMOVABLE_SECURITY_LEVEL_PROPERTY);
     }
 
     public AdapterDeviceProtocolDialect(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SmartMeterProtocol meterProtocol, List<PropertySpec> removablePropertySpecs) {
