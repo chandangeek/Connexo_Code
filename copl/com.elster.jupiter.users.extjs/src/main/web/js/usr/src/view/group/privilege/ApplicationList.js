@@ -2,7 +2,6 @@ Ext.define('Usr.view.group.privilege.ApplicationList', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.applicationList',
     itemId: 'applicationList',
-
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Usr.store.Applications',
@@ -26,21 +25,19 @@ Ext.define('Usr.view.group.privilege.ApplicationList', {
                     dataIndex: 'componentName',
                     flex: 3,
                     renderer: function (value, metadata, record) {
-                        var text = [],
-                            translate = Uni.I18n.translate(record.get('componentName'), 'USR', record.get('componentName'));
-
+                        var translate = Uni.I18n.translate(record.get('componentName'), 'USR', record.get('componentName'));
                         switch (record.get('selected')) {
                             case 0:
-                                text = '<img src="../sky/build/resources/images/grid/drop-no.png"/>&nbsp;' + translate;
+                                metadata.tdCls = 'uni-icon-drop-no';
                                 break;
                             case 1:
-                                text = '<img src="../sky/build/resources/images/tree/drop-above.png" style="visibility:hidden"/>&nbsp;' + translate;
+                                metadata.tdCls = 'uni-icon-drop-above';
                                 break;
                             case 2:
-                                text = '<img src="../sky/build/resources/images/grid/drop-yes.png"/>&nbsp;' + translate;
+                                metadata.tdCls = 'uni-icon-drop-yes';
                                 break;
                         }
-                        return text;
+                        return translate;
                     }
                 },
                 {
