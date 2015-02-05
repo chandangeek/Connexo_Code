@@ -10,7 +10,6 @@ public class ProtocolPropertiesMPP implements Consumer<DeviceConfiguration> {
     public void accept(DeviceConfiguration configuration) {
         ProtocolDialectConfigurationProperties configurationProperties = configuration.getProtocolDialectConfigurationPropertiesList().get(0);
         configurationProperties.setProperty("NTASimulationTool", "1");
-        configurationProperties.setProperty("SecurityLevel", "0:0");
         configurationProperties.save();
     }
 }

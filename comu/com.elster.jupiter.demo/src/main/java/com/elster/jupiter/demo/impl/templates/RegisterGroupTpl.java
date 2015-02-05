@@ -10,12 +10,12 @@ import java.util.stream.Collectors;
 
 public enum RegisterGroupTpl implements Template<RegisterGroup, RegisterGroupBuilder> {
     DEVICE_DATA("Device data", Arrays.asList(
-            RegisterTypeTpl.B_F_E_S_M_E, RegisterTypeTpl.B_R_E_S_M_E, RegisterTypeTpl.B_F_E_S_M_E_T1,
-            RegisterTypeTpl.B_F_E_S_M_E_T2, RegisterTypeTpl.B_R_E_S_M_E_T1, RegisterTypeTpl.B_R_E_S_M_E_T2)),
+            RegisterTypeTpl.B_F_E_S_M_E, RegisterTypeTpl.B_R_E_S_M_E, RegisterTypeTpl.S_F_E_S_M_E_T1,
+            RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T2)),
     TARIFF_1("Tariff 1",
-            Arrays.asList(RegisterTypeTpl.B_F_E_S_M_E_T1, RegisterTypeTpl.B_R_E_S_M_E_T1)),
+            Arrays.asList(RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T1)),
     TARIFF_2("Tariff 2",
-            Arrays.asList(RegisterTypeTpl.B_F_E_S_M_E_T2, RegisterTypeTpl.B_R_E_S_M_E_T2)),
+            Arrays.asList(RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T2)),
     ;
 
     private String name;

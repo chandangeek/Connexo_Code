@@ -58,26 +58,26 @@ public class ValidationRuleSetBuilder extends NamedBuilder<ValidationRuleSet, Va
         rule.addReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
         rule.addReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
         // Daily Electricity
-        rule.addReadingType("11.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
-        rule.addReadingType("11.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0");
-        rule.addReadingType("11.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0");
-        rule.addReadingType("11.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0");
+        rule.addReadingType("11.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        rule.addReadingType("11.0.0.9.1.1.12.0.0.0.0.2.0.0.0.0.72.0");
+        rule.addReadingType("11.0.0.9.19.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        rule.addReadingType("11.0.0.9.19.1.12.0.0.0.0.2.0.0.0.0.72.0");
         // Monthly Electricity
-        rule.addReadingType("13.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
-        rule.addReadingType("13.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0");
-        rule.addReadingType("13.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0");
-        rule.addReadingType("13.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0");
+        rule.addReadingType("13.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        rule.addReadingType("13.0.0.9.1.1.12.0.0.0.0.2.0.0.0.0.72.0");
+        rule.addReadingType("13.0.0.9.19.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        rule.addReadingType("13.0.0.9.19.1.12.0.0.0.0.2.0.0.0.0.72.0");
         rule.activate();
     }
 
     private void addRegisterIncreaseValidationRule(ValidationRuleSet ruleSet) {
         ValidationRule rule = ruleSet.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.impl.RegisterIncreaseValidator", "Register increase");
         rule.addReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
-        rule.addReadingType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
-        rule.addReadingType("0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0");
+        rule.addReadingType("0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        rule.addReadingType("0.0.0.9.1.1.12.0.0.0.0.2.0.0.0.0.72.0");
         rule.addReadingType("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
-        rule.addReadingType("0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0");
-        rule.addReadingType("0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0");
+        rule.addReadingType("0.0.0.9.19.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        rule.addReadingType("0.0.0.9.19.1.12.0.0.0.0.2.0.0.0.0.72.0");
         rule.addProperty("failEqualData", false);
         rule.activate();
     }

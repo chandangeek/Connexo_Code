@@ -11,9 +11,9 @@ import java.util.List;
 
 public enum LoadProfileTypeTpl implements Template<LoadProfileType, LoadProfileTypeBuilder> {
     DAILY_ELECTRICITY("Daily Electricity", "1.0.99.2.0.255", TimeDuration.days(1),
-            RegisterTypeTpl.B_F_E_S_M_E_T1, RegisterTypeTpl.B_F_E_S_M_E_T2, RegisterTypeTpl.B_R_E_S_M_E_T1, RegisterTypeTpl.B_R_E_S_M_E_T2),
+            RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T2),
     MONTHLY_ELECTRICITY("Monthly Electricity", "0.0.98.1.0.255", TimeDuration.months(1),
-            RegisterTypeTpl.B_F_E_S_M_E_T1, RegisterTypeTpl.B_F_E_S_M_E_T2, RegisterTypeTpl.B_R_E_S_M_E_T1, RegisterTypeTpl.B_R_E_S_M_E_T2),
+            RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T2),
     _15_MIN_ELECTRICITY("15min Electricity", "1.0.99.1.0.255", TimeDuration.minutes(15),
             RegisterTypeTpl.B_F_E_S_M_E, RegisterTypeTpl.B_R_E_S_M_E),
     ELSTER_A3_GENERIC("Elster A3 Generic [15min]", "0.15.99.1.0.255", TimeDuration.minutes(15),
