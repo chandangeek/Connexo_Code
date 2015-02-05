@@ -62,7 +62,7 @@ public class DeviceBuilder implements Builder<Device> {
         Log.write(this);
         Device device = deviceService.newDevice(deviceConfiguration, mrid, mrid);
         device.setSerialNumber(serialNumber);
-        device.setYearOfCertification(LocalDateTime.of(this.yearOfCertification, 6, 1, 0, 0).toInstant(ZoneOffset.UTC));
+        device.setYearOfCertification(this.yearOfCertification);
         if (comSchedules != null) {
             for (ComSchedule comSchedule : comSchedules) {
                 device.newScheduledComTaskExecution(comSchedule).add();
