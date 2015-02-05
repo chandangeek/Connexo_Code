@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.rest;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
@@ -74,7 +75,11 @@ public class ReadingTypeInfo {
     	
     	ReadingTypeNames(ReadingType readingType) {
     		this.timeOfUse = readingType.getTou() == 0 ? "" : "ToU " + readingType.getTou();
-    		this.timeAttribute = readingType.getMeasuringPeriod().equals(TimeAttribute.NOTAPPLICABLE) ? "" : readingType.getMeasuringPeriod().getDescription();
+            if(!readingType.getMeasuringPeriod().equals(TimeAttribute.NOTAPPLICABLE)){
+                this.timeAttribute = readingType.getMeasuringPeriod().getDescription();
+            } else if(readingType.getMacroPeriod().equals(MacroPeriod.DAILY) || readingType.getMacroPeriod().equals(MacroPeriod.MONTHLY)){
+                this.timeAttribute = readingType.getMacroPeriod().getDescription();
+            }
     		this.unitOfMeasure = readingType.getMultiplier().getSymbol() + readingType.getUnit().getSymbol();
             if (!readingType.getPhases().equals(Phase.NOTAPPLICABLE)) {
                 this.phase = readingType.getPhases().getDescription();
