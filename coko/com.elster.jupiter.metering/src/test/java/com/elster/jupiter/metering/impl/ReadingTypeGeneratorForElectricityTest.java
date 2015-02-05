@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -104,6 +105,30 @@ public class ReadingTypeGeneratorForElectricityTest {
             }
         });
 
+    }
+
+    @Test
+    public void aliasPrefixTest() {
+        getTransactionService().execute(new VoidTransaction(){
+            @Override
+            protected void doPerform() {
+
+                ReadingTypeGeneratorForElectricity readingTypeGeneratorForElectricity = new ReadingTypeGeneratorForElectricity();
+                List<Pair<String, String>> readingTypes = readingTypeGeneratorForElectricity.generateReadingTypes();
+                getMeteringService().createAllReadingTypes(readingTypes);
+
+                getMeteringService().getAvailableReadingTypes().stream().forEach(readingType ->
+                {
+                    if(readingType.getAccumulation().equals(Accumulation.DELTADELTA)){
+                        assertThat(readingType.getAliasName().startsWith("Delta "));
+                    } else if(readingType.getAccumulation().equals(Accumulation.BULKQUANTITY)){
+                        assertThat(readingType.getAliasName().startsWith("Bulk "));
+                    } else if(readingType.getAccumulation().equals(Accumulation.SUMMATION)){
+                        assertThat(readingType.getAliasName().startsWith("Sum "));
+                    }
+                });
+            }
+        });
     }
 
     private MeteringServiceImpl getMeteringService() {

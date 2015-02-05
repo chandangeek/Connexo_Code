@@ -5,10 +5,8 @@ import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.util.Pair;
+import sun.security.pkcs11.wrapper.Functions;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -171,6 +169,37 @@ abstract class AbstractReadingTypeGenerator {
                 .tou(possibleTimeOfUseAttribute)
                 .phase(possiblePhase)
                 .in(possibleMultiplier);
-        return Pair.of(readingTypeTemplate.getReadingTypeCodeBuilder().code(), readingTypeTemplate.getName());
+        return Pair.of(readingTypeTemplate.getReadingTypeCodeBuilder().code(), getAliasWithAccumulationPrefix(readingTypeTemplate, accumulation));
+    }
+
+    private String getAliasWithAccumulationPrefix(ReadingTypeTemplate readingTypeTemplate, Accumulation accumulation) {
+        return AccumulationAliasPrefix.getPrefix(accumulation) + readingTypeTemplate.getName();
+    }
+
+    /**
+     * Adds the proper prefix
+     */
+    private enum AccumulationAliasPrefix {
+        BULK("Bulk ", Accumulation.BULKQUANTITY),
+        SUM("Sum ", Accumulation.SUMMATION),
+        DELTA("Delta ", Accumulation.DELTADELTA),
+        NONE("", Accumulation.NOTAPPLICABLE);
+
+        private final String prefix;
+        private final Accumulation accumulation;
+
+        AccumulationAliasPrefix(String prefix, Accumulation accumulation) {
+            this.prefix = prefix;
+            this.accumulation = accumulation;
+        }
+
+        private Accumulation getAccumulation(){
+            return accumulation;
+        }
+
+        static String getPrefix(Accumulation accumulation) {
+            return Stream.of(values()).filter(accumulationAliasPrefix -> accumulationAliasPrefix.accumulation.equals(accumulation)).findFirst().orElseGet(() -> NONE).prefix;
+        }
+
     }
 }
