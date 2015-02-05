@@ -226,7 +226,7 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
     }
 
     void determineHighestPriorityCompletionCodeAndErrorMessage(){
-        highestPriorityCompletionCode = null;
+        highestPriorityCompletionCode = CompletionCode.Ok; // optimistic, but this will also solve the fact that we will log ok it the loglevel was higher then INFO
         highestPriorityErrorDescription = null;
         CheckAndUpdatePriorityJournalEntryVisitor visitor = new CheckAndUpdatePriorityJournalEntryVisitor();
         this.comTaskExecutionJournalEntries.forEach(je -> je.accept(visitor));

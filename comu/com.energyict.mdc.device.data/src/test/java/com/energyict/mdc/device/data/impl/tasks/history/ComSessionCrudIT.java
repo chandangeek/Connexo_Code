@@ -488,7 +488,7 @@ public class ComSessionCrudIT {
         assertThat(EqualById.byId(comTaskExecutionSession1.getComSession())).isEqualTo(EqualById.byId(foundSession));
         assertThat(EqualById.byId(comTaskExecutionSession1.getComTaskExecution())).isEqualTo(EqualById.byId(comTaskExecution));
         assertThat(EqualById.byId(comTaskExecutionSession1.getDevice())).isEqualTo(EqualById.byId(device));
-        assertThat(comTaskExecutionSession1.getHighestPriorityCompletionCode()).isNull();
+        assertThat(comTaskExecutionSession1.getHighestPriorityCompletionCode()).isEqualTo(CompletionCode.Ok);
         assertThat(comTaskExecutionSession1.getHighestPriorityErrorDescription()).isNull();
         assertThat(comTaskExecutionSession1.getSuccessIndicator()).isEqualTo(ComTaskExecutionSession.SuccessIndicator.Failure);
 
@@ -496,7 +496,7 @@ public class ComSessionCrudIT {
         assertThat(EqualById.byId(comTaskExecutionSession2.getComSession())).isEqualTo(EqualById.byId(foundSession));
         assertThat(EqualById.byId(comTaskExecutionSession2.getComTaskExecution())).isEqualTo(EqualById.byId(comTaskExecution));
         assertThat(EqualById.byId(comTaskExecutionSession2.getDevice())).isEqualTo(EqualById.byId(device));
-        assertThat(comTaskExecutionSession2.getHighestPriorityCompletionCode()).isNull();
+        assertThat(comTaskExecutionSession2.getHighestPriorityCompletionCode()).isEqualTo(CompletionCode.Ok);
         assertThat(comTaskExecutionSession2.getHighestPriorityErrorDescription()).isNull();
         assertThat(comTaskExecutionSession2.getSuccessIndicator()).isEqualTo(ComTaskExecutionSession.SuccessIndicator.Success);
 
