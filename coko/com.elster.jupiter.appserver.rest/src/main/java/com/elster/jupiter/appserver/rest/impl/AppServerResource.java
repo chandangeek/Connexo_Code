@@ -210,7 +210,7 @@ public class AppServerResource {
                 .stream()
                 .map(SubscriberExecutionSpec::getSubscriberSpec)
                 .collect(Collectors.toList());
-        List<SubscriberSpec> subscribers = messageService.getSubscribers().stream()
+        List<SubscriberSpec> subscribers = messageService.getNonSystemManagedSubscribers().stream()
                 .filter(sub -> served.stream()
                         .filter(s -> sub.getName().equals(s.getName()))
                         .map(SubscriberSpec::getDestination)
