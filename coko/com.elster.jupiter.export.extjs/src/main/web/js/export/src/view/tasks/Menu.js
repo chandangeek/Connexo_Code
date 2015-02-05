@@ -1,41 +1,38 @@
 Ext.define('Dxp.view.tasks.Menu', {
-    extend: 'Uni.view.navigation.SubMenu',
+    extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.tasks-menu',
-    toggle: null,
+
     router: null,
 
-    taskId: null,
+    title: Uni.I18n.translate('general.dataExportTasks', 'DES', 'Data export tasks'),
 
     initComponent: function () {
         var me = this;
-        me.callParent(me);
-        Ext.suspendLayouts();
-        me.add(
+
+        me.menuItems = [
             {
                 text: Uni.I18n.translate('general.overview', 'DES', 'Overview'),
                 itemId: 'tasks-view-link',
-                href:  '#/administration/dataexporttasks/' + this.taskId,
-                hrefTarget: '_self'
+                href:  '#/administration/dataexporttasks/' + this.taskId
             }
-        );
+        ];
 
         if (me.router.arguments.taskId) {
-            me.add({
-                text: Uni.I18n.translate('general.history', 'DES', 'History'),
-                itemId: 'tasks-history-link',
-                href: me.router.getRoute('administration/dataexporttasks/dataexporttask/history').buildUrl(),
-                hrefTarget: '_self'
-            });
-            me.add(
+            me.menuItems.push(
+                {
+                    text: Uni.I18n.translate('general.history', 'DES', 'History'),
+                    itemId: 'tasks-history-link',
+                    href: me.router.getRoute('administration/dataexporttasks/dataexporttask/history').buildUrl()
+                },
                 {
                     text: Uni.I18n.translate('general.dataSources', 'DES', 'Data sources'),
-                    href: me.router.getRoute('administration/dataexporttasks/dataexporttask/datasources').buildUrl(),
-                    hrefTarget: '_self'
+                    itemId: 'tasks-data-sources-link',
+                    href: me.router.getRoute('administration/dataexporttasks/dataexporttask/datasources').buildUrl()
                 }
             );
         }
-        Ext.resumeLayouts();
-        me.toggleMenuItem(me.toggle);
+
+        me.callParent(arguments);
     }
 });
 

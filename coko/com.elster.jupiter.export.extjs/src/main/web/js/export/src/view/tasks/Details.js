@@ -41,15 +41,13 @@ Ext.define('Dxp.view.tasks.Details', {
         me.side = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('general.dataExportTasks', 'DES', 'Data export tasks'),
                 ui: 'medium',
                 items: [
                     {
                         xtype: 'tasks-menu',
                         itemId: 'tasks-view-menu',
                         router: me.router,
-                        taskId: me.taskId,
-                        toggle: 0
+                        taskId: me.taskId
                     }
                 ]
             }
