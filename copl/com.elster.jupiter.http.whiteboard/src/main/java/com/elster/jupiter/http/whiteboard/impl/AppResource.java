@@ -1,9 +1,8 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.license.License;
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.json.JsonService;
 
@@ -15,18 +14,15 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Path("/apps")
 public class AppResource {
 
-    static final String LOGOUT_QUEUE_DEST = "LogoutQueueDest";
-
     @Inject
     private WhiteBoard whiteBoard;
     @Inject
-    private MessageService messageService;
+    private EventService eventService;
     @Inject
     private JsonService jsonService;
 
@@ -64,11 +60,7 @@ public class AppResource {
         if (session != null) {
             User user =( User )session.getAttribute("user");
             if(user!=null){
-                Optional<DestinationSpec> found = messageService.getDestinationSpec(LOGOUT_QUEUE_DEST);
-                if (found.isPresent()) {
-                    String json = jsonService.serialize(user.getName());
-                    found.get().message(json).send();
-                }
+                eventService.postEvent(EventType.LOGOUT.topic(), user.getName());
             }
             session.invalidate();
         }

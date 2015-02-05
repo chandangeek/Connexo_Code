@@ -1,11 +1,10 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.http.whiteboard.UnderlyingNetworkException;
 import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.Message;
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -14,11 +13,7 @@ import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.*;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
@@ -40,7 +35,7 @@ public class WhiteBoard extends Application implements BinderProvider {
     private volatile UserService userService;
     private volatile JsonService jsonService;
     private volatile LicenseService licenseService;
-    private volatile MessageService messageService;
+    private volatile EventService eventService;
     private volatile TransactionService transactionService;
 
     private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
@@ -81,8 +76,8 @@ public class WhiteBoard extends Application implements BinderProvider {
     }
 
     @Reference
-    public void setMessageService(MessageService messageService) {
-        this.messageService = messageService;
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @Reference
@@ -135,10 +130,6 @@ public class WhiteBoard extends Application implements BinderProvider {
         }
     }
 
-    MessageService getMessageService() {
-        return this.messageService;
-    }
-
     int getSessionTimeout() {
         return sessionTimeout;
     }
@@ -181,7 +172,7 @@ public class WhiteBoard extends Application implements BinderProvider {
         return new AbstractBinder() {
             @Override
             protected void configure() {
-                this.bind(messageService).to(MessageService.class);
+                this.bind(eventService).to(EventService.class);
                 this.bind(jsonService).to(JsonService.class);
                 this.bind(WhiteBoard.this).to(WhiteBoard.class);
             }
