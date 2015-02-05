@@ -1,10 +1,7 @@
 package com.elster.jupiter.yellowfin.impl;
 
-import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.callback.InstallService;
-
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.yellowfin.YellowfinFilterInfo;
 import com.elster.jupiter.yellowfin.YellowfinFilterListItemInfo;
@@ -12,7 +9,6 @@ import com.elster.jupiter.yellowfin.YellowfinReportInfo;
 import com.elster.jupiter.yellowfin.YellowfinService;
 import com.elster.jupiter.yellowfin.security.Privileges;
 import com.hof.mi.web.service.*;
-
 import com.hof.util.Base64;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -20,11 +16,14 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.xml.rpc.ServiceException;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,8 +46,6 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
     private static final String DEFAULT_YELLOWFIN_PASSWORD = "admin";
 
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
-    private static final String LOGOUT_QUEUE_DEST = "LogoutQueueDest";
-    private static final String LOGOUT_QUEUE_SUBSC = "LogoutQueueSubsc";
 
     private String yellowfinUrl = DEFAULT_YELLOWFIN_URL;
     private String yellowfinExternalUrl = DEFAULT_YELLOWFIN_URL;
@@ -496,12 +493,7 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
     @Override
     public void install() {
         try {
-            QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-            DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(LOGOUT_QUEUE_DEST, DEFAULT_RETRY_DELAY_IN_SECONDS);
-            destinationSpec.activate();
-            destinationSpec.subscribe(LOGOUT_QUEUE_SUBSC);
             createPrivileges(userService);
-
         } catch (Exception e) {
             Logger logger = Logger.getLogger(YellowfinServiceImpl.class.getName());
             logger.log(Level.SEVERE, e.getMessage(), e);
