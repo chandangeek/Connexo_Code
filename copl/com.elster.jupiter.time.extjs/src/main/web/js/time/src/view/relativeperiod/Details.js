@@ -46,7 +46,6 @@ Ext.define('Tme.view.relativeperiod.Details', {
         me.side = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('general.relativePeriods', 'DES', 'Relative periods'),
                 ui: 'medium',
                 items: [
                     {

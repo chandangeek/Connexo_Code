@@ -1,7 +1,6 @@
 Ext.define('Tme.view.relativeperiod.Edit', {
-    extend: 'Ext.container.Container',
+    extend: 'Uni.view.container.ContentContainer',
     xtype: 'tme-relativeperiod-edit',
-    overflowY: 'auto',
 
     requires: [
         'Uni.form.RelativePeriod',
@@ -25,7 +24,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
 
         me.categoryStore = Ext.getStore('Tme.store.RelativePeriodCategories');
 
-        me.items = [
+        me.content = [
             {
                 xtype: 'panel',
                 title: Uni.I18n.translate('relativeperiod.add', 'TME', 'Add relative period'),
