@@ -45,4 +45,6 @@ public interface MessageService {
      * @return a List containing all SubscriberSpecs
      */
     List<SubscriberSpec> getSubscribers();
+
+    List<SubscriberSpec> getNonSystemManagedSubscribers();
 }
