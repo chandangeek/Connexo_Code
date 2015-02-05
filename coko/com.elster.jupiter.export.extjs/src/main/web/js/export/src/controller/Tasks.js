@@ -240,8 +240,8 @@ Ext.define('Dxp.controller.Tasks', {
             if (!Ext.isEmpty(filter.get(f))) {
                 date = new Date(filter.get(f));
                 me.getFilterTopPanel().setFilter(f, name, exportPeriod
-                    ? Uni.DateTime.formatDateShort(date)
-                    : Uni.DateTime.formatDateShort(date)
+                    ? Uni.DateTime.formatDateLong(date)
+                    : Uni.DateTime.formatDateLong(date)
                     + ' ' + Uni.I18n.translate('general.at', 'DES', 'At').toLowerCase() + ' '
                     + Uni.DateTime.formatTimeShort(date));
             }
