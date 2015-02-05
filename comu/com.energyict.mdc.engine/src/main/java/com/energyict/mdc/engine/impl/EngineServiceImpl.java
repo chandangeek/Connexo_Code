@@ -351,7 +351,9 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     public void activate(BundleContext bundleContext) {
         this.dataModel.register(this.getModule());
         this.setHostNameIfOverruled(bundleContext);
-        this.tryStartComServer();
+        if(this.dataModel.isInstalled()){
+            this.tryStartComServer();
+        }
     }
 
     private void setHostNameIfOverruled(BundleContext context) {
