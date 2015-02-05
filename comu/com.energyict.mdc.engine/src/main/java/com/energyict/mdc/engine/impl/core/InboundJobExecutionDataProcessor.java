@@ -67,7 +67,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
     @Override
     protected void setExecutionContext(ExecutionContext executionContext) {
-        executionContext.setComSessionShadow(getInboundDiscoveryContext().getComSessionBuilder());
+        executionContext.setComSessionBuilder(getInboundDiscoveryContext().getComSessionBuilder());
         super.setExecutionContext(executionContext);
     }
 

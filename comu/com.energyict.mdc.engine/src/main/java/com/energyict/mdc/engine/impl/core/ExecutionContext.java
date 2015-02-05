@@ -392,8 +392,8 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.basicCheckFailed = basicCheckFailed;
     }
 
-    public void setComSessionShadow(ComSessionBuilder comSessionShadow) {
-        this.sessionBuilder = comSessionShadow;
+    public void setComSessionBuilder(ComSessionBuilder comSessionBuilder) {
+        this.sessionBuilder = comSessionBuilder;
     }
 
     public void setCommandRoot(CommandRoot commandRoot) {
