@@ -51,9 +51,11 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             ui: 'plain',
             style: 'font-size: 16px',
             flag: flag,
+            pressed: !!flag,
             hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
             enableToggle: true,
             toggleHandler: function(button, state) {
+                button.setIconCls(state ? 'icon-star6' : 'icon-star4');
                 button.setTooltip(state
                     ? Uni.I18n.translate('device.flag.tooltip.unflag', 'MDC', 'Click to remove from the list of flagged devices')
                     : Uni.I18n.translate('device.flag.tooltip.flag', 'MDC', 'Click to flag the device')
