@@ -1,7 +1,5 @@
 package com.elster.jupiter.yellowfin.impl;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.yellowfin.YellowfinFilterInfo;
@@ -9,8 +7,6 @@ import com.elster.jupiter.yellowfin.YellowfinFilterListItemInfo;
 import com.elster.jupiter.yellowfin.YellowfinReportInfo;
 import com.elster.jupiter.yellowfin.YellowfinService;
 import com.elster.jupiter.yellowfin.security.Privileges;
-import com.google.inject.AbstractModule;
-import com.google.inject.Inject;
 import com.hof.mi.web.service.*;
 import com.hof.util.Base64;
 import org.osgi.framework.BundleContext;
@@ -59,7 +55,6 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
 
     private boolean useSecureConnection = false;
 
-    //private volatile DataModel dataModel;
     private volatile UserService userService;
 
     public YellowfinServiceImpl(){
@@ -69,15 +64,6 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
     public void activate(BundleContext context) {
         loadProperties(context);
         parseUrl();
-
-        /*dataModel.register(new AbstractModule() {
-            @Override
-            protected void configure() {
-                bind(DataModel.class).toInstance(dataModel);
-                bind(UserService.class).toInstance(userService);
-                bind(YellowfinService.class).toInstance(YellowfinServiceImpl.this);
-            }
-        });*/
     }
 
     private void loadProperties(BundleContext context){
@@ -117,11 +103,6 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
-
-    /*@Reference
-    public void setOrmService(OrmService ormService) {
-        dataModel = ormService.newDataModel(COMPONENTNAME, "Yellowfin");
-    }*/
 
     @Override
     public String getYellowfinUrl(){
@@ -496,7 +477,6 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
     @Override
     public void install() {
         try {
-            //dataModel.install(false, false);
             createPrivileges(userService);
         } catch (Exception e) {
             Logger logger = Logger.getLogger(YellowfinServiceImpl.class.getName());
