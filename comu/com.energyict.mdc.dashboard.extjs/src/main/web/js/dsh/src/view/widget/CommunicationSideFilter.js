@@ -95,11 +95,13 @@ Ext.define('Dsh.view.widget.CommunicationSideFilter', {
                         {
                             text: Uni.I18n.translate('connection.widget.sideFilter.apply', 'DSH', 'Apply'),
                             ui: 'action',
-                            action: 'applyfilter'
+                            action: 'applyfilter',
+                            itemId: 'btn-apply-filter'
                         },
                         {
                             text: Uni.I18n.translate('connection.widget.sideFilter.clearAll', 'DSH', 'Clear all'),
-                            action: 'clearfilter'
+                            action: 'clearfilter',
+                            itemId: 'btn-clear-filter'
                         }
                     ]
                 }

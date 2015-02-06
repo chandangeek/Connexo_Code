@@ -114,7 +114,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
                         {
                             text: Uni.I18n.translate('connection.widget.sideFilter.clearAll', 'DSH', 'Clear all'),
                             action: 'clearfilter',
-                            itemId: 'btn-clear-filter-form'
+                            itemId: 'btn-clear-filter'
                         }
                     ]
                 }
