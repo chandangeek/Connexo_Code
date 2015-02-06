@@ -331,7 +331,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                 obisCodeAndNameMap.put(obisCodeValue, logBookSpecName);
             }
             else {
-                throw DuplicateObisCodeException.forLogBookSpec(this.thesaurus, this, each.getDeviceObisCode(), each);
+                throw DuplicateObisCodeException.forLogBookSpec(this.thesaurus, this, each.getDeviceObisCode());
             }
         }
     }
@@ -372,7 +372,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             }
             else {
                 if (!obisCode.anyChannel()) {
-                    throw DuplicateObisCodeException.forChannelSpecInLoadProfileSpec(this.thesaurus, this, each.getDeviceObisCode(), each, each.getLoadProfileSpec());
+                    throw DuplicateObisCodeException.forChannelSpecInLoadProfileSpec(this.thesaurus, this, each.getDeviceObisCode(), each.getLoadProfileSpec());
                 }
             }
         }
@@ -386,7 +386,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                 obisCodeSet.add(obisCodeValue);
             }
             else {
-                throw DuplicateObisCodeException.forRegisterSpec(this.thesaurus, this, registerSpec.getDeviceObisCode(), registerSpec);
+                throw DuplicateObisCodeException.forRegisterSpec(this.thesaurus, this, registerSpec.getDeviceObisCode());
             }
         }
     }
@@ -495,7 +495,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private void validateUniqueRegisterSpecObisCode(RegisterSpec registerSpec) {
         for (RegisterSpec spec : registerSpecs) {
             if (!isSameIdObject(registerSpec, spec) && spec.getDeviceObisCode().equals(registerSpec.getDeviceObisCode())) {
-                throw DuplicateObisCodeException.forRegisterSpec(thesaurus, this, registerSpec.getDeviceObisCode(), registerSpec);
+                throw DuplicateObisCodeException.forRegisterSpec(thesaurus, this, registerSpec.getDeviceObisCode());
             }
         }
     }
@@ -567,11 +567,11 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             if (!isSameIdObject(spec, channelSpec)) {
                 if (channelSpec.getLoadProfileSpec() == null) {
                     if (spec.getLoadProfileSpec() == null && channelSpec.getDeviceObisCode().equals(spec.getDeviceObisCode())) {
-                        throw DuplicateObisCodeException.forChannelSpecConfigWithoutLoadProfileSpec(thesaurus, this, channelSpec.getDeviceObisCode(), channelSpec);
+                        throw DuplicateObisCodeException.forChannelSpecConfigWithoutLoadProfileSpec(thesaurus, this, channelSpec.getDeviceObisCode());
                     }
                 } else if (channelSpec.getLoadProfileSpec().getId() == spec.getLoadProfileSpec().getId()) {
                     if (channelSpec.getDeviceObisCode().equals(spec.getDeviceObisCode())) {
-                        throw DuplicateObisCodeException.forChannelSpecInLoadProfileSpec(thesaurus, this, channelSpec.getDeviceObisCode(), channelSpec, channelSpec.getLoadProfileSpec());
+                        throw DuplicateObisCodeException.forChannelSpecInLoadProfileSpec(thesaurus, this, channelSpec.getDeviceObisCode(), channelSpec.getLoadProfileSpec());
                     }
                 }
             }
@@ -635,7 +635,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         for (LoadProfileSpec profileSpec : loadProfileSpecs) {
             if (!isSameIdObject(loadProfileSpec, profileSpec)
                 && profileSpec.getDeviceObisCode().equals(loadProfileSpec.getDeviceObisCode())) {
-                throw DuplicateObisCodeException.forLoadProfileSpec(thesaurus, this, loadProfileSpec.getDeviceObisCode(), loadProfileSpec);
+                throw DuplicateObisCodeException.forLoadProfileSpec(thesaurus, this, loadProfileSpec.getDeviceObisCode());
             }
         }
     }
@@ -721,7 +721,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         for (LogBookSpec bookSpec : logBookSpecs) {
             if (!isSameIdObject(bookSpec, logBookSpec)
                     && bookSpec.getDeviceObisCode().equals(logBookSpec.getDeviceObisCode())) {
-                throw DuplicateObisCodeException.forLogBookSpec(thesaurus, this, logBookSpec.getDeviceObisCode(), logBookSpec);
+                throw DuplicateObisCodeException.forLogBookSpec(thesaurus, this, logBookSpec.getDeviceObisCode());
             }
         }
     }
