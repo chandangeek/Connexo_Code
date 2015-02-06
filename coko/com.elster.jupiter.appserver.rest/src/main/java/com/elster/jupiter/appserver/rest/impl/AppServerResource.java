@@ -6,6 +6,9 @@ import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -41,16 +44,18 @@ public class AppServerResource {
     private final RestQueryService queryService;
     private final AppService appService;
     private final MessageService messageService;
+    private final Thesaurus thesaurus;
     private final TransactionService transactionService;
     private final CronExpressionParser cronExpressionParser;
 
     @Inject
-    public AppServerResource(RestQueryService queryService, AppService appService, MessageService messageService, TransactionService transactionService, CronExpressionParser cronExpressionParser) {
+    public AppServerResource(RestQueryService queryService, AppService appService, MessageService messageService, TransactionService transactionService, CronExpressionParser cronExpressionParser, Thesaurus thesaurus) {
         this.queryService = queryService;
         this.appService = appService;
         this.messageService = messageService;
         this.transactionService = transactionService;
         this.cronExpressionParser = cronExpressionParser;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -58,7 +63,7 @@ public class AppServerResource {
     public AppServerInfos getAppservers(@Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<AppServer> appServers = queryAppServers(params);
-        AppServerInfos infos = new AppServerInfos(params.clipToLimit(appServers));
+        AppServerInfos infos = new AppServerInfos(params.clipToLimit(appServers), thesaurus);
         infos.total = params.determineTotal(appServers.size());
         return infos;
     }
@@ -67,7 +72,7 @@ public class AppServerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{appserverName}")
     public AppServerInfo getAppServer(@PathParam("appserverName") String appServerName) {
-        return AppServerInfo.of(fetchAppServer(appServerName));
+        return AppServerInfo.of(fetchAppServer(appServerName), thesaurus);
     }
 
     private AppServer fetchAppServer(String appServerName) {
@@ -96,7 +101,7 @@ public class AppServerResource {
             appServer = underConstruction;
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(AppServerInfo.of(appServer)).build();
+        return Response.status(Response.Status.CREATED).entity(AppServerInfo.of(appServer, thesaurus)).build();
     }
 
     @PUT
@@ -109,7 +114,7 @@ public class AppServerResource {
             doUpdateAppServer(info, appServer);
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(AppServerInfo.of(appServer)).build();
+        return Response.status(Response.Status.CREATED).entity(AppServerInfo.of(appServer, thesaurus)).build();
     }
 
     @DELETE
@@ -217,7 +222,12 @@ public class AppServerResource {
                         .noneMatch(d -> sub.getDestination().getName().equals(d.getName()))
                 )
                 .collect(Collectors.toList());
-        SubscriberSpecInfos subscriberSpecInfos = new SubscriberSpecInfos(subscribers);
+        SubscriberSpecInfos subscriberSpecInfos = new SubscriberSpecInfos(subscribers, thesaurus);
+
+        /*for (SubscriberSpecInfo info : subscriberSpecInfos.subscriberSpecs) {
+            info.displayName = thesaurus.getStringBeyondComponent(info.subscriber, info.subscriber);
+        }*/
+
         subscriberSpecInfos.subscriberSpecs.sort(Comparator.comparing(SubscriberSpecInfo::getDestination).thenComparing(SubscriberSpecInfo::getSubscriber));
         return subscriberSpecInfos;
     }

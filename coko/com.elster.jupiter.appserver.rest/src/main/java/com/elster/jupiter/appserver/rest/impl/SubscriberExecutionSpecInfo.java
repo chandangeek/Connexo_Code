@@ -1,6 +1,7 @@
 package com.elster.jupiter.appserver.rest.impl;
 
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.nls.Thesaurus;
 
 public class SubscriberExecutionSpecInfo {
 
@@ -15,8 +16,8 @@ public class SubscriberExecutionSpecInfo {
         this.numberOfThreads = numberOfThreads;
     }
 
-    public static SubscriberExecutionSpecInfo of(SubscriberExecutionSpec executionSpec) {
-        return new SubscriberExecutionSpecInfo(SubscriberSpecInfo.of(executionSpec), executionSpec.getThreadCount());
+    public static SubscriberExecutionSpecInfo of(SubscriberExecutionSpec executionSpec, Thesaurus thesaurus) {
+        return new SubscriberExecutionSpecInfo(SubscriberSpecInfo.of(executionSpec, thesaurus), executionSpec.getThreadCount());
     }
 
     public boolean matches(SubscriberExecutionSpec executionSpec) {
