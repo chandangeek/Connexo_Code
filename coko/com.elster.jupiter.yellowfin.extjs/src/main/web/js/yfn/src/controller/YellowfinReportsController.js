@@ -145,7 +145,6 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
                         groups:groups
                     },
                     success: function () {
-                        debugger;
                         me.generateReportWizardWidget.setLoading(false);
 
                         // load report
