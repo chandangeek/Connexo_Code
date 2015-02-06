@@ -53,8 +53,7 @@ Ext.define('Usr.controller.User', {
             var detailsPanel = grid.view.up('#userBrowse').down('#userDetails'),
                 form = detailsPanel.down('form');
 
-            var title = Uni.I18n.translate('user.user', 'USR', 'User') + ' \'' + record[0].get('authenticationName') + '\'';
-            detailsPanel.setTitle(title);
+            detailsPanel.setTitle(record[0].get('authenticationName'));
             form.loadRecord(record[0]);
 
             var roles = '';
