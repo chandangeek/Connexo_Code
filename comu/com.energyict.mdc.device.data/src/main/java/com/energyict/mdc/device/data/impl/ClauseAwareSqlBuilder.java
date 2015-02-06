@@ -20,9 +20,9 @@ public class ClauseAwareSqlBuilder {
     private final SqlBuilder actualBuilder;
     private final Where where = new Where();
 
-    public ClauseAwareSqlBuilder(SqlBuilder actualBuilder) {
+    public ClauseAwareSqlBuilder() {
         super();
-        this.actualBuilder = actualBuilder;
+        this.actualBuilder = new SqlBuilder("with busycte as (select connectiontask from DDC_COMTASKEXEC where comport is not null and obsolete_date is null) " );        
     }
 
     public void unionAll () {

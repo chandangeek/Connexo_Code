@@ -68,8 +68,9 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     }
 
     public SqlBuilder build(DataMapper<ComTaskExecution> dataMapper, int pageStart, int pageSize) {
-        SqlBuilder sqlBuilder = dataMapper.builder(communicationTaskAliasName());
-        this.setActualBuilder(new ClauseAwareSqlBuilder(sqlBuilder));
+    	this.setActualBuilder(new ClauseAwareSqlBuilder());
+    	SqlBuilder sqlBuilder = dataMapper.builder(communicationTaskAliasName());
+    	getActualBuilder().append(sqlBuilder);        
         String sqlStartClause = sqlBuilder.getText();
         Iterator<ServerComTaskStatus> statusIterator = this.taskStatuses.iterator();
         while (statusIterator.hasNext()) {

@@ -88,7 +88,9 @@ public class ClauseAwareSqlBuilderTest {
     }
 
     private ClauseAwareSqlBuilder newSqlBuilder() {
-        return new ClauseAwareSqlBuilder(new SqlBuilder("select * from dual"));
+    	ClauseAwareSqlBuilder result = new ClauseAwareSqlBuilder();
+    	result.append("select * from dual");
+    	return result;
     }
 
 }

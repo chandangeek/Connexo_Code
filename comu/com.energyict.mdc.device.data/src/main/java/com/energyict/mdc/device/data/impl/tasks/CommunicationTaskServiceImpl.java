@@ -189,7 +189,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         for (ServerComTaskStatus taskStatus : this.taskStatusesForCounting(filter)) {
             // Check first pass
             if (sqlBuilder == null) {
-                sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
+                sqlBuilder = new ClauseAwareSqlBuilder();
                 this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
             } else {
                 sqlBuilder.unionAll();
@@ -244,7 +244,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         for (ServerComTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
             // Check first pass
             if (sqlBuilder == null) {
-                sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
+                sqlBuilder = new ClauseAwareSqlBuilder();
                 this.countByComScheduleAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroups);
             }
             else {
@@ -291,7 +291,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         for (ServerComTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
             // Check first pass
             if (sqlBuilder == null) {
-                sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
+                sqlBuilder = new ClauseAwareSqlBuilder();
                 this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, filterSpecification, taskStatus);
             }
             else {

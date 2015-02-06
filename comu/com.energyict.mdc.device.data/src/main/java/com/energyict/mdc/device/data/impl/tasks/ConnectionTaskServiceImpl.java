@@ -227,7 +227,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         for (ServerConnectionTaskStatus taskStatus : this.taskStatusesForCounting(EnumSet.allOf(TaskStatus.class))) {
             // Check first pass
             if (sqlBuilder == null) {
-                sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
+                sqlBuilder = new ClauseAwareSqlBuilder();
                 this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroups);
             }
             else {
@@ -281,7 +281,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         for (ServerConnectionTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
             // Check first pass
             if (sqlBuilder == null) {
-                sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
+                sqlBuilder = new ClauseAwareSqlBuilder();
                 this.countByComPortPoolAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroups);
             }
             else {
@@ -322,7 +322,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         for (ServerConnectionTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
             // Check first pass
             if (sqlBuilder == null) {
-                sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
+                sqlBuilder = new ClauseAwareSqlBuilder();
                 this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroups);
             }
             else {
@@ -363,7 +363,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         for (ServerConnectionTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
             // Check first pass
             if (sqlBuilder == null) {
-                sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
+                sqlBuilder = new ClauseAwareSqlBuilder();
                 this.countByConnectionTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroups);
             }
             else {
