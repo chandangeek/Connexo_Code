@@ -73,7 +73,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 	@Override
 	public void install() {		
 		dataModel.install(true, true);
-		new Installer(dataModel, messageService, taskService, meteringService, userService).install();
+		new Installer(dataModel, messageService, taskService, meteringService, userService, thesaurus).install();
 	}
 	
 	@Override
