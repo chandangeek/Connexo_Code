@@ -1,5 +1,6 @@
 Ext.define('Mdc.view.setup.devicegroup.Details', {
     extend: 'Uni.view.container.ContentContainer',
+    alias: 'widget.group-details',
     xtype: 'device-groups-details',
     requires: [
         'Mdc.view.setup.devicegroup.Menu',
@@ -34,6 +35,13 @@ Ext.define('Mdc.view.setup.devicegroup.Details', {
                             itemId: 'deviceGroupdetailsForm',
                             deviceGroupId: this.deviceGroupId
                         }
+                    },
+                    {
+                        xtype:'button',
+                        itemId:'generate-report',
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.reports']),
+                        margin: '20 10 0 0',
+                        text:Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
                     },
                     {
                         xtype: 'button',
