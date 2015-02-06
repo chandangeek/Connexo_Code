@@ -11,19 +11,18 @@ Ext.define('Uni.view.grid.SelectionGrid', {
         'Ext.grid.plugin.BufferedRenderer'
     ],
 
-    plugins: [
-        'bufferedrenderer'
-    ],
 
     selType: 'checkboxmodel',
     selModel: {
         mode: 'MULTI',
+        checkOnly: true,
         showHeaderCheckbox: false
     },
     cls: 'uni-selection-grid',
 
     overflowY: 'auto',
     maxHeight: 450,
+
 
     extraTopToolbarComponent: undefined,
 
@@ -72,12 +71,17 @@ Ext.define('Uni.view.grid.SelectionGrid', {
                         margin: '0 8 0 0'
                     },
                     {
-                        xtype: 'button',
-                        itemId: 'uncheckAllButton',
-                        text: me.uncheckText,
-                        action: 'uncheckAll',
-                        margin: '0 0 0 8',
-                        disabled: true
+                        xtype: 'container',
+                        items: [
+                            {
+                                xtype: 'button',
+                                itemId: 'uncheckAllButton',
+                                text: me.uncheckText,
+                                action: 'uncheckAll',
+                                margin: '0 0 0 8',
+                                disabled: true
+                            }
+                        ]
                     }
                 ]
             }

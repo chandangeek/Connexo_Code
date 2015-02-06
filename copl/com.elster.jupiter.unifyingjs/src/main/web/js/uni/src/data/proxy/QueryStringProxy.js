@@ -66,7 +66,6 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
             Model = me.model;
 
         operation.setStarted();
-
         if (!_.isUndefined(router.queryParams[me.root])) {
             var data = Ext.decode(router.queryParams[me.root], true);
 
@@ -117,7 +116,6 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
     setQueryParams: function (operation, callback, model) {
         var router = this.router,
             queryParams = {};
-
         operation.setStarted();
         var data = this.hydrator
             ? this.hydrator.extract(model)

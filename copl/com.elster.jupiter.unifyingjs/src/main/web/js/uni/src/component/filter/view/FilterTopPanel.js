@@ -8,12 +8,24 @@ Ext.define('Uni.component.filter.view.FilterTopPanel', {
     setFilter: function (key, name, value, hideIcon) {
         var me = this,
             btnsContainer = me.getContainer(),
+            str = '',
             btn = btnsContainer.down('button[name=' + key + ']');
         if (!_.isEmpty(btn)) {
             btn.setText(name + ': ' + value);
         } else if (!hideIcon) {
+            if (Ext.isArray(value)) {
+                Ext.Array.each(value, function (item) {
+                    if (item !== value[value.length-1]) {
+                        str += item + ', ';
+                    } else {
+                        str += item;
+                    }
+                });
+            } else {
+                str = value;
+            }
             btnsContainer.add(Ext.create('Uni.view.button.TagButton', {
-                text: name + ': ' + value,
+                text: name + ': ' + str,
                 name: key,
                 listeners: {
                     closeclick: function () {

@@ -10,5 +10,20 @@ Ext.define('Uni.override.grid.Panel', {
 
     selModel: {
         mode: 'SINGLE'
+    },
+
+    initComponent: function () {
+        var me = this;
+
+        me.callParent(arguments);
+
+        me.on('afterlayout', function () {
+            if (me.lastGridScrollPosition) {
+                me.getView().getEl().scrollTo('top', me.lastGridScrollPosition.top, false);
+            }
+        });
+        me.on('selectionchange', function () {
+            this.lastGridScrollPosition = this.getView().getEl().getScroll();
+        });
     }
 });

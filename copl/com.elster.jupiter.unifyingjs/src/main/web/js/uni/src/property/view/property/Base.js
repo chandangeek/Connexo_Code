@@ -117,7 +117,7 @@ Ext.define('Uni.property.view.property.Base', {
         if (this.isEdit) {
             if(!this.getProperty().get('isInheritedOrDefaultValue')){
                 if (!this.getProperty().get('default')) {
-                    button.setTooltip(Uni.I18n.translate('general.clearAll', 'UNI', 'Clear all'));
+                    button.setTooltip(Uni.I18n.translate('general.clear', 'UNI', 'Clear'));
                 } else {
                     button.setTooltip(
                             Uni.I18n.translate('general.restoreDefaultValue', this.translationKey, 'Restore to default value')
@@ -307,7 +307,7 @@ Ext.define('Uni.property.view.property.Base', {
                 }
             });
             field.on('blur', function () {
-                if (field.getValue() !== '' && !me.getProperty().get('isInheritedOrDefaultValue') && field.getValue() === me.getProperty().get('default')) {
+                if (!field.hasNotValueSameAsDefaultMessage && field.getValue() !== '' && !me.getProperty().get('isInheritedOrDefaultValue') && field.getValue() === me.getProperty().get('default')) {
                     me.showPopupEnteredValueEqualsInheritedValue(field, me.getProperty());
                 }
                 if (field.getValue() === ''  && field.getValue() === me.getProperty().get('default')) {
