@@ -156,13 +156,22 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                         }
                     }
                 },
+
                 xAxis: {
-                    lineWidth: 2,
                     type: 'datetime',
+                    gridLineDashStyle: 'Dot',
+                    gridLineWidth: 1,
                     dateTimeLabelFormats: {
-                        day: '%H:%M'
+                        second: '%H:%M<br/>%a %e %b',
+                        minute: '%H:%M<br/>%a %e %b',
+                        hour: '%H:%M<br/>%a %e %b',
+                        day: '%H:%M<br/>%a %e %b',
+                        week: '%a %e<br/>%b %Y',
+                        month: '%b<br/>%Y',
+                        year: '%Y'
                     }
                 },
+
                 yAxis: {
                     title: {
                         text: me.yLabel
