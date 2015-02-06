@@ -5,6 +5,7 @@ import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.http.whiteboard.UnderlyingNetworkException;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -20,17 +21,14 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
 import javax.ws.rs.core.Application;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Component(name = "com.elster.jupiter.http.whiteboard", service = Application.class, property = {"alias=/apps"}, immediate = true)
-public class WhiteBoard extends Application implements BinderProvider {
+@Component(name = "com.elster.jupiter.http.whiteboard", service = {Application.class, InstallService.class}, property = {"alias=/apps", "name=WEB"}, immediate = true)
+public class WhiteBoard extends Application implements BinderProvider, InstallService {
     private volatile HttpService httpService;
     private volatile UserService userService;
     private volatile JsonService jsonService;
@@ -177,6 +175,26 @@ public class WhiteBoard extends Application implements BinderProvider {
                 this.bind(WhiteBoard.this).to(WhiteBoard.class);
             }
         };
+    }
+
+    @Override
+    public void install() {
+        createEventTypes();
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "EVT");
+    }
+
+    private void createEventTypes() {
+        for (EventType eventType : EventType.values()) {
+            try {
+                eventType.install(eventService);
+            } catch (Exception ex) {
+                LOGGER.log(Level.SEVERE, "Could not install eventType '" + eventType.name() + "': " + ex.getMessage(), ex);
+            }
+        }
     }
 }
 

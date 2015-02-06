@@ -8,7 +8,7 @@ public enum EventType {
 
     LOGOUT("LOGOUT");
 
-    private static final String COMPONENT_NAME = "HTTP";
+    private static final String COMPONENT_NAME = "WEB";
     private static final String NAMESPACE = "com/elster/jupiter/http/";
     private final String topic;
 
