@@ -6,7 +6,9 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.configuration.rest.RegisterConfigInfo;
 import com.energyict.mdc.device.configuration.rest.RegisterConfigurationComparator;
@@ -64,7 +66,6 @@ public class RegisterConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response createRegisterConfig(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, RegisterConfigInfo registerConfigInfo) {
-        // Todo: find out if a numerical or a textual register needs to be created
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         RegisterType registerType = registerConfigInfo.registerType ==null?null: findRegisterTypeOrThrowException(registerConfigInfo.registerType);
@@ -100,7 +101,11 @@ public class RegisterConfigurationResource {
         RegisterType registerType = registerConfigInfo.registerType ==null?null:resourceHelper.findRegisterTypeByIdOrThrowException(registerConfigInfo.registerType);
         if(registerConfigInfo.asText == registerSpec.isTextual()){
             registerConfigInfo.writeTo(registerSpec, registerType);
-            registerSpec.save();
+            if (registerConfigInfo.asText) {
+                registerSpec.getDeviceConfiguration().getRegisterSpecUpdaterFor((TextualRegisterSpec) registerSpec).update();
+            } else {
+                registerSpec.getDeviceConfiguration().getRegisterSpecUpdaterFor((NumericalRegisterSpec) registerSpec).update();
+            }
         } else {
             registerSpec.getDeviceConfiguration().deleteRegisterSpec(registerSpec);
             RegisterSpec newRegisterSpec = createRegisterSpec(registerConfigInfo, registerSpec.getDeviceConfiguration(), registerType);
