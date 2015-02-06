@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -120,7 +121,7 @@ public class DashboardFieldResource extends FieldResource {
     @Produces("application/json")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getComPortPools() {
-        return Response.ok(asInfoMap("comPortPools", engineConfigurationService.findAllComPortPools())).build();
+        return Response.ok(asInfoMap("comPortPools", engineConfigurationService.findAllComPortPools().stream().filter(pool -> pool.isActive()).collect(Collectors.toList()))).build();
     }
 
     @GET
