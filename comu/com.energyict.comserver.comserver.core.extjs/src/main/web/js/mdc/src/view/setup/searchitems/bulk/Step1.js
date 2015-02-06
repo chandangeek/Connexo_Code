@@ -29,7 +29,8 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step1', {
             ]
         },
         {
-            xtype: 'devices-selection-grid'
+            xtype: 'devices-selection-grid',
+            itemId: 'devicesgrid'
         },
         {
             xtype: 'container',
