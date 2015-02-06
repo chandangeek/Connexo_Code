@@ -241,11 +241,11 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
                     }
                     if(filterDisplayType == "TIMESTAMP"){
                         if(filterType == "BETWEEN")
-                            value = (value[0] ? Ext.Date.format(Ext.Date.parse(value[0],"Y-m-d h:i:s") , 'n/j/Y g:i A') : '') +
+                            value = (value[0] ? Ext.Date.format(Ext.Date.parse(value[0],"Y-m-d H:i:s") , 'n/j/Y g:i A') : '') +
                             ' - ' +
-                            (value[1] ? Ext.Date.format(Ext.Date.parse(value[1],"Y-m-d h:i:s"), 'n/j/Y g:i A') : '');
+                            (value[1] ? Ext.Date.format(Ext.Date.parse(value[1],"Y-m-d H:i:s"), 'n/j/Y g:i A') : '');
                         else
-                            value = value ? Ext.Date.format(Ext.Date.parse(value,"Y-m-d h:i:s"), 'n/j/Y g:i A') : '';
+                            value = value ? Ext.Date.format(Ext.Date.parse(value,"Y-m-d H:i:s"), 'n/j/Y g:i A') : '';
                     }
 
 

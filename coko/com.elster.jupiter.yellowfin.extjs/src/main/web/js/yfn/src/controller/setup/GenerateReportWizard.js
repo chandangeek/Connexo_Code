@@ -580,8 +580,8 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     },
                     getValue : function(){
                         return {
-                            from:  Ext.Date.format(this.query('date-time')[0].getValue(),'Y-m-d m:i:s'),
-                            to:Ext.Date.format(this.query('date-time')[1].getValue(),'Y-m-d m:i:s')
+                            from:  Ext.Date.format(this.query('date-time')[0].getValue(),'Y-m-d H:i:s'),
+                            to:Ext.Date.format(this.query('date-time')[1].getValue(),'Y-m-d H:i:s')
                         };
                     },
                     getFieldValue : function (){
