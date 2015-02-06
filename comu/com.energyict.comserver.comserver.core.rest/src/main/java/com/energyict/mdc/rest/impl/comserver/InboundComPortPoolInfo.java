@@ -34,7 +34,7 @@ public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPool> 
                 this.name,
                 this.type,
                 protocolPluggableService
-                        .findInboundDeviceProtocolPluggableClass(this.discoveryProtocolPluggableClassId)
+                        .findInboundDeviceProtocolPluggableClass(this.discoveryProtocolPluggableClassId!=null?this.discoveryProtocolPluggableClassId:0)
                         .orElse(null));
         this.writeTo(inboundComPortPool);
         return inboundComPortPool;

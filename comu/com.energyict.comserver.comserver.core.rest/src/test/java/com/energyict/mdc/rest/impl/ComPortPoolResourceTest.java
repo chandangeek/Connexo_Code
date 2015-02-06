@@ -1,6 +1,8 @@
 package com.energyict.mdc.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -16,22 +18,25 @@ import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortPoolInfo;
 import com.energyict.mdc.rest.impl.comserver.TcpOutboundComPortInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.assertj.core.data.MapEntry;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import org.assertj.core.data.MapEntry;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 /**
@@ -201,6 +206,24 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
 
         final Response response = target("/comportpools/").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+    }
+
+    @Test
+    public void testCreateInboundComPortPoolWithoutProtocol() throws Exception {
+
+        InboundComPortPoolInfo inboundComPortPoolInfo = new InboundComPortPoolInfo();
+        inboundComPortPoolInfo.active=true;
+        inboundComPortPoolInfo.name="Updated";
+        inboundComPortPoolInfo.description="description";
+        inboundComPortPoolInfo.taskExecutionTimeout=new TimeDurationInfo(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES));
+        MessageSeed messageSeed = mock(MessageSeed.class);
+        when(messageSeed.getKey()).thenReturn("someKey");
+        when(messageSeed.getDefaultFormat()).thenReturn("required value");
+        when(protocolPluggableService.findInboundDeviceProtocolPluggableClass(0L)).thenReturn(Optional.empty());
+        when(engineConfigurationService.newInboundComPortPool(anyString(), any(ComPortType.class), any(InboundDeviceProtocolPluggableClass.class))).thenThrow(new LocalizedFieldValidationException(messageSeed, "discoveryProtocolPluggableClassId"));
+
+        final Response response = target("/comportpools/").request().post(Entity.json(inboundComPortPoolInfo));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test

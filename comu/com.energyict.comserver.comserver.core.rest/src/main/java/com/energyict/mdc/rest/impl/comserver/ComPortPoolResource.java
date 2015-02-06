@@ -153,7 +153,7 @@ public class ComPortPoolResource {
     public Response createComPortPool(ComPortPoolInfo<ComPortPool> comPortPoolInfo, @Context UriInfo uriInfo) {
         ComPortPool comPortPool = comPortPoolInfo.createNew(engineConfigurationService, protocolPluggableService);
         comPortPool.save();
-        if (comPortPool instanceof OutboundComPortPool) {
+        if (comPortPool instanceof OutboundComPortPool) { // TODO Polymorphism is in place here: get rid of these checks!
             handlePools(comPortPoolInfo, (OutboundComPortPool) comPortPool, engineConfigurationService, getBoolean(uriInfo, ALL));
         }
         if (InboundComPortPool.class.isAssignableFrom(comPortPool.getClass())) {
