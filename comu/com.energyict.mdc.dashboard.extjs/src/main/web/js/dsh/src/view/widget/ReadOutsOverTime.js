@@ -78,13 +78,9 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                     obj.remove()
                 });
                 record.series().each(function (kpi, idx) {
-                    var series = kpi.getData(),
-                        timezoneOffset = new Date(record.get('time')[0]).getTimezoneOffset(),
-                        timeArray = _.map(record.get('time'), function (item) {
-                            return item - timezoneOffset * 60000;
-                        });
+                    var series = kpi.getData();
                     series.color = me.colorMap[idx];
-                    series.data = _.zip(timeArray, series.data);
+                    series.data = _.zip(record.get('time'), series.data);
                     me.chart.addSeries(series);
                 });
             } else {
@@ -96,6 +92,11 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
 
     renderChart: function (container) {
         var me = this;
+        Highcharts.setOptions({
+            global: {
+                useUTC: false
+            }
+        });
         this.chart = new Highcharts.Chart({
                 chart: {
                     type: 'spline',
