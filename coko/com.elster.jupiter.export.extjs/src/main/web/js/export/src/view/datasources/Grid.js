@@ -25,7 +25,7 @@ Ext.define('Dxp.view.datasources.Grid', {
                 xtype: 'reading-type-column',
                 header: Uni.I18n.translate('general.readingType', 'DES', 'Reading type'),
                 dataIndex: 'readingType',
-                flex: 1
+                flex: 2
             },
             {
                 header: Uni.I18n.translate('general.lastRun', 'DES', 'Last run'),

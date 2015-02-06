@@ -19,6 +19,7 @@ Ext.define('Dxp.view.tasks.Preview', {
     ],
 
     items: {
-        xtype: 'tasks-preview-form'
+        xtype: 'tasks-preview-form',
+        itemId: 'pnl-data-export-task-preview'
     }
 });
