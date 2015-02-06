@@ -1,6 +1,8 @@
 package com.energyict.mdc.tasks.impl;
 
+import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.TaskService;
 
@@ -19,5 +21,6 @@ public interface ServerTaskService extends TaskService {
     public Thesaurus getThesaurus();
 
     public List<LogBooksTask> findTasksUsing(LogBookType logBookType);
+    public List<LoadProfilesTask> findTasksUsing(LoadProfileType loadProfileType);
 
 }
