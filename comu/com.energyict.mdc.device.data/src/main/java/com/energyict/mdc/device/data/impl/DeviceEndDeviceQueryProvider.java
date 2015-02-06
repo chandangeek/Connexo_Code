@@ -15,6 +15,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -61,10 +62,13 @@ public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
     public List<EndDevice> findEndDevices(Instant date, Condition conditions) {
         // TODO it will be better to rewrite it using sub-queries, so we will have only one request
         List<Device> devices = deviceService.findAllDevices(conditions).find();
-        List<Long> deviceIds = devices.stream().map(Device::getId).collect(Collectors.toList());
-        Condition condition = Operator.EQUAL.compare("amrSystemId", KnownAmrSystem.MDC.getId())
-                .and(getSplittedInCondition("amrId", deviceIds));
-        return meteringService.getEndDeviceQuery().select(condition, Order.ascending("mRID"));
+        if (!devices.isEmpty()){
+            List<Long> deviceIds = devices.stream().map(Device::getId).collect(Collectors.toList());
+            Condition condition = Operator.EQUAL.compare("amrSystemId", KnownAmrSystem.MDC.getId())
+                    .and(getSplittedInCondition("amrId", deviceIds));
+            return meteringService.getEndDeviceQuery().select(condition, Order.ascending("mRID"));
+        }
+        return Collections.emptyList();
     }
 
     private Condition getSplittedInCondition(String field, List<?> values){
