@@ -35,7 +35,7 @@ public class AddNoneIntervalChannelReadingsCommand extends AddChannelReadingsCom
         try {
             counter = Integer.parseInt(controlValue);
         } catch (NumberFormatException ex){
-            throw new UnableToCreate("Incorrect control value for importing data. Should be simple number");
+            throw new UnableToCreate("Incorrect control value for importing data. Should be a simple number");
         }
         ZonedDateTime local = ZonedDateTime.ofInstant(startDate, ZoneId.systemDefault());
         switch (readingType.getMacroPeriod()) {

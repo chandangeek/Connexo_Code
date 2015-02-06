@@ -30,7 +30,11 @@ public class UploadAllCommand {
 
     public void setStartDate(String date){
         try {
-            this.start = ZonedDateTime.ofInstant(Instant.parse(date + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
+            ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.parse(date + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault());
+            if (zonedDateTime.getDayOfMonth() != 1){
+                throw new UnableToCreate("Please specify the first day of month as a start date");
+            }
+            this.start = zonedDateTime.toInstant();
         } catch (DateTimeParseException e) {
             throw new UnableToCreate("Unable to parse start time. Please use the following format: " + START_DATE_FORMAT);
         }

@@ -1,11 +1,16 @@
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.Constants;
+import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.upload.UploadAllCommand;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 public class CreateDemoDataCommand {
     private final Provider<CreateCollectRemoteDataSetupCommand> createCollectRemoteDataSetupCommandProvider;
@@ -51,6 +56,10 @@ public class CreateDemoDataCommand {
 
     public void setStartDate(String startDate) {
         this.startDate = startDate;
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.parse(this.startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault());
+        if (zonedDateTime.getDayOfMonth() != 1){
+            throw new UnableToCreate("Please specify the first day of month as a start date");
+        }
     }
 
     public void run(){

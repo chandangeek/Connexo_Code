@@ -85,7 +85,6 @@ public class CreateCollectRemoteDataSetupCommand {
         paramersCheck();
         licenseCheck();
         createComBackground();
-        createReadingTypes();
         createRegisterTypes();
         createRegisterGroups();
         createLoogBookTypes();
@@ -128,12 +127,6 @@ public class CreateCollectRemoteDataSetupCommand {
 
         Builders.from(OutboundTCPComPortPoolTpl.VODAFONE).get();
         Builders.from(OutboundTCPComPortPoolTpl.ORANGE).get();
-    }
-
-    private void createReadingTypes(){
-        for (ReadingTypeTpl descr : ReadingTypeTpl.values()) {
-            Builders.from(descr).get();
-        }
     }
 
     private void createRegisterTypes(){
