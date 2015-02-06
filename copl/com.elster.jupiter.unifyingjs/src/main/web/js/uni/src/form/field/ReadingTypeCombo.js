@@ -17,16 +17,21 @@ Ext.define('Uni.form.field.ReadingTypeCombo', {
         '<tpl for=".">',
             '<div class="x-boundlist-item">',
                 '<tpl if="aliasName.length &gt; 0">',
+                    '<tpl if="names">',
+                        '<tpl if="names.timeAttribute.length &gt; 0">',
+                            '[{names.timeAttribute}] ',
+                        '</tpl>',
+                    '</tpl>',
                     '{aliasName}',
                     '<tpl if="names">',
-                        '<tpl if="names.timeOfUse.length &gt; 0">',
-                            ' {names.timeOfUse}',
-                        '</tpl>',
                         '<tpl if="names.unitOfMeasure.length &gt; 0">',
                             ' ({names.unitOfMeasure})',
                         '</tpl>',
-                        '<tpl if="names.timeAttribute.length &gt; 0">',
-                            ' [{names.timeAttribute}]',
+                        '<tpl if="names.phase.length &gt; 0">',
+                            ' {names.phase}',
+                        '</tpl>',
+                        '<tpl if="names.timeOfUse.length &gt; 0">',
+                            ' {names.timeOfUse}',
                         '</tpl>',
                     '</tpl>',
                 '<tpl else>',
@@ -38,16 +43,21 @@ Ext.define('Uni.form.field.ReadingTypeCombo', {
     displayTpl: Ext.create('Ext.XTemplate',
         '<tpl for=".">',
             '<tpl if="aliasName.length &gt; 0">',
+                '<tpl if="names">',
+                    '<tpl if="names.timeAttribute.length &gt; 0">',
+                        '[{names.timeAttribute}] ',
+                    '</tpl>',
+                '</tpl>',
                 '{aliasName}',
                 '<tpl if="names">',
-                    '<tpl if="names.timeOfUse.length &gt; 0">',
-                        ' {names.timeOfUse}',
-                    '</tpl>',
                     '<tpl if="names.unitOfMeasure.length &gt; 0">',
                         ' ({names.unitOfMeasure})',
                     '</tpl>',
-                    '<tpl if="names.timeAttribute.length &gt; 0">',
-                        ' [{names.timeAttribute}]',
+                    '<tpl if="names.phase.length &gt; 0">',
+                        ' {names.phase}',
+                    '</tpl>',
+                    '<tpl if="names.timeOfUse.length &gt; 0">',
+                        ' {names.timeOfUse}',
                     '</tpl>',
                 '</tpl>',
             '<tpl else>',
@@ -86,11 +96,17 @@ Ext.define('Uni.form.field.ReadingTypeCombo', {
     },
     getReadingTypeName: function (readingType) {
         if (!readingType) return this.emptyText;
-        var assembledName = readingType.aliasName ? (' ' + readingType.aliasName) : '';
+        var assembledName = '';
+        var alias = readingType.aliasName ? (' ' + readingType.aliasName) : '';
         if (readingType.names && Ext.isObject(readingType.names)) {
-            assembledName += (readingType.names.timeOfUse ? (' ' + readingType.names.timeOfUse) : '')
-                + (readingType.names.unitOfMeasure ? (' (' + readingType.names.unitOfMeasure + ')') : '')
-                + ((readingType.names.timeAttribute && this.showTimeAttribute) ? (' [' + readingType.names.timeAttribute + ']') : '');
+            assembledName +=
+                    ((readingType.names.timeAttribute && this.showTimeAttribute) ? (' [' + readingType.names.timeAttribute + ']') : '')
+                    + alias
+                    + (readingType.names.unitOfMeasure ? (' (' + readingType.names.unitOfMeasure + ')') : '')
+                    + (readingType.names.phase ? (' ' + readingType.names.phase ) : '')
+                    + (readingType.names.timeOfUse ? (' ' + readingType.names.timeOfUse) : '');
+        } else {
+            assembledName += alias;
         }
         return assembledName || readingType.mRID;
     },

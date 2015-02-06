@@ -132,13 +132,19 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
         if (!value) return this.emptyText;
 
         var me = this,
-            assembledName = value.aliasName ? (' ' + value.aliasName) : '',
+            assembledName = '',
+            alias = value.aliasName ? (' ' + value.aliasName) : '',
             icon = '<span class="uni-icon-info-small" style="cursor: pointer; display: inline-block; width: 16px; height: 16px; float: left;" data-qtip="' + Uni.I18n.translate('readingType.tooltip', 'UNI', 'Reading type info') + '"></span>';
 
         if (value.names && Ext.isObject(value.names)) {
-            assembledName += (value.names.timeOfUse ? (' ' + value.names.timeOfUse) : '')
-                + (value.names.unitOfMeasure ? (' (' + value.names.unitOfMeasure + ')') : '')
-                + ((value.names.timeAttribute && me.showTimeAttribute) ? (' [' + value.names.timeAttribute + ']') : '');
+            assembledName +=
+                    ((value.names.timeAttribute && me.showTimeAttribute) ? ('[' + value.names.timeAttribute + ']') : '')
+                    + alias
+                    + (value.names.unitOfMeasure ? (' (' + value.names.unitOfMeasure + ')') : '')
+                    + (value.names.phase ? (' ' + value.names.phase ) : '')
+                    + (value.names.timeOfUse ? (' ' + value.names.timeOfUse) : '');
+        } else {
+            assembledName += alias;
         }
 
         setTimeout(function () {
