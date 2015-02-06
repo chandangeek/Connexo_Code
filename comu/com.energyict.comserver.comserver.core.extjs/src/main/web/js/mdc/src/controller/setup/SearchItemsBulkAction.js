@@ -129,9 +129,13 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             me.schedules = null;
             me.operation = null;
             me.shedulesUnchecked = false;
-            me.getApplication().fireEvent('changecontentevent', widget);
 
-            me.getStore('Mdc.store.DevicesBuffered').load();
+            me.getStore('Mdc.store.DevicesBuffered').data.clear();
+            me.getStore('Mdc.store.DevicesBuffered').load({
+                callback: function () {
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                }
+            });
             me.getStore('Mdc.store.CommunicationSchedulesWithoutPaging').load();
         }
     },

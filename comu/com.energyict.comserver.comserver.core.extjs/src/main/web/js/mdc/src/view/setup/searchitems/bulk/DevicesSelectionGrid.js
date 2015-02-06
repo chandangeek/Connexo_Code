@@ -1,8 +1,6 @@
 Ext.define('Mdc.view.setup.searchitems.bulk.DevicesSelectionGrid', {
     extend: 'Uni.view.grid.BulkSelection',
     xtype: 'devices-selection-grid',
-    itemId: 'devicesgrid',
-
     store: 'Mdc.store.DevicesBuffered',
 
     counterTextFn: function (count) {
