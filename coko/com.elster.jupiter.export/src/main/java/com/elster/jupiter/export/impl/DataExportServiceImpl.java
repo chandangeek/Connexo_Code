@@ -53,7 +53,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     public static final String DESTINATION_NAME = "DataExport";
     public static final String SUBSCRIBER_NAME = "DataExport";
-    public static final String SUBSCRIBER_DISPLAYNAME = "Data Export";
+    public static final String SUBSCRIBER_DISPLAYNAME = "Handle data export";
     private volatile DataModel dataModel;
     private volatile TimeService timeService;
     private volatile TaskService taskService;
