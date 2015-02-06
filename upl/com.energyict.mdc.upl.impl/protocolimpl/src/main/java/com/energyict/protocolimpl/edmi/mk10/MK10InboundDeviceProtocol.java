@@ -103,7 +103,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     }
 
     private void delay() {
-        this.delay(TIMEOUT_DEFAULT);
+        this.delay(100);
     }
 
     private void delay(int millis) {
