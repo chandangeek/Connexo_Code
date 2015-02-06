@@ -983,6 +983,9 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         NumericalRegisterSpec.Builder registerSpecBuilder = mock(NumericalRegisterSpec.Builder.class, Answers.RETURNS_SELF);
         when(registerSpecBuilder.add()).thenReturn(registerConfig);
         when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.<RegisterSpec>asList(registerConfig));
+        NumericalRegisterSpec.Updater updater = mock(NumericalRegisterSpec.Updater.class);
+        when(deviceConfiguration.getRegisterSpecUpdaterFor(registerConfig)).thenReturn(updater);
+        when(registerConfig.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         Phenomenon phenomenon = mock(Phenomenon.class);
         when(registerType.getPhenomenon()).thenReturn(phenomenon);
         RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
@@ -1004,7 +1007,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         verify(registerConfig).setOverflowValue(BigDecimal.valueOf(123));
         verify(registerConfig).setNumberOfDigits(4);
         verify(registerConfig).setNumberOfFractionDigits(6);
-        verify(registerConfig).save();
+        verify(deviceConfiguration).getRegisterSpecUpdaterFor(registerConfig);
+        verify(updater).update();
     }
 
     @Test
