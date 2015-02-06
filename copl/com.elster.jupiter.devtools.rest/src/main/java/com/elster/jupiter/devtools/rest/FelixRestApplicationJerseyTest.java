@@ -139,7 +139,7 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
     }
 
     @Test
-    public void checkRestMethods() throws IOException {
+    public void checkRestMethodsHaveProducesAnnotation() throws IOException {
         ClassPath classPath = ClassPath.from(this.getClass().getClassLoader());
         String packageName = this.getClass().getPackage().getName();
         if (packageName.endsWith(".impl")) {
