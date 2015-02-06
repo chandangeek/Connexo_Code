@@ -20,7 +20,7 @@ Ext.define('Apr.model.AppServer', {
                 if (!Ext.isEmpty(data.executionSpecs)) {
                     var str = '';
                     Ext.Array.each(data.executionSpecs, function (item) {
-                        str += item.subscriberSpec.subscriber + ' : ' + item.subscriberSpec.destination + ' (' + item.numberOfThreads + ' ' + Uni.I18n.translate('general.thread', 'APR', 'thread(s)') + ')' + '<br><br>';
+                        str += item.subscriberSpec.displayName + ' (' + item.numberOfThreads + ' ' + Uni.I18n.translate('general.thread', 'APR', 'thread(s)') + ')' + '<br><br>';
                     });
                     return str;
                 } else {

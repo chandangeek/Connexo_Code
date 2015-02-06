@@ -333,9 +333,11 @@ Ext.define('Apr.controller.AppServers', {
                 if (!item.get('destination')) {
                     subscriberSpec.destination = item.data.subscriberSpec.destination;
                     subscriberSpec.subscriber = item.data.subscriberSpec.subscriber;
+                    subscriberSpec.displayName = item.data.subscriberSpec.displayName;
                 } else {
                     subscriberSpec.destination = item.get('destination');
                     subscriberSpec.subscriber = item.get('subscriber');
+                    subscriberSpec.displayName = item.get('displayName');
                 }
                 service.subscriberSpec = subscriberSpec;
                 if (item.get('numberOfThreads')) {

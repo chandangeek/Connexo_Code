@@ -7,7 +7,7 @@ Ext.define('Apr.model.ServedMessageService', {
             name: 'messageService',
             persist: false,
             mapping: function (data) {
-                return data.subscriberSpec.subscriber + ' : ' + data.subscriberSpec.destination;
+                return data.subscriberSpec.displayName;
             }
         }
     ]
