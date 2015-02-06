@@ -13920,6 +13920,15 @@
 .x-btn-plain-toolbar-large {
   padding: 0;
 }
+/* line 116, ../../sass/src/button/PlainButton.scss */
+.x-btn-plain-small .x-btn-icon-el,
+.x-btn-plain-medium .x-btn-icon-el,
+.x-btn-plain-large .x-btn-icon-el,
+.x-btn-plain-toolbar-small .x-btn-icon-el,
+.x-btn-plain-toolbar-medium .x-btn-icon-el,
+.x-btn-plain-toolbar-large .x-btn-icon-el {
+  color: #686868 !important;
+}
 
 /* line 1, ../../sass/src/toolbar/Toolbar.scss */
 .x-toolbar {
@@ -15357,29 +15366,4 @@
 /* line 635, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-filter-vertical .x-panel-header-icon-before-title {
   margin: 0 0 6px 0;
-}
-/* line 640, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
-.x-panel-header-filter-vertical .x-rtl.x-panel-header-icon-before-title {
-  margin: 0 0 6px 0;
-}
-/* line 645, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
-.x-panel-header-filter-vertical .x-panel-header-icon-after-title {
-  margin: 6px 0 0 0;
-}
-/* line 650, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
-.x-panel-header-filter-vertical .x-rtl.x-panel-header-icon-after-title {
-  margin: 6px 0 0 0;
-}
-
-/* line 658, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
-.x-panel-header-filter-horizontal .x-tool-after-title {
-  margin: 0 0 0 6px;
-}
-/* line 663, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
-.x-panel-header-filter-horizontal .x-rtl.x-tool-after-title {
-  margin: 0 6px 0 0;
-}
-/* line 668, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
-.x-panel-header-filter-horizontal .x-tool-before-title {
-  margin: 0 6px 0 0;
 }

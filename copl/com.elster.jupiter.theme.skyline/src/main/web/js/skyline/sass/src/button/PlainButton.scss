@@ -113,4 +113,7 @@
 .#{$prefix}btn-plain-toolbar-medium,
 .#{$prefix}btn-plain-toolbar-large {
   padding: 0;
+  .#{$prefix}btn-icon-el {
+    color: $color-grey !important;
+  }
 }
