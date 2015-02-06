@@ -312,11 +312,13 @@ Ext.define('Uni.view.grid.BulkSelection', {
 
             if (typeof gridHeight === 'undefined') {
                 var row = me.getView().getNode(0),
-                    rowElement = Ext.get(row);
+                    rowElement = Ext.get(row),
+                    count = me.store.getCount() > 10 ? 10 : me.store.getCount();
 
                 if (rowElement !== null) {
-                    var count = me.store.getCount() > 10 ? 10 : me.store.getCount();
                     gridHeight = count * rowElement.getHeight();
+                } else {
+                    gridHeight = count * 29;
                 }
             }
 
