@@ -10,7 +10,7 @@
         <version>1.0.0</version>
     </parent>
     <artifactId>devtools.persistence</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
     <name>[Jupiter] com.elster.jupiter.devtools.persistence : use as test dependency only</name>
 
