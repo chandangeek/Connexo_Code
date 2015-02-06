@@ -16,7 +16,7 @@ public class SubscriberSpecInfo {
     public SubscriberSpecInfo(String destination, String subscriber, Thesaurus thesaurus) {
         this.destination = destination;
         this.subscriber = subscriber;
-        this.displayName = thesaurus.getString(subscriber, subscriber);
+        this.displayName = thesaurus.getStringBeyondComponent(subscriber, subscriber);
     }
 
     public static SubscriberSpecInfo of(SubscriberExecutionSpec executionSpec, Thesaurus thesaurus) {
