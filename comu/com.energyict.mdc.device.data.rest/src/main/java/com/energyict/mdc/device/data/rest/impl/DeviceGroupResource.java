@@ -21,9 +21,11 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -93,8 +95,12 @@ public class DeviceGroupResource {
         EndDeviceGroup endDeviceGroup = fetchDeviceGroup(deviceGroupId);
         List<? extends EndDevice> endDevices =
                 ListPager.of(endDeviceGroup.getMembers(Instant.now())).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
-        Condition mdcMembers = where("id").in(endDevices.stream().map(EndDevice::getAmrId).collect(Collectors.toList()));
-        return PagedInfoList.asJson("devices", DeviceInfo.from(deviceService.findAllDevices(mdcMembers).sorted("mRID", true).find()), queryParameters);
+        List<Device> devices = Collections.emptyList();
+        if (!endDevices.isEmpty()){
+            Condition mdcMembers = where("id").in(endDevices.stream().map(EndDevice::getAmrId).collect(Collectors.toList()));
+            devices = deviceService.findAllDevices(mdcMembers).sorted("mRID", true).find();
+        }
+        return PagedInfoList.asJson("devices", DeviceInfo.from(devices), queryParameters);
     }
 
     @GET
