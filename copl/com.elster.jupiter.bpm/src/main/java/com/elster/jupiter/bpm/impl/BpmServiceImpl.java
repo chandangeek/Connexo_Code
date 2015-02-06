@@ -79,7 +79,7 @@ public class BpmServiceImpl implements BpmService, InstallService {
 
     @Override
     public void install() {
-        new InstallerImpl().install(messageService, userService);
+        new InstallerImpl().install(messageService, userService, thesaurus);
     }
 
     @Override
