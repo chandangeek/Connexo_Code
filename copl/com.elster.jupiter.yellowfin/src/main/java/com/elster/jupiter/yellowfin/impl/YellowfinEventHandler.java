@@ -12,7 +12,7 @@ public class YellowfinEventHandler extends EventHandler<LocalEvent> {
 
     private static final String LOGOUTTOPIC = "com/elster/jupiter/http/LOGOUT";
 
-    private volatile YellowfinServiceImpl yellowfinService;
+    private volatile YellowfinService yellowfinService;
 
     public YellowfinEventHandler() {
         super(LocalEvent.class);
@@ -20,7 +20,7 @@ public class YellowfinEventHandler extends EventHandler<LocalEvent> {
 
     @Reference
     public void setYellowfinService(YellowfinService yellowfinService) {
-        this.yellowfinService = (YellowfinServiceImpl) yellowfinService;
+        this.yellowfinService = yellowfinService;
     }
 
     @Override
