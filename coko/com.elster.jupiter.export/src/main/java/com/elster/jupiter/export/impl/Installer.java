@@ -75,6 +75,11 @@ class Installer {
             Translation statusTranslation = SimpleTranslation.translation(statusKey, Locale.ENGLISH, status.toString());
             translations.add(statusTranslation);
         }
+
+        NlsKey statusKey = SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, SUBSCRIBER_NAME);
+        Translation statusTranslation = SimpleTranslation.translation(statusKey, Locale.ENGLISH, DataExportServiceImpl.SUBSCRIBER_DISPLAYNAME);
+        translations.add(statusTranslation);
+
         thesaurus.addTranslations(translations);
     }
 
