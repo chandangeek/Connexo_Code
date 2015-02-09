@@ -7,10 +7,10 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.1</version>
     </parent>
     <artifactId>data.lifecycle</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.data.lifecycle</name>
 
@@ -55,7 +55,7 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.1</version>
         </dependency>
 
     </dependencies>
