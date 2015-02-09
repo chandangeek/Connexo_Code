@@ -1,11 +1,33 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
+import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
+import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -28,31 +50,12 @@ import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.FlowDirection;
-import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
-import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
-import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.Ranges;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.DataValidationStatus;
 import org.joda.time.DateTimeConstants;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -62,9 +65,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
-
-import org.junit.*;
-import org.junit.rules.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -83,17 +83,15 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     private static final ObisCode loadProfileObisCode = ObisCode.fromString("1.0.99.1.0.255");
     private final TimeZone testDefaultTimeZone = TimeZone.getTimeZone("Canada/East-Saskatchewan");
     private final TimeDuration interval = TimeDuration.minutes(15);
+    private final Unit unit1 = Unit.get("kWh");
+    private final Unit unit2 = Unit.get("MWh");
 
     private ReadingType forwardEnergyReadingType;
     private ReadingType reverseEnergyReadingType;
     private String averageForwardEnergyReadingTypeMRID;
     private ObisCode averageForwardEnergyObisCode;
-    private Phenomenon phenomenon1;
-    private Phenomenon phenomenon2;
     private ObisCode forwardEnergyObisCode;
     private ObisCode reverseEnergyObisCode;
-    private Unit unit1;
-    private Unit unit2;
     private LoadProfileType loadProfileType;
 
     @Rule
@@ -102,7 +100,6 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Before
     public void setupMasterData() {
         this.setupReadingTypes();
-        this.setupPhenomena();
     }
 
     private Device createSimpleDevice() {
@@ -143,25 +140,6 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
                 .measure(MeasurementKind.ENERGY)
                 .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
         this.averageForwardEnergyObisCode = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(this.averageForwardEnergyReadingTypeMRID).getObisCode();
-    }
-
-    private void setupPhenomena() {
-        this.unit1 = Unit.get("kWh");
-        this.phenomenon1 = this.createPhenomenonIfMissing(this.unit1, DeviceImplTest.class.getSimpleName() + "1");
-        this.unit2 = Unit.get("MWh");
-        this.phenomenon2 = this.createPhenomenonIfMissing(this.unit2, DeviceImplTest.class.getSimpleName() + "2");
-    }
-
-    private Phenomenon createPhenomenonIfMissing(Unit unit, String name) {
-        Optional<Phenomenon> phenomenonByUnit = inMemoryPersistence.getMasterDataService().findPhenomenonByUnit(unit);
-        if (!phenomenonByUnit.isPresent()) {
-            Phenomenon phenomenon = inMemoryPersistence.getMasterDataService().newPhenomenon(name, unit);
-            phenomenon.save();
-            return phenomenon;
-        }
-        else {
-            return phenomenonByUnit.get();
-        }
     }
 
     @Test
@@ -960,8 +938,8 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         deviceType.addLoadProfileType(loadProfileType);
         DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = deviceType.newConfiguration("ConfigurationWithLoadProfileAndChannel");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(loadProfileType);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, phenomenon1, loadProfileSpecBuilder);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, phenomenon2, loadProfileSpecBuilder);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         deviceType.save();
         deviceConfiguration.activate();
@@ -975,7 +953,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
             measurementType = xRegisterType.get();
         }
         else {
-            measurementType = inMemoryPersistence.getMasterDataService().newRegisterType(name, obisCode, unit, readingType, timeOfUse);
+            measurementType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType, obisCode);
             measurementType.save();
         }
         return measurementType;

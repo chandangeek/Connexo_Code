@@ -1,13 +1,11 @@
 package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
-import com.google.common.collect.Range;
-
-import com.energyict.mdc.common.interval.Phenomenon;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
+import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -45,8 +43,6 @@ public interface Channel extends BaseChannel {
     public String getName();
 
     public TimeDuration getInterval();
-
-    public Phenomenon getPhenomenon();
 
     public Optional<Instant> getLastReading();
 
