@@ -4,6 +4,9 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -34,6 +37,7 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Insta
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile MessageService messageService;
     private volatile TaskService taskService;
+    private volatile Thesaurus thesaurus;
 
     private int lastDays;
 
@@ -42,8 +46,9 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Insta
     }
 
     @Inject
-    public YellowfinGroupsServiceImpl(OrmService ormService, MeteringGroupsService meteringGroupsService, MessageService messageService, TaskService taskService) {
+    public YellowfinGroupsServiceImpl(OrmService ormService, MeteringGroupsService meteringGroupsService, MessageService messageService, TaskService taskService, NlsService nlsService) {
         setOrmService(ormService);
+        setNlsService(nlsService);
         setMeteringGroupsService(meteringGroupsService);
         setMessageService(messageService);
         setTaskService(taskService);
@@ -56,12 +61,22 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Insta
     @Override
     public void install() {
         dataModel.install(true, true);
-        new Installer(dataModel, messageService, taskService).install();
+        new Installer(dataModel, messageService, taskService, thesaurus).install();
     }
 
     @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList(OrmService.COMPONENTNAME, MeteringGroupsService.COMPONENTNAME, MessageService.COMPONENTNAME, TaskService.COMPONENTNAME);
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(YellowfinGroupsService.COMPONENTNAME, Layer.DOMAIN);
+    }
+
+    @Override
+    public Thesaurus thesaurus() {
+        return thesaurus;
     }
 
     @Activate
