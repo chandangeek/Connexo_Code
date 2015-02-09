@@ -47,7 +47,7 @@ public class RegisterResource {
     public PagedInfoList getRegisters(@PathParam("mRID") String mRID, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         List<Register> registers = ListPager.of(device.getRegisters(),
-                (r1, r2) -> r1.getRegisterSpec().getRegisterType().getName().compareToIgnoreCase(r2.getRegisterSpec().getRegisterType().getName()))
+                (r1, r2) -> r1.getRegisterSpec().getRegisterType().getReadingType().getAliasName().compareToIgnoreCase(r2.getRegisterSpec().getRegisterType().getReadingType().getAliasName()))
                 .from(queryParameters).find();
 
         List<RegisterInfo> registerInfos = RegisterInfoFactory.asInfoList(registers, validationInfoHelper);

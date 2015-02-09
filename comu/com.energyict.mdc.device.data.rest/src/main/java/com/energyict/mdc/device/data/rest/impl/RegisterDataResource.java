@@ -151,7 +151,7 @@ public class RegisterDataResource {
     }
 
     private Response editOrAddRegisterData(ReadingInfo readingInfo, Register<?> register, Meter meter) {
-        Channel channel = resourceHelper.getRegisterChannel(register, meter).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CHANNELS_ON_REGISTER, register.getRegisterSpec().getRegisterType().getName()));
+        Channel channel = resourceHelper.getRegisterChannel(register, meter).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CHANNELS_ON_REGISTER, register.getRegisterSpec().getRegisterType().getReadingType().getAliasName()));
         List<BaseReading> readings = new ArrayList<>();
         readings.add(readingInfo.createNew(register));
         channel.editReadings(readings);

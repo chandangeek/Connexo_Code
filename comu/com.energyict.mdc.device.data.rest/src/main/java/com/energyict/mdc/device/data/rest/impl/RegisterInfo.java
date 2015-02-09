@@ -30,8 +30,6 @@ import java.util.Optional;
 public abstract class RegisterInfo<R extends Register, RE extends Reading> {
     @JsonProperty("id")
     public Long id;
-    @JsonProperty("name")
-    public String name;
     @JsonProperty("readingType")
     public ReadingTypeInfo readingType;
     @JsonProperty("registerType")
@@ -61,7 +59,6 @@ public abstract class RegisterInfo<R extends Register, RE extends Reading> {
     public RegisterInfo(Register register) {
         RegisterSpec registerSpec = register.getRegisterSpec();
         this.id = registerSpec.getId();
-        this.name = registerSpec.getRegisterType().getName();
         this.registerType = registerSpec.getRegisterType().getId();
         this.readingType = new ReadingTypeInfo(registerSpec.getRegisterType().getReadingType());
         this.timeOfUse = registerSpec.getRegisterType().getTimeOfUse();

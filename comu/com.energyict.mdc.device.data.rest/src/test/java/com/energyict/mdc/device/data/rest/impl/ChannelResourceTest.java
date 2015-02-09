@@ -1,6 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.time.TimeDuration;
@@ -11,7 +15,6 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.impl.DataValidationStatusImpl;
 import com.elster.jupiter.validation.impl.IValidationRule;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.data.Channel;
@@ -133,9 +136,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         ReadingType readingType = mockReadingType("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18");
         when(channel.getReadingType()).thenReturn(readingType);
         when(channel.getInterval()).thenReturn(TimeDuration.minutes(15));
-        Phenomenon phenomenon = mock(Phenomenon.class);
-        when(phenomenon.getUnit()).thenReturn(Unit.get("kWh"));
-        when(channel.getPhenomenon()).thenReturn(phenomenon);
+        Unit unit = Unit.get("kWh");
         when(channel.getLastReading()).thenReturn(Optional.<Instant>empty());
         when(channel.getLoadProfile()).thenReturn(loadProfile);
         when(channel.getLastDateTime()).thenReturn(Optional.of(NOW));

@@ -15,7 +15,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationResult;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Channel;
@@ -24,26 +23,21 @@ import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.jayway.jsonpath.JsonModel;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Currency;
 import java.util.Optional;
 import java.util.PrimitiveIterator.OfInt;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -93,8 +87,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
 
     private Channel mockChannel(long id, ReadingType readingType){
         Channel channel = mock(Channel.class);
-        Phenomenon phenomenon = mock(Phenomenon.class);
-        when(phenomenon.getUnit()).thenReturn(Unit.get("kWh"));
+        Unit unit = Unit.get("kWh");
         ChannelSpec channelSpec = mock(ChannelSpec.class);
         when(channel.getInterval()).thenReturn(TimeDuration.minutes(15));
         when(channel.getLastReading()).thenReturn(Optional.<Instant>empty());
@@ -102,7 +95,6 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
         when(channel.getId()).thenReturn(id);
         when(channel.getDevice()).thenReturn(device);
         when(channel.getReadingType()).thenReturn(readingType);
-        when(channel.getPhenomenon()).thenReturn(phenomenon);
         when(channel.getChannelSpec()).thenReturn(channelSpec);
         when(channel.getLastDateTime()).thenReturn(Optional.<Instant>empty());
         return channel;

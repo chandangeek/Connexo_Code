@@ -5,7 +5,6 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.masterdata.rest.PhenomenonInfo;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
@@ -21,7 +20,7 @@ public class ChannelInfo {
     public long id;
     public String name;
     public TimeDurationInfo interval;
-    public PhenomenonInfo unitOfMeasure;
+    public String unitOfMeasure;
     public Instant lastReading;
     public Instant lastValueTimestamp;
     public ReadingTypeInfo readingType;
@@ -42,7 +41,7 @@ public class ChannelInfo {
         info.id = channel.getId();
         info.name = channel.getName();
         info.interval = new TimeDurationInfo(channel.getInterval());
-        info.unitOfMeasure = PhenomenonInfo.from(channel.getPhenomenon());
+        info.unitOfMeasure = channel.getUnit().toString();
         info.lastReading = channel.getLastReading().orElse(null);
         info.lastValueTimestamp = channel.getLastDateTime().orElse(null);
         info.readingType = new ReadingTypeInfo(channel.getReadingType());
@@ -52,7 +51,7 @@ public class ChannelInfo {
         }
         info.multiplier = channel.getMultiplier();
         info.overflowValue = channel.getOverflow();
-        info.flowUnit = channel.getPhenomenon().getUnit().isFlowUnit() ? "flow" : "volume";
+        info.flowUnit = channel.getChannelSpec().getChannelType().getUnit().isFlowUnit() ? "flow" : "volume";
         info.obisCode = channel.getObisCode();
         info.nbrOfFractionDigits = channel.getChannelSpec().getNbrOfFractionDigits();
         info.loadProfileId = channel.getLoadProfile().getId();
