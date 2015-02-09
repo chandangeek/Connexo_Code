@@ -9,7 +9,6 @@ import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl;
 import com.elster.jupiter.demo.impl.templates.LogBookTypeTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
-import com.elster.jupiter.demo.impl.templates.ReadingTypeTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
@@ -92,17 +91,10 @@ public class CreateA3DeviceCommand {
     }
 
     private void findRequiredObjects(){
-        findReadingTypes();
         findRegisterTypes();
         findLogBooks();
         findComTasks();
         findLoadProfiles();
-    }
-
-    private void findReadingTypes(){
-        for (ReadingTypeTpl descr : ReadingTypeTpl.values()) {
-            Builders.from(descr).get();
-        }
     }
 
     private void findRegisterTypes(){

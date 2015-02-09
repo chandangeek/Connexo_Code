@@ -19,7 +19,6 @@ import com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl;
 import com.elster.jupiter.demo.impl.templates.LogBookTypeTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortTpl;
-import com.elster.jupiter.demo.impl.templates.ReadingTypeTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterGroupTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.license.License;
