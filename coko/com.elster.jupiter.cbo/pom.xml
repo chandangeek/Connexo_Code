@@ -6,12 +6,12 @@
 
     <parent>
         <groupId>com.elster.jupiter</groupId>
-        <artifactId>kore</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <artifactId>parent</artifactId>
+        <version>1.0.1</version>
     </parent>
 
     <artifactId>cbo</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.cbo</name>
 
@@ -49,11 +49,14 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>util</artifactId>
+            <version>1.0.1</version>
         </dependency>
 
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools</artifactId>
+            <version>1.0.0</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
