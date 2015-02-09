@@ -926,13 +926,11 @@ Ext.define('Dxp.controller.Tasks', {
     loadReadingTypes: function () {
         var me = this,
             widget = this.getAddReadingTypesSetup(),
-            readingTypeStore = Ext.create('Dxp.store.LoadedReadingTypes'),
-
+            readingTypeStore = me.getStore('Dxp.store.LoadedReadingTypes'),
             unitOfMeasureCombo = widget.down('#unitsOfMeasureCombo'),
             intervalsCombo = widget.down('#intervalsCombo'),
             timeOfUseCombo = widget.down('#timeOfUseCombo'),
             readingTypeNameText = widget.down('#readingTypeNameTextField'),
-            adaptedReadingTypeStore = Ext.create('Dxp.store.AdaptedReadingsForBulk'),
             unitOfMeasureComboValue = unitOfMeasureCombo.getValue(),
             filter = widget.down('#filterReadingTypes'),
             filterBtns = Ext.ComponentQuery.query('#filterReadingTypes tag-button'),
@@ -942,14 +940,12 @@ Ext.define('Dxp.controller.Tasks', {
             intervalsRecord,
             previewContainer;
 
-        widget.setLoading(true);
-
         previewContainer = {
             xtype: 'preview-container',
             grid: {
                 itemId: 'addReadingTypesGrid',
                 xtype: 'AddReadingTypesToTaskBulk',
-                store: adaptedReadingTypeStore
+                store: 'Dxp.store.LoadedReadingTypes'
             },
             emptyComponent: {
                 xtype: 'no-items-found-panel',
@@ -1006,25 +1002,26 @@ Ext.define('Dxp.controller.Tasks', {
         }
 
         readingTypeStore.getProxy().setExtraParam('filter', Ext.encode(properties));
-
-
+        readingTypeStore.removeAll();
         bulkGridContainer.add(previewContainer);
-        adaptedReadingTypeStore = bulkGridContainer.down('#addReadingTypesGrid').getStore();
-        readingTypeStore.load({
-            callback: function () {
-                this.each(function (record) {
-                    if (!me.checkMridAlreadyAdded(me.readingTypesArray, record)) {
-                        adaptedReadingTypeStore.add({readingType: record.getData()});
-                    }
-                });
-                adaptedReadingTypeStore.fireEvent('load');
-                bulkGridContainer.down('#addReadingTypesGrid').fireEvent('selectionchange');
+        readingTypeStore.load(function (records) {
+            var selectionModel;
 
-                widget.setLoading(false);
-                if (adaptedReadingTypeStore.getCount() < 1) {
+            if (me.readingTypesArray) {
+                readingTypeStore.filterBy(function (record) {
+                    var recordMrid = record.get('mRID');
+                    return !Ext.Array.findBy(me.readingTypesArray, function (item) {
+                        return item.readingType.mRID === recordMrid;
+                    });
+                });
+
+                selectionModel = widget.down('#addReadingTypesGrid').getSelectionModel();
+                if (!selectionModel.getSelection().length && records.length) {
+                    selectionModel.select(0);
+                }
+                if (!records.length) {
                     widget.down('#buttonsContainer button[name=add]').setDisabled(true);
                 }
-
             }
         });
     },

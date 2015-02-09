@@ -6,6 +6,10 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskBulk', {
         'Uni.grid.column.ReadingType'
     ],
 
+    plugins: {
+        ptype: 'bufferedrenderer'
+    },
+
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
             'validation.readingTypes.counterText',
