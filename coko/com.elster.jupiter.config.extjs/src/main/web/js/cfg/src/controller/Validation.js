@@ -521,7 +521,7 @@ Ext.define('Cfg.controller.Validation', {
 
                 selectionModel = widget.down('#addReadingTypesGrid').getSelectionModel();
                 if (!selectionModel.getSelection().length && records.length) {
-                    selectionModel.select([records[0]]);
+                    selectionModel.select(0);
                 }
                 if (!records.length) {
                     widget.down('#buttonsContainer button[name=add]').setDisabled(true);
