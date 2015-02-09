@@ -52,7 +52,6 @@ public class MasterDataApplication extends Application implements TranslationKey
                 ReadingTypeResource.class,
                 LogBookTypeResource.class,
                 LoadProfileTypeResource.class,
-                PhenomenonResource.class,
                 TransactionWrapper.class,
                 ExceptionLogger.class,
                 ConstraintViolationExceptionMapper.class,

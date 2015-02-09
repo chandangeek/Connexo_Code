@@ -161,23 +161,23 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
     private RegisterType mockRegisterType(long id, String name, ObisCode obisCode) {
         RegisterType registerType = mock(RegisterType.class);
         when(registerType.getId()).thenReturn(id);
-        when(registerType.getName()).thenReturn(name);
         when(registerType.getObisCode()).thenReturn(obisCode);
         when(registerType.getTimeOfUse()).thenReturn(0);
         when(registerType.getUnit()).thenReturn(Unit.get("kWh"));
         ReadingType readingType = mockReadingType();
         when(registerType.getReadingType()).thenReturn(readingType);
+        when(readingType.getAliasName()).thenReturn(name);
         return registerType;
     }
 
     private ChannelType mockChannelType(long id, String name, ObisCode obisCode, TimeDuration interval, RegisterType templateRegister) {
         ChannelType channelType = mock(ChannelType.class);
         when(channelType.getId()).thenReturn(id);
-        when(channelType.getName()).thenReturn(name);
         when(channelType.getObisCode()).thenReturn(obisCode);
         when(channelType.getTimeOfUse()).thenReturn(0);
         when(channelType.getUnit()).thenReturn(Unit.get("kWh"));
         ReadingType readingType = mockReadingType();
+        when(readingType.getAliasName()).thenReturn(name);
         when(channelType.getReadingType()).thenReturn(readingType);
         when(channelType.getInterval()).thenReturn(interval);
         when(channelType.getTemplateRegister()).thenReturn(templateRegister);
