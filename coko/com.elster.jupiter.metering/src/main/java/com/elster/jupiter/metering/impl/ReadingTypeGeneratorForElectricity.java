@@ -27,8 +27,8 @@ class ReadingTypeGeneratorForElectricity extends AbstractReadingTypeGenerator {
         ACTIVE_IMPORT("A+", ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED).flow(FlowDirection.FORWARD).measure(MeasurementKind.ENERGY).in(ReadingTypeUnit.WATTHOUR)),
         ACTIVE_EXPORT("A-", ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED).flow(FlowDirection.REVERSE).measure(MeasurementKind.ENERGY).in(ReadingTypeUnit.WATTHOUR)),
 
-        REACTIVE_IMPORT("Reactive energy+", ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED).flow(FlowDirection.LAGGING).measure(MeasurementKind.ENERGY).in(ReadingTypeUnit.WATTHOUR)),
-        REACTIVE_EXPORT("Reactive energy-", ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED).flow(FlowDirection.LEADING).measure(MeasurementKind.ENERGY).in(ReadingTypeUnit.WATTHOUR)),
+        REACTIVE_IMPORT("Reactive energy+", ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED).flow(FlowDirection.LAGGING).measure(MeasurementKind.ENERGY).in(ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR)),
+        REACTIVE_EXPORT("Reactive energy-", ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED).flow(FlowDirection.LEADING).measure(MeasurementKind.ENERGY).in(ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR)),
 
         INDUCTIVE_ENERGY_Q1("Inductive energy Q1", ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED).flow(FlowDirection.Q1).measure(MeasurementKind.ENERGY).in(ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR)),
         INDUCTIVE_ENERGY_Q2("Inductive energy Q2", ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED).flow(FlowDirection.Q2).measure(MeasurementKind.ENERGY).in(ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR)),
