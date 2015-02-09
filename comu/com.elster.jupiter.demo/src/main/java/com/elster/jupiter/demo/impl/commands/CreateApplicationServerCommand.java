@@ -24,6 +24,6 @@ public class CreateApplicationServerCommand {
         if (this.name == null){
             throw new UnableToCreate("Please specify name for application server");
         }
-        this.appServerProvider.get().withName(this.name.toUpperCase()).get();
+        this.appServerProvider.get().withName(this.name).get();
     }
 }

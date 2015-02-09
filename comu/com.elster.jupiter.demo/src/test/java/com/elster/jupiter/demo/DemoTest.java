@@ -232,7 +232,7 @@ public class DemoTest {
             ctx.commit();
         }
         try{
-            demoService.createDemoData("DemoServ", "host", "2013-12-01");
+            demoService.createDemoData("DemoServ", "host", "2013-02-01");
             demoService.createA3Device();
         } catch (Exception e) {
             fail("The demo command shouldn't produce errors");

@@ -28,14 +28,14 @@ public class ComServerBuilder extends NamedBuilder<ComServer, ComServerBuilder> 
 
     @Override
     public Optional<ComServer> find() {
-        return engineModelService.findComServer(getName().toUpperCase());
+        return engineModelService.findComServer(getName());
     }
 
     @Override
     public ComServer create(){
         Log.write(this);
         OnlineComServer comServer = engineModelService.newOnlineComServerInstance();
-        comServer.setName(getName().toUpperCase());
+        comServer.setName(getName());
         comServer.setActive(this.isActive);
         comServer.setServerLogLevel(ComServer.LogLevel.WARN);
         comServer.setCommunicationLogLevel(ComServer.LogLevel.WARN);
