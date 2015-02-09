@@ -85,8 +85,11 @@ Ext.define('Uni.property.view.property.Period', {
     updateResetButton: function () {
         var me = this,
             button = me.getResetButton(),
-            countValue = me.getField().getValue(),
-            timeUnitValue = me.getComboField().getValue();
+            countValue,
+            timeUnitValue;
+
+        if (me.getField()) { countValue = me.getField().getValue(); }
+        if (me.getComboField()) { timeUnitValue = me.getComboField().getValue(); }
 
         if (me.isEdit) {
             if (!me.getProperty().get('isInheritedOrDefaultValue')
