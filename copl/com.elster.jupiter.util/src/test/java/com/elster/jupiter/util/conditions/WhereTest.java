@@ -1,10 +1,9 @@
 package com.elster.jupiter.util.conditions;
 
+import com.elster.jupiter.util.time.Interval;
+import java.text.MessageFormat;
 import java.time.Instant;
-
-import org.junit.*;
-
-import com.elster.jupiter.util.time.*;
+import org.junit.Test;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,5 +33,109 @@ public class WhereTest {
 		Instant date = Instant.now();
 		assertThat(where("test").isEffective(date).toString()).matches(".*test\\.start\\s*<=[ ?].*AND.*test\\.end.\\s*>[ ?].*");
 	}
-	
+
+    @Test
+    public void testLikeSqlUnderscore() throws Exception {
+        assertThat(Where.where("x").toOracleSql("A_C")).isEqualTo("A\\_C");
+    }
+
+    @Test
+    public void testLikeSqlPercent() throws Exception {
+        assertThat(Where.where("x").toOracleSql("%AC")).isEqualTo("\\%AC");
+    }
+
+    @Test
+    public void testLikeSqlHat() throws Exception {
+        assertThat(Where.where("x").toOracleSql("^Z")).isEqualTo("^Z");
+    }
+
+    @Test
+    public void testLikeSqlExclamation() throws Exception {
+        assertThat(Where.where("x").toOracleSql("A!X")).isEqualTo("A!X");
+    }
+
+    @Test
+    public void testLikeSqlBrackets() throws Exception {
+        assertThat(Where.where("x").toOracleSql("A[X]Z")).isEqualTo("A[X]Z");
+    }
+
+    @Test
+    public void testLikeSqlNonStartingAstrix() throws Exception {
+        assertThat(Where.where("x").toOracleSql("A*")).isEqualTo("A%");
+    }
+
+    @Test
+    public void testLikeSqlEverything() throws Exception {
+        assertThat(Where.where("x").toOracleSql("*")).isEqualTo("%");
+    }
+
+    @Test
+    public void testLikeSqlStartingAstrix() throws Exception {
+        assertThat(Where.where("x").toOracleSql("*Z")).isEqualTo("%Z");
+    }
+
+    @Test
+    public void testLikeSqlInterAstrix() throws Exception {
+        assertThat(Where.where("x").toOracleSql("A*C")).isEqualTo("A%C");
+    }
+
+    @Test
+    public void testLikeSqlEscapedAstrix() throws Exception {
+        assertThat(Where.where("x").toOracleSql("ABC\\*XYZ")).isEqualTo("ABC*XYZ");
+    }
+
+    @Test
+    public void testLikeSqlNonStartingQuestion() throws Exception {
+        assertThat(Where.where("x").toOracleSql("A?")).isEqualTo("A_");
+    }
+
+    @Test
+    public void testLikeSqlOne() throws Exception {
+        assertThat(Where.where("x").toOracleSql("?")).isEqualTo("_");
+    }
+
+    @Test
+    public void testLikeSqlStartingQuestion() throws Exception {
+        assertThat(Where.where("x").toOracleSql("?Z")).isEqualTo("_Z");
+    }
+
+    @Test
+    public void testLikeSqlInterQuestion() throws Exception {
+        assertThat(Where.where("x").toOracleSql("A?C")).isEqualTo("A_C");
+    }
+
+    @Test
+    public void testLikeSqlStartAstrixEndQuestion() throws Exception {
+        assertThat(Where.where("x").toOracleSql("*A?")).isEqualTo("%A_");
+    }
+
+    @Test
+    public void testLikeSqlInterAstrixAndQuestion() throws Exception {
+        assertThat(Where.where("x").toOracleSql("Z*A?Z")).isEqualTo("Z%A_Z");
+    }
+
+    @Test
+    public void testLikeSqlEscapedAstrixCombination() throws Exception {
+        assertThat(Where.where("x").toOracleSql("Z\\**")).isEqualTo("Z*%");
+    }
+
+    @Test
+    public void testLikeSqlEscapedQuestion() throws Exception {
+        assertThat(Where.where("x").toOracleSql("ABC\\?XYZ")).isEqualTo("ABC?XYZ");
+    }
+
+    @Test
+    public void testLikeSqlEscapedExclamationAstrixCombination() throws Exception {
+        assertThat(Where.where("x").toOracleSql("!*")).isEqualTo("!%");
+    }
+
+    @Test
+    public void testLikeSqlMultipleEscapedExclamation() throws Exception {
+        assertThat(Where.where("x").toOracleSql("!!!")).isEqualTo("!!!");
+    }
+
+    @Test
+    public void testFormat() throws Exception {
+        System.out.println(MessageFormat.format("UPPER({0}) LIKE UPPER(?) ESCAPE ''\\''","name"));
+    }
 }

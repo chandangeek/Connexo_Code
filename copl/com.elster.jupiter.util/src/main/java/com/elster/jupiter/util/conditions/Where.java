@@ -5,6 +5,7 @@ import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 
 public final class Where {
@@ -59,12 +60,36 @@ public final class Where {
         return Operator.LESSTHANOREQUAL.compare(field, value);
     }
 
-    public Condition like(Object value) {
-        return Operator.LIKE.compare(field, value);
+    public Condition like(String value) {
+        return Operator.LIKE.compare(field, toOracleSql(value));
     }
 
-    public Condition likeIgnoreCase(Object value) {
-        return Operator.LIKEIGNORECASE.compare(field, value);
+    public Condition likeIgnoreCase(String value) {
+        return Operator.LIKEIGNORECASE.compare(field, toOracleSql(value));
+    }
+
+    /**
+     * Translate the string literal value into an oracle equivalent.
+     * Supported wildcards are Astrix (*) and question mark(?), corresponding to the sql like operators % and _.
+     * All known like operators will be escaped to avoid sql injection. Not sure that is enough for security.
+     */
+    String toOracleSql(String value) {
+        // escape sql like operators
+        for (String keyword: Arrays.asList("\\", "_", "%")) {
+            value=value.replace(keyword,"\\"+keyword);
+        }
+        // transform un-escaped wildcards to sql like operators
+        value=value.replaceAll("^\\*", "%");
+        value=value.replaceAll("([^\\\\])\\*", "$1%");
+        value=value.replaceAll("^\\?", "_");
+        value=value.replaceAll("([^\\\\])\\?", "$1_");
+
+        // transform escaped wildcards to their unescaped literal that does not have any meaning in SQL anyway
+        // We need to search for double escape: it was doubled in the little escape-loop on top of this method
+        value=value.replaceAll("\\\\\\\\\\*", "*");
+        value=value.replaceAll("\\\\\\\\\\?", "?");
+
+        return value;
     }
 
     public Condition isNotEqual(Object value) {

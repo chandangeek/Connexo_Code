@@ -7,7 +7,12 @@ public enum Operator {
 	LESSTHAN ("<"),
 	GREATERTHANOREQUAL (">="),
 	LESSTHANOREQUAL ("<="),
-	LIKE ("LIKE"),
+	LIKE ("") {
+			@Override
+			public String getFormat() {
+				return "{0} LIKE ? ESCAPE ''\\''";
+			}
+		},
 	REGEXP_LIKE ("REGEXP_LIKE") {
 		@Override
 		public String getFormat() {
@@ -53,7 +58,7 @@ public enum Operator {
 	LIKEIGNORECASE("") {
 		@Override 
 		public String getFormat() {
-			return "UPPER({0}) LIKE UPPER(?)"; 
+			return "UPPER({0}) LIKE UPPER(?) ESCAPE ''\\''";
 		}
 	},
 	SOUNDSAS("") {
