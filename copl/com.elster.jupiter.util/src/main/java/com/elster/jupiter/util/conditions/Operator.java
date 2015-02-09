@@ -7,7 +7,7 @@ public enum Operator {
 	LESSTHAN ("<"),
 	GREATERTHANOREQUAL (">="),
 	LESSTHANOREQUAL ("<="),
-	LIKE ("") {
+	LIKE ("LIKE") {
 			@Override
 			public String getFormat() {
 				return "{0} LIKE ? ESCAPE ''\\''";
