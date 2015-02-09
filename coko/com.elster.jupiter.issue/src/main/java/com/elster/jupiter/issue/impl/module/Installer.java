@@ -1,5 +1,8 @@
 package com.elster.jupiter.issue.impl.module;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.logging.Logger;
 
 import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
@@ -15,6 +18,12 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsKey;
+import com.elster.jupiter.nls.SimpleNlsKey;
+import com.elster.jupiter.nls.SimpleTranslation;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
@@ -23,7 +32,7 @@ import com.elster.jupiter.users.UserService;
 
 public class Installer {
     private static final Logger LOG = Logger.getLogger("IssueInstaller");
-    
+
     private static final String ISSUE_OVERDUE_TASK_NAME = "IssueOverdueTask";
     private static final String ISSUE_OVERDUE_TASK_SCHEDULE = "0 0/1 * 1/1 * ? *";
     private static final int ISSUE_OVERDUE_TASK_RETRY_DELAY = 60;
@@ -34,14 +43,16 @@ public class Installer {
     private final UserService userService;
     private final MessageService messageService;
     private final TaskService taskService;
+    private final Thesaurus thesaurus;
 
-    public Installer(DataModel dataModel, IssueService issueService, UserService userService, MessageService messageService, TaskService taskService) {
+    public Installer(DataModel dataModel, IssueService issueService, UserService userService, MessageService messageService, TaskService taskService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.issueService = issueService;
         this.issueActionService = issueService.getIssueActionService();
         this.userService = userService;
         this.messageService = messageService;
         this.taskService = taskService;
+        this.thesaurus = thesaurus;
     }
 
     public void install(boolean executeDDL) {
@@ -63,13 +74,22 @@ public class Installer {
         issueService.createStatus(IssueStatus.RESOLVED, true, MessageSeeds.ISSUE_STATUS_RESOLVED);
         issueService.createStatus(IssueStatus.WONT_FIX, true, MessageSeeds.ISSUE_STATUS_WONT_FIX);
     }
-    
+
     private void createPrivileges() {
         userService.createResourceWithPrivileges("MDC", "issue.issues", "issue.issues.description", new String[]{Privileges.VIEW_ISSUE, Privileges.COMMENT_ISSUE, Privileges.CLOSE_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.ACTION_ISSUE});
         userService.createResourceWithPrivileges("MDC", "issueConfiguration.issueConfigurations", "issueConfiguration.issueConfigurations.description", new String[]{Privileges.VIEW_CREATION_RULE, Privileges.ADMINISTRATE_CREATION_RULE, Privileges.VIEW_ASSIGNMENT_RULE});
     }
 
+    private void addTranslation(String componentName, String subscriberName, String subscriberDisplayName) {
+        NlsKey statusKey = SimpleNlsKey.key(componentName, Layer.DOMAIN, subscriberName);
+        Translation statusTranslation = SimpleTranslation.translation(statusKey, Locale.ENGLISH, subscriberDisplayName);
+        List<Translation> translations = new ArrayList<>();
+        translations.add(statusTranslation);
+        thesaurus.addTranslations(translations);
+    }
+
     private void createIssueOverdueTask() {
+        addTranslation(IssueService.COMPONENT_NAME, IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_SUBSCRIBER, IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_DISPLAYNAME);
         DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get()
                 .createDestinationSpec(IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_DESTINATION, ISSUE_OVERDUE_TASK_RETRY_DELAY);
         destination.activate();

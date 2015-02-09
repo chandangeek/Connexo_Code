@@ -15,13 +15,14 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.TaskService;
 
 @Component(name="com.elster.jupiter.issue.tasks.IssueOverdueHandlerFactory",
-           service = MessageHandlerFactory.class,
-           property = {"subscriber=" + IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_SUBSCRIBER,
-                       "destination=" + IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_DESTINATION},
-           immediate = true)
+        service = MessageHandlerFactory.class,
+        property = {"subscriber=" + IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_SUBSCRIBER,
+                "destination=" + IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_DESTINATION},
+        immediate = true)
 public class IssueOverdueHandlerFactory implements MessageHandlerFactory{
     public static final String ISSUE_OVERDUE_TASK_DESTINATION = "IssueOverdueTopic";
     public static final String ISSUE_OVERDUE_TASK_SUBSCRIBER = "IssueOverdueSubscriber";
+    public static final String ISSUE_OVERDUE_TASK_DISPLAYNAME = "Handle overdue issues";
 
     private volatile IssueService issueService;
     private volatile TaskService taskService;
@@ -45,18 +46,18 @@ public class IssueOverdueHandlerFactory implements MessageHandlerFactory{
     public MessageHandler newMessageHandler() {
         return taskService.createMessageHandler(new IssueOverdueHandler(issueService, thesaurus, issueActionService));
     }
-    
+
     @Reference
     public final void setIssueService(IssueService issueService) {
         this.issueService = issueService;
         this.issueActionService = issueService.getIssueActionService();
     }
-    
+
     @Reference
     public final void setTaskService(TaskService taskService) {
         this.taskService = taskService;
     }
-    
+
     @Reference
     public final void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
