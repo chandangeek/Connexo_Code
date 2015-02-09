@@ -102,7 +102,7 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
 
     @Override
     public void install() {
-        new Installer(dataModel, issueService, issueActionService, messageService, eventService).install();
+        new Installer(dataModel, issueService, issueActionService, messageService, eventService, thesaurus).install();
     }
 
     @Override
