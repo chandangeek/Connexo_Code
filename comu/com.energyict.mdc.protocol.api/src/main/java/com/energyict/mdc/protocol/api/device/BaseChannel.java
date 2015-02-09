@@ -19,8 +19,6 @@ public interface BaseChannel {
 
     /**
      * Returns the receiver's configured unit.
-     * Equivalent to getPhenomenon().getUnit().
-     *
      * @return the configured unit.
      */
     Unit getUnit();
