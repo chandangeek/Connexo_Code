@@ -175,7 +175,7 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
 
     @Override
     public Optional<ComServer> findComServer(String name) {
-        Condition condition = where("name").isEqualTo(name).and(where("obsoleteDate").isNull());
+        Condition condition = where("name").isEqualToIgnoreCase(name).and(where("obsoleteDate").isNull());
         return unique(getComServerDataMapper().select(condition));
     }
 
