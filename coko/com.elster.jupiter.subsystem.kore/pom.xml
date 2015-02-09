@@ -21,7 +21,7 @@
             <dependency>
                 <groupId>com.elster.jupiter.subsystem</groupId>
                 <artifactId>platform</artifactId>
-                <version>1.0.0</version>
+                <version>1.0.0-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -45,7 +45,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>config.extjs</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -60,7 +60,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>export.extjs</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -105,7 +105,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>metering</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -135,7 +135,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>system.app</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -171,7 +171,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>yellowfin</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -191,7 +191,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>yellowfin.extjs</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
