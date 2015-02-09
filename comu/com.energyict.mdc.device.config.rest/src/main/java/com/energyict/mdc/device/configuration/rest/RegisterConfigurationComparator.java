@@ -7,6 +7,6 @@ public class RegisterConfigurationComparator implements Comparator<RegisterSpec>
 
     @Override
     public int compare(RegisterSpec o1, RegisterSpec o2) {
-        return o1.getRegisterType().getName().compareToIgnoreCase(o2.getRegisterType().getName());
+        return o1.getRegisterType().getReadingType().getAliasName().compareToIgnoreCase(o2.getRegisterType().getReadingType().getAliasName());
     }
 }

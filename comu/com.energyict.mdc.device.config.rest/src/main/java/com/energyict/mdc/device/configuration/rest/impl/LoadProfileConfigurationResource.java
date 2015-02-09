@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -14,8 +14,6 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
-
-import com.elster.jupiter.nls.Thesaurus;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -202,9 +200,8 @@ public class LoadProfileConfigurationResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         ChannelType channelType = resourceHelper.findChannelTypeByIdOrThrowException(request.registerTypeInfo.id);
         LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
-        Phenomenon phenomenon = findPhenomenonByIdOrThrowException(request.unitOfMeasure.id);
 
-        ChannelSpec.ChannelSpecBuilder channelBuilder = deviceConfiguration.createChannelSpec(channelType, phenomenon, loadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder channelBuilder = deviceConfiguration.createChannelSpec(channelType, loadProfileSpec);
         channelBuilder.setOverflow(request.overflowValue);
         channelBuilder.setMultiplier(request.multiplier);
         channelBuilder.setOverruledObisCode(request.overruledObisCode);
@@ -232,10 +229,6 @@ public class LoadProfileConfigurationResource {
         if (request.registerTypeInfo != null && request.registerTypeInfo.id > 0) {
             channelSpec.setChannelType(resourceHelper.findChannelTypeByIdOrThrowException(request.registerTypeInfo.id));
         }
-        if (request.unitOfMeasure != null && request.unitOfMeasure.id > 0) {
-            channelSpec.setPhenomenon(findPhenomenonByIdOrThrowException(request.unitOfMeasure.id));
-        }
-
         ChannelSpec.ChannelSpecUpdater specUpdater = deviceConfiguration.getChannelSpecUpdaterFor(channelSpec);
         specUpdater.setOverruledObisCode(request.overruledObisCode);
         specUpdater.setOverflow(request.overflowValue);
@@ -315,11 +308,4 @@ public class LoadProfileConfigurationResource {
                 .findChannelSpec(channelId)
                 .orElseThrow(() -> new TranslatableApplicationException(thesaurus, MessageSeeds.NO_CHANNEL_SPEC_FOUND, channelId));
     }
-
-    private Phenomenon findPhenomenonByIdOrThrowException(long phenomenonId) {
-        return masterDataService
-                .findPhenomenon(phenomenonId)
-                .orElseThrow(() -> new TranslatableApplicationException(thesaurus, MessageSeeds.NO_PHENOMENON_FOUND, phenomenonId));
-    }
-
 }

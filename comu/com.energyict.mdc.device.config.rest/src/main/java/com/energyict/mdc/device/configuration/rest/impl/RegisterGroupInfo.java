@@ -37,7 +37,7 @@ public class RegisterGroupInfo {
 
         Collections.sort(registerTypes, new Comparator<RegisterTypeInfo>(){
             public int compare(RegisterTypeInfo rm1, RegisterTypeInfo rm2){
-                return rm1.name.compareTo(rm2.name);
+                return rm1.readingType.aliasName.compareTo(rm2.readingType.aliasName);
             }
         });
     }

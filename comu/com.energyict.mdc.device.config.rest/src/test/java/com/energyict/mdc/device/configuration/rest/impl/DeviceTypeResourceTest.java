@@ -22,7 +22,6 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -77,7 +76,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJerseyTest {
-    public static final ReadingType READING_TYPE = mockReadingType("0.1.2.3.5.6.7.8.9.1.2.3.4.5.6.7.8");
+    public static final ReadingType READING_TYPE_1 = mockReadingType("0.1.2.3.5.6.7.8.9.1.2.3.4.5.6.7.8");
+    public static final ReadingType READING_TYPE_2 = mockReadingType("0.1.2.3.5.6.7.8.9.1.2.3.4.0.0.0.0");
 
     private static ReadingType mockReadingType(String mrid){
         ReadingType readingType = mock(ReadingType.class);
@@ -385,8 +385,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         RegisterType registerType = mock(RegisterType.class);
         ReadingType readingType = mockReadingType();
         when(registerType.getReadingType()).thenReturn(readingType);
-        Phenomenon phenomenon = mock(Phenomenon.class);
-        when(registerType.getPhenomenon()).thenReturn(phenomenon);
         TextualRegisterSpec registerSpec = mock(TextualRegisterSpec.class);
         when(registerSpec.isTextual()).thenReturn(true);
         when(registerSpec.getId()).thenReturn(1L);
@@ -429,7 +427,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocolPluggableClass.getName()).thenReturn("device protocol name");
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
-        ReadingType readingType = READING_TYPE;
+        ReadingType readingType = READING_TYPE_1;
         when(registerType.getReadingType()).thenReturn(readingType);
 
         List<RegisterSpec> registerSpecs = mock(List.class);
@@ -471,11 +469,9 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
         RegisterTypeInfo registerTypeInfo1 = new RegisterTypeInfo();
         registerTypeInfo1.id = RM_ID_1;
-        registerTypeInfo1.name = "mapping 1";
         registerTypeInfo1.obisCode = new ObisCode(1, 11, 2, 12, 3, 13);
         RegisterTypeInfo registerTypeInfo2 = new RegisterTypeInfo();
         registerTypeInfo2.id = RM_ID_2;
-        registerTypeInfo2.name = "mapping 2";
         registerTypeInfo2.obisCode = new ObisCode(11, 111, 12, 112, 13, 113);
 
         DeviceType deviceType = mockDeviceType("updater", 31L);
@@ -506,11 +502,9 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         long RM_ID_1 = 101L;
         long RM_ID_2 = 102L;
         registerTypeInfo1.id = RM_ID_1;
-        registerTypeInfo1.name = "mapping 1";
         registerTypeInfo1.obisCode = new ObisCode(1, 11, 2, 12, 3, 13);
         RegisterTypeInfo registerTypeInfo2 = new RegisterTypeInfo();
         registerTypeInfo2.id = RM_ID_2;
-        registerTypeInfo2.name = "mapping 2";
         registerTypeInfo2.obisCode = new ObisCode(11, 111, 12, 112, 13, 113);
 
         DeviceType deviceType = mockDeviceType("updater", 31);
@@ -683,11 +677,9 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         long RM_ID_1 = 101L;
         long RM_ID_2 = 102L;
         registerTypeInfo1.id = RM_ID_1;
-        registerTypeInfo1.name = "mapping 1";
         registerTypeInfo1.obisCode = new ObisCode(1, 11, 2, 12, 3, 13);
         RegisterTypeInfo registerTypeInfo2 = new RegisterTypeInfo();
         registerTypeInfo2.id = RM_ID_2;
-        registerTypeInfo2.name = "mapping 2";
         registerTypeInfo2.obisCode = new ObisCode(11, 111, 12, 112, 13, 113);
 
         DeviceType deviceType = mockDeviceType("updater", 31);
@@ -716,7 +708,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
         RegisterTypeInfo registerTypeInfo1 = new RegisterTypeInfo();
         registerTypeInfo1.id = RM_ID_1;
-        registerTypeInfo1.name = "mapping 1";
         registerTypeInfo1.obisCode = new ObisCode(1, 11, 2, 12, 3, 13);
 
         DeviceType deviceType = mockDeviceType("updater", 31);
@@ -751,14 +742,15 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
         DeviceType deviceType = mockDeviceType("getUnfiltered", (int) deviceType_id);
         RegisterType registerType101 = mock(RegisterType.class);
-        ReadingType readingType = READING_TYPE;
+        ReadingType readingType1 = READING_TYPE_1;
+        ReadingType readingType2 = READING_TYPE_2;
         when(registerType101.getId()).thenReturn(RM_ID_1);
-        when(registerType101.getReadingType()).thenReturn(readingType);
-        when(registerType101.getName()).thenReturn("zzz");
+        when(registerType101.getReadingType()).thenReturn(readingType1);
+        when(readingType1.getAliasName()).thenReturn("zzz");
         RegisterType registerType102 = mock(RegisterType.class);
         when(registerType102.getId()).thenReturn(RM_ID_2);
-        when(registerType102.getReadingType()).thenReturn(readingType);
-        when(registerType102.getName()).thenReturn("aaa");
+        when(registerType102.getReadingType()).thenReturn(readingType2);
+        when(readingType2.getAliasName()).thenReturn("aaa");
         when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(registerType101, registerType102));
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
 
@@ -766,8 +758,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(response).hasSize(2);
         List<Map> registerTypes = (List) response.get("registerTypes");
         assertThat(registerTypes).hasSize(2);
-        assertThat(registerTypes.get(0).get("name")).isEqualTo("aaa");
-        assertThat(registerTypes.get(1).get("name")).isEqualTo("zzz");
+        assertThat(registerTypes.get(0).get("readingtype")).isEqualTo("0.1.2.3.5.6.7.8.9.1.2.3.4.5.6.7.8");
+        assertThat(registerTypes.get(1).get("readingtype")).isEqualTo("0.1.2.3.5.6.7.8.9.1.2.3.4.0.0.0.0");
     }
 
     @Test
@@ -781,7 +773,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mockDeviceType("getUnfiltered", (int) deviceType_id);
         RegisterType registerType101 = mock(RegisterType.class);
         when(registerType101.getId()).thenReturn(RM_ID_1);
-        ReadingType readingType = READING_TYPE;
+        ReadingType readingType = READING_TYPE_1;
         when(registerType101.getReadingType()).thenReturn(readingType);
         RegisterType registerType102 = mock(RegisterType.class);
         when(registerType102.getId()).thenReturn(RM_ID_2);
@@ -812,7 +804,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration("config", (int) deviceConfiguration_id);
         RegisterType registerType101 = mock(RegisterType.class);
         when(registerType101.getId()).thenReturn(RM_ID_1);
-        ReadingType readingType = READING_TYPE;
+        ReadingType readingType = READING_TYPE_1;
         when(registerType101.getReadingType()).thenReturn(readingType);
         RegisterType registerType102 = mock(RegisterType.class);
         when(registerType102.getId()).thenReturn(RM_ID_2);
@@ -905,8 +897,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         RegisterType registerType = mock(RegisterType.class);
         when(registerType.getReadingType()).thenReturn(readingType);
         when(registerSpec.getRegisterType()).thenReturn(registerType);
-        Phenomenon phenomenon = mock(Phenomenon.class);
-        when(registerType.getPhenomenon()).thenReturn(phenomenon);
         ObisCode obisCode = mockObisCode();
         when(registerSpec.getObisCode()).thenReturn(obisCode);
 
@@ -937,8 +927,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         NumericalRegisterSpec.Builder registerSpecBuilder = mock(NumericalRegisterSpec.Builder.class, Answers.RETURNS_SELF);
         when(registerSpecBuilder.add()).thenReturn(registerConfig);
         when(deviceConfiguration.createNumericalRegisterSpec(Matchers.<RegisterType>any())).thenReturn(registerSpecBuilder);
-        Phenomenon phenomenon = mock(Phenomenon.class);
-        when(registerType.getPhenomenon()).thenReturn(phenomenon);
         RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
         registerConfigInfo.registerType = registerType_id;
         registerConfigInfo.multiplier = BigDecimal.TEN;
@@ -986,8 +974,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         NumericalRegisterSpec.Updater updater = mock(NumericalRegisterSpec.Updater.class);
         when(deviceConfiguration.getRegisterSpecUpdaterFor(registerConfig)).thenReturn(updater);
         when(registerConfig.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        Phenomenon phenomenon = mock(Phenomenon.class);
-        when(registerType.getPhenomenon()).thenReturn(phenomenon);
         RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
         registerConfigInfo.registerType = registerType_id;
         registerConfigInfo.multiplier = BigDecimal.TEN;
@@ -1164,7 +1150,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
         RegisterTypeInfo registerTypeInfo1 = new RegisterTypeInfo();
         registerTypeInfo1.id = RM_ID_1;
-        registerTypeInfo1.name = "mapping 1";
         registerTypeInfo1.obisCode = new ObisCode(1, 11, 2, 12, 3, 13);
 
         DeviceType deviceType = mockDeviceType("updater", 31);
