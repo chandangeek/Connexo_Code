@@ -103,7 +103,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>http.whiteboard</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -199,7 +199,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>theme.skyline</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -209,7 +209,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>time.extjs</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -224,7 +224,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>unifyingjs</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -234,7 +234,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>users.extjs</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
