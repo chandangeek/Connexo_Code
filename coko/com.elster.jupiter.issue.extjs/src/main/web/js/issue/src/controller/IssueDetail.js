@@ -19,8 +19,10 @@ Ext.define('Isu.controller.IssueDetail', {
             success: function (record) {
                 if (!widget.isDestroyed) {
                     me.getApplication().fireEvent('issueLoad', record);
+                    Ext.suspendLayouts();
                     widget.down('#issue-detail-top-title').setTitle(record.get('title'));
                     me.getDetailForm().loadRecord(record);
+                    Ext.resumeLayouts(true);
                     widget.down('issues-action-menu').record = record;
                     me.loadComments(record);
                 }
@@ -41,21 +43,24 @@ Ext.define('Isu.controller.IssueDetail', {
 
     loadComments: function (record) {
         var commentsView = this.getPage().down('#issue-comments-view'),
-            commentsStore = record.comments();
+            commentsStore = record.comments(),
+            router = this.getController('Uni.controller.history.Router');
 
         commentsStore.getProxy().url = record.getProxy().url + '/' + record.getId() + '/comments';
         commentsView.bindStore(commentsStore);
         commentsView.setLoading(true);
         commentsStore.load(function (records) {
             if (!commentsView.isDestroyed) {
+                Ext.suspendLayouts();
                 commentsStore.add(records);
-                commentsView.setLoading(false);
                 commentsView.show();
-                commentsView.previousSibling('#no-issue-comments').setVisible(!records.length);
-                commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length);
+                commentsView.previousSibling('#no-issue-comments').setVisible(!records.length && !router.queryParams.addComment);
+                commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length && !router.queryParams.addComment && !Uni.Auth.hasNoPrivilege('privilege.comment.issue'));
+                Ext.resumeLayouts(true);
+                commentsView.setLoading(false);
             }
         });
-        if (this.getController('Uni.controller.history.Router').queryParams.addComment) {
+        if (router.queryParams.addComment) {
             this.showCommentForm();
         }
     },
@@ -63,30 +68,24 @@ Ext.define('Isu.controller.IssueDetail', {
     showCommentForm: function () {
         var commentsPanel = this.getCommentsPanel();
 
+        Ext.suspendLayouts();
         commentsPanel.down('#issue-add-comment-form').show();
         commentsPanel.down('#issue-add-comment-area').focus();
         commentsPanel.down('#no-issue-comments').hide();
         commentsPanel.down('#issue-comments-add-comment-button').hide();
+        Ext.resumeLayouts(true);
     },
 
     hideCommentForm: function () {
-        var me = this,
-            commentsPanel = me.getCommentsPanel(),
-            router = me.getController('Uni.controller.history.Router');
+        var commentsPanel = this.getCommentsPanel(),
+            hasComments = commentsPanel.down('#issue-comments-view').getStore().getCount() ? true : false;
 
-        commentsPanel.setLoading();
-        commentsPanel.down('#issue-comments-view').hide();
-
+        Ext.suspendLayouts();
         commentsPanel.down('#issue-add-comment-form').hide();
         commentsPanel.down('#issue-add-comment-area').reset();
-        me.getModel(me.issueModel).load(router.arguments.issueId, {
-            callback: function () {
-                commentsPanel.setLoading(false);
-            },
-            success: function (record) {
-                me.loadComments(record);
-            }
-        });
+        commentsPanel.down('#issue-comments-add-comment-button').setVisible(hasComments && !Uni.Auth.hasNoPrivilege('privilege.comment.issue'));
+        commentsPanel.down('#no-issue-comments').setVisible(!hasComments);
+        Ext.resumeLayouts(true);
     },
 
     validateCommentForm: function (textarea, newValue) {

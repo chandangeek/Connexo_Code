@@ -57,6 +57,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
 
     onLoad: function () {
         var me = this,
+            issueId = me.record.getId(),
             deviceMRID,
             comTaskId,
             comTaskSessionId,
@@ -67,6 +68,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
             return
         }
 
+        Ext.suspendLayouts();
         me.removeAll();
 
         // add dynamic actions
@@ -100,7 +102,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
             } else {
                 menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/action').buildUrl(
                     {
-                        issueId: me.record.getId(),
+                        issueId: issueId,
                         actionId: record.getId()
                     },
                     {
@@ -116,8 +118,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
             Ext.Array.each(me.predefinedItems, function (menuItem) {
                 switch (menuItem.action) {
                     case 'addComment':
-                        delete menuItem.action;
-                        menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view').buildUrl({issueId: me.record.getId()}, {addComment: true});
+                        menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view').buildUrl({issueId: issueId}, {addComment: true});
                         break;
                 }
             });
@@ -171,5 +172,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
                 }
             }
         }
+
+        Ext.resumeLayouts(true);
     }
 });
