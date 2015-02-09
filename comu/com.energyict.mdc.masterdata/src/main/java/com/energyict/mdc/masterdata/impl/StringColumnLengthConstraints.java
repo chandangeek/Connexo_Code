@@ -11,9 +11,6 @@ public final class StringColumnLengthConstraints {
 
     public static final int DEFAULT_OBISCODE_LENGTH = 25;
 
-    public static final int PHENOMENON_UNIT = 7;
-    public static final int PHENOMENON_MEASUREMENT_CODE = 80;
-
     // Hide constructor for class that only contains constants
     private StringColumnLengthConstraints() {super();}
 

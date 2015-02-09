@@ -14,32 +14,26 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
-import com.google.common.base.Joiner;
-
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LoadProfileTypeChannelTypeUsage;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.masterdata.exceptions.IntervalIsRequiredException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.exceptions.RegisterTypesNotMappableToLoadProfileTypeIntervalException;
-import com.energyict.mdc.masterdata.exceptions.UnsupportedIntervalException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Currency;
-import java.util.Optional;
-import org.assertj.core.api.Assertions;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Currency;
 import java.util.List;
+import java.util.Optional;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
@@ -63,8 +57,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
     private static final ObisCode OBIS_CODE = ObisCode.fromString("1.0.99.1.0.255");
 
     private ReadingType readingType;
-    private Unit unit;
-    private Phenomenon phenomenon;
+    private Unit unit = Unit.get("kWh");
 
     @Test
     @Transactional
@@ -281,7 +274,6 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         TimeDuration interval = INTERVAL_15_MINUTES;
 
         LoadProfileType loadProfileType;
-        this.setupPhenomenaInExistingTransaction();
         this.setupReadingTypeInExistingTransaction();
 
         // Setup RegisterType
@@ -311,7 +303,6 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         TimeDuration interval = INTERVAL_15_MINUTES;
 
         LoadProfileType loadProfileType;
-        this.setupPhenomenaInExistingTransaction();
         this.setupReadingTypeInExistingTransaction();
 
         // Setup LoadProfileType without RegisterType
@@ -348,7 +339,6 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
 
         LoadProfileType loadProfileType;
         this.setupReadingTypeInExistingTransaction();
-        this.setupPhenomenaInExistingTransaction();
 
         // Setup RegisterType
         RegisterType registerType = masterDataService.findRegisterTypeByReadingType(readingType).get();
@@ -395,7 +385,6 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         RegisterType registerType;
         LoadProfileType loadProfileType;
         this.setupReadingTypeInExistingTransaction();
-        this.setupPhenomenaInExistingTransaction();
 
         // Setup RegisterType
         registerType = masterDataService.findRegisterTypeByReadingType(readingType).get();
@@ -423,7 +412,6 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         RegisterType registerType;
         LoadProfileType loadProfileType;
         this.setupReadingTypeInExistingTransaction();
-        this.setupPhenomenaInExistingTransaction();
 
         // Setup RegisterType
         registerType = masterDataService.findRegisterTypeByReadingType(readingType).get();
@@ -457,16 +445,6 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
                 .mapper(LoadProfileTypeChannelTypeUsage.class)
                 .find("LOADPROFILETYPEID", loadProfileType.getId());
         assertThat(usages).as("Was not expecting to find any register mapping usages for LoadProfileType {0} after deletion", loadProfileType.getName()).isEmpty();
-    }
-
-    private void setupPhenomenaInExistingTransaction() {
-        this.unit = Unit.get("kWh");
-        MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
-        Optional<Phenomenon> xPhenomenon = masterDataService.findPhenomenonByUnit(this.unit);
-        if (!xPhenomenon.isPresent()) {
-            this.phenomenon = masterDataService.newPhenomenon(LoadProfileTypeImplTest.class.getSimpleName(), this.unit);
-            this.phenomenon.save();
-        }
     }
 
     private void setupReadingTypeInExistingTransaction() {

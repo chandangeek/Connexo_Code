@@ -42,7 +42,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * @return The CannotDeleteBecauseStillInUseException
      */
     public static CannotDeleteBecauseStillInUseException channelTypeIsStillInUseByLoadprofileTypes(Thesaurus thesaurus, MeasurementType measurementType, List<LoadProfileType> loadProfileTypes) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_LOAD_PROFILE_TYPE, measurementType.getName(), namesToStringListForLoadProfileTypes(loadProfileTypes));
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_LOAD_PROFILE_TYPE, measurementType.getReadingType().getAliasName(), namesToStringListForLoadProfileTypes(loadProfileTypes));
     }
 
     private static String namesToStringListForRegisterTypes(List<RegisterType> registerTypes) {
@@ -52,7 +52,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
             if (notFirst) {
                 builder.append(", ");
             }
-            builder.append(measurementType.getName());
+            builder.append(measurementType.getReadingType().getAliasName());
             notFirst = true;
         }
         return builder.toString();

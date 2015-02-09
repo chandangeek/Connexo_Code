@@ -43,11 +43,8 @@ public class ChannelTypeImpl extends MeasurementTypeImpl implements ChannelType 
     }
 
     public ChannelType initialize(RegisterType templateRegisterType, TimeDuration interval, ReadingType readingType) {
-        this.setName(readingType.getName());
         this.setObisCode(templateRegisterType.getObisCode());
-        this.setPhenomenon(templateRegisterType.getPhenomenon());
         this.setReadingType(readingType);
-        this.setTimeOfUse(readingType.getTou());
         this.setInterval(interval);
         this.setTemplateRegister(templateRegisterType);
         return this;

@@ -1,15 +1,13 @@
 package com.energyict.mdc.masterdata.impl;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterType;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.masterdata.RegisterType;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -24,12 +22,9 @@ public class RegisterTypeImpl extends MeasurementTypeImpl implements RegisterTyp
         super(dataModel, eventService, thesaurus, masterDataService);
     }
 
-    RegisterTypeImpl initialize(String name, ObisCode obisCode, Phenomenon phenomenon, ReadingType readingType, int timeOfUse) {
-        this.setName(name);
+    RegisterTypeImpl initialize(ObisCode obisCode, ReadingType readingType) {
         this.setObisCode(obisCode);
-        this.setPhenomenon(phenomenon);
         this.setReadingType(readingType);
-        this.setTimeOfUse(timeOfUse);
         return this;
     }
 

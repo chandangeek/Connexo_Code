@@ -43,7 +43,6 @@ public enum EventType {
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder etb) {
             EventTypeBuilder eventTypeBuilder = super.addCustomProperties(etb);
             eventTypeBuilder.withProperty("oldObisCode", ValueType.STRING, "oldObisCode");
-            eventTypeBuilder.withProperty("oldPhenomenon", ValueType.LONG, "oldPhenomenon");
             return eventTypeBuilder;
         }
     },
@@ -52,10 +51,6 @@ public enum EventType {
     REGISTERGROUP_CREATED("registergroup/CREATED"),
     REGISTERGROUP_UPDATED("registergroup/UPDATED"),
     REGISTERGROUP_DELETED("registergroup/DELETED"),
-    PHENOMENON_CREATED("phenomenon/CREATED"),
-    PHENOMENON_UPDATED("phenomenon/UPDATED"),
-    PHENOMENON_DELETED("phenomenon/DELETED"),
-    PHENOMENON_VALIDATEDELETE("phenomenon/VALIDATEDELETE"),
     LOGBOOKTYPE_CREATED("logbooktype/CREATED"),
     LOGBOOKTYPE_UPDATED("logbooktype/UPDATED"),
     LOGBOOKTYPE_VALIDATEDELETE("logbooktype/VALIDATEDELETE") {

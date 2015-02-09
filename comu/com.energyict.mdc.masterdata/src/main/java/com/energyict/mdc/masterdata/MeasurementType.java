@@ -4,7 +4,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
 
 import java.time.Instant;
 
@@ -19,15 +18,6 @@ public interface MeasurementType extends HasId {
      * @return the id
      */
     public long getId();
-
-    /**
-     * Returns the name that uniquely identifies this MeasurementType.
-     *
-     * @return the name
-     */
-    public String getName();
-
-    public void setName (String newName);
 
     /**
      * Returns the obis code for this MeasurementType.
@@ -54,15 +44,9 @@ public interface MeasurementType extends HasId {
      */
     public Unit getUnit();
 
-    public void setUnit(Unit unit);
-
     public ReadingType getReadingType ();
 
-    void setPhenomenon(Phenomenon phenomenon);
-
     public void setReadingType(ReadingType readingType);
-
-    public Phenomenon getPhenomenon();
 
     /**
      * Returns the MeasurementType's description.
@@ -81,8 +65,6 @@ public interface MeasurementType extends HasId {
     public Instant getModificationDate();
 
     public int getTimeOfUse();
-
-    public void setTimeOfUse(int timeOfUse);
 
     public void save ();
 

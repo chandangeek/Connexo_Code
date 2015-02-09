@@ -1,14 +1,10 @@
 package com.energyict.mdc.masterdata.impl;
 
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,26 +48,11 @@ public class Installer {
     }
 
     private void createDefaults() {
-        this.createPhenomena();
         this.createRegisterTypes();
     }
 
     private void createRegisterTypes() {
         MasterDataGenerator.generateRegisterTypes(meteringService, mdcReadingTypeUtilService, masterDataService);
-    }
-
-    private void createPhenomena() {
-        try {
-            Phenomenon undefined = this.masterDataService.newPhenomenon("Undefined", Unit.getUndefined());
-            undefined.save();
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-        }
-        this.generatePhenomenaFromStaticList();
-    }
-
-    private void generatePhenomenaFromStaticList() {
-        MasterDataGenerator.generatePhenomena(masterDataService);
     }
 
     private void createEventTypes() {

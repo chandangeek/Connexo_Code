@@ -11,12 +11,10 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
@@ -29,11 +27,8 @@ import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.exceptions.RegisterTypesRequiredException;
-import com.energyict.mdc.masterdata.exceptions.UnitHasNoMatchingPhenomenonException;
 import com.energyict.mdc.masterdata.impl.finders.LoadProfileTypeFinder;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import java.util.Collection;
-import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -44,7 +39,9 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link MasterDataService} interface.
@@ -88,11 +85,6 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
         return finders;
     }
 
-    @Override
-    public List<Phenomenon> findAllPhenomena() {
-        return this.getDataModel().mapper(Phenomenon.class).find();
-    }
-
 
     @Override
     public LogBookType newLogBookType(String name, ObisCode obisCode) {
@@ -107,29 +99,6 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     @Override
     public Optional<LogBookType> findLogBookTypeByName(String name) {
         return this.getDataModel().mapper(LogBookType.class).getUnique("name", name);
-    }
-
-    @Override
-    public Optional<Phenomenon> findPhenomenon(long phenomenonId) {
-        return this.getDataModel().mapper(Phenomenon.class).getUnique("id", phenomenonId);
-    }
-
-    @Override
-    public Phenomenon newPhenomenon(String name, Unit unit) {
-        return this.getDataModel().getInstance(PhenomenonImpl.class).initialize(name, unit);
-    }
-
-    @Override
-    public Optional<Phenomenon> findPhenomenonByNameAndUnit(String name, Unit unit) {
-        return this.getDataModel().mapper(Phenomenon.class).
-                getUnique(
-                        PhenomenonImpl.Fields.NAME.fieldName(), name,
-                        PhenomenonImpl.Fields.UNIT.fieldName(), unit.dbString());
-    }
-
-    @Override
-    public Optional<Phenomenon> findPhenomenonByUnit(Unit unit) {
-        return this.getDataModel().mapper(Phenomenon.class).getUnique(PhenomenonImpl.Fields.UNIT.fieldName(), unit.dbString());
     }
 
     @Override
@@ -149,12 +118,12 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
 
     @Override
     public Finder<MeasurementType> findAllMeasurementTypes() {
-        return DefaultFinder.of(MeasurementType.class, this.getDataModel()).defaultSortColumn("lower(name)");
+        return DefaultFinder.of(MeasurementType.class, this.getDataModel());
     }
 
     @Override
     public Finder<ChannelType> findAllChannelTypes() {
-        return DefaultFinder.of(ChannelType.class, this.getDataModel()).defaultSortColumn("lower(name)");
+        return DefaultFinder.of(ChannelType.class, this.getDataModel());
     }
 
     @Override
@@ -164,7 +133,7 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
 
     @Override
     public Finder<RegisterType> findAllRegisterTypes() {
-        return DefaultFinder.of(RegisterType.class, this.getDataModel()).defaultSortColumn("lower(name)");
+        return DefaultFinder.of(RegisterType.class, this.getDataModel());
     }
 
     @Override
@@ -178,17 +147,8 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     }
 
     @Override
-    public RegisterType newRegisterType(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse) {
-        Phenomenon phenomenon = null;
-        if (unit != null) {
-            Optional<Phenomenon> xPhenomenon = this.findPhenomenonByUnit(unit);
-            if (!xPhenomenon.isPresent()) {
-                throw new UnitHasNoMatchingPhenomenonException(unit);
-            } else {
-                phenomenon = xPhenomenon.get();
-            }
-        }
-        return this.getDataModel().getInstance(RegisterTypeImpl.class).initialize(name, obisCode, phenomenon, readingType, timeOfUse);
+    public RegisterType newRegisterType(ReadingType readingType, ObisCode obisCode) {
+        return this.getDataModel().getInstance(RegisterTypeImpl.class).initialize(obisCode, readingType);
     }
 
     @Override

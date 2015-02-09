@@ -1,11 +1,9 @@
 package com.energyict.mdc.masterdata.impl;
 
-import java.sql.SQLException;
-import java.util.List;
+import org.junit.After;
+import org.junit.Test;
 
-import com.energyict.mdc.common.interval.Phenomenon;
-import org.assertj.core.api.Condition;
-import org.junit.*;
+import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,7 +32,6 @@ public class InstallerTest {
 
         // Asserts
         assertThat(inMemoryPersistence.getMasterDataService().findAllMeasurementTypes().find()).isEmpty();
-        assertThat(inMemoryPersistence.getMasterDataService().findAllPhenomena()).isEmpty();
     }
 
     @Test
@@ -46,14 +43,6 @@ public class InstallerTest {
 
         // Asserts
         assertThat(inMemoryPersistence.getMasterDataService().findAllMeasurementTypes().find()).isNotEmpty();
-        List<Phenomenon> allPhenomena = inMemoryPersistence.getMasterDataService().findAllPhenomena();
-        assertThat(allPhenomena).isNotEmpty();
-        assertThat(allPhenomena).areExactly(1, new Condition<Phenomenon>() {
-            @Override
-            public boolean matches(Phenomenon phenomenon) {
-                return phenomenon.isUndefined();
-            }
-        });
     }
 
 }

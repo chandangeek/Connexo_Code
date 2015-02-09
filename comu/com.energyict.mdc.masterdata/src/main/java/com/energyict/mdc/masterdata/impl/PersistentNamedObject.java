@@ -4,12 +4,9 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
-import java.util.Optional;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import java.util.Optional;
 
 /**
  * Provides code reuse opportunities for entities in this bundle
