@@ -11,7 +11,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceCommunicationFunction;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -33,13 +32,14 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
@@ -62,7 +62,6 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
-    private Phenomenon phenomenon;
 
     @Test
     @Transactional
@@ -261,7 +260,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfiguration.createLoadProfileSpec(loadProfileType);
         deviceConfiguration.activate();
         ChannelType channelTypeForRegisterType = loadProfileType.findChannelType(registerType).get();
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = deviceConfiguration.createChannelSpec(channelTypeForRegisterType, phenomenon, loadProfileSpecBuilder.add());
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = deviceConfiguration.createChannelSpec(channelTypeForRegisterType, loadProfileSpecBuilder.add());
         try {
             channelSpecBuilder.add();
         } catch (CannotAddToActiveDeviceConfigurationException e) {
@@ -276,7 +275,6 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     private RegisterType createDefaultRegisterType() {
         String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
         Unit unit = Unit.get("kWh");
-        this.phenomenon = this.createPhenomenonIfMissing(unit);
         ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
         ObisCode obisCode = ObisCode.fromString("1.0.1.8.0.255");
         Optional<RegisterType> xregisterType =
@@ -285,23 +283,12 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         if (xregisterType.isPresent()) {
             registerType = xregisterType.get();
         } else {
-            registerType = inMemoryPersistence.getMasterDataService().newRegisterType("RMName", obisCode, unit, readingType, readingType.getTou());
+            registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType, obisCode);
             registerType.save();
         }
 
         this.deviceType.addRegisterType(registerType);
         return registerType;
-    }
-
-    private Phenomenon createPhenomenonIfMissing(Unit unit) {
-        Optional<Phenomenon> phenomenonByUnit = inMemoryPersistence.getMasterDataService().findPhenomenonByUnit(unit);
-        if (!phenomenonByUnit.isPresent()) {
-            Phenomenon phenomenon = inMemoryPersistence.getMasterDataService().newPhenomenon(DeviceConfigurationImplTest.class.getSimpleName(), unit);
-            phenomenon.save();
-            return phenomenon;
-        } else {
-            return phenomenonByUnit.get();
-        }
     }
 
     @Test(expected = CannotAddToActiveDeviceConfigurationException.class)

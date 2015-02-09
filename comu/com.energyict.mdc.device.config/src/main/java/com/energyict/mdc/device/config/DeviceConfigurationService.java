@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.common.interval.Phenomenon;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -12,9 +13,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.validation.ValidationRuleSet;
 
 import java.util.List;
 import java.util.Optional;
@@ -162,8 +160,6 @@ public interface DeviceConfigurationService {
     public List<PartialConnectionTask> findByComPortPool(ComPortPool comPortPool);
 
     public Optional<SecurityPropertySet> findSecurityPropertySet(long id);
-
-    public boolean isPhenomenonInUse(Phenomenon phenomenon);
 
     public Optional<ComTaskEnablement> findComTaskEnablement (long id);
 

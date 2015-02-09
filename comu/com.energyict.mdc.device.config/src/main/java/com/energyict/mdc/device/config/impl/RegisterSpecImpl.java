@@ -154,7 +154,7 @@ public abstract class RegisterSpecImpl<T extends RegisterSpec> extends Persisten
     }
 
     public String toString() {
-        return getDeviceConfiguration().getName() + " - " + getRegisterType().getName();
+        return getDeviceConfiguration().getName() + " - " + getRegisterType().getReadingType().getAliasName();
     }
 
     public void setDeviceConfig(DeviceConfiguration deviceConfig) {

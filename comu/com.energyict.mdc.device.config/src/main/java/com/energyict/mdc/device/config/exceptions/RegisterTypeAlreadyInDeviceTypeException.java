@@ -16,7 +16,7 @@ import com.energyict.mdc.masterdata.MeasurementType;
 public class RegisterTypeAlreadyInDeviceTypeException extends LocalizedException {
 
     public RegisterTypeAlreadyInDeviceTypeException(Thesaurus thesaurus, DeviceType deviceType, MeasurementType measurementType) {
-        super(thesaurus, MessageSeeds.DUPLICATE_REGISTER_TYPE_IN_DEVICE_TYPE, measurementType.getName(), deviceType.getName());
+        super(thesaurus, MessageSeeds.DUPLICATE_REGISTER_TYPE_IN_DEVICE_TYPE, measurementType.getReadingType().getAliasName(), deviceType.getName());
         this.set("deviceType", deviceType);
         this.set("measurementType", measurementType);
     }

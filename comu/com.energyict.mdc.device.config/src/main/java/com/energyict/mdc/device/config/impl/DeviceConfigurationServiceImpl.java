@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -324,11 +323,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties(long id) {
         return dataModel.mapper(ProtocolDialectConfigurationProperties.class).getOptional(id);
-    }
-
-    @Override
-    public boolean isPhenomenonInUse(Phenomenon phenomenon) {
-        return !this.getDataModel().mapper(ChannelSpec.class).find("phenomenon", phenomenon).isEmpty();
     }
 
     @Override

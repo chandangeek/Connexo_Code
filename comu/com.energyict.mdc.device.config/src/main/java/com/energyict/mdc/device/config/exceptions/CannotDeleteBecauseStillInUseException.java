@@ -2,13 +2,12 @@ package com.energyict.mdc.device.config.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MeasurementType;
 
@@ -33,7 +32,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * @return The CannotDeleteBecauseStillInUseException
      */
     public static CannotDeleteBecauseStillInUseException registerTypeIsStillInUseByRegisterSpecs(Thesaurus thesaurus, MeasurementType measurementType, List<RegisterSpec> registerSpecs) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_TYPE_STILL_USED_BY_REGISTER_SPEC, measurementType.getName(), namesToStringListForRegisterSpecs(registerSpecs));
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_TYPE_STILL_USED_BY_REGISTER_SPEC, measurementType.getReadingType().getName(), namesToStringListForRegisterSpecs(registerSpecs));
     }
 
     /**
@@ -45,7 +44,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * @return The CannotDeleteBecauseStillInUseException
      */
     public static CannotDeleteBecauseStillInUseException channelTypeIsStillInUseByChannelSpecs(Thesaurus thesaurus, MeasurementType measurementType, List<ChannelSpec> channelSpecs) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.CHANNEL_TYPE_STILL_USED_BY_CHANNEL_SPEC, measurementType.getName(), namesToStringListForChannelSpecs(channelSpecs));
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.CHANNEL_TYPE_STILL_USED_BY_CHANNEL_SPEC, measurementType.getReadingType().getAliasName(), namesToStringListForChannelSpecs(channelSpecs));
     }
 
     /**
@@ -57,7 +56,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * @return The CannotDeleteBecauseStillInUseException
      */
     public static CannotDeleteBecauseStillInUseException registerTypeIsStillInUseByDeviceTypes(Thesaurus thesaurus, MeasurementType measurementType, List<DeviceType> deviceTypes) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_TYPE_STILL_USED_BY_DEVICE_TYPE, measurementType.getName(), namesToStringListForDeviceTypes(deviceTypes));
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_TYPE_STILL_USED_BY_DEVICE_TYPE, measurementType.getReadingType().getAliasName(), namesToStringListForDeviceTypes(deviceTypes));
     }
 
     /**
@@ -106,24 +105,6 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      */
     public static CannotDeleteBecauseStillInUseException deviceTypeIsStillInUse (Thesaurus thesaurus, DeviceType deviceType) {
         return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS, deviceType.getName());
-    }
-
-    public static CannotDeleteBecauseStillInUseException phenomenonIsStillInUse(Thesaurus thesaurus, Phenomenon phenomenon) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.PHENOMENON_STILL_IN_USE, phenomenon.getName());
-
-    }
-
-    private static String namesToStringListForMeasurementTypes(List<MeasurementType> measurementTypes) {
-        StringBuilder builder = new StringBuilder();
-        boolean notFirst = false;
-        for (MeasurementType measurementType : measurementTypes) {
-            if (notFirst) {
-                builder.append(", ");
-            }
-            builder.append(measurementType.getName());
-            notFirst = true;
-        }
-        return builder.toString();
     }
 
     private static String namesToStringListForChannelSpecs(List<ChannelSpec> channelSpecs) {

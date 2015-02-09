@@ -33,7 +33,7 @@ public class RegisterTypeIsNotConfiguredException extends LocalizedException {
      * @return the newly create RegisterTypeIsNotConfiguredException
      */
     public static RegisterTypeIsNotConfiguredException forChannelInLoadProfileSpec(Thesaurus thesaurus, LoadProfileSpec loadProfileSpec, MeasurementType measurementType, ChannelSpec channelSpec) {
-        return new RegisterTypeIsNotConfiguredException(thesaurus, MessageSeeds.CHANNEL_SPEC_CHANNEL_TYPE_IS_NOT_IN_LOAD_PROFILE_SPEC, channelSpec.getName(), measurementType.getName(), loadProfileSpec.getObisCode());
+        return new RegisterTypeIsNotConfiguredException(thesaurus, MessageSeeds.CHANNEL_SPEC_CHANNEL_TYPE_IS_NOT_IN_LOAD_PROFILE_SPEC, channelSpec.getName(), measurementType.getReadingType().getAliasName(), loadProfileSpec.getObisCode());
     }
 
     /**
@@ -50,7 +50,7 @@ public class RegisterTypeIsNotConfiguredException extends LocalizedException {
      * @return RegisterTypeIsNotConfiguredException
      */
     public static RegisterTypeIsNotConfiguredException forChannelInDeviceType(Thesaurus thesaurus, ChannelSpec channelSpec, MeasurementType measurementType, DeviceType deviceType) {
-        return new RegisterTypeIsNotConfiguredException(thesaurus, MessageSeeds.CHANNEL_SPEC_CHANNEL_TYPE_IS_NOT_ON_DEVICE_TYPE, channelSpec.getName(), measurementType.getName(), deviceType.getName());
+        return new RegisterTypeIsNotConfiguredException(thesaurus, MessageSeeds.CHANNEL_SPEC_CHANNEL_TYPE_IS_NOT_ON_DEVICE_TYPE, channelSpec.getName(), measurementType.getReadingType().getAliasName(), deviceType.getName());
     }
 
     private RegisterTypeIsNotConfiguredException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {

@@ -1,15 +1,15 @@
 package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -46,8 +46,6 @@ public interface ChannelSpec extends HasId {
 
     BigDecimal getOverflow();
 
-    Phenomenon getPhenomenon();
-
     ReadingMethod getReadingMethod();
 
     MultiplierMode getMultiplierMode();
@@ -69,8 +67,6 @@ public interface ChannelSpec extends HasId {
     void setNbrOfFractionDigits(int nbrOfFractionDigits);
 
     void setOverflow(BigDecimal overflow);
-
-    void setPhenomenon(Phenomenon phenomenon);
 
     void setReadingMethod(ReadingMethod readingMethod);
 

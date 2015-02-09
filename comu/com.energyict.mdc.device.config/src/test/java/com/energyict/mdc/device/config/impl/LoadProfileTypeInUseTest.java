@@ -7,7 +7,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -48,7 +47,6 @@ public class LoadProfileTypeInUseTest extends PersistenceTest {
 
     private ReadingType readingType;
     private Unit unit;
-    private Phenomenon phenomenon;
 
     @Before
     public void registerEventHandlers () {
@@ -101,7 +99,6 @@ public class LoadProfileTypeInUseTest extends PersistenceTest {
 
         RegisterType registerType;
         LoadProfileType loadProfileType;
-        this.setupPhenomenaInExistingTransaction();
         this.setupReadingTypeInExistingTransaction();
 
         // Setup RegisterType
@@ -120,7 +117,7 @@ public class LoadProfileTypeInUseTest extends PersistenceTest {
         deviceType.save();
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(loadProfileType);
-        configurationBuilder.newChannelSpec(channelTypeForRegisterType, this.phenomenon, loadProfileSpecBuilder);
+        configurationBuilder.newChannelSpec(channelTypeForRegisterType, loadProfileSpecBuilder);
         configurationBuilder.add();
 
         try {
@@ -143,7 +140,6 @@ public class LoadProfileTypeInUseTest extends PersistenceTest {
         TimeDuration interval = INTERVAL_15_MINUTES;
 
         LoadProfileType loadProfileType;
-        this.setupPhenomenaInExistingTransaction();
         this.setupReadingTypeInExistingTransaction();
 
         // Setup RegisterType
@@ -162,7 +158,7 @@ public class LoadProfileTypeInUseTest extends PersistenceTest {
         deviceType.save();
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(loadProfileType);
-        configurationBuilder.newChannelSpec(channelTypeForRegisterType, this.phenomenon, loadProfileSpecBuilder);
+        configurationBuilder.newChannelSpec(channelTypeForRegisterType, loadProfileSpecBuilder);
         configurationBuilder.add();
 
 
@@ -182,23 +178,6 @@ public class LoadProfileTypeInUseTest extends PersistenceTest {
     private void assertLoadProfileTypeDoesNotExist(LoadProfileType loadProfileType) {
         Optional<LoadProfileType> shouldBeNull = PersistenceTest.inMemoryPersistence.getMasterDataService().findLoadProfileType(loadProfileType.getId());
         assertThat(shouldBeNull.isPresent()).as("Was not expecting to find any LoadProfileTypes after deletinon.").isFalse();
-    }
-
-    private void setupPhenomenaInExistingTransaction() {
-        this.unit = Unit.get("kWh");
-        this.phenomenon = this.createPhenomenonIfMissing(unit);
-    }
-
-    private Phenomenon createPhenomenonIfMissing(Unit unit) {
-        Optional<Phenomenon> phenomenonByUnit = inMemoryPersistence.getMasterDataService().findPhenomenonByUnit(unit);
-        if (!phenomenonByUnit.isPresent()) {
-            Phenomenon phenomenon = inMemoryPersistence.getMasterDataService().newPhenomenon(LoadProfileTypeInUseTest.class.getSimpleName(), unit);
-            phenomenon.save();
-            return phenomenon;
-        }
-        else {
-            return phenomenonByUnit.get();
-        }
     }
 
     private void setupReadingTypeInExistingTransaction() {
