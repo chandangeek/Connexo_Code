@@ -31,6 +31,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
@@ -142,7 +143,7 @@ public class IssueResource extends BaseResource {
     public Response getComments(@PathParam(ID) long id, @BeanParam StandardParametersBean params) {
         Condition condition = where("issueId").isEqualTo(id);
         Query<IssueComment> query = getIssueService().query(IssueComment.class, User.class);
-        List<IssueComment> commentsList = query.select(condition);
+        List<IssueComment> commentsList = query.select(condition, Order.descending("createTime"));
         return entity(commentsList, IssueCommentInfo.class).build();
     }
 
