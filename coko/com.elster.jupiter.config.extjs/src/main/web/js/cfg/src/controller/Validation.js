@@ -554,6 +554,8 @@ Ext.define('Cfg.controller.Validation', {
             propertyForm,
             form;
 
+        me.ruleId = null;
+
         me.getValidatorsStore().load({
             callback: function () {
                 me.ruleSetId = ruleSetId;
