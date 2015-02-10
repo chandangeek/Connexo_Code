@@ -1,16 +1,24 @@
 package com.elster.jupiter.rest.util;
 
+import javax.inject.Inject;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.ws.rs.core.UriInfo;
 
 /**
  */
 public final class QueryParameters implements MultivaluedMap<String, String> {
 
     private final MultivaluedMap<String, String> map;
+
+    @Inject
+    public QueryParameters(@Context UriInfo uriInfo) {
+        map = uriInfo.getQueryParameters();
+    }
 
     private QueryParameters(MultivaluedMap<String, String> map) {
         this.map = map;

@@ -31,6 +31,10 @@ public class ListPager<T> {
         this.pageSize=pageSize;
         return this;
     }
+    public ListPager<T> from(QueryParameters queryParameters) {
+        this.paged(queryParameters.getStart(), queryParameters.getLimit());
+        return this;
+    }
 
     public List<T> find() {
         if (start!=null && pageSize!=null) {
