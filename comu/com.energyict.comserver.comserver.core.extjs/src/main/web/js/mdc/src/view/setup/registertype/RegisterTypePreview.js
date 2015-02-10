@@ -50,16 +50,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                 },
                                 items: [
                                     {
-                                        name: 'name',
-                                        fieldLabel: Uni.I18n.translate('registerType.name', 'MDC', 'Name')
-                                    },
-                                    {
                                         xtype: 'reading-type-displayfield',
                                         name: 'readingType'
-                                    },
-                                    {
-                                        xtype: 'obis-displayfield',
-                                        name: 'obisCode'
                                     }
                                 ]
                             },
@@ -76,17 +68,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                 },
                                 items: [
                                     {
-                                        name: 'unitOfMeasure',
-                                        fieldLabel: Uni.I18n.translate('registerType.measurementUnit', 'MDC', 'Unit of measure'),
-                                        valueToRaw: function(value) {
-                                            if(value != undefined){
-                                                return value.localizedValue;
-                                            }
-                                        }
-                                    },
-                                    {
-                                        name: 'timeOfUse',
-                                        fieldLabel: Uni.I18n.translate('registerType.timeOfUse', 'MDC', 'Time of use')
+                                        xtype: 'obis-displayfield',
+                                        name: 'obisCode'
                                     }
                                 ]
                             }
