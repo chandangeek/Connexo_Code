@@ -37,7 +37,6 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
     public static ChannelSpecFullInfo from(ChannelSpec channelSpec){
         ChannelSpecFullInfo info = new ChannelSpecFullInfo();
         info.id = channelSpec.getId();
-        info.name = channelSpec.getName();
         info.overruledObisCode = channelSpec.getDeviceObisCode();
         info.multiplier = channelSpec.getMultiplier();
         info.overflowValue = channelSpec.getOverflow();

@@ -10,7 +10,6 @@ import java.util.List;
 @XmlRootElement
 public class ChannelSpecInfo {
     public long id;
-    public String name;
 
     public static List<ChannelSpecInfo> from(List<ChannelSpec> channelSpecList){
         if (channelSpecList == null) {
@@ -26,7 +25,6 @@ public class ChannelSpecInfo {
     public static ChannelSpecInfo from(ChannelSpec channelSpec){
         ChannelSpecInfo info = new ChannelSpecInfo();
         info.id = channelSpec.getId();
-        info.name = channelSpec.getName();
         return info;
     }
 }
