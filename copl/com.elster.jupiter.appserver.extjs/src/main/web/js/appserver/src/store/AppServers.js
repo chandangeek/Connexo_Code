@@ -6,6 +6,7 @@ Ext.define('Apr.store.AppServers', {
     proxy: {
         type: 'rest',
         url: '/api/apr/appserver',
+        timeout: 120000,
         reader: {
             type: 'json',
             root: 'appServers'
