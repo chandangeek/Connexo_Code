@@ -303,9 +303,12 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     }
 
     private Map<ComPortPool, Map<TaskStatus, Long>> injectComPortPoolsAndAddMissing(Map<Long, Map<TaskStatus, Long>> statusBreakdown) {
-        Map<Long, ComPortPool> comPortPools = this.deviceDataModelService.engineConfigurationService().findAllComPortPools().stream()
-                .filter(pool -> pool.isActive())
-                .collect(Collectors.toMap(ComPortPool::getId, Function.identity()));
+        Map<Long, ComPortPool> comPortPools =
+                this.deviceDataModelService.engineConfigurationService()
+                    .findAllComPortPools()
+                    .stream()
+                    .filter(ComPortPool::isActive)
+                    .collect(Collectors.toMap(ComPortPool::getId, Function.identity()));
         return this.injectBreakDownsAndAddMissing(statusBreakdown, comPortPools);
     }
 
@@ -583,12 +586,6 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
             throw new UnderlyingSQLFailedException(ex);
         }
         return 0;
-    }
-
-    private void appendConnectionTaskLastComSessionJoinClause(SqlBuilder sqlBuilder) {
-        sqlBuilder.append(" join ");
-        sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        sqlBuilder.append(" cs on ct.lastsession = cs.id");
     }
 
     private void appendConnectionTypeHeatMapComTaskExecutionSessionConditions(boolean atLeastOneFailingComTask, SqlBuilder sqlBuilder) {
