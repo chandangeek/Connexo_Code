@@ -5,6 +5,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigAndRulesPre
     xtype: 'loadprofile-config-and-rules-preview-container',
     deviceTypeId: null,
     deviceConfigId: null,
+    router: null,
     requires: [
         'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPreview'
     ],
@@ -12,11 +13,19 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigAndRulesPre
         type: 'vbox',
         align: 'stretch'
     },
-    items: [
-        {
-            xtype: 'loadProfileConfigurationPreview',
-            deviceTypeId: this.deviceTypeId,
-            deviceConfigId: this.deviceConfigId
-        }
-    ]
+
+    initComponent: function () {
+        var me = this;
+
+        me.items = [
+            {
+                xtype: 'loadProfileConfigurationPreview',
+                deviceTypeId: this.deviceTypeId,
+                deviceConfigId: this.deviceConfigId,
+                router: me.router
+            }
+        ];
+
+        me.callParent(arguments);
+    }
 });
