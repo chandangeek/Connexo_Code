@@ -48,17 +48,42 @@ public abstract class AbstractIssueAction implements IssueAction {
 
     @Override
     public List<ParameterViolation> validate(Map<String, String> actionParameters) {
+        return validate(actionParameters, ParameterDefinitionContext.NONE);
+    }
+
+    protected List<ParameterViolation> validate(Map<String, String> actionParameters, ParameterDefinitionContext context) {
         List<ParameterViolation> errors = new ArrayList<>();
-        for (ParameterDefinition definition : getParameterDefinitions().values()) {
-            errors.addAll(definition.validate(actionParameters.get(definition.getKey()), ParameterDefinitionContext.NONE));
+        Map<String, ParameterDefinition> parameterDefinitionsCopy = new HashMap<>(getParameterDefinitions());
+        // Validate the passed parameters
+        for (Map.Entry<String, String> entry : actionParameters.entrySet()) {
+            ParameterDefinition definition = parameterDefinitionsCopy.remove(entry.getKey());
+            if (definition != null) {
+                errors.addAll(definition.validate(entry.getValue(), context));
+            }
+        }
+        // Validate missing parameters
+        for (ParameterDefinition definition : parameterDefinitionsCopy.values()){
+            if (!definition.getConstraint().isOptional()) {
+                errors.add(new ParameterViolation(context.wrapKey(definition.getKey()), MessageSeeds.ISSUE_CREATION_RULE_PARAMETER_ABSENT.getKey(), IssueService.COMPONENT_NAME));
+            }
         }
         return errors;
     }
 
     @Override
     public List<ParameterViolation> validate(CreationRuleAction action) {
+        if(action == null) {
+            throw new IllegalArgumentException("action is missing");
+        }
         List<ParameterViolation> errors = new ArrayList<>();
-        validateParameters(action, errors);
+        List<ActionParameter> parameters = action.getParameters();
+        if (parameters != null && !parameters.isEmpty()){
+            Map<String, String> actionParameters = new HashMap<>(parameters.size());
+            for (ActionParameter parameter : parameters) {
+                actionParameters.put(parameter.getKey(), parameter.getValue());
+            }
+            errors = validate(actionParameters, ParameterDefinitionContext.ACTION);
+        }
         return errors;
     }
     
@@ -66,24 +91,4 @@ public abstract class AbstractIssueAction implements IssueAction {
     public boolean isApplicable(Issue issue) {
         return issue != null;
     }
-
-    protected void validateParameters(CreationRuleAction action, List<ParameterViolation> errors){
-        if(action == null) {
-            throw new IllegalArgumentException("action is missing");
-        }
-
-        Map<String, ParameterDefinition> parameterDefinitionsCopy = new HashMap<>(getParameterDefinitions());
-        for (ActionParameter parameter : action.getParameters()) {
-            ParameterDefinition definition = parameterDefinitionsCopy.remove(parameter.getKey());
-            if (definition != null) {
-                errors.addAll(definition.validate(parameter.getValue(), ParameterDefinitionContext.ACTION));
-            }
-        }
-        for (ParameterDefinition definition : parameterDefinitionsCopy.values()){
-            if (!definition.getConstraint().isOptional()) {
-                errors.add(new ParameterViolation(ParameterDefinitionContext.ACTION.wrapKey(definition.getKey()), MessageSeeds.ISSUE_CREATION_RULE_PARAMETER_ABSENT.getKey(), IssueService.COMPONENT_NAME));
-            }
-        }
-    }
-
 }

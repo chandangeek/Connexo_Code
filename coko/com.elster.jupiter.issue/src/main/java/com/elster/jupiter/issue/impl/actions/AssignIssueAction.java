@@ -72,18 +72,18 @@ public class AssignIssueAction extends AbstractIssueAction {
     }
 
     @Override
-    public List<ParameterViolation> validate(Map<String, String> actionParameters) {
+    protected List<ParameterViolation> validate(Map<String, String> actionParameters, ParameterDefinitionContext context) {
         List<ParameterViolation> errors = new ArrayList<>();
         String assigneeType = actionParameters.get(Parameter.ASSIGNEE.getKey());
         if (!is(assigneeType).emptyOrOnlyWhiteSpace()){
             IssueAssignee assignee = getIssueAssignee(assigneeType, actionParameters);
             if (assignee == null){
-                errors.add(new ParameterViolation(Parameter.ASSIGNEE.getKey(), MessageSeeds.ACTION_WRONG_ASSIGNEE.getTranslated(getThesaurus())));
+                errors.add(new ParameterViolation(context.wrapKey(Parameter.ASSIGNEE.getKey()), MessageSeeds.ACTION_WRONG_ASSIGNEE.getTranslated(getThesaurus())));
             }
         } else {
-            errors.add(new ParameterViolation(Parameter.ASSIGNEE.getKey(), MessageSeeds.ACTION_WRONG_ASSIGNEE.getTranslated(getThesaurus())));
+            errors.add(new ParameterViolation(context.wrapKey(Parameter.ASSIGNEE.getKey()), MessageSeeds.ACTION_WRONG_ASSIGNEE.getTranslated(getThesaurus())));
         }
-        errors.addAll(getParameterDefinitions().get(Parameter.COMMENT.getKey()).validate(actionParameters.get(Parameter.COMMENT.getKey()), ParameterDefinitionContext.NONE));
+        errors.addAll(getParameterDefinitions().get(Parameter.COMMENT.getKey()).validate(actionParameters.get(Parameter.COMMENT.getKey()), context));
         return errors;
     }
 
