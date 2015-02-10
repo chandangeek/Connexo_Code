@@ -6,18 +6,19 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
-
+import com.elster.jupiter.rest.util.ListPager;
+import com.elster.jupiter.rest.util.QueryParameters;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Path("/fields")
 public class ReadingTypeFieldResource {
@@ -70,15 +71,17 @@ public class ReadingTypeFieldResource {
     @GET
     @Path("/readingtypes")
     @Produces(MediaType.APPLICATION_JSON)
-    public ReadingTypeInfos getReadingTypes(@BeanParam JsonQueryFilter queryFilter) {
+    public ReadingTypeInfos getReadingTypes(@BeanParam JsonQueryFilter queryFilter, @BeanParam QueryParameters queryParameters) {
         List<ReadingType> readingTypes = meteringService.getAvailableReadingTypes();
         Predicate<ReadingType> filter = getReadingTypeFilterPredicate(queryFilter);
         readingTypes = readingTypes.stream().filter(filter::test).collect(Collectors.<ReadingType>toList());
-        return new ReadingTypeInfos(readingTypes);
+        List<ReadingType> pagedReadingTypes = ListPager.of(readingTypes).from(queryParameters).find();
+        return new ReadingTypeInfos(pagedReadingTypes);
     }
 
     private Predicate<ReadingType> getReadingTypeFilterPredicate(JsonQueryFilter queryFilter) {
         if (queryFilter.hasFilters()) {
+            String mRID = queryFilter.hasProperty("mRID") ? queryFilter.getString("mRID") : "";
             String name = queryFilter.hasProperty("name") ? queryFilter.getString("name") : "";
             Integer tou = queryFilter.getInteger("tou");
             Long unitOfMeasure = queryFilter.getLong("unitOfMeasure");
@@ -86,6 +89,7 @@ public class ReadingTypeFieldResource {
             Integer multiplier = queryFilter.getInteger("multiplier");
             return rt -> (name.isEmpty() || readingTypeAssembledNameFilter(name, rt)) &&
                     (tou == null || rt.getTou() == tou) &&
+                    (mRID.isEmpty() || rt.getMRID().contains(mRID)) &&
                     (unitOfMeasure == null || rt.getUnit().getId() == unitOfMeasure) &&
                     (time == null || rt.getMeasuringPeriod().getId() == time) &&
                     (multiplier == null || rt.getMultiplier().getMultiplier() == multiplier);
