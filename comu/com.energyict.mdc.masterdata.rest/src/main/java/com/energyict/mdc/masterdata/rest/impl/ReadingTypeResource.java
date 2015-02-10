@@ -4,7 +4,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 
@@ -34,19 +34,28 @@ public class ReadingTypeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ReadingTypeInfos getReadingTypes(@BeanParam JsonQueryFilter queryFilter) {
+    public ReadingTypeInfos getReadingTypes(@BeanParam QueryParameters queryParameters) {
         //TODO where is this rest call made, filter should be adjusted
-        List<ReadingType> readingTypes = meteringService.getAvailableReadingTypes();
+        String searchText = queryParameters.getLike();
+        if (searchText != null && !searchText.isEmpty()) {
+            String dbSearchText = "*" + searchText + "*";
+            List<ReadingType> readingTypes = meteringService.getAvailableReadingTypes();
 //        Predicate<ReadingType> filter = getReadingTypeFilterPredicate(queryFilter);
-        List<RegisterType> registerTypes = masterDataService.findAllRegisterTypes().find();
-        List<String> readingTypesInUseIds = new ArrayList<>();
-        for (RegisterType registerType : registerTypes) {
-            readingTypesInUseIds.add(registerType.getReadingType().getMRID());
+            List<RegisterType> registerTypes = masterDataService.findAllRegisterTypes().find();
+            List<String> readingTypesInUseIds = new ArrayList<>();
+            for (RegisterType registerType : registerTypes) {
+                readingTypesInUseIds.add(registerType.getReadingType().getMRID());
+            }
+            readingTypes = readingTypes.stream().filter(rt -> !readingTypesInUseIds.contains(rt.getMRID()))
+                    .collect(Collectors.<ReadingType>toList());
+            return new ReadingTypeInfos(readingTypes);
         }
-        readingTypes = readingTypes.stream().filter(rt -> !readingTypesInUseIds.contains(rt.getMRID()))
-                .collect(Collectors.<ReadingType>toList());
-        return new ReadingTypeInfos(readingTypes);
+        return new ReadingTypeInfos();
     }
+
+
+
+
 
 //    private Predicate<ReadingType> getReadingTypeFilterPredicate(JsonQueryFilter queryFilter) {
 //        if (queryFilter.hasFilters()) {
