@@ -143,7 +143,7 @@ public class IssueResource extends BaseResource {
     public Response getComments(@PathParam(ID) long id, @BeanParam StandardParametersBean params) {
         Condition condition = where("issueId").isEqualTo(id);
         Query<IssueComment> query = getIssueService().query(IssueComment.class, User.class);
-        List<IssueComment> commentsList = query.select(condition, Order.descending("createTime"));
+        List<IssueComment> commentsList = query.select(condition, Order.ascending("createTime"));
         return entity(commentsList, IssueCommentInfo.class).build();
     }
 
