@@ -6,8 +6,8 @@
 
     <parent>
         <groupId>com.elster.jupiter</groupId>
-        <artifactId>parent</artifactId>
-        <version>1.0.0</version>
+        <artifactId>kore</artifactId>
+        <version>1.0.1</version>
     </parent>
     <artifactId>yellowfin.groups</artifactId>
     <version>1.0.0-SNAPSHOT</version>
@@ -46,46 +46,40 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>domain.util</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>orm</artifactId>
-            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.groups</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.1</version>
         </dependency>
 
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools</artifactId>
-            <version>1.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bootstrap.h2</artifactId>
-            <version>1.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>messaging.h2</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>tasks</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
     </dependencies>
