@@ -114,7 +114,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
             if (notFirst) {
                 builder.append(", ");
             }
-            builder.append(channelSpec.getName());
+            builder.append(channelSpec.getReadingType().getAliasName());
             notFirst = true;
         }
         return builder.toString();

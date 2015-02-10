@@ -190,7 +190,6 @@ public enum TableSpecs {
             table.map(ChannelSpecImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            table.column("NAME").varChar().notNull().map("name").add();
             Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column channelTypeId = table.column("CHANNELTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();

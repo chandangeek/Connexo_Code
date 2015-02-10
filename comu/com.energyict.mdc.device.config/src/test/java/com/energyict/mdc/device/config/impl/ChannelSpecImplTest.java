@@ -457,7 +457,6 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         createDefaultChannelSpec(loadProfileSpec);
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
-        channelSpecBuilder.setName(DEFAULT_CHANNEL_SPEC_NAME);
         channelSpecBuilder.add();
     }
 

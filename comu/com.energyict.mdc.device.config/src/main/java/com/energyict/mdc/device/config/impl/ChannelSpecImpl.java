@@ -27,12 +27,10 @@ import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashSet;
@@ -47,13 +45,9 @@ import static com.elster.jupiter.util.Checks.is;
  * Date: 7/11/12
  * Time: 13:22
  */
-public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implements ChannelSpec {
+public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ChannelSpec {
 
     private final ServerDeviceConfigurationService deviceConfigurationService;
-
-    @Size(max= 126, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
-    private String name;
 
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_CHANNEL_TYPE_IS_REQUIRED + "}")
@@ -93,16 +87,6 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         this.deviceConfiguration.set(deviceConfiguration);
         setChannelType(channelType);
         return this;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    protected void doSetName(String name) {
-        this.name = name;
     }
 
     @Override
@@ -292,20 +276,9 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         // the configuration will validate the active 'part'
     }
 
-    protected boolean validateUniqueName() {
-        return this.validateUniqueName(this.getName())
-                && (this.getName().length() <= 27
-                || this.validateUniqueName(this.getName().substring(0, 27)));
-    }
-
-    protected boolean validateUniqueName(String name) {
-        ChannelSpec otherChannelSpec = this.deviceConfigurationService.findChannelSpecByDeviceConfigurationAndName(getDeviceConfiguration(), name);
-        return otherChannelSpec == null || otherChannelSpec.getId() == this.getId();
-    }
-
     @Override
     public String toString() {
-        return getDeviceConfiguration().getDeviceType() + "/" + getDeviceConfiguration() + "/" + getName();
+        return getDeviceConfiguration().getDeviceType() + "/" + getDeviceConfiguration() + "/" + getReadingType().getAliasName();
     }
 
     protected String getInvalidCharacters() {
@@ -392,7 +365,6 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     abstract static class ChannelSpecBuilder implements ChannelSpec.ChannelSpecBuilder {
 
         final ChannelSpecImpl channelSpec;
-        String tempName;
 
         ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, LoadProfileSpec loadProfileSpec) {
             this.channelSpec = channelSpecProvider.get().initialize(deviceConfiguration, channelType, loadProfileSpec);
@@ -406,12 +378,6 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         @Override
         public void loadProfileSpecBuildingProcessCompleted(LoadProfileSpec loadProfileSpec) {
             this.channelSpec.setLoadProfileSpec(loadProfileSpec);
-        }
-
-        @Override
-        public ChannelSpec.ChannelSpecBuilder setName(String channelSpecName) {
-            this.tempName = channelSpecName;
-            return this;
         }
 
         @Override
@@ -464,11 +430,6 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
         @Override
         public ChannelSpec add() {
-            if (is(tempName).empty()) {
-                this.channelSpec.setName(this.channelSpec.getChannelType().getReadingType().getAliasName());
-            } else {
-                this.channelSpec.setName(tempName);
-            }
             this.channelSpec.validateBeforeAdd();
             this.channelSpec.validate();
             return this.channelSpec;

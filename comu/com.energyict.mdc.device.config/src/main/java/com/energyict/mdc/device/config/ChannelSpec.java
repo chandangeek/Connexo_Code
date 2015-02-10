@@ -27,15 +27,6 @@ public interface ChannelSpec extends HasId {
      */
     public long getId();
 
-    /**
-     * Returns the object's name
-     *
-     * @return the name
-     */
-    public String getName();
-
-    public void setName(String name);
-
     ChannelType getChannelType();
 
     ObisCode getDeviceObisCode();
@@ -92,8 +83,6 @@ public interface ChannelSpec extends HasId {
      * Defines a Builder interface to construct a {@link ChannelSpec}
      */
     interface ChannelSpecBuilder extends LoadProfileSpec.BuildingCompletionListener {
-
-        ChannelSpecBuilder setName(String channelSpecName);
 
         ChannelSpecBuilder setOverruledObisCode(ObisCode overruledObisCode);
 
