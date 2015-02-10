@@ -6,8 +6,8 @@
 
     <parent>
         <groupId>com.elster.jupiter</groupId>
-        <artifactId>kore</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <artifactId>parent</artifactId>
+        <version>1.0.1</version>
     </parent>
 
     <artifactId>appserver.extjs</artifactId>
@@ -27,10 +27,12 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>http.whiteboard</artifactId>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>install</artifactId>
+            <version>1.0.1</version>
         </dependency>
     </dependencies>
 
