@@ -235,7 +235,7 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     
     @Override
     public void install() {
-        new Installer(dataModel, this, userService, messageService, taskService).install(true);
+        new Installer(dataModel, this, userService, messageService, taskService, thesaurus).install(true);
     }
     
     @Override
