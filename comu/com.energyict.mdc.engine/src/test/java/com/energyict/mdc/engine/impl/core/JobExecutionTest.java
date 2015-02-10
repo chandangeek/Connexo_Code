@@ -425,7 +425,7 @@ public class JobExecutionTest {
         scheduledComTaskExecutionGroup.establishConnection();
         scheduledComTaskExecutionGroup.performPreparedComTaskExecution(preparedComTaskExecution);
 
-        assertThat(scheduledComTaskExecutionGroup.getExecutionContext().hasBasicCheckFailed()).isTrue();
+        assertThat(scheduledComTaskExecutionGroup.getExecutionContext().basickCheckHasFailed()).isTrue();
     }
 
     @Test
@@ -459,7 +459,7 @@ public class JobExecutionTest {
         scheduledComTaskExecutionGroup.establishConnection();
         scheduledComTaskExecutionGroup.performPreparedComTaskExecution(preparedComTaskExecution);
 
-        assertThat(scheduledComTaskExecutionGroup.getExecutionContext().hasBasicCheckFailed()).isTrue();
+        assertThat(scheduledComTaskExecutionGroup.getExecutionContext().basickCheckHasFailed()).isTrue();
     }
 
     private void createMockedComTaskWithGivenProtocolTasks(ProtocolTask... protocolTasks) {
