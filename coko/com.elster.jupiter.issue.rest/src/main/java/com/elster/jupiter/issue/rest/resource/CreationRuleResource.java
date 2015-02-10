@@ -85,6 +85,7 @@ public class CreationRuleResource extends BaseResource {
 
     @POST
     @RolesAllowed(Privileges.ADMINISTRATE_CREATION_RULE)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response addCreationRule(CreationRuleInfo rule){
         getTransactionService().execute(new CreateCreationRuleTransaction(getIssueService(), getIssueCreationService(), getIssueActionService(), rule));
         return Response.status(Response.Status.CREATED).build();
@@ -93,6 +94,7 @@ public class CreationRuleResource extends BaseResource {
     @PUT
     @Path("/{id}")
     @RolesAllowed(Privileges.ADMINISTRATE_CREATION_RULE)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response editCreationRule(@PathParam("id") long id, CreationRuleInfo rule){
         rule.setId(id);
         getTransactionService().execute(new EditCreationRuleTransaction(getIssueService(), getIssueCreationService(), getIssueActionService(), rule));
