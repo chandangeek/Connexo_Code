@@ -33,7 +33,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         {ref: 'readingTypeCombo', selector: '#registerTypeEditForm #readingTypeCombo'}
     ],
 
-    loadReadingTypes: function (combo) {
+  /*  loadReadingTypes: function (combo) {
         var me = this,
             editView = me.getRegisterTypeEditView(),
             readingTypeCombo = me.getReadingTypeCombo(),
@@ -57,7 +57,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             }
         });
 
-    },
+    },*/
 
 
     init: function () {
@@ -231,8 +231,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         if (record) {
             editView.setLoading();
             record.set(values);
-            if (readingTypeCombo.valueModels[0]) {
-                record.setReadingType(Ext.create(Mdc.model.ReadingType, readingTypeCombo.valueModels[0].getData()));
+            if (me.getReadingTypeCombo().valueModels[0]) {
+                record.setReadingType(Ext.create(Mdc.model.ReadingType, me.getReadingTypeCombo().valueModels[0].getData()));
             }
             record.save({
                 success: function () {
