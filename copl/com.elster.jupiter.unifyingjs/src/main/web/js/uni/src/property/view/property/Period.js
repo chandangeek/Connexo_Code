@@ -88,10 +88,9 @@ Ext.define('Uni.property.view.property.Period', {
             countValue,
             timeUnitValue;
 
-        if (me.getField()) { countValue = me.getField().getValue(); }
-        if (me.getComboField()) { timeUnitValue = me.getComboField().getValue(); }
-
         if (me.isEdit) {
+            if (me.getField()) { countValue = me.getField().getValue(); }
+            if (me.getComboField()) { timeUnitValue = me.getComboField().getValue(); }
             if (!me.getProperty().get('isInheritedOrDefaultValue')
                 && typeof countValue !== 'undefined' && countValue !== null
                 && typeof timeUnitValue !== 'undefined' && timeUnitValue !== null
