@@ -8,26 +8,36 @@ Ext.define('Isu.controller.IssuesOverview', {
     showOverview: function (issueType, widgetXtype) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            grouping = router.filter.get('grouping');
+            grouping = router.filter.get('grouping'),
+            filterProxy = router.filter.getProxy();
 
         if (router.queryParams.myopenissues) {
-            delete router.queryParams.myopenissues;
             me.getStore('Isu.store.IssueAssignees').load({params: {me: true}, callback: function (records) {
-                router.filter.beginEdit();
-                router.filter.set('assignee', records[0].getId());
-                router.filter.set('status', 'status.open');
-                router.filter.set('sorting', [
-                    {type: 'dueDate', value: Uni.component.sort.model.Sort.ASC}
-                ]);
-                router.filter.endEdit();
-                router.filter.save();
+                window.location.replace(router.getRoute(router.currentRoute).buildUrl(null, {
+                    filter: Ext.encode({
+                        assignee: records[0].getId(),
+                        status: 'status.open',
+                        sorting: [
+                            {
+                                type: 'dueDate',
+                                value: Uni.component.sort.model.Sort.ASC
+                            }
+                        ]
+                    })
+                }));
             }});
         } else if (!router.queryParams.filter) {
-            router.filter.set('status', ['status.open', 'status.in.progress']);
-            router.filter.set('sorting', [
-                {type: 'dueDate', value: Uni.component.sort.model.Sort.ASC}
-            ]);
-            router.filter.save();
+            window.location.replace(router.getRoute(router.currentRoute).buildUrl(null, {
+                filter: Ext.encode({
+                    status: ['status.open', 'status.in.progress'],
+                    sorting: [
+                        {
+                            type: 'dueDate',
+                            value: Uni.component.sort.model.Sort.ASC
+                        }
+                    ]
+                })
+            }));
         } else {
             me.getStore('Isu.store.Clipboard').set(issueType + '-latest-issues-filter', router.queryParams.filter);
             me.getStore('Isu.store.IssueStatuses').getProxy().setExtraParam('issueType', issueType);
