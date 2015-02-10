@@ -30,6 +30,7 @@ import java.time.Clock;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.energyict.mdc.device.data.tasks.history.CompletionCode.ConnectionError;
 import static com.energyict.mdc.device.data.tasks.history.CompletionCode.Ok;
@@ -141,26 +142,20 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
 
     @Override
     public List<Problem> getProblems () {
-        List<Issue> issues = this.getIssues();
-        List<Problem> problems = new ArrayList<>(issues.size());    // At most all issues are problems
-        for (Issue issue : issues) {
-            if (issue.isProblem()) {
-                problems.add((Problem) issue);
-            }
-        }
-        return problems;
+        return this.getIssues()
+                .stream()
+                .filter(Issue::isProblem)
+                .map(Problem.class::cast)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<Warning> getWarnings () {
-        List<Issue> issues = this.getIssues();
-        List<Warning> warnings = new ArrayList<>(issues.size());    // At most all issues are warnings
-        for (Issue issue : issues) {
-            if (issue.isWarning()) {
-                warnings.add((Warning) issue);
-            }
-        }
-        return warnings;
+        return this.getIssues()
+                .stream()
+                .filter(Issue::isWarning)
+                .map(Warning.class::cast)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -319,13 +314,14 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     }
 
     @Override
-    public String toJournalMessageDescription (LogLevel serverLogLevel) {
+    public final String toJournalMessageDescription (LogLevel serverLogLevel) {
         DescriptionBuilder builder = new DescriptionBuilderImpl(this);
         this.toJournalMessageDescription(builder, serverLogLevel);
         return builder.toString();
     }
 
-    public String issuesToJournalMessageDescription() {
+    @Override
+    public final String issuesToJournalMessageDescription() {
         if (getIssues().isEmpty()) {
             return "";
         }
@@ -358,8 +354,8 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     }
 
     protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
-        if (this.isJournalingLevelEnabled(serverLogLevel, LogLevel.INFO)
-                && this.notSuccessFullyExecuted()) {
+        if (   this.isJournalingLevelEnabled(serverLogLevel, LogLevel.INFO)
+            && this.notSuccessFullyExecuted()) {
             builder.addProperty("executionState").append(this.executionState.name());
             builder.addProperty("completionCode").append(this.completionCode.name());
         }
@@ -367,10 +363,6 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
             builder.addProperty("nrOfWarnings").append(this.countWarnings());
             builder.addProperty("nrOfProblems").append(this.countProblems());
         }
-    }
-
-    private boolean notSuccessFullyExecuted () {
-        return !ExecutionState.SUCCESSFULLY_EXECUTED.equals(this.executionState);
     }
 
     /**
@@ -385,24 +377,16 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
         return serverLogLevel.compareTo(minimumLevel) >= 0;
     }
 
-    private int countWarnings () {
-        int counter = 0;
-        for (Issue issue : this.issueList) {
-            if (issue.isWarning()) {
-                counter++;
-            }
-        }
-        return counter;
+    private boolean notSuccessFullyExecuted () {
+        return !ExecutionState.SUCCESSFULLY_EXECUTED.equals(this.executionState);
     }
 
-    private int countProblems () {
-        int counter = 0;
-        for (Issue issue : this.issueList) {
-            if (issue.isProblem()) {
-                counter++;
-            }
-        }
-        return counter;
+    private long countWarnings () {
+        return this.getWarnings().size();
+    }
+
+    private long countProblems () {
+        return this.getProblems().size();
     }
 
     public IssueService getIssueService() {
