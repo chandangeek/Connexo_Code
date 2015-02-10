@@ -59,6 +59,10 @@
                 font-weight: bold;
                 font-size: 14px;
                 color: #686868;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                width: 210px;
             }
         }
 
