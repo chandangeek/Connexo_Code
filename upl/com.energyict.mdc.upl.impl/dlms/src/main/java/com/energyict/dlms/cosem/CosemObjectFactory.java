@@ -6,7 +6,10 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
@@ -50,6 +53,9 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public StoredValues getStoredValues() throws IOException {
         if (storedValues==null) {
             storedValues = protocolLink.getStoredValues();
+            if (storedValues == null) {
+                throw new IOException("CosemObjectFactory, getStoredValues, The protocolLink does not support readout of billing values");
+            }
             storedValues.retrieve();
         }
         return storedValues;
