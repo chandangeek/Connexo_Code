@@ -5,7 +5,6 @@ Ext.define('Mdc.model.RegisterType', {
     ],
     fields: [
         {name: 'id', type: 'number', useNull: true},
-        {name: 'name', type: 'string', useNull: true},
         {name: 'obisCode', type: 'string', useNull: true},
         {name: 'isLinkedByDeviceType', type: 'boolean', useNull: true},
         {name: 'isLinkedByActiveRegisterConfig', type: 'boolean', useNull: true},
