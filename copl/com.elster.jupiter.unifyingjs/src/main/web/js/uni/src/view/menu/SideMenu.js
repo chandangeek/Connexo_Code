@@ -115,6 +115,8 @@ Ext.define('Uni.view.menu.SideMenu', {
                 subItems = item.items,
                 condition = item[me.showCondition];
 
+            item.tooltip = item.text;
+
             if ((typeof item.xtype === 'undefined' || item.xtype === 'menu')
                 && Ext.isDefined(subItems) && Ext.isArray(subItems)) {
                 me.applyMenuDefaults(item);
@@ -166,6 +168,8 @@ Ext.define('Uni.view.menu.SideMenu', {
         for (var i = 0; i < subItems.length; i++) {
             var item = subItems[i],
                 condition = item[me.showCondition];
+
+            item.tooltip = item.text;
 
             if (typeof condition !== 'undefined') {
                 if (Ext.isFunction(condition) && condition() || condition) {
