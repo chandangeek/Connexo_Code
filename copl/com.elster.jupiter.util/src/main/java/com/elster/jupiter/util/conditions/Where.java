@@ -78,14 +78,14 @@ public final class Where {
         for (String keyword: Arrays.asList("\\", "_", "%")) {
             value=value.replace(keyword,"\\"+keyword);
         }
-        // transform un-escaped wildcards to sql like operators
-        value=value.replaceAll("^\\*", "%");
+        // transform un-escaped wildcards * and ? to sql like operators
+        value=value.replaceAll("^\\*", "%"); // Start of line turns out to be a corner case
         value=value.replaceAll("([^\\\\])\\*", "$1%");
-        value=value.replaceAll("^\\?", "_");
+        value=value.replaceAll("^\\?", "_"); // Start of line turns out to be a corner case
         value=value.replaceAll("([^\\\\])\\?", "$1_");
 
-        // transform escaped wildcards to their unescaped literal that does not have any meaning in SQL anyway
-        // We need to search for double escape: it was doubled in the little escape-loop on top of this method
+        // transform escaped wildcards * and ? to their unescaped literal that does not have any meaning in SQL anyway
+        // We need to search for double escape: it was doubled in the little loop on top of this method
         value=value.replaceAll("\\\\\\\\\\*", "*");
         value=value.replaceAll("\\\\\\\\\\?", "?");
 
