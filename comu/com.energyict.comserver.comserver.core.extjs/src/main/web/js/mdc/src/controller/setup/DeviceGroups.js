@@ -65,7 +65,11 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
             },
             'device-group-action-menu': {
                 click: this.chooseAction
+            },
+            'group-details #generate-report': {
+                click: this.onGenerateReport
             }
+
             /*,
              '#deviceGroupsGrid actioncolumn': {
              deleteDeviceGroup: this.deleteDeviceGroup
@@ -320,6 +324,28 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
                 }
             }
         });
+    },
+
+    onGenerateReport: function () {
+        var me = this;
+        var groupName = '';
+        var deviceGroupName = Ext.ComponentQuery.query('#deviceGroupName');
+
+        if ((deviceGroupName != null) && (_.isArray(deviceGroupName))) {
+            groupName = deviceGroupName[0].getValue();
+        }
+
+        var reportFilter = {};
+        reportFilter['search'] = false;
+        reportFilter['GROUPNAME'] = groupName;
+
+        var router = this.getController('Uni.controller.history.Router');
+        router.getRoute('generatereport').forward(null, {
+            category: 'MDC',
+            filter: reportFilter
+        });
+
+        return;
     }
 });
 

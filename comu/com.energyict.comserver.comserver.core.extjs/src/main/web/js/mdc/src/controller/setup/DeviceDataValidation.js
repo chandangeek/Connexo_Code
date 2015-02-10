@@ -62,8 +62,8 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                     timeout: 60000,
                     success: function () {
                         var widget = Ext.widget('deviceDataValidationRulesSetMainView', { device: device });
-                        me.updateDataValidationStatusSection(mRID, widget);
                         me.getApplication().fireEvent('changecontentevent', widget);
+                        me.updateDataValidationStatusSection(mRID, widget);
                         viewport.setLoading(false);
                     }
                 });

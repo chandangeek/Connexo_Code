@@ -78,8 +78,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 click: this.editDeviceConfigurationFromDetailsHistory
             },
             '#device-configuration-action-menu': {
-                click: this.chooseAction,
-                beforeshow: this.configureMenu
+                click: this.chooseAction
             },
             'deviceConfigurationEdit #createEditButton': {
                 click: this.createEditDeviceConfiguration
@@ -94,20 +93,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         var addBtn = Ext.ComponentQuery.query('add-logbook-configurations #logbookConfAdd')[0];
         if (addBtn) {
             selectionModel.getSelection().length > 0 ? addBtn.enable() : addBtn.disable();
-        }
-    },
-
-
-    configureMenu: function (menu) {
-        var activate = menu.down('#activateDeviceconfigurationMenuItem'),
-            deactivate = menu.down('#deactivateDeviceconfigurationMenuItem'),
-            active = menu.record.data.active;
-        if (active) {
-            deactivate.show();
-            activate.hide();
-        } else {
-            activate.show();
-            deactivate.hide();
         }
     },
 
@@ -235,31 +220,17 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
         if (activeChange != 'notChanged') {
             viewport.setLoading(true);
-            var recordId = record.get('id');
+
             Ext.Ajax.request({
-                url: '/api/dtc/devicetypes/' + router.arguments['deviceTypeId'] + '/deviceconfigurations/' + recordId + '/status',
+                url: '/api/dtc/devicetypes/' + router.arguments['deviceTypeId'] + '/deviceconfigurations/' + record.get('id') + '/status',
                 method: 'PUT',
                 jsonData: {active: activeChange},
                 success: function () {
-                    var deviceConfigModel = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
-                    deviceConfigModel.getProxy().setExtraParam('deviceType', router.arguments['deviceTypeId']);
-                    Ext.ModelManager.getModel(deviceConfigModel).load(recordId, {
-                            callback: function (model) {
-                                record.set('active', activeChange);
-                                record.commit();
-                                if (grid) {
-                                    gridView.refresh();
-                                    form.loadRecord(model);
-                                } else {
-                                    menu.record = model;
-                                    form.loadRecord(model);
-                                }
-                                var msg = activeChange ? Uni.I18n.translate('deviceconfiguration.activated', 'MDC', 'Device configuration activated') :
-                                    Uni.I18n.translate('deviceconfiguration.deactivated', 'MDC', 'Device configuration deactivated');
-                                me.getApplication().fireEvent('acknowledge', msg);
-                            }
-                        }
-                    )
+                    record.set('active', activeChange);
+                    record.commit();
+
+                    me.getApplication().fireEvent('acknowledge', activeChange ? Uni.I18n.translate('deviceconfiguration.activated', 'MDC', 'Device configuration activated') :
+                        Uni.I18n.translate('deviceconfiguration.deactivated', 'MDC', 'Device configuration deactivated'));
                 },
                 callback: function () {
                     viewport.setLoading(false);

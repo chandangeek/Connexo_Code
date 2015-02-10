@@ -239,6 +239,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             var isDynamic = this.getDynamicRadioButton().checked;
             record.set('dynamic', isDynamic);
             record.set('filter', this.getController('Uni.controller.history.Router').filter.data);
+            record.set('devices', []);
             if (!isDynamic) {
                 var grid = this.getStaticGrid();
                 var devicesList = [];
@@ -428,7 +429,6 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         if (!me.dynamic) {
             selection = me.getStaticGrid().getSelectionModel().getSelection();
         }
-
         if (nameValue == '') {
             Ext.suspendLayouts();
             step1ErrorMsg.show();
@@ -447,6 +447,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             record.set('name', nameValue);
             record.set('dynamic', me.dynamic);
             record.set('filter', router.filter.data);
+            record.set('devices', []);
             if (!me.dynamic) {
                 var devicesList = [];
                 if (me.getStaticGrid().isAllSelected()) {
@@ -461,7 +462,6 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             }
             record.save({
                 success: function () {
-                    console.info(me.fromDeviceGroupDetails);
                     if (me.fromDeviceGroupDetails) {
                         router.getRoute('devices/devicegroups/view').forward();
                     } else {

@@ -80,7 +80,7 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             validateOnChange: false,
                             listConfig:
                                 {
-                                    loadMask: false,
+                                    loadMask: true,
                                     maxHeight: 300
                                 },
                             listeners: {
@@ -119,7 +119,7 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             validateOnChange: false,
                             listConfig:
                                 {
-                                    loadMask: false,
+                                    loadMask: true,
                                     maxHeight: 300
                                 },
                             listeners: {

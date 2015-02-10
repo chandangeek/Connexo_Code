@@ -239,7 +239,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             measurementTypeOrder.push(channel.name);
             seriesObject['yAxis'] = currentLine;
             currentLine += 1;
-            channels.push({name: channel.name, unitOfMeasure: channel.unitOfMeasure.unit });
+            var channelHeader = !Ext.isEmpty(channel.calculatedReadingType) ? channel.calculatedReadingType.measuringPeriod + ' ' + channel.calculatedReadingType.aliasName + ' (' + channel.calculatedReadingType.unit + ')' : channel.readingType.measuringPeriod + ' ' + channel.readingType.aliasName + ' (' + channel.readingType.unit + ')';
+            channels.push({name: channelHeader, unitOfMeasure: channel.unitOfMeasure.unit });
             seriesToYAxisMap[index] = seriesObject['yAxis'];
             series.push(seriesObject);
         });
@@ -284,6 +285,9 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     Ext.iterate(record.get('channelData'), function (key, value) {
                         if (channelDataArrays[key]) {
                             if (value) {
+                                if (value.indexOf(',') !== -1) {
+                                    value = value.replace(',', '');
+                                }
                                 channelDataArrays[key].unshift([record.get('interval').start, parseFloat(value)]);
                             } else {
                                 channelDataArrays[key].unshift([record.get('interval').start, null]);

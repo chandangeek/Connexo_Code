@@ -284,9 +284,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             form.setEdit(false, returnLink, addRegisterTypesLink);
             form.loadRecord(Ext.create('Mdc.model.LoadProfileType'));
         }
-
         registerTypesStore.data.clear();
-        registerTypesStore.loadPage(1);
+        registerTypesStore.load(1);
     },
 
     showRegisterTypesAddView: function (id) {

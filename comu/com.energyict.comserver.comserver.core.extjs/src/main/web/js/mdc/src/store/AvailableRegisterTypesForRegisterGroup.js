@@ -5,7 +5,6 @@ Ext.define('Mdc.store.AvailableRegisterTypesForRegisterGroup', {
     ],
     model: 'Mdc.model.RegisterType',
     storeId: 'AvailableRegisterTypesForRegisterGroup',
-    pageSize: 20,
     buffered: true,
     proxy: {
         type: 'rest',

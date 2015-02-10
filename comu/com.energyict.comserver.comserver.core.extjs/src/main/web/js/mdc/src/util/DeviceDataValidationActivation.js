@@ -13,13 +13,16 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
         me.mRID = mRID;
         if (view.down('#deviceDataValidationStatusField')) {
             view.down('#deviceDataValidationStatusField').setValue(Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'));
-            view.down('#deviceDataValidationStateChangeBtn').setText(Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'));
+            view.down('#dataValidationStatusPanel').setLoading(true);
             view.down('#deviceDataValidationStateChangeBtn').setDisabled(true);
         }
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + mRID + '/validationrulesets/validationstatus',
             method: 'GET',
             timeout: 60000,
+            callback: function () {
+                view.down('#dataValidationStatusPanel').setLoading(false);
+            },
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
                 if (view.down('#dataValidationStatusPanel')) {
