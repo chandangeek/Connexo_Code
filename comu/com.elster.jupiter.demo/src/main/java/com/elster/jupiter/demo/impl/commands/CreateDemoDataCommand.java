@@ -4,9 +4,11 @@ import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.upload.UploadAllCommand;
+import com.elster.jupiter.demo.impl.commands.upload.ValidateStartDateCommand;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.io.InputStream;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -21,6 +23,7 @@ public class CreateDemoDataCommand {
     private final Provider<CreateValidationSetupCommand> createValidationSetupCommandProvider;
     private final Provider<CreateDeviceCommand> createDeviceCommandProvider;
     private final Provider<CreateDeliverDataSetupCommand> createDeliverDataSetupCommandProvider;
+    private final Provider<ValidateStartDateCommand> validateStartDateCommandProvider;
 
     private String comServerName;
     private String host;
@@ -35,7 +38,8 @@ public class CreateDemoDataCommand {
             Provider<UploadAllCommand> uploadAllCommandProvider,
             Provider<CreateValidationSetupCommand> createValidationSetupCommandProvider,
             Provider<CreateDeviceCommand> createDeviceCommandProvider,
-            Provider<CreateDeliverDataSetupCommand> createDeliverDataSetupCommandProvider) {
+            Provider<CreateDeliverDataSetupCommand> createDeliverDataSetupCommandProvider,
+            Provider<ValidateStartDateCommand> validateStartDateCommandProvider) {
         this.createCollectRemoteDataSetupCommandProvider = createCollectRemoteDataSetupCommandProvider;
         this.createUserManagementCommandProvider = createUserManagementCommandProvider;
         this.createApplicationServerCommandProvider = createApplicationServerCommandProvider;
@@ -44,6 +48,7 @@ public class CreateDemoDataCommand {
         this.createValidationSetupCommandProvider = createValidationSetupCommandProvider;
         this.createDeviceCommandProvider = createDeviceCommandProvider;
         this.createDeliverDataSetupCommandProvider = createDeliverDataSetupCommandProvider;
+        this.validateStartDateCommandProvider = validateStartDateCommandProvider;
     }
 
     public void setComServerName(String comServerName) {
@@ -63,6 +68,7 @@ public class CreateDemoDataCommand {
     }
 
     public void run(){
+        validateStartDateCommand();
         createUserManagementCommand();
         createCollectRemoteDataSetupCommand();
         createValidationSetupCommand();
@@ -71,6 +77,28 @@ public class CreateDemoDataCommand {
         createMockedDataDeviceCommand();
         uploadAllData();
         createDeliverDataSetupCommand();
+    }
+
+    private void validateStartDateCommand(){
+        String[] resourceFiles = {
+                "realisticChannelData - Interval.csv",
+                "realisticChannelData - Daily.csv",
+                "realisticChannelData - Monthly.csv",
+                "realisticRegisterData.csv",
+                "realisticChannelData - Interval - Validation.csv",
+                "realisticChannelData - Daily - Validation.csv",
+                "realisticRegisterData - Validation.csv"
+        };
+        for (String resourceFile : resourceFiles) {
+            ValidateStartDateCommand command = this.validateStartDateCommandProvider.get();
+            command.setStartDate(this.startDate);
+            command.setSource(getResourceAsStream(resourceFile));
+            command.run();
+        }
+    }
+
+    private InputStream getResourceAsStream(String name) {
+        return getClass().getClassLoader().getResourceAsStream(name);
     }
 
     private void createUserManagementCommand(){

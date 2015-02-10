@@ -72,7 +72,7 @@ public abstract class ReadDataFromFileCommand {
         this.meter = meter;
     }
 
-    private final void checkBeforeRun(){
+    protected void checkBeforeRun(){
         if (this.start == null){
             throw new UnableToCreate("Please specify the start time");
         }

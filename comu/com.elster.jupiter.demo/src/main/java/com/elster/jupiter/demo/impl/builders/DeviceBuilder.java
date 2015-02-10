@@ -7,8 +7,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import javax.inject.Inject;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 

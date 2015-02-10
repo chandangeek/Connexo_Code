@@ -17,6 +17,7 @@ import com.elster.jupiter.demo.impl.commands.upload.AddIntervalChannelReadingsCo
 import com.elster.jupiter.demo.impl.commands.upload.AddNoneIntervalChannelReadingsCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddRegisterReadingsCommand;
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -53,6 +54,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.security.Principal;
+import java.time.Clock;
 
 @Component(name = "com.elster.jupiter.demo", service = {DemoServiceImpl.class}, property = {
         "osgi.command.scope=demo",
@@ -101,6 +103,8 @@ public class DemoServiceImpl {
     private volatile CronExpressionParser cronExpressionParser;
     private volatile TimeService timeService;
     private volatile FavoritesService favoritesService;
+    private volatile Clock clock;
+    private volatile IdsService idsService;
 
     private Injector injector;
     private boolean reThrowEx = false;
@@ -136,7 +140,9 @@ public class DemoServiceImpl {
             DataExportService dataExportService,
             CronExpressionParser cronExpressionParser,
             TimeService timeService,
-            FavoritesService favoritesService) {
+            FavoritesService favoritesService,
+            Clock clock,
+            IdsService idsService) {
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
         setValidationService(validationService);
@@ -163,6 +169,8 @@ public class DemoServiceImpl {
         setCronExpressionParser(cronExpressionParser);
         setTimeService(timeService);
         setFavoritesService(favoritesService);
+        setClock(clock);
+        setIdsService(idsService);
 
         activate();
         reThrowEx = true;
@@ -201,6 +209,8 @@ public class DemoServiceImpl {
                 bind(CronExpressionParser.class).toInstance(cronExpressionParser);
                 bind(TimeService.class).toInstance(timeService);
                 bind(FavoritesService.class).toInstance(favoritesService);
+                bind(Clock.class).toInstance(clock);
+                bind(IdsService.class).toInstance(idsService);
             }
         });
         Builders.initWith(this.injector);
@@ -362,6 +372,18 @@ public class DemoServiceImpl {
     @SuppressWarnings("unused")
     public final void setFavoritesService(FavoritesService favoritesService) {
         this.favoritesService = favoritesService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public final void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public final void setIdsService(IdsService idsService) {
+        this.idsService = idsService;
     }
 
     private void executeTransaction(Runnable toRunInsideTransaction) {
