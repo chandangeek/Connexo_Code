@@ -485,39 +485,6 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         assertThat(reloadedDevice.getChannels()).hasSize(2);
     }
 
-    @Test
-    @Transactional
-    public void getChannelWithExistingNameTest() {
-        DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        List<ChannelSpec> channelSpecs = deviceConfigurationWithTwoChannelSpecs.getChannelSpecs();
-        String channelSpecName = "ChannelType1";
-        for (ChannelSpec channelSpec : channelSpecs) {
-            if (channelSpec.getChannelType().getTemplateRegister().getReadingType().getName().equals(forwardEnergyReadingType.getName())) {
-                channelSpecName = channelSpec.getName();
-            }
-        }
-
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels", MRID);
-        device.save();
-        Device reloadedDevice = getReloadedDevice(device);
-
-        BaseChannel channel = reloadedDevice.getChannel(channelSpecName);
-        assertThat(channel).isNotNull();
-        assertThat(channel.getRegisterTypeObisCode()).isEqualTo(forwardEnergyObisCode);
-    }
-
-    @Test
-    @Transactional
-    public void getChannelWithNonExistingNameTest() {
-        DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs(interval);
-
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels", MRID);
-        device.save();
-        Device reloadedDevice = getReloadedDevice(device);
-
-        BaseChannel channel = reloadedDevice.getChannel("IamJustASpiritChannel");
-        assertThat(channel).isNull();
-    }
 
     @Test(expected = CannotDeleteComScheduleFromDevice.class)
     @Transactional

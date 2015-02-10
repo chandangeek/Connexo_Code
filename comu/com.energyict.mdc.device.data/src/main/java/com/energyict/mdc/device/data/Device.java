@@ -191,14 +191,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     String getmRID();
 
     /**
-     * Returns the channel with the given name or null.
-     *
-     * @param name the channel name.
-     * @return the channel or null.
-     */
-    BaseChannel getChannel(String name);
-
-    /**
      * Provides a builder that allows the creation of a ScheduledConnectionTask for the Device
      *
      * @param partialOutboundConnectionTask the partialConnectionTask that will model the actual ScheduledConnectionTask

@@ -208,7 +208,7 @@ public class LoadProfileImpl implements LoadProfile {
 
         @Override
         public String getName() {
-            return getChannelSpec().getName();
+            return getChannelSpec().getReadingType().getAliasName();
         }
 
         @Override
