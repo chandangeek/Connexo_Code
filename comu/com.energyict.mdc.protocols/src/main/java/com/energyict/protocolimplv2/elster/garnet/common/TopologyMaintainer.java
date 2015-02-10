@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.elster.garnet.common;
 
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -50,14 +51,22 @@ public class TopologyMaintainer implements DeviceTopologySupport {
             }
         } catch (NotExecutedException e) {
             if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.COMMAND_NOT_IMPLEMENTED)) {
-                collectedTopology.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(getMasterDevice(), "commandNotSupported"));
+                collectedTopology.setFailureInformation(
+                        ResultType.NotSupported,
+                        this.issueService.newWarning(getMasterDevice(), MessageSeeds.COMMAND_NOT_SUPPORTED.getKey()));
             } else if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.SLAVE_DOES_NOT_EXIST)) {
-                collectedTopology.setFailureInformation(ResultType.ConfigurationMisMatch, this.issueService.newWarning(getMasterDevice(), "topologyMismatch"));
+                collectedTopology.setFailureInformation(
+                        ResultType.ConfigurationMisMatch,
+                        this.issueService.newWarning(getMasterDevice(), MessageSeeds.TOPOLOGY_MISMATCH.getKey()));
             } else {
-                collectedTopology.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(getMasterDevice(), "CouldNotParseTopologyData"));
+                collectedTopology.setFailureInformation(
+                        ResultType.InCompatible,
+                        this.issueService.newProblem(getMasterDevice(), MessageSeeds.COULD_NOT_PARSE_TOPOLOGY_DATA.getKey()));
             }
         } catch (GarnetException e) {
-            collectedTopology.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(getMasterDevice(), "CouldNotParseTopologyData"));
+            collectedTopology.setFailureInformation(
+                    ResultType.InCompatible,
+                    this.issueService.newProblem(getMasterDevice(), MessageSeeds.COULD_NOT_PARSE_TOPOLOGY_DATA.getKey()));
         }
         return collectedTopology;
     }

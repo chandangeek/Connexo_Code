@@ -118,7 +118,9 @@ public class RegisterFactory implements DeviceRegisterSupport {
                 registerNotSupported(register, collectedRegister);
             }
         } catch (ParsingException e) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(collectedRegister, "CouldNotParseRegisterData"));
+            collectedRegister.setFailureInformation(
+                    ResultType.InCompatible,
+                    this.issueService.newProblem(collectedRegister, com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_PARSE_REGISTER_DATA.getKey()));
         }
     }
 
@@ -351,7 +353,12 @@ public class RegisterFactory implements DeviceRegisterSupport {
     }
 
     private void registerNotSupported(OfflineRegister register, CollectedRegister collectedRegister) {
-        collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(register, "registerXnotsupported", register.getObisCode()));
+        collectedRegister.setFailureInformation(
+                ResultType.NotSupported,
+                this.issueService.newWarning(
+                        register,
+                        com.energyict.mdc.protocol.api.MessageSeeds.REGISTER_NOT_SUPPORTED.getKey(),
+                        register.getObisCode()));
     }
 
     private boolean registerNotYetCollected(CollectedRegister collectedRegister) {

@@ -4,6 +4,7 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -367,13 +368,24 @@ public abstract class ObisCodeMapper {
 
     protected CollectedRegister createNotSupportedCollectedRegister(ObisCode obisCode, Unit unit) {
         CollectedRegister failedRegister = createDeviceRegister(obisCode, unit);
-        failedRegister.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(obisCode, "registerXnotsupported", obisCode));
+        failedRegister.setFailureInformation(
+                ResultType.NotSupported,
+                this.issueService.newWarning(
+                        obisCode,
+                        MessageSeeds.REGISTER_NOT_SUPPORTED.getKey(),
+                        obisCode));
         return failedRegister;
     }
 
     protected CollectedRegister createIncompatibleCollectedRegister(ObisCode obisCode, String message) {
         CollectedRegister failedRegister = createDeviceRegister(obisCode, Unit.getUndefined());
-        failedRegister.setFailureInformation(ResultType.InCompatible, this.issueService.newWarning(obisCode, "registerXincompatible", obisCode, message));
+        failedRegister.setFailureInformation(
+                ResultType.InCompatible,
+                this.issueService.newWarning(
+                        obisCode,
+                        MessageSeeds.REGISTER_INCOMPATIBLE.getKey(),
+                        obisCode,
+                        message));
         return failedRegister;
     }
 

@@ -85,12 +85,21 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
                     collectedLogBook.setMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode()));
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
-                        collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode()
-                                .toString()));
+                        collectedLogBook.setFailureInformation(
+                                ResultType.NotSupported,
+                                this.issueService.newWarning(
+                                        logBookReader,
+                                        com.energyict.mdc.protocol.api.MessageSeeds.LOGBOOK_NOT_SUPPORTED.getKey(),
+                                        logBookReader.getLogBookObisCode().toString()));
                     }
                 }
             } else {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
+                collectedLogBook.setFailureInformation(
+                        ResultType.NotSupported,
+                        this.issueService.newWarning(
+                                logBookReader,
+                                com.energyict.mdc.protocol.api.MessageSeeds.LOGBOOK_NOT_SUPPORTED.getKey(),
+                                logBookReader.getLogBookObisCode().toString()));
             }
             result.add(collectedLogBook);
         }

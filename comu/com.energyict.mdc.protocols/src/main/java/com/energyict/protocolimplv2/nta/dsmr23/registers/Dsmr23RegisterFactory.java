@@ -5,6 +5,7 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
@@ -394,11 +395,19 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
         if (resultType == ResultType.InCompatible) {
             collectedRegister.setFailureInformation(
                     ResultType.InCompatible,
-                    this.issueService.newWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
+                    this.issueService.newWarning(
+                            register.getObisCode(),
+                            MessageSeeds.REGISTER_ISSUE.getKey(),
+                            register.getObisCode(),
+                            arguments));
         } else {
             collectedRegister.setFailureInformation(
                     ResultType.NotSupported,
-                    this.issueService.newWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
+                    this.issueService.newWarning(
+                            register.getObisCode(),
+                            MessageSeeds.REGISTER_NOT_SUPPORTED.getKey(),
+                            register.getObisCode(),
+                            arguments));
         }
         return collectedRegister;
     }

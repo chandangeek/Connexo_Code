@@ -111,7 +111,9 @@ public abstract class AbstractMessageExecutor {
     }
 
     protected Issue createUnsupportedWarning(OfflineDeviceMessage pendingMessage) {
-        return this.issueService.newIssueCollector().addWarning(pendingMessage, "DeviceMessage.notSupported",
+        return this.issueService.newIssueCollector().addWarning(
+                pendingMessage,
+                com.energyict.mdc.protocol.api.MessageSeeds.DEVICEMESSAGE_NOT_SUPPORTED.getKey(),
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());
@@ -122,7 +124,9 @@ public abstract class AbstractMessageExecutor {
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, String message) {
-        return this.issueService.newIssueCollector().addWarning(pendingMessage, "DeviceMessage.failed",
+        return this.issueService.newIssueCollector().addWarning(
+                pendingMessage,
+                com.energyict.mdc.protocol.api.MessageSeeds.DEVICEMESSAGE_FAILED.getKey(),
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName(),

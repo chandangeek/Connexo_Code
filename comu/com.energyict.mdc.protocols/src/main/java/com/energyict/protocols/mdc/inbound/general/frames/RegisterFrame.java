@@ -3,6 +3,7 @@ package com.energyict.protocols.mdc.inbound.general.frames;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
@@ -104,13 +105,20 @@ public class RegisterFrame extends AbstractInboundFrame {
                     ResultType.ConfigurationMisMatch,
                     this.getIssueService()
                             .newIssueCollector()
-                            .addProblem(deviceRegister, "protocol.rtunotfound", getInboundParameters().getSerialNumber()));
+                            .addProblem(
+                                    deviceRegister,
+                                    MessageSeeds.PROTOCOL_DEVICE_NOT_FOUND.getKey(),
+                                    getInboundParameters().getSerialNumber()));
         } else if (this.getDevice().getRegisterWithDeviceObisCode(register.getObisCode()) == null) {
             deviceRegister.setFailureInformation(
                     ResultType.ConfigurationMisMatch,
                     this.getIssueService()
                         .newIssueCollector()
-                        .addProblem(deviceRegister, "protocol.registernotfound", register.getObisCode(), getInboundParameters().getSerialNumber()));
+                        .addProblem(
+                                deviceRegister,
+                                MessageSeeds.PROTOCOL_REGISTER_NOT_FOUND.getKey(),
+                                register.getObisCode(),
+                                getInboundParameters().getSerialNumber()));
         }
         return deviceRegister;
     }

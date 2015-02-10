@@ -214,7 +214,8 @@ public class MessageFactory implements DeviceMessageSupport {
     private void messageNotSupported(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
         collectedMessage.setFailureInformation(ResultType.NotSupported,
                 this.issueService.newWarning(
-                        pendingMessage, "DeviceMessage.notSupported",
+                        pendingMessage,
+                        com.energyict.mdc.protocol.api.MessageSeeds.DEVICEMESSAGE_NOT_SUPPORTED.getKey(),
                         pendingMessage.getDeviceMessageId(),
                         pendingMessage.getSpecification().getCategory().getName(),
                         pendingMessage.getSpecification().getName()
@@ -225,7 +226,8 @@ public class MessageFactory implements DeviceMessageSupport {
     protected void messageFailed(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage, String errorMessage) {
         collectedMessage.setFailureInformation(ResultType.InCompatible,
                 this.issueService.newWarning(
-                        pendingMessage, "DeviceMessage.failed",
+                        pendingMessage,
+                        com.energyict.mdc.protocol.api.MessageSeeds.DEVICEMESSAGE_FAILED.getKey(),
                         pendingMessage.getDeviceMessageId(),
                         pendingMessage.getSpecification().getCategory().getName(),
                         pendingMessage.getSpecification().getName(),

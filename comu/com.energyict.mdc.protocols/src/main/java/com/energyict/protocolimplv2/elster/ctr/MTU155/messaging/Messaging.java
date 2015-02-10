@@ -4,6 +4,7 @@ import com.energyict.mdc.common.Password;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
@@ -94,10 +95,14 @@ public class Messaging implements DeviceMessageSupport {
             }
             if (messageNotFound) {
                 collectedMessage = createCollectedMessage(pendingMessage);
-                collectedMessage.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(pendingMessage, "DeviceMessage.notSupported",
-                        pendingMessage.getDeviceMessageId(),
-                        pendingMessage.getSpecification().getCategory().getName(),
-                        pendingMessage.getSpecification().getName()));
+                collectedMessage.setFailureInformation(
+                        ResultType.NotSupported,
+                        this.issueService.newWarning(
+                                pendingMessage,
+                                MessageSeeds.DEVICEMESSAGE_NOT_SUPPORTED.getKey(),
+                                pendingMessage.getDeviceMessageId(),
+                                pendingMessage.getSpecification().getCategory().getName(),
+                                pendingMessage.getSpecification().getName()));
             }
 
             result.addCollectedMessages(collectedMessage);

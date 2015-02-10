@@ -243,7 +243,7 @@ public class ProtocolHandler {
                         ResultType.NotSupported,
                         this.issueService.newWarning(
                                 deviceLogBook,
-                                "endDeviceEventTypeXnotsupported",
+                                com.energyict.mdc.protocol.api.MessageSeeds.END_DEVICE_EVENT_TYPE_NOT_SUPPORTED.getKey(),
                                 EndDeviceEventTypeMapping.OTHER.getEndDeviceEventTypeMRID()));
             }
         }

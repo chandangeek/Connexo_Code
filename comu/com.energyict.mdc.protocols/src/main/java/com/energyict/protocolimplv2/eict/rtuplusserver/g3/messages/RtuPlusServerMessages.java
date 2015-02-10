@@ -23,6 +23,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -913,7 +914,9 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, String message) {
-        return this.issueService.newWarning(pendingMessage, "DeviceMessage.failed",
+        return this.issueService.newWarning(
+                pendingMessage,
+                MessageSeeds.DEVICEMESSAGE_FAILED.getKey(),
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName(),
@@ -921,7 +924,9 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected Issue createUnsupportedWarning(OfflineDeviceMessage pendingMessage) throws IOException {
-        return this.issueService.newWarning(pendingMessage, "DeviceMessage.notSupported",
+        return this.issueService.newWarning(
+                pendingMessage,
+                MessageSeeds.DEVICEMESSAGE_NOT_SUPPORTED.getKey(),
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());

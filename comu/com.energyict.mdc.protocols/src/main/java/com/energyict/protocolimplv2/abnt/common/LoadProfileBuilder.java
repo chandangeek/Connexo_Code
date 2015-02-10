@@ -4,6 +4,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -103,7 +104,9 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             getChannelInfoMap().put(reader, channelInfos);
         } catch (ParsingException e) {
             loadProfileConfig.setSupportedByMeter(false);
-            loadProfileConfig.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(reader, "CouldNotParseLoadProfileData"));
+            loadProfileConfig.setFailureInformation(
+                    ResultType.InCompatible,
+                    this.issueService.newProblem(reader, MessageSeeds.COULD_NOT_PARSE_LOADPROFILE_DATA.getKey()));
         }
     }
 
@@ -152,7 +155,9 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             List<IntervalData> intervalData = composeAndFilterIntervalDataList(reader, intervalDataMap, channelGroupsWhoShouldBeRead.size());
             collectedLoadProfile.setCollectedData(intervalData, channelInfos);
         } catch (ParsingException e) {
-            collectedLoadProfile.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(collectedLoadProfile, "CouldNotParseLoadProfileData"));
+            collectedLoadProfile.setFailureInformation(
+                    ResultType.InCompatible,
+                    this.issueService.newProblem(collectedLoadProfile, MessageSeeds.COULD_NOT_PARSE_LOADPROFILE_DATA.getKey()));
         }
     }
 
@@ -258,7 +263,9 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     }
 
     private void loadProfileNotSupported(LoadProfileReader reader, CollectedLoadProfile collectedLoadProfile) {
-        collectedLoadProfile.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(reader, "loadProfileXnotsupported", reader.getProfileObisCode()));
+        collectedLoadProfile.setFailureInformation(
+                ResultType.NotSupported,
+                this.issueService.newWarning(reader, MessageSeeds.LOADPROFILE_NOT_SUPPORTED.getKey(), reader.getProfileObisCode()));
     }
 
     public AbstractAbntProtocol getMeterProtocol() {

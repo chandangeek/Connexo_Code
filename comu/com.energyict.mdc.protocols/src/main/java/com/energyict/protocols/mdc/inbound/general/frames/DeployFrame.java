@@ -1,6 +1,7 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -34,8 +35,10 @@ public class DeployFrame extends AbstractInboundFrame {
 
         deviceTopology.setFailureInformation(
                 ResultType.InCompatible,
-                this.getIssueService().newIssueCollector()
-                    .addWarning(deviceTopology, "protocol.deploynotsupported", getInboundParameters().getSerialNumber()));
+                this.getIssueService().newIssueCollector().addWarning(
+                        deviceTopology,
+                        MessageSeeds.PROTOCOL_DEPLOY_NOT_SUPPORTED.getKey(),
+                        getInboundParameters().getSerialNumber()));
         getCollectedDatas().add(deviceTopology);
     }
 

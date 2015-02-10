@@ -8,6 +8,7 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -486,12 +487,12 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                     collectedLoadProfile.setCollectedData(collectedIntervalData, channelInfos);
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSession())) {
-                        Issue problem = this.issueService.newIssueCollector().addProblem(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
+                        Issue problem = this.issueService.newIssueCollector().addProblem(lpr, MessageSeeds.LOADPROFILE_ISSUE.getKey(), lpr.getProfileObisCode(), e);
                         collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                     }
                 }
             } else {
-                Issue problem = this.issueService.newIssueCollector().addWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
+                Issue problem = this.issueService.newIssueCollector().addWarning(lpr, MessageSeeds.LOADPROFILE_NOT_SUPPORTED.getKey(), lpr.getProfileObisCode());
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
             }
             collectedLoadProfileList.add(collectedLoadProfile);

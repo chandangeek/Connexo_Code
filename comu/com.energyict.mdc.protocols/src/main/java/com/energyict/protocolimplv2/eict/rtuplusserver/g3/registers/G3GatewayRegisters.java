@@ -6,6 +6,7 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
@@ -134,9 +135,21 @@ public class G3GatewayRegisters {
         CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register),
                 register.getReadingType());
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, this.issueService.newWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(
+                    ResultType.InCompatible,
+                    this.issueService.newWarning(
+                            register.getObisCode(),
+                            MessageSeeds.REGISTER_ISSUE.getKey(),
+                            register.getObisCode(),
+                            arguments));
         } else {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(
+                    ResultType.NotSupported,
+                    this.issueService.newWarning(
+                            register.getObisCode(),
+                            MessageSeeds.REGISTER_NOT_SUPPORTED.getKey(),
+                            register.getObisCode(),
+                            arguments));
         }
         return collectedRegister;
     }

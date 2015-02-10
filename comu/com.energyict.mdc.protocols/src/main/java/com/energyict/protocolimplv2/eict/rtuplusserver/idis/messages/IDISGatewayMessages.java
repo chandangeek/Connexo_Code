@@ -20,6 +20,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeOfDay;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
@@ -98,66 +99,95 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
             try {
-                if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.LOGGING_CONFIGURATION_DEVICE_MESSAGE_SET_SERVER_LOG_LEVEL)) {
-                    setServerLogLevel(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.LOGGING_CONFIGURATION_DEVICE_MESSAGE_SET_WEB_PORTAL_LOG_LEVEL)) {
-                    setWebPortalLogLevel(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.NETWORK_CONNECTIVITY_SET_OPERATING_WINDOW_START_TIME)) {
-                    setOperatingWindowStartTime(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.NETWORK_CONNECTIVITY_SET_OPERATING_WINDOW_END_TIME)) {
-                    setOperatingWindowEndTime(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.NETWORK_CONNECTIVITY_CLEAR_WHITE_LIST)) {
-                    clearWhitelist(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.NETWORK_CONNECTIVITY_ENABLE_WHITE_LIST)) {
-                    enableDisableWhitelist(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.NETWORK_CONNECTIVITY_DISABLE_WHITE_LIST)) {
-                    enableDisableWhitelist(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.NETWORK_CONNECTIVITY_ENABLE_OPERATING_WINDOW)) {
-                    enableDisableOperatingWindow(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.NETWORK_CONNECTIVITY_DISABLE_OPERATING_WINDOW)) {
-                    enableDisableOperatingWindow(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.NETWORK_CONNECTIVITY_SET_NETWORK_MANAGEMENT_PARAMETERS)) {
-                    setNetworkMgmtParameters(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.NETWORK_CONNECTIVITY_RUN_METER_DISCOVERY)) {
-                    runMeterDiscovery(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.NETWORK_CONNECTIVITY_RUN_ALARM_METER_DISCOVERY)) {
-                    runAlarmMeterDiscovery(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.NETWORK_CONNECTIVITY_RUN_REPEATER_CALL)) {
-                    runRepeaterCall(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONFIGURATION_CHANGE_CONFIGURE_MASTER_BOARD_PARAMETERS)) {
-                    configureMasterboardParameters(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIREWALL_ACTIVATE_FIREWALL)) {
-                    activateOrDeactivateFirewall(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIREWALL_DEACTIVATE_FIREWALL)) {
-                    activateOrDeactivateFirewall(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIREWALL_CONFIGURE_FW_GPRS)) {
-                    setPortConfiguration(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIREWALL_CONFIGURE_FW_LAN)) {
-                    setPortConfiguration(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIREWALL_CONFIGURE_FW_WAN)) {
-                    setPortConfiguration(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIREWALL_SET_FW_DEFAULT_STATE)) {
-                    setFirewallDefaultState(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.OUTPUT_CONFIGURATION_WRITE_OUTPUT_STATE)) {
-                    changeOutputState(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CLOCK_SET_SYNCHRONIZE_TIME)) {
-                    forceClock(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.DEVICE_ACTIONS_REBOOT_DEVICE)) {
-                    rebootDevice(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.DEVICE_ACTIONS_HARD_RESET_DEVICE)) {
-                    hardResetDevice(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.DEVICE_ACTIONS_REBOOT_APPLICATION)) {
-                    restartApplication(pendingMessage);
-                } else {   //Unsupported message
-                    collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                    collectedMessage.setFailureInformation(ResultType.NotSupported, messageUnsupported(pendingMessage));
+                switch (pendingMessage.getDeviceMessageId()) {
+                    case LOGGING_CONFIGURATION_DEVICE_MESSAGE_SET_SERVER_LOG_LEVEL: {
+                        setServerLogLevel(pendingMessage);
+                    }
+                    case LOGGING_CONFIGURATION_DEVICE_MESSAGE_SET_WEB_PORTAL_LOG_LEVEL: {
+                        setWebPortalLogLevel(pendingMessage);
+                    }
+                    case NETWORK_CONNECTIVITY_SET_OPERATING_WINDOW_START_TIME: {
+                        setOperatingWindowStartTime(pendingMessage);
+                    }
+                    case NETWORK_CONNECTIVITY_SET_OPERATING_WINDOW_END_TIME: {
+                        setOperatingWindowEndTime(pendingMessage);
+                    }
+                    case NETWORK_CONNECTIVITY_CLEAR_WHITE_LIST: {
+                        clearWhitelist(pendingMessage);
+                    }
+                    case NETWORK_CONNECTIVITY_ENABLE_WHITE_LIST: {
+                        enableDisableWhitelist(pendingMessage);
+                    }
+                    case NETWORK_CONNECTIVITY_DISABLE_WHITE_LIST: {
+                        enableDisableWhitelist(pendingMessage);
+                    }
+                    case NETWORK_CONNECTIVITY_ENABLE_OPERATING_WINDOW: {
+                        enableDisableOperatingWindow(pendingMessage);
+                    }
+                    case NETWORK_CONNECTIVITY_DISABLE_OPERATING_WINDOW: {
+                        enableDisableOperatingWindow(pendingMessage);
+                    }
+                    case NETWORK_CONNECTIVITY_SET_NETWORK_MANAGEMENT_PARAMETERS: {
+                        setNetworkMgmtParameters(pendingMessage);
+                    }
+                    case NETWORK_CONNECTIVITY_RUN_METER_DISCOVERY: {
+                        runMeterDiscovery(pendingMessage);
+                    }
+                    case NETWORK_CONNECTIVITY_RUN_ALARM_METER_DISCOVERY: {
+                        runAlarmMeterDiscovery(pendingMessage);
+                    }
+                    case NETWORK_CONNECTIVITY_RUN_REPEATER_CALL: {
+                        runRepeaterCall(pendingMessage);
+                    }
+                    case CONFIGURATION_CHANGE_CONFIGURE_MASTER_BOARD_PARAMETERS: {
+                        configureMasterboardParameters(pendingMessage);
+                    }
+                    case FIREWALL_ACTIVATE_FIREWALL: {
+                        activateOrDeactivateFirewall(pendingMessage);
+                    }
+                    case FIREWALL_DEACTIVATE_FIREWALL: {
+                        activateOrDeactivateFirewall(pendingMessage);
+                    }
+                    case FIREWALL_CONFIGURE_FW_GPRS: {
+                        setPortConfiguration(pendingMessage);
+                    }
+                    case FIREWALL_CONFIGURE_FW_LAN: {
+                        setPortConfiguration(pendingMessage);
+                    }
+                    case FIREWALL_CONFIGURE_FW_WAN: {
+                        setPortConfiguration(pendingMessage);
+                    }
+                    case FIREWALL_SET_FW_DEFAULT_STATE: {
+                        setFirewallDefaultState(pendingMessage);
+                    }
+                    case OUTPUT_CONFIGURATION_WRITE_OUTPUT_STATE: {
+                        changeOutputState(pendingMessage);
+                    }
+                    case CLOCK_SET_SYNCHRONIZE_TIME: {
+                        forceClock(pendingMessage);
+                    }
+                    case DEVICE_ACTIONS_REBOOT_DEVICE: {
+                        rebootDevice(pendingMessage);
+                    }
+                    case DEVICE_ACTIONS_HARD_RESET_DEVICE: {
+                        hardResetDevice(pendingMessage);
+                    }
+                    case DEVICE_ACTIONS_REBOOT_APPLICATION: {
+                        restartApplication(pendingMessage);
+                    }
+                    default: {
+                        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                        collectedMessage.setFailureInformation(ResultType.NotSupported, messageUnsupported(pendingMessage));
+                    }
                 }
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 if (IOExceptionHandler.isUnexpectedResponse(e, session)) {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.InCompatible, messageFailed(pendingMessage, e));
                 }   //Else: throw communication exception
-            } catch (IndexOutOfBoundsException | NumberFormatException e) {
+            }
+            catch (IndexOutOfBoundsException | NumberFormatException e) {
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 collectedMessage.setFailureInformation(ResultType.InCompatible, messageFailed(pendingMessage, e));
             }
@@ -300,12 +330,14 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
         boolean isHTTPAllowed = getBooleanDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.EnableHTTP);
         boolean isSSHAllowed = getBooleanDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.EnableSSH);
 
-        if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIREWALL_CONFIGURE_FW_WAN)) {
-            this.session.getCosemObjectFactory().getFirewallSetup().setWANPortSetup(new FirewallSetup.InterfaceFirewallConfiguration(isDLMSAllowed, isHTTPAllowed, isSSHAllowed));
-        } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIREWALL_CONFIGURE_FW_LAN)) {
-            this.session.getCosemObjectFactory().getFirewallSetup().setLANPortSetup(new FirewallSetup.InterfaceFirewallConfiguration(isDLMSAllowed, isHTTPAllowed, isSSHAllowed));
-        } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIREWALL_CONFIGURE_FW_GPRS)) {
-            this.session.getCosemObjectFactory().getFirewallSetup().setGPRSPortSetup(new FirewallSetup.InterfaceFirewallConfiguration(isDLMSAllowed, isHTTPAllowed, isSSHAllowed));
+        switch (pendingMessage.getDeviceMessageId()) {
+            case FIREWALL_CONFIGURE_FW_WAN: {
+                this.session.getCosemObjectFactory().getFirewallSetup().setWANPortSetup(new FirewallSetup.InterfaceFirewallConfiguration(isDLMSAllowed, isHTTPAllowed, isSSHAllowed));
+            } case FIREWALL_CONFIGURE_FW_LAN: {
+                this.session.getCosemObjectFactory().getFirewallSetup().setLANPortSetup(new FirewallSetup.InterfaceFirewallConfiguration(isDLMSAllowed, isHTTPAllowed, isSSHAllowed));
+            } case FIREWALL_CONFIGURE_FW_GPRS: {
+                this.session.getCosemObjectFactory().getFirewallSetup().setGPRSPortSetup(new FirewallSetup.InterfaceFirewallConfiguration(isDLMSAllowed, isHTTPAllowed, isSSHAllowed));
+            }
         }
     }
 
@@ -379,15 +411,19 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
     }
 
     private Issue messageFailed(OfflineDeviceMessage pendingMessage, String message) {
-        return this.issueService.newWarning(pendingMessage, "DeviceMessage.failed",
+        return this.issueService.newWarning(
+                pendingMessage,
+                MessageSeeds.DEVICEMESSAGE_FAILED.getKey(),
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName(),
                 message);
     }
 
-    private Issue messageUnsupported(OfflineDeviceMessage pendingMessage) throws IOException {
-        return this.issueService.newWarning(pendingMessage, "DeviceMessage.notSupported",
+    private Issue messageUnsupported(OfflineDeviceMessage pendingMessage) {
+        return this.issueService.newWarning(
+                pendingMessage,
+                MessageSeeds.DEVICEMESSAGE_NOT_SUPPORTED.getKey(),
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());

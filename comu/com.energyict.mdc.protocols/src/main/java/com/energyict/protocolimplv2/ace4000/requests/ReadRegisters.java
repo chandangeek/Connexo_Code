@@ -153,14 +153,14 @@ public class ReadRegisters extends AbstractRequest<List<OfflineRegister>, List<C
         //Didn't receive all necessary registers, log properly and move on
         List<CollectedRegister> result = getAce4000().getCollectedRegisters();
         for (OfflineRegister rtuRegister : getInput()) {
-            boolean receivedRegister = false;
+            boolean registerNotFound = true;
             for (ObisCode registerObisCode : getAce4000().getReceivedRegisterObisCodeList()) {
                 if (rtuRegister.getObisCode().equals(registerObisCode)) {
-                    receivedRegister = true;
+                    registerNotFound = false;
                     break;
                 }
             }
-            if (!receivedRegister) {
+            if (registerNotFound) {
                 CollectedRegister defaultDeviceRegister =
                         this.collectedDataFactory.createDefaultCollectedRegister(
                                 new RegisterDataIdentifierByObisCodeAndDevice(

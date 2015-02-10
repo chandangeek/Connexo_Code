@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.idis.events;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -61,11 +62,21 @@ public class IDISGatewayEvents {
                     collectedLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents, this.meteringService));
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, dlmsSession)) {
-                        collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
+                        collectedLogBook.setFailureInformation(
+                                ResultType.NotSupported,
+                                this.issueService.newWarning(
+                                        logBook,
+                                        MessageSeeds.LOGBOOK_NOT_SUPPORTED.getKey(),
+                                        logBook.getLogBookObisCode().toString()));
                     }
                 }
             } else {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
+                collectedLogBook.setFailureInformation(
+                        ResultType.NotSupported,
+                        this.issueService.newWarning(
+                                logBook,
+                                MessageSeeds.LOGBOOK_NOT_SUPPORTED.getKey(),
+                                logBook.getLogBookObisCode().toString()));
             }
             result.add(collectedLogBook);
         }

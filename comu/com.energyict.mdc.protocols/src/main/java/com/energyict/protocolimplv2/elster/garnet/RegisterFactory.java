@@ -5,6 +5,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -330,19 +331,19 @@ public class RegisterFactory implements DeviceRegisterSupport {
 
     private CollectedRegister createNotSupportedCollectedRegister(OfflineRegister register) {
         CollectedRegister failedRegister = createDeviceRegister(register);
-        failedRegister.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(register, "registerXnotsupported", register.getObisCode()));
+        failedRegister.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(register, MessageSeeds.REGISTER_NOT_SUPPORTED.getKey(), register.getObisCode()));
         return failedRegister;
     }
 
     private CollectedRegister createTopologyMisMatchCollectedRegister(OfflineRegister register) {
         CollectedRegister failedRegister = createDeviceRegister(register);
-        failedRegister.setFailureInformation(ResultType.ConfigurationMisMatch, this.issueService.newWarning(register, "topologyMismatch"));
+        failedRegister.setFailureInformation(ResultType.ConfigurationMisMatch, this.issueService.newWarning(register, MessageSeeds.TOPOLOGY_MISMATCH.getKey()));
         return failedRegister;
     }
 
     private CollectedRegister createCouldNotParseCollectedRegister(OfflineRegister register) {
         CollectedRegister failedRegister = createDeviceRegister(register);
-        failedRegister.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(register, "CouldNotParseRegisterData"));
+        failedRegister.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(register, MessageSeeds.COULD_NOT_PARSE_REGISTER_DATA.getKey()));
         return failedRegister;
     }
 

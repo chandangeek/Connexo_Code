@@ -324,7 +324,9 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         } else {
             List<CollectedLogBook> result = new ArrayList<>();
             CollectedLogBook deviceLogBook = this.createCollectedLogBook(logBookReader.getLogBookIdentifier());
-            deviceLogBook.setFailureInformation(ResultType.NotSupported, this.issueService.newIssueCollector().addProblem("MBus slave device doesn't support events"));
+            deviceLogBook.setFailureInformation(
+                    ResultType.NotSupported,
+                    this.issueService.newIssueCollector().addProblem("MBus slave device doesn't support events"));
             result.add(deviceLogBook);
             return result;
         }

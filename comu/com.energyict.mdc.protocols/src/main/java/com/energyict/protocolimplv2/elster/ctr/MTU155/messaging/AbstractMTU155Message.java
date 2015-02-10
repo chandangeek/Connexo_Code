@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 import com.elster.jupiter.properties.PropertySpec;
 
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -71,7 +72,9 @@ public abstract class AbstractMTU155Message {
             collectedMessage.setDeviceProtocolInformation(e.getMessage());
              collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setFailureInformation(ResultType.Other,
-                    this.issueService.newWarning(message, "DeviceMessage.failed",   //Device message ({0}, {1} - {2})) failed: {3}
+                    this.issueService.newWarning(
+                            message,
+                            MessageSeeds.DEVICEMESSAGE_FAILED.getKey(),
                             message.getDeviceMessageId(),
                             message.getSpecification().getCategory().getName(),
                             message.getSpecification().getName(),

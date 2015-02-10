@@ -171,7 +171,12 @@ public class GarnetConcentrator implements DeviceProtocol {
         List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = new ArrayList<>(loadProfilesToRead.size());
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
             CollectedLoadProfileConfiguration configuration = this.collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getDeviceIdentifier(), false);
-            configuration.setFailureInformation(ResultType.NotSupported, this.issueService.newProblem(loadProfileReader.getProfileObisCode(), "loadProfileXnotsupported", loadProfileReader.getProfileObisCode()));
+            configuration.setFailureInformation(
+                    ResultType.NotSupported,
+                    this.issueService.newProblem(
+                            loadProfileReader.getProfileObisCode(),
+                            com.energyict.mdc.protocol.api.MessageSeeds.LOADPROFILE_NOT_SUPPORTED.getKey(),
+                            loadProfileReader.getProfileObisCode()));
             collectedLoadProfileConfigurations.add(configuration);
         }
         return collectedLoadProfileConfigurations;

@@ -1,6 +1,7 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
@@ -82,7 +83,7 @@ public class EventPOFrame extends AbstractInboundFrame {
                                 ResultType.NotSupported,
                                 this.getIssueService().newWarning(
                                         deviceLogBook,
-                                        "endDeviceEventTypeXnotsupported",
+                                        MessageSeeds.END_DEVICE_EVENT_TYPE_NOT_SUPPORTED.getKey(),
                                         EndDeviceEventTypeMapping.POWERDOWN.getEndDeviceEventTypeMRID()));
                     }
                 }

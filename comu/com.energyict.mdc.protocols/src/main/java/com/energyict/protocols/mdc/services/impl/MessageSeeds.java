@@ -133,6 +133,11 @@ public enum MessageSeeds implements MessageSeed {
     UNEXPECTED_COMCHANNEL(252, "unexpected.comchannel", "Unexpected ComChannel, expected {0}, but was {1}", Level.SEVERE),
     INTERRUPTED_DURING_COMMUNICATION(253, "communication.interrupted", "The communication thread got interrupted, communication ended", Level.SEVERE),
     UNSUPPORTED_METHOD(254, "unsupportedMethod", "Method {1} is not supported for class {0}", Level.SEVERE),
+    IPv6_SETUP(255, "IPv6Setup", "", Level.SEVERE),
+    SAP_ASSIGNMENT(256, "SAPAssignment", "", Level.SEVERE),
+    PLC_OFDM_TYPE2MAC_SETUP(257, "PLCOFDMType2MACSetup", "", Level.SEVERE),
+    SIX_LOW_PAN_ADAPTATION_LAYER_SETUP(258, "SixLowPanAdaptationLayerSetup", "", Level.SEVERE),
+    G3_NETWORK_MANAGEMENT(259, "G3NetworkManagement", "", Level.SEVERE);
     ;
 
     private final int number;

@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.abnt.common;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -139,15 +140,21 @@ public class LogBookFactory implements DeviceLogBookSupport {
     }
 
     private void logBookNotSupported(CollectedLogBook deviceLogBook, ObisCode logBookObisCode) {
-        deviceLogBook.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(deviceLogBook, "logBookXnotsupported", logBookObisCode));
+        deviceLogBook.setFailureInformation(
+                ResultType.NotSupported,
+                this.issueService.newWarning(deviceLogBook, MessageSeeds.LOGBOOK_NOT_SUPPORTED.getKey(), logBookObisCode));
     }
 
     private void endDeviceEventTypeNotSupported(CollectedLogBook deviceLogBook, String endDeviceEventTypeMRID) {
-        deviceLogBook.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(deviceLogBook, "endDeviceEventTypeXnotsupported", endDeviceEventTypeMRID));
+        deviceLogBook.setFailureInformation(
+                ResultType.NotSupported,
+                this.issueService.newWarning(deviceLogBook, MessageSeeds.END_DEVICE_EVENT_TYPE_NOT_SUPPORTED.getKey(), endDeviceEventTypeMRID));
     }
 
     private void logBookParsingException(CollectedLogBook deviceLogBook) {
-        deviceLogBook.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(deviceLogBook, "CouldNotParseLogBookData"));
+        deviceLogBook.setFailureInformation(
+                ResultType.InCompatible,
+                this.issueService.newProblem(deviceLogBook, MessageSeeds.COULD_NOT_PARSE_LOGBOOK_DATA.getKey()));
     }
 
     public AbstractAbntProtocol getMeterProtocol() {

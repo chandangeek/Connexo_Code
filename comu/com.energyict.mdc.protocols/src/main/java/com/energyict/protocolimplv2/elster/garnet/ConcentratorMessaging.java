@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.elster.garnet;
 
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
@@ -126,14 +127,21 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
             }
         } catch (NotExecutedException e) {
             if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.COMMAND_NOT_IMPLEMENTED)) {
-                collectedMessage.setFailureInformation(ResultType.NotSupported, this.issueService.newProblem(pendingMessage, "operationNotSupported"));
+                collectedMessage.setFailureInformation(
+                        ResultType.NotSupported,
+                        this.issueService.newProblem(pendingMessage, MessageSeeds.OPERATION_NOT_SUPPORTED.getKey()));
             } else if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.SLAVE_DOES_NOT_EXIST)) {
-                collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, this.issueService.newProblem(pendingMessage, "topologyMismatch", deviceProtocol.getSerialNumber()));
+                collectedMessage.setFailureInformation(
+                        ResultType.ConfigurationMisMatch,
+                        this.issueService.newProblem(
+                                pendingMessage,
+                                MessageSeeds.TOPOLOGY_MISMATCH.getKey(),
+                                deviceProtocol.getSerialNumber()));
             } else {
-                collectedMessage.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(pendingMessage, "CouldNotParseMessageData"));
+                collectedMessage.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(pendingMessage, MessageSeeds.COULD_NOT_PARSE_MESSAGE_DATA.getKey()));
             }
         } catch (GarnetException e) {
-            collectedMessage.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(pendingMessage, "CouldNotParseMessageData"));
+            collectedMessage.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(pendingMessage, MessageSeeds.COULD_NOT_PARSE_MESSAGE_DATA.getKey()));
         }
         return collectedMessage;
     }
@@ -192,14 +200,18 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
     }
 
     protected Issue createUnsupportedWarning(OfflineDeviceMessage pendingMessage) {
-        return this.issueService.newWarning(pendingMessage, "DeviceMessage.notSupported",
+        return this.issueService.newWarning(
+                pendingMessage,
+                MessageSeeds.DEVICEMESSAGE_NOT_SUPPORTED.getKey(),
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, String message) {
-        return this.issueService.newWarning(pendingMessage, "DeviceMessage.failed",
+        return this.issueService.newWarning(
+                pendingMessage,
+                MessageSeeds.DEVICEMESSAGE_FAILED.getKey(),
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName(),

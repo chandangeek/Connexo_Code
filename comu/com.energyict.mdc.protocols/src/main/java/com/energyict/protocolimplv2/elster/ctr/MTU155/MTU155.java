@@ -99,7 +99,6 @@ public class MTU155 implements DeviceProtocol {
      */
     private Logger protocolLogger;
     private TypedProperties allProperties;
-    private DeviceIdentifier deviceIdentifier;
     private GprsObisCodeMapper obisCodeMapper;
     private LoadProfileBuilder loadProfileBuilder;
     private Messaging messaging;
@@ -286,7 +285,11 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public CollectedTopology getDeviceTopology() {
         final CollectedTopology deviceTopology = this.collectedDataFactory.createCollectedTopology(getDeviceIdentifier());
-        deviceTopology.setFailureInformation(ResultType.NotSupported, getIssueService().newWarning(getOfflineDevice(), "devicetopologynotsupported"));
+        deviceTopology.setFailureInformation(
+                ResultType.NotSupported,
+                getIssueService().newWarning(
+                        getOfflineDevice(),
+                        com.energyict.mdc.protocol.api.MessageSeeds.DEVICETOPOLOGY_NOT_SUPPORTED.getKey()));
         return deviceTopology;
     }
 
@@ -384,12 +387,22 @@ public class MTU155 implements DeviceProtocol {
 
                     collectedLogBook.setMeterEvents(meterProtocolEvents);
                 } catch (CTRException e) {
-                    collectedLogBook.setFailureInformation(ResultType.InCompatible, getIssueService().newProblem(logBook, "logBookXissue", logBook.getLogBookObisCode(), e));
+                    collectedLogBook.setFailureInformation(
+                            ResultType.InCompatible,
+                            getIssueService().newProblem(
+                                    logBook,
+                                    com.energyict.mdc.protocol.api.MessageSeeds.LOGBOOK_ISSUE.getKey(),
+                                    logBook.getLogBookObisCode(), e));
                 }
 
                 collectedLogBooks.add(collectedLogBook);
             } else {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, getIssueService().newWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode()));
+                collectedLogBook.setFailureInformation(
+                        ResultType.NotSupported,
+                        getIssueService().newWarning(
+                                logBook,
+                                com.energyict.mdc.protocol.api.MessageSeeds.LOGBOOK_NOT_SUPPORTED.getKey(),
+                                logBook.getLogBookObisCode()));
                 collectedLogBooks.add(collectedLogBook);
             }
         }
