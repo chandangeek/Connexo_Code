@@ -51,7 +51,7 @@ public class ChannelInfo {
         }
         info.multiplier = channel.getMultiplier();
         info.overflowValue = channel.getOverflow();
-        info.flowUnit = channel.getChannelSpec().getChannelType().getUnit().isFlowUnit() ? "flow" : "volume";
+        info.flowUnit = channel.getUnit().isFlowUnit() ? "flow" : "volume";
         info.obisCode = channel.getObisCode();
         info.nbrOfFractionDigits = channel.getChannelSpec().getNbrOfFractionDigits();
         info.loadProfileId = channel.getLoadProfile().getId();
