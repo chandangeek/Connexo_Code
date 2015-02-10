@@ -72,4 +72,9 @@ public interface MdcReadingTypeUtilService {
      * @return the mdc Unit
      */
     public Unit getMdcUnitFor(String readingType);
+
+
+    public String getFullAlias(ReadingType readingType);
+
+    public String getFullAlias(String readingType);
 }

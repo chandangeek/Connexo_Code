@@ -2,6 +2,8 @@ package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
@@ -150,5 +152,36 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
         } else {
             return Unit.getUndefined();
         }
+    }
+
+    @Override
+    public String getFullAlias(String readingType) {
+        Optional<ReadingType> koreReadingType = this.meteringService.getReadingType(readingType);
+        if (koreReadingType.isPresent()) {
+            return getFullAlias(koreReadingType.get());
+        } else {
+            return "Unknown readingtype";
+        }
+    }
+
+    @Override
+    public String getFullAlias(ReadingType readingType) {
+        StringBuilder fullAlias = new StringBuilder();
+        if (!readingType.getMeasuringPeriod().equals(TimeAttribute.NOTAPPLICABLE)) {
+            fullAlias.append("[").append(readingType.getMeasuringPeriod().getDescription()).append("] ");
+        } else if (readingType.getMacroPeriod().equals(MacroPeriod.DAILY) || readingType.getMacroPeriod().equals(MacroPeriod.MONTHLY)) {
+            fullAlias.append("[").append(readingType.getMacroPeriod().getDescription()).append("] ");
+        }
+        fullAlias.append(readingType.getAliasName());
+        if (readingType.getUnit().isApplicable()) {
+            fullAlias.append(" (").append(readingType.getMultiplier().getSymbol()).append(readingType.getUnit().getSymbol()).append(")");
+        }
+        if (readingType.getPhases().isApplicable()) {
+            fullAlias.append(" ").append(readingType.getPhases().getDescription());
+        }
+        if (readingType.getTou() != 0) {
+            fullAlias.append(" ToU ").append(readingType.getTou());
+        }
+        return fullAlias.toString();
     }
 }
