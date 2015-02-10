@@ -23,6 +23,7 @@ public class DataCollectionKpiCalculatorHandlerFactory implements MessageHandler
 
     public static final String TASK_DESTINATION = "MDCKpiCalculatorTopic";
     public static final String TASK_SUBSCRIBER = "MDCKpiCalculator";
+    public static final String TASK_SUBSCRIBER_DISPLAYNAME = "Calculate connection and communication kpi's";
 
     private volatile TaskService taskService;
     private volatile DataCollectionKpiService dataCollectionKpiService;
