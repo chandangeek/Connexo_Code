@@ -4,6 +4,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Warning;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.Register;
@@ -130,7 +131,7 @@ public class SmartMeterProtocolRegisterAdapterTest {
         assertThat(collectedRegisters).hasSize(1);
         assertThat(collectedRegisters.get(0).getResultType()).isEqualTo(ResultType.NotSupported);
         assertThat(collectedRegisters.get(0).getIssues()).hasSize(1);
-        assertThat(collectedRegisters.get(0).getIssues().get(0).getDescription()).isEqualTo("registerXnotsupported");
+        assertThat(collectedRegisters.get(0).getIssues().get(0).getDescription()).isEqualTo(MessageSeeds.REGISTER_NOT_SUPPORTED.getKey());
         assertThat(collectedRegisters.get(0).getIssues().get(0).getSource()).isInstanceOf(ObisCode.class);
     }
 

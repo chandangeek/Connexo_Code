@@ -9,6 +9,9 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceTopologySupport;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
+
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Adapter between a {@link MeterProtocol MeterProtocol} or
@@ -40,12 +43,12 @@ public class DeviceProtocolTopologyAdapter implements DeviceTopologySupport {
     @Override
     public CollectedTopology getDeviceTopology() {
         CollectedTopology deviceTopology = this.collectedDataFactory.createCollectedTopology(deviceIdentifier);
-        deviceTopology.setFailureInformation(ResultType.NotSupported, getIssue(deviceIdentifier.findDevice(), "devicetopologynotsupportedbyadapter"));
+        deviceTopology.setFailureInformation(ResultType.NotSupported, getIssue(deviceIdentifier.findDevice(), MessageSeeds.DEVICE_TOPOLOGY_NOT_SUPPORTED_BY_ADAPTER));
         return deviceTopology;
     }
 
-    private Issue getIssue(Object source, String description, Object... arguments){
-        return this.issueService.newWarning(source, description, arguments);
+    private Issue getIssue(Object source, MessageSeed description, Object... arguments){
+        return this.issueService.newWarning(source, description.getKey(), arguments);
     }
 
     /**

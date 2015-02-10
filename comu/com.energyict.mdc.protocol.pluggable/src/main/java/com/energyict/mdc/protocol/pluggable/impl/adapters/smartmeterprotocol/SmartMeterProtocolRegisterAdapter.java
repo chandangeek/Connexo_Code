@@ -75,7 +75,12 @@ public class SmartMeterProtocolRegisterAdapter implements DeviceRegisterSupport 
                         collectedRegisters.add(adapterDeviceRegister);
                     } else {
                         CollectedRegister defaultDeviceRegister = collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register), register.getReadingType());
-                        defaultDeviceRegister.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
+                        defaultDeviceRegister.setFailureInformation(
+                                ResultType.NotSupported,
+                                this.issueService.newWarning(
+                                        register.getObisCode(),
+                                        com.energyict.mdc.protocol.api.MessageSeeds.REGISTER_NOT_SUPPORTED.getKey(),
+                                        register.getObisCode()));
                         collectedRegisters.add(defaultDeviceRegister);
                     }
                 }

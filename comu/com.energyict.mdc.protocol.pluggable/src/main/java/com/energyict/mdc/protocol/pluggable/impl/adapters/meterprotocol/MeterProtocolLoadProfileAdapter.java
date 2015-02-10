@@ -25,6 +25,7 @@ import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import org.joda.time.DateTimeConstants;
 
 import java.io.IOException;
@@ -171,7 +172,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
      */
     private CollectedLoadProfile createUnSupportedCollectedLoadProfile(final LoadProfileReader loadProfileReader) {
         CollectedLoadProfile deviceLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(null);
-        deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getProblem(loadProfileReader.getProfileObisCode(), "loadProfileXnotsupported", loadProfileReader.getProfileObisCode()));
+        deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getProblem(loadProfileReader.getProfileObisCode(), com.energyict.mdc.protocol.api.MessageSeeds.LOADPROFILE_NOT_SUPPORTED, loadProfileReader.getProfileObisCode()));
         return deviceLoadProfile;
     }
 
@@ -181,7 +182,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
         for (LogBookReader reader : logBookReaders) {
             if (!reader.getLogBookObisCode().equals(LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE)) {
                 CollectedLogBook deviceLogBook = collectedDataFactory.createCollectedLogBook(reader.getLogBookIdentifier());
-                deviceLogBook.setFailureInformation(ResultType.NotSupported, getWarning(reader.getLogBookObisCode(), "logBookXnotsupported", reader.getLogBookObisCode()));
+                deviceLogBook.setFailureInformation(ResultType.NotSupported, getWarning(reader.getLogBookObisCode(), com.energyict.mdc.protocol.api.MessageSeeds.LOGBOOK_NOT_SUPPORTED, reader.getLogBookObisCode()));
                 collectedLogBookList.add(deviceLogBook);
             }
         }
@@ -210,9 +211,9 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
             deviceLoadProfile.setCollectedData(profileData.getIntervalDatas(), convertToProperChannelInfos(profileData, loadProfileReader.getChannelInfos(), deviceLoadProfile));
             deviceLoadProfile.setDoStoreOlderValues(profileData.shouldStoreOlderValues());
         } catch (IOException e) {
-            deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getProblem(loadProfileReader.getProfileObisCode(), "CouldNotReadoutLoadProfileData", e.getMessage()));
+            deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getProblem(loadProfileReader.getProfileObisCode(), com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READOUT_LOADPROFILE_DATA, e.getMessage()));
         } catch (IndexOutOfBoundsException e) { // handles parsing errors
-            deviceLoadProfile.setFailureInformation(ResultType.InCompatible, getProblem(loadProfileReader.getProfileObisCode(), "CouldNotParseLoadProfileData"));
+            deviceLoadProfile.setFailureInformation(ResultType.InCompatible, getProblem(loadProfileReader.getProfileObisCode(), com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_PARSE_LOADPROFILE_DATA));
         }
         collectedDataList.add(deviceLoadProfile);
         return collectedDataList;
@@ -226,7 +227,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
                 ChannelInfo configuredChannelInfo = getChannelInfoFromConfiguredChannels(channelObisCode, configuredChannelInfos);
                 convertedChannelInfos.add(new ChannelInfo(configuredChannelInfo.getId(), channelObisCode.toString(), ci.getUnit(), configuredChannelInfo.getMeterIdentifier(), configuredChannelInfo.getReadingType()));
             } catch (LoadProfileConfigurationException e) {
-                collectedLoadProfile.setFailureInformation(ResultType.ConfigurationMisMatch, getWarning(profileData, MessageSeeds.UNSUPPORTED_CHANNEL_INFO.getKey(), ci));
+                collectedLoadProfile.setFailureInformation(ResultType.ConfigurationMisMatch, getWarning(profileData, com.energyict.mdc.protocol.api.MessageSeeds.UNSUPPORTED_CHANNEL_INFO, ci));
             }
         }
         return convertedChannelInfos;
@@ -251,11 +252,11 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
             deviceLoadProfile.setDoStoreOlderValues(profileData.shouldStoreOlderValues());
             deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(profileData.getMeterEvents(), this.meteringService));
         } catch (IOException e) {
-            deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getProblem(loadProfileReader.getProfileObisCode(), "CouldNotReadoutLoadProfileData"));
-            deviceLogBook.setFailureInformation(ResultType.NotSupported, getProblem(logBookReader.getLogBookObisCode(), "CouldNotReadoutLogBookData"));
+            deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getProblem(loadProfileReader.getProfileObisCode(), com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READOUT_LOADPROFILE_DATA));
+            deviceLogBook.setFailureInformation(ResultType.NotSupported, getProblem(logBookReader.getLogBookObisCode(), com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READOUT_LOGBOOK_DATA));
         } catch (IndexOutOfBoundsException e) { // handles parsing errors
-            deviceLoadProfile.setFailureInformation(ResultType.InCompatible, getProblem(loadProfileReader.getProfileObisCode(), "CouldNotParseLoadProfileData"));
-            deviceLogBook.setFailureInformation(ResultType.InCompatible, getProblem(logBookReader.getLogBookObisCode(), "CouldNotParseLogBookData"));
+            deviceLoadProfile.setFailureInformation(ResultType.InCompatible, getProblem(loadProfileReader.getProfileObisCode(), com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_PARSE_LOADPROFILE_DATA));
+            deviceLogBook.setFailureInformation(ResultType.InCompatible, getProblem(logBookReader.getLogBookObisCode(), com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_PARSE_LOGBOOK_DATA));
         }
         collectedDataList.add(deviceLoadProfile);
         collectedDataList.add(deviceLogBook);
@@ -269,9 +270,9 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
             ProfileData profileData = this.meterProtocol.getProfileData(Date.from(logBookReader.getLastLogBook()), true);
             deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(profileData.getMeterEvents(), this.meteringService));
         } catch (IOException e) {
-            deviceLogBook.setFailureInformation(ResultType.NotSupported, getProblem(logBookReader.getLogBookObisCode(), "CouldNotReadoutLogBookData"));
+            deviceLogBook.setFailureInformation(ResultType.NotSupported, getProblem(logBookReader.getLogBookObisCode(), com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READOUT_LOGBOOK_DATA));
         } catch (IndexOutOfBoundsException e) { // handles parsing errors
-            deviceLogBook.setFailureInformation(ResultType.InCompatible, getProblem(logBookReader.getLogBookObisCode(), "CouldNotParseLogBookData"));
+            deviceLogBook.setFailureInformation(ResultType.InCompatible, getProblem(logBookReader.getLogBookObisCode(), com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_PARSE_LOGBOOK_DATA));
         }
         collectedDataList.add(deviceLogBook);
         return collectedDataList;
@@ -300,12 +301,12 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
         return this.meterProtocolClockAdapter.getTime();
     }
 
-    private Issue getProblem(Object source, String description, Object... arguments) {
-        return this.issueService.newProblem(source, description, arguments);
+    private Issue getProblem(Object source, MessageSeed messageSeed, Object... arguments) {
+        return this.issueService.newProblem(source, messageSeed.getKey(), arguments);
     }
 
-    private Issue getWarning(Object source, String description, Object... arguments) {
-        return this.issueService.newWarning(source, description, arguments);
+    private Issue getWarning(Object source, MessageSeed messageSeed, Object... arguments) {
+        return this.issueService.newWarning(source, messageSeed.getKey(), arguments);
     }
 
 }

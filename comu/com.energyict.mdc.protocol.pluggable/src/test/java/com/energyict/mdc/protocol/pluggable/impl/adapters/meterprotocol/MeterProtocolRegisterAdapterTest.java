@@ -2,8 +2,10 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
@@ -117,7 +119,7 @@ public class MeterProtocolRegisterAdapterTest {
 
     @Test
     public void deviceDoesNotSupportRegisterRequests() {
-        when(this.issueService.newProblem(any(ObisCode.class), eq("registerXnotsupported"), anyVararg())).thenAnswer(invocation -> {
+        when(this.issueService.newProblem(any(ObisCode.class), eq(MessageSeeds.REGISTER_NOT_SUPPORTED.getKey()), anyVararg())).thenAnswer(invocation -> {
             Problem registerXnotsupportedProblem = mock(Problem.class);
             when(registerXnotsupportedProblem.getDescription()).thenReturn("registerXnotsupported");
             when(registerXnotsupportedProblem.getSource()).thenReturn((invocation.getArguments()[0]));
@@ -130,9 +132,11 @@ public class MeterProtocolRegisterAdapterTest {
         final List<CollectedRegister> collectedRegisters = meterProtocolRegisterAdapter.readRegisters(Arrays.asList(register));
 
         assertThat(collectedRegisters).hasSize(1);
-        assertThat(collectedRegisters.get(0).getResultType()).isEqualTo(ResultType.NotSupported);
-        assertThat(collectedRegisters.get(0).getIssues().get(0).getDescription()).isEqualTo("registerXnotsupported");
-        assertThat(collectedRegisters.get(0).getIssues().get(0).getSource()).isInstanceOf(ObisCode.class);
+        CollectedRegister collectedRegister = collectedRegisters.get(0);
+        assertThat(collectedRegister.getResultType()).isEqualTo(ResultType.NotSupported);
+        List<Issue> collectedRegisterIssues = collectedRegister.getIssues();
+        assertThat(collectedRegisterIssues.get(0).getDescription()).isEqualTo("registerXnotsupported");
+        assertThat(collectedRegisterIssues.get(0).getSource()).isInstanceOf(ObisCode.class);
     }
 
     @Test

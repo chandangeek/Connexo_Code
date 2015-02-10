@@ -20,6 +20,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -138,7 +139,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
             this.messageProtocol.applyMessages(new ArrayList<>(messageEntries.keySet()));
         } catch (IOException e) {
             continueOnSendingPendingMessages = false;
-            collectedMessageList.setFailureInformation(ResultType.Other, getIssue(this.messageProtocol, "messageadapter.applymessages.issue", e.getMessage()));
+            collectedMessageList.setFailureInformation(ResultType.Other, getIssue(this.messageProtocol, MessageSeeds.MESSAGEADAPTER_APPLYMESSAGES_ISSUE, e.getMessage()));
         }
         if (continueOnSendingPendingMessages) {
             for (Map.Entry<MessageEntry, OfflineDeviceMessage> messageEntryMapElement : messageEntries.entrySet()) {
@@ -150,8 +151,8 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
         return collectedMessageList;
     }
 
-    private Issue getIssue(Object source, String description, Object... arguments){
-        return this.issueService.newProblem(source, description, arguments);
+    private Issue getIssue(Object source, MessageSeed description, Object... arguments){
+        return this.issueService.newProblem(source, description.getKey(), arguments);
     }
 
     private CollectedMessage delegatePendingMessageToProtocol(MessageEntry messageEntry, OfflineDeviceMessage offlineDeviceMessage) {

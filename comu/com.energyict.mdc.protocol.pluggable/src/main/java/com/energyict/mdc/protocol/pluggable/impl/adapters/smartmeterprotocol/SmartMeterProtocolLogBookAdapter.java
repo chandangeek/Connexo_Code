@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -12,6 +13,7 @@ import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,10 +55,10 @@ public class SmartMeterProtocolLogBookAdapter implements DeviceLogBookSupport {
                         final List<MeterEvent> meterEvents = smartMeterProtocol.getMeterEvents(Date.from(reader.getLastLogBook()));
                         deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents, this.meteringService));
                     } else {
-                        deviceLogBook.setFailureInformation(ResultType.NotSupported, getWarning(reader.getLogBookObisCode(), "logBookXnotsupported", reader.getLogBookObisCode()));
+                        deviceLogBook.setFailureInformation(ResultType.NotSupported, getWarning(reader.getLogBookObisCode(), MessageSeeds.LOGBOOK_NOT_SUPPORTED, reader.getLogBookObisCode()));
                     }
                 } catch (IOException e) {
-                    deviceLogBook.setFailureInformation(ResultType.InCompatible, getProblem(reader.getLogBookObisCode(), "logBookXissue", reader.getLogBookObisCode(), e));
+                    deviceLogBook.setFailureInformation(ResultType.InCompatible, getProblem(reader.getLogBookObisCode(), MessageSeeds.LOGBOOK_ISSUE, reader.getLogBookObisCode(), e));
                 }
                 collectedLogBooks.add(deviceLogBook);
             }
@@ -64,12 +66,12 @@ public class SmartMeterProtocolLogBookAdapter implements DeviceLogBookSupport {
         return collectedLogBooks;
     }
 
-    private Issue getProblem(Object source, String description, Object... arguments){
-        return this.issueService.newProblem(source, description, arguments);
+    private Issue getProblem(Object source, MessageSeed messageSeed, Object... arguments){
+        return this.issueService.newProblem(source, messageSeed.getKey(), arguments);
     }
 
-    private Issue getWarning(Object source, String description, Object... arguments){
-        return this.issueService.newWarning(source, description, arguments);
+    private Issue getWarning(Object source, MessageSeed messageSeed, Object... arguments){
+        return this.issueService.newWarning(source, messageSeed.getKey(), arguments);
     }
 
 }
