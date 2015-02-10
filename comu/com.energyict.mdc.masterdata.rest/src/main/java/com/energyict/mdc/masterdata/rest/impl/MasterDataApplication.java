@@ -19,6 +19,7 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -45,6 +46,7 @@ public class MasterDataApplication extends Application implements TranslationKey
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
     private volatile License license;
+    private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -90,6 +92,11 @@ public class MasterDataApplication extends Application implements TranslationKey
     }
 
     @Reference
+    public void setMdcReadingTypeUtilService(MdcReadingTypeUtilService mdcReadingTypeUtilService) {
+        this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
@@ -132,6 +139,7 @@ public class MasterDataApplication extends Application implements TranslationKey
             bind(nlsService).to(NlsService.class);
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
+            bind(mdcReadingTypeUtilService).to(MdcReadingTypeUtilService.class);
         }
     }
 
