@@ -82,6 +82,10 @@ public class Installer {
         addTranslation(DeviceDataServices.COMPONENT_NAME, DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME);
         addTranslation(DeviceDataServices.COMPONENT_NAME, COMSCHEDULE_RECALCULATOR_MESSAGING_NAME, COMSCHEDULE_RECALCULATOR_MESSAGING_DISPLAYNAME);
         addTranslation(DeviceDataServices.COMPONENT_NAME, COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME, COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_DISPLAYNAME);
+
+        addTranslation(DeviceDataServices.COMPONENT_NAME, ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_NAME, ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME);
+        addTranslation(DeviceDataServices.COMPONENT_NAME, ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_NAME, ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME);
+        addTranslation(DeviceDataServices.COMPONENT_NAME, ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_NAME, ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME);
     }
 
     private void addJupiterEventSubscribers() {
