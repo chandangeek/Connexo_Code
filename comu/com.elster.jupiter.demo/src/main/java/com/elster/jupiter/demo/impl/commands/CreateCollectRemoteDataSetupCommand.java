@@ -5,8 +5,11 @@ import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
 import com.elster.jupiter.demo.impl.builders.FavoriteGroupBuilder;
-import com.elster.jupiter.demo.impl.pp.ConnectionMethodForDeviceConfiguration;
-import com.elster.jupiter.demo.impl.pp.ProtocolPropertiesMPP;
+import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
+import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
+import com.elster.jupiter.demo.impl.builders.configuration.WebRTUProtocolPropertiesDevConfPostBuilder;
+import com.elster.jupiter.demo.impl.builders.device.ConnectionsDevicePostBuilder;
+import com.elster.jupiter.demo.impl.builders.device.SecurityPropertiesDevicePostBuilder;
 import com.elster.jupiter.demo.impl.templates.ComScheduleTpl;
 import com.elster.jupiter.demo.impl.templates.ComServerTpl;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
@@ -30,7 +33,6 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -38,22 +40,19 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 public class CreateCollectRemoteDataSetupCommand {
     private final LicenseService licenseService;
     private final Provider<CreateAssignmentRulesCommand> createAssignmentRulesCommandProvider;
-    private final Provider<ConnectionMethodForDeviceConfiguration> connectionMethodsProvider;
-    private ProtocolPluggableService protocolPluggableService;
-    private ConnectionTaskService connectionTaskService;
+    private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
+    private final Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider;
 
     private String comServerName;
     private String host;
@@ -63,14 +62,12 @@ public class CreateCollectRemoteDataSetupCommand {
     public CreateCollectRemoteDataSetupCommand(
             LicenseService licenseService,
             Provider<CreateAssignmentRulesCommand> createAssignmentRulesCommandProvider,
-            Provider<ConnectionMethodForDeviceConfiguration> connectionMethodsProvider,
-            ProtocolPluggableService protocolPluggableService,
-            ConnectionTaskService connectionTaskService) {
+            Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
+            Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider) {
         this.licenseService = licenseService;
         this.createAssignmentRulesCommandProvider = createAssignmentRulesCommandProvider;
         this.connectionMethodsProvider = connectionMethodsProvider;
-        this.protocolPluggableService = protocolPluggableService;
-        this.connectionTaskService = connectionTaskService;
+        this.connectionsDevicePostBuilderProvider = connectionsDevicePostBuilderProvider;
     }
 
     public void setComServerName(String comServerName) {
@@ -177,7 +174,6 @@ public class CreateCollectRemoteDataSetupCommand {
         command.run();
     }
 
-    //TODO Everything below should be refactored
     private void createDeviceStructure(){
         createDeviceStructureForDeviceType(DeviceTypeTpl.Actaris_SL7000);
         createDeviceStructureForDeviceType(DeviceTypeTpl.Elster_AS1440);
@@ -189,18 +185,8 @@ public class CreateCollectRemoteDataSetupCommand {
 
     private void createDeviceStructureForDeviceType(DeviceTypeTpl deviceTypeTpl){
         DeviceType deviceType = Builders.from(deviceTypeTpl).get();
-        Builders.from(DeviceConfigurationTpl.EXTENDED).withDeviceType(deviceType)
-                .withPropertyProviders(Arrays.asList(
-                        this.connectionMethodsProvider.get().withHost(this.host),
-                        new ProtocolPropertiesMPP()
-                )).get().activate();
-        DeviceConfiguration configuration = Builders.from(DeviceConfigurationTpl.DEFAULT).withDeviceType(deviceType)
-                .withPropertyProviders(Arrays.asList(
-                        this.connectionMethodsProvider.get().withHost(this.host),
-                        new ProtocolPropertiesMPP()
-                )).get();
-        addChannelsToDeviceConfiguration(configuration);
-        configuration.activate();
+        createDeviceConfiguration(deviceType, DeviceConfigurationTpl.EXTENDED); // Additional configuration for validation test
+        DeviceConfiguration configuration = createDeviceConfiguration(deviceType, DeviceConfigurationTpl.DEFAULT);
         for(int i = 0; i < deviceTypeTpl.getDeviceCount(); i++){
             deviceCounter++;
             String serialNumber = "01000001" + String.format("%04d", deviceCounter);
@@ -209,48 +195,25 @@ public class CreateCollectRemoteDataSetupCommand {
         }
     }
 
-    private void addChannelsToDeviceConfiguration(DeviceConfiguration configuration) {
-        for (LoadProfileSpec loadProfileSpec : configuration.getLoadProfileSpecs()) {
-            List<ChannelType> availableChannelTypes = loadProfileSpec.getLoadProfileType().getChannelTypes();
-            for (ChannelType channelType : availableChannelTypes) {
-                configuration.createChannelSpec(channelType, channelType.getPhenomenon(), loadProfileSpec).setMultiplier(new BigDecimal(1)).setOverflow(new BigDecimal(9999999999L)).setNbrOfFractionDigits(0).add();
-            }
-        }
+    private DeviceConfiguration createDeviceConfiguration(DeviceType deviceType, DeviceConfigurationTpl deviceConfigurationTpl) {
+        DeviceConfiguration configuration = Builders.from(deviceConfigurationTpl).withDeviceType(deviceType)
+                .withPostBuilder(this.connectionMethodsProvider.get().withHost(this.host))
+                .withPostBuilder(new WebRTUProtocolPropertiesDevConfPostBuilder())
+                .withPostBuilder(new ChannelsOnDevConfPostBuilder())
+                .get();
+        configuration.activate();
+        return configuration;
     }
 
     private void createDevice(DeviceConfiguration configuration, String mrid, String serialNumber, DeviceTypeTpl deviceTypeTpl){
-        Device device = Builders.from(DeviceBuilder.class)
+        Builders.from(DeviceBuilder.class)
                 .withMrid(mrid)
                 .withSerialNumber(serialNumber)
                 .withDeviceConfiguration(configuration)
                 .withComSchedules(Arrays.asList(Builders.from(ComScheduleTpl.DAILY_READ_ALL).get()))
+                .withPostBuilder(this.connectionsDevicePostBuilderProvider.get().withComPortPool(Builders.from(deviceTypeTpl.getPoolTpl()).get()).withHost(this.host))
+                .withPostBuilder(new SecurityPropertiesDevicePostBuilder())
                 .get();
-        addConnectionMethodToDevice(configuration, device, deviceTypeTpl);
-        setSecurityPropertiesForDevice(configuration, device);
-    }
-
-    private void setSecurityPropertiesForDevice(DeviceConfiguration configuration, Device device) {
-        for (SecurityPropertySet securityPropertySet : configuration.getSecurityPropertySets()) {
-            TypedProperties typedProperties = TypedProperties.empty();
-            typedProperties.setProperty("ClientMacAddress", new BigDecimal(1));
-            device.setSecurityProperties(securityPropertySet, typedProperties);
-        }
-    }
-
-    private void addConnectionMethodToDevice(DeviceConfiguration configuration, Device device, DeviceTypeTpl deviceTypeTpl) {
-        PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
-        int portNumber = 4059;
-        ScheduledConnectionTask deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
-                .setComPortPool(Builders.from(deviceTypeTpl.getPoolTpl()).get())
-                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
-                .setNextExecutionSpecsFrom(null)
-                .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                .setProperty("host", this.host)
-                .setProperty("portNumber", new BigDecimal(portNumber))
-                .setProperty("connectionTimeout", TimeDuration.minutes(1))
-                .setSimultaneousConnectionsAllowed(false)
-                .add();
-        connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
     }
 
     private void createDeviceGroups() {

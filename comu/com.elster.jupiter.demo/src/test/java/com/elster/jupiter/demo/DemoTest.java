@@ -4,6 +4,7 @@ import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.demo.impl.DemoServiceImpl;
+import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -107,6 +108,7 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -233,6 +235,7 @@ public class DemoTest {
         }
         try{
             demoService.createDemoData("DemoServ", "host", "2014-12-01");
+            demoService.createDemoData("DemoServ", "host", "2014-12-01");
             demoService.createA3Device();
         } catch (Exception e) {
             fail("The demo command shouldn't produce errors");
@@ -246,6 +249,7 @@ public class DemoTest {
             createDefaultStuff();
             ctx.commit();
         }
+        tuneDeviceCountForSpeedTest();
     }
 
     private void createOracleTablesSubstitutes() {
@@ -310,5 +314,17 @@ public class DemoTest {
         MdcAppInstaller mdcAppInstaller = new MdcAppInstaller();
         mdcAppInstaller.setUserService(injector.getInstance(UserService.class));
         mdcAppInstaller.install();
+    }
+
+    private void tuneDeviceCountForSpeedTest(){
+        try {
+            Field deviceCount = DeviceTypeTpl.class.getDeclaredField("deviceCount");
+            deviceCount.setAccessible(true);
+            for (DeviceTypeTpl template : DeviceTypeTpl.values()) {
+                deviceCount.setInt(template, 1);
+            }
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

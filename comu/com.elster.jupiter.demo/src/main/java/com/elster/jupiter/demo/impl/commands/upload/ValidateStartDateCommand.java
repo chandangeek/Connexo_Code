@@ -14,7 +14,6 @@ import com.elster.jupiter.metering.ReadingType;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;

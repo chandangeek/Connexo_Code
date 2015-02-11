@@ -1,4 +1,4 @@
-package com.elster.jupiter.demo.impl.pp;
+package com.elster.jupiter.demo.impl.builders.configuration;
 
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.UnableToCreate;
@@ -13,18 +13,18 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.function.Consumer;
 
-public class ConnectionMethodForDeviceConfiguration implements Consumer<DeviceConfiguration> {
+public class OutboundTCPConnectionMethodsDevConfPostBuilder implements Consumer<DeviceConfiguration> {
 
     private final ProtocolPluggableService protocolPluggableService;
 
     private String host;
 
     @Inject
-    public ConnectionMethodForDeviceConfiguration(ProtocolPluggableService protocolPluggableService) {
+    public OutboundTCPConnectionMethodsDevConfPostBuilder(ProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
     }
 
-    public ConnectionMethodForDeviceConfiguration withHost(String host){
+    public OutboundTCPConnectionMethodsDevConfPostBuilder withHost(String host){
         this.host =  host;
         return this;
     }

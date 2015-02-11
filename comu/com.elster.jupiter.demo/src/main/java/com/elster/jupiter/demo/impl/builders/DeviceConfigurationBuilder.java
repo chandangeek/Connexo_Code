@@ -12,6 +12,7 @@ import com.energyict.mdc.tasks.ComTask;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -25,7 +26,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
     private List<ComTask> comTasks;
     private List<SecurityPropertySetBuilder> securityPropertySetBuilders;
 
-    private List<Consumer<DeviceConfiguration>> propertyProviders;
+    private List<Consumer<DeviceConfiguration>> postBuilders;
 
     @Inject
     public DeviceConfigurationBuilder() {
@@ -62,8 +63,11 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         return this;
     }
 
-    public DeviceConfigurationBuilder withPropertyProviders(List<Consumer<DeviceConfiguration>> propertyProviders){
-        this.propertyProviders = propertyProviders;
+    public DeviceConfigurationBuilder withPostBuilder(Consumer<DeviceConfiguration> postBuilder){
+        if (this.postBuilders == null) {
+            this.postBuilders = new ArrayList<>();
+        }
+        this.postBuilders.add(postBuilder);
         return this;
     }
 
@@ -92,7 +96,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         addLogBooks(configBuilder);
         DeviceConfiguration configuration = configBuilder.add();
         addSecurityPropertySet(configuration);
-        applyPropertyProviders(configuration);
+        applyPostBuilders(configuration);
         addComTasks(configuration);
         configuration.save();
         return configuration;
@@ -134,10 +138,10 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         }
     }
 
-    private void applyPropertyProviders(DeviceConfiguration configuration){
-        if (propertyProviders != null) {
-            for (Consumer<DeviceConfiguration> propertyProvider : propertyProviders) {
-                propertyProvider.accept(configuration);
+    private void applyPostBuilders(DeviceConfiguration configuration){
+        if (postBuilders != null) {
+            for (Consumer<DeviceConfiguration> postBuilder : postBuilders) {
+                postBuilder.accept(configuration);
             }
         }
     }

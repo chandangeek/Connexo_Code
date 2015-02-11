@@ -7,8 +7,10 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class DeviceBuilder implements Builder<Device> {
     private final DeviceService deviceService;
@@ -18,6 +20,8 @@ public class DeviceBuilder implements Builder<Device> {
     private DeviceConfiguration deviceConfiguration;
     private List<ComSchedule> comSchedules;
     private int yearOfCertification;
+
+    private List<Consumer<Device>> postBuilders;
 
     @Inject
     public DeviceBuilder(DeviceService deviceService) {
@@ -50,6 +54,14 @@ public class DeviceBuilder implements Builder<Device> {
         return this;
     }
 
+    public DeviceBuilder withPostBuilder(Consumer<Device> postBuilder){
+        if (this.postBuilders == null) {
+            this.postBuilders = new ArrayList<>();
+        }
+        this.postBuilders.add(postBuilder);
+        return this;
+    }
+
     @Override
     public Optional<Device> find() {
         return Optional.ofNullable(deviceService.findByUniqueMrid(this.mrid));
@@ -67,7 +79,15 @@ public class DeviceBuilder implements Builder<Device> {
             }
         }
         device.save();
+        applyPostBuilders(device);
         return device;
     }
 
+    private void applyPostBuilders(Device device){
+        if (postBuilders != null) {
+            for (Consumer<Device> postBuilder : postBuilders) {
+                postBuilder.accept(device);
+            }
+        }
+    }
 }
