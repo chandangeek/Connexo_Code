@@ -10,6 +10,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
     ],
     title: '',
     frame: true,
+    router: null,
     tools: [
         {
             xtype: 'button',
@@ -21,84 +22,80 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
             }
         }
     ],
-    items: {
-        xtype: 'form',
-        itemId: 'loadProfileConfigPreviewForm',
-        layout: 'column',
-        defaults: {
-            xtype: 'fieldcontainer',
-            layout: 'form',
-            columnWidth: 0.5
-        },
-        items: [
-            {
+
+    initComponent: function () {
+        var me = this;
+
+        me.items = {
+            xtype: 'form',
+                itemId: 'loadProfileConfigPreviewForm',
+                layout: 'column',
                 defaults: {
-                    xtype: 'displayfield',
-                    labelWidth: 200
-                },
-                items: [
-                    {
-                        fieldLabel: 'Load profile type',
-                        name: 'name',
-                        renderer: function (value) {
-                            var record = this.up('form').getRecord(),
-                                config = Ext.ComponentQuery.query('loadProfileConfigurationSetup')[0].config;
-
-                            if (!Ext.isEmpty(record)) {
-                                return Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}/loadprofiles/{2}/channels">{3}</a>', config.deviceTypeId, config.deviceConfigurationId, record.getId(), value);
-                            }
-                        }
-                    },
-                    {
-                        xtype: 'obis-displayfield',
-                        name: 'overruledObisCode'
-                    },
-                    {
-                        fieldLabel: 'Interval',
-                        name: 'timeDuration',
-                        renderer: function (value) {
-                            var intervalRecord = Ext.getStore('Mdc.store.Intervals').getById(value.id);
-                            return intervalRecord ? intervalRecord.get('name') : '';
-                        }
-                    }
-                ]
+                xtype: 'fieldcontainer',
+                    layout: 'form',
+                    columnWidth: 0.5
             },
-            {
-                itemId: 'channel-configurations-field',
-                fieldLabel: Uni.I18n.translate('general.channelConfigurations', 'MDC', 'Channel configurations'),
-                labelWidth: 200,
-                labelStyle : 'padding:3px 14px 0px 0px;',
-                items: [
-                    {
+            items: [
+                {
+                    defaults: {
                         xtype: 'displayfield',
-                        name: 'channels',
-                        renderer: function (value) {
-                            var typesString = '',
-                                emptyBtn = this.up('#channel-configurations-field').down('button');
+                        labelWidth: 200
+                    },
+                    items: [
+                        {
+                            fieldLabel: 'Load profile type',
+                            name: 'name',
+                            renderer: function (value) {
+                                var record = this.up('form').getRecord(),
+                                    config = Ext.ComponentQuery.query('loadProfileConfigurationSetup')[0].config;
 
-                            if (!Ext.isEmpty(value)) {
-                                if (emptyBtn) { emptyBtn.hide(); }
-                                this.show();
-                                Ext.each(value, function (type) {
-                                    typesString += type.name + '<br />';
-                                });
-                            } else {
-                                this.hide();
-                                var linkButton = Ext.widget('button', {
-                                    text: '0 ' + Uni.I18n.translate('general.channelconfigurations', 'MDC', 'channel configurations'),
-                                    ui: 'link',
-                                    hrefTarget: '_self'
-                                });
-                                if (!emptyBtn) {
-                                    this.up('#channel-configurations-field').add(linkButton);
+                                if (!Ext.isEmpty(record)) {
+                                    return Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}/loadprofiles/{2}/channels">{3}</a>', config.deviceTypeId, config.deviceConfigurationId, record.getId(), value);
                                 }
-                                return;
                             }
-                            return typesString;
+                        },
+                        {
+                            xtype: 'obis-displayfield',
+                            name: 'overruledObisCode'
+                        },
+                        {
+                            fieldLabel: 'Interval',
+                            name: 'timeDuration',
+                            renderer: function (value) {
+                                var intervalRecord = Ext.getStore('Mdc.store.Intervals').getById(value.id);
+                                return intervalRecord ? intervalRecord.get('name') : '';
+                            }
                         }
+                    ]
+                },
+                {
+                    xtype: 'displayfield',
+                    name: 'channels',
+                    itemId: 'channel-configurations-field',
+                    fieldLabel: Uni.I18n.translate('general.channelConfigurations', 'MDC', 'Channel configurations'),
+                    labelWidth: 200,
+                    renderer: function (value) {
+                        var typesString = '',
+                            record = this.up('form').getRecord(),
+                            arguments;
+
+                        if (!Ext.isEmpty(value)) {
+                            Ext.each(value, function (type) {
+                                typesString += type.name + '<br />';
+                            });
+                        } else if (record && me.router) {
+                            arguments = Ext.clone(me.router.arguments);
+                            arguments.loadProfileConfigurationId = record.getId();
+                            typesString = '<a href="'
+                            + me.router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').buildUrl(arguments)
+                            + '">0 ' + Uni.I18n.translate('general.channelconfigurations', 'MDC', 'channel configurations') + '</a>';
+                        }
+                        return typesString;
                     }
-                ]
-            }
-        ]
+                }
+            ]
+        };
+
+        me.callParent(arguments);
     }
 });

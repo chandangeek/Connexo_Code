@@ -40,12 +40,7 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationAddGri
         },
         {
             header: Uni.I18n.translate('validation.status', 'CFG', 'Status'),
-            dataIndex: 'config_active',
-            flex: 1
-        },
-        {
-            xtype: 'uni-actioncolumn',
-            items: 'Mdc.view.setup.ruledeviceconfiguration.RuleAddDeviceConfigurationActionMenu'
+            dataIndex: 'config_active'
         }
     ],
 

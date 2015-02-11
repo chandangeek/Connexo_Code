@@ -13,6 +13,7 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
         },
         {
             xtype: 'no-items-found-panel',
+            itemId: 'ctr-graph-no-data',
             hidden: true,
             itemId: 'emptyGraphMessage',
             title: Uni.I18n.translate('deviceloadprofiles.data.empty.title', 'MDC', 'No readings found'),

@@ -33,7 +33,6 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                 },
                 {
                     xtype: 'hiddenfield',
-                    itemId: 'fld-server-type',
                     name: 'comServerType'
                 },
                 {
@@ -49,6 +48,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                 {
                     xtype: 'displayfield',
                     name: 'comServerTypeVisual',
+                    itemId: 'fld-server-type',
                     fieldLabel: Uni.I18n.translate('comServer.formFieldLabel.serverType', 'MDC', 'Server type'),
                     width: 600,
                     hidden: true

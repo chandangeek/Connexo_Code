@@ -290,21 +290,10 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
     },
 
     loadGridItemDetail: function (selectionModel, record) {
-        var loadProfileConfigs = this.getLoadConfigurationGrid().getSelectionModel().getSelection(),
-            linkButton = this.getLoadProfileConfigPreviewForm().down('#channel-configurations-field button'),
-            router = this.getController('Uni.controller.history.Router');
-
-        if (loadProfileConfigs.length == 1) {
-            this.getLoadProfileConfigPreviewForm().loadRecord(loadProfileConfigs[0]);
-            if (linkButton) {
-                linkButton.on('click', function () {
-                    router.arguments.loadProfileConfigurationId = loadProfileConfigs[0].getId();
-                    router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.arguments);
-                });
-            }
-            var loadProfileConfigsName = this.getLoadProfileConfigPreviewForm().form.findField('name').getSubmitValue();
-            this.getLoadProfileConfigurationPreview().setTitle(loadProfileConfigsName);
-        }
+        Ext.suspendLayouts();
+        this.getLoadProfileConfigPreviewForm().loadRecord(record);
+        this.getLoadProfileConfigurationPreview().setTitle(record.get('name'));
+        Ext.resumeLayouts(true);
     },
 
     showDeviceConfigurationLoadProfilesView: function (deviceTypeId, deviceConfigurationId) {
@@ -326,7 +315,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                     gridStore: me.store,
                     deviceTypeId: deviceTypeId,
                     deviceConfigurationId: deviceConfigurationId
-                }
+                },
+                router: me.getController('Uni.controller.history.Router')
             });
             me.getApplication().fireEvent('changecontentevent', widget);
         }, false);

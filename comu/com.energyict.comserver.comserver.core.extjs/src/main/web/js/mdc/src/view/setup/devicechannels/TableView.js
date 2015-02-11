@@ -13,6 +13,7 @@ Ext.define('Mdc.view.setup.devicechannels.TableView', {
 
     emptyComponent: {
         xtype: 'no-items-found-panel',
+        itemId: 'ctr-table-no-data',
         title: Uni.I18n.translate('deviceloadprofiles.data.empty.title', 'MDC', 'No readings found'),
         reasons: [
             Uni.I18n.translate('deviceloadprofiles.data.empty.list.item1', 'MDC', 'No readings have been defined yet.')

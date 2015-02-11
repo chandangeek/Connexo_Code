@@ -138,6 +138,10 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
 
         var combo = this.down('filter-form #type'),
             store = Ext.create('Mdc.store.DeviceTypes', {storeId: 'DeviceTypesCbSearch'});
+        store.getProxy().pageParam = undefined;
+        store.getProxy().startParam = undefined;
+        store.getProxy().limitParam = undefined;
+
 
         if (combo.rendered) {
             combo.setStore(store);

@@ -12,64 +12,61 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
         'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigAndRulesPreviewContainer'
     ],
 
-    side: {
-        xtype: 'panel',
-        ui: 'medium',
-        items: [
-            {
-                xtype: 'device-configuration-menu',
-                itemId: 'stepsMenu'
-            }
-        ]
-    },
-
-    content: [
-        {
-            xtype: 'panel',
-            ui: 'large',
-            title: Uni.I18n.translate('loadProfileConfigurations.title', 'MDC', 'Load profile configurations'),
-            items: [
-                {
-                    xtype: 'preview-container',
-                    grid: {
-                        xtype: 'loadProfileConfigurationGrid'
-                    },
-                    emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('loadProfileConfigurations.empty.title', 'MDC', 'No load profile configurations found'),
-                        reasons: [
-                            Uni.I18n.translate('loadProfileConfigurations.empty.list.item1', 'MDC', 'No load profile configurations have been defined yet.'),
-                            Uni.I18n.translate('loadProfileConfigurations.empty.list.item2', 'MDC', 'No load profile configurations comply to the filter.')
-                        ],
-                        stepItems: [
-                            {
-                                text: Uni.I18n.translate('loadProfileConfigurations.add', 'MDC', 'Add load profile configuration'),
-                                privileges: ['privilege.administrate.deviceType'],
-                                action: 'addloadprofileconfiguration'
-                            }
-                        ]
-                    },
-                    previewComponent: {
-                        xtype: 'loadProfileConfigAndRulesPreviewContainer',
-                        deviceTypeId: this.deviceTypeId,
-                        deviceConfigId: this.deviceConfigId
-                    }
-                }
-            ]
-        }
-    ],
+    router: null,
 
     initComponent: function () {
-        var config = this.config,
-            previewContainer = this.content[0].items[0],
-            menu = this.side.items[0],
-            addButtons;
+        var me = this;
 
-        if (config) {
-            previewContainer.grid.store = config.gridStore ? config.gridStore : null;
-            menu.deviceTypeId = config.deviceTypeId ? config.deviceTypeId : null;
-            menu.deviceConfigurationId = config.deviceConfigurationId ? config.deviceConfigurationId : null;
-        }
+        me.side = {
+            xtype: 'panel',
+                ui: 'medium',
+                items: [
+                {
+                    xtype: 'device-configuration-menu',
+                    itemId: 'stepsMenu',
+                    deviceTypeId: me.config.deviceTypeId ? me.config.deviceTypeId : null,
+                    deviceConfigurationId: me.config.deviceConfigurationId ? me.config.deviceConfigurationId : null
+                }
+            ]
+        };
+
+        me.content = [
+            {
+                xtype: 'panel',
+                ui: 'large',
+                title: Uni.I18n.translate('loadProfileConfigurations.title', 'MDC', 'Load profile configurations'),
+                items: [
+                    {
+                        xtype: 'preview-container',
+                        grid: {
+                            xtype: 'loadProfileConfigurationGrid',
+                            store: me.config.gridStore ? me.config.gridStore : null
+                        },
+                        emptyComponent: {
+                            xtype: 'no-items-found-panel',
+                            title: Uni.I18n.translate('loadProfileConfigurations.empty.title', 'MDC', 'No load profile configurations found'),
+                            reasons: [
+                                Uni.I18n.translate('loadProfileConfigurations.empty.list.item1', 'MDC', 'No load profile configurations have been defined yet.'),
+                                Uni.I18n.translate('loadProfileConfigurations.empty.list.item2', 'MDC', 'No load profile configurations comply to the filter.')
+                            ],
+                            stepItems: [
+                                {
+                                    text: Uni.I18n.translate('loadProfileConfigurations.add', 'MDC', 'Add load profile configuration'),
+                                    privileges: ['privilege.administrate.deviceType'],
+                                    action: 'addloadprofileconfiguration'
+                                }
+                            ]
+                        },
+                        previewComponent: {
+                            xtype: 'loadProfileConfigAndRulesPreviewContainer',
+                            deviceTypeId: me.config.deviceTypeId,
+                            deviceConfigId: me.config.deviceConfigurationId,
+                            router: me.router
+                        }
+                    }
+                ]
+            }
+        ];
 
         this.callParent(arguments);
     }

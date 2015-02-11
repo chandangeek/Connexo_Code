@@ -322,7 +322,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         var request = {};
         jsonData = Ext.encode(request);
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + this.mrid + '/schedules/' + record.get('masterScheduleId'),
+            url: '/api/ddr/devices/' + this.mrid + '/schedules/' + record.getId(),
             method: 'DELETE',
             params: '',
             jsonData: jsonData,

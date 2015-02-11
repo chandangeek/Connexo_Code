@@ -145,14 +145,22 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         Ext.ModelManager.getModel('Mdc.model.RegisterGroup').load(registerGroupId, {
             success: function (registerGroup) {
                 me.getApplication().fireEvent('loadRegisterGroup', registerGroup);
-                me.getStore('Mdc.store.RegisterTypes').load({
-                    limit: 500,
+                var store = me.getStore('Mdc.store.RegisterTypes');
+                store.getProxy().pageParam = undefined;
+                store.getProxy().startParam = undefined;
+                store.getProxy().limitParam = undefined;
+                widget.down('form').loadRecord(registerGroup);
+                widget.down('panel').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + registerGroup.get('name') + '\'');
+                var grid = widget.down('#editRegisterGroupGridField');
+
+                store.load({
                     callback: function (registerTypes) {
-                        widget.down('form').loadRecord(registerGroup);
-                        widget.down('panel').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + registerGroup.get('name') + '\'');
                         if (this.data.items.length > 0) {
-                            widget.down('#editRegisterGroupGridField').getSelectionModel().doSelect(registerGroup.registerTypes().data.items);
-                            widget.down('#editRegisterGroupGridField').store.add(registerTypes);
+                            grid.reconfigure(store);
+                            grid.getSelectionModel().suspendChanges();
+                            grid.getSelectionModel().select(registerGroup.registerTypes().data.items, false, true);
+                            me.checkboxChanged(grid, grid.getSelectionModel().getSelection());
+                            grid.getSelectionModel().resumeChanges();
                         }
                         widget.setLoading(false);
                     }
@@ -170,16 +178,18 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
 
         this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
+        widget.down('panel').setTitle(Uni.I18n.translate('registerGroup.create', 'MDC', 'Add register group'));
 
         // TODO: change this to activate infinite scrolling when JP-2844 is fixed
         //widget.down('#editRegisterGroupGridField').store.on('load', function () {
         var store = me.getStore('Mdc.store.RegisterTypes');
+        store.getProxy().pageParam = undefined;
+        store.getProxy().startParam = undefined;
+        store.getProxy().limitParam = undefined;
         store.load({
-            limit: 500,
             callback: function (registerTypes) {
                 var registerGroup = Ext.create(Ext.ModelManager.getModel('Mdc.model.RegisterGroup'));
                 widget.down('form').loadRecord(registerGroup);
-                widget.down('panel').setTitle(Uni.I18n.translate('registerGroup.create', 'MDC', 'Add register group'));
                 if (this.totalCount > 0) {
                     widget.down('#editRegisterGroupSelectedField').setValue(Ext.String.format(Uni.I18n.translate('registerGroup.selectedRegisterTypes', 'MDC', '{0} register types selected'), 0));
                     widget.down('#editRegisterGroupGridField').reconfigure(store);
