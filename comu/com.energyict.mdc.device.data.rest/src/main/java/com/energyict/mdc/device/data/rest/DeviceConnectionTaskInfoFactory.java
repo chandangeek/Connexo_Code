@@ -49,21 +49,18 @@ public class DeviceConnectionTaskInfoFactory {
             if (connectionTask instanceof OutboundConnectionTask<?>) {
                 info.latestResult.retries=((OutboundConnectionTask<?>)connectionTask).getCurrentTryCount();
             }
-
             info.taskCount = new ComTaskCountInfo();
             info.taskCount.numberOfSuccessfulTasks = comSession.getNumberOfSuccessFulTasks();
             info.taskCount.numberOfFailedTasks = comSession.getNumberOfFailedTasks();
             info.taskCount.numberOfIncompleteTasks = comSession.getNumberOfPlannedButNotExecutedTasks();
-
             info.startDateTime = comSession.getStartDate().with(ChronoField.MILLI_OF_SECOND, 0);
             info.endDateTime = comSession.getStopDate().with(ChronoField.MILLI_OF_SECOND, 0);
             info.duration=new TimeDurationInfo(Duration.ofMillis(info.endDateTime.toEpochMilli() - info.startDateTime.toEpochMilli()).getSeconds());   // JP-6022
             info.comPort = new IdWithNameInfo(comSession.getComPort());
             info.comServer = new IdWithNameInfo(comSession.getComPort().getComServer());
-            info.comPortPool = new IdWithNameInfo(connectionTask.getComPortPool());
             info.comSessionId = comSession.getId();
         }
-
+        info.comPortPool = new IdWithNameInfo(connectionTask.getComPortPool());
         info.direction=thesaurus.getString(connectionTask.getConnectionType().getDirection().name(),connectionTask.getConnectionType().getDirection().name());
         info.connectionType = connectionTask.getPluggableClass().getName();
         info.connectionMethod = new ConnectionMethodInfo();

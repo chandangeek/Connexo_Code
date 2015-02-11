@@ -14,14 +14,12 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-
-import javax.inject.Inject;
-import javax.ws.rs.core.MultivaluedMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
+import javax.inject.Inject;
+import javax.ws.rs.core.MultivaluedMap;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Functions.asStream;
@@ -64,14 +62,6 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_LOAD_PROFILE_ON_DEVICE, device.getmRID(), loadProfileId));
     }
 
-    public Channel findChannelOrThrowException(LoadProfile loadProfile, long channelSpecId) {
-        return loadProfile.getChannels()
-                .stream()
-                .filter(c -> c.getChannelSpec().getId() == channelSpecId)
-                .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CHANNEL_ON_LOAD_PROFILE, loadProfile.getId(), channelSpecId));
-    }
-
     public Channel findChannelOnDeviceOrThrowException(String mrid, long channelId){
         Device device = this.findDeviceByMrIdOrThrowException(mrid);
         return this.findChannelOnDeviceOrThrowException(device, channelId);
@@ -85,22 +75,6 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CHANNEL_ON_DEVICE, device.getmRID(), channelId));
     }
 
-    /*public Condition getQueryConditionForDevice(StandardParametersBean params) {
-        ImmutableMap<String, BiFunction<String, StandardParametersBean, Condition>> keyToConditionFunction =
-            ImmutableMap.of(
-                    "mRID", (String k, StandardParametersBean p) -> toSimpleCondition(p, k),
-                    "serialNumber", (String k, StandardParametersBean p) -> toSimpleCondition(p, k),
-                    "deviceTypeName", (String k, StandardParametersBean p) -> toMultiValuedCondition(k, "deviceConfiguration.deviceType.name"),
-                    "deviceConfigurationName", (String k, StandardParametersBean p) -> toMultiValuedCondition(k, "deviceConfiguration.name"));
-        return keyToConditionFunction.entrySet()
-            .stream()
-            .filter(e -> params.containsKey(e.getKey()))
-            .map(e -> e.getValue().apply(e.getKey(), params))
-            .reduce(
-                Condition.TRUE,
-                (c1, c2) -> c1.and(c2));
-    }*/
-
     public Condition getQueryConditionForDevice(StandardParametersBean params) {
         Condition condition = Condition.TRUE;
         if (params.getQueryParameters().size() > 0) {
@@ -113,15 +87,11 @@ public class ResourceHelper {
         Condition conditionDevice = Condition.TRUE;
         String mRID = params.getFirst("mRID");
         if (mRID != null) {
-            conditionDevice = !params.wasRegExp()
-                    ? conditionDevice.and(where("mRID").isEqualTo(mRID))
-                    : conditionDevice.and(where("mRID").likeIgnoreCase(mRID));
+            conditionDevice = conditionDevice.and(where("mRID").likeIgnoreCase(mRID));
         }
         String serialNumber = params.getFirst("serialNumber");
         if (serialNumber != null) {
-            conditionDevice = !params.wasRegExp()
-                    ? conditionDevice.and(where("serialNumber").isEqualTo(serialNumber))
-                    : conditionDevice.and(where("serialNumber").likeIgnoreCase(serialNumber));
+            conditionDevice = conditionDevice.and(where("serialNumber").likeIgnoreCase(serialNumber));
         }
         String deviceType = params.getFirst("deviceTypeName");
         if (deviceType != null) {
@@ -144,25 +114,6 @@ public class ResourceHelper {
     }
 
 
-    private Condition toSimpleCondition(StandardParametersBean params, String key) {
-        String value = params.getFirst(key);
-        if (params.wasRegExp()) {
-            return where(key).likeIgnoreCase(value);
-        }
-        else {
-            return where(key).isEqualTo(value);
-        }
-    }
-
-    private Condition toMultiValuedCondition(String params, String conditionField) {
-        return Stream
-            .of(params.split(","))
-            .map(v -> where(conditionField).isEqualTo(v.trim()))
-            .reduce(
-                Condition.FALSE,
-                (c1, c2) -> c1.or(c2));
-    }
-
     public Meter getMeterFor(Device device) {
         Optional<AmrSystem> amrSystemRef = meteringService.findAmrSystem(1);
         Optional<Meter> meterRef = amrSystemRef.get().findMeter(String.valueOf(device.getId()));
@@ -171,23 +122,6 @@ public class ResourceHelper {
                     " wasn't configured.");
         }
         return meterRef.get();
-    }
-
-    Meter getOrCreateMeterFor(Device device) {
-        Meter meter = getMeterFor(device);
-        if (meter != null) {
-            return meter;
-        }
-        return createMeter(device);
-    }
-
-    private Meter createMeter(Device device) {
-        Meter meter;
-        AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-        meter = amrSystem.newMeter(String.valueOf(device.getId()), device.getmRID());
-        meter.setSerialNumber(device.getSerialNumber());
-        meter.save();
-        return meter;
     }
 
     public List<MeterActivation> getMeterActivationsMostCurrentFirst(Meter meter) {
@@ -200,14 +134,6 @@ public class ResourceHelper {
         return this.getMeterActivationsMostCurrentFirst(meter)
                 .stream()
                 .map(ma -> getChannel(ma, register.getRegisterSpec().getRegisterType().getReadingType()))
-                .flatMap(asStream())
-                .findFirst();
-    }
-
-    public Optional<com.elster.jupiter.metering.Channel> getLoadProfileChannel(Channel channel, Meter meter) {
-        return this.getMeterActivationsMostCurrentFirst(meter)
-                .stream()
-                .map(ma -> getChannel(ma, channel.getReadingType()))
                 .flatMap(asStream())
                 .findFirst();
     }
@@ -250,17 +176,11 @@ public class ResourceHelper {
         JsonQueryFilter filter = new JsonQueryFilter(uriParams.getFirst("filter"));
         String mRID = filter.getString("mRID");
         if (mRID != null) {
-            mRID = replaceRegularExpression(mRID);
-            conditionDevice = !isRegularExpression(mRID)
-                    ? conditionDevice.and(where("mRID").isEqualTo(mRID))
-                    : conditionDevice.and(where("mRID").likeIgnoreCase(mRID));
+            conditionDevice = conditionDevice.and(where("mRID").likeIgnoreCase(mRID));
         }
         String serialNumber = filter.getString("serialNumber");
         if (serialNumber != null) {
-            serialNumber = replaceRegularExpression(serialNumber);
-            conditionDevice = !isRegularExpression(serialNumber)
-                    ? conditionDevice.and(where("serialNumber").isEqualTo(serialNumber))
-                    : conditionDevice.and(where("serialNumber").likeIgnoreCase(serialNumber));
+            conditionDevice = conditionDevice.and(where("serialNumber").likeIgnoreCase(serialNumber));
         }
         if (filter.hasProperty("deviceTypes")) {
             List<Integer> deviceTypes = filter.getIntegerList("deviceTypes");
@@ -283,34 +203,6 @@ public class ResourceHelper {
             condition = condition.or(where(conditionField).isEqualTo(value));
         }
         return condition;
-    }
-
-    private boolean isRegularExpression(String value) {
-        if (value.contains("*")) {
-            return true;
-        }
-        if (value.contains("?")) {
-            return true;
-        }
-        if (value.contains("%")) {
-            return true;
-        }
-        return false;
-    }
-
-    private String replaceRegularExpression(String value) {
-        if (value.contains("*")) {
-            value = value.replaceAll("\\*", "%");
-            return value;
-        }
-        if (value.contains("?")) {
-            value = value.replaceAll("\\?", "_");
-            return value;
-        }
-        if (value.contains("%")) {
-            return value;
-        }
-        return value;
     }
 
 }
