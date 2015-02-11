@@ -45,6 +45,12 @@ Ext.define('Dsh.controller.OperatorDashboard', {
             },
             '#my-favorite-device-groups button[action=save]': {
                 click: this.saveFavoriteGroups
+            },
+            '#my-favorite-device-groups [action=addItem]': {
+                click: function () {
+                    var router = this.getController('Uni.controller.history.Router');
+                    router.getRoute('devices/devicegroups/add').forward();
+                }
             }
         });
     },

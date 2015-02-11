@@ -4,44 +4,40 @@ Ext.define('Dsh.view.MyFavoriteDeviceGroups', {
     itemId: 'my-favorite-device-groups',
     title: Uni.I18n.translate('myFavoriteDeviceGroups.pageTitle', 'DSH', 'Select favorite device groups'),
     ui: 'large',
-    style: {
-        margin: '0 20px'
-    },
+    margin: '0 20',
+    requires: [
+        'Uni.view.container.EmptyGridContainer',
+        'Uni.view.notifications.NoItemsFoundPanel'
+    ],
     initComponent: function () {
         var me = this;
         me.callParent(arguments);
-        me.add([
-            {
-                xtype: 'panel',
-                layout: 'hbox',
-                defaults: {
-                    style: {
-                        marginRight: '20px'
-                    }
-                },
-                items: [
-                    {
-                        xtype: 'displayfield',
-                        itemId: 'selected-groups-summary'
-                    },
-                    {
-                        xtype: 'button',
-                        text: 'Uncheck all',
-                        action: 'uncheckall'
-                    }
-                ]
-            },
-            {
+        me.add({
+            xtype: 'emptygridcontainer',
+            grid: {
                 xtype: 'grid',
                 itemId: 'my-favorite-device-groups-grid',
-                extend:'Uni.view.grid.SelectionGrid',
+                extend: 'Uni.view.grid.SelectionGrid',
                 store: 'Dsh.store.FavoriteDeviceGroups',
+                margin: '0 40 0 0',
                 disableSelection: true,
                 overflowY: 'auto',
                 maxHeight: 450,
                 viewConfig: {
                     markDirty: false
                 },
+                tbar: [
+                    {
+                        xtype: 'displayfield',
+                        itemId: 'selected-groups-summary',
+                        margin: '0 20 0 0'
+                    },
+                    {
+                        xtype: 'button',
+                        text: 'Uncheck all',
+                        action: 'uncheckall'
+                    }
+                ],
                 columns: [
                     {
                         xtype: 'checkcolumn',
@@ -63,20 +59,34 @@ Ext.define('Dsh.view.MyFavoriteDeviceGroups', {
                                 Uni.I18n.translate('myFavoriteDeviceGroups.grid.type.static', 'DSH', 'Static');
                         }
                     }
+                ],
+                buttonAlign: 'left',
+                buttons: [
+                    {
+                        xtype: 'button',
+                        text: 'Save',
+                        action: 'save',
+                        ui: 'action'
+                    },
+                    {
+                        xtype: 'button',
+                        text: 'Cancel',
+                        href: '#/dashboard',
+                        ui: 'link'
+                    }
                 ]
             },
-            {
-                xtype: 'button',
-                text: 'Save',
-                action: 'save',
-                ui: 'action'
-            },
-            {
-                xtype: 'button',
-                text: 'Cancel',
-                href: '#/dashboard',
-                ui: 'link'
+            emptyComponent: {
+                xtype: 'no-items-found-panel',
+                title: Uni.I18n.translate('workspace.myFavoriteDeviceGroups.empty.title', 'DSH', 'No device groups found'),
+                reasons: [
+                    Uni.I18n.translate('workspace.myFavoriteDeviceGroups.empty.list.reason1', 'DSH', 'No device groups have been defined yet.')
+                ],
+                stepItems: [{
+                    text: Uni.I18n.translate('workspace.myFavoriteDeviceGroups.empty.list.action1', 'DSH', 'Add device group'),
+                    action: 'addItem'
+                }]
             }
-        ]);
+        });
     }
 });
