@@ -44,7 +44,7 @@ Ext.define('Dsh.view.widget.Summary', {
                     '<tpl for="counters">' +
                     '<tr class="child">' +
                     '<td class="label">{displayName}</td>' +
-                    '<td width="100%" id="bar-{[parentIndex]}-{#}" class="bar-{[parentIndex]} bar-{name}"></td>' +
+                    '<td width="100%" id="bar-{[parentIndex]}-{#}" class="bar-{[parentIndex]}-{#} bar-{name}"></td>' +
                     '</tr>' +
                     '</tpl>' +
                     '</tbody>' +
@@ -53,6 +53,7 @@ Ext.define('Dsh.view.widget.Summary', {
                 listeners: {
                     refresh: function (view) {
                         Ext.suspendLayouts();
+                        //debugger;
                         Ext.each(view.getNodes(), function (node, index) {
                             var record = view.getRecord(node),
                                 pos = index + 1;
@@ -65,7 +66,7 @@ Ext.define('Dsh.view.widget.Summary', {
                                         count: data.get('count'),
                                         label: !record.get('count') ? 0 : Math.round(!view.total ? 0 : data.get('count') * 100 / record.get('count')) + '% (' + data.get('count') + ')'
                                     });
-                                    bar.render(view.getEl().down('#bar-' + pos + '-' + (idx + 1)));
+                                    bar.render(node.querySelector('.bar-' + pos + '-' + (idx + 1)));
                                 });
                             }
 
@@ -75,9 +76,9 @@ Ext.define('Dsh.view.widget.Summary', {
                                 count: record.get('count'),
                                 label: Math.round(!view.total ? 0 : record.get('count') * 100 / view.total) + '% (' + record.get('count') + ')'
                             });
-                            bar.render(view.getEl().down('#bar-' + pos));
-                            Ext.resumeLayouts();
+                            bar.render(node.querySelector('.bar-' + pos));
                         });
+                        Ext.resumeLayouts();
                     }
                 }
             }
@@ -115,9 +116,9 @@ Ext.define('Dsh.view.widget.Summary', {
         me.setTitle(Uni.I18n.translatePlural('overview.widget.' + me.parent + '.header', total, 'DSH', '<h3>' + me.wTitle + ' ({0})' + '</h3>'));
     },
 
-    initKpi: function(record) {
+    initKpi: function (record) {
         var me = this,
-            targetContainer = me.down('#target-container'),
+            targetContainer = me.getById('target-container'),
             total = record.get('total'),
             target = record.get('target'),
             counters = record.counters();

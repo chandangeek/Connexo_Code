@@ -21,15 +21,10 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
             store = assigned.topMyIssues(),
             issuesCount = store.getCount();
 
-        if(this.rendered) {
-            Ext.suspendLayouts();
-        }
-        if( issuesCount > 0 ) {
+        if (issuesCount > 0) {
             grid.reconfigure(store);
         }
-        if(!this.rendered) {
-            Ext.suspendLayouts();
-        }
+        Ext.suspendLayouts();
         issuesCount = grid.getStore().getCount();
         countContainer.removeAll();
         dockedLinksContainer.removeAll();
@@ -76,7 +71,7 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
         Ext.resumeLayouts();
     },
 
-    initComponent: function() {
+    initComponent: function () {
         var me = this;
 
         me.items = [
@@ -86,7 +81,7 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
                 itemId: 'open-data-collection-issues-count-container'
             },
             {
-                xtype: 'gridpanel',
+                xtype: 'grid',
                 emptyText: Uni.I18n.translate('overview.widget.openDataCollectionIssues.empty.title', 'MDC', 'No issues assigned to me found'),
                 margin: '5 0 10 0',
                 itemId: 'open-data-collection-issues-grid',
@@ -97,11 +92,10 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
                 },
                 columns: [
                     {
-
                         dataIndex: 'dueDate',
                         align: 'right',
                         width: 40,
-                        renderer: function(value, meta, record){
+                        renderer: function (value, meta, record) {
                             if (value) {
                                 if ( moment().isAfter(moment(value))) {
                                     meta['tdAttr'] = 'data-qtip="' + Uni.I18n.translate('overview.widget.openDataCollectionIssues.overdue', 'DSH', 'Overdue') + '"';
