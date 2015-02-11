@@ -142,7 +142,7 @@ public class AppServerImplTest {
 
     @Test(expected = ServerMessageQueueMissing.class)
     public void testSendCommandWithServerMessageQueueMissing() {
-        String messagingName = "AppServer_" + NAME;
+        String messagingName = "AppServer_" + NAME.toUpperCase();
         when(messageService.getDestinationSpec(messagingName)).thenReturn(Optional.empty());
 
         appServer.sendCommand(command);
