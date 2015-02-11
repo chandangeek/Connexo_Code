@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import com.elster.jupiter.nls.Layer;
@@ -7,10 +8,12 @@ import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Executes the required installation steps on behalf of the {@link DeviceMessageSpecificationServiceImpl}.
@@ -29,9 +32,24 @@ public class Installer {
 
     public void install() {
         this.createTranslations();
+        this.createDeviceMessageTranslations();
     }
 
     private void createTranslations() {
+        Stream.of(MessageSeeds.values())
+            .map(this::toTranslation)
+            .collect(Collectors.toList());
+
+    }
+
+    private Translation toTranslation(MessageSeed messageSeed) {
+        return this.toTranslation(
+                SimpleNlsKey.key("PAC", Layer.DOMAIN, messageSeed.getKey()),
+                Locale.ENGLISH,
+                messageSeed.getDefaultFormat());
+    }
+
+    private void createDeviceMessageTranslations() {
         this.thesaurus.addTranslations(
             Arrays.stream(DeviceMessageCategories.values()).
                 map(this::toTranslation).
