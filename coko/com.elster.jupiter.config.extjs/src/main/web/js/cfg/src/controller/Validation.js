@@ -521,7 +521,7 @@ Ext.define('Cfg.controller.Validation', {
 
                 selectionModel = widget.down('#addReadingTypesGrid').getSelectionModel();
                 if (!selectionModel.getSelection().length && records.length) {
-                    selectionModel.select([records[0]]);
+                    selectionModel.select(0);
                 }
                 if (!records.length) {
                     widget.down('#buttonsContainer button[name=add]').setDisabled(true);
@@ -553,6 +553,8 @@ Ext.define('Cfg.controller.Validation', {
             model = Ext.create(Cfg.model.ValidationRule),
             propertyForm,
             form;
+
+        me.ruleId = null;
 
         me.getValidatorsStore().load({
             callback: function () {
@@ -924,7 +926,7 @@ Ext.define('Cfg.controller.Validation', {
         }
         record.save({
             params: {
-                id: me.ruleSetId,
+                id: record.get('ruleSetId'),
                 ruleId: record.get('id')
             },
             success: function (record, operation) {
