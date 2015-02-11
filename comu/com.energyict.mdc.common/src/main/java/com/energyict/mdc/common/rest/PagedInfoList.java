@@ -20,8 +20,12 @@ public class PagedInfoList {
     private boolean couldHaveNextPage;
     private List<?> infos = new ArrayList<>();
     private QueryParameters queryParameters;
+    private Integer totalCount;
 
     public int getTotal() {
+        if (totalCount != null) {
+            return totalCount;
+        }
         int total = infos.size();
         if (queryParameters.getStart()!=null) {
             total+=queryParameters.getStart();
@@ -36,7 +40,7 @@ public class PagedInfoList {
         return ImmutableList.copyOf(infos);
     }
 
-    private PagedInfoList(String jsonListName, List<?> infos, QueryParameters queryParameters) {
+    private PagedInfoList(String jsonListName, List<?> infos, QueryParameters queryParameters, Integer totalCount) {
         this.queryParameters = queryParameters;
         this.jsonListName = jsonListName;
         this.infos = infos;
@@ -44,6 +48,11 @@ public class PagedInfoList {
         if (couldHaveNextPage) {
             this.infos=infos.subList(0,queryParameters.getLimit());
         }
+        this.totalCount = totalCount;
+    }
+
+    private PagedInfoList(String jsonListName, List<?> infos, QueryParameters queryParameters) {
+        this(jsonListName, infos, queryParameters, null);
     }
 
     /**
@@ -67,6 +76,10 @@ public class PagedInfoList {
      */
     public static PagedInfoList asJson(String jsonListName, List<?> infos, QueryParameters queryParameters) {
         return new PagedInfoList(jsonListName, infos, queryParameters);
+    }
+
+    public static PagedInfoList asJson(String jsonListName, List<?> infos, QueryParameters queryParameters, Integer totalCount) {
+        return new PagedInfoList(jsonListName, infos, queryParameters, totalCount);
     }
 
     public static class Serializer extends JsonSerializer<PagedInfoList> {
