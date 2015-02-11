@@ -41,7 +41,12 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                             withPaging: false,
                             bottomPagging: false,
                             withActions: false,
-                            store: 'AvailableRegisterTypesForRegisterGroup'
+                            store: 'AvailableRegisterTypesForRegisterGroup',
+                            minHeight:66,
+                            verticalScroller: {
+                                trailingBufferZone: 100,
+                                leadingBufferZone: 100
+                            }
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
