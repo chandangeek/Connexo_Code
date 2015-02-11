@@ -75,7 +75,7 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
         it.setPollingDelay(10000);
         it.setPollingRetries(30);
         it.setDelayBeforeSendingBlocks(5000);
-        it.setCheckNumberOfBlocksInPreviousSession(((DSMR50Properties)getProtocol().getDlmsSessionProperties()).getCheckNumberOfBlocksDuringFirmwareResume());
+        it.setCheckNumberOfBlocksInPreviousSession(((DSMR50Properties) getProtocol().getDlmsSessionProperties()).getCheckNumberOfBlocksDuringFirmwareResume());
         if (imageIdentifier.isEmpty()) {
             it.upgrade(image, false);
         } else {
@@ -136,14 +136,19 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
 
         //Update the key in the security provider, it is used instantly
         getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(newEncrytionKey, ""));
+
+        //Reset frame counter, only if a different key has been written
+        if (!newEncrytionKey.equalsIgnoreCase(newWrappedEncryptionKey)) {
+            getProtocol().getDlmsSession().getAso().getSecurityContext().setFrameCounter(1);
+        }
     }
 
     /**
      * Convert the given epoch activation date to a proper DateTimeArray<br/>
      * The conversion is slightly different then the DSMR4.0 implementation:
      * <ul>
-     *     <li>Day of week should be masked 0xFF</li>
-     *     <li>Milliseconds should be masked 0xFF</li>
+     * <li>Day of week should be masked 0xFF</li>
+     * <li>Milliseconds should be masked 0xFF</li>
      * </ul>
      */
     @Override
