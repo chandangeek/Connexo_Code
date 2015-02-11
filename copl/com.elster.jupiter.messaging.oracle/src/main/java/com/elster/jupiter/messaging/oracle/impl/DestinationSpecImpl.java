@@ -32,6 +32,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 class DestinationSpecImpl implements DestinationSpec {
 
@@ -164,6 +165,29 @@ class DestinationSpecImpl implements DestinationSpec {
         subscribers.add(result);
         dataModel.mapper(DestinationSpec.class).update(this);
         return result;
+    }
+
+    @Override
+    public void unSubscribe(String subscriberSpecName) {
+        if (!isActive()) {
+            throw new InactiveDestinationException(thesaurus, this, name);
+        }
+        List<SubscriberSpec> currentConsumers = subscribers;
+        Optional<SubscriberSpec> subscriberSpecRef = currentConsumers.stream().filter(ss -> ss.getName().equals(subscriberSpecName)).findFirst();
+        if (subscriberSpecRef.isPresent()) {
+            SubscriberSpecImpl subscriberSpec = SubscriberSpecImpl.class.cast(subscriberSpecRef.get());
+            subscriberSpec.unSubscribe();
+            subscribers.remove(subscriberSpec);
+            dataModel.mapper(DestinationSpec.class).update(this);
+        }
+    }
+
+    @Override
+    public void delete() {
+        if (isActive()) {
+            deactivate();
+        }
+        dataModel.mapper(DestinationSpec.class).remove(this);
     }
 
     DestinationSpecImpl init(QueueTableSpec queueTableSpec, String name, int retryDelay,boolean buffered) {
