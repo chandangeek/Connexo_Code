@@ -94,6 +94,11 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                                 ignoreRightMouseSelection: true
                                             },
                                             selType: 'checkboxmodel',
+                                            plugins: {
+                                                ptype: 'bufferedrenderer',
+                                                trailingBufferZone: 50,  // Keep 20 rows rendered in the table behind scroll
+                                                leadingBufferZone: 100   // Keep 50 rows rendered in the table ahead of scroll
+                                            },
                                             columns: [
                                                 {
                                                     header: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
@@ -124,7 +129,6 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                     },
                                     {
                                         xtype: 'fieldcontainer',
-                                        ui: 'actions',
                                         fieldLabel: '&nbsp',
                                         layout: {
                                             type: 'hbox',
