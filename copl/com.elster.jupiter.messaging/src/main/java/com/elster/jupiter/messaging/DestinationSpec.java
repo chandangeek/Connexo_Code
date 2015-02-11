@@ -76,4 +76,9 @@ public interface DestinationSpec extends HasName {
     void save();
     
     boolean isBuffered();
+
+    @TransactionRequired
+    void unSubscribe(String subscriberSpecName);
+
+    void delete();
 }
