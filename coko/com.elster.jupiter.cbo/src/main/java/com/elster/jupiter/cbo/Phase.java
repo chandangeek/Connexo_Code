@@ -1,5 +1,7 @@
 package com.elster.jupiter.cbo;
 
+import com.elster.jupiter.util.Checks;
+
 public enum Phase {
 	NOTAPPLICABLE (false,false,false,false,false,false,false,false),
 	PHASEA (true,false,false,false,false,false,false,false),
@@ -161,6 +163,9 @@ public enum Phase {
 		}
 		if (n2) {
 			base += "N";
+		}
+		if (Checks.is(base).emptyOrOnlyWhiteSpace()){
+			base = "NotApplicable";
 		}
 		return base;
 	}
