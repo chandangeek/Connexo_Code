@@ -506,7 +506,7 @@ Ext.define('Cfg.controller.Validation', {
         }
 
         readingTypeStore.getProxy().setExtraParam('filter', Ext.encode(properties));
-        readingTypeStore.removeAll();
+        readingTypeStore.loadData([],false);
         bulkGridContainer.add(previewContainer);
         readingTypeStore.load(function (records) {
             var selectionModel;
