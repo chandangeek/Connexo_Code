@@ -244,16 +244,20 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     public void comTaskExecutionCompleted(ComTaskExecutionSession.SuccessIndicator successIndicator) {
+        this.completeCurrentExecutionIfPresent(successIndicator);
+        this.currentTaskExecutionBuilder = Optional.empty();
+        this.getStoreCommand().addAll(this.deviceCommandsForCurrentComTaskExecution());
+    }
+
+    private void completeCurrentExecutionIfPresent(ComTaskExecutionSession.SuccessIndicator successIndicator) {
         if (this.isConnected()) {
             this.comPortRelatedComChannel.logRemainingBytes();
         }
-        if (hasBasicCheckFailed()) {
+        if (basickCheckHasFailed()) {
             String commandDescription = "ComTask will be rescheduled due to the failure of the BasicCheck task.";
             this.currentTaskExecutionBuilder.ifPresent(b -> b.addComCommandJournalEntry(now(), CompletionCode.Rescheduled, "", commandDescription));
         }
         this.currentTaskExecutionBuilder.ifPresent(b -> b.add(now(), successIndicator));
-        this.currentTaskExecutionBuilder = Optional.empty();
-        this.getStoreCommand().addAll(this.deviceCommandsForCurrentComTaskExecution());
     }
 
     private List<DeviceCommand> deviceCommandsForCurrentComTaskExecution() {
@@ -315,7 +319,7 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     public void failForRetryAsapComTaskExec(ComTaskExecution notExecutedComTaskExecution, Throwable t) {
-        fail(notExecutedComTaskExecution, t);
+        failWith(t);
         comTaskExecutionCompleted(Success);
     }
 
@@ -376,7 +380,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         return this.storeCommand;
     }
 
-    public boolean hasBasicCheckFailed() {
+    public boolean basickCheckHasFailed() {
         return basicCheckFailed;
     }
 
@@ -438,6 +442,7 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     public void start(ComTaskExecution comTaskExecution, ComTask comTask) {
+        this.completeCurrentExecutionIfPresent(ComTaskExecutionSession.SuccessIndicator.Success);   // Workaround for multiple ComTasks in ComSchedule
         this.comTaskExecution = comTaskExecution;
         this.currentTaskExecutionBuilder = Optional.of(this.sessionBuilder.addComTaskExecutionSession(comTaskExecution, comTask, connectionTask.getDevice(), now()));
         if (this.isLogLevelEnabled(ComServer.LogLevel.DEBUG)) {
@@ -558,7 +563,7 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     void comTaskExecutionFailure(JobExecution job, ComTaskExecution comTaskExecution, Throwable t) {
-        this.fail(comTaskExecution, t);
+        this.failWith(t);
         this.executing.stop();
         this.addStatisticalInformationForTaskSession();
         this.publish(
@@ -572,11 +577,11 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.connectionLogger.taskExecutionFailed(t, job.getThreadName(), comTaskExecution.getComTasks().get(0).getName());
     }
 
-    void fail(ComTaskExecution comTaskExecution, Throwable t) {
+    void failWith(Throwable t) {
         if (this.isConnected()) {
             this.comPortRelatedComChannel.logRemainingBytes();
         }
-        if (this.currentTaskExecutionBuilder != null) { // Check if the failure occurred in the context of an executing ComTask
+        if (this.currentTaskExecutionBuilder.isPresent()) { // Check if the failure occurred in the context of an executing ComTask
             String translated;
             if (t instanceof ComServerRuntimeException) {
                 ComServerRuntimeException comServerRuntimeException = (ComServerRuntimeException) t;
@@ -584,7 +589,7 @@ public final class ExecutionContext implements JournalEntryFactory {
             } else {
                 translated = t.getLocalizedMessage();
             }
-            currentTaskExecutionBuilder.ifPresent(b -> b.addComCommandJournalEntry(now(), CompletionCode.UnexpectedError, translated, "General"));
+            this.currentTaskExecutionBuilder.get().addComCommandJournalEntry(now(), CompletionCode.UnexpectedError, translated, "General");
         }
     }
 

@@ -50,7 +50,7 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
         for (Map.Entry<ComCommandType, ComCommand> comCommandEntry : comCommands.entrySet()) {
             final ComCommand comCommand = comCommandEntry.getValue();
             final ComCommandType commandType = comCommandEntry.getKey();
-            if(areWeAllowedToPerformTheCommand(firstException, canWeStillDoADisconnect, commandType, executionContext.hasBasicCheckFailed())){
+            if(areWeAllowedToPerformTheCommand(firstException, canWeStillDoADisconnect, commandType, executionContext.basickCheckHasFailed())){
                 try {
                     performTheComCommandIfAllowed(deviceProtocol, executionContext, comCommand);
                 } catch (ComServerRuntimeException e) {

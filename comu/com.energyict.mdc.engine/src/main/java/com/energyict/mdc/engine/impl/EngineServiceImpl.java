@@ -64,11 +64,13 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.appserver.AppService.*;
 
@@ -266,7 +268,10 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
+        List<TranslationKey> keys = new ArrayList<>();
+        Stream.of(MessageSeeds.values()).forEach(keys::add);
+        Stream.of(com.energyict.mdc.engine.impl.monitor.MessageSeeds.values()).forEach(keys::add);
+        return keys;
     }
 
     @Reference

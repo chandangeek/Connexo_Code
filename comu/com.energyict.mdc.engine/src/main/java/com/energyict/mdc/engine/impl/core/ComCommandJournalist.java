@@ -10,6 +10,7 @@ import java.text.NumberFormat;
 import java.time.Clock;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Writes the journal entries for {@link ComCommand}s.
@@ -58,22 +59,14 @@ public class ComCommandJournalist {
         StringBuilder builder = new StringBuilder();
         if (hasIssues(comCommand)) {
             appendHeader(builder, comCommand);
-            List<Problem> problems = comCommand.getProblems();
-            appendIssues(builder, "Problems", problems);
-            if (!problems.isEmpty()) {
-                builder.append("\n");
-            }
-            appendIssues(builder, "Warnings", comCommand.getWarnings());
+            appendIssues(builder, "Problems", comCommand.getProblems(), () -> "\n");
+            appendIssues(builder, "Warnings", comCommand.getWarnings(), () -> "");
         }
         return builder.toString();
     }
 
     private boolean hasIssues(ComCommand comCommand) {
-        return numberOfIssues(comCommand) > 0;
-    }
-
-    private int numberOfIssues(ComCommand comCommand) {
-        return comCommand.getProblems().size() + comCommand.getWarnings().size();
+        return !comCommand.getIssues().isEmpty();
     }
 
     private void appendHeader(StringBuilder builder, ComCommand comCommand) {
@@ -84,11 +77,14 @@ public class ComCommandJournalist {
                 append(" problem(s)\n");
     }
 
-    private void appendIssues(StringBuilder builder, String heading, List<? extends Issue> issues) {
+    private void appendIssues(StringBuilder builder, String heading, List<? extends Issue> issues, Supplier<String> terminator) {
         builder.append(heading).append(':');
         int issueNumber = 1;
         for (Issue issue : issues) {
             appendIssue(builder, issueNumber++, issue);
+        }
+        if (!issues.isEmpty()) {
+            builder.append(terminator.get());
         }
     }
 

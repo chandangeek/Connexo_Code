@@ -236,7 +236,7 @@ public abstract class JobExecution implements ScheduledJob {
             success = false;
             throw e;
         } finally {
-            if (!getExecutionContext().hasBasicCheckFailed()) {
+            if (!getExecutionContext().basickCheckHasFailed()) {
                 getNotExecutedComTaskExecutions().remove(preparedComTaskExecution.getComTaskExecution());
                 if (success) {
                     getSuccessfulComTaskExecutions().add(preparedComTaskExecution.getComTaskExecution());
