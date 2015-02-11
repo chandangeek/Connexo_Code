@@ -1,16 +1,12 @@
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.Builders;
-import com.elster.jupiter.demo.impl.Constants;
-import com.elster.jupiter.demo.impl.builders.DataExportTaskBuilder;
+import com.elster.jupiter.demo.impl.templates.DataExportTaskTpl;
 
-// TODO
 public class CreateDeliverDataSetupCommand {
 
     public void run(){
-        Builders.from(DataExportTaskBuilder.class).withName(Constants.DataExportTask.DEFAULT_PREFIX + Constants.DeviceGroup.NORTH_REGION)
-                .withGroup(Constants.DeviceGroup.NORTH_REGION).get();
-        Builders.from(DataExportTaskBuilder.class).withName(Constants.DataExportTask.DEFAULT_PREFIX + Constants.DeviceGroup.SOUTH_REGION)
-                .withGroup(Constants.DeviceGroup.SOUTH_REGION).get();
+        Builders.from(DataExportTaskTpl.NORTH_REGION).get();
+        Builders.from(DataExportTaskTpl.SOUTH_REGION).get();
     }
 }

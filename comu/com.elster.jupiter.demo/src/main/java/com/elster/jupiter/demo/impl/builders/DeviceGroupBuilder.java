@@ -10,7 +10,6 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,10 +28,8 @@ public class DeviceGroupBuilder extends NamedBuilder<EndDeviceGroup, DeviceGroup
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
-    public DeviceGroupBuilder withDeviceTypes(String... deviceTypes){
-        if (deviceTypes != null){
-            this.deviceTypes = Arrays.asList(deviceTypes);
-        }
+    public DeviceGroupBuilder withDeviceTypes(List<String> deviceTypes){
+        this.deviceTypes = deviceTypes;
         return this;
     }
 

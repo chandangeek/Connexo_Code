@@ -4,7 +4,6 @@ import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
-import com.elster.jupiter.demo.impl.builders.DeviceGroupBuilder;
 import com.elster.jupiter.demo.impl.builders.FavoriteGroupBuilder;
 import com.elster.jupiter.demo.impl.pp.ConnectionMethodForDeviceConfiguration;
 import com.elster.jupiter.demo.impl.pp.ProtocolPropertiesMPP;
@@ -12,7 +11,9 @@ import com.elster.jupiter.demo.impl.templates.ComScheduleTpl;
 import com.elster.jupiter.demo.impl.templates.ComServerTpl;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
 import com.elster.jupiter.demo.impl.templates.CreationRuleTpl;
+import com.elster.jupiter.demo.impl.templates.DataCollectionKpiTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
+import com.elster.jupiter.demo.impl.templates.DeviceGroupTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.demo.impl.templates.InboundComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl;
@@ -253,28 +254,18 @@ public class CreateCollectRemoteDataSetupCommand {
     }
 
     private void createDeviceGroups() {
-        EndDeviceGroup group = Builders.from(DeviceGroupBuilder.class)
-                .withName(Constants.DeviceGroup.NORTH_REGION)
-                .withDeviceTypes(DeviceTypeTpl.Elster_AS1440.getName(), DeviceTypeTpl.Landis_Gyr_ZMD.getName(), DeviceTypeTpl.Actaris_SL7000.getName())
-                .get();
+        EndDeviceGroup group = Builders.from(DeviceGroupTpl.NORTH_REGION).get();
         Builders.from(FavoriteGroupBuilder.class).withGroup(group).get();
 
-        group = Builders.from(DeviceGroupBuilder.class)
-                .withName(Constants.DeviceGroup.SOUTH_REGION)
-                .withDeviceTypes(DeviceTypeTpl.Elster_AS3000.getName(), DeviceTypeTpl.Siemens_7ED.getName(), DeviceTypeTpl.Iskra_38.getName())
-                .get();
+        group = Builders.from(DeviceGroupTpl.SOUTH_REGION).get();
         Builders.from(FavoriteGroupBuilder.class).withGroup(group).get();
 
-        group = Builders.from(DeviceGroupBuilder.class)
-                .withName(Constants.DeviceGroup.ALL_ELECTRICITY_DEVICES)
-                .withDeviceTypes(DeviceTypeTpl.Elster_AS1440.getName(), DeviceTypeTpl.Landis_Gyr_ZMD.getName(), DeviceTypeTpl.Actaris_SL7000.getName(),
-                        DeviceTypeTpl.Elster_AS3000.getName(), DeviceTypeTpl.Siemens_7ED.getName(), DeviceTypeTpl.Iskra_38.getName())
-                .get();
+        group = Builders.from(DeviceGroupTpl.ALL_ELECTRICITY_DEVICES).get();
         Builders.from(FavoriteGroupBuilder.class).withGroup(group).get();
     }
 
     private void createKpi() {
-//        Builders.from(DynamicKpiBuilder.class).withGroup(store.get(EndDeviceGroup.class, gr -> gr.getName().equals(Constants.DeviceGroup.NORTH_REGION))).get();
-//        Builders.from(DynamicKpiBuilder.class).withGroup(store.get(EndDeviceGroup.class, gr -> gr.getName().equals(Constants.DeviceGroup.SOUTH_REGION))).get();
+        Builders.from(DataCollectionKpiTpl.NORTH_REGION).get();
+        Builders.from(DataCollectionKpiTpl.SOUTH_REGION).get();
     }
 }
