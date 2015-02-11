@@ -71,10 +71,11 @@ public class RegisterGroupResource {
     public PagedInfoList getRegisterTypesOfRegisterGroup(@PathParam("id") long id, @BeanParam QueryParameters queryParameters) {
         RegisterGroupInfo registerGroupInfo = new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
         List<RegisterTypeInfo> registerTypeInfos = registerGroupInfo.registerTypes;
+        int totalCount = registerGroupInfo.registerTypes.size();
         if (queryParameters.getStart() != null && queryParameters.getStart() < registerGroupInfo.registerTypes.size()) {
             registerTypeInfos = registerTypeInfos.subList(queryParameters.getStart(), registerTypeInfos.size());
         }
-        return PagedInfoList.asJson("registerTypes", registerTypeInfos, queryParameters);
+        return PagedInfoList.asJson("registerTypes", registerTypeInfos, queryParameters, totalCount);
     }
 
     @DELETE
