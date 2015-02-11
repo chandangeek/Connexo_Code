@@ -9,11 +9,6 @@ Ext.define('Cfg.view.validation.RuleSetActionMenu', {
 
     items: [
         {
-            itemId: 'viewRuleSet',
-            text: Uni.I18n.translate('general.view', 'CFG', 'View'),
-            action: 'viewRuleSet'
-        },
-        {
             itemId: 'editRuleSet',
             text: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
             hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
