@@ -487,7 +487,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column comsession = table.column("COMSESSION").number().notNull().add();
             table.column("LOGLEVEL").number().conversion(NUMBER2ENUM).map("logLevel").add();
-            table.column("MESSAGE").varChar(DESCRIPTION_LENGTH).notNull().map("message").add();
+            table.column("MESSAGE").type("CLOB").conversion(CLOB2STRING).notNull().map("message").add();
             table.column("TIMESTAMP").number().conversion(NUMBER2INSTANT).notNull().map("timestamp").add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map("modDate").add();
             table.column("STACKTRACE").type("CLOB").conversion(CLOB2STRING).map("stackTrace").add();
