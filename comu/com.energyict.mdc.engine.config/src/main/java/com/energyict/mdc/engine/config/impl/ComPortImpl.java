@@ -80,7 +80,7 @@ public abstract class ComPortImpl implements ComPort {
     private long version;
     private Instant createTime;
     private Instant modTime;
-    private final Reference<ComServer> comServer = ValueReference.absent();
+    private final Reference<ComServerImpl> comServer = ValueReference.absent();
     private boolean active;
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.MDC_FIELD_TOO_LONG+"}")
     private String description;
@@ -174,8 +174,7 @@ public abstract class ComPortImpl implements ComPort {
         return type;
     }
 
-    public void setComServer(ComServer comServer) {
-        // Should use ValueReference.of(comServer) ?
+    void setComServer(ComServerImpl comServer) {
         this.comServer.set(comServer);
     }
 
@@ -202,6 +201,7 @@ public abstract class ComPortImpl implements ComPort {
             throw new IllegalStateException("ComPort should have been created using the ComServer, how did you end up here?");
         } else {
             Save.UPDATE.save(dataModel, this);
+            this.comServer.get().saved(this);
         }
     }
 

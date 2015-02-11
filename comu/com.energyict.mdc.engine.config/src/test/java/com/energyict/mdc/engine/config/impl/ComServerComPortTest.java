@@ -28,6 +28,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -167,28 +168,31 @@ public class ComServerComPortTest extends PersistenceTest {
         OnlineComServer onlineComServer = createOnlineComServer();
         int numberOfComPorts = 3;
         this.addComPorts(onlineComServer, numberOfComPorts);
+        Instant modificationDate = onlineComServer.getModificationDate();
 
         // Business method
         onlineComServer.setActive(false);
-        OutboundComPort outboundComPort = onlineComServer.getOutboundComPorts().get(0);
-        outboundComPort.setName("Updated-1");
-        outboundComPort.save();
-        outboundComPort = onlineComServer.getOutboundComPorts().get(1);
-        outboundComPort.setName("Updated-2");
-        outboundComPort.save();
-        outboundComPort = onlineComServer.getOutboundComPorts().get(2);
-        outboundComPort.setName("Updated-3");
-        outboundComPort.save();
+        OutboundComPort comPort1 = onlineComServer.getOutboundComPorts().get(0);
+        comPort1.setName("Updated-1");
+        comPort1.save();
+        OutboundComPort comPort2 = onlineComServer.getOutboundComPorts().get(1);
+        comPort2.setName("Updated-2");
+        comPort2.save();
+        OutboundComPort comPort3 = onlineComServer.getOutboundComPorts().get(2);
+        comPort3.setName("Updated-3");
+        comPort3.save();
 
         // Asserts
         assertThat(onlineComServer.getOutboundComPorts().size()).isEqualTo(numberOfComPorts);
 
         // Reload to make sure to have emptied the cache of ComPorts;
         OnlineComServer reloaded = (OnlineComServer) getEngineModelService().findComServer(onlineComServer.getId()).get();
+        Instant reloadedModificationDate = reloaded.getModificationDate();
         assertThat(reloaded.getOutboundComPorts().size()).isEqualTo(numberOfComPorts);
         for (OutboundComPort comPort : reloaded.getOutboundComPorts()) {
             assertThat(comPort.getName().startsWith("Updated")).as("Was expecting the name has changed").isTrue();
         }
+        assertThat(reloadedModificationDate.isAfter(modificationDate)).isTrue();
     }
 
     @Test

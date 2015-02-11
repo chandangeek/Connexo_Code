@@ -67,6 +67,15 @@ public abstract class ComServerImpl implements ComServer {
     private final Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider;
     protected final Thesaurus thesaurus;
 
+    /**
+     * Notifies this ComServer that the specified {@link ComPortImpl} was saved.
+     *
+     * @param comPort The ComPort that was saved
+     */
+    void saved(ComPortImpl comPort) {
+        this.dataModel.touch(this);
+    }
+
     enum FieldNames {
         NAME("name");
         private final String name;
