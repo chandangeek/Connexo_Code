@@ -15,6 +15,7 @@ import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.cep.CreationRuleOrActionValidationException;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
@@ -32,9 +33,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.conditions.Condition;
 
-public class CreationRuleImpl extends EntityImpl implements CreationRule {
+@HasUniqueName(message = "{" + MessageSeeds.Keys.CREATION_RULE_UNIQUE_NAME + "}")
+public class CreationRuleImpl extends EntityImpl implements CreationRule, UniqueNamed {
     private static final String PARAM_RULE_ID = "ruleId";
 
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
@@ -245,5 +248,15 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
         if (!exception.getErrors().isEmpty()) {
             throw exception;
         }
+    }
+
+    @Override
+    public boolean validateUniqueName(boolean caseSensitive) {
+        Query<CreationRule> query = this.issueService.getIssueCreationService().getCreationRuleQuery();
+        return query.select(getUniqueNameWhereCondition(caseSensitive).and(where("id").isNotEqual(getId()))).isEmpty();
+    }
+
+    private Condition getUniqueNameWhereCondition(boolean caseSensitive) {
+        return caseSensitive ? where("name").isEqualTo(this.getName()) : where("name").isEqualToIgnoreCase(this.getName());
     }
 }

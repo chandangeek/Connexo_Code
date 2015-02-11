@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +39,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         // Simple save creation rule
         try (TransactionContext context = getContext()){
             CreationRule rule = getSimpleCreationRule();
+            rule.setName("simple-deletion-1");
             rule.save();
             id = rule.getId();
             context.commit();
@@ -66,10 +69,11 @@ public class IssueCreationServiceImplTest extends BaseTest {
     }
 
     @Test
-    public void testCretionRuleDelete() {
+    public void testCreationRuleDelete() {
         try (TransactionContext context = getContext()) {
             // Simple deletion
             CreationRule rule = getSimpleCreationRule();
+            rule.setName("creation-rule-delete-1");
             rule.save();
             rule.delete();
             rule = getIssueCreationService().findCreationRule(rule.getId()).orElse(null);
@@ -77,6 +81,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
 
             // Delete when some issue has reference
             rule = getSimpleCreationRule();
+            rule.setName("creation-rule-delete-2");
             rule.save();
             OpenIssue issue = getDataModel().getInstance(OpenIssueImpl.class);
             issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
@@ -90,6 +95,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
 
             // Delete when closed issue has reference
             rule = getSimpleCreationRule();
+            rule.setName("creation-rule-delete-3");
             rule.save();
             issue.setRule(rule);
             issue.close(getIssueService().findStatus(IssueStatus.WONT_FIX).orElse(null));
@@ -106,9 +112,37 @@ public class IssueCreationServiceImplTest extends BaseTest {
     }
 
     @Test
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CREATION_RULE_UNIQUE_NAME + "}", property = "name", strict = true)
+    public void testRuleUniqueName() {
+        try (TransactionContext context = getContext()) {
+            CreationRule rule = getSimpleCreationRule();
+            String nonUniqueName = "NonUniqueName";
+            rule.setName(nonUniqueName);
+            rule.save();
+            rule = getSimpleCreationRule();
+            rule.setName(nonUniqueName);
+            rule.save();
+        }
+    }
+
+    @Test
+    // Check that we have case sensitive check
+    public void testRuleUniqueNameNoException() {
+        try (TransactionContext context = getContext()) {
+            CreationRule rule = getSimpleCreationRule();
+            String nonUniqueName = "NonUniqueName";
+            rule.setName(nonUniqueName.toUpperCase());
+            rule.save();
+            rule = getSimpleCreationRule();
+            rule.setName(nonUniqueName.toLowerCase());
+            rule.save();
+        }
+    }
+    @Test
     public void testRuleActions(){
         try (TransactionContext context = getContext()){
             CreationRule rule = getSimpleCreationRule();
+            rule.setName("rule-actions-1");
 
             IssueActionTypeImpl actionType = getDataModel().getInstance(IssueActionTypeImpl.class);
             actionType.init("some", "class", (IssueType) null, null);
@@ -158,6 +192,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
 
         try (TransactionContext context = getContext()) {
             CreationRule rule = getSimpleCreationRule();
+            rule.setName("creation-events-1");
             IssueReason reason = getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null);
             rule.setReason(reason);
             rule.save();

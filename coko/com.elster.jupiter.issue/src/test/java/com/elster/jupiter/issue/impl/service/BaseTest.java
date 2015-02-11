@@ -185,7 +185,7 @@ public class BaseTest {
 
     protected CreationRule getSimpleCreationRule() {
         CreationRule rule = getIssueCreationService().createRule();
-        rule.setName("Simple Rule");
+        rule.setName("Simple Rule " + (1 + Math.random() * 10000));
         rule.setComment("Comment for rule");
         rule.setContent("Empty content");
         rule.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
@@ -201,7 +201,9 @@ public class BaseTest {
             OpenIssue issue = getDataModel().getInstance(OpenIssueImpl.class);
             issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
             issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orElse(null));
-            issue.setRule(getSimpleCreationRule());
+            CreationRule rule = getSimpleCreationRule();
+            rule.setName("create-issue-min-info");
+            issue.setRule(rule);
             issue.save();
             context.commit();
             return issue;
