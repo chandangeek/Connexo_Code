@@ -5,14 +5,11 @@ Ext.define('Mdc.model.RegisterType', {
     ],
     fields: [
         {name: 'id', type: 'number', useNull: true},
-        {name: 'name', type: 'string', useNull: true},
         {name: 'obisCode', type: 'string', useNull: true},
         {name: 'isLinkedByDeviceType', type: 'boolean', useNull: true},
         {name: 'isLinkedByActiveRegisterConfig', type: 'boolean', useNull: true},
         {name: 'isLinkedByInactiveRegisterConfig', type: 'boolean', useNull: true},
-        {name: 'timeOfUse', type: 'number', useNull: true},
-        'readingType',
-        'unitOfMeasure'
+        'readingType'
     ],
     idProperty: 'id',
     associations: [
@@ -24,9 +21,7 @@ Ext.define('Mdc.model.RegisterType', {
             getterName: 'getReadingType',
             setterName: 'setReadingType',
             foreignKey: 'readingType'
-        },
-        {name: 'unitOfMeasure', type: 'hasOne', model: 'Mdc.model.UnitOfMeasure', associationKey: 'unitOfMeasure',
-            getterName: 'getUnitOfMeasure', setterName: 'setUnitOfMeasure', foreignKey: 'unitOfMeasure'}
+        }
     ],
     proxy: {
         type: 'rest',
