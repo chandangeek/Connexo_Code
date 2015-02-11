@@ -79,6 +79,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
  */
 public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
+    private static final String BUSY_ALIAS_NAME = ServerConnectionTaskStatus.BUSY_TASK_ALIAS_NAME;
+
     private final DeviceDataModelService deviceDataModelService;
     private final EventService eventService;
     private final MeteringService meteringService;
@@ -227,7 +229,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         for (ServerConnectionTaskStatus taskStatus : this.taskStatusesForCounting(EnumSet.allOf(TaskStatus.class))) {
             // Check first pass
             if (sqlBuilder == null) {
-                sqlBuilder = new ClauseAwareSqlBuilder();
+                sqlBuilder = WithClauses.BUSY_CONNECTION_TASK.sqlBuilder(BUSY_ALIAS_NAME);
                 this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroups);
             }
             else {
@@ -281,7 +283,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         for (ServerConnectionTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
             // Check first pass
             if (sqlBuilder == null) {
-                sqlBuilder = new ClauseAwareSqlBuilder();
+                sqlBuilder = WithClauses.BUSY_CONNECTION_TASK.sqlBuilder(BUSY_ALIAS_NAME);
                 this.countByComPortPoolAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroups);
             }
             else {
@@ -322,7 +324,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         for (ServerConnectionTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
             // Check first pass
             if (sqlBuilder == null) {
-                sqlBuilder = new ClauseAwareSqlBuilder();
+                sqlBuilder = WithClauses.BUSY_CONNECTION_TASK.sqlBuilder(BUSY_ALIAS_NAME);
                 this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroups);
             }
             else {
@@ -363,7 +365,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         for (ServerConnectionTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
             // Check first pass
             if (sqlBuilder == null) {
-                sqlBuilder = new ClauseAwareSqlBuilder();
+                sqlBuilder = WithClauses.BUSY_CONNECTION_TASK.sqlBuilder(BUSY_ALIAS_NAME);
                 this.countByConnectionTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroups);
             }
             else {
@@ -478,13 +480,8 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         if (lockResult.isPresent()) {
             T lockedConnectionTask = (T) lockResult.get();
             if (lockedConnectionTask.getExecutingComServer() == null) {
-                try {
-                    ((ConnectionTaskImpl) lockedConnectionTask).updateExecutingComServer(comServer);
-                    return lockedConnectionTask;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw e;
-                }
+                ((ConnectionTaskImpl) lockedConnectionTask).updateExecutingComServer(comServer);
+                return lockedConnectionTask;
             } else {
                 // No database lock but business lock is already set
                 return null;
@@ -581,12 +578,6 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
             throw new UnderlyingSQLFailedException(ex);
         }
         return 0;
-    }
-
-    private void appendConnectionTaskLastComSessionJoinClause(SqlBuilder sqlBuilder) {
-        sqlBuilder.append(" join ");
-        sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        sqlBuilder.append(" cs on ct.lastsession = cs.id");
     }
 
     private void appendConnectionTypeHeatMapComTaskExecutionSessionConditions(boolean atLeastOneFailingComTask, SqlBuilder sqlBuilder) {

@@ -20,9 +20,17 @@ public class ClauseAwareSqlBuilder {
     private final SqlBuilder actualBuilder;
     private final Where where = new Where();
 
-    public ClauseAwareSqlBuilder() {
+    public static ClauseAwareSqlBuilder with(String withClause, String alias) {
+        return new ClauseAwareSqlBuilder(new SqlBuilder("with " + alias + " as (" + withClause + ")"));
+    }
+
+    public static ClauseAwareSqlBuilder select(String selectClause) {
+        return new ClauseAwareSqlBuilder(new SqlBuilder("select " + selectClause));
+    }
+
+    private ClauseAwareSqlBuilder(SqlBuilder actualBuilder) {
         super();
-        this.actualBuilder = new SqlBuilder("with busycte as (select connectiontask from DDC_COMTASKEXEC where comport is not null and obsolete_date is null) " );        
+        this.actualBuilder = actualBuilder;
     }
 
     public void unionAll () {
