@@ -85,6 +85,10 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
 
     showRegisterGroups: function (grid, record) {
         var widget = Ext.widget('registerGroupSetup');
+        var me = this;
+        me.getRegisterTypeEmptyGrid().setVisible(false);
+        me.getRegisterTypePreview().setVisible(false);
+        me.getRegisterGroupPreview().setVisible(false);
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
@@ -93,6 +97,8 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         if (registerGroups.length == 1) {
             var me = this;
             me.getRegisterTypeGrid().getStore().getProxy().setExtraParam('registerGroup', registerGroups[0].get('id'));
+            me.getRegisterGroupPreview().setVisible(true);
+            me.getRegisterTypeEmptyGrid().setVisible(true);
             me.getRegisterTypeGrid().getStore().load({
                 callback: function (records) {
                     if (records.length > 0) {
@@ -102,6 +108,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                         me.getRegisterGroupPreview().setTitle(Uni.I18n.translate('registerGroup.previewGroup', 'MDC', 'Register types of {0}', [registerGroups[0].get('name')]));
                     }
                     me.getRegisterTypeEmptyGrid().setVisible(true);
+                    me.getRegisterTypePreview().setVisible(true);
                 }
             });
         }
