@@ -1,16 +1,10 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.time.TimeDuration;
-
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.events.ComPortLogHandler;
 import com.energyict.mdc.engine.impl.core.logging.ComPortOperationsLogger;
@@ -20,39 +14,22 @@ import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.BasicCheckTask;
-import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.LogBooksTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.RegistersTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
-import com.energyict.mdc.tasks.TopologyTask;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.UserService;
-
 import org.joda.time.DateTimeConstants;
 
 import java.time.Clock;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link ScheduledComPort} interface.
@@ -178,6 +155,10 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         this.operationalMonitor = (ScheduledComPortMonitor) this.serviceProvider.managementBeanFactory().findOrCreateFor(this);
     }
 
+    private void unregisterAsMBean() {
+        this.serviceProvider.managementBeanFactory().removeIfExistsFor(this);
+    }
+
     protected ScheduledComPortMonitor getOperationalMonitor() {
         return this.operationalMonitor;
     }
@@ -189,6 +170,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     private void doShutdown () {
+        this.unregisterAsMBean();
         if (this.isStarted()) {
             this.status = ServerProcessStatus.SHUTTINGDOWN;
             this.continueRunning.set(false);
@@ -261,20 +243,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     protected abstract JobScheduler getJobScheduler ();
 
     public void checkAndApplyChanges () {
-        this.getLogger().monitoringChanges(this.getComPort());
-        OutboundComPort newVersion = (OutboundComPort) this.getComServerDAO().refreshComPort(this.getComPort());
-        this.loggerHolder.reset(newVersion);
-        this.setComPort(this.applyChanges(newVersion, this.getComPort()));
-    }
-
-    private OutboundComPort applyChanges (OutboundComPort newVersion, OutboundComPort comPort) {
-        if (newVersion == null || newVersion == comPort) {
-            return comPort;
-        }
-        else {
-            // Todo: detect and apply changes
-            return newVersion;
-        }
+        // All changes are handled by the RunningComServer
     }
 
     protected interface JobScheduler {
@@ -304,7 +273,6 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     private class LoggerHolder {
-        private OutboundComPort comPort;
         private ComPortOperationsLogger logger;
 
         private LoggerHolder(OutboundComPort comPort) {
@@ -341,7 +309,6 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         }
 
         public void reset(OutboundComPort comPort) {
-            this.comPort = comPort;
             this.logger = this.newLogger(comPort);
         }
 
@@ -367,11 +334,6 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         @Override
         public void shuttingDown(String threadName) {
             this.loggers.forEach(each -> each.shuttingDown(threadName));
-        }
-
-        @Override
-        public void monitoringChanges(ComPort comPort) {
-            this.loggers.forEach(each -> each.monitoringChanges(comPort));
         }
 
         @Override

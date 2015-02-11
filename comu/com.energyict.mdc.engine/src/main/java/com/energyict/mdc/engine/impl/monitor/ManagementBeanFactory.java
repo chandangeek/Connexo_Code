@@ -27,6 +27,15 @@ public interface ManagementBeanFactory {
     public ComServerMonitorImplMBean findOrCreateFor (RunningComServer runningComServer);
 
     /**
+     * Notifies this ManagementBeanFactory that the name
+     * of the specified RunningComServer was changed.
+     *
+     * @param oldName The old name of the specified RunningComServer
+     * @param runningComServer The RunningComServer
+     */
+    public void renamed (String oldName, RunningComServer runningComServer);
+
+    /**
      * Finds the {@link ComServerMonitorImplMBean} for the specified {@link ComServer}.
      *
      * @param comServer The ComServer
