@@ -105,7 +105,7 @@ public class AppServerImpl implements AppServer {
     }
 
     String messagingName() {
-        return APP_SERVER + '_' + getName().replaceAll("-", "_");
+        return APP_SERVER + '_' + getName().replaceAll("-", "_").toUpperCase();
     }
 
     public boolean isRecurrentTaskActive() {
@@ -235,4 +235,19 @@ public class AppServerImpl implements AppServer {
                     .findFirst()
                     .orElseThrow(IllegalArgumentException::new);
     }
+
+    // for future use in the appserver's shut down request
+    private void removeMessageQueue() {
+        Optional<DestinationSpec> allServersTopic = messageService.getDestinationSpec(AppService.ALL_SERVERS);
+        if (allServersTopic.isPresent()) {
+            allServersTopic.get().unSubscribe(AppServerImpl.this.messagingName());
+        }
+
+        Optional<DestinationSpec> destinationSpecRef = messageService.getDestinationSpec(AppServerImpl.this.messagingName());
+
+        if (destinationSpecRef.isPresent()) {
+            destinationSpecRef.get().delete();
+        }
+    }
+
 }
