@@ -281,7 +281,18 @@ Ext.define('Uni.controller.Navigation', {
         Uni.store.MenuItems.each(function (model) {
             modelTokens = me.stripAndSplitToken(model.get('href'));
             if (tokens[0] === modelTokens[0] || tokens[0] === model.get('portal')) {
+                var text = '';
+
                 me.getNavigationMenu().selectMenuItem(model);
+                text = model.get('text');
+
+                if (!Ext.isEmpty(text)) {
+                    Ext.getDoc().dom.title = text + ' '
+                        + me.applicationTitleSeparator + ' '
+                        + me.applicationTitle;
+                } else {
+                    Ext.getDoc().dom.title = me.applicationTitle;
+                }
                 return;
             }
         });
