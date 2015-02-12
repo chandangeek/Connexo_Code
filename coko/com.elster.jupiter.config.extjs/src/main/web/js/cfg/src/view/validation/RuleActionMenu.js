@@ -19,11 +19,6 @@ Ext.define('Cfg.view.validation.RuleActionMenu', {
             action: 'deactivateRule'
         },
         {
-            itemId: 'view',
-            text: Uni.I18n.translate('general.view', 'CFG', 'View'),
-            action: 'view'
-        },
-        {
             itemId: 'editRule',
             text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
             hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
