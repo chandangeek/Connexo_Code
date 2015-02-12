@@ -139,47 +139,47 @@ Ext.define('Dsh.controller.OperatorDashboard', {
                 myOpenIssuesModel = me.getModel('Dsh.model.opendatacollectionissues.Overview'),
                 issuesWidget = me.getIssuesWidget(),
                 router = this.getController('Uni.controller.history.Router');
-            if (Uni.Auth.hasAnyPrivilege(['privilege.view.device'])){
+            if (Uni.Auth.hasAnyPrivilege(['privilege.view.device'])) {
                 me.getFlaggedDevices().reload();
             }
-            if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'])) {
+
+            if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication'])) {
                 connectionModel.setFilter(router.filter);
                 communicationModel.setFilter(router.filter);
                 dashboard.setLoading();
                 me.getCommunicationServers().reload();
                 connectionModel.load(null, {
-                        success: function (connections) {
-                            if(me.getConnectionSummary()){
-                                me.getConnectionSummary().setRecord(connections.getSummary());
-                            }
-
-                            communicationModel.load(null, {
-                                success: function (communications) {
-                                    if(me.getCommunicationSummary()){
-                                        me.getCommunicationSummary().setRecord(communications.getSummary());
-                                    }
-                                },
-                                callback: function () {
-                                    if(lastUpdateField){
-                                        lastUpdateField.update('Last updated at ' + Uni.DateTime.formatTimeShort(new Date()));
-                                    }
-                                    dashboard.setLoading(false);
-                                }
-                            });
+                    success: function (connections) {
+                        if (me.getConnectionSummary()) {
+                            me.getConnectionSummary().setRecord(connections.getSummary());
                         }
+                    },
+                    callback: function () {
+                        communicationModel.load(null, {
+                            success: function (communications) {
+                                if (me.getCommunicationSummary()) {
+                                    me.getCommunicationSummary().setRecord(communications.getSummary());
+                                }
+                            },
+                            callback: function () {
+                                if (lastUpdateField) {
+                                    lastUpdateField.update('Last updated at ' + Uni.DateTime.formatTimeShort(new Date()));
+                                }
+                                dashboard.setLoading(false);
+                            }
+                        });
                     }
-                );
+                });
             }
+
             if (Uni.Auth.hasAnyPrivilege(['privilege.view.issue', 'privilege.comment.issue', 'privilege.close.issue', 'privilege.assign.issue', 'privilege.action.issue'])) {
                 issuesWidget.setLoading();
                 myOpenIssuesModel.load(null, {
-
-                        success: function (issues) {
-                            issuesWidget.setRecord(issues);
-                            issuesWidget.setLoading(false);
-                        }
+                    success: function (issues) {
+                        issuesWidget.setRecord(issues);
+                        issuesWidget.setLoading(false);
                     }
-                );
+                });
             }
         }
     }
