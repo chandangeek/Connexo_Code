@@ -62,9 +62,6 @@ public class CreateValidationSetupCommand {
     private void addValidationToDeviceConfigurations(){
         List<DeviceConfiguration> configurations = deviceConfigurationService.getLinkableDeviceConfigurations(this.validationRuleSet);
         for (DeviceConfiguration configuration : configurations) {
-            if (configuration.getName().equals(DeviceConfigurationTpl.DEFAULT.getName())){
-                continue;
-            }
             System.out.println("==> Validation rule set added to: " + configuration.getName() + " (id = " + configuration.getId() + ")");
             configuration.addValidationRuleSet(this.validationRuleSet);
             configuration.save();
