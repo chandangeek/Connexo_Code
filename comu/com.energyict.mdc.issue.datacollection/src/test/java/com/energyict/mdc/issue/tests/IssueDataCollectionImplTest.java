@@ -33,7 +33,7 @@ public class IssueDataCollectionImplTest extends BaseTest {
     @Test
     public void testIDCSuccessfullCreation() {
         try (TransactionContext context = getContext()) {
-            CreationRule rule = getCreationRule(ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
+            CreationRule rule = getCreationRule("testIDCSuccessfullCreation", ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
             Issue baseIssue = getBaseIssue(rule);
             OpenIssueDataCollectionImpl dcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
             dcIssue.init(baseIssue);
@@ -45,7 +45,7 @@ public class IssueDataCollectionImplTest extends BaseTest {
     public void testIDCCloseOperation() {
         OpenIssueDataCollectionImpl dcIssue = null;
         try (TransactionContext context = getContext()) {
-            CreationRule rule = getCreationRule(ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
+            CreationRule rule = getCreationRule("testIDCCloseOperation", ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
             Issue baseIssue = getBaseIssue(rule);
             dcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
             dcIssue.init(baseIssue);

@@ -227,9 +227,9 @@ public abstract class BaseTest {
     }
 
 
-    protected CreationRule getCreationRule(String reasonKey) {
+    protected CreationRule getCreationRule(String name, String reasonKey) {
         CreationRule rule = getIssueService().getIssueCreationService().createRule();
-        rule.setName("Simple Rule");
+        rule.setName(name);
         rule.setComment("Comment for rule");
         rule.setContent("Empty content");
         rule.setReason(getIssueService().findReason(reasonKey).orElse(null));

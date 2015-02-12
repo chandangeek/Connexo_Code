@@ -43,7 +43,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
     @Test
     public void testCanCreateIssue() {
         try (TransactionContext context = getContext()) {
-            CreationRule rule = getCreationRule(ModuleConstants.REASON_CONNECTION_FAILED);
+            CreationRule rule = getCreationRule("testCanCreateIssue", ModuleConstants.REASON_CONNECTION_FAILED);
             Meter meter = createMeter("1", "mrid");
             Issue baseIssue = getBaseIssue(rule, meter);
 
@@ -57,7 +57,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
     @Test
     public void testCanCreateIssueOnAnotherDevice() {
         try (TransactionContext context = getContext()) {
-            CreationRule rule = getCreationRule(ModuleConstants.REASON_CONNECTION_FAILED);
+            CreationRule rule = getCreationRule("testCanCreateIssueOnAnotherDevice", ModuleConstants.REASON_CONNECTION_FAILED);
             Meter meter = createMeter("1", "mrid");
             Issue baseIssue = getBaseIssue(rule, meter);
             baseIssue.save();
@@ -79,7 +79,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
     @Test
     public void testCanNotCreateIssue() {
         try (TransactionContext context = getContext()) {
-            CreationRule rule = getCreationRule(ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
+            CreationRule rule = getCreationRule("testCanNotCreateIssue", ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
             Meter meter = createMeter("1", "mrid");
             Issue baseIssue = getBaseIssue(rule, meter);
             baseIssue.save();
@@ -99,7 +99,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
     @Test
     public void testInProgressToOpenTransfer() {
         try (TransactionContext context = getContext()) {
-            CreationRule rule = getCreationRule(ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
+            CreationRule rule = getCreationRule("testInProgressToOpenTransfer", ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
             Meter meter = createMeter("1", "mrid");
             Issue baseIssue = getBaseIssue(rule, meter);
             baseIssue.save();
@@ -123,7 +123,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
     public void testResolveIssue() {
         try (TransactionContext context = getContext()) {
             // Create base issue
-            CreationRule rule = getCreationRule(ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
+            CreationRule rule = getCreationRule("testResolveIssue", ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
             Meter meter = createMeter("1", "mrid");
             Issue baseIssue = getBaseIssue(rule, meter);
             baseIssue.save();
