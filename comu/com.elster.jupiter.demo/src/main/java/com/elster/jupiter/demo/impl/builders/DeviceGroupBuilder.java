@@ -61,6 +61,6 @@ public class DeviceGroupBuilder extends NamedBuilder<EndDeviceGroup, DeviceGroup
             }
             condition = condition.or(where("deviceConfiguration.deviceType.id").isEqualTo(deviceTypeByName.get().getId()));
         }
-        return condition.and(where("mRID").like(Constants.Device.STANDARD_PREFIX + "%"));
+        return condition.and(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*"));
     }
 }
