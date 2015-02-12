@@ -7,16 +7,14 @@ Ext.define('Cfg.store.ReadingTypesToAddForRule', {
     ],
     autoLoad: false,
 
+    buffered: true,
+
     proxy: {
         type: 'rest',
         url: '/api/mtr/fields/readingtypes',
         reader: {
             type: 'json',
             root: 'readingTypes'
-        },
-
-        pageParam: false,
-        startParam: false,
-        limitParam: false
+        }
     }
 });
