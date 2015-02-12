@@ -16,13 +16,12 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
-
-import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
+import javax.inject.Inject;
 
 public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements QueryEndDeviceGroup {
 
@@ -127,10 +126,7 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
             if (operation instanceof SimpleConditionOperation) {
                 SimpleConditionOperation condition = (SimpleConditionOperation) operation;
                 String fieldName = condition.getFieldName();
-                Object[] possibleValues = condition.getValues();
-                List<Object> values = new ArrayList<>();
-                Collections.addAll(values, possibleValues);
-                SearchCriteria searchCriteriaInfo = new SearchCriteria(fieldName, values);
+                SearchCriteria searchCriteriaInfo = new SearchCriteria(fieldName, Arrays.asList(condition.getValues()));
                 result.add(searchCriteriaInfo);
             }
         }
