@@ -42,6 +42,12 @@ public interface MeteringService {
 
     List<ReadingType> getAvailableReadingTypes();
 
+    /**
+     * Get a list of ReadingTypes which don't have an interval (eg. MacroPeriod and TimePeriod are NOT_APPLICABLE)
+     * @since v1.1
+     */
+    List<ReadingType> getAllReadingTypesWithoutInterval();
+
     List<JournalEntry<ServiceLocation>> findServiceLocationJournal(long id);
 
     Query<UsagePoint> getUsagePointQuery();
