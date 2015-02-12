@@ -79,10 +79,8 @@ public final class Where {
             value=value.replace(keyword,"\\"+keyword);
         }
         // transform un-escaped wildcards * and ? to sql like operators
-        value=value.replaceAll("^\\*", "%"); // Start of line turns out to be a corner case
-        value=value.replaceAll("([^\\\\])\\*", "$1%");
-        value=value.replaceAll("^\\?", "_"); // Start of line turns out to be a corner case
-        value=value.replaceAll("([^\\\\])\\?", "$1_");
+        value=value.replaceAll("([^\\\\]|^)\\*", "$1%");
+        value=value.replaceAll("([^\\\\]|^)\\?", "$1_");
 
         // transform escaped wildcards * and ? to their unescaped literal that does not have any meaning in SQL anyway
         // We need to search for double escape: it was doubled in the little loop on top of this method
