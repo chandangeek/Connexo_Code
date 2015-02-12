@@ -119,7 +119,7 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
     }
 
     public SqlBuilder build(DataMapper<ConnectionTask> dataMapper, int pageStart, int pageSize) {
-    	this.setActualBuilder(WithClauses.BUSY_CONNECTION_TASK.sqlBuilder(BUSY_ALIAS_NAME));
+    	this.setActualBuilder(WithClauses.BUSY_COMTASK_EXECUTION.sqlBuilder(BUSY_ALIAS_NAME));
     	SqlBuilder sqlBuilder = dataMapper.builder(connectionTaskAliasName());
         getActualBuilder().append(sqlBuilder);
         this.appendJoinedTables();
