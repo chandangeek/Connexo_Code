@@ -52,7 +52,11 @@ public class ReadingTypeResource {
             }
             readingTypes = readingTypes.stream().filter(rt -> filter.test(rt) && !readingTypesInUseIds.contains(rt.getMRID()))
                     .collect(Collectors.<ReadingType>toList());
-            return new ReadingTypeInfos(readingTypes);
+            if (readingTypes.size() > 50) {
+                return new ReadingTypeInfos(readingTypes.subList(0, 50));
+            } else {
+                return new ReadingTypeInfos((readingTypes));
+            }
         }
         return new ReadingTypeInfos();
     }
