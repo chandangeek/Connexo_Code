@@ -108,7 +108,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var registerTypes = this.getRegisterTypeGrid().getSelectionModel().getSelection();
         if (registerTypes.length == 1) {
             this.getRegisterTypePreviewForm().loadRecord(registerTypes[0]);
-            this.getRegisterTypePreview().setTitle(registerTypes[0].get('readingType').name);
+            this.getRegisterTypePreview().setTitle(registerTypes[0].get('readingType').fullAliasName);
         }
     },
 

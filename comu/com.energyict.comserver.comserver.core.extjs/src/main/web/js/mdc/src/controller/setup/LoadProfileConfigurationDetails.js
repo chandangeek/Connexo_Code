@@ -342,7 +342,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             grid.clearHighlight();
             preloader.show();
             this.displayedItemId = recordData.id;
-            this.getLoadProfileDetailChannelPreview().setTitle(recordData.name);
+            this.getLoadProfileDetailChannelPreview().setTitle(recordData.readingType.fullAliasName);
             form.loadRecord(channelConfig);
 
             if (channelConfig.get('calculatedReadingType')) {
