@@ -1,43 +1,34 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.groups.SearchCriteria;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 
-/**
- * Created by bvn on 1/27/15.
- */
 public class DeviceGroupInfoFactory {
 
     private final DeviceConfigurationService deviceConfigurationService;
-    private final DeviceService deviceService;
 
     @Inject
-    public DeviceGroupInfoFactory(DeviceConfigurationService deviceConfigurationService, DeviceService deviceService) {
+    public DeviceGroupInfoFactory(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
-        this.deviceService = deviceService;
     }
-
+    
     public DeviceGroupInfo from(EndDeviceGroup endDeviceGroup) {
         DeviceGroupInfo deviceGroupInfo = new DeviceGroupInfo();
         deviceGroupInfo.id = endDeviceGroup.getId();
         deviceGroupInfo.mRID = endDeviceGroup.getMRID();
         deviceGroupInfo.name = endDeviceGroup.getName();
+        deviceGroupInfo.dynamic = endDeviceGroup.isDynamic();
         if (endDeviceGroup.isDynamic()) {
             DeviceType deviceType = null;
-            List<SearchCriteria> searchCriteria =
-                    translateCriteria(((QueryEndDeviceGroup) endDeviceGroup).getSearchCriteria(), deviceConfigurationService);
+            List<SearchCriteria> searchCriteria = translateCriteria(((QueryEndDeviceGroup) endDeviceGroup).getSearchCriteria(), deviceConfigurationService);
             for (SearchCriteria criteriaToAdd : searchCriteria) {
                 deviceGroupInfo.criteria.add(new SearchCriteriaInfo(criteriaToAdd));
 
@@ -65,15 +56,6 @@ public class DeviceGroupInfoFactory {
                             }
                         }
                     }
-                }
-            }
-        } else {
-            List<? extends EndDevice> endDevices = endDeviceGroup.getMembers(Instant.now());
-
-            for (EndDevice endDevice : endDevices) {
-                Device device = deviceService.findDeviceById(Long.parseLong(endDevice.getAmrId()));
-                if (device != null) {
-                    deviceGroupInfo.selectedDevices.add(device.getId());
                 }
             }
         }

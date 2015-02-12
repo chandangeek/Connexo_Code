@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
@@ -8,7 +7,6 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.Checks;
@@ -25,6 +23,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
+
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -34,6 +33,7 @@ import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -83,33 +83,35 @@ public class DeviceGroupResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL})
     public DeviceGroupInfo getDeviceGroup(@PathParam("id") long id) {
-        return DeviceGroupInfo.from(fetchDeviceGroup(id), deviceConfigurationService, deviceService);
-    }
-
-    private EndDeviceGroup fetchDeviceGroup(long id) {
-        return meteringGroupsService.findEndDeviceGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return deviceGroupInfoFactory.from(fetchDeviceGroup(id));
     }
 
     @GET
     @Path("/{id}/devices")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL})
-    public PagedInfoList getDevices(@BeanParam QueryParameters queryParameters, @PathParam("id") long deviceGroupId) {
+    @RolesAllowed({ Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL })
+    public PagedInfoList getDevices(@PathParam("id") long deviceGroupId, @BeanParam QueryParameters queryParameters) {
         EndDeviceGroup endDeviceGroup = fetchDeviceGroup(deviceGroupId);
-        List<? extends EndDevice> endDevices =
-                ListPager.of(endDeviceGroup.getMembers(Instant.now())).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
+        Integer start = queryParameters.getStart();
+        Integer limit = queryParameters.getLimit();
+        List<? extends EndDevice> endDevices = null;
+        if (start != null && limit != null) {
+            endDevices= endDeviceGroup.getMembers(Instant.now(), start, limit);
+        } else {
+            endDevices= endDeviceGroup.getMembers(Instant.now());
+        }
         List<Device> devices = Collections.emptyList();
-        if (!endDevices.isEmpty()){
+        if (!endDevices.isEmpty()) {
             Condition mdcMembers = where("id").in(endDevices.stream().map(EndDevice::getAmrId).collect(Collectors.toList()));
             devices = deviceService.findAllDevices(mdcMembers).sorted("mRID", true).find();
         }
-        return PagedInfoList.asJson("devices", DeviceInfo.from(devices), queryParameters);
+        return PagedInfoList.asJson("devices", DeviceGroupMemberInfo.from(devices), queryParameters);
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    // not protected by privileges yet because a combobox containing al the groups needs to be shown when creating an export task
+    // not protected by privileges yet because a combo-box containing all the groups needs to be shown when creating an export task
     public PagedInfoList getDeviceGroups(@BeanParam QueryParameters queryParameters, @QueryParam("type") String typeName, @Context UriInfo uriInfo) {
 
         com.elster.jupiter.rest.util.QueryParameters koreQueryParameters =
@@ -122,7 +124,7 @@ public class DeviceGroupResource {
         }
         RestQuery<EndDeviceGroup> restQuery = restQueryService.wrap(query);
         List<EndDeviceGroup> allDeviceGroups = restQuery.select(koreQueryParameters, Order.ascending("upper(name)"));
-        List<DeviceGroupInfo> deviceGroupInfos = DeviceGroupInfo.from(allDeviceGroups, deviceConfigurationService, deviceService);
+        List<DeviceGroupInfo> deviceGroupInfos = deviceGroupInfoFactory.from(allDeviceGroups);
         return PagedInfoList.asJson("devicegroups", deviceGroupInfos, queryParameters);
     }
 
@@ -185,6 +187,10 @@ public class DeviceGroupResource {
         endDeviceGroup.save();
 
         return Response.status(Response.Status.CREATED).entity(deviceGroupInfoFactory.from(endDeviceGroup)).build();
+    }
+
+    private EndDeviceGroup fetchDeviceGroup(long id) {
+        return meteringGroupsService.findEndDeviceGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private void syncListWithInfo(EnumeratedEndDeviceGroup enumeratedEndDeviceGroup, DeviceGroupInfo deviceGroupInfo) {
