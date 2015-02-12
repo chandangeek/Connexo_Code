@@ -182,7 +182,55 @@ public class EnumeratedEndDeviceGroupImplIT {
         subQuery = group.getAmrIdSubQuery(MDC);
         deviceList = meteringService.getEndDeviceQuery().select(ListOperator.IN.contains(subQuery, "amrId"));
         assertThat(deviceList).hasSize(NUMBER_OF_DEVICES_IN_GROUP / 2);
-
     }
 
+    @Test
+    public void testGetDevicesPagination() {
+        int NUMBER_OF_DEVICES_IN_GROUP = 24;
+        List<EndDevice> endDevices = new ArrayList<>();
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        AmrSystem MDC = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalStateException::new);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            for (int i = NUMBER_OF_DEVICES_IN_GROUP; i > 0; i--) {
+                EndDevice endDevice = MDC.newMeter("" + i, "MRID" + i);
+                endDevice.save();
+                endDevices.add(endDevice);
+            }
+            ctx.commit();
+        }
+
+        MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("Mine");
+            enumeratedEndDeviceGroup.setMRID("STATIC DEVICE GROUP");
+            for (int i = 0; i < NUMBER_OF_DEVICES_IN_GROUP; i++) {
+                EndDevice endDevice = endDevices.get(i);
+                enumeratedEndDeviceGroup.add(endDevice, Range.atLeast(Instant.EPOCH));
+            }
+            enumeratedEndDeviceGroup.save();
+            enumeratedEndDeviceGroup.endMembership(endDevices.get(23), Instant.now());
+            enumeratedEndDeviceGroup.save();
+            ctx.commit();
+        }
+        
+        Optional<EndDeviceGroup> optDeviceGroup = meteringGroupsService.findEndDeviceGroup("STATIC DEVICE GROUP");
+        assertThat(optDeviceGroup.isPresent()).isTrue();
+        
+        EndDeviceGroup group = optDeviceGroup.get();
+        assertThat(group.isMember(endDevices.get(1), Instant.now())).isTrue();
+        assertThat(group.isMember(endDevices.get(23), Instant.now())).isFalse();
+        //page 1
+        List<EndDevice> devicesPage_1 = group.getMembers(Instant.now(), 0, 10);
+        assertThat(devicesPage_1).hasSize(11);
+        assertThat(devicesPage_1).isSortedAccordingTo((d1, d2) -> d1.getMRID().toUpperCase().compareTo(d2.getMRID().toUpperCase()));
+        assertThat(devicesPage_1.get(0).getMRID()).isEqualTo("MRID10");
+        //page 2
+        List<EndDevice> devicesPage_2 = group.getMembers(Instant.now(), 10, 10);
+        assertThat(devicesPage_2).hasSize(11);
+        assertThat(devicesPage_2).isSortedAccordingTo((d1, d2) -> d1.getMRID().toUpperCase().compareTo(d2.getMRID().toUpperCase()));
+        assertThat(devicesPage_2.get(0).getMRID()).isEqualTo("MRID2");
+        //page 3
+        List<EndDevice> devicesPage_3 = group.getMembers(Instant.now(), 20, 100);
+        assertThat(devicesPage_3).hasSize(3);
+    }
 }

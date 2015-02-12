@@ -92,10 +92,10 @@ public enum TableSpecs {
     MTG_ENUM_ED_IN_GROUP {
         @Override
         void addTo(DataModel dataModel) {
-            Table<EnumeratedEndDeviceGroup.Entry> table = dataModel.addTable(name(),EnumeratedEndDeviceGroup.Entry.class);
+            Table<EnumeratedEndDeviceGroup.Entry> table = dataModel.addTable(name(), EnumeratedEndDeviceGroup.Entry.class);
             table.map(EnumeratedEndDeviceGroupImpl.EntryImpl.class);
-            Column groupColumn = table.column("GROUP_ID").type("number").notNull().conversion(NUMBER2LONG).map("groupId").add();
-            Column endDeviceColumn = table.column("ENDDEVICE_ID").type("number").notNull().conversion(NUMBER2LONG).map("endDeviceId").add();
+            Column groupColumn = table.column("GROUP_ID").type("number").notNull().conversion(NUMBER2LONG).add();
+            Column endDeviceColumn = table.column("ENDDEVICE_ID").type("number").notNull().conversion(NUMBER2LONG).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             table.primaryKey("MTG_PK_ENUM_ED_GROUP_ENTRY").on(groupColumn, endDeviceColumn, intervalColumns.get(0)).add();
             table.foreignKey("MTG_FK_EDGE_EDG").references(MTG_ED_GROUP.name()).onDelete(CASCADE).map("endDeviceGroup").on(groupColumn).add();

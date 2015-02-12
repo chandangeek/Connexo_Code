@@ -41,6 +41,11 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
     public List<EndDevice> getMembers(Instant instant) {
         return getEndDeviceQueryProvider().findEndDevices(instant, getCondition());
     }
+    
+    @Override
+    public List<EndDevice> getMembers(Instant instant, int start, int limit) {
+        return getEndDeviceQueryProvider().findEndDevices(instant, getCondition(), start, limit);
+    }
 
     private EndDeviceQueryProvider getEndDeviceQueryProvider() {
         try {

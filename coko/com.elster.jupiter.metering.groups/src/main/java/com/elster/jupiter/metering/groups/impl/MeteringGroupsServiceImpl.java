@@ -96,6 +96,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
                     bind(MeteringService.class).toInstance(meteringService);
                     bind(DataModel.class).toInstance(dataModel);
                     bind(EventService.class).toInstance(eventService);
+                    bind(QueryService.class).toInstance(queryService);
                 }
             });
         } catch (Exception e) {
@@ -146,7 +147,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
 
     @Override
     public EnumeratedEndDeviceGroup createEnumeratedEndDeviceGroup(String name) {
-        EnumeratedEndDeviceGroup group = new EnumeratedEndDeviceGroupImpl(dataModel, eventService);
+        EnumeratedEndDeviceGroup group = new EnumeratedEndDeviceGroupImpl(dataModel, eventService, queryService);
         group.setName(name);
         return group;
     }
