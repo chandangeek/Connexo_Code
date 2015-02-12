@@ -52,28 +52,32 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
                     }
                 ]
             },
+
             {
-                defaults: {
-                    xtype: 'displayfield'
-                },
-                items: [
-                    {
-                        fieldLabel: 'Register types',
-                        labelWidth: 200,
-                        name: 'registerTypes',
-                        renderer: function (value) {
-                            var typesString = '';
-                            if (!Ext.isEmpty(value)) {
-                                Ext.each(value, function (type) {
-                                    typesString += type.name + '<br />';
-                                });
-                            }
-                            return typesString;
-                        }
-                    }
-                ]
+                xtype: 'fieldcontainer',
+                fieldLabel: 'Register types',
+                itemId: 'registerTypesArea'
             }
+
         ]
+    },
+
+    updateRegisterTypes: function (selectedLoadProfileType) {
+        Ext.suspendLayouts();
+        this.down('#registerTypesArea').removeAll();
+        for (var i = 0; i < selectedLoadProfileType.get('registerTypes').length; i++) {
+            var fieldlabel = i > 0 ? '&nbsp' : 'Register types',
+                readingType = selectedLoadProfileType.get('registerTypes')[i].readingType;
+
+            this.down('#registerTypesArea').add(
+                {
+                    xtype: 'reading-type-displayfield',
+                    fieldLabel: undefined,
+                    value: readingType
+                }
+            );
+        }
+        Ext.resumeLayouts(true);
     }
 });
 
