@@ -102,10 +102,10 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
             me.getRegisterTypeGrid().getStore().load({
                 callback: function (records) {
                     if (records.length > 0) {
-                        me.getRegisterGroupPreview().setTitle(Uni.I18n.translate('registerGroup.previewGroup', 'MDC', 'Register types of {0}', [registerGroups[0].get('name')]));
+                        me.getRegisterGroupPreview().setTitle(Uni.I18n.translate('registerGroup.previewGroup', 'MDC', 'Register types of') + ' ' + registerGroups[0].get('name'));
                         me.getRegisterTypeGrid().getSelectionModel().doSelect(0);
                     } else {
-                        me.getRegisterGroupPreview().setTitle(Uni.I18n.translate('registerGroup.previewGroup', 'MDC', 'Register types of {0}', [registerGroups[0].get('name')]));
+                        me.getRegisterGroupPreview().setTitle(Uni.I18n.translate('registerGroup.previewGroup', 'MDC', 'Register types of') + ' ' + registerGroups[0].get('name'));
                     }
                     me.getRegisterTypeEmptyGrid().setVisible(true);
                     me.getRegisterTypePreview().setVisible(true);
