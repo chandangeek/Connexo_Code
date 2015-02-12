@@ -8,7 +8,6 @@ import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.nls.Thesaurus;
-
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
@@ -117,6 +116,21 @@ class TransientDestinationSpec implements DestinationSpec {
     @Override
     public boolean isBuffered() {
     	return buffered;
+    }
+
+    @Override
+    public void unSubscribe(String subscriberSpecName) {
+        for (TransientSubscriberSpec subscriber : subscribers) {
+            if (subscriber.getName().equals(name)) {
+                subscribers.remove(subscriber);
+            }
+        }
+    }
+
+    @Override
+    public void delete() {
+        // By jolly, I don't know what to put here
+        subscribers.clear();
     }
 
     private class TransientMessageBuilder implements MessageBuilder {
