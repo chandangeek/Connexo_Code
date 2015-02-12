@@ -70,7 +70,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     }
 
     public SqlBuilder build(DataMapper<ComTaskExecution> dataMapper, int pageStart, int pageSize) {
-    	this.setActualBuilder(WithClauses.BUSY_COMTASK_EXECUTION.sqlBuilder(BUSY_ALIAS_NAME));
+    	this.setActualBuilder(WithClauses.BUSY_CONNECTION_TASK.sqlBuilder(BUSY_ALIAS_NAME));
     	SqlBuilder sqlBuilder = dataMapper.builder(communicationTaskAliasName());
     	getActualBuilder().append(sqlBuilder);
         String sqlStartClause = sqlBuilder.getText();

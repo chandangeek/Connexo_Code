@@ -56,9 +56,8 @@ public enum ServerComTaskStatus {
         @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
-            sqlBuilder.append("and ((comport is not null) or ((exists (select * from ");
-            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-            sqlBuilder.append(" ct where ct.comserver is not null and ct.id = cte.connectiontask)) and cte.nextExecutionTimestamp is not null and cte.nextexecutiontimestamp <=");
+            sqlBuilder.append("and ((comport is not null) or ((exists (select * from busytask");
+            sqlBuilder.append(" where busytask.connectiontask = cte.connectiontask)) and cte.nextExecutionTimestamp is not null and cte.nextexecutiontimestamp <=");
             sqlBuilder.addLong(this.asSeconds(now));
             sqlBuilder.append("))");
         }
@@ -84,9 +83,8 @@ public enum ServerComTaskStatus {
         @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
-            sqlBuilder.append("and comport is null and not exists (select * from ");
-            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-            sqlBuilder.append(" ct where ct.comserver is not null and ct.id = cte.connectiontask) and cte.nextexecutiontimestamp <=");
+            sqlBuilder.append("and comport is null and not exists (select * from busytask");
+            sqlBuilder.append(" where busytask.connectiontask = cte.connectiontask) and cte.nextexecutiontimestamp <=");
             sqlBuilder.addLong(this.asSeconds(now));
         }
     },

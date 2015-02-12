@@ -190,7 +190,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         for (ServerComTaskStatus taskStatus : this.taskStatusesForCounting(filter)) {
             // Check first pass
             if (sqlBuilder == null) {
-                sqlBuilder = WithClauses.BUSY_COMTASK_EXECUTION.sqlBuilder(BUSY_ALIAS_NAME);
+                sqlBuilder = WithClauses.BUSY_CONNECTION_TASK.sqlBuilder(BUSY_ALIAS_NAME);
                 this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
             } else {
                 sqlBuilder.unionAll();
@@ -245,7 +245,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         for (ServerComTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
             // Check first pass
             if (sqlBuilder == null) {
-                sqlBuilder = WithClauses.BUSY_COMTASK_EXECUTION.sqlBuilder(BUSY_ALIAS_NAME);
+                sqlBuilder = WithClauses.BUSY_CONNECTION_TASK.sqlBuilder(BUSY_ALIAS_NAME);
                 this.countByComScheduleAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroups);
             }
             else {
@@ -292,7 +292,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         for (ServerComTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
             // Check first pass
             if (sqlBuilder == null) {
-                sqlBuilder = WithClauses.BUSY_COMTASK_EXECUTION.sqlBuilder(BUSY_ALIAS_NAME);
+                sqlBuilder = WithClauses.BUSY_CONNECTION_TASK.sqlBuilder(BUSY_ALIAS_NAME);
                 this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, filterSpecification, taskStatus);
             }
             else {
