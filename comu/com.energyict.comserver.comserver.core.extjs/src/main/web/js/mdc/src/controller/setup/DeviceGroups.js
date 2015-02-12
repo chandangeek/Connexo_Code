@@ -218,35 +218,31 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
 
 
     showDevicegroupDetailsView: function (currentDeviceGroupId) {
-        var me = this;
-        var router = me.getController('Uni.controller.history.Router');
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            model = me.getModel('Mdc.model.DeviceGroup'),
+            widget;
         if (this.getApplication().getController('Mdc.controller.setup.AddDeviceGroupAction').router) {
             this.getApplication().getController('Mdc.controller.setup.AddDeviceGroupAction').router = null;
         }
         this.getDevicesOfDeviceGroupStore().getProxy().setExtraParam('id', currentDeviceGroupId);
-        this.getDevicesOfDeviceGroupStore().load({
-            callback: function () {
-                var widget = Ext.widget('device-groups-details', {
-                    router: router,
-                    deviceGroupId: currentDeviceGroupId
-                });
-                var actionsMenu = widget.down('device-group-action-menu');
-
-                var model = Ext.ModelManager.getModel('Mdc.model.DeviceGroup');
-                model.load(currentDeviceGroupId, {
-                    success: function (record) {
-                        actionsMenu.record = record;
-                        me.getApplication().fireEvent('changecontentevent', widget);
-                        widget.down('#devicegroups-view-menu #devicegroups-view-link').setText(record.get('name'));
-                        widget.down('form').loadRecord(record);
-                        me.getApplication().fireEvent('loadDeviceGroup', record);
-                        me.updateCriteria(record);
-                        me.updateActionMenuVisibility(record);
-                    }
-                });
+        widget = Ext.widget('device-groups-details', {
+            router: router,
+            deviceGroupId: currentDeviceGroupId
+        });
+        me.getApplication().fireEvent('changecontentevent', widget);
+        model.load(currentDeviceGroupId, {
+            success: function (record) {
+                Ext.suspendLayouts();
+                widget.down('#devicegroups-view-menu #devicegroups-view-link').setText(record.get('name'));
+                widget.down('form').loadRecord(record);
+                Ext.resumeLayouts(true);
+                widget.down('device-group-action-menu').record = record;
+                me.getApplication().fireEvent('loadDeviceGroup', record);
+                me.updateCriteria(record);
+                me.updateActionMenuVisibility(record);
             }
         });
-
     },
 
     updateActionMenuVisibility: function(record) {
