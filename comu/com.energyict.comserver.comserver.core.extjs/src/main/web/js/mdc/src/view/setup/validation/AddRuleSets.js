@@ -44,6 +44,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSets', {
                         selectByDefault: false,
                         grid: {
                             xtype: 'validation-add-rulesets-grid',
+                            itemId: 'grid-add-rule-sets',
                             deviceTypeId: me.deviceTypeId,
                             deviceConfigId: me.deviceConfigId
                         },
