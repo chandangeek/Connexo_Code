@@ -1,28 +1,36 @@
 package com.elster.jupiter.metering.groups.impl;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.associations.Effectivity;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
-import com.elster.jupiter.util.conditions.Where;
+import static com.elster.jupiter.util.conditions.Where.where;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+
+import org.hibernate.validator.constraints.br.CNPJ;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,13 +45,16 @@ import java.util.stream.Collectors;
 
 public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements EnumeratedEndDeviceGroup {
 
+    private final QueryService queryService;
+    
     private List<EntryImpl> entries;
 
     private final List<EndDeviceMembershipImpl> memberships = new ArrayList<>();
 
     @Inject
-    EnumeratedEndDeviceGroupImpl(DataModel dataModel, EventService eventService) {
+    EnumeratedEndDeviceGroupImpl(DataModel dataModel, EventService eventService, QueryService queryService) {
         super(eventService, dataModel);
+        this.queryService = queryService;
     }
 
     public List<EntryImpl> getEntries() {
@@ -81,15 +92,13 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
             getEntries();
         }
         return memberships;
-    }
+    }  
 
     static class EntryImpl implements Entry {
 
-        private transient EnumeratedEndDeviceGroup endDeviceGroup;
-        private long groupId;
-        private transient EndDevice endDevice;
+        private Reference<EnumeratedEndDeviceGroup> endDeviceGroup = ValueReference.absent();
+        private Reference<EndDevice> endDevice = ValueReference.absent();
         private Interval interval;
-        private long endDeviceId;
 
         private final DataModel dataModel;
         private final MeteringService meteringService;
@@ -101,16 +110,22 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
         }
 
         EntryImpl init(EnumeratedEndDeviceGroup endDeviceGroup, EndDevice endDevice, Range<Instant> range) {
-            this.endDeviceGroup = endDeviceGroup;
-            this.groupId = endDeviceGroup.getId();
-            this.endDevice = endDevice;
-            this.endDeviceId = endDevice.getId();
+            setEndDeviceGroup(endDeviceGroup);
+            setEndDevice(endDevice);
             this.interval = Interval.of(Effectivity.requireValid(range));
             return this;
         }
 
         static EntryImpl from(DataModel dataModel, EnumeratedEndDeviceGroup endDeviceGroup, EndDevice endDevice, Range<Instant> range) {
             return dataModel.getInstance(EntryImpl.class).init(endDeviceGroup, endDevice, range);
+        }
+        
+        public void setEndDevice(EndDevice endDevice) {
+            this.endDevice.set(endDevice);
+        }
+        
+        public void setEndDeviceGroup(EnumeratedEndDeviceGroup endDeviceGroup) {
+            this.endDeviceGroup.set(endDeviceGroup);
         }
 
         @Override
@@ -120,17 +135,11 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
 
         @Override
         public EndDevice getEndDevice() {
-            if (endDevice == null) {
-                endDevice = meteringService.findEndDevice(endDeviceId).get();
-            }
-            return endDevice;
+            return endDevice.get();
         }
 
         public EnumeratedEndDeviceGroup getEndDeviceGroup() {
-            if (endDeviceGroup == null) {
-                endDeviceGroup = dataModel.mapper(EnumeratedEndDeviceGroup.class).getOptional(groupId).get();
-            }
-            return endDeviceGroup;
+            return endDeviceGroup.get();
         }
 
         @Override
@@ -144,13 +153,14 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
 
             EntryImpl entry = (EntryImpl) o;
 
-            return groupId == entry.groupId && endDeviceId == entry.endDeviceId && Objects.equals(interval.getStart(), entry.interval.getStart());
-
+            return endDeviceGroup.get().getId() == entry.endDeviceGroup.get().getId()
+                    && endDevice.get().getId() == entry.endDevice.get().getId()
+                    && Objects.equals(interval.getStart(), entry.interval.getStart());
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(groupId, endDeviceId, interval.getStart());
+            return Objects.hash(endDeviceGroup.get().getId(), endDevice.get().getId(), interval.getStart());
         }
     }
 
@@ -184,7 +194,7 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
         if (id == 0) {
             factory().persist(this);
             for (EntryImpl entry : doGetEntries()) {
-                entry.groupId = id;
+                entry.setEndDeviceGroup(this);
             }
             ArrayList<Entry> result = new ArrayList<>();
             for (EntryImpl entry : doGetEntries()) {
@@ -231,6 +241,17 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
     }
 
     @Override
+    public List<EndDevice> getMembers(Instant instant, int start, int limit) {
+        Query<Entry> query = queryService.wrap(dataModel.query(Entry.class, EndDeviceGroup.class, EndDevice.class));
+        query.setEager();
+        Condition condition = where("endDeviceGroup").isEqualTo(this).and(where("interval").isEffective(instant));
+        int from = start + 1;
+        int to = from + limit;
+        List<Entry> entryList = query.select(condition, from, to, Order.ascending("endDevice.mRID").toUpperCase());
+        return entryList.stream().map(Entry::getEndDevice).collect(Collectors.toList());
+    }
+    
+    @Override
     public List<EndDeviceMembership> getMembers(Range<Instant> range) {
         return getMemberships().stream()
                 .filter(Active.during(range))
@@ -242,7 +263,7 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
     public boolean isMember(final EndDevice endDevice, Instant instant) {
         return getMemberships().stream()
                 .filter(Active.at(instant))
-                .noneMatch(With.endDevice(endDevice));
+                .anyMatch(With.endDevice(endDevice));
     }
 
     @Override
@@ -260,7 +281,7 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
         Query<EndDevice> endDeviceQuery = service.getEndDeviceQuery();
 
         QueryExecutor<EntryImpl> query = dataModel.query(EntryImpl.class);
-        Subquery subQueryEndDeviceIdInGroup = query.asSubquery(Where.where("endDeviceGroup").isEqualTo(this), "endDeviceId");
+        Subquery subQueryEndDeviceIdInGroup = query.asSubquery(where("endDeviceGroup").isEqualTo(this), "endDevice");
         Condition condition = ListOperator.IN.contains(subQueryEndDeviceIdInGroup, "id");
         if (amrSystems.length > 0) {
             condition = condition.and(ListOperator.IN.contains("amrSystem", Arrays.asList(amrSystems)));

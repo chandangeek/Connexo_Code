@@ -13,6 +13,8 @@ public interface EndDeviceGroup {
     String getType();
 
     List<EndDevice> getMembers(Instant instant);
+    
+    List<EndDevice> getMembers(Instant instant, int start, int limit);
 
     List<EndDeviceMembership> getMembers(Range<Instant> range);
 

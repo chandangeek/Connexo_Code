@@ -38,4 +38,11 @@ public class SimpleEndDeviceQueryProvider implements EndDeviceQueryProvider {
     public List<EndDevice> findEndDevices(Instant instant, Condition conditions) {
         return meteringService.getEndDeviceQuery().select(conditions);
     }
+    
+    @Override
+    public List<EndDevice> findEndDevices(Instant instant, Condition conditions, int start, int limit) {
+        int from = start + 1;
+        int to = from + limit;
+        return meteringService.getEndDeviceQuery().select(conditions, from, to);
+    }
 }

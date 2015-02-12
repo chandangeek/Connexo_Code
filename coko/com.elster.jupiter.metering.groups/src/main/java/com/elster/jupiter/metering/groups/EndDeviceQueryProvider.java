@@ -18,5 +18,6 @@ public interface EndDeviceQueryProvider {
     String getName();
     List<EndDevice> findEndDevices(Condition conditions);
     List<EndDevice> findEndDevices(Instant instant, Condition conditions);
+    List<EndDevice> findEndDevices(Instant instant, Condition conditions, int start, int limit);
 
 }
