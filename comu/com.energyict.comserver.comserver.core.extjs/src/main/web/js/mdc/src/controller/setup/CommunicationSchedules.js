@@ -403,11 +403,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
         startDate = moment(startDate);
 
-        storeData.push({
-            date: startDate.clone().toDate()
-        });
-
-        for (var i = 1; i < 5; i++) {
+        for (var i = 1; i < 6; i++) {
             if (!schedule.lastDay) {
                 storeData.push({
                     date: startDate.clone().startOf(startOf).add(schedule.every.timeUnit, schedule.every.count * i).add(schedule.offset.timeUnit, schedule.offset.count).toDate()
