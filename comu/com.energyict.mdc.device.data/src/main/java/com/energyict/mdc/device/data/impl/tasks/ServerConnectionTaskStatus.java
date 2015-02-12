@@ -38,7 +38,7 @@ public enum ServerConnectionTaskStatus {
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
             super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
             sqlBuilder.append("and (not exists (select * from ");
-            sqlBuilder.append(" busycte where busycte.connectiontask = ");
+            sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".id ) ");
             sqlBuilder.append("and ");
@@ -90,7 +90,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("and ");
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".nextexecutiontimestamp is not null and (exists (select * from ");
-            sqlBuilder.append(" busycte where busycte.connectiontask = ");
+            sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".id )");
             sqlBuilder.append("     or ");
@@ -120,7 +120,7 @@ public enum ServerConnectionTaskStatus {
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
             super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
             sqlBuilder.append("and (not exists (select * from ");
-            sqlBuilder.append(" busycte where busycte.connectiontask = ");
+            sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".id) and ");
             sqlBuilder.append(connectionTaskTableName);
@@ -157,7 +157,7 @@ public enum ServerConnectionTaskStatus {
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
             super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
             sqlBuilder.append("and (not exists (select * from ");
-            sqlBuilder.append(" busycte where busycte.connectiontask = ");
+            sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".id )");
             sqlBuilder.appendWhereOrAnd();
@@ -201,7 +201,7 @@ public enum ServerConnectionTaskStatus {
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
             super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
             sqlBuilder.append("and (not exists (select * from ");
-            sqlBuilder.append(" busycte where busycte.connectiontask = ");
+            sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".id )");
             sqlBuilder.appendWhereOrAnd();
@@ -244,7 +244,7 @@ public enum ServerConnectionTaskStatus {
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
             super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
             sqlBuilder.append("and (not exists (select * from ");
-            sqlBuilder.append(" busycte where busycte.connectiontask = ");
+            sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".id) ");
             sqlBuilder.appendWhereOrAnd();
@@ -293,7 +293,7 @@ public enum ServerConnectionTaskStatus {
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
             super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
             sqlBuilder.append("and (not exists (select * from ");
-            sqlBuilder.append(" busycte where busycte.connectiontask = ");
+            sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".id) ");
             sqlBuilder.appendWhereOrAnd();
@@ -318,6 +318,8 @@ public enum ServerConnectionTaskStatus {
         }
 
     };
+
+    public static final String BUSY_TASK_ALIAS_NAME = "busytask";
 
     /**
      * Returns the public counterpart of this ServerConnectionTaskStatus.
