@@ -14,6 +14,7 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -41,13 +42,15 @@ public class LoadProfileConfigurationResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final MasterDataService masterDataService;
     private final Thesaurus thesaurus;
+    private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
 
     @Inject
-    public LoadProfileConfigurationResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, MasterDataService masterDataService, Thesaurus thesaurus) {
+    public LoadProfileConfigurationResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, MasterDataService masterDataService, Thesaurus thesaurus, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
         this.resourceHelper = resourceHelper;
         this.deviceConfigurationService = deviceConfigurationService;
         this.masterDataService = masterDataService;
         this.thesaurus = thesaurus;
+        this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
     }
 
     @GET
@@ -63,7 +66,7 @@ public class LoadProfileConfigurationResource {
         Collections.sort(loadProfileSpecs, new LoadProfileSpecComparator());
         List<LoadProfileSpecInfo> loadProfileSpecInfos = new ArrayList<>(loadProfileSpecs.size());
         for (LoadProfileSpec spec : loadProfileSpecs) {
-            loadProfileSpecInfos.add(LoadProfileSpecInfo.from(spec, spec.getChannelSpecs()));
+            loadProfileSpecInfos.add(LoadProfileSpecInfo.from(spec, spec.getChannelSpecs(), mdcReadingTypeUtilService));
         }
         return Response.ok(PagedInfoList.asJson("data", loadProfileSpecInfos, queryParameters)).build();
     }
@@ -92,7 +95,7 @@ public class LoadProfileConfigurationResource {
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @BeanParam QueryParameters queryParameters) {
         LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
-        return Response.ok(PagedInfoList.asJson("data", LoadProfileSpecInfo.from(Collections.singletonList(loadProfileSpec)), queryParameters)).build();
+        return Response.ok(PagedInfoList.asJson("data", LoadProfileSpecInfo.from(Collections.singletonList(loadProfileSpec), mdcReadingTypeUtilService), queryParameters)).build();
     }
 
     @POST
@@ -115,7 +118,7 @@ public class LoadProfileConfigurationResource {
             specBuilder.setOverruledObisCode(request.overruledObisCode);
         }
         LoadProfileSpec newLoadProfileSpec = specBuilder.add();
-        return Response.ok(LoadProfileSpecInfo.from(newLoadProfileSpec, null)).build();
+        return Response.ok(LoadProfileSpecInfo.from(newLoadProfileSpec, null, mdcReadingTypeUtilService)).build();
     }
 
     @PUT
@@ -134,7 +137,7 @@ public class LoadProfileConfigurationResource {
         LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
         LoadProfileSpec.LoadProfileSpecUpdater specUpdater = deviceConfiguration.getLoadProfileSpecUpdaterFor(loadProfileSpec);
         specUpdater.setOverruledObisCode(request.overruledObisCode).update();
-        return Response.ok(LoadProfileSpecInfo.from(loadProfileSpec, null)).build();
+        return Response.ok(LoadProfileSpecInfo.from(loadProfileSpec, null, mdcReadingTypeUtilService)).build();
     }
 
     @DELETE
