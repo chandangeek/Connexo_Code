@@ -41,12 +41,12 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>bootstrap</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>bootstrap.oracle</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -56,7 +56,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>bpm.extjs</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -66,12 +66,12 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>bpm.rest</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>datavault</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -81,22 +81,22 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>extjs</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>events</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>events.rest</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>fileimport</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -106,17 +106,17 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>install</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>loaderjs</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>login.app</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -131,52 +131,52 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>nls.rest</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>orm</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>orm.schema.oracle</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>osgi.goodies</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>properties</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>pubsub</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>rest.util</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>rest.whiteboard</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>security.thread</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>soap.whiteboard</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -187,12 +187,12 @@
                 <!-- todo rename to license -->
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>systemadmin</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>tasks</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -202,7 +202,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>time</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -212,12 +212,12 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>time.rest</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>transaction</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -227,7 +227,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>users</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -237,7 +237,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>users.rest</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
