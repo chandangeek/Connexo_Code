@@ -1,25 +1,25 @@
 package com.energyict.mdc.engine.impl.status;
 
-import com.energyict.mdc.engine.impl.monitor.ComServerMonitor;
-import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
-import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
-import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitorImplMBean;
-import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
+import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OutboundCapableComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.impl.monitor.ComServerMonitor;
+import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.StatusService;
 
-import java.time.Clock;
-import java.util.Optional;
+import com.elster.jupiter.util.streams.Functions;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.util.ArrayList;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link StatusService} interface.
@@ -52,12 +52,7 @@ public class StatusServiceImpl implements StatusService {
     @Override
     public ComServerStatus getStatus() {
         Optional<ComServer> comServer = this.engineConfigurationService.findComServerBySystemName();
-        if (comServer.isPresent()) {
-            return this.getStatus(comServer.get());
-        }
-        else {
-            return new UnknownComServerStatusImpl();
-        }
+        return comServer.map(this::getStatus).orElseGet(UnknownComServerStatusImpl::new);
     }
 
     private ComServerStatus getStatus(ComServer comServer) {
@@ -81,15 +76,13 @@ public class StatusServiceImpl implements StatusService {
     }
 
     private List<ScheduledComPortMonitor> getComPortMonitors(OutboundCapableComServer comServer) {
-        List<OutboundComPort> comPorts = comServer.getOutboundComPorts();
-        List<ScheduledComPortMonitor> monitors = new ArrayList<>(comPorts.size()); // Normally all comports have a monitor
-        for (OutboundComPort comPort : comPorts) {
-            Optional<ScheduledComPortMonitorImplMBean> monitor = this.managementBeanFactory.findFor(comPort);
-            if (monitor.isPresent()) {
-                monitors.add((ScheduledComPortMonitor) monitor.get());
-            }
-        }
-        return monitors;
+        return comServer.getOutboundComPorts()
+                .stream()
+                .filter(ComPort::isActive)
+                .map(this.managementBeanFactory::findFor)
+                .flatMap(Functions.asStream())
+                .map(ScheduledComPortMonitor.class::cast)
+                .collect(Collectors.toList());
     }
 
 }
