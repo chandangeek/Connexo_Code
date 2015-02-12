@@ -74,6 +74,22 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
         }
     }
 
+    @Override
+    public void renamed(String oldName, RunningComServer runningComServer) {
+        synchronized (this.registeredMBeans) {
+            ObjectName oldJmxName = this.toComServerName(oldName);
+            Object registeredMBean = this.registeredMBeans.get(oldJmxName);
+            if (registeredMBean == null) {
+                LOGGER.severe("Unable to find ComServerMonitorMBean for renamed online comserver " + oldName);
+            }
+            else {
+                this.unRegisterMBean(oldJmxName);
+                ObjectName newJmxName = this.nameFor(runningComServer);
+                this.registerMBean(registeredMBean, newJmxName);
+            }
+        }
+    }
+
     private void registerMBean(Object object, ObjectName objectName) {
         MBeanServer server = ManagementFactory.getPlatformMBeanServer();
         if (server != null) {
@@ -189,6 +205,15 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
         }
     }
 
+    private ObjectName toComServerName(String comServerName) {
+        try {
+            return new ObjectName(this.comServerBaseName(comServerName));
+        }
+        catch (MalformedObjectNameException e) {
+            throw CodingException.malformedComServerObjectName(comServerName, e);
+        }
+    }
+
     /**
      * Returns the base name of components that relate to the specified ComServer.
      *
@@ -196,7 +221,17 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
      * @return The base name
      */
     private String comServerBaseName(ComServer comServer) {
-        return "Jupiter:type=ComServer,name=" + comServer.getName();
+        return this.comServerBaseName(comServer.getName());
+    }
+
+    /**
+     * Returns the base name of components that relate to the specified ComServer.
+     *
+     * @param comServerName The name of the ComServer
+     * @return The base name
+     */
+    private String comServerBaseName(String comServerName) {
+        return "Connexo-MultiSense:type=Communication server,name=" + comServerName;
     }
 
     private ObjectName nameFor(ScheduledComPort comPort) {
@@ -205,7 +240,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
 
     private ObjectName nameFor(ComPort comPort) {
         try {
-            return new ObjectName(this.comServerBaseName(comPort.getComServer()) + ",process=Ports,comPortName=" + comPort.getName());
+            return new ObjectName(this.comServerBaseName(comPort.getComServer()) + ",process=Communication ports,comPortName=" + comPort.getName());
         }
         catch (MalformedObjectNameException e) {
             throw CodingException.malformedObjectName(comPort, e);

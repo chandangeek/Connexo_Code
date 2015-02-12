@@ -1,10 +1,9 @@
 package com.energyict.mdc.engine.exceptions;
 
+import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.common.ComServerRuntimeException;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -99,56 +98,6 @@ public class CodingException extends ComServerRuntimeException {
     }
 
     /**
-     * Constructs a CodingException to represent the scenario where the primaryKey
-     * of a DeviceMessageSpec wasn't in the correct format.
-     *
-     * @param primaryKey the primary key with the incorrect format
-     * @return the newly created CodingException
-     */
-    public static CodingException deviceMessageSpecPrimaryKeyNotCorrect(MessageSeed messageSeed, String primaryKey) {
-        // Old message in 9.1: The DeviceMessageSpec should contain a className and a enumName, but was {0}
-        return new CodingException(messageSeed, primaryKey);
-    }
-
-    /**
-     * Constructs a CodingException to represent the scenario where the className of
-     * the primary key was not known in the classPath
-     *
-     * @param e The ClassNotFoundException
-     * @param className the unknown className
-     * @return the newly created CodingException
-     */
-    public static CodingException unKnownDeviceMessageSpecClass(MessageSeed messageSeed, ClassNotFoundException e, String className) {
-        // Old message in 9.1: Could not create the requested DeviceMessageSpec, class with name \"{0}\" is not on classpath
-        return new CodingException(e, messageSeed, className);
-    }
-
-    /**
-     * Constructs a CodingException to represent the scenario where the primaryKey
-     * of a DeviceMessageCategory wasn't in the correct format.
-     *
-     * @param primaryKey the primary key with the incorrect format
-     * @return the newly created CodingException
-     */
-    public static CodingException deviceMessageCategoryPrimaryKeyNotCorrect(MessageSeed messageSeed, String primaryKey) {
-        // Old message in 9.1: Unexpected format for device message category primary key {0}. Expected only 2 chars
-        return new CodingException(messageSeed, primaryKey);
-    }
-
-    /**
-     * Constructs a CodingException to represent the scenario where the className of
-     * the primary key was not known in the classPath.
-     *
-     * @param e The ClassNotFoundException
-     * @param className the unknown className
-     * @return the newly created CodingException
-     */
-    public static CodingException unKnownDeviceMessageCategoryClass(MessageSeed messageSeed, ClassNotFoundException e, String className) {
-        // Old message in 9.1: Unknown device message category class name\: {0}
-        return new CodingException(e, messageSeed, className);
-    }
-
-    /**
      * Constructs a CodingException that represents the fact that we have an unexpected amount
      * of ComTaskExecutions.
      *
@@ -171,12 +120,12 @@ public class CodingException extends ComServerRuntimeException {
         return new CodingException(MessageSeeds.SESSION_FOR_COMTASK_MISSING, comTaskExecution.getComTasks().get(0).getName());
     }
 
-    public static CodingException malformedObjectName (RunningComServer comServer, MalformedObjectNameException e) {
-        return malformedObjectName(comServer.getComServer(), e);
+    public static CodingException malformedObjectName (ComServer comServer, MalformedObjectNameException e) {
+        return malformedComServerObjectName(comServer.getName(), e);
     }
 
-    public static CodingException malformedObjectName (ComServer comServer, MalformedObjectNameException e) {
-        return new CodingException(e, MessageSeeds.MBEAN_OBJECT_FORMAT, comServer.getName());
+    public static CodingException malformedComServerObjectName(String comServerName, MalformedObjectNameException e) {
+        return new CodingException(e, MessageSeeds.MBEAN_OBJECT_FORMAT, comServerName);
     }
 
     public static CodingException malformedObjectName (ComPort comPort, MalformedObjectNameException e) {

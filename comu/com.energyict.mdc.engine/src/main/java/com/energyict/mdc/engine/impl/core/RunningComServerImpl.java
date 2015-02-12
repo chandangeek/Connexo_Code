@@ -58,6 +58,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link RunningComServer} interface.
@@ -545,7 +546,12 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
                     this.applyChanges((OutboundCapable) newVersion);
                     this.applyDelayChanges(newVersion);
                     this.notifyChangesApplied();
+                    String oldComServerName = this.comServer.getName();
                     this.comServer = newVersion;
+                    if (!oldComServerName.equals(newVersion.getName())) {
+                        // Name changed, notify the ManagementBeanFactory
+                        this.serviceProvider.managementBeanFactory().renamed(oldComServerName, this);
+                    }
                 }
             }
         } catch (InterruptedException e) {
@@ -651,7 +657,8 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     }
 
     private boolean hasChanged(InboundComPort existingComPort, InboundComPort newVersion) {
-        return existingComPort.getNumberOfSimultaneousConnections() != newVersion.getNumberOfSimultaneousConnections();
+        return existingComPort.getNumberOfSimultaneousConnections() != newVersion.getNumberOfSimultaneousConnections()
+            || !existingComPort.getName().equals(newVersion.getName());
     }
 
     /**
@@ -678,11 +685,15 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
             this.comPortListeners.remove(listener);
             listener.shutdown();
         }
-        List<InboundComPort> actualComPorts = newVersion.getInboundComPorts();
+        List<Long> actualComPortIds =
+                newVersion.getInboundComPorts()
+                        .stream()
+                        .map(InboundComPort::getId)
+                        .collect(Collectors.toList());
         Iterator<ComPortListener> comPortListenerIterator = this.comPortListeners.iterator();
         while (comPortListenerIterator.hasNext()) {
             ComPortListener comPortListener = comPortListenerIterator.next();
-            if (!actualComPorts.contains(comPortListener.getComPort())) {
+            if (!actualComPortIds.contains(comPortListener.getComPort().getId())) {
                 comPortListenerIterator.remove();
                 comPortListener.shutdown();
             }
@@ -761,7 +772,8 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     }
 
     private boolean hasChanged(OutboundComPort existingComPort, OutboundComPort newVersion) {
-        return existingComPort.getNumberOfSimultaneousConnections() != newVersion.getNumberOfSimultaneousConnections();
+        return existingComPort.getNumberOfSimultaneousConnections() != newVersion.getNumberOfSimultaneousConnections()
+            || !existingComPort.getName().equals(newVersion.getName());
     }
 
     /**
@@ -788,11 +800,15 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
             this.scheduledComPorts.remove(scheduledComPort);
             scheduledComPort.shutdown();
         }
-        List<OutboundComPort> actualComPorts = newVersion.getOutboundComPorts();
+        List<Long> actualComPortIds =
+                newVersion.getOutboundComPorts()
+                    .stream()
+                    .map(OutboundComPort::getId)
+                    .collect(Collectors.toList());
         Iterator<ScheduledComPort> scheduledComPortIterator = this.scheduledComPorts.iterator();
         while (scheduledComPortIterator.hasNext()) {
             ScheduledComPort scheduledComPort = scheduledComPortIterator.next();
-            if (!actualComPorts.contains(scheduledComPort.getComPort())) {
+            if (!actualComPortIds.contains(scheduledComPort.getComPort().getId())) {
                 scheduledComPortIterator.remove();
                 scheduledComPort.shutdown();
             }

@@ -30,14 +30,6 @@ public interface ComPortOperationsLogger {
     public void shuttingDown (String threadName);
 
     /**
-     * Logs that the specified {@link ComPort} is now monitoring for changes.
-     *
-     * @param comPort The ComPort
-     */
-    @Configuration(format = "Checking for changes applied to outbound ComPort ''{0}''...", logLevel = LogLevel.DEBUG)
-    public void monitoringChanges (ComPort comPort);
-
-    /**
      * Logs that the specified {@link ComPort} is looking for work.
      *
      * @param comPortThreadName The name of the ComPort thread that is looking for work
