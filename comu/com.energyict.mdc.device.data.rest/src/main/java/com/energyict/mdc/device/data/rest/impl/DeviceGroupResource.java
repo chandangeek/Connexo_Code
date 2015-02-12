@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Interval;
@@ -63,9 +64,10 @@ public class DeviceGroupResource {
     private final DeviceService deviceService;
     private final ExceptionFactory exceptionFactory;
     private final DeviceGroupInfoFactory deviceGroupInfoFactory;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, RestQueryService restQueryService, DeviceService deviceService, ExceptionFactory exceptionFactory, DeviceGroupInfoFactory deviceGroupInfoFactory) {
+    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, RestQueryService restQueryService, DeviceService deviceService, ExceptionFactory exceptionFactory, DeviceGroupInfoFactory deviceGroupInfoFactory, ResourceHelper resourceHelper) {
         this.meteringGroupsService = meteringGroupsService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.meteringService = meteringService;
@@ -73,6 +75,7 @@ public class DeviceGroupResource {
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
         this.deviceGroupInfoFactory = deviceGroupInfoFactory;
+        this.resourceHelper = resourceHelper;
     }
 
     @GET
@@ -224,21 +227,14 @@ public class DeviceGroupResource {
         if (filterParam != null) {
             Map<String, Object> filter = deviceGroupInfo.filter;
             String mRID = (String) filter.get("mRID");
-            if ((mRID != null) && (!"".equals(mRID))) {
-                mRID = replaceRegularExpression(mRID);
-                condition = !isRegularExpression(mRID)
-                        ? condition.and(where("mRID").isEqualTo(mRID))
-                        : condition.and(where("mRID").like(mRID));
+            if (!Checks.is(mRID).emptyOrOnlyWhiteSpace()) {
+                condition = condition.and(where("mRID").like(mRID));
             }
 
             String serialNumber = (String) filter.get("serialNumber");
-            if ((serialNumber != null) && (!"".equals(serialNumber))) {
-                serialNumber = replaceRegularExpression(serialNumber);
-                condition = !isRegularExpression(serialNumber)
-                        ? condition.and(where("serialNumber").isEqualTo(serialNumber))
-                        : condition.and(where("serialNumber").like(serialNumber));
+            if (!Checks.is(serialNumber).emptyOrOnlyWhiteSpace()) {
+                condition = condition.and(where("serialNumber").like(serialNumber));
             }
-
 
             Object deviceTypesObject = filter.get("deviceTypes");
             if ((deviceTypesObject != null) && (deviceTypesObject instanceof List)) {
@@ -275,34 +271,5 @@ public class DeviceGroupResource {
         }
         return condition;
     }
-
-    private boolean isRegularExpression(String value) {
-        if (value.contains("*")) {
-            return true;
-        }
-        if (value.contains("?")) {
-            return true;
-        }
-        if (value.contains("%")) {
-            return true;
-        }
-        return false;
-    }
-
-    private String replaceRegularExpression(String value) {
-        if (value.contains("*")) {
-            value = value.replaceAll("\\*", "%");
-            return value;
-        }
-        if (value.contains("?")) {
-            value = value.replaceAll("\\?", "_");
-            return value;
-        }
-        if (value.contains("%")) {
-            return value;
-        }
-        return value;
-    }
-
 
 }
