@@ -102,6 +102,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
@@ -244,7 +245,7 @@ public class DemoTest {
     public void testA3Device() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
         try{
-            demoService.createDemoData("DemoServ", "host", "2014-12-01");
+            demoService.createA3Device();
         } catch (Exception e) {
             fail("The demo command shouldn't produce errors");
         }
