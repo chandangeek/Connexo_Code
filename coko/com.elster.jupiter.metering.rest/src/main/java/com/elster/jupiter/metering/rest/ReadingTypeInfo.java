@@ -32,7 +32,10 @@ public class ReadingTypeInfo {
     public String unit;
     public String currency;
     public long version;
+
+    /* Both the fullAliasName and the separate names are provided to the FrontEnd to do smart dynamic adjustments to the alias */
     public ReadingTypeNames names;
+    public String fullAliasName;
 
     public ReadingTypeInfo() {
     }
@@ -61,6 +64,27 @@ public class ReadingTypeInfo {
     	this.currency = readingType.getCurrency().getSymbol();
         this.version = readingType.getVersion();
         this.names = new ReadingTypeNames(readingType);
+        this.fullAliasName = getFullAlias(readingType);
+    }
+
+    public String getFullAlias(ReadingType readingType) {
+        StringBuilder fullAlias = new StringBuilder();
+        if (!readingType.getMeasuringPeriod().equals(TimeAttribute.NOTAPPLICABLE)) {
+            fullAlias.append("[").append(readingType.getMeasuringPeriod().getDescription()).append("] ");
+        } else if (readingType.getMacroPeriod().equals(MacroPeriod.DAILY) || readingType.getMacroPeriod().equals(MacroPeriod.MONTHLY)) {
+            fullAlias.append("[").append(readingType.getMacroPeriod().getDescription()).append("] ");
+        }
+        fullAlias.append(readingType.getAliasName());
+        if (readingType.getUnit().isApplicable()) {
+            fullAlias.append(" (").append(readingType.getMultiplier().getSymbol()).append(readingType.getUnit().getSymbol()).append(")");
+        }
+        if (readingType.getPhases().isApplicable()) {
+            fullAlias.append(" ").append(readingType.getPhases().getDescription());
+        }
+        if (readingType.getTou() != 0) {
+            fullAlias.append(" ToU ").append(readingType.getTou());
+        }
+        return fullAlias.toString();
     }
     
     public static class ReadingTypeNames {
