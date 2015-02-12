@@ -49,7 +49,7 @@ public class NTASimToolBuilder implements Builder<Void> {
     @Override
     public Void create() {
         System.out.println(" ==> Executing the NTA Sim config");
-        List<String> serialNumbers = deviceService.findAllDevices(where("mRID").like(Constants.Device.STANDARD_PREFIX + "%"))
+        List<String> serialNumbers = deviceService.findAllDevices(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*"))
                 .stream().map(Device::getSerialNumber).collect(Collectors.toList());
         try (Connection connection = dataModel.getConnection(false)){
             connection.prepareStatement(DISABLE_COMTASK_RETRY).execute();

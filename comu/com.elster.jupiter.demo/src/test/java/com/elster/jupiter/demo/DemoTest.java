@@ -4,6 +4,7 @@ import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.demo.impl.DemoServiceImpl;
+import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -97,8 +98,11 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
@@ -116,6 +120,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -167,8 +172,8 @@ public class DemoTest {
         }
     }
 
-    @BeforeClass
-    public static void setEnvironment(){
+    @Before
+    public void setEnvironment(){
         injector = Guice.createInjector(
                 new MockModule(),
                 inMemoryBootstrapModule,
@@ -218,27 +223,52 @@ public class DemoTest {
 
                 new DemoModule()
         );
+        doPreparations();
     }
 
-    @AfterClass
-    public static void deactivateEnvironment(){
+    @After
+    public void deactivateEnvironment(){
         inMemoryBootstrapModule.deactivate();
     }
 
     @Test
     public void testDemoSetup() {
-        doPreparations();
-        DemoServiceImpl demoService = null;
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            demoService = injector.getInstance(DemoServiceImpl.class);
-            ctx.commit();
-        }
+        DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
         try{
             demoService.createDemoData("DemoServ", "host", "2014-12-01");
-            demoService.createDemoData("DemoServ", "host", "2014-12-01");
+        } catch (Exception e) {
+            fail("The demo command shouldn't produce errors");
+        }
+    }
+
+    @Test
+    public void testA3Device() {
+        DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
+        try{
             demoService.createA3Device();
         } catch (Exception e) {
             fail("The demo command shouldn't produce errors");
+        }
+    }
+
+    @Test
+    public void testReExecute() {
+        DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
+        try{
+            demoService.createDemoData("DemoServ", "host", "2014-12-01");
+            demoService.createDemoData("DemoServ", "host", "2014-12-01");
+        } catch (Exception e) {
+            fail("The demo command shouldn't produce errors");
+        }
+    }
+
+    @Test
+    public void testStartDate() {
+        DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
+        try{
+            demoService.createDemoData("DemoServ", "host", "2020-12-01");
+        } catch (UnableToCreate e) {
+            assertThat(e.getMessage()).contains("Incorrect start date parameter");
         }
     }
 
@@ -247,6 +277,7 @@ public class DemoTest {
             createOracleTablesSubstitutes();
             createRequiredProtocols();
             createDefaultStuff();
+            injector.getInstance(DemoServiceImpl.class);
             ctx.commit();
         }
         tuneDeviceCountForSpeedTest();

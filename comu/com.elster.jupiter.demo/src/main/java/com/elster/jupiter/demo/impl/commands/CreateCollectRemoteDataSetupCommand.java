@@ -185,7 +185,6 @@ public class CreateCollectRemoteDataSetupCommand {
 
     private void createDeviceStructureForDeviceType(DeviceTypeTpl deviceTypeTpl){
         DeviceType deviceType = Builders.from(deviceTypeTpl).get();
-        createDeviceConfiguration(deviceType, DeviceConfigurationTpl.EXTENDED); // Additional configuration for validation test
         DeviceConfiguration configuration = createDeviceConfiguration(deviceType, DeviceConfigurationTpl.DEFAULT);
         for(int i = 0; i < deviceTypeTpl.getDeviceCount(); i++){
             deviceCounter++;
