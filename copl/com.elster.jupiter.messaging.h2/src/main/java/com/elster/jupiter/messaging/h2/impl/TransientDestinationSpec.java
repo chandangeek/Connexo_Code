@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 class TransientDestinationSpec implements DestinationSpec {
@@ -97,6 +98,25 @@ class TransientDestinationSpec implements DestinationSpec {
         TransientSubscriberSpec subscriberSpec = new TransientSubscriberSpec(this, name);
         subscribers.add(subscriberSpec);
         return subscriberSpec;
+    }
+
+    @Override
+    public void unSubscribe(String subscriberSpecName) {
+        if (!isActive()) {
+            throw new InactiveDestinationException(thesaurus, this, name);
+        }
+        List<TransientSubscriberSpec> currentConsumers = subscribers;
+        Optional<TransientSubscriberSpec> subscriberSpecRef = currentConsumers.stream().filter(ss -> ss.getName().equals(subscriberSpecName)).findFirst();
+        if (subscriberSpecRef.isPresent()) {
+            subscribers.remove(subscriberSpecRef.get());
+        }
+    }
+
+    @Override
+    public void delete() {
+        if (isActive()) {
+            deactivate();
+        }
     }
 
     @Override
