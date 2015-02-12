@@ -3,11 +3,11 @@ package com.elster.jupiter.metering.rest.impl;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -19,6 +19,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @Path("/fields")
 public class ReadingTypeFieldResource {
@@ -71,12 +72,12 @@ public class ReadingTypeFieldResource {
     @GET
     @Path("/readingtypes")
     @Produces(MediaType.APPLICATION_JSON)
-    public ReadingTypeInfos getReadingTypes(@BeanParam JsonQueryFilter queryFilter, @BeanParam QueryParameters queryParameters) {
+    public Response getReadingTypes(@BeanParam JsonQueryFilter queryFilter, @BeanParam QueryParameters queryParameters) {
         List<ReadingType> readingTypes = meteringService.getAvailableReadingTypes();
         Predicate<ReadingType> filter = getReadingTypeFilterPredicate(queryFilter);
         readingTypes = readingTypes.stream().filter(filter::test).collect(Collectors.<ReadingType>toList());
         List<ReadingType> pagedReadingTypes = ListPager.of(readingTypes).from(queryParameters).find();
-        return new ReadingTypeInfos(pagedReadingTypes);
+        return Response.ok(PagedInfoList.asJson("readingTypes", pagedReadingTypes, queryParameters)).build();
     }
 
     private Predicate<ReadingType> getReadingTypeFilterPredicate(JsonQueryFilter queryFilter) {
