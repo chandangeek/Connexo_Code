@@ -138,21 +138,6 @@ class TransientDestinationSpec implements DestinationSpec {
     	return buffered;
     }
 
-    @Override
-    public void unSubscribe(String subscriberSpecName) {
-        for (TransientSubscriberSpec subscriber : subscribers) {
-            if (subscriber.getName().equals(name)) {
-                subscribers.remove(subscriber);
-            }
-        }
-    }
-
-    @Override
-    public void delete() {
-        // By jolly, I don't know what to put here
-        subscribers.clear();
-    }
-
     private class TransientMessageBuilder implements MessageBuilder {
 
         private final byte[] data;
