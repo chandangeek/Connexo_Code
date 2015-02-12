@@ -240,7 +240,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
 
     private ObjectName nameFor(ComPort comPort) {
         try {
-            return new ObjectName(this.comServerBaseName(comPort.getComServer()) + ",process=Communication ports,comPortName=" + comPort.getName());
+            return new ObjectName(this.comServerBaseName(comPort.getComServer()) + ",process=Outbound communication ports,comPortName=" + comPort.getName());
         }
         catch (MalformedObjectNameException e) {
             throw CodingException.malformedObjectName(comPort, e);
