@@ -292,7 +292,23 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
     proposeDeviceTypeName: function (t, newValue) {
         if (!this.getDeviceTypeEditView().isEdit()) {
-            this.getEditDeviceTypeNameField().setValue(newValue);
+            var numberOfProtocols = this.getDeviceCommunicationProtocolsStore().data.items.length;
+            var found = false;
+            var oldValue = this.getEditDeviceTypeNameField().getValue();
+            if (oldValue == '') {
+                this.getEditDeviceTypeNameField().setValue(newValue);
+            } else {
+                var i = 0;
+                while ((i < numberOfProtocols) && (!found)) {
+                    if (oldValue == this.getDeviceCommunicationProtocolsStore().data.items[i].data.name) {
+                        found = true;
+                    }
+                    i++;
+                }
+                if (found) {
+                    this.getEditDeviceTypeNameField().setValue(newValue);
+                }
+            }
         }
 
     },

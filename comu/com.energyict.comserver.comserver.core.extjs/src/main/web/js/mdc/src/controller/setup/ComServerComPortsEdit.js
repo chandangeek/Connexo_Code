@@ -442,6 +442,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                             me.restoreState();
                             preloader.destroy();
                         } else {
+                            me.portModel = record;
                             addForm.loadRecord(record);
                             addComPortPoolsStore.removeAll();
                             comPortPoolsGrid = me.getComPortPoolsGrid();
