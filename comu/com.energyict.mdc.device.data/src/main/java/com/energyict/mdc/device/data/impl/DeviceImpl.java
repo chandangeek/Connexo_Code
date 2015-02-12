@@ -1154,7 +1154,7 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private Instant meterActivationClipped(Meter meter, Range<Instant> interval) {
-        if (!meter.getCurrentMeterActivation().isPresent() && interval.contains(meter.getCurrentMeterActivation().get().getStart())) {
+        if (meter.getCurrentMeterActivation().isPresent() && interval.contains(meter.getCurrentMeterActivation().get().getStart())) {
             return meter.getCurrentMeterActivation().get().getStart();
         }
         else {
