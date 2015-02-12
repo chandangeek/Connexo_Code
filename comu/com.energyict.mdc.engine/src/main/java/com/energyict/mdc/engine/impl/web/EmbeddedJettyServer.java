@@ -25,6 +25,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URI;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -36,6 +38,8 @@ import static com.elster.jupiter.util.Checks.is;
  * @since 2012-10-11 (15:43)
  */
 public class EmbeddedJettyServer implements EmbeddedWebServer {
+
+    private final ShutdownFailureLogger shutdownFailureLogger;
 
     public interface ServiceProvider {
 
@@ -57,7 +61,7 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
      * It will use the {@link ComServerDAO} to get access to persistent data.
      * Furthermore, it will use the {@link DeviceCommandExecutor} to execute
      * commands against devices for which data was collected.
-     *  @param comPort The ServerServletBasedInboundComPort
+     * @param comPort The ServerServletBasedInboundComPort
      * @param comServerDAO The ComServerDAO
      * @param deviceCommandExecutor The DeviceCommandExecutor
      * @param serviceProvider The IssueService
@@ -69,6 +73,7 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
     private EmbeddedJettyServer(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         super();
         this.jetty = new Server();
+        this.shutdownFailureLogger = new ComPortShutdownFailureLogger(comPort);
         if (comPort.isHttps()) {
             SslContextFactory sslContextFactory = new SslContextFactory();
             sslContextFactory.setKeyStorePath(comPort.getKeyStoreSpecsFilePath());
@@ -94,20 +99,7 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
     }
 
     private void initCustomErrorHandling() {
-        ErrorHandler errorHandler = new ErrorHandler(){
-            @Override
-            protected void writeErrorPageBody(HttpServletRequest request, Writer writer, int code, String message, boolean showStacks) throws IOException {
-                String uri= request.getRequestURI();
-                writeErrorPageMessage(request, writer, code, message, uri);
-            }
-
-            @Override
-            protected void writeErrorPageMessage(HttpServletRequest request, Writer writer, int code, String message, String uri) throws IOException {
-                writer.write("<h2>HTTP ERROR ");
-                writer.write(Integer.toString(code));
-                writer.write("</h2>");
-            }
-        };
+        ErrorHandler errorHandler = new MyErrorHandler();
         errorHandler.setShowStacks(false);
         this.jetty.addBean(errorHandler);
     }
@@ -132,7 +124,7 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
      * @param serviceProvider The ServiceProvider
      */
     public static EmbeddedJettyServer newForEventMechanism (URI eventRegistrationUri, ServiceProvider serviceProvider) {
-        EmbeddedJettyServer server = new EmbeddedJettyServer();
+        EmbeddedJettyServer server = new EmbeddedJettyServer(new EventMechanismShutdownFailureLogger(eventRegistrationUri));
         server.addEventMechanism(eventRegistrationUri, serviceProvider);
         return server;
     }
@@ -154,7 +146,7 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
      * @param comServer The OnlineComServer
      */
     public static EmbeddedJettyServer newForQueryApi (URI queryApiPostUri, RunningOnlineComServer comServer) {
-        EmbeddedJettyServer server = new EmbeddedJettyServer();
+        EmbeddedJettyServer server = new EmbeddedJettyServer(new QueryAPIShutdownFailureLogger(queryApiPostUri));
         server.addQueryApi(queryApiPostUri, comServer);
         return server;
     }
@@ -167,8 +159,9 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
         this.jetty.setHandler(handler);
     }
 
-    private EmbeddedJettyServer () {
+    private EmbeddedJettyServer (ShutdownFailureLogger shutdownFailureLogger) {
         super();
+        this.shutdownFailureLogger = shutdownFailureLogger;
     }
 
     private static int getPortNumber (URI uri, int defaultPort) {
@@ -242,7 +235,75 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
             this.jetty.stop();
         }
         catch (Exception e) {
-            e.printStackTrace(System.err);
+            this.shutdownFailureLogger.log(e, Logger.getLogger(EmbeddedJettyServer.class.getName()));
+        }
+    }
+
+    private interface ShutdownFailureLogger {
+        void log(Exception e, Logger logger);
+    }
+
+    private static class ComPortShutdownFailureLogger implements ShutdownFailureLogger {
+        private final ServletBasedInboundComPort comPort;
+
+
+        private ComPortShutdownFailureLogger(ServletBasedInboundComPort comPort) {
+            super();
+            this.comPort = comPort;
+        }
+
+        @Override
+        public void log(Exception e, Logger logger) {
+            String message = "Embedded jetty server for communication port " + this.comPort.getName() + "(" + this.comPort.getComServer().getName() + ") failed to stop";
+            logger.info(message);
+            logger.log(Level.FINE, message, e);
+        }
+    }
+
+    private static class EventMechanismShutdownFailureLogger implements ShutdownFailureLogger {
+        private final URI eventRegistrationUri;
+
+        private EventMechanismShutdownFailureLogger(URI eventRegistrationUri) {
+            super();
+            this.eventRegistrationUri = eventRegistrationUri;
+        }
+
+        @Override
+        public void log(Exception e, Logger logger) {
+            String message = "Embedded jetty server for the event mechanism (" + this.eventRegistrationUri.toASCIIString() + ") failed to stop";
+            logger.info(message);
+            logger.log(Level.FINE, message, e);
+        }
+    }
+
+    private static class QueryAPIShutdownFailureLogger implements ShutdownFailureLogger {
+        private final URI queryApiPostUri;
+
+        private QueryAPIShutdownFailureLogger(URI queryApiPostUri) {
+            super();
+            this.queryApiPostUri = queryApiPostUri;
+        }
+
+        @Override
+        public void log(Exception e, Logger logger) {
+            String message = "Embedded jetty server for the query api (" + this.queryApiPostUri.toASCIIString() +") failed to stop";
+            logger.info(message);
+            logger.log(Level.FINE, message, e);
+        }
+    }
+
+    private static class MyErrorHandler extends ErrorHandler {
+        @Override
+        protected void writeErrorPageBody(HttpServletRequest request, Writer writer, int code, String message, boolean showStacks) throws IOException {
+            String uri= request.getRequestURI();
+            writeErrorPageMessage(request, writer, code, message, uri);
+        }
+
+        @Override
+        protected void writeErrorPageMessage(HttpServletRequest request, Writer writer, int code, String message, String uri) throws IOException {
+            writer.write("<h2>HTTP ERROR ");
+            writer.write(Integer.toString(code));
+            writer.write("</h2>");
         }
     }
 
