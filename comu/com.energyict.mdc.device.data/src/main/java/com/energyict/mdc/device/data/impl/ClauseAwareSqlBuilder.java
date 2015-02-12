@@ -21,7 +21,7 @@ public class ClauseAwareSqlBuilder {
     private final Where where = new Where();
 
     public static ClauseAwareSqlBuilder with(String withClause, String alias) {
-        return new ClauseAwareSqlBuilder(new SqlBuilder("with " + alias + " as (" + withClause + ")"));
+        return new ClauseAwareSqlBuilder(new SqlBuilder("with " + alias + " as (" + withClause + ") "));
     }
 
     public static ClauseAwareSqlBuilder select(String selectClause) {
