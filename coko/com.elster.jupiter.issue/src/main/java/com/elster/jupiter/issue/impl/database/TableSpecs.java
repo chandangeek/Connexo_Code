@@ -58,6 +58,7 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_OBSOLETE_TIME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_PK_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_UQ_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_REASON_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_TEMPLATE_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_ASSIGNEE_TYPE;
@@ -216,7 +217,7 @@ public enum TableSpecs {
             table.setJournalTableName(CREATION_RULE_JOURNAL_TABLE_NAME);
 
             Column idColumn = table.addAutoIdColumn();
-            table.column(CREATION_RULE_NAME).map("name").varChar(SHORT_DESCRIPTION_LENGTH).notNull().add();
+            Column nameColumn = table.column(CREATION_RULE_NAME).map("name").varChar(SHORT_DESCRIPTION_LENGTH).notNull().add();
             table.column(CREATION_RULE_COMMENT).map("comment").type("clob").conversion(CLOB2STRING).add();
             table.column(CREATION_RULE_CONTENT).map("content").type("clob").conversion(CLOB2STRING).notNull().add();
             Column reasonRefIdColumn = table.column(CREATION_RULE_REASON_ID).varChar(NAME_LENGTH).notNull().add();
@@ -227,6 +228,7 @@ public enum TableSpecs {
             table.addAuditColumns();
 
             table.primaryKey(CREATION_RULE_PK_NAME).on(idColumn).add();
+            table.unique(CREATION_RULE_UQ_NAME).on(nameColumn).add();
             table.foreignKey(CREATION_RULE_FK_TO_REASON).map("reason").on(reasonRefIdColumn).references(ISU_REASON.name()).add();
         }
     },

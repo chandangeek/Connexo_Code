@@ -108,6 +108,7 @@ public final class DatabaseConst {
     public static final String CREATION_RULE_OBSOLETE_TIME = "OBSOLETE_TIME";
 
     public static final String CREATION_RULE_PK_NAME = "ISU_PK_CREATION_RULE";
+    public static final String CREATION_RULE_UQ_NAME = "ISU_UQ_RULE_NAME";
     public static final String CREATION_RULE_FK_TO_REASON = "CREATION_RULE_FK_TO_REASON";
 
 // Issue Creation Rules Parameters
