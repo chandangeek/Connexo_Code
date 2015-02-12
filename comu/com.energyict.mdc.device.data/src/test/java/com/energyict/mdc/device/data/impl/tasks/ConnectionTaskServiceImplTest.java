@@ -25,86 +25,9 @@ public class ConnectionTaskServiceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void testConnectionTaskStatusCountWithQueryEndDeviceGroup() throws Exception {
-        QueryEndDeviceGroup queryEndDeviceGroup = findOrCreateQueryEndDeviceGroup();
-        inMemoryPersistence.getConnectionTaskService().getConnectionTaskStatusCount(queryEndDeviceGroup);
-    }
-
-    @Test
-    @Transactional
-    public void testConnectionTaskStatusCountWithEnumeratedEndDeviceGroup() throws Exception {
-        EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = findOrCreateEnumeratedEndDeviceGroup();
-        inMemoryPersistence.getConnectionTaskService().getConnectionTaskStatusCount(enumeratedEndDeviceGroup);
-    }
-
-    @Test
-    @Transactional
-    public void testComPortPoolBreakdownWithQueryEndDeviceGroup() throws Exception {
-        QueryEndDeviceGroup queryEndDeviceGroup = findOrCreateQueryEndDeviceGroup();
-        inMemoryPersistence.getConnectionTaskService().getComPortPoolBreakdown(EnumSet.of(TaskStatus.Failed), queryEndDeviceGroup);
-    }
-
-    @Test
-    @Transactional
-    public void testComPortPoolBreakdownWithEnumeratedEndDeviceGroup() throws Exception {
-        EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = findOrCreateEnumeratedEndDeviceGroup();
-        inMemoryPersistence.getConnectionTaskService().getComPortPoolBreakdown(EnumSet.of(TaskStatus.Failed), enumeratedEndDeviceGroup);
-    }
-
-    @Test
-    @Transactional
-    public void testDeviceTypeBreakdownWithQueryEndDeviceGroup() throws Exception {
-        QueryEndDeviceGroup queryEndDeviceGroup = findOrCreateQueryEndDeviceGroup();
-        inMemoryPersistence.getConnectionTaskService().getDeviceTypeBreakdown(EnumSet.of(TaskStatus.Failed), queryEndDeviceGroup);
-    }
-
-    @Test
-    @Transactional
-    public void testDeviceTypeBreakdownWithEnumeratedEndDeviceGroup() throws Exception {
-        EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = findOrCreateEnumeratedEndDeviceGroup();
-        inMemoryPersistence.getConnectionTaskService().getDeviceTypeBreakdown(EnumSet.of(TaskStatus.Failed), enumeratedEndDeviceGroup);
-    }
-
-    @Test
-    @Transactional
-    public void testConnectionTypeBreakdownWithQueryEndDeviceGroup() throws Exception {
-        QueryEndDeviceGroup queryEndDeviceGroup = findOrCreateQueryEndDeviceGroup();
-        inMemoryPersistence.getConnectionTaskService().getConnectionTypeBreakdown(EnumSet.of(TaskStatus.Failed), queryEndDeviceGroup);
-    }
-
-    @Test
-    @Transactional
-    public void testConnectionTypeBreakdownWithEnumeratedEndDeviceGroup() throws Exception {
-        EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = findOrCreateEnumeratedEndDeviceGroup();
-        inMemoryPersistence.getConnectionTaskService().getConnectionTypeBreakdown(EnumSet.of(TaskStatus.Failed), enumeratedEndDeviceGroup);
-    }
-
-    @Test
-    @Transactional
-    public void testConnectionTaskLastComSessionSuccessIndicatorCountWithQueryEndDeviceGroup() throws Exception {
-        QueryEndDeviceGroup queryEndDeviceGroup = findOrCreateQueryEndDeviceGroup();
-        inMemoryPersistence.getConnectionTaskService().getConnectionTaskLastComSessionSuccessIndicatorCount(queryEndDeviceGroup);
-    }
-
-    @Test
-    @Transactional
-    public void testConnectionTaskLastComSessionSuccessIndicatorCountWithEnumeratedEndDeviceGroup() throws Exception {
-        EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = findOrCreateEnumeratedEndDeviceGroup();
-        inMemoryPersistence.getConnectionTaskService().getConnectionTaskLastComSessionSuccessIndicatorCount(enumeratedEndDeviceGroup);
-    }
-
-    @Test
-    @Transactional
     public void testConnectionTypeHeatMapWithQueryEndDeviceGroup() throws Exception {
         QueryEndDeviceGroup queryEndDeviceGroup = findOrCreateQueryEndDeviceGroup();
         inMemoryPersistence.getConnectionTaskService().getConnectionTypeHeatMap(queryEndDeviceGroup);
-    }
-
-    @Test
-    @Transactional
-    public void testConnectionTypeHeatMapWithEnumeratedEndDeviceGroup() throws Exception {
-        EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = findOrCreateEnumeratedEndDeviceGroup();
-        inMemoryPersistence.getConnectionTaskService().getConnectionTypeHeatMap(enumeratedEndDeviceGroup);
     }
 
     @Test
