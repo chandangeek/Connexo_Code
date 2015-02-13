@@ -25,7 +25,7 @@ public class BogusResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public List<String> getSomething(@BeanParam QueryParameters queryParameters) {
         return DefaultFinder.of(String.class, dateModel).from(queryParameters).find();
     }
