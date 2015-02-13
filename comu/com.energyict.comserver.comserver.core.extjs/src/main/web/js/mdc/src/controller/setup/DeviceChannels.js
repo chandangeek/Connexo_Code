@@ -255,7 +255,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                     confWindow.removeAll(true);
                     confWindow.destroy();
                     me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translatePlural('deviceloadprofiles.channels.activation.completed', record.get('name'), 'MDC', 'Data validation on channel {0} was completed successfully'));
+                        Uni.I18n.translatePlural('deviceloadprofiles.channels.activation.completed', record.get('name'), 'MDC', 'Data validation completed'));
                     Ext.ComponentQuery.query('#deviceLoadProfileChannelsGrid')[0].fireEvent('select', Ext.ComponentQuery.query('#deviceLoadProfileChannelsGrid')[0].getSelectionModel(), record);
                 }
             });
