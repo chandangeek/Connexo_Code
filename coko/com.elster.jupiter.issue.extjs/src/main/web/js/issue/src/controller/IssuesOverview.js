@@ -8,13 +8,12 @@ Ext.define('Isu.controller.IssuesOverview', {
     showOverview: function (issueType, widgetXtype) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            grouping = router.filter.get('grouping'),
-            filterProxy = router.filter.getProxy();
+            grouping = router.filter.get('grouping');
 
         if (router.queryParams.myopenissues) {
             me.getStore('Isu.store.IssueAssignees').load({params: {me: true}, callback: function (records) {
                 window.location.replace(router.getRoute(router.currentRoute).buildUrl(null, {
-                    filter: Ext.encode({
+                    filter: btoa(Ext.encode({
                         assignee: records[0].getId(),
                         status: 'status.open',
                         sorting: [
@@ -23,12 +22,12 @@ Ext.define('Isu.controller.IssuesOverview', {
                                 value: Uni.component.sort.model.Sort.ASC
                             }
                         ]
-                    })
+                    }))
                 }));
             }});
         } else if (!router.queryParams.filter) {
             window.location.replace(router.getRoute(router.currentRoute).buildUrl(null, {
-                filter: Ext.encode({
+                filter: btoa(Ext.encode({
                     status: ['status.open', 'status.in.progress'],
                     sorting: [
                         {
@@ -36,7 +35,7 @@ Ext.define('Isu.controller.IssuesOverview', {
                             value: Uni.component.sort.model.Sort.ASC
                         }
                     ]
-                })
+                }))
             }));
         } else {
             me.getStore('Isu.store.Clipboard').set(issueType + '-latest-issues-filter', router.queryParams.filter);
