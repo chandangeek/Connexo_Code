@@ -48,4 +48,20 @@ public class CommunicationOverviewResource {
         }
     }
 
+    @GET
+    @Path("/widget")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public CommunicationOverviewInfo getCommunicationWidget(@BeanParam JsonQueryFilter filter) throws Exception {
+        if (filter.hasProperty("deviceGroup")) {
+            Optional<EndDeviceGroup> optional = meteringGroupService.findEndDeviceGroup(filter.getLong("deviceGroup"));
+            if (!optional.isPresent()) {
+                throw exceptionFactory.newException(MessageSeeds.NO_SUCH_END_DEVICE_GROUP);
+            }
+            return communicationOverviewInfoFactory.asWidgetInfo(optional.get());
+        } else {
+            return communicationOverviewInfoFactory.asWidgetInfo();
+        }
+    }
 }

@@ -64,6 +64,14 @@ public class CommunicationOverviewInfoFactory {
         return info;
     }
 
+    public CommunicationOverviewInfo asWidgetInfo() {
+        CommunicationOverviewInfo info = new CommunicationOverviewInfo();
+        TaskStatusOverview taskStatusOverview = dashboardService.getCommunicationTaskStatusOverview();
+        SummaryData summaryData = new SummaryData(taskStatusOverview);
+        info.communicationSummary= summaryInfoFactory.from(summaryData);
+        return info;
+    }
+
     private CommunicationOverviewInfo getCommunicationOverviewInfo(TaskStatusOverview taskStatusOverview, SummaryData summaryData, ComCommandCompletionCodeOverview comSessionSuccessIndicatorOverview, ComScheduleBreakdown comScheduleBreakdown, ComTaskBreakdown comTaskBreakdown, DeviceTypeBreakdown deviceTypeBreakdown) {
         CommunicationOverviewInfo info = new CommunicationOverviewInfo();
 
@@ -93,6 +101,12 @@ public class CommunicationOverviewInfoFactory {
 
         CommunicationOverviewInfo info = getCommunicationOverviewInfo(taskStatusOverview, summaryData, comSessionSuccessIndicatorOverview, comScheduleBreakdown, comTaskBreakdown, deviceTypeBreakdown);
 
+        addKpiInfo(queryEndDeviceGroup, info);
+        info.deviceGroup = new DeviceGroupFilterInfo(queryEndDeviceGroup.getId(), queryEndDeviceGroup.getName());
+        return info;
+    }
+
+    private void addKpiInfo(EndDeviceGroup queryEndDeviceGroup, CommunicationOverviewInfo info) {
         Optional<DataCollectionKpi> dataCollectionKpiOptional = dataCollectionKpiService.findDataCollectionKpi(queryEndDeviceGroup);
         if (dataCollectionKpiOptional.isPresent() &&  dataCollectionKpiOptional.get().calculatesComTaskExecutionKpi()) {
             TemporalAmount frequency = dataCollectionKpiOptional.get().comTaskExecutionKpiCalculationIntervalLength().get();
@@ -106,11 +120,17 @@ public class CommunicationOverviewInfoFactory {
             }
             info.kpi = kpiScoreFactory.getKpiAsInfo(frequency, kpiScores, intervalByPeriod);
         }
+    }
+
+    public CommunicationOverviewInfo asWidgetInfo(EndDeviceGroup queryEndDeviceGroup) {
+        CommunicationOverviewInfo info = new CommunicationOverviewInfo();
+        TaskStatusOverview taskStatusOverview = dashboardService.getCommunicationTaskStatusOverview(queryEndDeviceGroup);
+        SummaryData summaryData = new SummaryData(taskStatusOverview);
+        info.communicationSummary= summaryInfoFactory.from(summaryData);
+        addKpiInfo(queryEndDeviceGroup, info);
         info.deviceGroup = new DeviceGroupFilterInfo(queryEndDeviceGroup.getId(), queryEndDeviceGroup.getName());
         return info;
     }
-
-
 
 }
 

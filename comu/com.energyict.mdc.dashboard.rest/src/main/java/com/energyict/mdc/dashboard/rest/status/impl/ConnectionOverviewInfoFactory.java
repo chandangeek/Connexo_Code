@@ -81,6 +81,25 @@ public class ConnectionOverviewInfoFactory {
         return info;
     }
 
+    public ConnectionOverviewInfo asWidgetInfo(EndDeviceGroup endDeviceGroup){
+        ConnectionOverviewInfo info = new ConnectionOverviewInfo();
+        TaskStatusOverview taskStatusOverview = dashboardService.getConnectionTaskStatusOverview(endDeviceGroup);
+        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview(endDeviceGroup);
+        SummaryData summaryData = new SummaryData(taskStatusOverview, comSessionSuccessIndicatorOverview.getAtLeastOneTaskFailedCount());
+        info.connectionSummary = summaryInfoFactory.from(summaryData);
+        info.deviceGroup = new DeviceGroupFilterInfo(endDeviceGroup.getId(), endDeviceGroup.getName());
+        return info;
+    }
+
+    public ConnectionOverviewInfo asWidgetInfo(){
+        ConnectionOverviewInfo info = new ConnectionOverviewInfo();
+        TaskStatusOverview taskStatusOverview = dashboardService.getConnectionTaskStatusOverview();
+        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview();
+        SummaryData summaryData = new SummaryData(taskStatusOverview, comSessionSuccessIndicatorOverview.getAtLeastOneTaskFailedCount());
+        info.connectionSummary = summaryInfoFactory.from(summaryData);
+        return info;
+    }
+
     public ConnectionOverviewInfo asInfo() {
         TaskStatusOverview taskStatusOverview = dashboardService.getConnectionTaskStatusOverview();
         ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview();
