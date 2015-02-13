@@ -30,7 +30,7 @@ public class StatsResource {
 	
 	@GET
 	@Path("/statistics/")
-	@Produces(MediaType.APPLICATION_JSON) 
+	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	public List<Map<String,Object>> getStatistics() {
 		Event event = statService.getStats();
 		Map<String,Object> sorted = new TreeMap<>();
@@ -46,7 +46,7 @@ public class StatsResource {
 	
 	@GET
 	@Path("/waitevents/")
-	@Produces(MediaType.APPLICATION_JSON) 
+	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	public List<Map<String,Object>> getWaitEvents() {
 		Event event = statService.getWaitEvents();
 		Map<String,Object> sorted = new TreeMap<>();
@@ -69,7 +69,7 @@ public class StatsResource {
 	
 	@GET
 	@Path("/sqls/")
-	@Produces(MediaType.APPLICATION_JSON) 
+	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	public Collection<SqlExecution> getSqls() {
 		return statService.getSqlExecutions();
 	}

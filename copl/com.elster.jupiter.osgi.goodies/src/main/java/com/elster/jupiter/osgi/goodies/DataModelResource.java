@@ -18,7 +18,7 @@ public class DataModelResource {
 	private OrmService ormService;
 
 	@GET
-	@Produces(MediaType.APPLICATION_JSON) 
+	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	public List<DataModelInfo> getDataModels() {
 		return  ormService.getDataModels().stream()
 			.sorted((Comparator<DataModel>) Comparator.comparing(DataModel::getName)) // jdk 1.8u20 needs this cast , eclipse jdt not

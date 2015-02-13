@@ -25,21 +25,21 @@ public class EventResource {
 	
 	@GET
 	@Path("/topics/{topic:.+}")
-	@Produces(MediaType.APPLICATION_JSON) 
+	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	public long getCount(@PathParam("topic") String topic) {
 		return events.getCount(topic);
 	}
 	
 	@GET
 	@Path("/topics")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	public List<String> getTopics() {
 		return events.getTopics();
 	}
 	
 	@GET
 	@Path("/cimfiles")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	public List<String> getFiles() {
 		File directory = new File(".");
 		File[] files = directory.listFiles(new FilenameFilter()  {

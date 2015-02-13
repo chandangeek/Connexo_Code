@@ -84,7 +84,7 @@ public class OsgiInfoResource {
 
     @GET
     @Path("/jupiter.json")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public DependencyWheel getNetwork() {
     	Analyzer analyzer = new Analyzer();
 		analyzer.build(context,admin);
@@ -93,7 +93,7 @@ public class OsgiInfoResource {
 
     @GET
     @Path("/versions")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public List<BundleVersion> getVersions() {
         List<BundleVersion> versions = new ArrayList<>();
         for (Bundle bundle : context.getBundles()) {
