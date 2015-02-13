@@ -11,9 +11,6 @@ import com.energyict.mdc.device.topology.TopologyService;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -79,7 +76,7 @@ public class DeviceInfo {
         deviceInfo.hasLoadProfiles = !device.getLoadProfiles().isEmpty();
         deviceInfo.hasLogBooks = !device.getLogBooks().isEmpty();
         deviceInfo.hasRegisters = !device.getRegisters().isEmpty();
-        deviceInfo.isDirectlyAddressed = device.getDeviceConfiguration().canBeDirectlyAddressable();
+        deviceInfo.isDirectlyAddressed = device.getDeviceConfiguration().isDirectlyAddressable();
         deviceInfo.isGateway = device.getDeviceConfiguration().canActAsGateway();
 
         Optional<AmrSystem> amrSystem = getMdcAmrSystem(meteringService);

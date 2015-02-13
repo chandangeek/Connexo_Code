@@ -15,7 +15,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Ranges;
-import com.elster.jupiter.util.time.Interval;
+
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
@@ -63,7 +63,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1064,7 +1063,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testImpossibleToSetMasterDeviceBecauseItIsGateway() {
         Device device = mockDeviceForTopologyTest("device");
         DeviceConfiguration deviceConfig = device.getDeviceConfiguration();
-        when(deviceConfig.canBeDirectlyAddressable()).thenReturn(true);
+        when(deviceConfig.isDirectlyAddressable()).thenReturn(true);
         when(deviceService.findByUniqueMrid("device")).thenReturn(device);
 
         DeviceInfo info = new DeviceInfo();
