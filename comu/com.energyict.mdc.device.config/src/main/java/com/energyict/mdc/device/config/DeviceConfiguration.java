@@ -116,8 +116,8 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
     public boolean canActAsGateway();
     public void setCanActAsGateway(boolean actAsGateway);
 
-    public boolean canBeDirectlyAddressable();
-    public void setCanBeDirectlyAddressed(boolean canBeDirectlyAddressed);
+    public boolean isDirectlyAddressable();
+    public void setDirectlyAddressable(boolean directlyAddressable);
 
     DeviceConfValidationRuleSetUsage addValidationRuleSet(ValidationRuleSet validationRuleSet);
 

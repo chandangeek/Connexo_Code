@@ -254,13 +254,13 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public boolean canBeDirectlyAddressable() {
+    public boolean isDirectlyAddressable() {
         return hasCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_SESSION);
     }
 
     @Override
-    public void setCanBeDirectlyAddressed(boolean canBeDirectlyAddressed) {
-        if (canBeDirectlyAddressed) {
+    public void setDirectlyAddressable(boolean directlyAddressable) {
+        if (directlyAddressable) {
             addCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_SESSION);
         } else {
             removeCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_SESSION);

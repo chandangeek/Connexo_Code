@@ -21,6 +21,7 @@ import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
@@ -70,6 +71,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.Optional;
 
 import org.junit.*;
@@ -215,6 +217,7 @@ public class PartialConnectionInitiationTaskCrudIT {
     @Before
     public void initializeMocks() {
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
     }
 
     @Test
@@ -226,6 +229,8 @@ public class PartialConnectionInitiationTaskCrudIT {
         deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.setDirectlyAddressable(true);
+        deviceConfiguration.save();
 
         connectionInitiationTask = deviceConfiguration
                 .newPartialConnectionInitiationTask(
@@ -234,6 +239,7 @@ public class PartialConnectionInitiationTaskCrudIT {
                         TimeDuration.seconds(60))
                 .comPortPool(outboundComPortPool)
                 .build();
+        deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(connectionInitiationTask.getId());
@@ -261,6 +267,7 @@ public class PartialConnectionInitiationTaskCrudIT {
         deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
         connectionInitiationTask = deviceConfiguration
@@ -270,6 +277,7 @@ public class PartialConnectionInitiationTaskCrudIT {
                         TimeDuration.seconds(60))
                 .comPortPool(outboundComPortPool)
                 .build();
+        deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
         PartialConnectionInitiationTask partialConnectionInitiationTask = deviceConfiguration.getPartialConnectionInitiationTasks().get(0);
@@ -303,8 +311,8 @@ public class PartialConnectionInitiationTaskCrudIT {
         deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
-
 
         connectionInitiationTask = deviceConfiguration
                 .newPartialConnectionInitiationTask(
@@ -313,6 +321,7 @@ public class PartialConnectionInitiationTaskCrudIT {
                         TimeDuration.seconds(60))
                 .comPortPool(outboundComPortPool)
                 .build();
+        deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
         PartialConnectionInitiationTask partialOutboundConnectionTask = deviceConfiguration.getPartialConnectionInitiationTasks().get(0);
@@ -335,6 +344,8 @@ public class PartialConnectionInitiationTaskCrudIT {
         deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.setDirectlyAddressable(true);
+        deviceConfiguration.save();
 
         deviceConfiguration
                 .newPartialConnectionInitiationTask(
@@ -343,6 +354,7 @@ public class PartialConnectionInitiationTaskCrudIT {
                         TimeDuration.seconds(60))
                 .comPortPool(outboundComPortPool)
                 .build();
+        deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
     }
 

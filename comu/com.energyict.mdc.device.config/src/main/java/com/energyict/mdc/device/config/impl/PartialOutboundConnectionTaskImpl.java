@@ -29,6 +29,7 @@ import javax.validation.constraints.NotNull;
  * @since 22/01/13 - 11:52
  */
 @ConnectionTypeDirectionValidForConnectionTask(groups = {Save.Create.class, Save.Update.class}, direction = ConnectionType.Direction.OUTBOUND)
+@DeviceConfigurationMustBeDirectlyAddressable(groups = {Save.Create.class, Save.Update.class})
 public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectionTaskImpl implements PartialOutboundConnectionTask {
 
     enum Fields {

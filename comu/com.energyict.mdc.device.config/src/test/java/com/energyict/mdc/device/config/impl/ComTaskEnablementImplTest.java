@@ -102,7 +102,9 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
 
     private void createConfigurations() {
         this.deviceConfiguration1 = this.deviceType.newConfiguration("Config 1").add();
+        this.deviceConfiguration1.setDirectlyAddressable(true);
         this.deviceConfiguration2 = this.deviceType.newConfiguration("Config 2").add();
+        this.deviceConfiguration2.setDirectlyAddressable(true);
         this.deviceType.save();
     }
 

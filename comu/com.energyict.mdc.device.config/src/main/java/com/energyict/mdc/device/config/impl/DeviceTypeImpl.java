@@ -626,7 +626,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
         @Override
         public DeviceConfigurationBuilder isDirectlyAddressable(boolean isDirectlyAddressable) {
-            underConstruction.setCanBeDirectlyAddressed(isDirectlyAddressable);
+            underConstruction.setDirectlyAddressable(isDirectlyAddressable);
             return this;
         }
 

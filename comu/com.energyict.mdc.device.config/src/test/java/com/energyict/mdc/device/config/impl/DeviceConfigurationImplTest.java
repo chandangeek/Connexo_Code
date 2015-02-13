@@ -355,7 +355,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         deviceConfiguration.save();
 
         DeviceConfiguration refreshedDeviceConfiguration = reloadDeviceConfiguration(deviceConfiguration);
-        assertThat(refreshedDeviceConfiguration.canBeDirectlyAddressable()).isTrue();
+        assertThat(refreshedDeviceConfiguration.isDirectlyAddressable()).isTrue();
         assertThat(refreshedDeviceConfiguration.canActAsGateway()).isFalse();
     }
 
@@ -369,7 +369,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         deviceConfiguration.save();
 
         DeviceConfiguration refreshedDeviceConfiguration = reloadDeviceConfiguration(deviceConfiguration);
-        assertThat(refreshedDeviceConfiguration.canBeDirectlyAddressable()).isFalse();
+        assertThat(refreshedDeviceConfiguration.isDirectlyAddressable()).isFalse();
         assertThat(refreshedDeviceConfiguration.canActAsGateway()).isTrue();
     }
 
@@ -460,7 +460,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").isDirectlyAddressable(false).add();
         deviceConfiguration.activate();
 
-        deviceConfiguration.setCanBeDirectlyAddressed(true);
+        deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
     }
 
