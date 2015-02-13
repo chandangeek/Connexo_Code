@@ -42,7 +42,8 @@ Ext.define('Cfg.model.ValidationRule', {
     associations: [
         {
             name: 'properties',
-            type: 'hasMany', model: 'Uni.property.model.Property',
+            type: 'hasMany',
+            model: 'Uni.property.model.Property',
             associationKey: 'properties',
             foreignKey: 'properties',
             getTypeDiscriminator: function (node) {
@@ -59,52 +60,15 @@ Ext.define('Cfg.model.ValidationRule', {
 
     proxy: {
         type: 'rest',
-        url: '/api/val/validation',
-        appendId: false,
+        urlTpl: '/api/val/validation/{ruleSetId}/rules',
         reader: {
             type: 'json',
             root: 'rules'
         },
-
-        timeout: 300000,
-
-        buildUrl: function (request) {
-            var me = this,
-                format = me.format,
-                url = me.getUrl(request),
-                id = request.params.id,
-                ruleId = request.params.ruleId;
-
-            if (!url.match(/\/$/)) {
-                url += '/';
-            }
-
-            url += id;
-
-            url += '/rules';
-
-            if (ruleId !== null && ruleId !== undefined) {
-                url += '/';
-                url += ruleId;
-            }
-
-
-            if (format) {
-                if (!url.match(/\.$/)) {
-                    url += '.';
-                }
-
-                url += format;
-            }
-
-            if (me.noCache) {
-                url = Ext.urlAppend(url, Ext.String.format("{0}={1}", me.cacheString, Ext.Date.now()));
-            }
-
-            request.url = url;
-
-            return url;
-        }
+        setUrl: function (id) {
+            this.url = this.urlTpl.replace('{ruleSetId}', id);
+        },
+        timeout: 300000
     }
 });
 

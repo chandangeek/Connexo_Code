@@ -540,7 +540,6 @@ Ext.define('Cfg.controller.Validation', {
         return isExist;
     },
 
-
     addRule: function (ruleSetId) {
         var me = this,
             widget = Ext.widget('addRule', {
@@ -550,7 +549,7 @@ Ext.define('Cfg.controller.Validation', {
             editRulePanel = me.getAddRule(),
             ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets'),
             readingTypesStore = me.getStore('ReadingTypesForRule'),
-            model = Ext.create(Cfg.model.ValidationRule),
+            model = Ext.create('Cfg.model.ValidationRule'),
             propertyForm,
             form;
 
@@ -596,7 +595,7 @@ Ext.define('Cfg.controller.Validation', {
         if (button.text === 'Save') {
             record = me.ruleSetModel;
         } else {
-            record = Ext.create(Cfg.model.ValidationRuleSet);
+            record = Ext.create('Cfg.model.ValidationRuleSet');
         }
         var values = form.getValues();
         record.set(values);
@@ -632,7 +631,7 @@ Ext.define('Cfg.controller.Validation', {
                     formErrorsPanel.show();
                 }
             }
-        })
+        });
     },
 
     createEditRuleSet: function (ruleSetId) {
@@ -977,48 +976,47 @@ Ext.define('Cfg.controller.Validation', {
 
     deleteRule: function (rule) {
         var self = this,
+            router = this.getController('Uni.controller.history.Router'),
             view = self.getRulePreviewContainer() || self.getRuleSetBrowsePanel() || self.getRuleOverview(),
             grid = view.down('#validationruleList'),
             gridRuleSet = view.down('#validationrulesetList');
+
         if (gridRuleSet) {
             var ruleSetSelModel = gridRuleSet.getSelectionModel(),
                 ruleSet = ruleSetSelModel.getLastSelected();
         }
+
         view.setLoading('Removing...');
-        Ext.Ajax.request({
-            url: '/api/val/validation/rules/' + rule.get('ruleSetId') + '?id=' + rule.get('id'),
-            method: 'DELETE',
-            success: function () {
-                if (self.getRulePreviewContainer()) {
-                    view.down('pagingtoolbartop').totalCount = 0;
-                } else if (self.getRuleSetBrowsePanel()) {
-                    view.down('#rulesTopPagingToolbar').totalCount = 0;
-                }
-                if (self.getRuleSetBrowsePanel()) {
-                    gridRuleSet.getStore().load({
-                        callback: function () {
-                            Ext.Function.defer(function () {
+
+        rule.getProxy().setUrl(router.arguments.ruleSetId);
+        rule.destroy({
+            callback: function (records, operation) {
+                if (operation.success) {
+                    if (self.getRulePreviewContainer()) {
+                        view.down('pagingtoolbartop').totalCount = 0;
+                    } else if (self.getRuleSetBrowsePanel()) {
+                        view.down('#rulesTopPagingToolbar').totalCount = 0;
+                    }
+                    if (self.getRuleSetBrowsePanel()) {
+                        gridRuleSet.getStore().load({
+                            callback: function () {
                                 ruleSetSelModel.select(ruleSet);
                                 self.getRuleSetBrowsePanel().setLoading(false);
-                            }, 5000);
-                        }
-                    });
-                } else if (self.getRuleOverview()) {
-                    location.href = '#/administration/validation/rulesets/' + rule.get('ruleSetId') + '/rules';
-                } else {
-                    grid.getStore().load({
-                        params: {
-                            id: rule.get('ruleSetId')
-                        }
-                    });
+                            }
+                        });
+                    } else if (self.getRuleOverview()) {
+                        router.getRoute('administration/rulesets/overview/rules').forward();
+                    } else {
+                        grid.getStore().load({
+                            params: {
+                                id: rule.get('ruleSetId')
+                            }
+                        });
+                    }
+                    self.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.removeRuleSuccess.msg', 'CFG', 'Validation rule removed'));
                 }
-                self.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.removeRuleSuccess.msg', 'CFG', 'Validation rule removed'));
-            },
-            callback: function () {
+
                 view.setLoading(false);
-                if (self.getRuleSetBrowsePanel()) {
-                    self.getRuleSetBrowsePanel().setLoading();
-                }
             }
         });
     },
