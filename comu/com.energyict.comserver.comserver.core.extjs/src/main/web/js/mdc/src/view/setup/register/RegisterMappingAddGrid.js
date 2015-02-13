@@ -29,15 +29,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                 xtype: 'obis-column',
                 dataIndex: 'obisCode',
                 flex: 1
-            },
-            {
-                header: Uni.I18n.translate('registerMappings.type', 'MDC', 'Type'),
-                renderer: function (value, metaData, record) {
-                    return '<div style="float:left; font-size: 13px; line-height: 1em;">'
-                        + record.getReadingType().get('measurementKind')
-                        + '</div>'
-                },
-                flex: 1
             }
         ]
     },
