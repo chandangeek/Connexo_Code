@@ -24,7 +24,7 @@ public class LicensedProtocolResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public LicensedProtocolsInfo getLicensedProtocolInfos() {
         LicensedProtocolsInfo licensedProtocolsInfo = new LicensedProtocolsInfo();
         for (LicensedProtocol licensedProtocol : this.protocolPluggableService.getAllLicensedProtocols()) {

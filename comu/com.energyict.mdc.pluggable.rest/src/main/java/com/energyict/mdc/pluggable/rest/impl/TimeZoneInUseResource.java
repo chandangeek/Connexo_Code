@@ -19,7 +19,7 @@ public class TimeZoneInUseResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public TimeZoneInUseInfos getTimeZoneInUsePropertyContext(@Context UriInfo uriInfo){
         return new TimeZoneInUseInfos();    // Todo: add support to jupiter for the old TimeZonInUse entity???
     }

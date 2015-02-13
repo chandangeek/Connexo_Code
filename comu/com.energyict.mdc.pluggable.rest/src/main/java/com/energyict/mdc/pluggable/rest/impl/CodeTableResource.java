@@ -26,7 +26,7 @@ public class CodeTableResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public CodeTableInfos getCodeTablePropertyContext(@Context UriInfo uriInfo){
         CodeTableInfos timeZoneInUseInfos = new CodeTableInfos();
         this.codeFactory
