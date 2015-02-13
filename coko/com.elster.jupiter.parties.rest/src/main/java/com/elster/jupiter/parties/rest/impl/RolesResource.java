@@ -33,7 +33,7 @@ public class RolesResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PartyRoleInfos createPartyRole(final PartyRoleInfo info) {
         PartyRoleInfos result = new PartyRoleInfos();
         result.add(transactionService.execute(new Transaction<PartyRole>() {
@@ -47,7 +47,7 @@ public class RolesResource {
 
     @DELETE
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PartyRoleInfos deletePartyRole(PartyRoleInfo info, @PathParam("id") String id) {
         info.mRID = id;
         transactionService.execute(new DeletePartyRoleTransaction(info, partyService));
@@ -56,7 +56,7 @@ public class RolesResource {
 
     @GET
     @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PartyRoleInfos getPartyRole(@PathParam("id") String id) {
         Optional<PartyRole> found = partyService.findPartyRoleByMRID(id);
         if (!found.isPresent()) {
@@ -66,14 +66,14 @@ public class RolesResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PartyRoleInfos getPartyRoles(@Context UriInfo uriInfo) {
         return new PartyRoleInfos(partyService.getPartyRoles());
     }
 
     @PUT
     @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     public PartyRoleInfos updatePartyRole(PartyRoleInfo info, @PathParam("id") String id) {
         info.mRID = id;

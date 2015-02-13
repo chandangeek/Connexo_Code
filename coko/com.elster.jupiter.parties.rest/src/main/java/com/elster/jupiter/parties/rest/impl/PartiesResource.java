@@ -56,7 +56,7 @@ public class PartiesResource {
 
     @DELETE
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PartyInfos deleteParty(PartyInfo info, @PathParam("id") long id) {
         info.id = id;
         transactionService.execute(new DeletePartyTransaction(info, partyService));
@@ -65,13 +65,13 @@ public class PartiesResource {
 
     @GET
     @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PartyInfos getParty(@PathParam("id") long id) {
         return new PartyInfos(partyWithId(id));
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PartyInfos getParties(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<Party> parties = getPartyRestQuery().select(queryParameters);
@@ -90,7 +90,7 @@ public class PartiesResource {
 
     @PUT
     @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     public PartyInfos updateParty(PartyInfo info, @PathParam("id") long id) {
         info.id = id;
@@ -100,7 +100,7 @@ public class PartiesResource {
 
     @GET
     @Path("/{id}/roles")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PartyInRoleInfos getRoles(@PathParam("id") long id) {
         Party party = partyWithId(id);
         return new PartyInRoleInfos(party.getPartyInRoles(Range.all()));
@@ -109,7 +109,7 @@ public class PartiesResource {
     @POST
     @Path("/{id}/roles")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PartyInRoleInfos addRole(@PathParam("id") long id, PartyInRoleInfo info) {
         PartyInRoleInfos result = new PartyInRoleInfos();
         result.add(transactionService.execute(new AddRoleTransaction(id, info, userService, partyService)));
@@ -118,7 +118,7 @@ public class PartiesResource {
 
     @PUT
     @Path("/{id}/roles/{roleId}/")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     public PartyInRoleInfos updatePartyInRole(PartyInRoleInfo info, @PathParam("id") long id,  @PathParam("roleId") long roleId) {
         info.partyId = id;
@@ -129,7 +129,7 @@ public class PartiesResource {
 
     @GET
     @Path("/{id}/delegates")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PartyRepresentationInfos getDelegates(@PathParam("id") long id) {
         try (TransactionContext context = transactionService.getContext()) {
             try {
@@ -144,7 +144,7 @@ public class PartiesResource {
     @POST
     @Path("/{id}/delegates")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PartyRepresentationInfos addRole(@PathParam("id") long id, PartyRepresentationInfo info) {
         transactionService.execute(new AddDelegateTransaction(id, info, userService, partyService));
         return getDelegates(id);
@@ -153,7 +153,7 @@ public class PartiesResource {
     @PUT
     @Path("/{id}/delegates")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PartyRepresentationInfos updateRoles(@PathParam("id") long id, PartyRepresentationInfos infos) {
         new UpdatePartyRepresentationsTransaction(id, infos, partyService, clock, userService);
         return getDelegates(id);
@@ -161,7 +161,7 @@ public class PartiesResource {
 
     @PUT
     @Path("/{id}/delegates/{authenticationName}/")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     public PartyRepresentationInfos updatePartyInRole(PartyRepresentationInfo info, @PathParam("id") long id,  @PathParam("authenticationName") String authenticationName) {
         info.partyId = id;

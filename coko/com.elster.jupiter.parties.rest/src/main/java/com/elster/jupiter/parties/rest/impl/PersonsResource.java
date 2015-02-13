@@ -45,7 +45,7 @@ public class PersonsResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PersonInfos createPerson(PersonInfo info) {
         PersonInfos result = new PersonInfos();
         result.add(transactionService.execute(new CreatePersonTransaction(info, partyService)));
@@ -54,7 +54,7 @@ public class PersonsResource {
 
     @DELETE
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PersonInfos deletePerson(PersonInfo info, @PathParam("id") long id) {
         info.id = id;
         transactionService.execute(new DeletePersonTransaction(info, partyService));
@@ -63,7 +63,7 @@ public class PersonsResource {
 
     @GET
     @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PersonInfos getPerson(@PathParam("id") long id) {
         Optional<Party> party = partyService.findParty(id);
         if (party.isPresent() && party.get() instanceof Person) {
@@ -74,7 +74,7 @@ public class PersonsResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PersonInfos getPersons(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<Party> list = getPartyRestQuery().select(queryParameters);
@@ -89,7 +89,7 @@ public class PersonsResource {
 
     @PUT
     @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     public PersonInfos updatePerson(PersonInfo info, @PathParam("id") long id) {
         info.id = id;
