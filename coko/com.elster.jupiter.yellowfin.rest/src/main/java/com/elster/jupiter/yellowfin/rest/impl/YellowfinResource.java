@@ -30,7 +30,7 @@ public class YellowfinResource {
 
 
 	@POST
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	@Path("/login")
 	@RolesAllowed({Privileges.VIEW_REPORTS,Privileges.DESIGN_REPORTS})
 	public YellowfinInfo login(HttpServletResponse response, @Context SecurityContext securityContext) {
@@ -47,7 +47,7 @@ public class YellowfinResource {
 		return info;
 	}
 	@POST
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	@Path("/token")
 	@RolesAllowed(Privileges.VIEW_REPORTS)
 	public YellowfinInfo token(HttpServletResponse response, @Context SecurityContext securityContext) {

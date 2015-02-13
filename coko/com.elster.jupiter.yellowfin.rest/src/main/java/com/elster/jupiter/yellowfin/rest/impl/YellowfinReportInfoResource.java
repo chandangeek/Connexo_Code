@@ -30,7 +30,7 @@ public class YellowfinReportInfoResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/info")
     @RolesAllowed(Privileges.VIEW_REPORTS)
     public ReportInfos getReportsInfo(@QueryParam("category") String category,
@@ -48,7 +48,7 @@ public class YellowfinReportInfoResource {
 
     }
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/filter")
     @RolesAllowed(Privileges.VIEW_REPORTS)
     public FilterInfos getFiltersInfo(@QueryParam("reportId") int reportId,
@@ -81,7 +81,7 @@ public class YellowfinReportInfoResource {
 
     }
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/filterlistitems")
     @RolesAllowed(Privileges.VIEW_REPORTS)
     public FilterListItemInfos getFiltersInfo(@QueryParam("reportId") int reportId,

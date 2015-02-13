@@ -44,7 +44,7 @@ public class YellowfinDeviceGroupsResource {
 
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.VIEW_REPORTS)
     @Path("/list")
     public YellowfinDeviceGroupInfos getDeviceGroups() {
