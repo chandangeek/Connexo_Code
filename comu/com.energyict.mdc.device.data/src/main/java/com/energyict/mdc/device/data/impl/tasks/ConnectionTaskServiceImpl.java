@@ -305,7 +305,12 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     }
 
     private Map<ComPortPool, Map<TaskStatus, Long>> injectComPortPoolsAndAddMissing(Map<Long, Map<TaskStatus, Long>> statusBreakdown) {
-        Map<Long, ComPortPool> comPortPools = this.deviceDataModelService.engineConfigurationService().findAllComPortPools().stream().collect(Collectors.toMap(ComPortPool::getId, Function.identity()));
+        Map<Long, ComPortPool> comPortPools =
+                this.deviceDataModelService.engineConfigurationService()
+                    .findAllComPortPools()
+                    .stream()
+                    .filter(ComPortPool::isActive)
+                    .collect(Collectors.toMap(ComPortPool::getId, Function.identity()));
         return this.injectBreakDownsAndAddMissing(statusBreakdown, comPortPools);
     }
 

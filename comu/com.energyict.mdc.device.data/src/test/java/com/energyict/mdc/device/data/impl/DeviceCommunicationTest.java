@@ -117,6 +117,7 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
 
     private DeviceConfiguration createDeviceConfigWithPartialOutboundConnectionTask() {
         DeviceType.DeviceConfigurationBuilder configurationWithConnectionType = deviceType.newConfiguration("ConfigurationWithPartialOutboundConnectionTask");
+        configurationWithConnectionType.isDirectlyAddressable(true);
         DeviceConfiguration deviceConfiguration = configurationWithConnectionType.add();
         addPartialOutboundConnectionTask(deviceConfiguration);
         deviceConfiguration.activate();
@@ -126,6 +127,7 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
 
     private DeviceConfiguration createDeviceConfigWithPartialIpOutboundConnectionTask() {
         DeviceType.DeviceConfigurationBuilder configurationWithConnectionType = deviceType.newConfiguration("ConfigurationWithPartialIpOutboundConnectionTask");
+        configurationWithConnectionType.isDirectlyAddressable(true);
         DeviceConfiguration deviceConfiguration = configurationWithConnectionType.add();
         addPartialIpOutboundConnectionTask(deviceConfiguration);
         deviceType.save();
@@ -152,6 +154,7 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
 
     private DeviceConfiguration createDeviceConfigWithPartialConnectionInitiationTask() {
         DeviceType.DeviceConfigurationBuilder configurationWithConnectionType = deviceType.newConfiguration("ConfigurationWithPartialConnectionInitiationTask");
+        configurationWithConnectionType.isDirectlyAddressable(true);
         DeviceConfiguration deviceConfiguration = configurationWithConnectionType.add();
         addPartialConnectionInitiationConnectionTask(deviceConfiguration);
         deviceConfiguration.activate();
@@ -161,6 +164,7 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
 
     private DeviceConfiguration createDeviceConfigWithThreeTypesOfPartialsTask() {
         DeviceType.DeviceConfigurationBuilder configurationWithConnectionType = deviceType.newConfiguration("ConfigurationWithThreePartials");
+        configurationWithConnectionType.isDirectlyAddressable(true);
         DeviceConfiguration deviceConfiguration = configurationWithConnectionType.add();
         addPartialOutboundConnectionTask(deviceConfiguration);
         addPartialInboundConnectionTask(deviceConfiguration);

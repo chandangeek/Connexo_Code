@@ -182,7 +182,7 @@ public class ComSessionImpl implements ComSession {
 
     @Override
     public List<CombinedLogEntry> getAllLogs(Set<ComServer.LogLevel> levels, int start, int pageSize) {
-        SqlBuilder sqlBuilder = new SqlBuilder("select '-1', timestamp, loglevel, to_clob(message), to_clob(''), 0, stacktrace from ");
+        SqlBuilder sqlBuilder = new SqlBuilder("select '-1', timestamp, loglevel, message, to_clob(''), 0, stacktrace from ");
         sqlBuilder.append(TableSpecs.DDC_COMSESSIONJOURNALENTRY.name());
         sqlBuilder.append(" where comsession =");
         sqlBuilder.addLong(this.getId());

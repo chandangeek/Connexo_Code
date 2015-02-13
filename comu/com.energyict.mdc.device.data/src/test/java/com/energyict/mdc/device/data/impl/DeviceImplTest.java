@@ -52,6 +52,8 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import org.joda.time.DateTimeConstants;
 
 import java.math.BigDecimal;
@@ -569,6 +571,8 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testGatewayTypeMethodsForHAN() {
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("GatewayTypeMethodsForHAN", deviceProtocolPluggableClass);
+        deviceType.save();
         DeviceType.DeviceConfigurationBuilder config = deviceType.newConfiguration("some config").gatewayType(GatewayType.HOME_AREA_NETWORK);
         DeviceConfiguration deviceConfiguration = config.add();
         deviceConfiguration.activate();
@@ -584,6 +588,8 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testGatewayTypeMethodsForLAN() {
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("GatewayTypeMethodsForLAN", deviceProtocolPluggableClass);
+        deviceType.save();
         DeviceType.DeviceConfigurationBuilder config = deviceType.newConfiguration("some config").gatewayType(GatewayType.LOCAL_AREA_NETWORK);
         DeviceConfiguration deviceConfiguration = config.add();
         deviceConfiguration.activate();
@@ -599,6 +605,8 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testGatewayTypeMethodsForNonConcentrator() {
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("GatewayTypeMethodsForNonConcentrator", deviceProtocolPluggableClass);
+        deviceType.save();
         DeviceType.DeviceConfigurationBuilder config = deviceType.newConfiguration("some config");
         DeviceConfiguration deviceConfiguration = config.add();
         deviceConfiguration.activate();
@@ -661,6 +669,151 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
                 }
             }
         }
+    }
+
+
+    // JP-5583
+    @Test
+    @Transactional
+    public void testGetChannelDataIfRequestedIntervalHasNoReadingsButDataWasExpected() {
+        BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+        String code = getForwardEnergyReadingTypeCodeBuilder()
+                .period(TimeAttribute.MINUTE15)
+                .code();
+        IntervalBlockImpl intervalBlock1 = IntervalBlockImpl.of(code);
+        intervalBlock1.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 15, 0).toInstant(ZoneOffset.UTC), readingValue));
+        IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(code);
+        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 30, 0).toInstant(ZoneOffset.UTC), readingValue));
+        IntervalBlockImpl intervalBlock3 = IntervalBlockImpl.of(code);
+        intervalBlock3.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
+        IntervalBlockImpl intervalBlock4 = IntervalBlockImpl.of(code);
+        intervalBlock4.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), readingValue));
+        IntervalBlockImpl intervalBlockX = IntervalBlockImpl.of(code);
+        intervalBlockX.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 23, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        meterReading.addIntervalBlock(intervalBlock1);
+        meterReading.addIntervalBlock(intervalBlock2);
+        meterReading.addIntervalBlock(intervalBlock3);
+        meterReading.addIntervalBlock(intervalBlock4);
+        meterReading.addIntervalBlock(intervalBlockX);
+        device.store(meterReading);
+
+        Device reloadedDevice = getReloadedDevice(device);
+        Instant start = LocalDateTime.of(2014, 8, 1, 12, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant end = LocalDateTime.of(2014, 8, 1, 16, 0, 0).toInstant(ZoneOffset.UTC);
+        List<LoadProfileReading> readings = reloadedDevice.getChannels().get(0).getChannelData(Ranges.openClosed(start, end));
+        assertThat(readings).describedAs("There should be data(holders) for the interval 12:00->16:00 even though there are no meter readings").hasSize(4*4);
+    }
+
+    // JP-5583
+    @Test
+    @Transactional
+    public void testGetLoadProfileDataIfRequestedIntervalHasNoReadingsButDataWasExpected() {
+        BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+        String code = getForwardEnergyReadingTypeCodeBuilder()
+                .period(TimeAttribute.MINUTE15)
+                .code();
+        IntervalBlockImpl intervalBlock1 = IntervalBlockImpl.of(code);
+        intervalBlock1.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 15, 0).toInstant(ZoneOffset.UTC), readingValue));
+        IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(code);
+        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 30, 0).toInstant(ZoneOffset.UTC), readingValue));
+        IntervalBlockImpl intervalBlock3 = IntervalBlockImpl.of(code);
+        intervalBlock3.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
+        IntervalBlockImpl intervalBlock4 = IntervalBlockImpl.of(code);
+        intervalBlock4.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), readingValue));
+        IntervalBlockImpl intervalBlockX = IntervalBlockImpl.of(code);
+        intervalBlockX.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 23, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        meterReading.addIntervalBlock(intervalBlock1);
+        meterReading.addIntervalBlock(intervalBlock2);
+        meterReading.addIntervalBlock(intervalBlock3);
+        meterReading.addIntervalBlock(intervalBlock4);
+        meterReading.addIntervalBlock(intervalBlockX);
+        device.store(meterReading);
+
+        Device reloadedDevice = getReloadedDevice(device);
+        Instant start = LocalDateTime.of(2014, 8, 1, 12, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant end = LocalDateTime.of(2014, 8, 1, 16, 0, 0).toInstant(ZoneOffset.UTC);
+        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(start, end));
+        assertThat(readings).describedAs("There should be data(holders) for the interval 12:00->16:00 even though there are no meter readings").hasSize(4*4);
+    }
+
+    // JP-5583
+    @Test
+    @Transactional
+    public void testGetLoadProfileDataIfRequestedIntervalIsEmptyButDataWasExpected() {
+        BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+        String code = getForwardEnergyReadingTypeCodeBuilder()
+                .period(TimeAttribute.MINUTE15)
+                .code();
+        IntervalBlockImpl intervalBlock1 = IntervalBlockImpl.of(code);
+        intervalBlock1.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 15, 0).toInstant(ZoneOffset.UTC), readingValue));
+        IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(code);
+        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 30, 0).toInstant(ZoneOffset.UTC), readingValue));
+        IntervalBlockImpl intervalBlock3 = IntervalBlockImpl.of(code);
+        intervalBlock3.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
+        IntervalBlockImpl intervalBlock4 = IntervalBlockImpl.of(code);
+        intervalBlock4.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), readingValue));
+        IntervalBlockImpl intervalBlockX = IntervalBlockImpl.of(code);
+        intervalBlockX.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 23, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        meterReading.addIntervalBlock(intervalBlock1);
+        meterReading.addIntervalBlock(intervalBlock2);
+        meterReading.addIntervalBlock(intervalBlock3);
+        meterReading.addIntervalBlock(intervalBlock4);
+        meterReading.addIntervalBlock(intervalBlockX);
+        device.store(meterReading);
+
+        Device reloadedDevice = getReloadedDevice(device);
+        Instant start = LocalDateTime.of(2014, 8, 1, 12, 5, 0).toInstant(ZoneOffset.UTC);
+        Instant end = LocalDateTime.of(2014, 8, 1, 12, 10, 0).toInstant(ZoneOffset.UTC);
+        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(start, end));
+        assertThat(readings).describedAs("There should be 1 data(holders) for the interval 12:05->12:10: 1x15 minute reading overlaps with the interval").hasSize(1);
+    }
+
+    /**
+     * @see  JP-8514
+     */
+    @Test
+    @Transactional
+    public void testGetLoadProfileDataAfterLastReading() {
+        BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+        String code = getForwardEnergyReadingTypeCodeBuilder()
+                .period(TimeAttribute.MINUTE15)
+                .code();
+        IntervalBlockImpl intervalBlock1 = IntervalBlockImpl.of(code);
+        intervalBlock1.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 15, 0).toInstant(ZoneOffset.UTC), readingValue));
+        IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(code);
+        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 30, 0).toInstant(ZoneOffset.UTC), readingValue));
+        IntervalBlockImpl intervalBlock3 = IntervalBlockImpl.of(code);
+        intervalBlock3.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
+        IntervalBlockImpl intervalBlock4 = IntervalBlockImpl.of(code);
+        intervalBlock4.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), readingValue));
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        meterReading.addIntervalBlock(intervalBlock1);
+        meterReading.addIntervalBlock(intervalBlock2);
+        meterReading.addIntervalBlock(intervalBlock3);
+        meterReading.addIntervalBlock(intervalBlock4);
+        device.store(meterReading);
+        device.getLoadProfileUpdaterFor(device.getLoadProfiles().get(0)).setLastReading(LocalDateTime.of(2014, 8, 1, 1, 0, 0).toInstant(ZoneOffset.UTC)).update();
+
+        Device reloadedDevice = getReloadedDevice(device);
+        Instant start = LocalDateTime.of(2014, 8, 1, 12, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant end = LocalDateTime.of(2014, 8, 1, 13, 0, 0).toInstant(ZoneOffset.UTC);
+        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(start, end));
+        assertThat(readings).describedAs("There should be no data(holders) after the last reading").isEmpty();
     }
 
     @Test

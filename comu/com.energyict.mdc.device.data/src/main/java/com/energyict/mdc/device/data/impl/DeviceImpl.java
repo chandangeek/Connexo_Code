@@ -112,19 +112,12 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
-import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -146,9 +139,16 @@ import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import static com.elster.jupiter.util.streams.Functions.asStream;
-import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.*;
+import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.DEVICE_ATTRIBUTE_NAME;
+import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.SECURITY_PROPERTY_SET_ATTRIBUTE_NAME;
+import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME;
 import static java.util.stream.Collectors.toList;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
@@ -895,7 +895,7 @@ public class DeviceImpl implements Device, CanLock {
                                 channel.getLoadProfile(),
                                 interval,
                                 meter.get());
-                Range<Instant> clipped = Ranges.openClosed(interval.lowerEndpoint(), this.lastReadingClipped(channel.getLoadProfile(), interval));
+                Range<Instant> clipped = Ranges.openClosed(meterActivationClipped(meter.get(), interval), lastReadingClipped(channel.getLoadProfile(), interval));
                 meterHasData = this.addChannelDataToMap(clipped, meter.get(), channel, sortedLoadProfileReadingMap);
                 if (meterHasData) {
                     loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
@@ -930,11 +930,9 @@ public class DeviceImpl implements Device, CanLock {
         List<MeterActivation> meterActivations = this.getSortedMeterActivations(meter, Ranges.closed(interval.lowerEndpoint(), interval.upperEndpoint()));
         for (MeterActivation meterActivation : meterActivations) {
             Range<Instant> meterActivationInterval = meterActivation.getRange().intersection(interval);
+            meterHasData |= meterActivationInterval.lowerEndpoint()!=meterActivationInterval.upperEndpoint();
             ReadingType readingType = mdcChannel.getChannelSpec().getReadingType();
             List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(meterActivationInterval, readingType);
-            if (!meterReadings.isEmpty()) {
-                meterHasData = true;
-            }
             for (IntervalReadingRecord meterReading : meterReadings) {
                 LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
                 loadProfileReading.setChannelData(mdcChannel, meterReading);
@@ -1155,21 +1153,26 @@ public class DeviceImpl implements Device, CanLock {
         }
     }
 
-    private Instant lastReadingClipped(LoadProfile loadProfile, Interval requestInterval) {
-        if (loadProfile.getLastReading().isPresent() && requestInterval.getEnd().isAfter(loadProfile.getLastReading().get())) {
-            return loadProfile.getLastReading().get();
-        } else {
-            return Instant.ofEpochMilli(requestInterval.getEnd().toEpochMilli());
+    private Instant meterActivationClipped(Meter meter, Range<Instant> interval) {
+        if (meter.getCurrentMeterActivation().isPresent() && interval.contains(meter.getCurrentMeterActivation().get().getStart())) {
+            return meter.getCurrentMeterActivation().get().getStart();
+        }
+        else {
+            return interval.lowerEndpoint();
         }
     }
 
     private Instant lastReadingClipped(LoadProfile loadProfile, Range<Instant> interval) {
-        if (loadProfile.getLastReading().isPresent() && interval.contains(loadProfile.getLastReading().get())) {
-            return loadProfile.getLastReading().get();
+        if (loadProfile.getLastReading().isPresent()) {
+            if (interval.contains(loadProfile.getLastReading().get())) {
+                return loadProfile.getLastReading().get();
+            } else if (interval.upperEndpoint().isBefore(loadProfile.getLastReading().get())) {
+                return interval.upperEndpoint();
+            } else {
+                return interval.lowerEndpoint(); // empty interval: interval is completely after last reading
+            }
         }
-        else {
-            return interval.upperEndpoint();
-        }
+        return interval.upperEndpoint();
     }
 
     Optional<ReadingRecord> getLastReadingFor(Register<?> register) {
@@ -1215,10 +1218,6 @@ public class DeviceImpl implements Device, CanLock {
 
     Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Channel channel, Instant when) {
         return findKoreChannel(channel::getReadingType, when);
-    }
-
-    Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Register<?> register, Instant when) {
-        return findKoreChannel(() -> register.getReadingType(), when);
     }
 
     private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Supplier<ReadingType> readingTypeSupplier, Instant when) {

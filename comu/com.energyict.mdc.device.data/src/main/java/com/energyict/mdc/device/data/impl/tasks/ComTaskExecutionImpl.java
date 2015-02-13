@@ -166,7 +166,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         return this.comPort.isPresent()
             || (   this.connectionTask.isPresent()
                 && (this.connectionTask.get().getExecutingComServer() != null)
-                && this.getNextExecutionTimestamp().isBefore(clock.instant()));
+                && (this.getNextExecutionTimestamp() != null && this.getNextExecutionTimestamp().isBefore(this.clock.instant())));
     }
 
     @Override

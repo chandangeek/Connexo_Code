@@ -8,13 +8,16 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
+import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -24,7 +27,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @Component(name = "com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider", service = {EndDeviceQueryProvider.class}, property = "name=" + DeviceDataServices.COMPONENT_NAME, immediate = true)
 public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
     private static final int ORACLE_IN_LIMIT = 1000; // 1000 is the Oracle default limit for static 'IN' condition
-
+    
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile MeteringService meteringService;
     private volatile DeviceService deviceService;
@@ -56,15 +59,26 @@ public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
     public List<EndDevice> findEndDevices(Condition conditions) {
         return findEndDevices(Instant.now(), conditions);
     }
+    
+    @Override
+    public List<EndDevice> findEndDevices(Instant instant, Condition conditions) {
+        return this.findEndDevices(instant, conditions, -1, 0);//no pagination
+    }
 
     @Override
-    public List<EndDevice> findEndDevices(Instant date, Condition conditions) {
+    public List<EndDevice> findEndDevices(Instant instant, Condition conditions, int start, int limit) {
         // TODO it will be better to rewrite it using sub-queries, so we will have only one request
-        List<Device> devices = deviceService.findAllDevices(conditions).find();
-        List<Long> deviceIds = devices.stream().map(Device::getId).collect(Collectors.toList());
-        Condition condition = Operator.EQUAL.compare("amrSystemId", KnownAmrSystem.MDC.getId())
-                .and(getSplittedInCondition("amrId", deviceIds));
-        return meteringService.getEndDeviceQuery().select(condition, Order.ascending("mRID"));
+        Finder<Device> finder = deviceService.findAllDevices(conditions);
+        if (start > -1) {
+            finder = finder.paged(start, limit);
+        }
+        List<Device> devices = finder.sorted("mRID", true).find();
+        if (!devices.isEmpty()) {
+            List<Long> deviceIds = devices.stream().map(Device::getId).collect(Collectors.toList());
+            Condition condition = Operator.EQUAL.compare("amrSystemId", KnownAmrSystem.MDC.getId()).and(getSplittedInCondition("amrId", deviceIds));
+            return meteringService.getEndDeviceQuery().select(condition, Order.ascending("mRID"));
+        }
+        return Collections.emptyList();
     }
 
     private Condition getSplittedInCondition(String field, List<?> values){
