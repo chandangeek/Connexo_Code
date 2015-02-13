@@ -780,11 +780,9 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         assertThat(readings).describedAs("There should be 1 data(holders) for the interval 12:05->12:10: 1x15 minute reading overlaps with the interval").hasSize(1);
     }
 
-    /**
-     * @see  JP-8514
-     */
     @Test
     @Transactional
+    // @see  JP-8514
     public void testGetLoadProfileDataAfterLastReading() {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
