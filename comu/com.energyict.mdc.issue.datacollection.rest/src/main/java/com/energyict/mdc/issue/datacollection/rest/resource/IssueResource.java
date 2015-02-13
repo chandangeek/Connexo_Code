@@ -87,7 +87,7 @@ public class IssueResource extends BaseResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public PagedInfoList getAllIssues(@BeanParam StandardParametersBean params, @BeanParam QueryParameters queryParams) {
         validateMandatory(params, START, LIMIT);
@@ -102,7 +102,7 @@ public class IssueResource extends BaseResource {
 
     @GET
     @Path("/groupedlist")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getGroupedList(@BeanParam StandardParametersBean params) {
         validateMandatory(params, ISSUE_TYPE, START, LIMIT, FIELD);
@@ -127,7 +127,7 @@ public class IssueResource extends BaseResource {
 
     @GET
     @Path("/{" + ID + "}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getIssueById(@PathParam(ID) long id) {
         Optional<IssueDataCollection> issue = getIssueDataCollectionService().findIssue(id);
@@ -138,7 +138,7 @@ public class IssueResource extends BaseResource {
 
     @GET
     @Path("/{" + ID + "}/comments")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getComments(@PathParam(ID) long id, @BeanParam StandardParametersBean params) {
         Condition condition = where("issueId").isEqualTo(id);
@@ -150,7 +150,7 @@ public class IssueResource extends BaseResource {
     @POST
     @Path("/{" + ID + "}/comments")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.COMMENT_ISSUE)
     public Response postComment(@PathParam("id") long id, CreateCommentRequest request, @Context SecurityContext securityContext) {
         User author = (User) securityContext.getUserPrincipal();
@@ -164,7 +164,7 @@ public class IssueResource extends BaseResource {
     @GET
     @Path("/{" + ID + "}/actions")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getActions(@PathParam("id") long id) {
         Optional<IssueDataCollection> issueRef = getIssueDataCollectionService().findIssue(id);
@@ -192,7 +192,7 @@ public class IssueResource extends BaseResource {
     @PUT
     @Path("/assign")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ASSIGN_ISSUE)
     @Deprecated
     public Response assignIssues(AssignIssueRequest request, @Context SecurityContext securityContext) {
@@ -205,7 +205,7 @@ public class IssueResource extends BaseResource {
     @PUT
     @Path("/close")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.CLOSE_ISSUE)
     @Deprecated
     public Response closeIssues(CloseIssueRequest request, @Context SecurityContext securityContext) {
@@ -234,7 +234,7 @@ public class IssueResource extends BaseResource {
 
     @GET
     @Path("/{" + ID + "}/actions/{" + KEY + "}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getActionTypeById(@PathParam(KEY) long id){
         Optional<IssueActionType> actionTypeRef = getIssueActionService().findActionType(id);
@@ -248,7 +248,7 @@ public class IssueResource extends BaseResource {
     @PUT
     @Path("/{" + ID + "}/actions/{" + KEY + "}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ACTION_ISSUE)
     public Response performAction(@PathParam(ID) long id, PerformActionRequest request) {
         Optional<IssueDataCollection> issueRef = getIssueDataCollectionService().findIssue(id);
