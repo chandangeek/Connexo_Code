@@ -731,7 +731,6 @@ Ext.define('Cfg.controller.Validation', {
                 }
 
                 me.getApplication().fireEvent('loadRuleSet', ruleSet);
-                rulesContainerWidget.down('ruleset-action-menu').down('#viewRuleSet').hide();
                 rulesContainerWidget.down('ruleset-action-menu').record = ruleSet;
             }
         });
