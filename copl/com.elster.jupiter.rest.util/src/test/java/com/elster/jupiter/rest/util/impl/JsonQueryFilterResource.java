@@ -34,91 +34,91 @@ public class JsonQueryFilterResource {
 
     @GET
     @Path("/single/string")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public String getStringFilterProperty(@BeanParam JsonQueryFilter queryFilter){
         return queryFilter.getString(DEFAUL_FILTER_NAME);
     }
 
     @GET
     @Path("/list/string")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public List<String> getStringFilterList(@BeanParam JsonQueryFilter queryFilter){
         return queryFilter.getStringList(DEFAUL_FILTER_NAME);
     }
 
     @GET
     @Path("/single/integer")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Integer getIntegerFilterProperty(@BeanParam JsonQueryFilter queryFilter){
         return queryFilter.getInteger(DEFAUL_FILTER_NAME);
     }
 
     @GET
     @Path("/list/integer")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public List<Integer> getIntegerFilterList(@BeanParam JsonQueryFilter queryFilter){
         return queryFilter.getIntegerList(DEFAUL_FILTER_NAME);
     }
 
     @GET
     @Path("/single/long")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Long getLongFilterProperty(@BeanParam JsonQueryFilter queryFilter){
         return queryFilter.getLong(DEFAUL_FILTER_NAME);
     }
 
     @GET
     @Path("/list/long")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public List<Long> getLongFilterList(@BeanParam JsonQueryFilter queryFilter){
         return queryFilter.getLongList(DEFAUL_FILTER_NAME);
     }
 
     @GET
     @Path("/single/instant")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Instant getInstantFilterProperty(@BeanParam JsonQueryFilter queryFilter){
         return queryFilter.getInstant(DEFAUL_FILTER_NAME);
     }
 
     @GET
     @Path("/list/instant")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public List<Instant> getInstantFilterList(@BeanParam JsonQueryFilter queryFilter){
         return queryFilter.getInstantList(DEFAUL_FILTER_NAME);
     }
 
     @GET
     @Path("/single/boolean")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Boolean getBooleanFilterProperty(@BeanParam JsonQueryFilter queryFilter){
         return queryFilter.getBoolean(DEFAUL_FILTER_NAME);
     }
 
     @GET
     @Path("/list/boolean")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public List<Boolean> getBooleanFilterList(@BeanParam JsonQueryFilter queryFilter){
         return queryFilter.getBooleanList(DEFAUL_FILTER_NAME);
     }
 
     @GET
     @Path("/single/complex")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public String getComplexFilterProperty(@BeanParam JsonQueryFilter queryFilter){
         return queryFilter.getComplexProperty(DEFAUL_FILTER_NAME);
     }
 
     @GET
     @Path("/single/adapter")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Integer getFilterPropertyForAdapter(@BeanParam JsonQueryFilter queryFilter){
         return queryFilter.getProperty(DEFAUL_FILTER_NAME, STRING_INTEGER_XML_ADAPTER);
     }
 
     @GET
     @Path("/list/adapter")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public List<Integer> getFilterListForAdapter(@BeanParam JsonQueryFilter queryFilter){
         return queryFilter.getPropertyList(DEFAUL_FILTER_NAME, STRING_INTEGER_XML_ADAPTER);
     }
