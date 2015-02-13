@@ -31,7 +31,7 @@ public class PhenomenonResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getAllPhenomenons(@BeanParam QueryParameters queryParameters) {
         List<Phenomenon> phenomenons = masterDataService.findAllPhenomena();
         return Response.ok(PagedInfoList.asJson("data", PhenomenonInfo.from(phenomenons), queryParameters)).build();

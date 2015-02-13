@@ -40,7 +40,7 @@ public class LogBookTypeResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
     public PagedInfoList getLogbookTypes(@BeanParam QueryParameters queryParameters) {
         List<LogBookTypeInfo> logbookTypeInfos = new ArrayList<>();
@@ -57,7 +57,7 @@ public class LogBookTypeResource {
 
     @GET
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
     public PagedInfoList getLogbookType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters) {
         Optional<LogBookType> logBookRef = masterDataService.findLogBookType(id);
@@ -71,7 +71,7 @@ public class LogBookTypeResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     public Response addLogBookType(LogBookTypeInfo logbook) {
         LogBookType newLogbook = masterDataService.newLogBookType(logbook.name, logbook.obisCode);
@@ -82,7 +82,7 @@ public class LogBookTypeResource {
     @PUT
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     public Response updateLogBookType(@PathParam("id") long id, LogBookTypeInfo logbook) {
         Optional<LogBookType> logBookRef = masterDataService.findLogBookType(id);
@@ -98,7 +98,7 @@ public class LogBookTypeResource {
 
     @DELETE
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     public Response deleteLogBookType(@PathParam("id") long id) {
         Optional<LogBookType> logBookRef = masterDataService.findLogBookType(id);

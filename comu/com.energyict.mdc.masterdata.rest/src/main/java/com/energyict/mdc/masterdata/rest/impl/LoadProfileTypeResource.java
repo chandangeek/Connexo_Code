@@ -57,7 +57,7 @@ public class LoadProfileTypeResource {
 
     @GET
     @Path("/intervals")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
     public Response getIntervals(@BeanParam QueryParameters queryParameters) {
         List<LocalizedTimeDuration.TimeDurationInfo> infos = new ArrayList<>(LocalizedTimeDuration.intervals.size());
@@ -71,7 +71,7 @@ public class LoadProfileTypeResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
     public Response getAllProfileTypes(@BeanParam QueryParameters queryParameters) {
         List<LoadProfileType> allProfileTypes = masterDataService.findAllLoadProfileTypes();
@@ -82,7 +82,7 @@ public class LoadProfileTypeResource {
 
     @GET
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
     public Response getLoadProfileType(@PathParam("id") long loadProfileId) {
         LoadProfileType loadProfileType = findLoadProfileTypeByIdOrThrowException(loadProfileId);
@@ -90,7 +90,7 @@ public class LoadProfileTypeResource {
     }
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     public Response addNewLoadProfileType(LoadProfileTypeInfo request, @Context UriInfo uriInfo) {
@@ -110,7 +110,7 @@ public class LoadProfileTypeResource {
 
     @PUT
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     public Response editLoadProfileType(@PathParam("id") long loadProfileId, LoadProfileTypeInfo request, @Context UriInfo uriInfo) {
@@ -134,7 +134,7 @@ public class LoadProfileTypeResource {
 
     @DELETE
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     public Response deleteProfileType(@PathParam("id") long loadProfileId) {
         findLoadProfileTypeByIdOrThrowException(loadProfileId).delete();
