@@ -33,7 +33,7 @@ public class LicenseResource extends BaseResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.VIEW_LICENSE)
     public LicenseListInfo getLicenseList() {
         List<License> resultList = new ArrayList<>();
@@ -49,7 +49,7 @@ public class LicenseResource extends BaseResource {
 
     @GET
     @Path("/{applicationkey}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.VIEW_LICENSE)
     public RootEntity getLicenseById(@PathParam("applicationkey") String tag) {
         Optional<License> licenseRef = getLicenseService().getLicenseForApplication(tag);
