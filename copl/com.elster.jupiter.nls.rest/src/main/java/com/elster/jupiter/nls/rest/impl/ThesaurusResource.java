@@ -29,7 +29,7 @@ public class ThesaurusResource {
     }
 
     @GET
-	@Produces(MediaType.APPLICATION_JSON) 
+	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public ThesaurusInfo getThesaurus(@Context UriInfo uriInfo) {
         MultivaluedMap<String,String> parameters = uriInfo.getQueryParameters();
         List<String> components = Optional.ofNullable(parameters.get("cmp")).orElse(Collections.<String>emptyList());
