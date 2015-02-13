@@ -42,7 +42,7 @@ public class BulkScheduleResource {
     }
 
     @PUT
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION)
     public Response addComScheduleToDeviceSet(BulkRequestInfo request, @BeanParam StandardParametersBean queryParameters) {
         BulkAction action = (device, schedule) -> device.newScheduledComTaskExecution(schedule).add();
@@ -51,7 +51,7 @@ public class BulkScheduleResource {
     }
 
     @DELETE
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION)
     public Response deleteComScheduleFromDeviceSet(BulkRequestInfo request, @BeanParam StandardParametersBean queryParameters) {
         BulkAction action = new BulkAction() {

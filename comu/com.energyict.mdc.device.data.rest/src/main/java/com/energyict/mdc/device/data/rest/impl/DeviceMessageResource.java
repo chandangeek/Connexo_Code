@@ -58,7 +58,7 @@ public class DeviceMessageResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA,
             com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_1,
             com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_2,
@@ -84,7 +84,7 @@ public class DeviceMessageResource {
     }
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_1,
             com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_2,
@@ -113,7 +113,7 @@ public class DeviceMessageResource {
     }
 
     @PUT
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("{deviceMessageId}")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_1,

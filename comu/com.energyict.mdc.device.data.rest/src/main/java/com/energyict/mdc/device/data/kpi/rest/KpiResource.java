@@ -54,7 +54,7 @@ public class KpiResource {
 
     @GET
     @Path("/groups")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getAvailableDeviceGroups(@BeanParam QueryParameters queryParameters){
         List<EndDeviceGroup> allGroups = meteringGroupsService.getEndDeviceGroupQuery().select(Condition.TRUE, Order.ascending("upper(name)"));
         List<Long> usedGroupIds = dataCollectionKpiService.findAllDataCollectionKpis().stream().map(kpi -> kpi.getDeviceGroup().getId()).collect(Collectors.toList());
@@ -71,7 +71,7 @@ public class KpiResource {
 
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PagedInfoList getAllKpis(@BeanParam QueryParameters queryParameters) {
         List<DataCollectionKpiInfo> collection = dataCollectionKpiService.dataCollectionKpiFinder().
                 from(queryParameters).defaultSortColumn("endDeviceGroup.name").
@@ -84,7 +84,7 @@ public class KpiResource {
 
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{id}")
     public DataCollectionKpiInfo getKpiById(@PathParam("id") long id) {
         DataCollectionKpi dataCollectionKpi = dataCollectionKpiService.findDataCollectionKpi(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_KPI, id));
@@ -93,7 +93,7 @@ public class KpiResource {
 
     @DELETE
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{id}")
     public Response deleteKpi(@PathParam("id") long id) {
         dataCollectionKpiService.findDataCollectionKpi(id).orElseThrow(()->exceptionFactory.newException(MessageSeeds.NO_SUCH_KPI, id)).delete();
@@ -102,7 +102,7 @@ public class KpiResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response createKpi(DataCollectionKpiInfo kpiInfo) {
         EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(kpiInfo.deviceGroup.id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_GROUP, kpiInfo.deviceGroup.id));
         DataCollectionKpiService.DataCollectionKpiBuilder dataCollectionKpiBuilder = dataCollectionKpiService.newDataCollectionKpi(endDeviceGroup);
@@ -122,7 +122,7 @@ public class KpiResource {
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{id}")
     public Response updateKpi(@PathParam("id") long id, DataCollectionKpiInfo kpiInfo) {
         DataCollectionKpi kpi = dataCollectionKpiService.findDataCollectionKpi(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_KPI, id));

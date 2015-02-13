@@ -37,7 +37,7 @@ public class CommunicationResource {
 
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public PagedInfoList getCommunications(@PathParam("mRID") String mRID, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
@@ -50,7 +50,7 @@ public class CommunicationResource {
     @PUT
     @Path("/{comTaskExecId}/run")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runCommunication(@PathParam("mRID") String mRID, @PathParam("comTaskExecId") long comTaskExecId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
@@ -62,7 +62,7 @@ public class CommunicationResource {
     @PUT
     @Path("/{comTaskExecId}/runnow")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runCommunicationNow(@PathParam("mRID") String mRID, @PathParam("comTaskExecId") long comTaskExecId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
@@ -74,7 +74,7 @@ public class CommunicationResource {
     @PUT
     @Path("/{comTaskExecId}/activate")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response activate(@PathParam("mRID") String mRID, @PathParam("comTaskExecId") long comTaskExecId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
@@ -86,7 +86,7 @@ public class CommunicationResource {
     @PUT
     @Path("/{comTaskExecId}/deactivate")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response deactivate(@PathParam("mRID") String mRID, @PathParam("comTaskExecId") long comTaskExecId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
@@ -98,7 +98,7 @@ public class CommunicationResource {
     @PUT
     @Path("/{comTaskExecId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response activateDeactiveCommunication(@PathParam("mRID") String mRID, @PathParam("comTaskExecId") long comTaskExecId, DeviceComTaskExecutionInfo info) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
@@ -114,7 +114,7 @@ public class CommunicationResource {
     @PUT
     @Path("/activate")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response activateAllCommunication(@PathParam("mRID") String mRID) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
@@ -125,7 +125,7 @@ public class CommunicationResource {
     @PUT
     @Path("/deactivate")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response deactivateAllCommunication(@PathParam("mRID") String mRID) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);

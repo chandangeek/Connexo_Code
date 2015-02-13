@@ -51,7 +51,7 @@ public class LogBookResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getAllLogBooks(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
@@ -63,7 +63,7 @@ public class LogBookResource {
 
     @GET
     @Path("{lbid}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getLogBook(@PathParam("mRID") String mrid, @PathParam("lbid") long logBookId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
@@ -73,7 +73,7 @@ public class LogBookResource {
 
     @GET
     @Path("{lbid}/data")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getLogBookDataForSpecificLogbook(@PathParam("mRID") String mrid, @PathParam("lbid") long logBookId, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters){
         return this.getLogBookData(mrid, (d, f) -> {
@@ -84,7 +84,7 @@ public class LogBookResource {
 
     @GET
     @Path("/data")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getLogBookDataForDevice(@PathParam("mRID") String mrid, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters){
         return this.getLogBookData(mrid, Device::getDeviceEventsByFilter, jsonQueryFilter, queryParameters);
