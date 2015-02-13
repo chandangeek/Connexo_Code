@@ -44,7 +44,7 @@ public class RegisterGroupResource {
 
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
     public PagedInfoList getRegisterGroups(@BeanParam QueryParameters queryParameters) {
         List<RegisterGroup> allRegisterGroups = this.masterDataService.findAllRegisterGroups().from(queryParameters).find();
@@ -58,7 +58,7 @@ public class RegisterGroupResource {
 
     @GET
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
     public RegisterGroupInfo getRegisterGroup(@PathParam("id") long id) {
         return new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
@@ -66,7 +66,7 @@ public class RegisterGroupResource {
 
     @GET
     @Path("/{id}/registertypes")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
     public PagedInfoList getRegisterTypesOfRegisterGroup(@PathParam("id") long id, @BeanParam QueryParameters queryParameters) {
         RegisterGroupInfo registerGroupInfo = new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
@@ -81,7 +81,7 @@ public class RegisterGroupResource {
     @DELETE
     @Path("/{id}")
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response deleteRegisterGroup(@PathParam("id") long id) {
         RegisterGroup group = resourceHelper.findRegisterGroupByIdOrThrowException(id);
         group.removeRegisterTypes();
@@ -91,7 +91,7 @@ public class RegisterGroupResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     public RegisterGroupInfo createRegisterGroup(RegisterGroupInfo registerGroupInfo, @Context UriInfo uriInfo) {
         RegisterGroup newGroup = this.masterDataService.newRegisterGroup(registerGroupInfo.name);
@@ -104,7 +104,7 @@ public class RegisterGroupResource {
     @PUT
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     public RegisterGroupInfo updateRegisterGroup(@PathParam("id") long id, RegisterGroupInfo registerGroupInfo, @Context UriInfo uriInfo) {
         boolean modified = false;

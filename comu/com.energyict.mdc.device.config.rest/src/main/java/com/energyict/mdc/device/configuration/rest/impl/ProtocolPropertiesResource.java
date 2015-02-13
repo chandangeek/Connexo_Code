@@ -38,7 +38,7 @@ public class ProtocolPropertiesResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getDeviceProperties() {
         DeviceProtocolConfigurationProperties deviceProperties = deviceConfiguration.getDeviceProtocolProperties();
         List<PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs() ,deviceProperties.getTypedProperties());
@@ -51,13 +51,13 @@ public class ProtocolPropertiesResource {
     
     @GET
     @Path("/{protocolId}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getDeviceProperties(@PathParam("protocolId") Long protocolId) {
         return this.getDeviceProperties();
     }
 
     @PUT
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateDeviceProperties(ProtocolInfo protocolInfo) {
         List<PropertySpec> propertySpecs = deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs();
@@ -75,7 +75,7 @@ public class ProtocolPropertiesResource {
     }
 
     @PUT
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{protocolId}")
     public Response updateDeviceProperties(ProtocolInfo protocolInfo, @PathParam("protocolId") Long protocolId) {

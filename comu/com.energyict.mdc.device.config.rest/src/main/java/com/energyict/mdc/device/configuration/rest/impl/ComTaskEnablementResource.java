@@ -47,7 +47,7 @@ public class ComTaskEnablementResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
     public PagedInfoList getComTaskEnablements(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam QueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
@@ -59,7 +59,7 @@ public class ComTaskEnablementResource {
 
     @GET
     @Path("/{comTaskEnablementId}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
     public Response getComTaskEnablement(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("comTaskEnablementId") long comTaskEnablementId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
@@ -71,7 +71,7 @@ public class ComTaskEnablementResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response createComTaskEnablement(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, ComTaskEnablementInfo comTaskEnablementInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
@@ -103,7 +103,7 @@ public class ComTaskEnablementResource {
     @PUT
     @Path("/{comTaskEnablementId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response updateComTaskEnablement(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("comTaskEnablementId") long comTaskEnablementId, ComTaskEnablementInfo comTaskEnablementInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
@@ -131,7 +131,7 @@ public class ComTaskEnablementResource {
     @PUT
     @Path("/{comTaskEnablementId}/activate")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response activateComTaskEnablement(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("comTaskEnablementId") long comTaskEnablementId) {
         this.setComTaskEnablementActive(deviceTypeId, deviceConfigurationId, comTaskEnablementId, true);
@@ -141,7 +141,7 @@ public class ComTaskEnablementResource {
     @PUT
     @Path("/{comTaskEnablementId}/deactivate")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response deactivateComTaskEnablement(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("comTaskEnablementId") long comTaskEnablementId) {
         this.setComTaskEnablementActive(deviceTypeId, deviceConfigurationId, comTaskEnablementId, false);
@@ -150,7 +150,7 @@ public class ComTaskEnablementResource {
 
     @DELETE
     @Path("/{comTaskEnablementId}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteComTaskEnablement(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("comTaskEnablementId") long comTaskEnablementId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);

@@ -17,7 +17,7 @@ public class ManufacturerResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public ManufacturerInfos getAllManufacturers() {
         ManufacturerInfos manufacturerInfos = new ManufacturerInfos();
         manufacturerInfos.manufacturerInfos = new ArrayList<>();

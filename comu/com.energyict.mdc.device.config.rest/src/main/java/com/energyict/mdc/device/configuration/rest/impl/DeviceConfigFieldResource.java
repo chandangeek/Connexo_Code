@@ -37,7 +37,7 @@ public class DeviceConfigFieldResource extends FieldResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/unitOfMeasure")
     public Object getUnitValues() {
         List<Long> allUnitsWithPhenomena = new ArrayList<>();
@@ -54,7 +54,7 @@ public class DeviceConfigFieldResource extends FieldResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/timeOfUse")
     public Object getTimeOfUseValues() {
         List<Map<String, Object>> list = new ArrayList<>(255);
@@ -72,7 +72,7 @@ public class DeviceConfigFieldResource extends FieldResource {
     @GET
     @Path("/connectionStrategy")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Map<String, Object> getConnectionStrategies() {
         return asJsonArrayObjectWithTranslation("connectionStrategies", "connectionStrategy", new ConnectionStrategyAdapter().getClientSideValues());
     }

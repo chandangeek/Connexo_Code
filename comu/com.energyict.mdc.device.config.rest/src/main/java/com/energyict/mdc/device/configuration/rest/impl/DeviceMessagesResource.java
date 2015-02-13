@@ -52,7 +52,7 @@ public class DeviceMessagesResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
     public PagedInfoList getDeviceMessages(
             @PathParam("deviceTypeId") long deviceTypeId,
@@ -85,7 +85,7 @@ public class DeviceMessagesResource {
     }
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response activateDeviceMessages(@PathParam("deviceTypeId") long deviceTypeId,
@@ -110,7 +110,7 @@ public class DeviceMessagesResource {
     }
 
     @DELETE
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response deactivateDeviceMessages(@PathParam("deviceTypeId") long deviceTypeId,
@@ -130,7 +130,7 @@ public class DeviceMessagesResource {
     }
 
     @PUT
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response changeDeviceMessagePrivileges(@PathParam("deviceTypeId") long deviceTypeId,

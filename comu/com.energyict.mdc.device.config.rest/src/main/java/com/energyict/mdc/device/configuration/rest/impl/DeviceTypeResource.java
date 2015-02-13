@@ -78,7 +78,7 @@ public class DeviceTypeResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
     public PagedInfoList getAllDeviceTypes(@BeanParam QueryParameters queryParameters) {
         Finder<DeviceType> deviceTypeFinder = deviceConfigurationService.findAllDeviceTypes();
@@ -89,7 +89,7 @@ public class DeviceTypeResource {
 
     @DELETE
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteDeviceType(@PathParam("id") long id) throws SQLException, BusinessException {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
@@ -99,7 +99,7 @@ public class DeviceTypeResource {
     }
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public DeviceTypeInfo createDeviceType(DeviceTypeInfo deviceTypeInfo) {
@@ -117,7 +117,7 @@ public class DeviceTypeResource {
 
     @PUT
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public DeviceTypeInfo updateDeviceType(@PathParam("id") long id, DeviceTypeInfo deviceTypeInfo) {
@@ -133,7 +133,7 @@ public class DeviceTypeResource {
 
     @GET
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
     public DeviceTypeInfo findDeviceType(@PathParam("id") long id) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
@@ -148,7 +148,7 @@ public class DeviceTypeResource {
 
     @GET
     @Path("/{id}/logbooktypes")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
     public PagedInfoList getLogBookTypesForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @QueryParam("available") String available) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
@@ -174,7 +174,7 @@ public class DeviceTypeResource {
 
 /*    @GET
     @Path("/{id}/logbooktypes")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.VIEW_DEVICE_TYPE)
     public Response getLogBookTypesForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @QueryParam("available") String available) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
@@ -204,7 +204,7 @@ public class DeviceTypeResource {
 
     @POST
     @Path("/{id}/logbooktypes")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response addLogBookTypesForDeviceType(@PathParam("id") long id, List<Long> ids) {
         if (ids.isEmpty()) {
@@ -226,7 +226,7 @@ public class DeviceTypeResource {
 
     @DELETE
     @Path("/{id}/logbooktypes/{lbid}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteLogbookTypeFromDeviceType(@PathParam("id") long id, @PathParam("lbid") long lbid) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
@@ -260,7 +260,7 @@ public class DeviceTypeResource {
 
     @GET
     @Path("/{id}/registertypes")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
     public PagedInfoList getRegisterTypesForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter availableFilter) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
@@ -308,7 +308,7 @@ public class DeviceTypeResource {
     @POST
     @Path("/{id}/registertypes/{rmId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public List<RegisterTypeInfo> linkRegisterTypesToDeviceType(@PathParam("id") long id, @PathParam("rmId") long rmId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
@@ -323,7 +323,7 @@ public class DeviceTypeResource {
     @DELETE
     @Path("/{id}/registertypes/{rmId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response unlinkRegisterTypesFromDeviceType(@PathParam("id") long id, @PathParam("rmId") long registerTypeId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);

@@ -48,7 +48,7 @@ public class LoadProfileTypeResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
     public Response getLoadProfilesForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @QueryParam("available") String available) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
@@ -77,7 +77,7 @@ public class LoadProfileTypeResource {
     }
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response addLoadProfileTypesForDeviceType(@PathParam("id") long id, List<Long> ids, @Context UriInfo uriInfo) {
         boolean all = getBoolean(uriInfo, "all");
@@ -116,7 +116,7 @@ public class LoadProfileTypeResource {
 
     @DELETE
     @Path("/{loadProfileTypeId}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteLoadProfileTypeFromDeviceType(
             @PathParam("id") long id,

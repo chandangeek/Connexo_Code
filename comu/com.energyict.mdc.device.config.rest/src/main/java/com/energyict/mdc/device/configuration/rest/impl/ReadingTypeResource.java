@@ -43,7 +43,7 @@ public class ReadingTypeResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PagedInfoList getReadingType(@BeanParam JsonQueryFilter queryFilter, @BeanParam QueryParameters queryParameters) throws Exception {
         List<ReadingTypeInfo> readingTypeInfos = new ArrayList<>();
         if (queryFilter.hasFilters()) {
