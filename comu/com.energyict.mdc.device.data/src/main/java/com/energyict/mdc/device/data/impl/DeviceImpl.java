@@ -1163,12 +1163,16 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private Instant lastReadingClipped(LoadProfile loadProfile, Range<Instant> interval) {
-        if (loadProfile.getLastReading().isPresent() && interval.contains(loadProfile.getLastReading().get())) {
-            return loadProfile.getLastReading().get();
+        if (loadProfile.getLastReading().isPresent()) {
+            if (interval.contains(loadProfile.getLastReading().get())) {
+                return loadProfile.getLastReading().get();
+            } else if (interval.upperEndpoint().isBefore(loadProfile.getLastReading().get())) {
+                return interval.upperEndpoint();
+            } else {
+                return interval.lowerEndpoint(); // empty interval: interval is completely after last reading
+            }
         }
-        else {
-            return interval.upperEndpoint();
-        }
+        return interval.upperEndpoint();
     }
 
     Optional<ReadingRecord> getLastReadingFor(Register<?> register) {

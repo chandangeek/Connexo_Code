@@ -780,6 +780,42 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         assertThat(readings).describedAs("There should be 1 data(holders) for the interval 12:05->12:10: 1x15 minute reading overlaps with the interval").hasSize(1);
     }
 
+    /**
+     * @see  JP-8514
+     */
+    @Test
+    @Transactional
+    public void testGetLoadProfileDataAfterLastReading() {
+        BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+        String code = getForwardEnergyReadingTypeCodeBuilder()
+                .period(TimeAttribute.MINUTE15)
+                .code();
+        IntervalBlockImpl intervalBlock1 = IntervalBlockImpl.of(code);
+        intervalBlock1.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 15, 0).toInstant(ZoneOffset.UTC), readingValue));
+        IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(code);
+        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 30, 0).toInstant(ZoneOffset.UTC), readingValue));
+        IntervalBlockImpl intervalBlock3 = IntervalBlockImpl.of(code);
+        intervalBlock3.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
+        IntervalBlockImpl intervalBlock4 = IntervalBlockImpl.of(code);
+        intervalBlock4.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), readingValue));
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        meterReading.addIntervalBlock(intervalBlock1);
+        meterReading.addIntervalBlock(intervalBlock2);
+        meterReading.addIntervalBlock(intervalBlock3);
+        meterReading.addIntervalBlock(intervalBlock4);
+        device.store(meterReading);
+        device.getLoadProfileUpdaterFor(device.getLoadProfiles().get(0)).setLastReading(LocalDateTime.of(2014, 8, 1, 1, 0, 0).toInstant(ZoneOffset.UTC)).update();
+
+        Device reloadedDevice = getReloadedDevice(device);
+        Instant start = LocalDateTime.of(2014, 8, 1, 12, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant end = LocalDateTime.of(2014, 8, 1, 13, 0, 0).toInstant(ZoneOffset.UTC);
+        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(start, end));
+        assertThat(readings).describedAs("There should be no data(holders) after the last reading").isEmpty();
+    }
+
     @Test
     @Transactional
     public void testGetLoadProfileDataIfRequestIntervalExceedsLoadProfilesLastReading() {
