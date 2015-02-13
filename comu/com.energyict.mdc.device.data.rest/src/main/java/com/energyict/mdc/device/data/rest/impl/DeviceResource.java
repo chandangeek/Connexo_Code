@@ -61,7 +61,7 @@ public class DeviceResource {
     private final TopologyService topologyService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final ResourceHelper resourceHelper;
-    private final ExceptionFactory exceptionFactory; 
+    private final ExceptionFactory exceptionFactory;
     private final IssueService issueService;
     private final MeteringService meteringService;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
@@ -181,7 +181,7 @@ public class DeviceResource {
         this.deviceImportService.addDeviceToBatch(newDevice, info.batch);
         return DeviceInfo.from(newDevice, getSlaveDevicesForDevice(newDevice), deviceImportService, topologyService, issueService, meteringService);
     }
-    
+
     @PUT
     @Path("/{mRID}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -198,7 +198,7 @@ public class DeviceResource {
     }
 
     private void updateGateway(Device device, String gatewayMRID) {
-        if (device.getDeviceConfiguration().canBeDirectlyAddressable()) {
+        if (device.getDeviceConfiguration().isDirectlyAddressable()) {
             throw exceptionFactory.newException(MessageSeeds.IMPOSSIBLE_TO_SET_MASTER_DEVICE, device.getmRID());
         }
         Optional<Device> currentGateway = topologyService.getPhysicalGateway(device);
