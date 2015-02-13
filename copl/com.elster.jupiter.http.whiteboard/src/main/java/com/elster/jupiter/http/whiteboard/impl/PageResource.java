@@ -17,7 +17,7 @@ public class PageResource {
 	private WhiteBoard whiteBoard;
 	
 	@GET
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	public List<PageInfo> getPages() {
 		List<PageInfo> result = new ArrayList<>();
 		for (HttpResource each : whiteBoard.getResources()) {

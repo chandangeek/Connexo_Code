@@ -28,7 +28,7 @@ public class AppResource {
 
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public List<AppInfo> getApps(@Context SecurityContext securityContext) {
         User user = (User) securityContext.getUserPrincipal();
         return whiteBoard.getApps().stream().filter(app -> app.isAllowed(user)).map(this::appInfo).collect(Collectors.toList());
@@ -36,7 +36,7 @@ public class AppResource {
 
     @GET
     @Path("/status/{app}/")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public LicenseInfo getAppLicenseStatus(@PathParam("app") String app) {
         License license = getAppLicense(app);
         if (license != null) {

@@ -14,7 +14,7 @@ public class SessionResource {
 
     @GET
     @Path("/timeout")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public SessionTimeOutInfo getSessionTimeOut() {
         return new SessionTimeOutInfo(whiteBoard.getSessionTimeout());
     }
