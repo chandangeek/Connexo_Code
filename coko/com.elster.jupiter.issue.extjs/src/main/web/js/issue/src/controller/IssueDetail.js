@@ -4,6 +4,8 @@ Ext.define('Isu.controller.IssueDetail', {
     showOverview: function (id, issueModel, issuesStore, widgetXtype, routeToList, issueType) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
+            filter = me.getStore('Isu.store.Clipboard').get(issueType + '-latest-issues-filter'),
+            queryParams = filter ? {filter: filter} : null,
             widget = Ext.widget(widgetXtype, {
                 router: router,
                 issuesListLink: me.makeLinkToList(router, routeToList, issueType)
@@ -25,6 +27,10 @@ Ext.define('Isu.controller.IssueDetail', {
                     Ext.resumeLayouts(true);
                     widget.down('issues-action-menu').record = record;
                     me.loadComments(record);
+                    if (queryParams) {
+                        var breadcrumbLink = Ext.ComponentQuery.query('breadcrumbLink[href=#/workspace/datacollectionissues]')[0];
+                        breadcrumbLink.getEl().down('a').set({href: router.getRoute(routeToList).buildUrl(null, queryParams)});
+                    }
                 }
             },
             failure: function () {
