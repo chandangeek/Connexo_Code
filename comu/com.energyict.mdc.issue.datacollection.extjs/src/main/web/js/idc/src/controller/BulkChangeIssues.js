@@ -315,6 +315,7 @@ Ext.define('Idc.controller.BulkChangeIssues', {
 //                    failedPanel.addClass('isu-bulk-message-panel');
                     step5panel.add(failedPanel);
                 }
+                me.getBulkNavigation().moveNextStep();
             },
             failure: function (response) {
                 step5panel.removeAll(true);
