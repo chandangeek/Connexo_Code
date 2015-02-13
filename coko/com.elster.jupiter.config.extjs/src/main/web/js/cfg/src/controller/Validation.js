@@ -451,6 +451,7 @@ Ext.define('Cfg.controller.Validation', {
                 itemId: 'addReadingTypesGrid',
                 xtype: 'addReadingTypesBulk',
                 store: readingTypeStore,
+                height: 600,
                 plugins: {
                     ptype: 'bufferedrenderer'
                 }
