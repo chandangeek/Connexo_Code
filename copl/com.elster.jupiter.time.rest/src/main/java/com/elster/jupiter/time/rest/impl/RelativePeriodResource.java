@@ -67,7 +67,7 @@ public class RelativePeriodResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     // not protected by privileges yet because a combobox containing all the relative periods needs to be shown when creating an export task
     public RelativePeriodInfos getRelativePeriods(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
@@ -84,7 +84,7 @@ public class RelativePeriodResource {
     @Path("/{id}")
     @GET
     @RolesAllowed({Privileges.ADMINISTRATE_RELATIVE_PERIOD, Privileges.VIEW_RELATIVE_PERIOD})
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public RelativePeriodInfo getRelativePeriod(@PathParam("id") long id) {
         return new RelativePeriodInfo(getRelativePeriodOrThrowException(id), thesaurus);
     }
@@ -92,7 +92,7 @@ public class RelativePeriodResource {
     @POST
     @RolesAllowed(Privileges.ADMINISTRATE_RELATIVE_PERIOD)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response createRelativePeriod(RelativePeriodInfo relativePeriodInfo) {
         RelativeDate relativeDateFrom = new RelativeDate(relativePeriodInfo.from.convertToRelativeOperations());
         RelativeDate relativeDateTo = new RelativeDate(relativePeriodInfo.to.convertToRelativeOperations());
@@ -109,7 +109,7 @@ public class RelativePeriodResource {
     @PUT
     @RolesAllowed(Privileges.ADMINISTRATE_RELATIVE_PERIOD)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public RelativePeriodInfo setRelativePeriod(@PathParam("id") long id, RelativePeriodInfo relativePeriodInfo) {
         RelativePeriod relativePeriod = getRelativePeriodOrThrowException(id);
         RelativeDate relativeDateFrom = new RelativeDate(relativePeriodInfo.from.convertToRelativeOperations());
@@ -127,7 +127,7 @@ public class RelativePeriodResource {
     @Path("/{id}")
     @DELETE
     @RolesAllowed(Privileges.ADMINISTRATE_RELATIVE_PERIOD)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response removeRelativePeriod(@PathParam("id") long id) {
         try {
             RelativePeriod relativePeriod = getRelativePeriodOrThrowException(id);
@@ -156,7 +156,7 @@ public class RelativePeriodResource {
     @PUT
     @RolesAllowed({Privileges.ADMINISTRATE_RELATIVE_PERIOD, Privileges.VIEW_RELATIVE_PERIOD})
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public RelativePeriodPreviewInfo pregviewRelativePeriod(@PathParam("id") long id, RelativeDatePreviewInfo relativeDatePreviewInfo) {
         RelativePeriod relativePeriod = getRelativePeriodOrThrowException(id);
         ZonedDateTime referenceDate = getZonedDateTime(relativeDatePreviewInfo);
@@ -169,7 +169,7 @@ public class RelativePeriodResource {
     @PUT
     @RolesAllowed({Privileges.ADMINISTRATE_RELATIVE_PERIOD, Privileges.VIEW_RELATIVE_PERIOD})
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public RelativeDatePreviewInfo previewRelativeDate(RelativeDatePreviewInfo relativeDatePreviewInfo) {
         List<RelativeOperation> operations = new ArrayList<>();
         ZonedDateTime referenceDate = getZonedDateTime(relativeDatePreviewInfo);
@@ -185,7 +185,7 @@ public class RelativePeriodResource {
     @Path("/categories")
     @GET
     @RolesAllowed({Privileges.ADMINISTRATE_RELATIVE_PERIOD, Privileges.VIEW_RELATIVE_PERIOD})
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public RelativePeriodCategoryInfos getCategories(@Context UriInfo uriInfo) {
         return new RelativePeriodCategoryInfos(timeService.getRelativePeriodCategories(), thesaurus);
     }
@@ -193,7 +193,7 @@ public class RelativePeriodResource {
     @Path("/weekstarts")
     @GET
     @RolesAllowed({Privileges.ADMINISTRATE_RELATIVE_PERIOD, Privileges.VIEW_RELATIVE_PERIOD})
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getFirstDayOfWeek() {
         return Response.ok(WeekFields.of(Locale.getDefault()).getFirstDayOfWeek().getValue()).build();
     }
