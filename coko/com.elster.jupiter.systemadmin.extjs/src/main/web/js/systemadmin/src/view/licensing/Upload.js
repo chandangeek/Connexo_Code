@@ -18,6 +18,10 @@ Ext.define('Sam.view.licensing.Upload', {
                 {
                     xtype: 'form',
                     layout: 'hbox',
+                    autoEl: {
+                        tag: 'form',
+                        enctype: 'multipart/form-data'
+                    },
                     items: [
                         {
                             itemId: 'uploadfileField',

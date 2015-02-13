@@ -64,51 +64,39 @@ Ext.define('Sam.controller.licensing.Upload', {
         }
     },
 
+
     onSubmit: function () {
         var self = this,
             uploadPanel = self.getUploadPanel(),
-            form = uploadPanel.down('form').getForm(),
-            header = {
-                style: 'msgHeaderStyle'
-            },
-            msges = [];
-        if (form.isValid()) {
-            form.submit({
+            router = self.getController('Uni.controller.history.Router'),
+            form = uploadPanel.down('form').getEl().dom,
+            message = 'Licenses successfully uploaded for applications: ';
+
+        if (uploadPanel.down('form').getForm().isValid()) {
+            uploadPanel.setLoading();
+            Ext.Ajax.request({
                 url: '/api/lic/license/upload',
                 method: 'POST',
-                waitMsg: 'Loading...',
-                failure: function (form, action) {
-                    if (Ext.isIE) {
-                        if (action.result.success) {
-                            self.getController('Uni.controller.history.Router').getRoute('administration/licensing/licences').forward();
-                            self.getApplication().fireEvent('acknowledge', 'Licenses successfully uploaded');
-                        } else {
-                            uploadPanel.down('#upload').disable();
-                            self.getApplication().getController('Uni.controller.Error').showError('Failed to upload licenses', 'A newer license is already active');
-                        }
+                form: form,
+                headers: {'Content-type': 'multipart/form-data'},
+                isFormUpload: true,
+                callback: function (config, success, response) {
+                    var responseObject = JSON.parse(response.responseText);
+                    uploadPanel.setLoading(false);
+                    if (Ext.isEmpty(responseObject.data.failure)) {
+                        router.getRoute('administration/licensing/licenses').forward();
+                        Ext.Array.each(responseObject.data.success, function (item, index) {
+                            if (index) {
+                                message += ', '
+                            }
+                            message += item
+                        });
+                        self.getApplication().fireEvent('acknowledge', message);
+                        self.getApplication().fireEvent('upload', responseObject.data.success[0]);
+                        Ext.getStore('apps').load();
                     } else {
-                        if (Ext.isEmpty(action.result.data.failure)) {
-                            window.location.href = '#/administration/licensing/licenses';
-                            header.text = 'Licenses successfully uploaded for applications:';
-                            msges.push(header);
-                            Ext.Array.each(action.result.data.success, function(item) {
-                                var bodyItem = {};
-                                bodyItem.style = 'msgItemStyle';
-                                bodyItem.text = item;
-                                msges.push(bodyItem);
-                            });
-                            self.getApplication().fireEvent('isushowmsg', {
-                                type: 'notify',
-                                msgBody: msges,
-                                y: 10,
-                                showTime: 5000
-                            });
-                            self.getApplication().fireEvent('upload', action.result.data.success[0]);
-                            Ext.getStore('apps').load();
-                        } else {
-                            uploadPanel.down('#upload').disable();
-                            self.getApplication().getController('Uni.controller.Error').showError('Failed to upload licenses', action.result.data.failure);
-                        }
+                        uploadPanel.down('#upload').disable();
+                        self.getApplication().getController('Uni.controller.Error').showError('Failed to upload licenses', responseObject.data.failure);
                     }
                 }
             });
