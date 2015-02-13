@@ -63,6 +63,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     // Validation 1101 - 1499
     FIELD_CAN_NOT_BE_EMPTY (1101, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty", Level.SEVERE),
+    ISSUE_CREATION_RULE_THRESHOLD_PARAMETER_INCORRECT(1102, "IssueCreationRuleThresholdParameterIncorrect", "Invalid value. It should be a decimal number between %s and %s", Level.SEVERE),
 
     // Actions 1501 -
     ACTION_RETRY_NOW(1501, "ActionRetryNow", "Retry now", Level.INFO),
