@@ -8,6 +8,7 @@ import com.elster.jupiter.systemadmin.rest.resource.MessageSeeds;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.json.JsonService;
 import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
@@ -26,6 +27,8 @@ public class LicensingApplicationJerseyTest extends FelixRestApplicationJerseyTe
     LifeCycleService lifeCycleService;
     @Mock
     TaskService taskService;
+    @Mock
+    JsonService jsonService;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -48,6 +51,7 @@ public class LicensingApplicationJerseyTest extends FelixRestApplicationJerseyTe
         app.setNlsService(nlsService);
         app.setLifeCycleService(lifeCycleService);
         app.setTaskService(taskService);
+        app.setJsonService(jsonService);
         return app;
     }
 }

@@ -16,6 +16,7 @@ import com.elster.jupiter.systemadmin.rest.resource.MessageSeeds;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.json.JsonService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -42,6 +43,7 @@ public class LicensingApplication extends Application implements TranslationKeyP
     private volatile LifeCycleService lifeCycleService;
     private volatile TaskService taskService;
     private volatile Thesaurus thesaurus;
+    private volatile JsonService jsonService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -61,10 +63,12 @@ public class LicensingApplication extends Application implements TranslationKeyP
     public void setLicenseService(LicenseService licenseService) {
         this.licenseService = licenseService;
     }
+
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
+
     @Reference
     public void setRestQueryService(RestQueryService restQueryService) {
         this.restQueryService = restQueryService;
@@ -80,10 +84,15 @@ public class LicensingApplication extends Application implements TranslationKeyP
     public void setLifeCycleService(LifeCycleService lifeCycleService) {
         this.lifeCycleService = lifeCycleService;
     }
-    
+
     @Reference
     public void setTaskService(TaskService taskService) {
         this.taskService = taskService;
+    }
+
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
     }
 
     @Override
@@ -121,6 +130,7 @@ public class LicensingApplication extends Application implements TranslationKeyP
             bind(taskService).to(TaskService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(thesaurus).to(MessageInterpolator.class);
+            bind(jsonService).to(JsonService.class);
         }
     }
 }

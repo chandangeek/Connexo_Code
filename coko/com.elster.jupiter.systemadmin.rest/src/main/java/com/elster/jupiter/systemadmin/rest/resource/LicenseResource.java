@@ -36,8 +36,8 @@ public class LicenseResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_LICENSE)
     public LicenseListInfo getLicenseList() {
-        List<License> resultList  = new ArrayList<>();
-        List<String> applKeyList =  getLicenseService().getLicensedApplicationKeys();
+        List<License> resultList = new ArrayList<>();
+        List<String> applKeyList = getLicenseService().getLicensedApplicationKeys();
         for (String key : applKeyList) {
             Optional<License> licRef = getLicenseService().getLicenseForApplication(key);
             if (licRef.isPresent()) {
@@ -65,7 +65,7 @@ public class LicenseResource extends BaseResource {
     @POST
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
     @RolesAllowed(Privileges.UPLOAD_LICENSE)
     public Response uploadLicense(@FormDataParam("uploadField") InputStream fileInputStream,
                                   @FormDataParam("uploadField") FormDataContentDisposition contentDispositionHeader) {
@@ -78,7 +78,7 @@ public class LicenseResource extends BaseResource {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
 
-        ActionInfo info =  getTransactionService().execute(new UploadLicenseTransaction(getLicenseService(), getNlsService(), signedObject));
-        return Response.status(Response.Status.OK).entity(new RootEntity<ActionInfo>(info)).build();
+        ActionInfo info = getTransactionService().execute(new UploadLicenseTransaction(getLicenseService(), getNlsService(), getJsonService(), signedObject));
+        return Response.status(Response.Status.OK).entity(getJsonService().serialize(new RootEntity<ActionInfo>(info))).build();
     }
 }

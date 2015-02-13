@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.json.JsonService;
 
 import javax.inject.Inject;
 
@@ -18,8 +19,9 @@ public abstract class BaseResource {
     private LicenseService licenseService;
     private UserService userService;
     private NlsService nlsService;
+    private JsonService jsonService;
 
-    public BaseResource(){
+    public BaseResource() {
     }
 
     protected RestQueryService getQueryService() {
@@ -35,6 +37,7 @@ public abstract class BaseResource {
     public void setLicenseService(LicenseService licenseService) {
         this.licenseService = licenseService;
     }
+
     protected LicenseService getLicenseService() {
         return licenseService;
     }
@@ -43,6 +46,7 @@ public abstract class BaseResource {
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
+
     protected TransactionService getTransactionService() {
         return transactionService;
     }
@@ -51,6 +55,7 @@ public abstract class BaseResource {
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
+
     protected UserService getUserService() {
         return userService;
     }
@@ -59,7 +64,18 @@ public abstract class BaseResource {
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
     }
+
     protected NlsService getNlsService() {
         return nlsService;
+    }
+
+
+    @Inject
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
+    }
+
+    protected JsonService getJsonService() {
+        return jsonService;
     }
 }
