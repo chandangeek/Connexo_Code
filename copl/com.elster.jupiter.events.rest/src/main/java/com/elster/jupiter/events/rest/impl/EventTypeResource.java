@@ -33,7 +33,7 @@ public class EventTypeResource {
     }
 
     @GET
-	  @Produces(MediaType.APPLICATION_JSON)
+	  @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	  public EventTypeInfos getEventTypes(@Context UriInfo uriInfo) {
 	      List<EventType> list = eventService.getEventTypes();
 	      EventTypeInfos infos = new EventTypeInfos(list);
@@ -43,7 +43,7 @@ public class EventTypeResource {
 	  
 	  @PUT
 	  @Path("/{topic}/")
-	  @Produces(MediaType.APPLICATION_JSON)
+	  @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	  @Consumes(MediaType.APPLICATION_JSON)
 	  public EventTypeInfos updateEventType(EventTypeInfo info, @PathParam("topic") String topic) {
 	      info.topic = topic;
@@ -53,7 +53,7 @@ public class EventTypeResource {
 	  
 	  @GET
 	  @Path("/{topic}/")
-	  @Produces(MediaType.APPLICATION_JSON)
+	  @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	  public EventTypeInfos getEventType(@PathParam("topic") String topic) {
 	      Optional<EventType> eventType = eventService.getEventType(topic);
 	      if (eventType.isPresent()) {
