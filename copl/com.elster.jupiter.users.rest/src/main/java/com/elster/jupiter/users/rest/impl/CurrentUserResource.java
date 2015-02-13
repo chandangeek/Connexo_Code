@@ -27,7 +27,7 @@ public class CurrentUserResource {
     }
     
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getCurrentUser(@Context SecurityContext securityContext) {
         User user = fetchUser((User) securityContext.getUserPrincipal());
         return Response.ok(new UserInfo(user)).build();
@@ -35,7 +35,7 @@ public class CurrentUserResource {
     
     @GET
     @Path("/preferences")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getUserPreferences(@Context SecurityContext securityContext) {
         User user = fetchUser((User) securityContext.getUserPrincipal());
         List<UserPreference> preferences = userService.getUserPreferencesService().getPreferences(user);

@@ -50,7 +50,7 @@ public class GroupResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_USER_ROLE)
     public GroupInfos createOrganization(GroupInfo info) {
         GroupInfos result = new GroupInfos();
@@ -60,7 +60,7 @@ public class GroupResource {
 
     @DELETE
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_USER_ROLE)
     public GroupInfos deleteGroup(GroupInfo info, @PathParam("id") long id) {
         info.id = id;
@@ -70,7 +70,7 @@ public class GroupResource {
 
     @GET
     @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE,Privileges.VIEW_USER_ROLE})
     public GroupInfos getGroup(@PathParam("id") long id) {
         Optional<Group> group = userService.getGroup(id);
@@ -81,7 +81,7 @@ public class GroupResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE,Privileges.VIEW_USER_ROLE})
     public GroupInfos getGroups(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
@@ -93,7 +93,7 @@ public class GroupResource {
 
     @PUT
     @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_USER_ROLE)
     public GroupInfos updateGroup(GroupInfo info, @PathParam("id") long id) {

@@ -50,7 +50,7 @@ public class UserResource {
 // - To be added in the future?
 //    @POST
 //    @Consumes(MediaType.APPLICATION_JSON)
-//    @Produces(MediaType.APPLICATION_JSON)
+//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 //    public UserInfos createUser(UserInfo info) {
 //        User user = transactionService.execute(new CreateUserTransaction(info, userService));
 //        try (TransactionContext context = transactionService.getContext()) {
@@ -63,7 +63,7 @@ public class UserResource {
 
 //    @DELETE
 //    @Path("/{id}")
-//    @Produces(MediaType.APPLICATION_JSON)
+//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 //    public UserInfos deleteUser(UserInfo info, @PathParam("id") long id) {
 //        info.id = id;
 //        transactionService.execute(new DeleteUserTransaction(info, userService));
@@ -72,7 +72,7 @@ public class UserResource {
 
     @GET
     @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE,Privileges.VIEW_USER_ROLE})
     public UserInfos getUser(@PathParam("id") long id) {
         try (TransactionContext context = transactionService.getContext()) {
@@ -89,7 +89,7 @@ public class UserResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE,Privileges.VIEW_USER_ROLE})
     public UserInfos getUsers(@Context UriInfo uriInfo) {
         try (TransactionContext context = transactionService.getContext()) {
@@ -107,7 +107,7 @@ public class UserResource {
 
     @GET
     @Path("/privileges")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PrivilegeInfos getUserPrivileges(@Context SecurityContext securityContext) {
         User user = (User) securityContext.getUserPrincipal();
         return new PrivilegeInfos(user.getPrivileges());
@@ -115,7 +115,7 @@ public class UserResource {
 
     @PUT
     @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_USER_ROLE)
     public UserInfos updateUser(UserInfo info, @PathParam("id") long id) {
