@@ -72,6 +72,7 @@ import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
@@ -273,11 +274,13 @@ public class ComSessionCrudIT {
         EncryptionDeviceAccessLevel encryptionAccessLevel = mock(EncryptionDeviceAccessLevel.class);
         when(encryptionAccessLevel.getId()).thenReturn(0);
         when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
+        when(this.deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
 
         try (TransactionContext ctx = transactionService.getContext()) {
             deviceType = deviceConfigurationService.newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
             deviceType.save();
             DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
+            deviceConfigurationBuilder.isDirectlyAddressable(true);
             deviceConfiguration = deviceConfigurationBuilder.add();
             configDialectProps = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
             deviceConfiguration.save();

@@ -571,6 +571,8 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testGatewayTypeMethodsForHAN() {
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("GatewayTypeMethodsForHAN", deviceProtocolPluggableClass);
+        deviceType.save();
         DeviceType.DeviceConfigurationBuilder config = deviceType.newConfiguration("some config").gatewayType(GatewayType.HOME_AREA_NETWORK);
         DeviceConfiguration deviceConfiguration = config.add();
         deviceConfiguration.activate();
@@ -586,6 +588,8 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testGatewayTypeMethodsForLAN() {
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("GatewayTypeMethodsForLAN", deviceProtocolPluggableClass);
+        deviceType.save();
         DeviceType.DeviceConfigurationBuilder config = deviceType.newConfiguration("some config").gatewayType(GatewayType.LOCAL_AREA_NETWORK);
         DeviceConfiguration deviceConfiguration = config.add();
         deviceConfiguration.activate();
@@ -601,6 +605,8 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testGatewayTypeMethodsForNonConcentrator() {
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("GatewayTypeMethodsForNonConcentrator", deviceProtocolPluggableClass);
+        deviceType.save();
         DeviceType.DeviceConfigurationBuilder config = deviceType.newConfiguration("some config");
         DeviceConfiguration deviceConfiguration = config.add();
         deviceConfiguration.activate();
@@ -666,9 +672,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     }
 
 
-    /**
-     * @see  JP-5583
-     */
+    // JP-5583
     @Test
     @Transactional
     public void testGetChannelDataIfRequestedIntervalHasNoReadingsButDataWasExpected() {
@@ -704,9 +708,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         assertThat(readings).describedAs("There should be data(holders) for the interval 12:00->16:00 even though there are no meter readings").hasSize(4*4);
     }
 
-    /**
-     * @see  JP-5583
-     */
+    // JP-5583
     @Test
     @Transactional
     public void testGetLoadProfileDataIfRequestedIntervalHasNoReadingsButDataWasExpected() {
@@ -742,9 +744,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         assertThat(readings).describedAs("There should be data(holders) for the interval 12:00->16:00 even though there are no meter readings").hasSize(4*4);
     }
 
-    /**
-     * @see  JP-5583
-     */
+    // JP-5583
     @Test
     @Transactional
     public void testGetLoadProfileDataIfRequestedIntervalIsEmptyButDataWasExpected() {

@@ -12,6 +12,7 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -61,7 +62,7 @@ public abstract class PersistenceIntegrationTest {
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     @Mock
-    private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    protected DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
     protected DeviceProtocol deviceProtocol;
 
@@ -103,9 +104,11 @@ public abstract class PersistenceIntegrationTest {
         EncryptionDeviceAccessLevel encryptionAccessLevel = mock(EncryptionDeviceAccessLevel.class);
         when(encryptionAccessLevel.getId()).thenReturn(anySecurityLevel);
         when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
+        when(this.deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
         deviceType.save();
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
+        deviceConfigurationBuilder.isDirectlyAddressable(true);
         deviceConfiguration = deviceConfigurationBuilder.add();
         deviceMessageIds.stream().forEach(deviceConfiguration::createDeviceMessageEnablement);
         deviceConfiguration.activate();
