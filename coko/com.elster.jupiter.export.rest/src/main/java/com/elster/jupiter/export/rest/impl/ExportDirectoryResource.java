@@ -35,14 +35,14 @@ public class ExportDirectoryResource {
 
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public DirectoryForAppServerInfos getExportPaths() {
         return new DirectoryForAppServerInfos(dataExportService.getAllExportDirecties());
     }
 
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{appServerName}")
     public DirectoryForAppServerInfo getExportPathForAppServer(@PathParam("appServerName") String appServerName) {
         AppServer appServer = findAppServerOrThrowException(appServerName);
@@ -54,14 +54,14 @@ public class ExportDirectoryResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response addExportPaths(DirectoryForAppServerInfo info) {
         return updateExportPaths(info.appServerName, info);
     }
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{appServerName}")
     public Response updateExportPaths(@PathParam("appServerName") String appServerName, DirectoryForAppServerInfo info) {
         AppServer appServer = findAppServerOrThrowException(appServerName);
@@ -80,7 +80,7 @@ public class ExportDirectoryResource {
 
     @DELETE
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{appServerName}")
     public Response removeExportPaths(@PathParam("appServerName") String appServerName){
         AppServer appServer = findAppServerOrThrowException(appServerName);

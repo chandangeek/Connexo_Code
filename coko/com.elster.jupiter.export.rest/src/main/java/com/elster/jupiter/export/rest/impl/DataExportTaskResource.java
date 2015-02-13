@@ -75,7 +75,7 @@ public class DataExportTaskResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
     public DataExportTaskInfos getDataExportTasks(@Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
@@ -95,7 +95,7 @@ public class DataExportTaskResource {
 
     @GET
     @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
     public DataExportTaskInfo getDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
         return new DataExportTaskInfo(fetchDataExportTask(id), thesaurus, timeService);
@@ -103,7 +103,7 @@ public class DataExportTaskResource {
 
     @POST
     @Path("/{id}/trigger")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
     public Response triggerDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
         transactionService.execute(VoidTransaction.of(() -> fetchDataExportTask(id).triggerNow()));
@@ -111,7 +111,7 @@ public class DataExportTaskResource {
     }
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DATA_EXPORT_TASK)
     public Response addReadingTypeDataExportTask(DataExportTaskInfo info) {
@@ -150,7 +150,7 @@ public class DataExportTaskResource {
 
     @DELETE
     @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DATA_EXPORT_TASK)
     public Response removeDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
         ReadingTypeDataExportTask task = fetchDataExportTask(id);
@@ -169,7 +169,7 @@ public class DataExportTaskResource {
 
     @PUT
     @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK})
     public Response updateReadingTypeDataExportTask(@PathParam("id") long id, DataExportTaskInfo info) {
 
@@ -198,7 +198,7 @@ public class DataExportTaskResource {
 
     @GET
     @Path("/{id}/history")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     public DataExportTaskHistoryInfos getDataExportTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
                                                                @BeanParam JsonQueryFilter filter, @Context UriInfo uriInfo) {
@@ -233,7 +233,7 @@ public class DataExportTaskResource {
 
     @GET
     @Path("/{id}/datasources")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public DataSourceInfos getDataSources(@PathParam("id") long id, @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
         ReadingTypeDataExportTask task = fetchDataExportTask(id);
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
@@ -247,7 +247,7 @@ public class DataExportTaskResource {
 
     @GET
     @Path("/{id}/history/{occurrenceId}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public DataExportOccurrenceLogInfos getDataExportTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
                                                                  @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());

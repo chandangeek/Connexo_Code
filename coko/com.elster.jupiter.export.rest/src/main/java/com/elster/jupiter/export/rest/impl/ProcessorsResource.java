@@ -33,7 +33,7 @@ public class ProcessorsResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
     public ProcessorInfos getAvailableProcessors(@Context UriInfo uriInfo) {
         ProcessorInfos infos = new ProcessorInfos();
