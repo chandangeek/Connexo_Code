@@ -18,18 +18,17 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import static java.util.stream.Collectors.toList;
@@ -62,7 +61,7 @@ public class DashboardFieldResource extends FieldResource {
 
     @GET
     @Path("/breakdown")
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getBreakdownValues() {
         return asJsonArrayObjectWithTranslation("breakdowns", "breakdown", BREAKDOWN_OPTION_ADAPTER.getClientSideValues());
@@ -70,7 +69,7 @@ public class DashboardFieldResource extends FieldResource {
 
     @GET
     @Path("/taskstatus")
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getTaskStatusValues() {
         return asJsonArrayObjectWithTranslation("taskStatuses", "taskStatus", new TaskStatusAdapter().getClientSideValues());
@@ -78,7 +77,7 @@ public class DashboardFieldResource extends FieldResource {
 
     @GET
     @Path("/comsessionsuccessindicators")
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getComSessionSuccessIndicatorValues() {
         return asJsonArrayObjectWithTranslation("successIndicators", "successIndicator", new ComSessionSuccessIndicatorAdapter().getClientSideValues());
@@ -86,7 +85,7 @@ public class DashboardFieldResource extends FieldResource {
 
     @GET
     @Path("/connectiontasksuccessindicators")
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getConnectionTaskSuccessIndicatorValues() {
         return asJsonArrayObjectWithTranslation("successIndicators", "successIndicator", new ConnectionTaskSuccessIndicatorAdapter().getClientSideValues());
@@ -94,7 +93,7 @@ public class DashboardFieldResource extends FieldResource {
 
     @GET
     @Path("/lifecyclestatus")
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getLifecycleStatus() {
         return asJsonArrayObjectWithTranslation("lifecycleStatuses", "lifecycleStatus", new ConnectionTaskLifecycleStatusAdapter().getClientSideValues());
@@ -102,7 +101,7 @@ public class DashboardFieldResource extends FieldResource {
 
     @GET
     @Path("/completioncodes")
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getCompletionCodes() {
         return asJsonArrayObjectWithTranslation("completionCodes", "completionCode", new CompletionCodeAdapter().getClientSideValues());
@@ -110,7 +109,7 @@ public class DashboardFieldResource extends FieldResource {
 
     @GET
     @Path("/devicetypes")
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getDeviceTypes() {
         return Response.ok(asInfoMap("deviceTypes", deviceConfigurationService.findAllDeviceTypes().find())).build();
@@ -118,7 +117,7 @@ public class DashboardFieldResource extends FieldResource {
 
     @GET
     @Path("/comportpools")
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getComPortPools() {
         return Response.ok(asInfoMap("comPortPools", engineConfigurationService.findAllComPortPools().stream().filter(pool -> pool.isActive()).collect(Collectors.toList()))).build();
@@ -126,7 +125,7 @@ public class DashboardFieldResource extends FieldResource {
 
     @GET
     @Path("/comtasks")
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getComTasks() {
         return Response.ok(asInfoMap("comTasks", taskService.findAllComTasks())).build();
@@ -135,14 +134,14 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/comschedules")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Object getComSchedules() {
         return Response.ok(asInfoMap("comSchedules", schedulingService.findAllSchedules())).build();
     }
 
     @GET
     @Path("/connectiontypepluggableclasses")
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getConnectionTypeValues() {
         return Response.ok(asInfoMap("connectiontypepluggableclasses", protocolPluggableService.findAllConnectionTypePluggableClasses())).build();

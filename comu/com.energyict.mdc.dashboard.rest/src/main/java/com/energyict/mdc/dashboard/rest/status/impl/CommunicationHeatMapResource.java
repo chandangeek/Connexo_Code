@@ -14,6 +14,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 @Path("/communicationheatmap")
 public class CommunicationHeatMapResource {
@@ -38,7 +39,7 @@ public class CommunicationHeatMapResource {
      * @throws Exception
      */
     @GET
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public CommunicationHeatMapInfo getConnectionHeatMap(@BeanParam JsonQueryFilter jsonQueryFilter) throws Exception {
         if (jsonQueryFilter.hasProperty(Constants.DEVICE_GROUP)) {

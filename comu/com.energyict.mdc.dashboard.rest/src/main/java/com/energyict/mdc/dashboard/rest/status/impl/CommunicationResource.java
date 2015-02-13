@@ -55,7 +55,7 @@ public class CommunicationResource {
 
     @GET
     @Consumes("application/json")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response getCommunications(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters) throws Exception {
         ComTaskExecutionFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
@@ -75,7 +75,7 @@ public class CommunicationResource {
     @PUT
     @Path("/{comTaskExecId}/run")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runCommunication(@PathParam("comTaskExecId") long comTaskExecId) {
         ComTaskExecution comTaskExecution = communicationTaskService.findComTaskExecution(comTaskExecId)
@@ -87,7 +87,7 @@ public class CommunicationResource {
     @PUT
     @Path("/{comTaskExecId}/runnow")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runCommunicationNow(@PathParam("comTaskExecId") long comTaskExecId) {
         ComTaskExecution comTaskExecution = communicationTaskService.findComTaskExecution(comTaskExecId)
