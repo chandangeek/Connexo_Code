@@ -22,7 +22,7 @@ Ext.define('Uni.view.grid.SelectionGrid', {
     cls: 'uni-selection-grid',
 
     overflowY: 'auto',
-    height: 450,
+    maxHeight: 450,
 
     extraTopToolbarComponent: undefined,
 

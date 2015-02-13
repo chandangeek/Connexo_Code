@@ -77,7 +77,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
 
     loadMask: true,
     autoScroll: true,
-    height: 600,
+    maxHeight: 600,
 
     /**
      * @cfg allLabel
