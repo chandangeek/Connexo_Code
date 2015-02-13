@@ -110,8 +110,8 @@ public class InMemoryPersistence {
     private ValidationService validationService;
 
     private boolean mockProtocolPluggableService;
-    private PropertySpecService propertySpecService;
     private ProtocolPluggableService protocolPluggableService;
+    private PropertySpecService propertySpecService;
     private LogBookTypeUpdateEventHandler logBookTypeUpdateEventHandler;
     private ComTaskDeletionEventHandler comTaskDeletionEventHandler;
     private LogBookTypeDeletionEventHandler logBookTypeDeletionEventHandler;

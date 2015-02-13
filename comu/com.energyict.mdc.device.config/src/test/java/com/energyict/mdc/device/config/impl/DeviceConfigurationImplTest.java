@@ -1,14 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
@@ -33,13 +24,24 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.users.User;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
+
+import org.junit.*;
+import org.junit.rules.*;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
@@ -85,7 +87,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration(deviceConfigurationName);
 
         // Business method
-        DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
+        deviceConfigurationBuilder.add();
 
         // Asserts
         List<DeviceConfiguration> reloaded = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfigurationsByDeviceType(deviceType);
@@ -224,9 +226,9 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder1.add();
 
         LogBookSpec.LogBookSpecBuilder logBookSpecBuilder1 = deviceConfiguration.createLogBookSpec(logBookType);
-        LogBookSpec logBookSpec1 = logBookSpecBuilder1.add();
+        logBookSpecBuilder1.add();
         LogBookSpec.LogBookSpecBuilder logBookSpecBuilder2 = deviceConfiguration.createLogBookSpec(logBookType);
-        LogBookSpec logBookSpec2 = logBookSpecBuilder2.add();
+        logBookSpecBuilder2.add();
     }
 
     @Test(expected = CannotAddToActiveDeviceConfigurationException.class)
@@ -240,7 +242,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         deviceConfiguration.activate();
         LogBookSpec.LogBookSpecBuilder logBookSpecBuilder1 = deviceConfiguration.createLogBookSpec(logBookType);
         try {
-            LogBookSpec logBookSpec1 = logBookSpecBuilder1.add();
+            logBookSpecBuilder1.add();
         } catch (CannotAddToActiveDeviceConfigurationException e) {
             if (!e.getMessageSeed().equals(MessageSeeds.LOGBOOK_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION)) {
                 fail("Should have gotten the exception indicating that the log book spec could not be added to an active device configuration, but was " + e.getMessage());
@@ -442,14 +444,14 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INCORRECT_GATEWAY_TYPE + "}", property = "gatewayType", strict = false)
     public void testCanNotSaveWithoutGatewayTypeWhenActsAsGateway() throws Exception {
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
-        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").canActAsGateway(true).add();
+        deviceType.newConfiguration("first").canActAsGateway(true).add();
     }
 
     @Test
     @Transactional
     public void testSaveDeviceConfigurationWithGateWayType() throws Exception {
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
-        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").gatewayType(GatewayType.HOME_AREA_NETWORK).add();
+        deviceType.newConfiguration("first").gatewayType(GatewayType.HOME_AREA_NETWORK).add();
      }
 
 
@@ -734,4 +736,5 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
                 .findDeviceConfiguration(deviceConfiguration.getId())
                 .orElseThrow(() -> new RuntimeException("Failed to reload device configuration " + deviceConfiguration.getId()));
     }
+
 }

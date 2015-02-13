@@ -108,7 +108,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DEVICE_CONFIGURATION_CAN_NOT_BE_GATEWAY(12012, Keys.DEVICE_CONFIG_GATEWAY_NOT_ALLOWED, "The device configuration can not be gateway as the device protocol does not allow it", SEVERE),
     DEVICE_CONFIGURATION_CAN_NOT_BE_DIRECTLY_ADDRESSED(12013, Keys.DEVICE_CONFIG_DIRECT_ADDRESS_NOT_ALLOWED, "The device configuration can not be directly addressable as the device protocol does not allow it", SEVERE),
     DEVICE_CONFIGURATION_IS_ACTIVE_CAN_NOT_CHANGE_FIELD(12014, Keys.DEVICE_CONFIG_ACTIVE_FIELD_IMMUTABLE, "You can not change this field for an active configuration", SEVERE),
-    DEVICE_CONFIGURATION_IS_NOT_DIRECTLY_ADDRESSABLE(12015, Keys.DEVICE_CONFIGURATION_IS_NOT_DIRECTLY_ADDRESSABLE, "It is not allowed to create connection methods because the device configuration is not directly addressble", SEVERE),
+    DEVICE_CONFIGURATION_IS_NOT_DIRECTLY_ADDRESSABLE(12015, Keys.DEVICE_CONFIGURATION_IS_NOT_DIRECTLY_ADDRESSABLE, "It is not allowed to create connection methods because the device configuration is not directly addressable", SEVERE),
     NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED(13000, Keys.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED, "The temporal expression of a NextExecutionSpec is required", SEVERE),
     TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED(13001, Keys.TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED, "The frequency of a temporal expression is required", SEVERE),
     TEMPORAL_EXPRESSION_UNKNOWN_UNIT(13002, Keys.TEMPORAL_EXPRESSION_UNKNOWN_UNIT, "The unit {0} is unknown or unsupported for temporal expressions", SEVERE),
