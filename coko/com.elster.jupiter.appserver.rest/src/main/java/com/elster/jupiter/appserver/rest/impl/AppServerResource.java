@@ -6,8 +6,6 @@ import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
@@ -18,7 +16,10 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.Zipper;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.cron.CronExpressionParser;
-
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -33,10 +34,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Path("/appserver")
 public class AppServerResource {
@@ -59,7 +56,7 @@ public class AppServerResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public AppServerInfos getAppservers(@Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<AppServer> appServers = queryAppServers(params);
@@ -69,7 +66,7 @@ public class AppServerResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{appserverName}")
     public AppServerInfo getAppServer(@PathParam("appserverName") String appServerName) {
         return AppServerInfo.of(fetchAppServer(appServerName), thesaurus);
@@ -80,7 +77,7 @@ public class AppServerResource {
     }
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addAppServer(AppServerInfo info) {
         AppServer appServer = null;
@@ -105,7 +102,7 @@ public class AppServerResource {
     }
 
     @PUT
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{appserverName}")
     public Response updateAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info) {
@@ -119,7 +116,7 @@ public class AppServerResource {
 
     @DELETE
     @Path("/{appserverName}/")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response removeAppServer(@PathParam("appserverName") String appServerName) {
         AppServer appServer = fetchAppServer(appServerName);
         try(TransactionContext context = transactionService.getContext()) {
@@ -132,7 +129,7 @@ public class AppServerResource {
     @PUT
     @Path("/{appserverName}/activate")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response activateAppServer(@PathParam("appserverName") String appServerName) {
         AppServer appServer = fetchAppServer(appServerName);
         if (!appServer.isActive()) {
@@ -147,7 +144,7 @@ public class AppServerResource {
     @PUT
     @Path("/{appserverName}/deactivate")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response deactivateAppServer(@PathParam("appserverName") String appServerName) {
         AppServer appServer = fetchAppServer(appServerName);
         if (appServer.isActive()) {
@@ -206,7 +203,7 @@ public class AppServerResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{appserverName}/unserved")
     public SubscriberSpecInfos getSubscribers(@PathParam("appserverName") String appServerName) {
         List<SubscriberSpec> served = appService.findAppServer(appServerName)
