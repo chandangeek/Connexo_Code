@@ -14,6 +14,7 @@ import com.google.inject.Module;
 import java.util.Arrays;
 import java.util.List;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.validation.MessageInterpolator;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -66,7 +67,7 @@ public class DataVaultServiceImpl implements DataVaultService, InstallService {
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(NlsService.class).toInstance(nlsService);
                 bind(ExceptionFactory.class);
-                bind(DataVault.class).toProvider(DataVaultProvider.class);
+                bind(DataVault.class).toProvider(DataVaultProvider.class).in(Singleton.class);
             }
         };
     }
