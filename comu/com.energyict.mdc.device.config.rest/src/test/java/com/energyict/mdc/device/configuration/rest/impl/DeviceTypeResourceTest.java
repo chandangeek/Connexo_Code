@@ -348,7 +348,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceProtocol.getDeviceFunction()).thenReturn(DeviceFunction.METER);
         when(deviceConfiguration.canActAsGateway()).thenReturn(true);
         when(deviceConfiguration.getGetwayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceConfiguration.canBeDirectlyAddressable()).thenReturn(true);
+        when(deviceConfiguration.isDirectlyAddressable()).thenReturn(true);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocolPluggableClass.getName()).thenReturn("device protocol name");
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
@@ -555,7 +555,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         Response response = target("/devicetypes/31/deviceconfigurations/101").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(deviceConfiguration101).setName("new name");
-        verify(deviceConfiguration101).setCanBeDirectlyAddressed(true);
+        verify(deviceConfiguration101).setDirectlyAddressable(true);
         verify(deviceConfiguration101).setCanActAsGateway(true);
     }
 
@@ -577,7 +577,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         Response response = target("/devicetypes/31/deviceconfigurations/101").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(deviceConfiguration101).setName("new name");
-        verify(deviceConfiguration101, never()).setCanBeDirectlyAddressed(anyBoolean());
+        verify(deviceConfiguration101, never()).setDirectlyAddressable(anyBoolean());
         verify(deviceConfiguration101, never()).setCanActAsGateway(anyBoolean());
     }
 

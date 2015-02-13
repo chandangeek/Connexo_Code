@@ -46,7 +46,7 @@ public class DeviceConfigurationInfo {
         logBookCount = deviceConfiguration.getLogBookSpecs().size();
         canBeGateway = deviceConfiguration.canActAsGateway();
         gatewayType = deviceConfiguration.getGetwayType();
-        isDirectlyAddressable = deviceConfiguration.canBeDirectlyAddressable();
+        isDirectlyAddressable = deviceConfiguration.isDirectlyAddressable();
 
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass();
         if (deviceProtocolPluggableClass!=null) {
@@ -74,7 +74,7 @@ public class DeviceConfigurationInfo {
             deviceConfiguration.setCanActAsGateway(this.canBeGateway);
         }
         if (this.isDirectlyAddressable!=null) {
-            deviceConfiguration.setCanBeDirectlyAddressed(this.isDirectlyAddressable);
+            deviceConfiguration.setDirectlyAddressable(this.isDirectlyAddressable);
         }
     }
 }
