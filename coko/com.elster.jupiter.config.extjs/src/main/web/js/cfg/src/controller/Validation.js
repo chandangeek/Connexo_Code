@@ -203,24 +203,22 @@ Ext.define('Cfg.controller.Validation', {
 
     createEditRule: function (button) {
         var me = this,
+            router = me.getController('Uni.controller.history.Router'),
             form = button.up('panel'),
             formErrorsPanel = form.down('[name=form-errors]'),
-            arrReadingTypes = [];
-
-        var propertyForm = this.getAddRule().down('property-form');
+            arrReadingTypes = [],
+            propertyForm = this.getAddRule().down('property-form'),
+            record = me.formToModel();
 
         form.down('#addRuleName').clearInvalid();
         form.down('#validatorCombo').clearInvalid();
         form.down('#readingTypesErrorLabel').hide();
         form.down('#propertiesErrorLabel').hide();
 
-        var ruleSetId = this.getRuleSetIdFromHref() || me.ruleSetId,
-            record = me.formToModel();
-
         formErrorsPanel.hide();
 
         record.set('ruleSet', {
-            id: me.ruleSetId
+            id: router.arguments.ruleSetId
         });
 
         if (button.action === 'editRuleAction') {
@@ -241,12 +239,9 @@ Ext.define('Cfg.controller.Validation', {
         record.readingTypes().add(arrReadingTypes);
 
         me.getAddRule().setLoading('Loading...');
+        record.getProxy().setUrl(router.arguments.ruleSetId);
         record.save({
-            params: {
-                id: me.ruleSetId,
-                ruleId: me.ruleId
-            },
-            success: function (record, operation) {
+            success: function (record) {
                 var messageText;
                 if (button.action === 'editRuleAction') {
                     messageText = Uni.I18n.translate('validation.editRuleSuccess.msg', 'CFG', 'Validation rule saved');
@@ -254,10 +249,11 @@ Ext.define('Cfg.controller.Validation', {
                     messageText = Uni.I18n.translate('validation.addRuleSuccess.msg', 'CFG', 'Validation rule added');
                 }
                 if (me.fromRulePreview) {
-                    location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/rules/' + me.ruleId;
+                    router.getRoute('administration/rulesets/overview/rules/overview').forward({ruleId: record.getId()});
                 } else {
-                    location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/rules';
+                    router.getRoute('administration/rulesets/overview/rules').forward();
                 }
+
                 me.getApplication().fireEvent('acknowledge', messageText);
             },
             failure: function (record, operation) {
@@ -1154,7 +1150,6 @@ Ext.define('Cfg.controller.Validation', {
 
                 me.getApplication().fireEvent('loadRule', rule);
                 rulesContainerWidget.down('validation-rule-action-menu').record = rule;
-                rulesContainerWidget.down('validation-rule-action-menu').down('#view').hide();
                 rulesContainerWidget.down('#stepsRuleMenu #ruleSetOverviewLink').setText(rule.get('name'));
                 rulesContainerWidget.setLoading(false);
             }
