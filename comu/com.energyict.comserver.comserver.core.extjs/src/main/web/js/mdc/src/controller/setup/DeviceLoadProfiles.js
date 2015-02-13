@@ -196,7 +196,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                     confWindow.removeAll(true);
                     confWindow.destroy();
                     me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translatePlural('deviceloadprofiles.activation.completed', me.loadProfileName, 'MDC', 'Data validation on load profile {0} was completed successfully'));
+                        Uni.I18n.translatePlural('deviceloadprofiles.activation.completed', me.loadProfileName, 'MDC', 'Data validation completed'));
                     Ext.ComponentQuery.query('#deviceLoadProfilesGrid')[0].fireEvent('select', Ext.ComponentQuery.query('#deviceLoadProfilesGrid')[0].getSelectionModel(), record);
                 }
             });

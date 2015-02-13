@@ -75,6 +75,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
             },
             {
                 title: Uni.I18n.translate('devicemenu.validation', 'MDC', 'Validation'),
+                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration']),
                 xtype: 'menu',
                 items: [
                     {

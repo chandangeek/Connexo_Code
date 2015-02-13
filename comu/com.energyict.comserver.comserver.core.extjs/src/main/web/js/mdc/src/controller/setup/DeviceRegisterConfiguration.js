@@ -201,7 +201,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                     confWindow.removeAll(true);
                     confWindow.destroy();
                     me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translatePlural('registerconfiguration.validation.completed', me.registerName, 'MDC', 'Data validation on register configuration {0} was completed successfully'));
+                        Uni.I18n.translatePlural('registerconfiguration.validation.completed', me.registerName, 'MDC', 'Data validation completed'));
                     if (Ext.ComponentQuery.query('#deviceRegisterConfigurationGrid')[0]) {
                         Ext.ComponentQuery.query('#deviceRegisterConfigurationGrid')[0].fireEvent('select', Ext.ComponentQuery.query('#deviceRegisterConfigurationGrid')[0].getSelectionModel(), record);
                     }

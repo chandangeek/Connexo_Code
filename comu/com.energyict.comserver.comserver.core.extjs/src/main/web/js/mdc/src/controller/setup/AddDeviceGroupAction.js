@@ -16,7 +16,8 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     stores: [
         'Mdc.store.DevicesBuffered',
         'DeviceGroups',
-        'Mdc.model.DeviceType'
+        'Mdc.model.DeviceType',
+        'Mdc.store.DevicesOfDeviceGroupWithoutPaging'
     ],
 
     refs: [
@@ -343,7 +344,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             view,
             isDynamic,
             store,
-            staticDevices = [];
+            staticDevices;
 
         if (Ext.isEmpty(Ext.ComponentQuery.query('device-group-edit')[0])) {
             me.fromDeviceGroupDetails = router.queryParams.fromDetails === 'true';
@@ -390,25 +391,42 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                         me.getDynamicGridContainer().setVisible(true);
                         me.getApplication().getController('Mdc.controller.setup.DevicesAddGroupController').applyFilter();
                     } else {
-                        store = me.getStaticGrid().getStore();
-                        store.setFilterModel(router.filter);
-                        store.load(function() {
-                                Ext.Array.each(record.get('selectedDevices'), function (item) {
-                                    var rec = store.getById(item);
-                                    if (rec) {
-                                        staticDevices.push(rec);
+                        Ext.suspendLayouts();
+                        me.getDynamicGridContainer().setVisible(false);
+                        me.getStaticGridContainer().setVisible(true);
+                        Ext.resumeLayouts(true);
+                        view.down('#static-grid-container').selectByDefault = false;
+                        staticDevices = me.getStore('Mdc.store.DevicesOfDeviceGroupWithoutPaging');
+                        staticDevices.getProxy().setUrl(deviceGroupId);
+                        staticDevices.load(function (existingRecords) {
+                            var staticGrid = me.getStaticGrid();
+
+                            if (staticGrid) {
+                                store = staticGrid.getStore();
+                                store.setFilterModel(router.filter);
+                                // todo: bad implementation of selecting existing devices, should be fixed in scope of corresponding Jira ticket
+                                store.on('prefetch', function (store, records) {
+                                    if (!staticGrid.isDestroyed) {
+                                        staticGrid.getSelectionModel().select(Ext.Array.filter(existingRecords, function (existingItem) {
+                                            return !!Ext.Array.findBy(records, function (item) {
+                                                return existingItem.getId() === item.getId();
+                                            });
+                                        }), true);
+                                    } else {
+                                        store.un('prefetch', this);
                                     }
                                 });
-                                me.getDynamicGridContainer().setVisible(false);
-                                me.getStaticGridContainer().setVisible(true);
-                                view.down('#static-grid-container').selectByDefault = false;
-                                me.getStaticGrid().getSelectionModel().select(staticDevices);
+                                store.data.clear();
+                                store.loadPage(1);
+                            }
                         });
                     }
+                    Ext.suspendLayouts();
                     view.down('#device-group-edit-panel').setTitle(Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit') + " '" + me.deviceGroupName + "'");
                     me.getNameTextField().setValue(record.get('name'));
                     isDynamic = record.get('dynamic') ? Uni.I18n.translate('general.dynamic', 'MDC', 'Dynamic') : Uni.I18n.translate('general.static', 'MDC', 'Static');
                     view.down('#device-group-type').setValue(isDynamic);
+                    Ext.resumeLayouts(true);
                     me.getApplication().fireEvent('loadDeviceGroup', record);
                 }
             }
