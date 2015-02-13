@@ -76,6 +76,28 @@ public class ListPagerTest {
         assertThat(found).containsExactly(0,1,2,3,4,5,6,7,8,9);
     }
 
+    @Test
+    public void testGetFirstPage() throws Exception {
+        List<Integer> ints = Arrays.asList(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30);
+        assertThat(ints).hasSize(30);
+        QueryParameters queryParameters = mock(QueryParameters.class);
+        when(queryParameters.getStart()).thenReturn(0);
+        when(queryParameters.getLimit()).thenReturn(10);
+        List<Integer> found = ListPager.of(ints, new NullComparator()).from(queryParameters).find();
+        assertThat(found).containsExactly(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
+    }
+
+    @Test
+    public void testGetSecondPage() throws Exception {
+        List<Integer> ints = Arrays.asList(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30);
+        assertThat(ints).hasSize(30);
+        QueryParameters queryParameters = mock(QueryParameters.class);
+        when(queryParameters.getStart()).thenReturn(10);
+        when(queryParameters.getLimit()).thenReturn(10);
+        List<Integer> found = ListPager.of(ints, new NullComparator()).from(queryParameters).find();
+        assertThat(found).containsExactly(11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21);
+    }
+
     class NullComparator implements Comparator<Integer> {
 
         @Override
