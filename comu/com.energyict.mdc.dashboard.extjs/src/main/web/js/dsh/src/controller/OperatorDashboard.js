@@ -142,7 +142,8 @@ Ext.define('Dsh.controller.OperatorDashboard', {
             if (Uni.Auth.hasAnyPrivilege(['privilege.view.device'])) {
                 me.getFlaggedDevices().reload();
             }
-
+            communicationModel.getProxy().url = '/api/dsr/communicationoverview/widget';
+            connectionModel.getProxy().url = '/api/dsr/connectionoverview/widget';
             if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication'])) {
                 connectionModel.setFilter(router.filter);
                 communicationModel.setFilter(router.filter);

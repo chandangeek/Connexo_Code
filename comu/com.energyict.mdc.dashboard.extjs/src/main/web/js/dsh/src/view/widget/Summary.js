@@ -118,7 +118,7 @@ Ext.define('Dsh.view.widget.Summary', {
 
     initKpi: function (record) {
         var me = this,
-            targetContainer = me.getById('target-container'),
+            targetContainer = me.down('#target-container'),
             total = record.get('total'),
             target = record.get('target'),
             counters = record.counters();
