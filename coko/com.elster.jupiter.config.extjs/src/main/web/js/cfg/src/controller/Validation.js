@@ -450,7 +450,11 @@ Ext.define('Cfg.controller.Validation', {
             grid: {
                 itemId: 'addReadingTypesGrid',
                 xtype: 'addReadingTypesBulk',
-                store: 'Cfg.store.ReadingTypesToAddForRule'
+                store: readingTypeStore,
+                height: 600,
+                plugins: {
+                    ptype: 'bufferedrenderer'
+                }
             },
             emptyComponent: {
                 xtype: 'no-items-found-panel',
@@ -463,8 +467,8 @@ Ext.define('Cfg.controller.Validation', {
                 ]
             }
         };
-        bulkGridContainer.removeAll();
 
+        bulkGridContainer.removeAll();
 
         Ext.each(filterBtns, function (btn) {
             btn.destroy();
@@ -482,6 +486,7 @@ Ext.define('Cfg.controller.Validation', {
             });
             filter.setFilter('unitOfMeasure', 'Unit of measure', unitOfMeasureRecord.get('name'), false);
         }
+
         if (!Ext.isEmpty(intervalsCombo.getValue())) {
             intervalsRecord = intervalsCombo.findRecord(intervalsCombo.valueField, intervalsCombo.getValue());
             properties.push({
@@ -490,6 +495,7 @@ Ext.define('Cfg.controller.Validation', {
             });
             filter.setFilter('time', 'Interval', intervalsRecord.get('name'), false);
         }
+
         if (readingTypeNameText.getValue()) {
             properties.push({
                 property: 'name',
@@ -497,6 +503,7 @@ Ext.define('Cfg.controller.Validation', {
             });
             filter.setFilter('name', 'Name', readingTypeNameText.getValue(), false);
         }
+
         if (!Ext.isEmpty(timeOfUseCombo.getValue())) {
             properties.push({
                 property: 'tou',
@@ -505,24 +512,28 @@ Ext.define('Cfg.controller.Validation', {
             filter.setFilter('tou', 'Time of use', timeOfUseCombo.getValue(), false);
         }
 
-        readingTypeStore.getProxy().setExtraParam('filter', Ext.encode(properties));
-        readingTypeStore.removeAll();
-        bulkGridContainer.add(previewContainer);
-        readingTypeStore.load(function (records) {
-            var selectionModel;
-
-            if (me.validationRuleRecord) {
-                readingTypeStore.filterBy(function (record) {
-                    var recordMrid = record.get('mRID');
-                    return !Ext.Array.findBy(me.validationRuleRecord.get('readingTypes'), function (item) {
-                        return item.mRID === recordMrid;
+        if (me.validationRuleRecord) {
+            var readingTypes = me.validationRuleRecord.get('readingTypes');
+            if (Ext.isArray(readingTypes) && !Ext.isEmpty(readingTypes)) {
+                readingTypes.forEach(function (readingType) {
+                    properties.push({
+                        property: 'mRID',
+                        value: readingType.mRID
                     });
                 });
+            }
+        }
 
-                selectionModel = widget.down('#addReadingTypesGrid').getSelectionModel();
-                if (!selectionModel.getSelection().length && records.length) {
-                    selectionModel.select(0);
-                }
+        readingTypeStore.getProxy().setExtraParam('filter', Ext.encode(properties));
+        readingTypeStore.loadData([], false);
+        bulkGridContainer.add(previewContainer);
+
+        //<debug>
+        Ext.override(Ext.data.proxy.Ajax, {timeout: 120000});
+        //</debug>
+
+        readingTypeStore.load(function (records, operation, success) {
+            if (success) {
                 if (!records.length) {
                     widget.down('#buttonsContainer button[name=add]').setDisabled(true);
                 }
@@ -561,7 +572,6 @@ Ext.define('Cfg.controller.Validation', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 readingTypesStore.removeAll();
 
-
                 if (me.validationRuleRecord) {
                     me.modelToForm(editRulePanel, null, me.validationRuleRecord, false);
                 } else {
@@ -581,7 +591,6 @@ Ext.define('Cfg.controller.Validation', {
                 });
             }
         });
-
     },
 
     createEditNewRuleSet: function (button) {
@@ -829,7 +838,6 @@ Ext.define('Cfg.controller.Validation', {
             loadRecordToForm,
             rule;
 
-
         loadRecordToForm = function (rule) {
             if (isEdit) {
                 editRulePanel.down('#addRuleTitle').setTitle(me.ruleTitle);
@@ -872,15 +880,16 @@ Ext.define('Cfg.controller.Validation', {
                 }
             });
         }
-
     },
 
     chooseRuleAction: function (menu, item) {
         var me = this,
             record;
+
         record = menu.record || me.getRulesGrid().getSelectionModel().getLastSelected();
-        this.getRuleSetBrowsePanel() ? me.fromRuleSet = true : me.fromRuleSet = false;
-        this.getRuleOverview() ? me.fromRulePreview = true : me.fromRulePreview = false;
+        me.getRuleSetBrowsePanel() ? me.fromRuleSet = true : me.fromRuleSet = false;
+        me.getRuleOverview() ? me.fromRulePreview = true : me.fromRulePreview = false;
+
         switch (item.action) {
             case 'view':
                 location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/rules/' + record.get('id');
@@ -907,6 +916,7 @@ Ext.define('Cfg.controller.Validation', {
             grid = view.down('grid'),
             rule = record,
             isActive = record.get('active');
+
         if (record) {
             record.readingTypes().removeAll();
             Ext.Array.each(record.get('readingTypes'), function (item) {
@@ -915,14 +925,17 @@ Ext.define('Cfg.controller.Validation', {
                 record.readingTypes().add(readingTypeRecord);
             });
         }
+
         record.beginEdit();
         record.set('active', !isActive);
         record.endEdit(true);
+
         if (!ruleSetWithRulesView) {
             view.setLoading('Loading...');
         } else {
             ruleSetWithRulesView.setLoading();
         }
+
         record.save({
             params: {
                 id: record.get('ruleSetId'),
