@@ -31,7 +31,7 @@ public class CreationRuleResource extends BaseResource {
      * <b>Optional parameters</b>: none<br />
      */
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_CREATION_RULE,Privileges.VIEW_CREATION_RULE})
     public Response getCreationRules(@BeanParam StandardParametersBean params, @QueryParam("start") Integer start){
         Query<CreationRule> query = getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
@@ -47,7 +47,7 @@ public class CreationRuleResource extends BaseResource {
      */
     @GET
     @Path("/{" + ID + "}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_CREATION_RULE,Privileges.VIEW_CREATION_RULE})
     public Response getCreationRule(@PathParam(ID) long id){
         Optional<CreationRule> rule = getIssueCreationService().findCreationRule(id);
@@ -85,7 +85,7 @@ public class CreationRuleResource extends BaseResource {
 
     @POST
     @RolesAllowed(Privileges.ADMINISTRATE_CREATION_RULE)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response addCreationRule(CreationRuleInfo rule){
         getTransactionService().execute(new CreateCreationRuleTransaction(getIssueService(), getIssueCreationService(), getIssueActionService(), rule));
         return Response.status(Response.Status.CREATED).build();
@@ -94,7 +94,7 @@ public class CreationRuleResource extends BaseResource {
     @PUT
     @Path("/{id}")
     @RolesAllowed(Privileges.ADMINISTRATE_CREATION_RULE)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response editCreationRule(@PathParam("id") long id, CreationRuleInfo rule){
         rule.setId(id);
         getTransactionService().execute(new EditCreationRuleTransaction(getIssueService(), getIssueCreationService(), getIssueActionService(), rule));

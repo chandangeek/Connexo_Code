@@ -40,7 +40,7 @@ public class RuleResource extends BaseResource{
      */
     @GET
     @Path("/assign")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.VIEW_ASSIGNMENT_RULE)
     public Response getAssignmentRules(){
         List<AssignmentRule> assignmentRules = issueAssignmentService.getAssignmentRuleQuery().select(Condition.TRUE);
@@ -55,7 +55,7 @@ public class RuleResource extends BaseResource{
      */
     @GET
     @Path("/templates")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_CREATION_RULE,Privileges.VIEW_CREATION_RULE})
     public Response getCreationRulesTemplates(@BeanParam StandardParametersBean params){
         validateMandatory(params, ISSUE_TYPE);
@@ -79,7 +79,7 @@ public class RuleResource extends BaseResource{
      */
     @GET
     @Path("/templates/{" + ID + "}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_CREATION_RULE,Privileges.VIEW_CREATION_RULE})
     public Response getTemplate(@PathParam(ID) String id){
         Optional<CreationRuleTemplate> template = getIssueCreationService().findCreationRuleTemplate(id);
@@ -93,7 +93,7 @@ public class RuleResource extends BaseResource{
     @PUT
     @Path("/templates/{" + ID + "}/parameters")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_CREATION_RULE)
     public Response getAllParametersValues(@PathParam(ID) String id, Map<String, Object> paramValues){
         Optional<CreationRuleTemplate> template = getIssueCreationService().findCreationRuleTemplate(id);
@@ -113,7 +113,7 @@ public class RuleResource extends BaseResource{
     @PUT
     @Path("/templates/{" + ID + "}/parameters/{" + KEY + "}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_CREATION_RULE)
     public Response getSingleParametersValues(@PathParam(ID) String id, @PathParam(KEY) String key, Map<String, Object> paramValues){
         Optional<CreationRuleTemplate> template = getIssueCreationService().findCreationRuleTemplate(id);

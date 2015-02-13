@@ -25,7 +25,7 @@ public class IssueTypeResource extends BaseResource {
      * <b>Optional parameters</b>: none<br />
      */
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getIssueTypes(){
         List<IssueType> issueTypes = getIssueService().query(IssueType.class).select(Condition.TRUE);

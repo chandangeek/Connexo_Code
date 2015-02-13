@@ -35,7 +35,7 @@ public class MeterResource extends BaseResource {
      * <b>Optional parameters</b>: '{@value com.elster.jupiter.issue.rest.request.RequestHelper#LIKE}'<br />
      */
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getMeters(@BeanParam StandardParametersBean params) {
         validateMandatory(params, START, LIMIT);
@@ -60,7 +60,7 @@ public class MeterResource extends BaseResource {
      */
     @GET
     @Path("/{" + ID + "}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getMeter(@PathParam(ID) String mrid){
         Query<Meter> meterQuery = getMeteringService().getMeterQuery();
