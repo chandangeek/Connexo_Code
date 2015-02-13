@@ -24,14 +24,14 @@ public class ReadingTypeResource {
     }
 
     @GET
-	@Produces(MediaType.APPLICATION_JSON) 
+	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	public ReadingTypeInfos getReadingTypes() {
     	return new ReadingTypeInfos(meteringService.getAvailableReadingTypes());
     }
     
     @GET
 	@Path("/{mRID}/")
-	@Produces(MediaType.APPLICATION_JSON) 
+	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	public ReadingTypeInfos getReadingType(@PathParam("mRID") String mRID) {
     	return meteringService.getReadingType(mRID)
     		.map(readingType -> new ReadingTypeInfos(readingType))
@@ -40,7 +40,7 @@ public class ReadingTypeResource {
 
     @GET
     @Path("/{mRID}/calculated")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public ReadingTypeInfos getCalculatedReadingType(@PathParam("mRID") String mRID) {
         return meteringService.getReadingType(mRID)
                 .map(rt -> rt.getCalculatedReadingType())

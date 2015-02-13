@@ -39,7 +39,7 @@ public class ReadingTypeFieldResource {
 
     @GET
     @Path("/unitsofmeasure")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public UnitOfMeasureFieldInfos getUnitsOfMeasure() {
         List<ReadingType> readingTypes = meteringService.getAvailableReadingTypes();
         UnitOfMeasureFieldInfos unitOfMeasureFieldInfos = new UnitOfMeasureFieldInfos();
@@ -54,7 +54,7 @@ public class ReadingTypeFieldResource {
 
     @GET
     @Path("/intervals")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public IntervalFieldInfos getIntervals() {
         IntervalFieldInfos intervalFieldInfos = new IntervalFieldInfos();
         Set<TimeAttribute> timeAttributes = meteringService.getAvailableReadingTypes().stream()
@@ -68,14 +68,14 @@ public class ReadingTypeFieldResource {
 
     @GET
     @Path("/timeofuse")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public TimeOfUseFieldInfos getTou() {
         return new TimeOfUseFieldInfos();
     }
 
     @GET
     @Path("/readingtypes")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getReadingTypes(@BeanParam JsonQueryFilter queryFilter, @BeanParam QueryParameters queryParameters) {
         List<ReadingType> readingTypes = meteringService.getAvailableReadingTypes();
         Predicate<ReadingType> filter = getReadingTypeFilterPredicate(queryFilter);
