@@ -28,6 +28,7 @@ Ext.define('Dxp.view.tasks.PropertyForm', {
                 var control = Ext.create(fieldType, {
                         property: property,
                         isEdit: me.isEdit,
+                        translationKey: 'DES',
                         labelWidth: 250,
                         width: 235,
                         allowBlank: !property.get('required'),
@@ -37,7 +38,6 @@ Ext.define('Dxp.view.tasks.PropertyForm', {
 
                     }),
                     groupName = partitions.join('.');
-                control.fieldLabel = Uni.I18n.translate(property.get('key'), 'DES', property.get('key'));
                 if (type === 'BOOLEAN') {
                     control.fieldLabel = '';
                 }
