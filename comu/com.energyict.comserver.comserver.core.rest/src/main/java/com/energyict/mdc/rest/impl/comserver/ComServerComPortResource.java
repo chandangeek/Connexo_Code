@@ -37,7 +37,7 @@ public class ComServerComPortResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getComPorts(@PathParam("comServerId") long comServerId, @BeanParam QueryParameters queryParameters) {
         ComServer comServer = findComServerOrThrowException(comServerId);
@@ -59,7 +59,7 @@ public class ComServerComPortResource {
 
     @GET
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
     public ComPortInfo getComPort(@PathParam("comServerId") long comServerId, @PathParam("id") long id) {
         ComServer comServer = findComServerOrThrowException(comServerId);
@@ -69,7 +69,7 @@ public class ComServerComPortResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public ComPortInfo createOutboundComPort(@PathParam("comServerId") long comServerId, ComPortInfo comPortInfo) {
         ComServer comServer = findComServerOrThrowException(comServerId);
@@ -80,7 +80,7 @@ public class ComServerComPortResource {
     @PUT
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public ComPortInfo updateOutboundComPort(@PathParam("comServerId") long comServerId, @PathParam("id") long id, ComPortInfo comPortInfo) {
         ComServer comServer = findComServerOrThrowException(comServerId);
@@ -93,7 +93,7 @@ public class ComServerComPortResource {
     @DELETE
     @Path("/{id}")
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response removeComPort(@PathParam("comServerId") long comServerId, @PathParam("id") long id) {
         ComServer comServer = findComServerOrThrowException(comServerId);
         findComPortOrThrowException(comServer, id);

@@ -45,7 +45,7 @@ public class ComServerResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getComServers(@BeanParam QueryParameters queryParameters) {
         List<ComServerInfo<?>> comServers = new ArrayList<>();
@@ -73,7 +73,7 @@ public class ComServerResource {
 
     @GET
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
     public ComServerInfo<?> getComServer(@PathParam("id") long id) {
         Optional<ComServer> comServer = findComServerOrThrowException(id);
@@ -82,7 +82,7 @@ public class ComServerResource {
 
     @DELETE
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public Response deleteComServer(@PathParam("id") long id) {
         try {
@@ -99,7 +99,7 @@ public class ComServerResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public Response createComServer(ComServerInfo<ComServer> comServerInfo) {
         ComServer comServer = comServerInfo.createNew(engineConfigurationService);
@@ -125,7 +125,7 @@ public class ComServerResource {
     @PUT
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public ComServerInfo updateComServer(@PathParam("id") long id, ComServerInfo<ComServer> comServerInfo) {
         Optional<ComServer> comServer = findComServerOrThrowException(id);
@@ -151,7 +151,7 @@ public class ComServerResource {
     @PUT
     @Path("/{id}/status")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public ComServerInfo updateComServerStatus(@PathParam("id") long id, ComServerStatusInfo comServerStatusInfo) {
         Optional<ComServer> comServer = findComServerOrThrowException(id);

@@ -63,7 +63,7 @@ public class ComPortPoolResource {
 
     @GET
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
     public ComPortPoolInfo<?> getComPortPool(@PathParam("id") long id) {
         return engineConfigurationService
@@ -77,7 +77,7 @@ public class ComPortPoolResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getAllComPortPools(@Context UriInfo uriInfo, @BeanParam QueryParameters queryParameters) {
         List<ComPortPoolInfo<?>> comPortPoolInfos = new ArrayList<>();
@@ -136,7 +136,7 @@ public class ComPortPoolResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response deleteComPortPool(@PathParam("id") long id) {
         Optional<? extends ComPortPool> comPortPool = engineConfigurationService.findComPortPool(id);
         if (!comPortPool.isPresent()) {
@@ -148,7 +148,7 @@ public class ComPortPoolResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public Response createComPortPool(ComPortPoolInfo<ComPortPool> comPortPoolInfo, @Context UriInfo uriInfo) {
         ComPortPool comPortPool = comPortPoolInfo.createNew(engineConfigurationService, protocolPluggableService);
@@ -165,7 +165,7 @@ public class ComPortPoolResource {
     @PUT
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public ComPortPoolInfo<?> updateComPortPool(@PathParam("id") long id, ComPortPoolInfo<ComPortPool> comPortPoolInfo, @Context UriInfo uriInfo) {
         Optional<? extends ComPortPool> comPortPool = engineConfigurationService.findComPortPool(id);
