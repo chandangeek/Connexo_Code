@@ -350,9 +350,13 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     @Test
     public void testGetRuleSetUsage() throws Exception {
         ValidationRuleSet validationRuleSet = mockValidationRuleSet(1, false);
+        ValidationRuleSet validationRuleSet2 = mockValidationRuleSet(2, false);
         when(validationService.isValidationRuleSetInUse(validationRuleSet)).thenReturn(true);
+        when(validationService.isValidationRuleSetInUse(validationRuleSet2)).thenReturn(false);
         Response response = target("/validation/1/usage").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<Boolean>get("$.isInUse")).isEqualTo(true);
     }
 
     @Test

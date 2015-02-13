@@ -138,13 +138,19 @@ public class ValidationResource {
         return getValidationRuleSet(ruleSetId, securityContext);
     }
 
+    class RuleSetUsageInfo {
+        public boolean isInUse;
+    }
+
     @GET
     @Path("/{ruleSetId}/usage")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION})
     public Response getValidationRuleSetUsage(@PathParam("ruleSetId") final long ruleSetId, @Context final SecurityContext securityContext) {
         ValidationRuleSet validationRuleSet = fetchValidationRuleSet(ruleSetId, securityContext);
-        return Response.status(Response.Status.OK).entity(validationService.isValidationRuleSetInUse(validationRuleSet)).build();
+        RuleSetUsageInfo info = new RuleSetUsageInfo();
+        info.isInUse=validationService.isValidationRuleSetInUse(validationRuleSet);
+        return Response.status(Response.Status.OK).entity(info).build();
     }
 
     @DELETE
