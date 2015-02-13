@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -29,7 +27,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>launcher</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
                 <!-- provided scope for assembly purposes !!-->
                 <scope>provided</scope>
             </dependency>
@@ -66,22 +64,22 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>export.processors</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>export.rest</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>gogo</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>ids</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -91,7 +89,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>issue.extjs</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -101,7 +99,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>kpi</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -111,7 +109,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>metering.cim</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -121,17 +119,17 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>metering.rest</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>parties</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>parties.rest</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -141,27 +139,27 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>system.app.help</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>systemadmin.extjs</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>systemadmin.rest</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>validation</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>validators</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -182,7 +180,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>yellowfin.rest</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
