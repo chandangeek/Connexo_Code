@@ -4,11 +4,12 @@ import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.protocol.api.codetables.Code;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeObject;
-import sun.misc.BASE64Encoder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
+import java.util.Base64;
 import java.util.zip.GZIPOutputStream;
+
 
 /**
  * Copyrights EnergyICT
@@ -41,7 +42,7 @@ public class CodeTableBase64Builder {
             oos.flush();
             oos.close();
 
-            return new BASE64Encoder().encode(out.toByteArray()).getBytes();
+            return Base64.getEncoder().encode(out.toByteArray());
         } catch (Exception e) {
             throw new ApplicationException("Unable to get xml from code table: " + e.getMessage(), e);
         }

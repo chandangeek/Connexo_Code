@@ -1,8 +1,6 @@
 package com.energyict.xml;
 
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.io.ByteArrayInputStream;
@@ -11,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Base64;
 
 /**
  * Adapter class for {@link DeviceProtocolCache} to enable xml marshalling.
@@ -48,8 +47,7 @@ public class DeviceProtocolCacheXmlAdaptation {
 //            ObjectOutputStream objectStream = new ServerObjectOutputStream(out);
             ObjectOutputStream objectStream = new ObjectOutputStream(out);
             objectStream.writeObject(cacheObject);
-            BASE64Encoder encoder = new BASE64Encoder();
-            return encoder.encode(out.toByteArray());
+            return new String(Base64.getEncoder().encode(out.toByteArray()));
         } catch (IOException e) {
             return null;
         }
@@ -57,7 +55,7 @@ public class DeviceProtocolCacheXmlAdaptation {
 
     private static DeviceProtocolCache deSerializeCacheObject(String base64EncodedCache) {
         try {
-            InputStream in = new ByteArrayInputStream(new BASE64Decoder().decodeBuffer(base64EncodedCache));
+            InputStream in = new ByteArrayInputStream(Base64.getDecoder().decode(base64EncodedCache));
 //            ObjectInputStream deSerializer = new ServerObjectInputStream(in);
             ObjectInputStream deSerializer = new ObjectInputStream(in);
             return (DeviceProtocolCache) deSerializer.readObject();

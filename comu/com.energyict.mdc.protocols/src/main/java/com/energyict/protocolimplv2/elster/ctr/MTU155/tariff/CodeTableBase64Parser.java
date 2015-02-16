@@ -2,12 +2,12 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeObject;
-import sun.misc.BASE64Decoder;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.Base64;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -27,7 +27,7 @@ public class CodeTableBase64Parser {
 
     public static CodeObject getCodeTableFromBase64(String content) throws IOException {
         try {
-            byte[] decodedContent = new BASE64Decoder().decodeBuffer(content);
+            byte[] decodedContent = Base64.getDecoder().decode(content);
             ByteArrayInputStream in = new ByteArrayInputStream(decodedContent);
             ObjectInputStream ois = new ObjectInputStream(new GZIPInputStream(in));
             Object object = ois.readObject();

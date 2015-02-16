@@ -19,7 +19,6 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
-import sun.misc.BASE64Decoder;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -259,8 +258,7 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException, ParseException {
         String userFileContents = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
-        BASE64Decoder decoder = new BASE64Decoder();
-        byte[] binaryImage = decoder.decodeBuffer(userFileContents);
+        byte[] binaryImage = Base64.getDecoder().decode(userFileContents);
 
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
         imageTransfer.setBooleanValue(0x01);    //Meter only takes 0x01 as boolean value "true"
