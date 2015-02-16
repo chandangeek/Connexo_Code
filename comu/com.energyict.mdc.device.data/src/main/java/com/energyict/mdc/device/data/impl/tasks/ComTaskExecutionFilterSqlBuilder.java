@@ -88,7 +88,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         this.appendWhereOrAnd();
         this.append("obsolete_date is null");
         this.append(" order by lastexecutiontimestamp desc");
-        return sqlBuilder.asPageBuilder(pageStart, pageStart + pageSize);
+        return this.getActualBuilder().asPageBuilder(pageStart, pageStart + pageSize);
     }
 
     @Override
