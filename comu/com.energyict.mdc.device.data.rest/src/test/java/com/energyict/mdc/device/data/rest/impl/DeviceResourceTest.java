@@ -18,7 +18,6 @@ import com.elster.jupiter.util.Ranges;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -31,11 +30,11 @@ import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -43,10 +42,8 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-
 import org.assertj.core.data.MapEntry;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,7 +52,6 @@ import org.mockito.Matchers;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.Instant;
@@ -1135,10 +1131,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(readingType.getMRID()).thenReturn(mrid);
         when(mock.getReadingType()).thenReturn(readingType);
         when(mock.getInterval()).thenReturn(new TimeDuration("15 minutes"));
-        Phenomenon phenomenon = mock(Phenomenon.class);
-        when(phenomenon.getUnit()).thenReturn(Unit.get("kWh"));
-        when(mock.getPhenomenon()).thenReturn(phenomenon);
+        Unit unit = Unit.get("kWh");
         when(mock.getLastReading()).thenReturn(Optional.empty());
+        when(mock.getUnit()).thenReturn(unit);
         return mock;
     }
 
