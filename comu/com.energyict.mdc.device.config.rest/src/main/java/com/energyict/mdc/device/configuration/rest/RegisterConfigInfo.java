@@ -7,12 +7,10 @@ import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.masterdata.rest.PhenomenonInfo;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +33,7 @@ public class RegisterConfigInfo {
     @JsonProperty("obisCodeDescription")
     public String obisCodeDescription;
     @JsonProperty("unitOfMeasure")
-    public PhenomenonInfo unitOfMeasure;
+    public String unitOfMeasure;
     @JsonProperty("numberOfDigits")
     public Integer numberOfDigits;
     @JsonProperty("numberOfFractionDigits")
@@ -57,14 +55,14 @@ public class RegisterConfigInfo {
 
     public RegisterConfigInfo(NumericalRegisterSpec registerSpec) {
         this.id = registerSpec.getId();
-        this.name = registerSpec.getRegisterType().getName();
+        this.name = registerSpec.getRegisterType().getReadingType().getAliasName();
         this.registerType = registerSpec.getRegisterType().getId();
         this.readingType = new ReadingTypeInfo(registerSpec.getRegisterType().getReadingType());
         this.timeOfUse = registerSpec.getRegisterType().getTimeOfUse();
         this.obisCode = registerSpec.getObisCode();
         this.overruledObisCode = registerSpec.getDeviceObisCode();
         this.obisCodeDescription = registerSpec.getObisCode().getDescription();
-        this.unitOfMeasure = PhenomenonInfo.from(registerSpec.getRegisterType().getPhenomenon());
+        this.unitOfMeasure = registerSpec.getUnit().toString();
         this.numberOfDigits = registerSpec.getNumberOfDigits();
         this.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
         this.multiplier = registerSpec.getMultiplier();
@@ -75,14 +73,14 @@ public class RegisterConfigInfo {
 
     public RegisterConfigInfo(TextualRegisterSpec registerSpec) {
         this.id = registerSpec.getId();
-        this.name = registerSpec.getRegisterType().getName();
+        this.name = registerSpec.getRegisterType().getReadingType().getAliasName();
         this.registerType = registerSpec.getRegisterType().getId();
         this.readingType = new ReadingTypeInfo(registerSpec.getRegisterType().getReadingType());
         this.timeOfUse = registerSpec.getRegisterType().getTimeOfUse();
         this.obisCode = registerSpec.getObisCode();
         this.overruledObisCode = registerSpec.getDeviceObisCode();
         this.obisCodeDescription = registerSpec.getObisCode().getDescription();
-        this.unitOfMeasure = PhenomenonInfo.from(registerSpec.getRegisterType().getPhenomenon());
+        this.unitOfMeasure = registerSpec.getUnit().toString();
         this.numberOfDigits = null;
         this.numberOfFractionDigits = null;
         this.multiplier = null;

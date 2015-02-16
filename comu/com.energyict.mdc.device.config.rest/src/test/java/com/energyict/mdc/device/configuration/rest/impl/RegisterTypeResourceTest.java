@@ -50,12 +50,12 @@ public class RegisterTypeResourceTest extends DeviceConfigurationApplicationJers
     public void testRegisterTypeInfoJavaScriptMappings() throws Exception {
         RegisterType registerType = mock(RegisterType.class);
         when(registerType.getId()).thenReturn(13L);
-        when(registerType.getName()).thenReturn("register type");
         when(registerType.getObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
         when(deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType)).thenReturn(true);
         when(registerType.getUnit()).thenReturn(Unit.get("kWh"));
         ReadingType readingType = mock(ReadingType.class);
         when(registerType.getReadingType()).thenReturn(readingType);
+        when(readingType.getAliasName()).thenReturn("register type");
         when(readingType.getMRID()).thenReturn("mrid");
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
         when(readingType.getAggregate()).thenReturn(Aggregate.AVERAGE);
@@ -82,17 +82,14 @@ public class RegisterTypeResourceTest extends DeviceConfigurationApplicationJers
         when(deviceConfigurationService.findActiveRegisterSpecsByDeviceTypeAndRegisterType(any(DeviceType.class), any(RegisterType.class))).thenReturn(registerSpecs);
 
         Map<String, Object> map = target("/registertypes/13").request().get(Map.class);
-        assertThat(map).hasSize(10)
+        assertThat(map).hasSize(8)
         .containsKey("id")
-        .containsKey("name")
         .containsKey("obisCode")
         .containsKey("isLinkedByDeviceType")
         .containsKey("isLinkedByActiveRegisterConfig")
         .containsKey("isLinkedByInactiveRegisterConfig")
-        .containsKey("timeOfUse")
-        .containsKey("unitOfMeasure")
         .containsKey("readingType");
-        assertThat((Map)map.get("readingType")).hasSize(23)
+        assertThat((Map)map.get("readingType")).hasSize(24)
         .containsKey("mRID")
         .containsKey("aliasName")
         .containsKey("name")
@@ -114,6 +111,7 @@ public class RegisterTypeResourceTest extends DeviceConfigurationApplicationJers
         .containsKey("metricMultiplier")
         .containsKey("unit")
         .containsKey("currency")
+        .containsKey("fullAliasName")
         .containsKey("version")
         .containsKey("names");
 

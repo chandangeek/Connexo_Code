@@ -6,8 +6,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.common.rest.LongAdapter;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -47,19 +46,19 @@ public class ReadingTypeResource {
     public PagedInfoList getReadingType(@BeanParam JsonQueryFilter queryFilter, @BeanParam QueryParameters queryParameters) throws Exception {
         List<ReadingTypeInfo> readingTypeInfos = new ArrayList<>();
         if (queryFilter.hasFilters()) {
-            long phenomenonId = queryFilter.getProperty("unit", new LongAdapter());
             ObisCode obisCode = queryFilter.getProperty("obisCode", new ObisCodeAdapter());
 
+            //TODO see where this rest call is made, we don't persist the unit anymore
             //Unit unit = queryFilter.getProperty("unit", new UnitAdapter());
-            Optional<Phenomenon> phenomenon = masterDataService.findPhenomenon(phenomenonId);
-            if (phenomenon.isPresent()) {
-                String mrid = readingTypeUtilService.getReadingTypeMridFrom(obisCode, phenomenon.get().getUnit());
+//            Optional<Phenomenon> phenomenon = masterDataService.findPhenomenon(phenomenonId);
+//            if (phenomenon.isPresent()) {
+                String mrid = readingTypeUtilService.getReadingTypeMridFrom(obisCode, Unit.getUndefined());
                 Optional<ReadingType> readingType = meteringService.getReadingType(mrid);
                 if (readingType.isPresent()) {
                     //    throw new WebApplicationException("No such reading type", Response.status(Response.Status.NOT_FOUND).entity("No reading type for ObisCode "+obisCode+" and unit "+unitString).build());
                     readingTypeInfos.add(new ReadingTypeInfo(readingType.get()));
                 }
-            }
+//            }
         } else {
             List<ReadingType> readingTypes = ListPager.of(meteringService.getAvailableReadingTypes(), new ReadingTypeComparator()).from(queryParameters).find();
             for (ReadingType readingType : readingTypes) {

@@ -1,19 +1,5 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.common.rest.ExceptionLogger;
-import com.energyict.mdc.common.rest.TransactionWrapper;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.tasks.TaskService;
-
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -31,6 +17,18 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.PropertyUtils;
+import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.ExceptionLogger;
+import com.energyict.mdc.common.rest.TransactionWrapper;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -43,7 +41,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component(name = "com.energyict.dtc.rest",
         service = {Application.class, TranslationKeyProvider.class},
@@ -169,7 +166,6 @@ public class DeviceConfigurationApplication extends Application implements Trans
     public List<TranslationKey> getKeys() {
         List<TranslationKey> translationKeys = new ArrayList<>();
         translationKeys.addAll(Arrays.asList(MessageSeeds.values()));
-        translationKeys.addAll(camouflagePhenomenaAsMessageSeeds());
         return translationKeys;
     }
 
@@ -201,28 +197,6 @@ public class DeviceConfigurationApplication extends Application implements Trans
     @Reference(target="(com.elster.jupiter.license.rest.key=" + APP_KEY  + ")")
     public void setLicense(License license) {
         this.license = license;
-    }
-
-    private List<TranslationKey> camouflagePhenomenaAsMessageSeeds() {
-        return masterDataService.findAllPhenomena().stream().map(PhenomenonTranslationKey::new).collect(Collectors.toList());
-    }
-
-    private static class PhenomenonTranslationKey implements TranslationKey {
-        private final Phenomenon phenomenon;
-
-        private PhenomenonTranslationKey(Phenomenon phenomenon) {
-            this.phenomenon = phenomenon;
-        }
-
-        @Override
-        public String getKey() {
-            return phenomenon.getName();
-        }
-
-        @Override
-        public String getDefaultFormat() {
-            return phenomenon.getName();
-        }
     }
 
     class HK2Binder extends AbstractBinder {
