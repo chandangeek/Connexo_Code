@@ -351,6 +351,12 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     }
 
     @Override
+    public List<ReadingType> getAllReadingTypesWithoutInterval() {
+        Condition withoutIntervals = Where.where("mRID").matches("^0.[0-9]+.0", "");
+        return dataModel.mapper(ReadingType.class).select(withoutIntervals);
+    }
+
+    @Override
     public Optional<AmrSystem> findAmrSystem(long id) {
         return dataModel.mapper(AmrSystem.class).getOptional(id);
     }
