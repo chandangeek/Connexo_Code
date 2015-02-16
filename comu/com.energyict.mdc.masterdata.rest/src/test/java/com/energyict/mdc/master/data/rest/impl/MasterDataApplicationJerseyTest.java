@@ -8,6 +8,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.impl.MasterDataApplication;
 import com.energyict.mdc.masterdata.rest.impl.MessageSeeds;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
@@ -24,6 +25,8 @@ public class MasterDataApplicationJerseyTest extends FelixRestApplicationJerseyT
     MasterDataService masterDataService;
     @Mock
     MeteringService meteringService;
+    @Mock
+    MdcReadingTypeUtilService mdcReadingTypeUtilService;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -39,6 +42,8 @@ public class MasterDataApplicationJerseyTest extends FelixRestApplicationJerseyT
         application.setJsonService(jsonService);
         application.setMasterDataService(masterDataService);
         application.setMeteringService(meteringService);
+        application.setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
+
         return application;
     }
 }

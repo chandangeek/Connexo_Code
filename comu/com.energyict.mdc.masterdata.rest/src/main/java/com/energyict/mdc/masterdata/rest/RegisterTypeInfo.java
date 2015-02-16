@@ -3,7 +3,6 @@ package com.energyict.mdc.masterdata.rest;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MeasurementType;
@@ -15,14 +14,12 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 public class RegisterTypeInfo {
 
     public long id;
-    public String name;
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
     public boolean isLinkedByDeviceType;
     public Boolean isLinkedByActiveRegisterConfig; // This property makes no sense if the register mapping was retrieved outside the scope of a device type. It will be null.
     public Boolean isLinkedByInactiveRegisterConfig; // This property makes no sense if the register mapping was retrieved outside the scope of a device type. It will be null.
-    public int timeOfUse;
-    public PhenomenonInfo unitOfMeasure;
+    public String unitOfMeasure;
     public ReadingTypeInfo readingType;
     public ReadingTypeInfo calculatedReadingType;
 
@@ -34,10 +31,8 @@ public class RegisterTypeInfo {
             measurementType = ((ChannelType) measurementType).getTemplateRegister();
         }
         this.id = measurementType.getId();
-        this.name = measurementType.getName();
         this.obisCode = measurementType.getObisCode();
         this.isLinkedByDeviceType = isLinkedByDeviceType;
-        this.timeOfUse = measurementType.getTimeOfUse();
         ReadingType readingType = measurementType.getReadingType();
         this.readingType = new ReadingTypeInfo(readingType);
         if (readingType.isCumulative()){
@@ -45,8 +40,8 @@ public class RegisterTypeInfo {
                     rt -> this.calculatedReadingType = new ReadingTypeInfo(rt)
             );
         }
-        if (measurementType.getPhenomenon() != null) {
-            this.unitOfMeasure = PhenomenonInfo.from(measurementType.getPhenomenon());
+        if (measurementType.getUnit() != null) {
+            this.unitOfMeasure = measurementType.getUnit().toString();
         }
     }
 
@@ -56,11 +51,8 @@ public class RegisterTypeInfo {
         this.isLinkedByInactiveRegisterConfig = isLinkedByInactiveRegisterSpec;
     }
 
-    public void writeTo(MeasurementType measurementType, ReadingType readingType, Unit unit) {
-        measurementType.setName(this.name);
+    public void writeTo(MeasurementType measurementType, ReadingType readingType) {
         measurementType.setObisCode(this.obisCode);
-        measurementType.setTimeOfUse(this.timeOfUse);
-        measurementType.setUnit(unit);
         measurementType.setReadingType(readingType);
     }
 
