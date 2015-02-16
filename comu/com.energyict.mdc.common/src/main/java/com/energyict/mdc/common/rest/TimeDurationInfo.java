@@ -4,8 +4,8 @@ import com.elster.jupiter.time.TimeDuration;
 import java.util.Optional;
 
 public class TimeDurationInfo {
-    public long count;
-    public String timeUnit = TimeDuration.TimeUnit.SECONDS.getDescription();
+    public long count = 6L;
+    public String timeUnit = TimeDuration.TimeUnit.HOURS.getDescription();
 
     public TimeDurationInfo() {
     }
