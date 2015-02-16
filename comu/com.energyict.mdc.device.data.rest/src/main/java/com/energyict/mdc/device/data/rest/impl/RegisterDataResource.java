@@ -71,8 +71,6 @@ public class RegisterDataResource {
         }
         List<ReadingInfo> readingInfos = ReadingInfoFactory.asInfoList(readings, register.getRegisterSpec(),
                 validationStatusForRegister, dataValidationStatuses);
-        readingInfos = filter(readingInfos, uriInfo.getQueryParameters());
-
         // sort the list of readings
         Collections.sort(readingInfos, (ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp));
         /* And fill a delta value for cumulative reading type. The delta is the difference with the previous record.
@@ -83,6 +81,8 @@ public class RegisterDataResource {
                 calculateDeltaForBillingReading(readingInfos.get(i + 1), readingInfos.get(i));
             }
         }
+        // filter the list of readings based on user parameters
+        readingInfos = filter(readingInfos, uriInfo.getQueryParameters());
         List<ReadingInfo> paginatedReadingInfo = ListPager.of(readingInfos).from(queryParameters).find();
         return PagedInfoList.asJson("data", paginatedReadingInfo, queryParameters);
     }
