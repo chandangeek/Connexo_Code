@@ -362,8 +362,8 @@ public class JemStar extends Jem implements MessageProtocol  {
                         if (s.trim().equals("Last BPR Time")) {
                             billingDate = tstamp;
                         } else if (s.contains("TPkD,Time:")) {
-                            registerValues.remove(tempRegisterValue.getObisCode().toString());
-                            registerValues.put(tempRegisterValue.getObisCode().toString(), new RegisterValue(tempRegisterValue.getObisCode(), tempRegisterValue.getQuantity()));
+                            // In this case, set the time as event time of previous register (= which always is register PkD)
+                            alternateRegisterValues.put(tempRegisterValue.getObisCode().toString(), new RegisterValue(tempRegisterValue.getObisCode(), tempRegisterValue.getQuantity(), tstamp));
                         }
                         break;
                     case 3:
