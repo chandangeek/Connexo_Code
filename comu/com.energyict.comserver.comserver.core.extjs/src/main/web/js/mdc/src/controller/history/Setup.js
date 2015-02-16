@@ -763,7 +763,8 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showRegisterTypeEditView',
                             callback: function (route) {
                                 this.getApplication().on('loadRegisterType', function (record) {
-                                    route.setTitle('Edit \'' + record.get('name') + '\'');
+                                    debugger;
+                                    route.setTitle('Edit \'' + record.get('readingType').fullAliasName + '\'');
                                     return true;
                                 }, {single: true});
 
