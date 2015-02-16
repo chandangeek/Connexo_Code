@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Channel;
@@ -194,7 +193,7 @@ public class LoadProfileImpl implements LoadProfile {
 
         @Override
         public Unit getUnit() {
-            return this.channelSpec.getPhenomenon().getUnit();
+            return this.channelSpec.getChannelType().getUnit();
         }
 
         @Override
@@ -209,17 +208,12 @@ public class LoadProfileImpl implements LoadProfile {
 
         @Override
         public String getName() {
-            return getChannelSpec().getName();
+            return getChannelSpec().getReadingType().getAliasName();
         }
 
         @Override
         public TimeDuration getInterval() {
             return getChannelSpec().getInterval();
-        }
-
-        @Override
-        public Phenomenon getPhenomenon() {
-            return getChannelSpec().getPhenomenon();
         }
 
         @Override

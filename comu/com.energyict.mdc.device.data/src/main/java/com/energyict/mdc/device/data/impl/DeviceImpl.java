@@ -504,16 +504,6 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
-    public BaseChannel getChannel(String name) {
-        for (Channel channel : getChannels()) {
-            if (channel.getChannelSpec().getName().equals(name)) {
-                return channel;
-            }
-        }
-        return null;
-    }
-
-    @Override
     public List<Register> getRegisters() {
         List<Register> registers = new ArrayList<>();
         for (RegisterSpec registerSpec : getDeviceConfiguration().getRegisterSpecs()) {
