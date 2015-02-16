@@ -178,8 +178,10 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         }
         if (!this.restorePools) {
             this.getStore('Mdc.store.AddComPortPools').removeAll();
-            this.getComPortPoolsGrid().down('#comPortPoolsCount').update(
-                Uni.I18n.translate('comServerComPorts.addPools.noPools', 'MDC', 'No communication port pools'));
+            if (this.getComPortPoolsGrid()) {
+                this.getComPortPoolsGrid().down('#comPortPoolsCount').update(
+                    Uni.I18n.translate('comServerComPorts.addPools.noPools', 'MDC', 'No communication port pools'));
+            }
         } else {
             this.restorePools = undefined;
         }
