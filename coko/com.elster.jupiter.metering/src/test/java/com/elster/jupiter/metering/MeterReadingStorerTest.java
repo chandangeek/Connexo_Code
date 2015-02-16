@@ -128,6 +128,7 @@ public class MeterReadingStorerTest {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
             Meter meter = amrSystem.newMeter("myMeter");
             meter.save();
+            meter = amrSystem.lockMeter("myMeter").get();
             ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
                     .period(TimeAttribute.MINUTE15)
                     .accumulate(Accumulation.BULKQUANTITY)
