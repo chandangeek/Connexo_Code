@@ -1,7 +1,10 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
@@ -29,7 +32,8 @@ public class ComScheduleInfo {
         comScheduleInfo.id = comSchedule.getId();
         comScheduleInfo.name = comSchedule.getName();
         comScheduleInfo.temporalExpression = TemporalExpressionInfo.from(comSchedule.getTemporalExpression());
-        comScheduleInfo.plannedDate = comSchedule.getPlannedDate().orElse(null);
+        Optional<ZonedDateTime> nextOccurrence = comSchedule.getTemporalExpression().nextOccurrence(ZonedDateTime.ofInstant(Instant.now(), ZoneId.systemDefault()));
+        nextOccurrence.ifPresent(zonedDateTime -> comScheduleInfo.plannedDate = zonedDateTime.toInstant());
         comScheduleInfo.startDate = comSchedule.getStartDate() == null ? null : comSchedule.getStartDate();
         comScheduleInfo.isInUse = inUse;
         comScheduleInfo.comTaskUsages = ComTaskInfo.from(comSchedule.getComTasks());
