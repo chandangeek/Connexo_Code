@@ -67,27 +67,22 @@ public class ChannelDataInfo {
             for (ProfileStatus.Flag flag : loadProfileReading.getFlags()) {
                 channelIntervalInfo.intervalFlags.add(thesaurus.getString(flag.name(), flag.name()));
             }
-            Channel valueOwnerChannel = null;
             for (Map.Entry<Channel, IntervalReadingRecord> entry : loadProfileReading.getChannelValues().entrySet()) {
-                valueOwnerChannel = entry.getKey();
-                channelIntervalInfo.isBulk = valueOwnerChannel.getReadingType().isCumulative();
-                channelIntervalInfo.value = entry.getValue().getValue(); // There can be only one channel (or no channel at all if the channel has no dta for this interval)
+                channelIntervalInfo.isBulk = entry.getKey().getReadingType().isCumulative();
+                channelIntervalInfo.value = getRoundedBigDecimal(entry.getValue().getValue(), entry.getKey()); // There can be only one channel (or no channel at all if the channel has no dta for this interval)
                 if (channelIntervalInfo.isBulk) {
-                    Quantity quantity = entry.getValue().getQuantity(valueOwnerChannel.getReadingType());
+                    Quantity quantity = entry.getValue().getQuantity(entry.getKey().getReadingType());
                     channelIntervalInfo.collectedValue = quantity != null ?  quantity.getValue() : null;
                 }
                 channelIntervalInfo.modificationFlag = ReadingModificationFlag.getFlag(entry.getValue());
                 channelIntervalInfo.reportedDateTime = entry.getValue().getReportedDateTime();
+                channelIntervalInfo.collectedValue = getRoundedBigDecimal(channelIntervalInfo.collectedValue, entry.getKey());
             }
             if (loadProfileReading.getChannelValues().isEmpty() && loadProfileReading.getReadingTime() != null) {
                 channelIntervalInfo.modificationFlag = ReadingModificationFlag.REMOVED;
                 channelIntervalInfo.reportedDateTime = loadProfileReading.getReadingTime();
             }
 
-            if (valueOwnerChannel != null){
-                channelIntervalInfo.value = getRoundedBigDecimal(channelIntervalInfo.value, valueOwnerChannel);
-                channelIntervalInfo.collectedValue = getRoundedBigDecimal(channelIntervalInfo.collectedValue, valueOwnerChannel);
-            }
             Set<Map.Entry<Channel, DataValidationStatus>> states = loadProfileReading.getChannelValidationStates().entrySet();    //  only one channel
             for (Map.Entry<Channel, DataValidationStatus> entry : states) {
                     ValidationInfo validationInfo = new ValidationInfo(entry.getValue(), deviceValidation);
