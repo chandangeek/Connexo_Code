@@ -21,7 +21,7 @@ public class RegisterInfo  {
 
     public RegisterInfo(Register register) {
         id = (int)register.getRegisterSpecId();
-        name = register.getRegisterSpec().getRegisterType().getName();
+        name = register.getRegisterSpec().getRegisterType().getReadingType().getAliasName();
     }
 
 }
