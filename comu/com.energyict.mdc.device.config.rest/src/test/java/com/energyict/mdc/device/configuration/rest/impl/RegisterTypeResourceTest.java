@@ -89,7 +89,7 @@ public class RegisterTypeResourceTest extends DeviceConfigurationApplicationJers
         .containsKey("isLinkedByActiveRegisterConfig")
         .containsKey("isLinkedByInactiveRegisterConfig")
         .containsKey("readingType");
-        assertThat((Map)map.get("readingType")).hasSize(23)
+        assertThat((Map)map.get("readingType")).hasSize(24)
         .containsKey("mRID")
         .containsKey("aliasName")
         .containsKey("name")
@@ -111,6 +111,7 @@ public class RegisterTypeResourceTest extends DeviceConfigurationApplicationJers
         .containsKey("metricMultiplier")
         .containsKey("unit")
         .containsKey("currency")
+        .containsKey("fullAliasName")
         .containsKey("version")
         .containsKey("names");
 
