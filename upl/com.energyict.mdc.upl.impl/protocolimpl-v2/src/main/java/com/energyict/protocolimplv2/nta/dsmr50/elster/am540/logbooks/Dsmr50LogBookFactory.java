@@ -50,9 +50,13 @@ public class Dsmr50LogBookFactory implements DeviceLogBookSupport {
             // TODO: need to support power quality event log?
 
             // MBus related event logs
-            supportedLogBooks.add(getMeterConfig().getMbusEventLogObject().getObisCode());
-            for (DeviceMapping mbusMeter : ((IDISMeterTopology) protocol.getMeterTopology()).getDeviceMapping()) {
-                supportedLogBooks.add(getMeterConfig().getMbusControlLog(mbusMeter.getPhysicalAddress() - 1).getObisCode());
+            try {
+                supportedLogBooks.add(getMeterConfig().getMbusEventLogObject().getObisCode());
+                for (DeviceMapping mbusMeter : ((IDISMeterTopology) protocol.getMeterTopology()).getDeviceMapping()) {
+                    supportedLogBooks.add(getMeterConfig().getMbusControlLog(mbusMeter.getPhysicalAddress() - 1).getObisCode());
+                }
+            } catch (ProtocolException e) {
+                ; // intentionally skip, the device has no support for Mbus
             }
         } catch (ProtocolException e) {   //Object not found in IOL, should never happen
             throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
