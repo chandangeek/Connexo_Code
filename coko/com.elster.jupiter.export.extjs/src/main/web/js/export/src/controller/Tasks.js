@@ -696,6 +696,7 @@ Ext.define('Dxp.controller.Tasks', {
                             ui: 'notification-error',
                             title: Uni.I18n.translate('general.remove.error.msg', 'DXP', 'Remove operation failed'),
                             msg: errorText,
+                            modal: false,
                             icon: Ext.MessageBox.ERROR
                         })
                 }
