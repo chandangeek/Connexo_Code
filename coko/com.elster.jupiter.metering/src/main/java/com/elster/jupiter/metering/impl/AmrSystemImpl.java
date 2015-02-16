@@ -100,4 +100,9 @@ public class AmrSystemImpl implements AmrSystem {
     public boolean is(KnownAmrSystem knownAmrSystem) {
         return knownAmrSystem != null && knownAmrSystem.getId() == getId();
     }
+
+	@Override
+	public Optional<Meter> lockMeter(String amrId) {	
+		return findMeter(amrId).map(meter -> dataModel.mapper(Meter.class).lock(meter.getId()));
+	}
 }

@@ -10,5 +10,9 @@ public interface AmrSystem extends HasName {
 	EndDevice newEndDevice(String amrId);
 	EndDevice newEndDevice(String amrId, String mRID);
 	Optional<Meter> findMeter(String amrId);
-    boolean is(KnownAmrSystem knownAmrSystem);
+	boolean is(KnownAmrSystem knownAmrSystem);
+    /**
+	* @since 1.1
+	*/
+	Optional<Meter> lockMeter(String amrId);
 }
