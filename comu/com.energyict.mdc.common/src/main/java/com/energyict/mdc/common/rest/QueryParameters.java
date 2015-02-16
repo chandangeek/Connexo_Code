@@ -26,6 +26,7 @@ public class QueryParameters {
     private static final String EXTJS_DIR = "dir";
     private static final String EXTJS_DIRECTION = "direction";
     private static final String EXTJS_FIELD = "property";
+    private static final String EXTJS_LIKE = "like";
 
     private final MultivaluedMap<String, String> queryParameters;
 
@@ -68,6 +69,10 @@ public class QueryParameters {
             return Integer.parseInt(start);
         }
         return null;
+    }
+
+    public String getLike() {
+        return queryParameters.getFirst(EXTJS_LIKE);
     }
 
     public Boolean getBoolean(String name) {
