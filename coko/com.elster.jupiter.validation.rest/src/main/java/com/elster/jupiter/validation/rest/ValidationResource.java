@@ -168,7 +168,7 @@ public class ValidationResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response addRule(@PathParam("ruleSetId") final long ruleSetId, final ValidationRuleInfo info, @Context SecurityContext securityContext) {
-        final ValidationRuleInfos result = new ValidationRuleInfos();
+        ValidationRuleInfo result =
         transactionService.execute(() -> {
             ValidationRuleSet set = validationService.getValidationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
             ValidationRule rule = set.addRule(ValidationAction.FAIL, info.implementation, info.name);
@@ -181,12 +181,11 @@ public class ValidationResource {
                     Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
                     rule.addProperty(propertySpec.getName(), value);
                 }
-                result.add(rule);
             } catch (ValidatorNotFoundException ex) {
             } finally {
                 set.save();
             }
-            return rule;
+            return new ValidationRuleInfo(rule);
         });
         return Response.status(Response.Status.CREATED).entity(result).build();
     }

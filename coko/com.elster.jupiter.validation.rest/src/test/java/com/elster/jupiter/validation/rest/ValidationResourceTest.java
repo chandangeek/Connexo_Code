@@ -271,10 +271,8 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         Response response = target("/validation/13/rules").request().post(entity);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        ValidationRuleInfos resultInfos = response.readEntity(ValidationRuleInfos.class);
-        assertThat(resultInfos.total).isEqualTo(1);
-        assertThat(resultInfos.rules).hasSize(1);
-        assertThat(resultInfos.rules.get(0).name).isEqualTo("MyRule");
+        ValidationRuleInfo resultInfo = response.readEntity(ValidationRuleInfo.class);
+        assertThat(resultInfo.name).isEqualTo("MyRule");
 
         verify(rule).addProperty("number", BigDecimal.valueOf(10.0));
         verify(rule).addProperty("nullableboolean", false);
