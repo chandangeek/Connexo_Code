@@ -2,7 +2,6 @@ package com.energyict.mdc.masterdata.impl;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
@@ -26,7 +25,6 @@ import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -36,7 +34,7 @@ import static com.elster.jupiter.util.Checks.is;
  * Time: 9:56 AM
  */
 @UniqueReadingType(groups = { Save.Create.class, Save.Update.class })
-public abstract class MeasurementTypeImpl extends PersistentNamedObject<MeasurementType> implements MeasurementType, PersistenceAware {
+public abstract class MeasurementTypeImpl extends PersistentIdObject<MeasurementType> implements MeasurementType, PersistenceAware {
 
     protected static final String REGISTER_DISCRIMINATOR = "0";
     public static final String CHANNEL_DISCRIMINATOR = "1";
@@ -49,9 +47,6 @@ public abstract class MeasurementTypeImpl extends PersistentNamedObject<Measurem
     enum Fields {
         READING_TYPE("readingType"),
         OBIS_CODE("obisCode"),
-        PHENOMENON("phenomenon"),
-        UNIT("phenomenon." + PhenomenonImpl.Fields.UNIT.fieldName()),
-        TIME_OF_USE("timeOfUse"),
         INTERVAl("interval"),
         TEMPLATE_REGISTER_ID("templateRegisterId");
         private final String javaFieldName;
@@ -67,24 +62,15 @@ public abstract class MeasurementTypeImpl extends PersistentNamedObject<Measurem
 
     protected final MasterDataService masterDataService;
 
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
-    @Size(max= 126, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String name;
     private ObisCode obisCodeCached;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_TYPE_OBIS_CODE_IS_REQUIRED + "}")
     private String obisCode;
     private String oldObisCode;
-    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_TYPE_UNIT_IS_REQUIRED + "}")
-    private Reference<Phenomenon> phenomenon = ValueReference.absent();
-    private long oldPhenomenon;
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_TYPE_READING_TYPE_IS_REQUIRED + "}")
     private Reference<ReadingType> readingType = ValueReference.absent();
     private boolean cumulative;
     @Size(max= Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
-    @Min(value=0, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_TYPE_TIMEOFUSE_TOO_SMALL + "}")
-    private int timeOfUse;
 
     protected MeasurementTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, MasterDataService masterDataService) {
         super(MeasurementType.class, dataModel, eventService, thesaurus);
@@ -98,7 +84,6 @@ public abstract class MeasurementTypeImpl extends PersistentNamedObject<Measurem
 
     private void synchronizeOldValues() {
         this.oldObisCode = this.obisCode;
-        this.oldPhenomenon = this.phenomenon.get().getId();
     }
 
     @Override
@@ -128,19 +113,6 @@ public abstract class MeasurementTypeImpl extends PersistentNamedObject<Measurem
     }
 
     @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String name) {
-        if (name != null) {
-            name = name.trim();
-        }
-        this.name = name;
-    }
-
-    @Override
     public ObisCode getObisCode() {
         if (this.obisCodeCached == null && !is(this.obisCode).empty()) {
             this.obisCodeCached = ObisCode.fromString(this.obisCode);
@@ -164,31 +136,6 @@ public abstract class MeasurementTypeImpl extends PersistentNamedObject<Measurem
     // Used by the update event
     public String getOldObisCode() {
         return oldObisCode;
-    }
-
-    private boolean phenomenonChanged(Phenomenon phenomenon) {
-        return ((!this.phenomenon.isPresent() && phenomenon != null)
-            || (phenomenon != null && (this.getPhenomenon().getId() != phenomenon.getId())));
-    }
-
-    @Override
-    public Phenomenon getPhenomenon() {
-        return phenomenon.get();
-    }
-
-    @Override
-    public void setPhenomenon(Phenomenon phenomenon) {
-        if (phenomenon == null) {
-            this.phenomenon.setNull();
-        }
-        else {
-            this.phenomenon.set(phenomenon);
-        }
-    }
-
-    @SuppressWarnings("unused") // Event listeners extract this information from json payload
-    public long getOldPhenomenon() {
-        return oldPhenomenon;
     }
 
     public void setReadingType(ReadingType readingType) {
@@ -229,13 +176,7 @@ public abstract class MeasurementTypeImpl extends PersistentNamedObject<Measurem
 
     @Override
     public Unit getUnit() {
-        return this.phenomenon.get().getUnit();
-    }
-
-    @Override
-    public void setUnit(Unit unit) {
-        Optional<Phenomenon> phenomenon = this.masterDataService.findPhenomenonByUnit(unit);
-        setPhenomenon(phenomenon.orElse(null));
+        return this.readingType.isPresent() ? Unit.get(this.readingType.get().getMultiplier().getSymbol() + this.readingType.get().getUnit().getSymbol()) : Unit.getUndefined();
     }
 
     public Instant getModificationDate() {
@@ -244,12 +185,6 @@ public abstract class MeasurementTypeImpl extends PersistentNamedObject<Measurem
 
     @Override
     public int getTimeOfUse() {
-        return timeOfUse;
+        return this.readingType.isPresent() ? this.readingType.get().getTou() : 0;
     }
-
-    @Override
-    public void setTimeOfUse(int timeOfUse) {
-        this.timeOfUse = timeOfUse;
-    }
-
 }

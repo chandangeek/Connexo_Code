@@ -1,12 +1,10 @@
 package com.energyict.mdc.masterdata.exceptions;
 
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 
-import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.nls.Thesaurus;
-
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
@@ -34,7 +32,7 @@ public class RegisterTypesNotMappableToLoadProfileTypeIntervalException extends 
     }
 
     private static String toCommaSeparatedList (Collection<RegisterType> registerTypes) {
-        return registerTypes.stream().map(RegisterType::getName).collect(Collectors.joining(", "));
+        return registerTypes.stream().map(registerType -> registerType.getReadingType().getAliasName()).collect(Collectors.joining(", "));
     }
 
 }

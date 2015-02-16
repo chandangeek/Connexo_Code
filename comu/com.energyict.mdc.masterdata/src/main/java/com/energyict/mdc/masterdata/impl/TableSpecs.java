@@ -5,7 +5,6 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LoadProfileTypeChannelTypeUsage;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -23,22 +22,6 @@ import static com.elster.jupiter.orm.DeleteRule.CASCADE;
  * @since 2014-04-11 (16:39)
  */
 public enum TableSpecs {
-
-    MDS_PHENOMENON {
-        @Override
-        public void addTo(DataModel dataModel) {
-            Table<Phenomenon> table = dataModel.addTable(name(), Phenomenon.class);
-            table.map(PhenomenonImpl.class);
-            table.cache();
-            Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
-            table.column("NAME").varChar().notNull().map(PhenomenonImpl.Fields.NAME.fieldName()).add();
-            Column unit = table.column("UNIT").varChar(StringColumnLengthConstraints.PHENOMENON_UNIT).notNull().map(PhenomenonImpl.Fields.UNIT.fieldName()).add();
-            table.column("MEASUREMENTCODE").varChar().map(PhenomenonImpl.Fields.MEASUREMENT_CODE.fieldName()).add();
-            table.primaryKey("PK_MDS_PHENOMENON").on(id).add();
-            table.unique("UK_MDS_PHENOMENON").on(unit).add(); // Done so phenomenon can be identified solely by unit, cfr gna
-        }
-    },
 
     MDS_LOADPROFILETYPE {
         @Override
@@ -79,20 +62,15 @@ public enum TableSpecs {
             table.cache();
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            Column name = table.column("NAME").varChar().notNull().map("name").add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             table.column("OBISCODE").varChar(StringColumnLengthConstraints.DEFAULT_OBISCODE_LENGTH).notNull().map(MeasurementTypeImpl.Fields.OBIS_CODE.fieldName()).add();
-            Column phenomenon = table.column("PHENOMENONID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column readingType = table.column("READINGTYPE").varChar(Table.NAME_LENGTH).add();
             table.column("CUMULATIVE").number().conversion(NUMBER2BOOLEAN).notNull().map("cumulative").add();
             table.column("DESCRIPTION").varChar().map("description").add();
-            table.column("TIMEOFUSE").number().map("timeOfUse").conversion(ColumnConversion.NUMBER2INT).add();
             table.column("INTERVAL").number().conversion(ColumnConversion.NUMBER2INT).map("interval.count").add();
             table.column("INTERVALCODE").number().conversion(ColumnConversion.NUMBER2INT).map("interval.timeUnitCode").add();
             table.column("TEMPLATEREGISTER").number().conversion(ColumnConversion.NUMBER2LONG).map("templateRegisterId").add();
-            table.foreignKey("FK_MDS_MEASTP_PHENOMENON").on(phenomenon).references(MDS_PHENOMENON.name()).map("phenomenon").add();
             table.foreignKey("FK_MDS_MEASTP_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").map("readingType").add();
-            table.unique("UK_MDS_MEASTYPENAME").on(name).add();
             table.unique("UK_MDS_MTREADINGTYPE").on(readingType).add();
             table.primaryKey("PK_MDS_MEASUREMENTTYPE").on(id).add();
         }

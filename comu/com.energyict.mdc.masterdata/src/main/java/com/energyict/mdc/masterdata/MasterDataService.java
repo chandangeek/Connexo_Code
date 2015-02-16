@@ -1,15 +1,13 @@
 package com.energyict.mdc.masterdata;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.services.Finder;
-import java.util.Collection;
-import java.util.Optional;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides services that relate to all types of master data.
@@ -19,7 +17,6 @@ import java.util.List;
  * <li>{@link RegisterGroup}</li>
  * <li>{@link MeasurementType}</li>
  * <li>{@link LoadProfileType}</li>
- * <li>{@link Phenomenon}</li>
  * </ul>
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -28,13 +25,6 @@ import java.util.List;
 public interface MasterDataService {
 
     public static String COMPONENTNAME = "MDS";
-
-    /**
-     * Finds all the {@link Phenomenon} in the system.
-     *
-     * @return The List of Phenomenon
-     */
-    public List<Phenomenon> findAllPhenomena();
 
     /**
      * Find a {@link LogBookType} with the given ID.
@@ -54,14 +44,6 @@ public interface MasterDataService {
      * @return the newly created LogBookType
      */
     public LogBookType newLogBookType(String name, ObisCode obisCode);
-
-    public Optional<Phenomenon> findPhenomenon(long phenomenonId);
-
-    public Phenomenon newPhenomenon(String name, Unit unit);
-
-    public Optional<Phenomenon> findPhenomenonByUnit(Unit unit);
-
-    public Optional<Phenomenon> findPhenomenonByNameAndUnit(String name, Unit unit);
 
     /**
      * Finds the {@link RegisterGroup} that is uniquely identified by the specified number.
@@ -116,15 +98,12 @@ public interface MasterDataService {
      * Note that {@link ObisCode} uniquely identifies the RegisterType,
      * i.e. there can only be 1 RegisterType for every ObisCode.
      *
-     * @param name        The RegisterType name
-     * @param obisCode    The ObisCode
-     * @param unit        The unit
      * @param readingType The reading type
-     * @param timeOfUse   Customer specif timeOfUse id
+     * @param obisCode    The ObisCode
      * @return The new RegisterType
      * @see MeasurementType#save()
      */
-    public RegisterType newRegisterType(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse);
+    public RegisterType newRegisterType(ReadingType readingType, ObisCode obisCode);
 
     /**
      * Creates a ChannelType which is a RegisterType with an interval, solely used by a LoadProfileType.
