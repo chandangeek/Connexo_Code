@@ -7,7 +7,8 @@ Ext.define('Isu.model.CreationRule', {
     fields: [
         {
             name: 'id',
-            type: 'int'
+            type: 'int',
+            useNull: true
         },
         {
             name: 'name',
