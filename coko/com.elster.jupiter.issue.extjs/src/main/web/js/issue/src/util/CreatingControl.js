@@ -72,7 +72,7 @@ Ext.define('Isu.util.CreatingControl', {
         };
 
         obj.constraint.max && (numberField.maxValue = obj.constraint.max);
-        obj.constraint.min && (numberField.minValue = obj.constraint.min);
+        (obj.constraint.min !== undefined) && (numberField.minValue = obj.constraint.min);
         obj.defaultValue && (numberField.value = obj.defaultValue);
         obj.help && (numberField.afterSubTpl = '<span style="color: #686868; font-style: italic">' + obj.help + '</span>');
         obj.dependOn && (numberField.dependOn = obj.dependOn);
