@@ -2,12 +2,15 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -24,9 +27,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 @Path("/registergroups")
 public class RegisterGroupResource {
@@ -70,12 +70,8 @@ public class RegisterGroupResource {
     @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
     public PagedInfoList getRegisterTypesOfRegisterGroup(@PathParam("id") long id, @BeanParam QueryParameters queryParameters) {
         RegisterGroupInfo registerGroupInfo = new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
-        List<RegisterTypeInfo> registerTypeInfos = registerGroupInfo.registerTypes;
-        int totalCount = registerGroupInfo.registerTypes.size();
-        if (queryParameters.getStart() != null && queryParameters.getStart() < registerGroupInfo.registerTypes.size()) {
-            registerTypeInfos = registerTypeInfos.subList(queryParameters.getStart(), registerTypeInfos.size());
-        }
-        return PagedInfoList.asJson("registerTypes", registerTypeInfos, queryParameters, totalCount);
+        List<RegisterTypeInfo> pagedRegisterTypes = ListPager.of(registerGroupInfo.registerTypes).from(queryParameters).find();
+        return PagedInfoList.asJson("registerTypes", pagedRegisterTypes, queryParameters);
     }
 
     @DELETE
