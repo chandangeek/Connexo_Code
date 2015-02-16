@@ -441,16 +441,16 @@ Ext.define('Cfg.controller.Validation', {
             intervalsRecord,
             previewContainer;
 
+        // Buffer store to load in the data directly.
+        var tempStore = Ext.create('Cfg.store.ReadingTypesToAddForRule');
+
         previewContainer = {
             xtype: 'preview-container',
             grid: {
                 itemId: 'addReadingTypesGrid',
                 xtype: 'addReadingTypesBulk',
-                store: readingTypeStore,
-                height: 600,
-                plugins: {
-                    ptype: 'bufferedrenderer'
-                }
+                store: tempStore,
+                height: 600
             },
             emptyComponent: {
                 xtype: 'no-items-found-panel',
@@ -528,8 +528,13 @@ Ext.define('Cfg.controller.Validation', {
         Ext.override(Ext.data.proxy.Ajax, {timeout: 120000});
         //</debug>
 
+        bulkGridContainer.setLoading(true);
+
         readingTypeStore.load(function (records, operation, success) {
             if (success) {
+                tempStore.loadData(records, false);
+                bulkGridContainer.setLoading(false);
+
                 if (!records.length) {
                     widget.down('#buttonsContainer button[name=add]').setDisabled(true);
                 }
