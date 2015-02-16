@@ -139,11 +139,11 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
     protected RegisterType mockRegisterType(long id, String name, ObisCode obisCode) {
         RegisterType registerType = mock(RegisterType.class);
         when(registerType.getId()).thenReturn(id);
-        when(registerType.getName()).thenReturn(name);
         when(registerType.getObisCode()).thenReturn(obisCode);
         when(registerType.getTimeOfUse()).thenReturn(0);
         when(registerType.getUnit()).thenReturn(Unit.get("kWh"));
         ReadingType readingType = mockReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72." + id);
+        when(readingType.getAliasName()).thenReturn(name);
         when(registerType.getReadingType()).thenReturn(readingType);
         return registerType;
     }
@@ -151,11 +151,11 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
     protected ChannelType mockChannelType(long id, String name, ObisCode obisCode, TimeDuration interval) {
         ChannelType channelType = mock(ChannelType.class);
         when(channelType.getId()).thenReturn(id);
-        when(channelType.getName()).thenReturn(name);
         when(channelType.getObisCode()).thenReturn(obisCode);
         when(channelType.getTimeOfUse()).thenReturn(0);
         when(channelType.getUnit()).thenReturn(Unit.get("kWh"));
         ReadingType readingType = mockReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72." + id);
+        when(readingType.getAliasName()).thenReturn(name);
         when(channelType.getReadingType()).thenReturn(readingType);
         when(channelType.getInterval()).thenReturn(interval);
         RegisterType templateRegister = mockRegisterType(id, name, obisCode);

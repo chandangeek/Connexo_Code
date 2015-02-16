@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -14,8 +14,7 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
-
-import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -43,13 +42,15 @@ public class LoadProfileConfigurationResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final MasterDataService masterDataService;
     private final Thesaurus thesaurus;
+    private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
 
     @Inject
-    public LoadProfileConfigurationResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, MasterDataService masterDataService, Thesaurus thesaurus) {
+    public LoadProfileConfigurationResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, MasterDataService masterDataService, Thesaurus thesaurus, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
         this.resourceHelper = resourceHelper;
         this.deviceConfigurationService = deviceConfigurationService;
         this.masterDataService = masterDataService;
         this.thesaurus = thesaurus;
+        this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
     }
 
     @GET
@@ -65,7 +66,7 @@ public class LoadProfileConfigurationResource {
         Collections.sort(loadProfileSpecs, new LoadProfileSpecComparator());
         List<LoadProfileSpecInfo> loadProfileSpecInfos = new ArrayList<>(loadProfileSpecs.size());
         for (LoadProfileSpec spec : loadProfileSpecs) {
-            loadProfileSpecInfos.add(LoadProfileSpecInfo.from(spec, spec.getChannelSpecs()));
+            loadProfileSpecInfos.add(LoadProfileSpecInfo.from(spec, spec.getChannelSpecs(), mdcReadingTypeUtilService));
         }
         return Response.ok(PagedInfoList.asJson("data", loadProfileSpecInfos, queryParameters)).build();
     }
@@ -94,7 +95,7 @@ public class LoadProfileConfigurationResource {
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @BeanParam QueryParameters queryParameters) {
         LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
-        return Response.ok(PagedInfoList.asJson("data", LoadProfileSpecInfo.from(Collections.singletonList(loadProfileSpec)), queryParameters)).build();
+        return Response.ok(PagedInfoList.asJson("data", LoadProfileSpecInfo.from(Collections.singletonList(loadProfileSpec), mdcReadingTypeUtilService), queryParameters)).build();
     }
 
     @POST
@@ -117,7 +118,7 @@ public class LoadProfileConfigurationResource {
             specBuilder.setOverruledObisCode(request.overruledObisCode);
         }
         LoadProfileSpec newLoadProfileSpec = specBuilder.add();
-        return Response.ok(LoadProfileSpecInfo.from(newLoadProfileSpec, null)).build();
+        return Response.ok(LoadProfileSpecInfo.from(newLoadProfileSpec, null, mdcReadingTypeUtilService)).build();
     }
 
     @PUT
@@ -136,7 +137,7 @@ public class LoadProfileConfigurationResource {
         LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
         LoadProfileSpec.LoadProfileSpecUpdater specUpdater = deviceConfiguration.getLoadProfileSpecUpdaterFor(loadProfileSpec);
         specUpdater.setOverruledObisCode(request.overruledObisCode).update();
-        return Response.ok(LoadProfileSpecInfo.from(loadProfileSpec, null)).build();
+        return Response.ok(LoadProfileSpecInfo.from(loadProfileSpec, null, mdcReadingTypeUtilService)).build();
     }
 
     @DELETE
@@ -202,9 +203,8 @@ public class LoadProfileConfigurationResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         ChannelType channelType = resourceHelper.findChannelTypeByIdOrThrowException(request.registerTypeInfo.id);
         LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
-        Phenomenon phenomenon = findPhenomenonByIdOrThrowException(request.unitOfMeasure.id);
 
-        ChannelSpec.ChannelSpecBuilder channelBuilder = deviceConfiguration.createChannelSpec(channelType, phenomenon, loadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder channelBuilder = deviceConfiguration.createChannelSpec(channelType, loadProfileSpec);
         channelBuilder.setOverflow(request.overflowValue);
         channelBuilder.setMultiplier(request.multiplier);
         channelBuilder.setOverruledObisCode(request.overruledObisCode);
@@ -232,10 +232,6 @@ public class LoadProfileConfigurationResource {
         if (request.registerTypeInfo != null && request.registerTypeInfo.id > 0) {
             channelSpec.setChannelType(resourceHelper.findChannelTypeByIdOrThrowException(request.registerTypeInfo.id));
         }
-        if (request.unitOfMeasure != null && request.unitOfMeasure.id > 0) {
-            channelSpec.setPhenomenon(findPhenomenonByIdOrThrowException(request.unitOfMeasure.id));
-        }
-
         ChannelSpec.ChannelSpecUpdater specUpdater = deviceConfiguration.getChannelSpecUpdaterFor(channelSpec);
         specUpdater.setOverruledObisCode(request.overruledObisCode);
         specUpdater.setOverflow(request.overflowValue);
@@ -315,11 +311,4 @@ public class LoadProfileConfigurationResource {
                 .findChannelSpec(channelId)
                 .orElseThrow(() -> new TranslatableApplicationException(thesaurus, MessageSeeds.NO_CHANNEL_SPEC_FOUND, channelId));
     }
-
-    private Phenomenon findPhenomenonByIdOrThrowException(long phenomenonId) {
-        return masterDataService
-                .findPhenomenon(phenomenonId)
-                .orElseThrow(() -> new TranslatableApplicationException(thesaurus, MessageSeeds.NO_PHENOMENON_FOUND, phenomenonId));
-    }
-
 }

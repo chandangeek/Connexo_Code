@@ -2,8 +2,6 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -12,7 +10,6 @@ import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.masterdata.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 
 import javax.annotation.security.RolesAllowed;
@@ -30,7 +27,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Path("/registertypes")
 public class RegisterTypeResource {
@@ -92,25 +88,10 @@ public class RegisterTypeResource {
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     public RegisterTypeInfo createRegisterType(RegisterTypeInfo registerTypeInfo) {
         ReadingType readingType = findReadingType(registerTypeInfo);
-        Optional<Phenomenon> phenomenon = findPhenomenonOrThrowException(registerTypeInfo);
-        MeasurementType measurementType = this.masterDataService.newRegisterType(registerTypeInfo.name, registerTypeInfo.obisCode, phenomenon.get().getUnit(), readingType, registerTypeInfo.timeOfUse);
-        registerTypeInfo.writeTo(measurementType, findReadingType(registerTypeInfo), phenomenon.get().getUnit());
-        try {
-            measurementType.save();
-        } catch (DuplicateObisCodeException e) {
-            throw new LocalizedFieldValidationException(
-                    MessageSeeds.DUPLICATE_OBISCODE, "obisCode", measurementType.getObisCode().toString(), measurementType.getPhenomenon().toString(), measurementType.getTimeOfUse());
-
-        }
+        MeasurementType measurementType = this.masterDataService.newRegisterType(readingType, registerTypeInfo.obisCode);
+        registerTypeInfo.writeTo(measurementType, findReadingType(registerTypeInfo));
+        measurementType.save();
         return new RegisterTypeInfo(measurementType, false, false); // It's a new one so cannot be used yet in a DeviceType right
-    }
-
-    private Optional<Phenomenon> findPhenomenonOrThrowException(RegisterTypeInfo registerTypeInfo) {
-        Optional<Phenomenon> phenomenon = masterDataService.findPhenomenon(registerTypeInfo.unitOfMeasure.id);
-        if (!phenomenon.isPresent()) {
-            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_PHENOMENON);
-        }
-        return phenomenon;
     }
 
     @PUT
@@ -120,15 +101,8 @@ public class RegisterTypeResource {
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     public RegisterTypeInfo updateRegisterType(@PathParam("id") long id, RegisterTypeInfo registerTypeInfo) {
         RegisterType registerType = this.resourceHelper.findRegisterTypeByIdOrThrowException(id);
-        Optional<Phenomenon> phenomenon = findPhenomenonOrThrowException(registerTypeInfo);
-        registerTypeInfo.writeTo(registerType, findReadingType(registerTypeInfo), phenomenon.get().getUnit());
-        try {
-            registerType.save();
-        } catch (DuplicateObisCodeException e) {
-            throw new LocalizedFieldValidationException(
-                    MessageSeeds.DUPLICATE_OBISCODE, "obisCode", registerType.getObisCode().toString(), registerType.getPhenomenon().toString(), registerType.getTimeOfUse());
-
-        }
+        registerTypeInfo.writeTo(registerType, findReadingType(registerTypeInfo));
+        registerType.save();
         return new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false);
     }
 

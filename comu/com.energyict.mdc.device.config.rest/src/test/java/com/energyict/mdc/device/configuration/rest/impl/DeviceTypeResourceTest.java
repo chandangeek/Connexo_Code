@@ -22,7 +22,7 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.interval.Phenomenon;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -46,6 +46,15 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import org.glassfish.jersey.client.ClientResponse;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
+
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -55,29 +64,20 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import org.glassfish.jersey.client.ClientResponse;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJerseyTest {
-    public static final ReadingType READING_TYPE = mockReadingType("0.1.2.3.5.6.7.8.9.1.2.3.4.5.6.7.8");
+    public static final ReadingType READING_TYPE_1 = mockReadingType("0.1.2.3.5.6.7.8.9.1.2.3.4.5.6.7.8");
+    public static final ReadingType READING_TYPE_2 = mockReadingType("0.1.2.3.5.6.7.8.9.1.2.3.4.0.0.0.0");
+
+    Unit unit = Unit.get("kWh");
+
 
     private static ReadingType mockReadingType(String mrid){
         ReadingType readingType = mock(ReadingType.class);
@@ -385,12 +385,11 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         RegisterType registerType = mock(RegisterType.class);
         ReadingType readingType = mockReadingType();
         when(registerType.getReadingType()).thenReturn(readingType);
-        Phenomenon phenomenon = mock(Phenomenon.class);
-        when(registerType.getPhenomenon()).thenReturn(phenomenon);
         TextualRegisterSpec registerSpec = mock(TextualRegisterSpec.class);
         when(registerSpec.isTextual()).thenReturn(true);
         when(registerSpec.getId()).thenReturn(1L);
         when(registerSpec.getRegisterType()).thenReturn(registerType);
+        when(registerSpec.getUnit()).thenReturn(unit);
         ObisCode obisCode = mockObisCode();
         when(registerSpec.getObisCode()).thenReturn(obisCode);
         when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.<RegisterSpec>asList(registerSpec));
@@ -429,7 +428,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocolPluggableClass.getName()).thenReturn("device protocol name");
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
-        ReadingType readingType = READING_TYPE;
+        ReadingType readingType = READING_TYPE_1;
         when(registerType.getReadingType()).thenReturn(readingType);
 
         List<RegisterSpec> registerSpecs = mock(List.class);
@@ -471,11 +470,9 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
         RegisterTypeInfo registerTypeInfo1 = new RegisterTypeInfo();
         registerTypeInfo1.id = RM_ID_1;
-        registerTypeInfo1.name = "mapping 1";
         registerTypeInfo1.obisCode = new ObisCode(1, 11, 2, 12, 3, 13);
         RegisterTypeInfo registerTypeInfo2 = new RegisterTypeInfo();
         registerTypeInfo2.id = RM_ID_2;
-        registerTypeInfo2.name = "mapping 2";
         registerTypeInfo2.obisCode = new ObisCode(11, 111, 12, 112, 13, 113);
 
         DeviceType deviceType = mockDeviceType("updater", 31L);
@@ -506,11 +503,9 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         long RM_ID_1 = 101L;
         long RM_ID_2 = 102L;
         registerTypeInfo1.id = RM_ID_1;
-        registerTypeInfo1.name = "mapping 1";
         registerTypeInfo1.obisCode = new ObisCode(1, 11, 2, 12, 3, 13);
         RegisterTypeInfo registerTypeInfo2 = new RegisterTypeInfo();
         registerTypeInfo2.id = RM_ID_2;
-        registerTypeInfo2.name = "mapping 2";
         registerTypeInfo2.obisCode = new ObisCode(11, 111, 12, 112, 13, 113);
 
         DeviceType deviceType = mockDeviceType("updater", 31);
@@ -683,11 +678,9 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         long RM_ID_1 = 101L;
         long RM_ID_2 = 102L;
         registerTypeInfo1.id = RM_ID_1;
-        registerTypeInfo1.name = "mapping 1";
         registerTypeInfo1.obisCode = new ObisCode(1, 11, 2, 12, 3, 13);
         RegisterTypeInfo registerTypeInfo2 = new RegisterTypeInfo();
         registerTypeInfo2.id = RM_ID_2;
-        registerTypeInfo2.name = "mapping 2";
         registerTypeInfo2.obisCode = new ObisCode(11, 111, 12, 112, 13, 113);
 
         DeviceType deviceType = mockDeviceType("updater", 31);
@@ -716,7 +709,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
         RegisterTypeInfo registerTypeInfo1 = new RegisterTypeInfo();
         registerTypeInfo1.id = RM_ID_1;
-        registerTypeInfo1.name = "mapping 1";
         registerTypeInfo1.obisCode = new ObisCode(1, 11, 2, 12, 3, 13);
 
         DeviceType deviceType = mockDeviceType("updater", 31);
@@ -751,14 +743,15 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
         DeviceType deviceType = mockDeviceType("getUnfiltered", (int) deviceType_id);
         RegisterType registerType101 = mock(RegisterType.class);
-        ReadingType readingType = READING_TYPE;
+        ReadingType readingType1 = READING_TYPE_1;
+        ReadingType readingType2 = READING_TYPE_2;
         when(registerType101.getId()).thenReturn(RM_ID_1);
-        when(registerType101.getReadingType()).thenReturn(readingType);
-        when(registerType101.getName()).thenReturn("zzz");
+        when(registerType101.getReadingType()).thenReturn(readingType1);
+        when(readingType1.getAliasName()).thenReturn("zzz");
         RegisterType registerType102 = mock(RegisterType.class);
         when(registerType102.getId()).thenReturn(RM_ID_2);
-        when(registerType102.getReadingType()).thenReturn(readingType);
-        when(registerType102.getName()).thenReturn("aaa");
+        when(registerType102.getReadingType()).thenReturn(readingType2);
+        when(readingType2.getAliasName()).thenReturn("aaa");
         when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(registerType101, registerType102));
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
 
@@ -766,8 +759,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(response).hasSize(2);
         List<Map> registerTypes = (List) response.get("registerTypes");
         assertThat(registerTypes).hasSize(2);
-        assertThat(registerTypes.get(0).get("name")).isEqualTo("aaa");
-        assertThat(registerTypes.get(1).get("name")).isEqualTo("zzz");
+        assertThat(((Map) registerTypes.get(0).get("readingType")).get("mRID")).isEqualTo("0.1.2.3.5.6.7.8.9.1.2.3.4.0.0.0.0");
+        assertThat(((Map) registerTypes.get(1).get("readingType")).get("mRID")).isEqualTo("0.1.2.3.5.6.7.8.9.1.2.3.4.5.6.7.8");
     }
 
     @Test
@@ -781,7 +774,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mockDeviceType("getUnfiltered", (int) deviceType_id);
         RegisterType registerType101 = mock(RegisterType.class);
         when(registerType101.getId()).thenReturn(RM_ID_1);
-        ReadingType readingType = READING_TYPE;
+        ReadingType readingType = READING_TYPE_1;
         when(registerType101.getReadingType()).thenReturn(readingType);
         RegisterType registerType102 = mock(RegisterType.class);
         when(registerType102.getId()).thenReturn(RM_ID_2);
@@ -812,7 +805,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration("config", (int) deviceConfiguration_id);
         RegisterType registerType101 = mock(RegisterType.class);
         when(registerType101.getId()).thenReturn(RM_ID_1);
-        ReadingType readingType = READING_TYPE;
+        ReadingType readingType = READING_TYPE_1;
         when(registerType101.getReadingType()).thenReturn(readingType);
         RegisterType registerType102 = mock(RegisterType.class);
         when(registerType102.getId()).thenReturn(RM_ID_2);
@@ -905,10 +898,9 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         RegisterType registerType = mock(RegisterType.class);
         when(registerType.getReadingType()).thenReturn(readingType);
         when(registerSpec.getRegisterType()).thenReturn(registerType);
-        Phenomenon phenomenon = mock(Phenomenon.class);
-        when(registerType.getPhenomenon()).thenReturn(phenomenon);
         ObisCode obisCode = mockObisCode();
         when(registerSpec.getObisCode()).thenReturn(obisCode);
+        when(registerSpec.getUnit()).thenReturn(unit);
 
         when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.<RegisterSpec>asList(registerSpec));
 
@@ -930,15 +922,14 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(masterDataService.findRegisterType(registerType_id)).thenReturn(Optional.of(registerType));
         ReadingType readingType = mockReadingType();
         when(registerType.getReadingType()).thenReturn(readingType);
-        NumericalRegisterSpec registerConfig = mock(NumericalRegisterSpec.class);
-        when(registerConfig.getRegisterType()).thenReturn(registerType);
+        NumericalRegisterSpec registerSpec = mock(NumericalRegisterSpec.class);
+        when(registerSpec.getRegisterType()).thenReturn(registerType);
         ObisCode obisCode = mockObisCode();
-        when(registerConfig.getObisCode()).thenReturn(obisCode);
+        when(registerSpec.getObisCode()).thenReturn(obisCode);
         NumericalRegisterSpec.Builder registerSpecBuilder = mock(NumericalRegisterSpec.Builder.class, Answers.RETURNS_SELF);
-        when(registerSpecBuilder.add()).thenReturn(registerConfig);
+        when(registerSpecBuilder.add()).thenReturn(registerSpec);
         when(deviceConfiguration.createNumericalRegisterSpec(Matchers.<RegisterType>any())).thenReturn(registerSpecBuilder);
-        Phenomenon phenomenon = mock(Phenomenon.class);
-        when(registerType.getPhenomenon()).thenReturn(phenomenon);
+        when(registerSpec.getUnit()).thenReturn(unit);
         RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
         registerConfigInfo.registerType = registerType_id;
         registerConfigInfo.multiplier = BigDecimal.TEN;
@@ -946,6 +937,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         registerConfigInfo.numberOfDigits = 4;
         registerConfigInfo.overflow = BigDecimal.TEN;
         registerConfigInfo.overruledObisCode = null;
+        registerConfigInfo.unitOfMeasure = "kWh";
 
         Entity<RegisterConfigInfo> json = Entity.json(registerConfigInfo);
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/").request().post(json);
@@ -975,19 +967,18 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(masterDataService.findRegisterType(registerType_id)).thenReturn(Optional.of(registerType));
         ReadingType readingType = mockReadingType();
         when(registerType.getReadingType()).thenReturn(readingType);
-        NumericalRegisterSpec registerConfig = mock(NumericalRegisterSpec.class);
-        when(registerConfig.getRegisterType()).thenReturn(registerType);
-        when(registerConfig.getId()).thenReturn(registerSpec_id);
+        NumericalRegisterSpec registerSpec = mock(NumericalRegisterSpec.class);
+        when(registerSpec.getRegisterType()).thenReturn(registerType);
+        when(registerSpec.getId()).thenReturn(registerSpec_id);
         ObisCode obisCode = mockObisCode();
-        when(registerConfig.getObisCode()).thenReturn(obisCode);
+        when(registerSpec.getObisCode()).thenReturn(obisCode);
         NumericalRegisterSpec.Builder registerSpecBuilder = mock(NumericalRegisterSpec.Builder.class, Answers.RETURNS_SELF);
-        when(registerSpecBuilder.add()).thenReturn(registerConfig);
-        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.<RegisterSpec>asList(registerConfig));
+        when(registerSpecBuilder.add()).thenReturn(registerSpec);
+        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.<RegisterSpec>asList(registerSpec));
         NumericalRegisterSpec.Updater updater = mock(NumericalRegisterSpec.Updater.class);
-        when(deviceConfiguration.getRegisterSpecUpdaterFor(registerConfig)).thenReturn(updater);
-        when(registerConfig.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        Phenomenon phenomenon = mock(Phenomenon.class);
-        when(registerType.getPhenomenon()).thenReturn(phenomenon);
+        when(deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec)).thenReturn(updater);
+        when(registerSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(registerSpec.getUnit()).thenReturn(unit);
         RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
         registerConfigInfo.registerType = registerType_id;
         registerConfigInfo.multiplier = BigDecimal.TEN;
@@ -995,19 +986,20 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         registerConfigInfo.numberOfDigits = 4;
         registerConfigInfo.overflow = BigDecimal.valueOf(123);
         registerConfigInfo.overruledObisCode = obisCode;
+        registerConfigInfo.unitOfMeasure = "kWh";
 
         Entity<RegisterConfigInfo> json = Entity.json(registerConfigInfo);
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ArgumentCaptor<ObisCode> obisCodeArgumentCaptor = ArgumentCaptor.forClass(ObisCode.class);
-        verify(registerConfig).setMultiplier(BigDecimal.TEN);
-        verify(registerConfig).setRegisterType(registerType);
-        verify(registerConfig).setOverruledObisCode(obisCodeArgumentCaptor.capture());
+        verify(registerSpec).setMultiplier(BigDecimal.TEN);
+        verify(registerSpec).setRegisterType(registerType);
+        verify(registerSpec).setOverruledObisCode(obisCodeArgumentCaptor.capture());
         assertThat(obisCodeArgumentCaptor.getValue().toString()).isEqualTo(obisCode.toString());
-        verify(registerConfig).setOverflowValue(BigDecimal.valueOf(123));
-        verify(registerConfig).setNumberOfDigits(4);
-        verify(registerConfig).setNumberOfFractionDigits(6);
-        verify(deviceConfiguration).getRegisterSpecUpdaterFor(registerConfig);
+        verify(registerSpec).setOverflowValue(BigDecimal.valueOf(123));
+        verify(registerSpec).setNumberOfDigits(4);
+        verify(registerSpec).setNumberOfFractionDigits(6);
+        verify(deviceConfiguration).getRegisterSpecUpdaterFor(registerSpec);
         verify(updater).update();
     }
 
@@ -1164,7 +1156,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
         RegisterTypeInfo registerTypeInfo1 = new RegisterTypeInfo();
         registerTypeInfo1.id = RM_ID_1;
-        registerTypeInfo1.name = "mapping 1";
         registerTypeInfo1.obisCode = new ObisCode(1, 11, 2, 12, 3, 13);
 
         DeviceType deviceType = mockDeviceType("updater", 31);

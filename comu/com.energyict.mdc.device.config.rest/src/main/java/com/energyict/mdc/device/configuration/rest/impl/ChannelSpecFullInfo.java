@@ -3,14 +3,12 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.masterdata.rest.PhenomenonInfo;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +22,7 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
     public ObisCode overruledObisCode;
     public BigDecimal multiplier;
     public BigDecimal overflowValue;
-    public PhenomenonInfo unitOfMeasure;
+    public String unitOfMeasure;
     public int nbrOfFractionDigits;
     public Boolean isLinkedByActiveDeviceConfiguration;
 
@@ -39,14 +37,13 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
     public static ChannelSpecFullInfo from(ChannelSpec channelSpec){
         ChannelSpecFullInfo info = new ChannelSpecFullInfo();
         info.id = channelSpec.getId();
-        info.name = channelSpec.getName();
         info.overruledObisCode = channelSpec.getDeviceObisCode();
         info.multiplier = channelSpec.getMultiplier();
         info.overflowValue = channelSpec.getOverflow();
         info.nbrOfFractionDigits = channelSpec.getNbrOfFractionDigits();
         // TODO check that it is truth (true for isLinkedByDeviceType)
         info.registerTypeInfo = new RegisterTypeInfo(channelSpec.getChannelType(), true, false);
-        info.unitOfMeasure = PhenomenonInfo.from(channelSpec.getPhenomenon());
+        info.unitOfMeasure = channelSpec.getChannelType().getUnit().toString();
         return info;
     }
 
