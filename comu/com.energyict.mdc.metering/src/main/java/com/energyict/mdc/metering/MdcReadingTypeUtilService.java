@@ -72,4 +72,20 @@ public interface MdcReadingTypeUtilService {
      * @return the mdc Unit
      */
     public Unit getMdcUnitFor(String readingType);
+
+    /**
+     * Get the fullAliasName of the ReadingType
+     *
+     * @param readingType the ReadingType to get the FullAlias from
+     * @return the fullAliasName
+     */
+    public String getFullAlias(ReadingType readingType);
+
+    /**
+     * Get the fullAliasName of the ReadingType
+     *
+     * @param readingType the ReadingType to get the FullAlias from
+     * @return the fullAliasName
+     */
+    public String getFullAlias(String readingType);
 }
