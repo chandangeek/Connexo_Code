@@ -1,20 +1,17 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenMeasurementTypeIsInUseException;
-import com.energyict.mdc.device.config.exceptions.CannotUpdatePhenomenonWhenMeasurementTypeIsInUseException;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.MeasurementType;
-
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenMeasurementTypeIsInUseException;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -31,7 +28,6 @@ import static com.elster.jupiter.util.Checks.is;
  * <li>that would cause a duplicate {@link com.energyict.mdc.common.ObisCode}
  * in a {@link DeviceConfiguration} that is using the MeasurementType.</li>
  * <li>the ObisCode changed and the MeasurementType is already in use by a {@link ChannelSpec} or a {@link RegisterSpec}</li>
- * <li>the {@link Phenomenon} changed and the MeasurementType is already in use by a {@link ChannelSpec} or a {@link RegisterSpec}</li>
  * </ul>
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -69,9 +65,6 @@ public class MeasurementTypeUpdateEventHandler implements TopicHandler {
             if (this.obisCodeChanged(event, measurementType)) {
                 throw new CannotUpdateObisCodeWhenMeasurementTypeIsInUseException(this.thesaurus, measurementType);
             }
-            if (this.phenomenonChanged(event, measurementType)) {
-                throw new CannotUpdatePhenomenonWhenMeasurementTypeIsInUseException(this.thesaurus, measurementType);
-            }
         }
     }
 
@@ -87,12 +80,6 @@ public class MeasurementTypeUpdateEventHandler implements TopicHandler {
         Event osgiEvent = event.toOsgiEvent();
         return osgiEvent.containsProperty("oldObisCode")
                 && !is(osgiEvent.getProperty("oldObisCode")).equalTo(measurementType.getObisCode().toString());
-    }
-
-    private boolean phenomenonChanged(LocalEvent event, MeasurementType measurementType) {
-        Event osgiEvent = event.toOsgiEvent();
-        return osgiEvent.containsProperty("oldPhenomenon")
-                && !is(osgiEvent.getProperty("oldPhenomenon")).equalTo(measurementType.getPhenomenon().getId());
     }
 
     private boolean isUsed(MeasurementType measurementType) {

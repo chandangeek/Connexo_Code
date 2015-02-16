@@ -2,13 +2,13 @@ package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+
 import java.util.List;
 
 /**
@@ -135,13 +135,12 @@ public interface DeviceType extends HasId, HasName {
          * will be done by the {@link DeviceConfigurationBuilder#add()} method.
          *
          * @param channelType The ChannelType
-         * @param phenomenon The Phenomenon
          * @param loadProfileSpec The LoadProfileSpec
          * @return The builder
-         * @see DeviceConfiguration#createChannelSpec(ChannelType, com.energyict.mdc.common.interval.Phenomenon, LoadProfileSpec)
+         * @see DeviceConfiguration#createChannelSpec(com.energyict.mdc.masterdata.ChannelType, LoadProfileSpec)
          * @see #add()
          */
-        public ChannelSpec.ChannelSpecBuilder newChannelSpec(ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec);
+        public ChannelSpec.ChannelSpecBuilder newChannelSpec(ChannelType channelType, LoadProfileSpec loadProfileSpec);
 
         /**
          * Returns a builder for a new {@link ChannelSpec} whose {@link LoadProfileSpec}
@@ -151,13 +150,12 @@ public interface DeviceType extends HasId, HasName {
          * will be done by the {@link DeviceConfigurationBuilder#add()} method.
          *
          * @param channelType The ChannelType
-         * @param phenomenon The Phenomenon
          * @param loadProfileSpecBuilder The LoadProfileSpecBuilder
          * @return The builder
-         * @see DeviceConfiguration#createChannelSpec(ChannelType, com.energyict.mdc.common.interval.Phenomenon, LoadProfileSpec)
+         * @see DeviceConfiguration#createChannelSpec(com.energyict.mdc.masterdata.ChannelType, LoadProfileSpec)
          * @see #add()
          */
-        public ChannelSpec.ChannelSpecBuilder newChannelSpec(ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder);
+        public ChannelSpec.ChannelSpecBuilder newChannelSpec(ChannelType channelType, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder);
 
         /**
          * Returns a builder for a new {@link RegisterSpec} in the

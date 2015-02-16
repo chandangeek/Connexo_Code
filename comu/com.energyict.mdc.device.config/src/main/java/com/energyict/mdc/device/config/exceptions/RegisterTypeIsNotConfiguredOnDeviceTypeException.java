@@ -13,7 +13,7 @@ import com.elster.jupiter.nls.Thesaurus;
 public class RegisterTypeIsNotConfiguredOnDeviceTypeException extends LocalizedException {
 
     public RegisterTypeIsNotConfiguredOnDeviceTypeException(Thesaurus thesaurus, MeasurementType measurementType) {
-        super(thesaurus, MessageSeeds.REGISTER_SPEC_REGISTER_TYPE_IS_NOT_ON_DEVICE_TYPE, measurementType.getName());
+        super(thesaurus, MessageSeeds.REGISTER_SPEC_REGISTER_TYPE_IS_NOT_ON_DEVICE_TYPE, measurementType.getReadingType().getAliasName());
         set("measurementTypeId", measurementType.getId());
     }
 

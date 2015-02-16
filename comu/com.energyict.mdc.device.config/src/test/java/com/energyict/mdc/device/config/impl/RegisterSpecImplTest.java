@@ -9,7 +9,6 @@ import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
@@ -23,11 +22,11 @@ import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFract
 import com.energyict.mdc.device.config.exceptions.RegisterTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
@@ -60,8 +59,6 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     private ReadingType readingType2;
     private Unit unit1 = Unit.get("kWh");
     private Unit unit2 = Unit.get("MWh");
-    private Phenomenon phenomenon1;
-    private Phenomenon phenomenon2;
 
     @Before
     public void initializeDatabaseAndMocks() {
@@ -69,8 +66,6 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     }
 
     private void initializeDeviceTypeWithRegisterSpecAndDeviceConfiguration() {
-        this.phenomenon1 = this.createPhenomenonIfMissing(this.unit1);
-        this.phenomenon2 = this.createPhenomenonIfMissing(this.unit2);
 
         String code2 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
         this.readingType2 = inMemoryPersistence.getMeteringService().getReadingType(code2).get();
@@ -79,7 +74,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         Optional<RegisterType> registerTypeByObisCodeAndUnitAndTimeOfUse =
                 inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType1);
         if (!registerTypeByObisCodeAndUnitAndTimeOfUse.isPresent()) {
-            this.registerType = inMemoryPersistence.getMasterDataService().newRegisterType(REGISTER_TYPE_NAME, registerTypeObisCode, unit1, readingType1, readingType1.getTou());
+            this.registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, registerTypeObisCode);
             this.registerType.save();
         }
         else {
@@ -92,18 +87,6 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         this.deviceConfiguration = deviceConfigurationBuilder.add();
         this.deviceType.save();
-    }
-
-    private Phenomenon createPhenomenonIfMissing(Unit unit) {
-        Optional<Phenomenon> xPhenomenon = inMemoryPersistence.getMasterDataService().findPhenomenonByUnit(unit);
-        if (!xPhenomenon.isPresent()) {
-            Phenomenon phenomenon = inMemoryPersistence.getMasterDataService().newPhenomenon(RegisterSpecImplTest.class.getSimpleName(), unit);
-            phenomenon.save();
-            return phenomenon;
-        }
-        else {
-            return xPhenomenon.get();
-        }
     }
 
     private NumericalRegisterSpec createNumericalRegisterSpecWithDefaults() {
@@ -417,7 +400,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void updateWithSameObisCodeTest() {
         NumericalRegisterSpec registerSpec1 = createNumericalRegisterSpecWithDefaults();
         NumericalRegisterSpec registerSpec2;
-        RegisterType otherType = inMemoryPersistence.getMasterDataService().newRegisterType("OtherMapping", ObisCode.fromString("1.2.3.1.5.6"), unit2, readingType2, readingType2.getTou());
+        RegisterType otherType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType2, ObisCode.fromString("1.2.3.1.5.6"));
         otherType.save();
         this.deviceType.addRegisterType(otherType);
         this.deviceType.save();
@@ -434,7 +417,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     public void addSpecForMappingWhichIsNotOnDeviceTypeTest() {
         RegisterSpec registerSpec;
-        RegisterType otherType = inMemoryPersistence.getMasterDataService().newRegisterType("OtherMapping", ObisCode.fromString("32.12.32.5.12.32"), unit2, readingType2, readingType2.getTou());
+        RegisterType otherType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType2, ObisCode.fromString("32.12.32.5.12.32"));
         otherType.save();
         NumericalRegisterSpec.Builder registerSpecBuilder = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(otherType);
         setRegisterSpecDefaultFields(registerSpecBuilder);
@@ -556,7 +539,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).setMultiplier(BigDecimal.ONE).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
         getReloadedDeviceConfiguration().save();
         getReloadedDeviceConfiguration().activate();
-        RegisterType registerType2 = inMemoryPersistence.getMasterDataService().newRegisterType(REGISTER_TYPE_NAME + "2", registerTypeObisCode, unit2, readingType2, readingType2.getTou());
+        RegisterType registerType2 = inMemoryPersistence.getMasterDataService().newRegisterType(readingType2, registerTypeObisCode);
         registerType2.save();
 
         registerSpec.setRegisterType(registerType2); // updated

@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDeviceTypeException;
@@ -646,15 +645,15 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         }
 
         @Override
-        public ChannelSpec.ChannelSpecBuilder newChannelSpec(ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
-            ChannelSpec.ChannelSpecBuilder builder = this.underConstruction.createChannelSpec(channelType, phenomenon, loadProfileSpec);
+        public ChannelSpec.ChannelSpecBuilder newChannelSpec(ChannelType channelType, LoadProfileSpec loadProfileSpec) {
+            ChannelSpec.ChannelSpecBuilder builder = this.underConstruction.createChannelSpec(channelType, loadProfileSpec);
             this.nestedBuilders.add(new ChannelSpecBuilder(builder));
             return builder;
         }
 
         @Override
-        public ChannelSpec.ChannelSpecBuilder newChannelSpec(ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
-            ChannelSpec.ChannelSpecBuilder builder = this.underConstruction.createChannelSpec(channelType, phenomenon, loadProfileSpecBuilder);
+        public ChannelSpec.ChannelSpecBuilder newChannelSpec(ChannelType channelType, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+            ChannelSpec.ChannelSpecBuilder builder = this.underConstruction.createChannelSpec(channelType, loadProfileSpecBuilder);
             this.nestedBuilders.add(new ChannelSpecBuilder(builder));
             return builder;
         }

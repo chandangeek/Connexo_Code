@@ -25,7 +25,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DEFAULT_PRODUCT_SPEC_CANNOT_BE_DELETED(2003, "productSpec.cannotDeleteDefault", "The default product spec cannot be removed", SEVERE),
     PRODUCT_SPEC_STILL_IN_USE(2004, "productSpec.XstillInUseByY", "The product spec with reading type {0} cannot be removed because it is still in use by the following measurement types: {1}", SEVERE),
     MEASUREMENT_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(3006, "measurementType.cannotUpdateObisCode", "The obis code of the measurement type \"{0}\" cannot be updated because it is in use", SEVERE),
-    MEASUREMENT_TYPE_PHENOMENON_CANNOT_BE_UPDATED(3007, "measurementType.cannotUpdatePhenomenon", "The phenomenon of the measurement type \"{0}\" cannot be updated because it is in use", SEVERE),
     REGISTER_TYPE_STILL_USED_BY_REGISTER_SPEC(3008, "measurementType.usedBy.registerSpec", "The register type {0} cannot be removed because it is still in use by the following register configuration(s): {1}", SEVERE),
     CHANNEL_TYPE_STILL_USED_BY_CHANNEL_SPEC(3009, "measurementType.usedBy.channelSpec", "The register type {0} cannot be removed because it is still in use by the following channel configuration(s): {1}", SEVERE),
     REGISTER_TYPE_STILL_USED_BY_DEVICE_TYPE(3011, "measurementType.usedBy.deviceType", "The register type {0} cannot be removed because it is still in use by the following device configuration(s): {1}", SEVERE),
@@ -73,7 +72,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     LOGBOOK_SPEC_CANNOT_CHANGE_LOGBOOK_TYPE(9005, "logBookSpec.change.logbookType", "You can not change the logbook type of an existing logbook configuration", SEVERE),
     LOGBOOK_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG(9006, "logBookSpec.cannot.delete.active.config", "You can not remove a logbook configuration \"{0}\" from an active device configuration \"{1}\"", SEVERE),
     LOGBOOK_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION(9007, "logBookSpec.cannot.add.active.config", "You can not add a logbook configuration to an active device configuration", SEVERE),
-    PHENOMENON_STILL_IN_USE(10000, "phenomenon.stillInUse", "You can not remove a phenomenon when it is still in use by channel configurations", SEVERE),
     CHANNEL_SPEC_NAME_IS_REQUIRED(11001, "channelSpec.name.required", "The name of the channel configuration is required", SEVERE),
     CHANNEL_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION(11003, "channelSpec.active.configuration", "You can not add a channel configuration to an active device configuration", SEVERE),
     CHANNEL_SPEC_LOAD_PROFILE_SPEC_IS_NOT_ON_DEVICE_CONFIGURATION(11004, "channelSpec.cannotAddChannelSpecOfTypeXBecauseDeviceConfigYDoesNotContainIt", "The channel configuration is linked to a load profile configuration \"{0}\" which is not configuration on the device type", SEVERE),
@@ -81,8 +79,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     CHANNEL_SPEC_CHANNEL_TYPE_IS_REQUIRED(11006, Keys.CHANNEL_SPEC_CHANNEL_TYPE_IS_REQUIRED, "The register type of a channel configuration is required", SEVERE),
     CHANNEL_SPEC_CHANNEL_TYPE_IS_NOT_IN_LOAD_PROFILE_SPEC(11007, "channelSpec.measurementType.not.configured.loadProfileSpec","The channel configuration \"{0}\" is linked to a register \"{1}\" which is not configured for the linked load profile configuration \"{2}\"", SEVERE),
     CHANNEL_SPEC_CHANNEL_TYPE_IS_NOT_ON_DEVICE_TYPE(11008, "channelSpec.measurementType.not.configured.deviceType","The channel configuration \"{0}\" is linked to a register \"{1}\" which is not configured for the device type \"{2}\"", SEVERE),
-    CHANNEL_SPEC_PHENOMENON_IS_REQUIRED(11009, Keys.CHANNEL_SPEC_PHENOMENON_IS_REQUIRED, "The phenomenon of a channel configuration is required", SEVERE),
-    CHANNEL_SPEC_UNITS_NOT_COMPATIBLE(11010, "channelSpec.units.not.compatible","The channel configuration defines a phenomenon \"{0}\" which is not compatible with the unit of the linked register type \"{1}\"", SEVERE),
     CHANNEL_SPEC_READING_METHOD_IS_REQUIRED(11011, Keys.CHANNEL_SPEC_READING_METHOD_IS_REQUIRED, "The reading method of a channel configuration is required", SEVERE),
     CHANNEL_SPEC_MULTIPLIER_MODE_IS_REQUIRED(11012, Keys.CHANNEL_SPEC_MULTIPLIER_MODE_IS_REQUIRED, "The multiplier mode of a channel configuration is required", SEVERE),
     CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED(11013, Keys.CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED, "The value calculation method of a channel configuration is required", SEVERE),
@@ -199,7 +195,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED = "logBookSpec.logbookType.required";
         public static final String LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_REQUIRED = "loadProfileSpec.loadProfileType.required";
         public static final String CHANNEL_SPEC_CHANNEL_TYPE_IS_REQUIRED = "channelSpec.channelType.required";
-        public static final String CHANNEL_SPEC_PHENOMENON_IS_REQUIRED = "channelSpec.phenomenon.required";
         public static final String CHANNEL_SPEC_READING_METHOD_IS_REQUIRED = "channelSpec.readingMethod.required";
         public static final String CHANNEL_SPEC_MULTIPLIER_IS_REQUIRED_WHEN = "channelSpec.multiplier.required.when";
         public static final String CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED = "channelSpec.valueCalculationMethod.required";

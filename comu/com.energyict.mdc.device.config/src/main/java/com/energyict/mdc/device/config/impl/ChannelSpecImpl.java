@@ -1,15 +1,22 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.exceptions.CannotChangeChannelTypeOfChannelSpecException;
 import com.energyict.mdc.device.config.exceptions.CannotChangeLoadProfileSpecOfChannelSpec;
 import com.energyict.mdc.device.config.exceptions.DuplicateChannelTypeException;
-import com.energyict.mdc.device.config.exceptions.IncompatibleUnitsException;
 import com.energyict.mdc.device.config.exceptions.IntervalIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
@@ -21,25 +28,11 @@ import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.validation.ValidationRule;
-import org.hibernate.validator.constraints.NotEmpty;
-
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -52,19 +45,13 @@ import static com.elster.jupiter.util.Checks.is;
  * Date: 7/11/12
  * Time: 13:22
  */
-public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implements ChannelSpec {
+public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ChannelSpec {
 
     private final ServerDeviceConfigurationService deviceConfigurationService;
-
-    @Size(max= 126, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
-    private String name;
 
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_CHANNEL_TYPE_IS_REQUIRED + "}")
     private final Reference<ChannelType> channelType = ValueReference.absent();
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_PHENOMENON_IS_REQUIRED + "}")
-    private final Reference<Phenomenon> phenomenon = ValueReference.absent();
     private final Reference<LoadProfileSpec> loadProfileSpec = ValueReference.absent();
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_READING_METHOD_IS_REQUIRED + "}")
     private ReadingMethod readingMethod = ReadingMethod.ENGINEERING_UNIT;
@@ -90,27 +77,16 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
-    private ChannelSpecImpl initialize(DeviceConfiguration deviceConfiguration, ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
-        this.initialize(deviceConfiguration, channelType, phenomenon);
+    private ChannelSpecImpl initialize(DeviceConfiguration deviceConfiguration, ChannelType channelType, LoadProfileSpec loadProfileSpec) {
+        this.initialize(deviceConfiguration, channelType);
         setLoadProfileSpec(loadProfileSpec);
         return this;
     }
 
-    private ChannelSpecImpl initialize(DeviceConfiguration deviceConfiguration, ChannelType channelType, Phenomenon phenomenon) {
+    private ChannelSpecImpl initialize(DeviceConfiguration deviceConfiguration, ChannelType channelType) {
         this.deviceConfiguration.set(deviceConfiguration);
         setChannelType(channelType);
-        setPhenomenon(phenomenon);
         return this;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    protected void doSetName(String name) {
-        this.name = name;
     }
 
     @Override
@@ -140,11 +116,6 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     @Override
     public BigDecimal getOverflow() {
         return overflow;
-    }
-
-    @Override
-    public Phenomenon getPhenomenon() {
-        return this.phenomenon.get();
     }
 
     @Override
@@ -222,7 +193,6 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         validateDeviceTypeContainsChannelType();
         validateChannelSpecsForDuplicateChannelTypes();
         validateDeviceConfigurationContainsLoadProfileSpec();
-        validatePhenomenonAndChannelTypeUnitCompatibility();
     }
 
     private void validateBeforeAdd() {
@@ -253,18 +223,6 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         Optional<ChannelSpec> channelSpec = this.deviceConfigurationService.findChannelSpecForLoadProfileSpecAndChannelType(getLoadProfileSpec(), getChannelType());
         if (channelSpec.isPresent() && channelSpec.get().getId() != getId()) {
             throw DuplicateChannelTypeException.forChannelSpecInLoadProfileSpec(thesaurus, channelSpec.get(), getChannelType(), this.getLoadProfileSpec());
-        }
-    }
-
-    private void validatePhenomenonAndChannelTypeUnitCompatibility() {
-        if (this.channelType.isPresent() && this.phenomenon.isPresent()) {
-            Unit channelTypeUnit = getChannelType().getUnit();
-            Phenomenon phenomenon = this.getPhenomenon();
-            if (!phenomenon.isUndefined() && !channelTypeUnit.isUndefined()) {
-                if (!phenomenon.getUnit().equalBaseUnit(channelTypeUnit)) {
-                    throw IncompatibleUnitsException.forChannelSpecPhenomenonAndChannelTypeUnit(thesaurus, phenomenon, channelTypeUnit);
-                }
-            }
         }
     }
 
@@ -318,20 +276,9 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         // the configuration will validate the active 'part'
     }
 
-    protected boolean validateUniqueName() {
-        return this.validateUniqueName(this.getName())
-                && (this.getName().length() <= 27
-                || this.validateUniqueName(this.getName().substring(0, 27)));
-    }
-
-    protected boolean validateUniqueName(String name) {
-        ChannelSpec otherChannelSpec = this.deviceConfigurationService.findChannelSpecByDeviceConfigurationAndName(getDeviceConfiguration(), name);
-        return otherChannelSpec == null || otherChannelSpec.getId() == this.getId();
-    }
-
     @Override
     public String toString() {
-        return getDeviceConfiguration().getDeviceType() + "/" + getDeviceConfiguration() + "/" + getName();
+        return getDeviceConfiguration().getDeviceType() + "/" + getDeviceConfiguration() + "/" + getReadingType().getAliasName();
     }
 
     protected String getInvalidCharacters() {
@@ -371,11 +318,6 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     @Override
     public void setOverflow(BigDecimal overflow) {
         this.overflow = overflow;
-    }
-
-    @Override
-    public void setPhenomenon(Phenomenon phenomenon) {
-        this.phenomenon.set(phenomenon);
     }
 
     @Override
@@ -423,26 +365,19 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     abstract static class ChannelSpecBuilder implements ChannelSpec.ChannelSpecBuilder {
 
         final ChannelSpecImpl channelSpec;
-        String tempName;
 
-        ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
-            this.channelSpec = channelSpecProvider.get().initialize(deviceConfiguration, channelType, phenomenon, loadProfileSpec);
+        ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, LoadProfileSpec loadProfileSpec) {
+            this.channelSpec = channelSpecProvider.get().initialize(deviceConfiguration, channelType, loadProfileSpec);
         }
 
-        ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
-            this.channelSpec = channelSpecProvider.get().initialize(deviceConfiguration, channelType, phenomenon);
+        ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+            this.channelSpec = channelSpecProvider.get().initialize(deviceConfiguration, channelType);
             loadProfileSpecBuilder.notifyOnAdd(this);
         }
 
         @Override
         public void loadProfileSpecBuildingProcessCompleted(LoadProfileSpec loadProfileSpec) {
             this.channelSpec.setLoadProfileSpec(loadProfileSpec);
-        }
-
-        @Override
-        public ChannelSpec.ChannelSpecBuilder setName(String channelSpecName) {
-            this.tempName = channelSpecName;
-            return this;
         }
 
         @Override
@@ -495,11 +430,6 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
         @Override
         public ChannelSpec add() {
-            if (is(tempName).empty()) {
-                this.channelSpec.setName(this.channelSpec.getChannelType().getName());
-            } else {
-                this.channelSpec.setName(tempName);
-            }
             this.channelSpec.validateBeforeAdd();
             this.channelSpec.validate();
             return this.channelSpec;

@@ -15,7 +15,7 @@ import com.energyict.mdc.masterdata.MeasurementType;
 public class CannotUpdateObisCodeWhenMeasurementTypeIsInUseException extends LocalizedException {
 
     public CannotUpdateObisCodeWhenMeasurementTypeIsInUseException(Thesaurus thesaurus, MeasurementType measurementType) {
-        super(thesaurus, MessageSeeds.MEASUREMENT_TYPE_OBIS_CODE_CANNOT_BE_UPDATED, measurementType.getName());
+        super(thesaurus, MessageSeeds.MEASUREMENT_TYPE_OBIS_CODE_CANNOT_BE_UPDATED, measurementType.getReadingType().getAliasName());
         this.set("measurementType", measurementType);
     }
 

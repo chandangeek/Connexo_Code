@@ -1,23 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
-import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenMeasurementTypeIsInUseException;
-import com.energyict.mdc.device.config.exceptions.CannotUpdatePhenomenonWhenMeasurementTypeIsInUseException;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.device.MultiplierMode;
-import com.energyict.mdc.protocol.api.device.ReadingMethod;
-import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
-
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
@@ -29,13 +11,31 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
+import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenMeasurementTypeIsInUseException;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.masterdata.ChannelType;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.protocol.api.device.MultiplierMode;
+import com.energyict.mdc.protocol.api.device.ReadingMethod;
+import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import java.util.Arrays;
 import java.util.Optional;
-
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -54,15 +54,13 @@ public class MeasurementTypeImplTest extends PersistenceTest {
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
+    private final Unit unit1 = Unit.get("kWh");
+    private final Unit unit2 = Unit.get("MWh");
     private LoadProfileType loadProfileType;
     private ReadingType readingType1;
     private ReadingType readingType2;
-    private Phenomenon phenomenon1;
-    private Phenomenon phenomenon2;
     private ObisCode obisCode1;
     private ObisCode obisCode2;
-    private Unit unit1;
-    private Unit unit2;
 
     @Before
     public void registerEventHandlers () {
@@ -88,7 +86,7 @@ public class MeasurementTypeImplTest extends PersistenceTest {
             registerType = xRegisterType.get();
         }
         else {
-            registerType = inMemoryPersistence.getMasterDataService().newRegisterType(registerTypeName, obisCode1, unit1, readingType1, 1);
+            registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, obisCode1);
             registerType.setDescription("For testing purposes only");
             registerType.save();
         }
@@ -125,7 +123,7 @@ public class MeasurementTypeImplTest extends PersistenceTest {
             registerType = xRegisterType.get();
         }
         else {
-            registerType = inMemoryPersistence.getMasterDataService().newRegisterType(registerTypeName, obisCode1, unit1, readingType1, 1);
+            registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, obisCode1);
             registerType.setDescription("For testing purposes only");
             registerType.save();
         }
@@ -142,7 +140,7 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         deviceType.save();
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(this.loadProfileType);
-        configurationBuilder.newChannelSpec(channelTypeForRegisterType, this.phenomenon1, loadProfileSpecBuilder).setReadingMethod(ReadingMethod.BASIC_DATA).setMultiplierMode(MultiplierMode.NONE).setValueCalculationMethod(ValueCalculationMethod.AUTOMATIC);
+        configurationBuilder.newChannelSpec(channelTypeForRegisterType, loadProfileSpecBuilder).setReadingMethod(ReadingMethod.BASIC_DATA).setMultiplierMode(MultiplierMode.NONE).setValueCalculationMethod(ValueCalculationMethod.AUTOMATIC);
         configurationBuilder.add();
 
         // Business method
@@ -150,84 +148,6 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         registerType.save();
 
         // Asserts: expected CannotUpdateObisCodeWhenRegisterTypeIsInUseException
-    }
-
-    @Test(expected = CannotUpdatePhenomenonWhenMeasurementTypeIsInUseException.class)
-    @Transactional
-    public void testCannotUpdateUnitWhenUsedByRegisterSpec() {
-        String registerTypeName = "testCannotUpdateUnitWhenUsedByRegisterSpec";
-        RegisterType registerType;
-        this.setupProductSpecsInExistingTransaction();
-
-        // Create the RegisterType
-        Optional<RegisterType> xRegisterType =
-                inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType1);
-        if (xRegisterType.isPresent()) {
-            registerType = xRegisterType.get();
-        }
-        else {
-            registerType = inMemoryPersistence.getMasterDataService().newRegisterType(registerTypeName, obisCode1, unit1, readingType1, 1);
-            registerType.setDescription("For testing purposes only");
-            registerType.save();
-        }
-
-        // Use it in a DeviceType and DeviceConfiguration
-        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(registerTypeName, this.deviceProtocolPluggableClass);
-        deviceType.addRegisterType(registerType);
-        DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
-        deviceType.save();
-        NumericalRegisterSpec.Builder registerSpecBuilder = configurationBuilder.newNumericalRegisterSpec(registerType);
-        registerSpecBuilder.setNumberOfDigits(5);
-        registerSpecBuilder.setNumberOfFractionDigits(2);
-        registerSpecBuilder.setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
-        configurationBuilder.add();
-
-        // Business method
-        registerType.setUnit(unit2);
-        registerType.save();
-
-        // Asserts: expected CannotUpdateProductSpecWhenRegisterTypeIsInUseException
-    }
-
-    @Test(expected = CannotUpdatePhenomenonWhenMeasurementTypeIsInUseException.class)
-    @Transactional
-    public void testCannotUpdatePhenomenonWhenUsedByChannelSpec() {
-        String registerTypeName = "testCannotUpdateProductSpecWhenUsedByChannelSpec";
-        RegisterType registerType;
-        this.setupProductSpecsInExistingTransaction();
-
-        // Create the RegisterType
-        Optional<RegisterType> xRegisterType =
-                inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType1);
-        if (xRegisterType.isPresent()) {
-            registerType = xRegisterType.get();
-        }
-        else {
-            registerType = inMemoryPersistence.getMasterDataService().newRegisterType(registerTypeName, obisCode1, unit1, readingType1, 1);
-            registerType.setDescription("For testing purposes only");
-            registerType.save();
-        }
-
-        this.setupLoadProfileTypesInExistingTransaction();
-
-        ChannelType channelTypeForRegisterType = this.loadProfileType.findChannelType(registerType).get();
-        this.loadProfileType.save();
-
-        // Use it in a DeviceType and DeviceConfiguration
-        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(registerTypeName, this.deviceProtocolPluggableClass);
-        deviceType.addLoadProfileType(this.loadProfileType);
-        deviceType.addRegisterType(registerType);
-        deviceType.save();
-        DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(this.loadProfileType);
-        configurationBuilder.newChannelSpec(channelTypeForRegisterType, this.phenomenon1, loadProfileSpecBuilder).setReadingMethod(ReadingMethod.BASIC_DATA).setMultiplierMode(MultiplierMode.NONE).setValueCalculationMethod(ValueCalculationMethod.AUTOMATIC);
-        configurationBuilder.add();
-
-        // Business method
-        registerType.setUnit(unit2);
-        registerType.save();
-
-        // Asserts: expected CannotUpdateProductSpecWhenRegisterTypeIsInUseException
     }
 
     @Test(expected = CannotDeleteBecauseStillInUseException.class)
@@ -244,7 +164,7 @@ public class MeasurementTypeImplTest extends PersistenceTest {
             registerType = xRegisterType.get();
         }
         else {
-            registerType = inMemoryPersistence.getMasterDataService().newRegisterType(registerTypeName, obisCode1, unit1, readingType1, 1);
+            registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, obisCode1);
             registerType.setDescription("For testing purposes only");
             registerType.save();
         }
@@ -283,7 +203,7 @@ public class MeasurementTypeImplTest extends PersistenceTest {
             registerType = xRegisterType.get();
         }
         else {
-            registerType = inMemoryPersistence.getMasterDataService().newRegisterType(registerTypeName, obisCode1, unit1, readingType1, 1);
+            registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, obisCode1);
             registerType.setDescription("For testing purposes only");
             registerType.save();
         }
@@ -316,7 +236,7 @@ public class MeasurementTypeImplTest extends PersistenceTest {
             registerType = xRegisterType.get();
         }
         else {
-            registerType = inMemoryPersistence.getMasterDataService().newRegisterType(registerTypeName, obisCode1, unit1, readingType1, 1);
+            registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, obisCode1);
             registerType.setDescription("For testing purposes only");
             registerType.save();
         }
@@ -345,7 +265,7 @@ public class MeasurementTypeImplTest extends PersistenceTest {
             registerType = xRegisterType.get();
         }
         else {
-            registerType = inMemoryPersistence.getMasterDataService().newRegisterType("duplicateChannelTypeTest", obisCode1, unit1, readingType1, 1);
+            registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, obisCode1);
             registerType.setDescription("For testing purposes only");
             registerType.save();
         }
@@ -375,7 +295,7 @@ public class MeasurementTypeImplTest extends PersistenceTest {
             registerType = xRegisterType.get();
         }
         else {
-            registerType = inMemoryPersistence.getMasterDataService().newRegisterType(registerTypeName, obisCode1, unit1, readingType1, 1);
+            registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, obisCode1);
             registerType.setDescription("For testing purposes only");
             registerType.save();
         }
@@ -396,7 +316,6 @@ public class MeasurementTypeImplTest extends PersistenceTest {
 
     private void setupProductSpecsInExistingTransaction() {
         this.setupReadingTypesInExistingTransaction();
-        this.setupPhenomenaInExistingTransaction();
     }
 
     private void setupReadingTypesInExistingTransaction() {
@@ -422,25 +341,6 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         this.setupReadingTypesInExistingTransaction();
         this.loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(MeasurementTypeImplTest.class.getSimpleName(), ObisCode.fromString("1.0.99.1.0.255"), INTERVAL_15_MINUTES, Arrays.asList(inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(this.readingType1).get()));
         this.loadProfileType.save();
-    }
-
-    private void setupPhenomenaInExistingTransaction() {
-        this.unit1 = Unit.get("kWh");
-        this.phenomenon1 = createPhenomenonIfMissing(this.unit1, MeasurementTypeImplTest.class.getSimpleName() + "1");
-        this.unit2 = Unit.get("MWh");
-        this.phenomenon2 = createPhenomenonIfMissing(this.unit2, MeasurementTypeImplTest.class.getSimpleName() + "2");
-    }
-
-    private Phenomenon createPhenomenonIfMissing(Unit unit, String name) {
-        Optional<Phenomenon> phenomenonByUnit = inMemoryPersistence.getMasterDataService().findPhenomenonByUnit(unit);
-        if (!phenomenonByUnit.isPresent()) {
-            Phenomenon phenomenon = inMemoryPersistence.getMasterDataService().newPhenomenon(name, unit);
-            phenomenon.save();
-            return phenomenon;
-        }
-        else {
-            return phenomenonByUnit.get();
-        }
     }
 
 }

@@ -190,13 +190,11 @@ public enum TableSpecs {
             table.map(ChannelSpecImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            table.column("NAME").varChar().notNull().map("name").add();
             Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column channelTypeId = table.column("CHANNELTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
             table.column("FRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map("nbrOfFractionDigits").add();
             table.column("OVERFLOWVALUE").number().map("overflow").add();
-            Column phenomenon = table.column("PHENOMENONID").number().notNull().add();
             table.column("READINGMETHOD").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("readingMethod").add();
             table.column("MULTIPLIERMODE").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("multiplierMode").add();
             table.column("MULTIPLIER").number().notNull().map("multiplier").add();
@@ -217,11 +215,6 @@ public enum TableSpecs {
                     on(channelTypeId).
                     references(MasterDataService.COMPONENTNAME, "MDS_MEASUREMENTTYPE").
                     map("channelType").
-                    add();
-            table.foreignKey("FK_DTC_CHANNELSPEC_PHENOM").
-                    on(phenomenon).
-                    references(MasterDataService.COMPONENTNAME, "MDS_PHENOMENON").
-                    map("phenomenon").
                     add();
             table.foreignKey("FK_DTC_CHANNELSPEC_LPRFSPEC").
                     on(loadProfileSpec).
