@@ -55,6 +55,7 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
     filterValues:{},
     reportOptions:null,
     reportId:0,
+    generateReportWizardWidget: null,
 
     showReport: function(report) {
         var me = this;
@@ -62,6 +63,7 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
         me.reportUUID = router.queryParams.reportUUID;
         var widget = Ext.widget('report-view');
         this.getApplication().fireEvent('changecontentevent', widget);
+        this.generateReportWizardWidget = Ext.widget('generatereport-browse');
         this.createAdHocGroup(me.reportUUID);
     },
 
@@ -125,10 +127,11 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
         var me = this;
         var router = me.getController('Uni.controller.history.Router');
 
-        if (!router.queryParams.search){
+        me.generateReportWizardWidget.setLoading(Uni.I18n.translate('generatereport.preparingReport', 'YFN', 'Preparing report. Please wait ...'));
+        if (router.queryParams.search == 'false'){
             // refresh group
             var filter = Ext.JSON.decode(decodeURIComponent(router.queryParams.filter)) || {};
-            var selectedGroups = filter[GROUPNAME];
+            var selectedGroups = filter['GROUPNAME'];
             if( _.isArray(selectedGroups)) {
                 var groups = [];
                 for (var i = 0; i < selectedGroups.length; i++) {
@@ -148,7 +151,7 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
                         me.generateReportWizardWidget.setLoading(false);
 
                         // load report
-                        this.loadReportFilters(reportUUID);
+                        me.loadReportFilters(reportUUID);
                     },
                     failure: function(response, opts) {
                         me.generateReportWizardWidget.setLoading(false);
