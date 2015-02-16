@@ -55,10 +55,8 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     },
                     items: [
                         {
-
                             fieldLabel: 'Overflow value',
                             name: 'overflowValue'
-
                         },
                         {
                             fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.nbrOfFractionDigits', 'MDC' ,'Number of fraction digits'),
@@ -66,10 +64,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                         },
                         {
                             fieldLabel: 'Unit of measure',
-                            name: 'unitOfMeasure',
-                            renderer: function (value) {
-                                return value.localizedValue;
-                            }
+                            name: 'unitOfMeasure'
                         }
                     ]
                 }

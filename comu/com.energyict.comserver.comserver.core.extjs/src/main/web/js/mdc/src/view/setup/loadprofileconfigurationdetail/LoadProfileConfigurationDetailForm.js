@@ -60,18 +60,6 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     fieldLabel: Uni.I18n.translate('channelConfig.channelConfigForm.overruledObisCodeLabel', 'MDC', 'Overruled OBIS code')
                 },
                 {
-                    xtype: 'combobox',
-                    required: true,
-                    allowBlank: false,
-                    fieldLabel: Uni.I18n.translate('channelConfig.channelConfigForm.unitOfMeasureLabel', 'MDC', 'Unit of measure'),
-                    emptyText: Uni.I18n.translate('channelConfig.channelConfigForm.unitOfMeasureEmptyTxt', 'MDC', 'Select a unit of measure'),
-                    name: 'unitOfMeasure',
-                    forceSelection: true,
-                    displayField: 'localizedValue',
-                    valueField: 'id',
-                    queryMode: 'local'
-                },
-                {
                     xtype: 'textfield',
                     required: true,
                     allowBlank: false,
