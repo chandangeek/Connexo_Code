@@ -1,8 +1,17 @@
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -16,25 +25,14 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.FlowDirection;
-import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.time.TimeDuration;
+import org.assertj.core.api.Condition;
 import org.fest.assertions.api.Assertions;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import org.assertj.core.api.Condition;
-import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -54,25 +52,22 @@ public class TopologyServiceLoadProfileImplTest extends PersistenceTestWithMocke
     private static final ObisCode loadProfileObisCode = ObisCode.fromString("1.0.99.1.0.255");
     private static final String MRID = "MyUniqueMRID";
     private final TimeDuration interval = TimeDuration.minutes(15);
+    private final Unit unit1 = Unit.get("kWh");
+    private final Unit unit2 = Unit.get("MWh");
 
     private DeviceConfiguration deviceConfigurationWithLoadProfileAndChannels;
     private RegisterType registerType1;
     private RegisterType registerType2;
-    private Phenomenon phenomenon1;
-    private Phenomenon phenomenon2;
     private ReadingType readingType1;
     private ReadingType readingType2;
     private ObisCode obisCode1;
     private ObisCode obisCode2;
     private LoadProfileType loadProfileType;
-    private Unit unit1;
-    private Unit unit2;
 
     @Before
     public void initializeMocks() {
         super.initializeMocks();
         this.setupReadingTypes();
-        this.setupPhenomena();
         deviceConfigurationWithLoadProfileAndChannels = createDeviceConfigurationWithLoadProfileSpecAndTwoChannelSpecsSpecs();
     }
 
@@ -95,25 +90,6 @@ public class TopologyServiceLoadProfileImplTest extends PersistenceTestWithMocke
         this.obisCode2 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(readingType2).getObisCode();
     }
 
-    private void setupPhenomena() {
-        this.unit1 = Unit.get("kWh");
-        this.phenomenon1 = this.createPhenomenonIfMissing(this.unit1, TopologyServiceLoadProfileImplTest.class.getSimpleName() + "1");
-        this.unit2 = Unit.get("MWh");
-        this.phenomenon2 = this.createPhenomenonIfMissing(this.unit2, TopologyServiceLoadProfileImplTest.class.getSimpleName() + "2");
-    }
-
-    private Phenomenon createPhenomenonIfMissing(Unit unit, String name) {
-        Optional<Phenomenon> phenomenonByUnit = inMemoryPersistence.getMasterDataService().findPhenomenonByUnit(unit);
-        if (!phenomenonByUnit.isPresent()) {
-            Phenomenon phenomenon = inMemoryPersistence.getMasterDataService().newPhenomenon(name, unit);
-            phenomenon.save();
-            return phenomenon;
-        }
-        else {
-            return phenomenonByUnit.get();
-        }
-    }
-
     private DeviceConfiguration createDeviceConfigurationWithLoadProfileSpecAndTwoChannelSpecsSpecs() {
         this.registerType1 = this.createRegisterTypeIfMissing("RegisterType1", this.obisCode1, this.unit1, this.readingType1, 0);
         this.registerType2 = this.createRegisterTypeIfMissing("RegisterType2", this.obisCode2, this.unit2, this.readingType2, 0);
@@ -124,8 +100,8 @@ public class TopologyServiceLoadProfileImplTest extends PersistenceTestWithMocke
         deviceType.addLoadProfileType(loadProfileType);
         DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = deviceType.newConfiguration("ConfigurationWithLoadProfileAndChannel");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(loadProfileType);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, phenomenon1, loadProfileSpecBuilder);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, phenomenon2, loadProfileSpecBuilder);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         deviceType.save();
         deviceConfiguration.activate();
@@ -139,7 +115,7 @@ public class TopologyServiceLoadProfileImplTest extends PersistenceTestWithMocke
             registerType = xRegisterType.get();
         }
         else {
-            registerType = inMemoryPersistence.getMasterDataService().newRegisterType(name, obisCode, unit, readingType, timeOfUse);
+            registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType, obisCode);
             registerType.save();
         }
         return registerType;
@@ -246,8 +222,8 @@ public class TopologyServiceLoadProfileImplTest extends PersistenceTestWithMocke
         ChannelType channelTypeForRegisterType2 = loadProfileType.getChannelTypes().get(1);
         DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = slaveDeviceType.newConfiguration("SlaveConfig");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(loadProfileType);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, phenomenon1, loadProfileSpecBuilder);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, phenomenon2, loadProfileSpecBuilder);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         slaveDeviceType.save();
         deviceConfiguration.activate();
