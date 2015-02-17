@@ -125,6 +125,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                     ]
                 }
             ],
+
             loadRecord: function (record) {
                 var form = this,
                     fields = form.query('[isFormField=true]');
@@ -136,22 +137,27 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                 form.add(channelsFields);
                 Ext.Array.each(fields, function (field) {
                     var value = record.get(field.name);
-                    value && field.setValue(value);
+                    if (value) {
+                        field.setValue(value);
+                    }
                 });
+
                 Ext.Array.each(me.channels, function (channel) {
-                    if (!Ext.isEmpty(record.data.channelData[channel.id])) {
+
+                    if (!Ext.isEmpty(record.get('channelData')[channel.id])) {
                         form.down('#channelValue' + channel.id).setValue(record.data.channelData[channel.id] + ' ' + channel.unitOfMeasure.unit);
-                        if (!Ext.isEmpty(record.get('channelCollectedData'))) {
-                            var channelBulkValueField = form.down('#channelBulkValue' + channel.id);
-                            channelBulkValueField.setValue(
-                                !Ext.isEmpty(record.data.channelCollectedData[channel.id]) ?
-                                    record.data.channelCollectedData[channel.id] + ' ' + channel.unitOfMeasure.unit :
-                                    Uni.I18n.translate('general.missing', 'MDC', 'Missing')
-                            );
-                            channelBulkValueField.show();
-                        }
                     } else {
                         form.down('#channelValue' + channel.id).setValue(Uni.I18n.translate('general.missing', 'MDC', 'Missing'));
+                    }
+
+                    if (!Ext.isEmpty(record.get('channelCollectedData'))) {
+                        var channelBulkValueField = form.down('#channelBulkValue' + channel.id);
+                        channelBulkValueField.setValue(
+                            !Ext.isEmpty(record.get('channelCollectedData')[channel.id])
+                                ? record.get('channelCollectedData')[channel.id] + ' ' + channel.unitOfMeasure.unit
+                                : Uni.I18n.translate('general.missing', 'MDC', 'Missing')
+                        );
+                        channelBulkValueField.show();
                     }
 
                     if (record.data.channelValidationData[channel.id]) {
