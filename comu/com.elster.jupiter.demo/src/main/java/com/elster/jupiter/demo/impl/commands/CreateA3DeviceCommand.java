@@ -186,7 +186,7 @@ public class CreateA3DeviceCommand {
             for (ChannelType channelType : availableChannelTypes) {
                 String mrid = channelType.getTemplateRegister().getReadingType().getMRID();
                 if (channels.containsKey(mrid)){
-                    configuration.createChannelSpec(channelType, channelType.getPhenomenon(), loadProfileSpec)
+                    configuration.createChannelSpec(channelType, loadProfileSpec)
                             .setMultiplier(new BigDecimal(1))
                             .setOverflow(new BigDecimal(100000000))
                             .setNbrOfFractionDigits(3)

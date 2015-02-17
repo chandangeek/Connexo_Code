@@ -3,7 +3,6 @@ package com.elster.jupiter.demo.impl.commands;
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.commands.devices.CreateValidationDeviceCommand;
-import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.ValidationRuleSetTpl;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;

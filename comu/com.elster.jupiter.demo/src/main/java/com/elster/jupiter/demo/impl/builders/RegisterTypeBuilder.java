@@ -55,11 +55,9 @@ public class RegisterTypeBuilder implements Builder<RegisterType>  {
             }
         }
         RegisterType registerType = masterDataService.newRegisterType(
-                this.readingType.getName(),
-                ObisCode.fromString(obisCode),
-                unit,
                 this.readingType,
-                this.readingType.getTou());
+                ObisCode.fromString(obisCode)
+        );
         registerType.save();
         return registerType;
     }
