@@ -2,6 +2,7 @@ package com.elster.jupiter.util.streams;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.function.BiConsumer;
@@ -20,6 +21,7 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class DecoratedStream<T> implements Stream<T> {
 
@@ -256,4 +258,9 @@ public class DecoratedStream<T> implements Stream<T> {
     public void close() {
         decorated.close();
     }
+
+    public Stream<List<T>> partitionPer(int n) {
+        return StreamSupport.stream(new GroupPerSpliterator<T>(decorated.spliterator(), n), decorated.isParallel());
+    }
+
 }

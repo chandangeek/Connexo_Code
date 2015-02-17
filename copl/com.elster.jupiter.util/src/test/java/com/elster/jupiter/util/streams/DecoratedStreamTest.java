@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DecoratedStreamTest {
@@ -64,5 +64,14 @@ public class DecoratedStreamTest {
         assertThat(collect).hasSize(8);
     }
 
+    @Test
+    public void testPartitionPer() {
+        List<String> strings = Arrays.asList("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z");
+        List<String> collect = decorate(strings.stream())
+                .partitionPer(3)
+                .map(list -> list.stream().collect(java.util.stream.Collectors.joining()))
+                .collect(toList());
+        assertThat(collect).isEqualTo(Arrays.asList("ABC", "DEF", "GHI", "JKL", "MNO", "PQR", "STU", "VWX", "YZ"));
+    }
 
 }
