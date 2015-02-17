@@ -18,18 +18,18 @@ Ext.define('Uni.controller.Error', {
         window: null
     },
 
-    routeConfig:{
+    routeConfig: {
         notfound: {
             title: Uni.I18n.translate('error.pageNotFound', 'UNI', 'Page not found'),
             route: 'error/notfound',
             controller: 'Uni.controller.Error',
-            action:'showPageNotFound'
+            action: 'showPageNotFound'
         },
         launch: {
             title: Uni.I18n.translate('error.errorLaunch', 'UNI', 'Application error'),
             route: 'error/launch',
             controller: 'Uni.controller.Error',
-            action:'showErrorLaunch'
+            action: 'showErrorLaunch'
         }
     },
 
@@ -43,20 +43,29 @@ Ext.define('Uni.controller.Error', {
     init: function () {
         var me = this;
 
-        Ext.Error.handle = me.handleGenericError;
+        Ext.Error.handle = function (error) {
+            me.handleGenericError(error, me);
+        };
+
         Ext.Ajax.on('requestexception', me.handleRequestError, me);
 
         var router = this.getController('Uni.controller.history.Router');
         router.addConfig(this.routeConfig);
     },
 
-    handleGenericError: function (error) {
+    handleGenericError: function (error, scope) {
         //<debug>
         console.log(error);
         //</debug>
 
-        var title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed');
-        this.showError(title, error);
+        var me = scope || this,
+            title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed');
+
+        if(Ext.isObject(error) && Ext.isDefined(error.msg)) {
+            error = error.msg;
+        }
+
+        me.showError(title, error);
     },
 
     handleRequestError: function (conn, response, options) {
@@ -105,7 +114,7 @@ Ext.define('Uni.controller.Error', {
                 'Unexpected connection problems. Please check that server is available.'
             );
         }
-        else{
+        else {
             title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed');
             message = Uni.I18n.translate(message, 'UNI', message);
         }
