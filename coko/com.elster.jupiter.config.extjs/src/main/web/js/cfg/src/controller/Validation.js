@@ -426,8 +426,8 @@ Ext.define('Cfg.controller.Validation', {
     loadReadingTypes: function () {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
-            widget = this.getAddReadingTypesSetup(),
-            readingTypeStore = me.getStore('Cfg.store.ReadingTypesToAddForRule'),
+            widget = me.getAddReadingTypesSetup(),
+            readingTypeStore = Ext.create('Cfg.store.ReadingTypesToAddForRule'),
             unitOfMeasureCombo = widget.down('#unitsOfMeasureCombo'),
             intervalsCombo = widget.down('#intervalsCombo'),
             timeOfUseCombo = widget.down('#timeOfUseCombo'),
@@ -440,29 +440,6 @@ Ext.define('Cfg.controller.Validation', {
             unitOfMeasureRecord,
             intervalsRecord,
             previewContainer;
-
-        // Buffer store to load in the data directly.
-        var tempStore = Ext.create('Cfg.store.ReadingTypesToAddForRule');
-
-        previewContainer = {
-            xtype: 'preview-container',
-            grid: {
-                itemId: 'addReadingTypesGrid',
-                xtype: 'addReadingTypesBulk',
-                store: tempStore,
-                height: 600
-            },
-            emptyComponent: {
-                xtype: 'no-items-found-panel',
-                margin: '0 0 20 0',
-                title: Uni.I18n.translate('validation.readingType.empty.title', 'CFG', 'No reading types found.'),
-                reasons: [
-                    Uni.I18n.translate('validation.readingType.empty.list.item1', 'CFG', 'No reading types have been added yet.'),
-                    Uni.I18n.translate('validation.readingType.empty.list.item2', 'CFG', 'No reading types comply to the filter.'),
-                    Uni.I18n.translate('validation.readingType.empty.list.item3', 'CFG', 'All reading types have been already added to rule.')
-                ]
-            }
-        };
 
         bulkGridContainer.removeAll();
 
@@ -522,24 +499,45 @@ Ext.define('Cfg.controller.Validation', {
 
         readingTypeStore.getProxy().setExtraParam('filter', Ext.encode(properties));
         readingTypeStore.loadData([], false);
+
+        previewContainer = {
+            xtype: 'preview-container',
+            grid: {
+                itemId: 'addReadingTypesGrid',
+                xtype: 'addReadingTypesBulk',
+                store: readingTypeStore,
+                height: 600,
+                plugins: {
+                    ptype: 'bufferedrenderer'
+                }
+            },
+            emptyComponent: {
+                xtype: 'no-items-found-panel',
+                margin: '0 0 20 0',
+                title: Uni.I18n.translate('validation.readingType.empty.title', 'CFG', 'No reading types found.'),
+                reasons: [
+                    Uni.I18n.translate('validation.readingType.empty.list.item1', 'CFG', 'No reading types have been added yet.'),
+                    Uni.I18n.translate('validation.readingType.empty.list.item2', 'CFG', 'No reading types comply to the filter.'),
+                    Uni.I18n.translate('validation.readingType.empty.list.item3', 'CFG', 'All reading types have been already added to rule.')
+                ]
+            }
+        };
+
         bulkGridContainer.add(previewContainer);
 
         //<debug>
         Ext.override(Ext.data.proxy.Ajax, {timeout: 120000});
         //</debug>
 
-        bulkGridContainer.setLoading(true);
-
-        readingTypeStore.load(function (records, operation, success) {
-            if (success) {
-                tempStore.loadData(records, false);
-                bulkGridContainer.setLoading(false);
-
-                if (!records.length) {
-                    widget.down('#buttonsContainer button[name=add]').setDisabled(true);
-                }
+        readingTypeStore.on('load', function (records) {
+            if (!records.length) {
+                widget.down('#buttonsContainer button[name=add]').setDisabled(true);
             }
+        }, me, {
+            single: true
         });
+
+        readingTypeStore.load();
     },
 
     checkMridAlreadyAdded: function (array, record) {

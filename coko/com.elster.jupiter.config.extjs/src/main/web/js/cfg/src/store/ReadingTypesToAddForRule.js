@@ -5,7 +5,9 @@ Ext.define('Cfg.store.ReadingTypesToAddForRule', {
     requires: [
         'Cfg.model.ReadingType'
     ],
-    autoLoad: false,
+
+    buffered: true,
+    pageSize: 200,
 
     proxy: {
         type: 'rest',
@@ -13,9 +15,6 @@ Ext.define('Cfg.store.ReadingTypesToAddForRule', {
         reader: {
             type: 'json',
             root: 'readingTypes'
-        },
-        limitParam: undefined,
-        startParam: undefined,
-        pageParam: undefined
+        }
     }
 });
