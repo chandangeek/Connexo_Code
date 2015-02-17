@@ -71,10 +71,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                         },
                         items: [
                             {
-                                name: 'name',
-                                fieldLabel: Uni.I18n.translate('registerMapping.name', 'MDC', 'Name')
-                            },
-                            {
                                 xtype: 'reading-type-displayfield',
                                 name: 'readingType'
                             },
@@ -94,14 +90,14 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                              name: 'dataCollectionGroup',
                              fieldLabel: Uni.I18n.translate('registerMapping.dataCollectionGroup', 'MDC', 'Data collection group'),
                              }*/
-                            {
+                          /*  {
                                 name: 'unit',
                                 fieldLabel: Uni.I18n.translate('registerMapping.measurementUnit', 'MDC', 'Unit of measure')
                             },
                             {
                                 name: 'timeOfUse',
                                 fieldLabel: Uni.I18n.translate('registerMapping.timeOfUse', 'MDC', 'Time of use')
-                            }
+                            }*/
 
                         ]
                     }

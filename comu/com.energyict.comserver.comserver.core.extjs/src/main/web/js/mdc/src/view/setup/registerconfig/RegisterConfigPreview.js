@@ -53,10 +53,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                         },
                         items: [
                             {
-                                name: 'name',
-                                fieldLabel: Uni.I18n.translate('registerConfig.deviceRegister', 'MDC', 'Register type')
-                            },
-                            {
                                 xtype: 'reading-type-displayfield',
                                 name: 'readingType'
                             },
@@ -95,10 +91,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                             {
                                 name: 'numberOfFractionDigits',
                                 fieldLabel: Uni.I18n.translate('registerConfig.numberOfFractionDigits', 'MDC', 'Number of fraction digits')
-                            },
-                            {
-                                name: 'multiplier',
-                                fieldLabel: Uni.I18n.translate('registerConfig.multiplier', 'MDC', 'Multiplier')
                             }
                         ]
                     }

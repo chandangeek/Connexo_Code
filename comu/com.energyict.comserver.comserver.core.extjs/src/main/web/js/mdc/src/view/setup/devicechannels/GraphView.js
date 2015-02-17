@@ -1,7 +1,11 @@
 Ext.define('Mdc.view.setup.devicechannels.GraphView', {
-    extend: 'Ext.container.Container',
+    extend: 'Mdc.view.setup.highstock.GraphView',
     alias: 'widget.deviceLoadProfileChannelGraphView',
     itemId: 'deviceLoadProfileChannelGraphView',
+
+    requires: [
+        'Mdc.view.setup.highstock.GraphView'
+    ],
 
     items: [
         {
@@ -15,7 +19,6 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
             xtype: 'no-items-found-panel',
             itemId: 'ctr-graph-no-data',
             hidden: true,
-            itemId: 'emptyGraphMessage',
             title: Uni.I18n.translate('deviceloadprofiles.data.empty.title', 'MDC', 'No readings found'),
             reasons: [
                 Uni.I18n.translate('deviceloadprofiles.data.empty.list.item1', 'MDC', 'No readings have been defined yet.') ]
@@ -25,12 +28,6 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
 
     drawGraph: function (yAxis, series, intervalLength, channelName, unitOfMeasure, zoomLevels) {
         var me = this;
-
-        Highcharts.setOptions({
-            global: {
-                useUTC: false
-            }
-        });
 
         me.chart = new Highcharts.StockChart({
 
@@ -150,9 +147,4 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
         });
 
     },
-
-    initComponent: function () {
-        this.callParent(arguments);
-    }
-
 });
