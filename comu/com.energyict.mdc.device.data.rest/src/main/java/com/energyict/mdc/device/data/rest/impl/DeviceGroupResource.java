@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
@@ -11,6 +13,7 @@ import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
@@ -30,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -199,7 +203,8 @@ public class DeviceGroupResource {
             deviceIds = deviceService.findAllDevices(getCondition(deviceGroupInfo)).find().stream()
                     .map(HasId::getId);
         }
-        List<EndDevice> endDevices = deviceIds.map(number -> meteringService.findEndDevice(number.longValue()))
+        AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        List<EndDevice> endDevices = deviceIds.map(number -> amrSystem.findMeter(number.toString()))
                 .flatMap(asStream())
                 .collect(Collectors.toList());
 
@@ -271,5 +276,4 @@ public class DeviceGroupResource {
         }
         return condition;
     }
-
 }
