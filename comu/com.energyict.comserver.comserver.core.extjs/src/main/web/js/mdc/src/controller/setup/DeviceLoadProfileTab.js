@@ -27,17 +27,14 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileTab', {
     },
 
     initTabDeviceLoadProfileDetailsView: function (mrId, loadProfileId) {
-        debugger;
         this.mrId = mrId;
         this.loadProfileId = loadProfileId;
         var c = this.getController('Mdc.controller.setup.DeviceLoadProfileOverview');
-            //loadProfile = this.getController('Mdc.controller.setup.DeviceLoadProfileData').getLoadProfile();
         c.showOverview(mrId, loadProfileId, this, null);
         this.veto = true;
     },
 
     initTabLoadProfileDataView: function (mrId, loadProfileId) {
-        debugger;
         this.mrId = mrId;
         this.loadProfileId = loadProfileId;
         var c = this.getController('Mdc.controller.setup.DeviceLoadProfileData'),
@@ -47,7 +44,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileTab', {
     },
 
     initTabLoadProfileGraphView: function (mrId, loadProfileId) {
-        debugger;
         this.mrId = mrId;
         this.loadProfileId = loadProfileId;
         var c = this.getController('Mdc.controller.setup.DeviceLoadProfileData'),
@@ -57,7 +53,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileTab', {
     },
 
     changeTab: function (tabPanel, tab) {
-        debugger;
         if (!this.veto) {
             var router = this.getController('Uni.controller.history.Router'),
                 routeParams = router.arguments,
