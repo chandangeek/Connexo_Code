@@ -21,6 +21,7 @@ Ext.define('Uni.Number', {
 
     currencyDefault: '£ {0}',
 
+    // if decimalPrecision is equals -1, then it uses current number decimals count
     doFormatNumber: function (number, decimalPrecision, decimalSeparator, thousandsSeparator) {
         var me = this,
             n = parseFloat(number),
@@ -28,10 +29,10 @@ Ext.define('Uni.Number', {
             d = decimalSeparator || me.decimalSeparatorDefault,
             t = (typeof thousandsSeparator === 'undefined') ? me.thousandsSeparatorDefault : thousandsSeparator,
             sign = (n < 0) ? '-' : '',
-            i = parseInt(n = Math.abs(n).toFixed(c)) + '',
+            i = (!isNaN(decimalPrecision) && decimalPrecision === -1 ? parseInt(n = Math.abs(n)) + '' :  parseInt(n = Math.abs(n).toFixed(c)) + '' ),
             j = ((j = i.length) > 3) ? j % 3 : 0;
 
-        return sign + (j ? i.substr(0, j) + t : '') + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (parseInt(decimalPrecision) < 0 ? number.split('.')[1] ? d + number.split('.')[1] : '' : (c ? d + Math.abs(n - i).toFixed(c).slice(2) : ''));
+        return sign + (j ? i.substr(0, j) + t : '') + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (!isNaN(decimalPrecision) && decimalPrecision === -1 ? number.split('.')[1] ? d + number.split('.')[1] : '' : (c ? d + Math.abs(n - i).toFixed(c).slice(2) : ''));
     },
 
     /**
