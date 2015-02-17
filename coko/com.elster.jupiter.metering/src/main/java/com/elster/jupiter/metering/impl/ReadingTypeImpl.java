@@ -442,4 +442,28 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
     	}
     }
 
+    @Override
+    public String getFullAliasName() {
+        StringBuilder fullAlias = new StringBuilder();
+        if (!this.getMeasuringPeriod().equals(TimeAttribute.NOTAPPLICABLE)) {
+            fullAlias.append("[").append(getTranslationWithDefault(this.getMeasuringPeriod().getDescription())).append("] ");
+        } else if (this.getMacroPeriod().equals(MacroPeriod.DAILY) || this.getMacroPeriod().equals(MacroPeriod.MONTHLY)) {
+            fullAlias.append("[").append(getTranslationWithDefault(this.getMacroPeriod().getDescription())).append("] ");
+        }
+        fullAlias.append(this.getAliasName());
+        if (this.getUnit().isApplicable()) {
+            fullAlias.append(" (").append(getTranslationWithDefault(this.getMultiplier().getSymbol())).append(getTranslationWithDefault(this.getUnit().getSymbol())).append(")");
+        }
+        if (this.getPhases().isApplicable()) {
+            fullAlias.append(" ").append(getTranslationWithDefault(this.getPhases().getDescription()));
+        }
+        if (this.getTou() != 0) {
+            fullAlias.append(" ").append(getTranslationWithDefault("ToU")).append(" ").append(this.getTou());
+        }
+        return fullAlias.toString();
+    }
+
+    private String getTranslationWithDefault(String value) {
+        return thesaurus.getString(value, value);
+    }
 }

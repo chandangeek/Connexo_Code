@@ -44,4 +44,12 @@ public interface ReadingType extends IdentifiedObject {
     long getVersion();
 
     void setDescription(String description);
+
+    /**
+     * Using the {@link #getAliasName()} and some of the attributes of a ReadingType a more detailed aliasName is constructed.
+     *
+     * @return the full alias name
+     * @since v1.1
+     */
+    String getFullAliasName();
 }
