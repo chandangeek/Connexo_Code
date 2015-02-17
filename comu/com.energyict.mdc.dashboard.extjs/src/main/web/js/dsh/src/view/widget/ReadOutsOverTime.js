@@ -39,9 +39,11 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                 height: 400,
                 listeners: {
                     resize: {
-                        fn: function(el) {
-                            me.chart.setSize(Ext.getBody().getViewSize().width-100, 400);
-                            me.doLayout();
+                        fn: function () {
+                            if (me.chart) {
+                                me.chart.setSize(Ext.getBody().getViewSize().width - 100, 400);
+                                me.doLayout();
+                            }
                         }
                     }
                 }
