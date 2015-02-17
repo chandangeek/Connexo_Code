@@ -1,7 +1,11 @@
 Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
-    extend: 'Ext.container.Container',
+    extend: 'Mdc.view.setup.highstock.GraphView',
     alias: 'widget.deviceLoadProfilesGraphView',
     itemId: 'deviceLoadProfilesGraphView',
+
+    requires: [
+        'Mdc.view.setup.highstock.GraphView'
+    ],
 
     items: [
         {
@@ -22,12 +26,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
     drawGraph: function (title, yAxis, series, channels, seriesToYAxisMap, intervalLength, zoomLevels) {
         var me = this;
 
-        Highcharts.setOptions({
-            global: {
-                useUTC: false
-            }
-        });
-
         me.chart = new Highcharts.StockChart({
 
             title: {
@@ -35,7 +33,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
             },
 
             chart: {
-                height: 320 + 150 * yAxis.length ,
+                height: 320 + 150 * yAxis.length,
                 renderTo: me.down('#graphContainer').el.dom
             },
 
@@ -90,12 +88,12 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
 
             tooltip: {
                 useHTML: true,
-                positioner: function (labelWidth, labelHeight, point){
+                positioner: function (labelWidth, labelHeight, point) {
                     var xValue,
                         yValue;
 
-                    xValue = point.plotX + labelWidth < this.chart.chartWidth ? point.plotX : point.plotX - (labelWidth*4)/5;
-                    yValue = point.plotY > labelHeight ? point.plotY: labelHeight;
+                    xValue = point.plotX + labelWidth < this.chart.chartWidth ? point.plotX : point.plotX - (labelWidth * 4) / 5;
+                    yValue = point.plotY > labelHeight ? point.plotY : labelHeight;
                     return {x: xValue, y: yValue}
                 },
                 formatter: function () {
@@ -111,7 +109,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                         var series = points.point.series;
                         s += '<tr>'
                         s += '<td style="padding-right: 10px; text-align: right"><b>' + channels[series.index].name + '</b></td>';
-                        s += '<td style="padding-right: 1px; text-align: right">' + points.y  + '</td>';
+                        s += '<td style="padding-right: 1px; text-align: right">' + points.y + '</td>';
                         s += '<td style="padding-left: 1px; text-align: left">' + channels[series.index].unitOfMeasure + '</td>';
                         s += '</tr>'
                     });
@@ -150,7 +148,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                             var chart = this.chart,
                                 index = this.index,
                                 visibleYAxises = [],
-                            yAxis;
+                                yAxis;
 
                             $.each(chart.series, function (i, serie) {
                                 if ((serie.visible) || (serie.index == index)) {
@@ -166,8 +164,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                 },
                 column: {
                     pointPadding: 0,
-                    dataGrouping:
-                    {
+                    dataGrouping: {
                         enabled: false
                     },
                     groupPadding: 0,
@@ -194,7 +191,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
         visibleYAxises.sort();
 
         lineCount = visibleYAxises.length;
-        step = (100 / lineCount | 0) -1;
+        step = (100 / lineCount | 0) - 1;
 
         Ext.Array.each(chart.yAxis, function (yAxis, index) {
             var yAxisObjectUpdate = {};
@@ -211,10 +208,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
 
         });
 
-        chart.setSize(chart.chartWidth, 320 + 150 * visibleYAxises.length );
-    },
-
-    initComponent: function () {
-        this.callParent(arguments);
+        chart.setSize(chart.chartWidth, 320 + 150 * visibleYAxises.length);
     }
 });
