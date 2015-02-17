@@ -69,14 +69,36 @@ Ext.define('Mdc.widget.ScheduleField', {
         var me = this;
         me.items = [
             Ext.apply({
-                xtype: 'numberfield',
+                xtype: 'combobox',
                 itemId: 'valueField',
                 submitValue: false,
                 width: 70,
-                minValue: 1,
-                allowDecimals: false,
+                store: new Ext.data.SimpleStore({
+                    data: [
+                        [1, 1],
+                        [2, 2],
+                        [3, 3],
+                        [4, 4],
+                        [5, 5],
+                        [6, 6],
+                        [10, 10],
+                        [12, 12],
+                        [15, 15],
+                        [20, 20],
+                        [30, 30]
+                    ],
+                    id: 0,
+                    fields: ['valueFieldKey', 'translation']
+                }),
+                queryMode: 'local',
+                displayField: 'translation',
+                valueField: 'valueFieldKey',
+                submitValue: false,
+                forceSelection: true,
+                editable: false,
+
                 listeners: {
-                    blur: me.numberFieldValidation,
+                    //  blur: me.numberFieldValidation,
                     change: {
                         fn: me.onItemChange,
                         scope: me
@@ -108,6 +130,8 @@ Ext.define('Mdc.widget.ScheduleField', {
                         fn: function (combo, newValue) {
                             me.clearOffsetValues();
                             me.adjustOffsetGui(newValue);
+                            me.clearValueField();
+                            me.adjustValueFieldGui(newValue);
                             me.onItemChange();
                             me.fireEvent('schedulefieldupdated');
                         },
@@ -339,6 +363,56 @@ Ext.define('Mdc.widget.ScheduleField', {
         }
     },
 
+    adjustValueFieldGui: function (newValue) {
+        var me = this;
+        switch (newValue) {
+            case 'minutes':
+                me.valueField.getStore().loadData([
+                        [1, 1],
+                        [2, 2],
+                        [3, 3],
+                        [4, 4],
+                        [5, 5],
+                        [6, 6],
+                        [10, 10],
+                        [12, 12],
+                        [15, 15],
+                        [20, 20],
+                        [30, 30]
+                    ]);
+                break;
+            case 'hours':
+                me.valueField.getStore().loadData([
+                        [1, 1],
+                        [2, 2],
+                        [3, 3],
+                        [4, 4],
+                        [6, 6],
+                        [8, 8],
+                        [12, 12]
+                    ]);
+                break;
+            case 'days':
+                me.valueField.getStore().loadData([
+                        [1, 1]
+                    ]);
+                break;
+            case 'weeks':
+                me.valueField.getStore().loadData([
+                        [1, 1]
+                    ]);
+                break;
+            case 'months':
+                me.valueField.getStore().loadData([
+                        [1, 1],
+                        [2, 2],
+                        [3, 3],
+                        [4, 4],
+                        [6, 6]
+                    ]);
+        };
+    },
+
     clear: function () {
         var me = this;
 
@@ -362,6 +436,11 @@ Ext.define('Mdc.widget.ScheduleField', {
         me.secondField.setValue(0);
         me.dayField.setValue(1);
         me.dayIndexField.setValue(1);
+    },
+
+    clearValueField: function () {
+        var me = this;
+        me.valueField.setValue(1);
     },
 
     clearConnectionScheduleValues: function () {

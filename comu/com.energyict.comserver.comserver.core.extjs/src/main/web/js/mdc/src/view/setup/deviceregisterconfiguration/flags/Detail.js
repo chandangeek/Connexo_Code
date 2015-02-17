@@ -62,16 +62,12 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.flags.Detail', {
                                         },
                                         items: [
                                             {
-                                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.name', 'MDC', 'Name'),
-                                                name: 'name'
+                                                xtype: 'reading-type-displayfield',
+                                                name: 'readingType'
                                             },
                                             {
                                                 xtype: 'obis-displayfield',
                                                 name: 'obisCode'
-                                            },
-                                            {
-                                                xtype: 'reading-type-displayfield',
-                                                name: 'readingType'
                                             },
                                             {
                                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.lastReading', 'MDC', 'Last reading'),

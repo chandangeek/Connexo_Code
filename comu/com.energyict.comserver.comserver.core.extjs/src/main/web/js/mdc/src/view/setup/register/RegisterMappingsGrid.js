@@ -25,11 +25,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
         var me = this;
         this.columns = [
             {
-                header: Uni.I18n.translate('registerMappings.name', 'MDC', 'Name'),
-                dataIndex: 'name',
-                flex: 1
-            },
-            {
                 xtype: 'reading-type-column',
                 dataIndex: 'readingType',
                 flex: 1

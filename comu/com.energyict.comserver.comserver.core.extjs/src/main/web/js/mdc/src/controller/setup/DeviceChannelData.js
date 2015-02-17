@@ -241,9 +241,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         if (dataStore.getTotalCount() > 0) {
             dataStore.each(function (record) {
                 if (record.get('value')) {
-                    seriesObject['data'].unshift([record.get('interval').end, parseFloat(record.get('value'))]);
+                    seriesObject['data'].unshift([record.get('interval').start, parseFloat(record.get('value'))]);
                 } else {
-                    seriesObject['data'].unshift([record.get('interval').end, null]);
+                    seriesObject['data'].unshift([record.get('interval').start, null]);
                 }
             });
             series.push(seriesObject);

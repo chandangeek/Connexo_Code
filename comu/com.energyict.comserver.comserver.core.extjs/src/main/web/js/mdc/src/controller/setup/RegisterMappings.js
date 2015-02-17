@@ -63,10 +63,10 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         var registerMappings = this.getRegisterMappingGrid().getSelectionModel().getSelection();
         if (registerMappings.length == 1) {
             this.getRegisterMappingPreviewForm().loadRecord(registerMappings[0]);
-            var registerMappingsName = this.getRegisterMappingPreviewForm().form.findField('name').getSubmitValue();
+            //var registerMappingsName = this.getRegisterMappingPreviewForm().form.findField('readingType').getSubmitValue();
             this.getRegisterMappingPreview().getLayout().setActiveItem(1);
-            this.getRegisterMappingPreview().setTitle(registerMappingsName);
-            this.getRegisterMappingPreviewForm().form.findField('unit').setValue(registerMappings[0].data.unitOfMeasure.localizedValue);
+            this.getRegisterMappingPreview().setTitle(registerMappings[0].get('readingType').fullAliasName);
+            //this.getRegisterMappingPreviewForm().form.findField('unit').setValue(registerMappings[0].data.unitOfMeasure.localizedValue);
         } else {
             this.getRegisterMappingPreview().getLayout().setActiveItem(0);
         }
