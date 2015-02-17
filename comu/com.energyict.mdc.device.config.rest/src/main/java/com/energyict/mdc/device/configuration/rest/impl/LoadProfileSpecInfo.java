@@ -47,7 +47,7 @@ public class LoadProfileSpecInfo {
         info.obisCode = loadProfileSpec.getObisCode();
         info.overruledObisCode = loadProfileSpec.getDeviceObisCode();
         info.timeDuration=loadProfileSpec.getInterval();
-        info.channels = ChannelSpecInfo.from(channelSpecs, mdcReadingTypeUtilService);
+        info.channels = ChannelSpecInfo.from(channelSpecs);
         return info;
     }
 }
