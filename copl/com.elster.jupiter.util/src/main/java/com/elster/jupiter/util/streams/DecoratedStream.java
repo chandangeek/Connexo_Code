@@ -259,8 +259,12 @@ public class DecoratedStream<T> implements Stream<T> {
         decorated.close();
     }
 
-    public Stream<List<T>> partitionPer(int n) {
-        return StreamSupport.stream(new GroupPerSpliterator<T>(decorated.spliterator(), n), decorated.isParallel());
+    /**
+     * @param n number of elements per list
+     * @return a DecoratedStream of List of T, where each list will contain n elements, except perhaps the last, which will simply contain the remaining elements.
+     */
+    public DecoratedStream<List<T>> partitionPer(int n) {
+        return new DecoratedStream<>(StreamSupport.stream(new GroupPerSpliterator<T>(decorated.spliterator(), n), decorated.isParallel()));
     }
 
 }
