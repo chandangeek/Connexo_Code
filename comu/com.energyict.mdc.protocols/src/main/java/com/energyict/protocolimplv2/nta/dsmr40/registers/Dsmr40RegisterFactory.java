@@ -115,7 +115,7 @@ public class Dsmr40RegisterFactory extends Dsmr23RegisterFactory {
                         dlmsAttributes.add(this.registerMap.get(register));
                     }
                 } catch (IOException e) {
-                    this.protocol.getLogger().warning("Could not process register: " + register);
+                    this.protocol.getLogger().warning(() -> "Could not process register: " + register);
                 }
             }
             ComposedCosemObject sRegisterList = super.constructComposedObjectFromRegisterList(registers, supportsBulkRequest);

@@ -128,7 +128,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                                 new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
                                         su.getEisUnit()), eventTime);
                     } else {
-                        this.protocol.getLogger().log(Level.WARNING, "Register with ObisCode " + register.getObisCode() + "[" + register.getDeviceSerialNumber() + "] does not provide a proper Unit.");
+                        this.protocol.getLogger().log(Level.WARNING, () -> "Register with ObisCode " + register.getObisCode() + "[" + register.getDeviceSerialNumber() + "] does not provide a proper Unit.");
                     }
                 } else if (this.registerMap.containsKey(register)) {
                     rv = convertCustomAbstractObjectsToRegisterValues(register, registerComposedCosemObject.getAttribute(this.registerMap.get(register)));
@@ -186,7 +186,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
             if (protocol.getPhysicalAddressFromSerialNumber(register.getDeviceSerialNumber()) != -1) {
                 validRegisters.add(register);
             } else {
-                protocol.getLogger().severe("Register " + register + " is not supported because MbusDevice " + register.getDeviceSerialNumber() + " is not installed on the physical device.");
+                protocol.getLogger().severe(() -> "Register " + register + " is not supported because MbusDevice " + register.getDeviceSerialNumber() + " is not installed on the physical device.");
             }
         }
         return validRegisters;
@@ -279,7 +279,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                             this.registerMap.put(register, new DLMSAttribute(CORE_FIRMWARE_SIGNATURE, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
                             dlmsAttributes.add(this.registerMap.get(register));
                         } else {
-                            protocol.getLogger().log(Level.INFO, "Register with ObisCode " + rObisCode + " is not supported.");
+                            protocol.getLogger().log(Level.SEVERE, () -> "Register with ObisCode " + rObisCode + " is not supported.");
                         }
                     }
                 }

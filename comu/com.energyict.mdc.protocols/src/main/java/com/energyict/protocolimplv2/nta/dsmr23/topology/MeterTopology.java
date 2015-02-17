@@ -113,7 +113,7 @@ public class MeterTopology {
         for (DeviceMapping deviceMapping : this.mbusMap) {
             sb.append(deviceMapping).append("\r\n");
         }
-        log(Level.INFO, sb.toString());
+        log(Level.FINE, sb.toString());
         return collectedTopology;
     }
 

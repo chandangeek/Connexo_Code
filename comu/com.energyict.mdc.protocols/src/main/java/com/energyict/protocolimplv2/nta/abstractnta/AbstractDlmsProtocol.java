@@ -279,18 +279,18 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
             if (this.dlmsCache != null && this.dlmsCache.getObjectList() != null) { // the dlmsCache exists
                 getDlmsSession().getMeterConfig().setInstantiatedObjectList(this.dlmsCache.getObjectList());
 
-                getLogger().info("Checking the configuration parameters.");
+                getLogger().fine("Checking the configuration parameters.");
                 configNumber = getMeterInfo().getConfigurationChanges();
 
                 if (this.dlmsCache.getConfProgChange() != configNumber) {
-                    getLogger().info("Meter configuration has changed, configuration is forced to be read.");
+                    getLogger().fine("Meter configuration has changed, configuration is forced to be read.");
                     readObjectList();
                     changed = true;
                 }
 
             } else { // cache does not exist
                 this.dlmsCache = new DLMSCache();
-                getLogger().info("Cache does not exist, configuration is forced to be read.");
+                getLogger().fine("Cache does not exist, configuration is forced to be read.");
                 readObjectList();
                 configNumber = getMeterInfo().getConfigurationChanges();
                 changed = true;

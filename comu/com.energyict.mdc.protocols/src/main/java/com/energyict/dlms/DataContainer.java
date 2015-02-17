@@ -562,7 +562,7 @@ public class DataContainer implements Serializable {
 					if (logger == null) {
 						System.out.println(ProtocolUtils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
 					} else {
-						logger.severe(ProtocolUtils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
+						logger.severe(() -> ProtocolUtils.stack2string(e) + ", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
 					}
 					return;
 				}

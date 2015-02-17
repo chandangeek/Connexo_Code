@@ -162,7 +162,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                     continue;
                 }
 
-                this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
+                this.meterProtocol.getLogger().log(Level.FINE, () -> "Reading configuration from LoadProfile " + lpr);
                 ComposedProfileConfig cpc = lpConfigMap.get(lpr);
                 if (cpc != null) {
                     try {
@@ -203,7 +203,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             if (this.meterProtocol.getPhysicalAddressFromSerialNumber(loadProfileReader.getMeterSerialNumber()) != -1) {
                 validLoadProfileReaders.add(loadProfileReader);
             } else {
-                this.meterProtocol.getLogger().severe("LoadProfile " + loadProfileReader.getProfileObisCode() + " is not supported because MbusDevice " + loadProfileReader.getMeterSerialNumber() + " is not installed on the physical device.");
+                this.meterProtocol.getLogger().severe(() -> "LoadProfile " + loadProfileReader.getProfileObisCode() + " is not supported because MbusDevice " + loadProfileReader.getMeterSerialNumber() + " is not installed on the physical device.");
             }
         }
         return validLoadProfileReaders;
@@ -230,7 +230,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                     dlmsAttributes.add(cProfileConfig.getLoadProfileCapturedObjects());
                     this.lpConfigMap.put(lpReader, cProfileConfig);
                 } else {
-                    this.meterProtocol.getLogger().log(Level.INFO, "LoadProfile with ObisCode " + obisCode + " for meter " + lpReader.getMeterSerialNumber() + " is not supported.");
+                    this.meterProtocol.getLogger().log(Level.WARNING, () -> "LoadProfile with ObisCode " + obisCode + " for meter " + lpReader.getMeterSerialNumber() + " is not supported.");
                 }
             }
             return new ComposedCosemObject(this.meterProtocol.getDlmsSession(), supportsBulkRequest, dlmsAttributes);
@@ -316,7 +316,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                         this.registerUnitMap.put(register, unitAttribute);
                     }
                 } else {
-                    this.meterProtocol.getLogger().log(Level.INFO, "LoadProfile channel with ObisCode " + (rObisCode != null ? rObisCode : register.getObisCode()) + " is not supported.");
+                    this.meterProtocol.getLogger().log(Level.WARNING, () -> "LoadProfile channel with ObisCode " + (rObisCode != null ? rObisCode : register.getObisCode()) + " is not supported.");
                 }
             }
             return new ComposedCosemObject(this.meterProtocol.getDlmsSession(), supportsBulkRequest, dlmsAttributes);
@@ -468,7 +468,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(lpr.getLoadProfileIdentifier());
 
             if (this.channelInfoMap.containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
-                this.meterProtocol.getLogger().log(Level.INFO, "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
+                this.meterProtocol.getLogger().log(Level.FINE, () -> "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
 
                 try {
                     List<ChannelInfo> channelInfos = this.channelInfoMap.get(lpr);

@@ -139,16 +139,16 @@ public class AM540 extends AbstractDlmsProtocol {
         boolean readCache = getDlmsSessionProperties().isReadCache();
         if ((((DLMSCache) getDeviceCache()).getObjectList() == null) || (readCache)) {
             if (readCache) {
-                getLogger().info("ForcedToReadCache property is true, reading cache!");
+                getLogger().fine("ForcedToReadCache property is true, reading cache!");
                 readObjectList();
                 ((DLMSCache) getDeviceCache()).saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
             } else {
-                getLogger().info("Cache does not exist, using hardcoded copy of object list");
+                getLogger().fine("Cache does not exist, using hardcoded copy of object list");
                 UniversalObject[] objectList = new AM540ObjectList().getObjectList();
                 ((DLMSCache) getDeviceCache()).saveObjectList(objectList);
             }
         } else {
-            getLogger().info("Cache exist, will not be read!");
+            getLogger().fine("Cache exist, will not be read!");
         }
         getDlmsSession().getMeterConfig().setInstantiatedObjectList(((DLMSCache) getDeviceCache()).getObjectList());
     }
@@ -184,7 +184,9 @@ public class AM540 extends AbstractDlmsProtocol {
 
             //Release and retry the AARQ in case of ACSE exception
             if (++tries > getDlmsSessionProperties().getAARQRetries()) {
-                getLogger().severe("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries.");
+                if (getLogger().isLoggable(Level.SEVERE)) {
+                    getLogger().severe("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries.");
+                }
                 throw new CommunicationException(MessageSeeds.NUMBER_OF_RETRIES_REACHED, tries);
             } else {
                 if (exception instanceof CommunicationException) {
