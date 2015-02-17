@@ -16,11 +16,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
     columns: {
         items: [
             {
-                header: Uni.I18n.translate('registerMappings.name', 'MDC', 'Name'),
-                dataIndex: 'name',
-                flex: 3
-            },
-            {
                 xtype: 'reading-type-column',
                 dataIndex: 'readingType',
                 flex: 3
