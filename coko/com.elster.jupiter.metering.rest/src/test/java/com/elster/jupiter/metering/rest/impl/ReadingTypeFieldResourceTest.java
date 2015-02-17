@@ -46,13 +46,25 @@ public class ReadingTypeFieldResourceTest extends MeteringApplicationJerseyTest 
     }
 
     @Test
+    public void testGetReadingTypesIsSortedByFullAliasName() throws Exception {
+        List<ReadingType> collect = new ArrayList<>();
+        IntStream.range(0, 31).forEach(i -> collect.add(mockReadingType("power " + i, TimeAttribute.values()[i], "alias", 0, ReadingTypeUnit.AMPEREHOUR, MetricMultiplier.KILO)));
+
+        when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
+        Response response = target("/fields/readingtypes").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        assertThat(jsonModel.<List>get("$.readingTypes[*].fullAliasName")).isSorted();
+    }
+
+    @Test
     public void testGetReadingTypesFilteredWithoutMRid() throws Exception {
         List<ReadingType> collect = new ArrayList<>();
         IntStream.range(0, 31).forEach(i -> collect.add(mockReadingType("power " + i)));
 
         when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
         Response response = target("/fields/readingtypes")
-            .queryParam("filter", ExtjsFilter.filter().property("tou", "0").create()).request().get();
+            .queryParam("filter", ExtjsFilter.filter().property("tou", 0L).create()).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(31);
@@ -99,9 +111,120 @@ public class ReadingTypeFieldResourceTest extends MeteringApplicationJerseyTest 
         assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(10);
     }
 
+    @Test
+    public void testFilteredByName() throws Exception {
+        List<ReadingType> collect = new ArrayList<>();
+        IntStream.range(0, 31).forEach(i -> collect.add(mockReadingType("power " + i, TimeAttribute.values()[i], (i%2==0?"Bulk A+ ":"Bulk A-")+i, 0, ReadingTypeUnit.AMPEREHOUR, MetricMultiplier.KILO)));
+
+        when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
+        Response response = target("/fields/readingtypes")
+            .queryParam("filter", ExtjsFilter.filter().property("name", "A+").create()).request().get();
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<List>get("$.readingTypes[*].aliasName")).hasSize(16);
+    }
+
+    @Test
+    public void testFilteredByTou() throws Exception {
+        List<ReadingType> collect = new ArrayList<>();
+        IntStream.range(0, 31).forEach(i -> collect.add(mockReadingTypeWithTou("power " + i, i)));
+
+        when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
+        Response response = target("/fields/readingtypes")
+            .queryParam("filter", ExtjsFilter.filter().property("tou", 21L).create()).request().get();
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<List>get("$.readingTypes[*].tou")).containsOnly(21).hasSize(1);
+    }
+
+    @Test
+    public void testFilteredByUnitOfMeasure() throws Exception {
+        List<ReadingType> collect = new ArrayList<>();
+
+        IntStream.range(0, 31).forEach(i -> collect.add(mockReadingTypeWithUnitOfMeasure("power " + i, ReadingTypeUnit.values()[i])));
+        when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
+        Response response = target("/fields/readingtypes")
+            .queryParam("filter", ExtjsFilter.filter().property("unitOfMeasure", (long) ReadingTypeUnit.AMPERE.getId()).create()).request().get();
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(1);
+    }
+
+    @Test
+    public void testFilteredByTime() throws Exception {
+        List<ReadingType> collect = new ArrayList<>();
+
+        IntStream.range(0, 31).forEach(i -> collect.add(mockReadingTypeWithTime("power " + i, i < 10 ? TimeAttribute.FIXEDBLOCK10MIN : TimeAttribute.FIXEDBLOCK15MIN)));
+        when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
+        Response response = target("/fields/readingtypes")
+            .queryParam("filter", ExtjsFilter.filter().property("time", (long) TimeAttribute.FIXEDBLOCK10MIN.getId()).create()).request().get();
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(10);
+    }
+
+    @Test
+    public void testFilteredByCombination() throws Exception {
+        List<ReadingType> collect = new ArrayList<>();
+
+        IntStream.range(0, 31).forEach(i -> collect.add(mockReadingTypeWithUnitOfMultiplier("power " + i, i < 10 ? MetricMultiplier.KILO : MetricMultiplier.GIGA)));
+        when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
+        Response response = target("/fields/readingtypes")
+            .queryParam("filter", ExtjsFilter.filter().property("time", (long) TimeAttribute.FIXEDBLOCK15MIN.getId()).property("multiplier", (long) MetricMultiplier.KILO.getId()).create()).request().get();
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(10);
+    }
+
+    @Test
+    public void testFilteredByNonExistingCombination() throws Exception {
+        List<ReadingType> collect = new ArrayList<>();
+
+        IntStream.range(0, 31).forEach(i -> collect.add(mockReadingTypeWithUnitOfMultiplier("power " + i, i < 10 ? MetricMultiplier.KILO : MetricMultiplier.GIGA)));
+        when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
+        Response response = target("/fields/readingtypes")
+            .queryParam("filter", ExtjsFilter.filter().
+                    property("time", (long) TimeAttribute.FIXEDBLOCK15MIN.getId()).
+                    property("multiplier", (long) MetricMultiplier.KILO.getId()).
+                    property("tou", 666L).create()).
+                    request().get();
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<List>get("$.readingTypes")).isEmpty();
+    }
+
+    @Test
+    public void testFilteredByMultiplier() throws Exception {
+        List<ReadingType> collect = new ArrayList<>();
+
+        IntStream.range(0, 31).forEach(i -> collect.add(mockReadingTypeWithUnitOfMultiplier("power " + i, i < 10 ? MetricMultiplier.KILO : MetricMultiplier.GIGA)));
+        when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
+        Response response = target("/fields/readingtypes")
+            .queryParam("filter", ExtjsFilter.filter().property("multiplier", (long) MetricMultiplier.KILO.getId()).create()).request().get();
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(10);
+    }
+
+
     private ReadingType mockReadingType(String name) {
+        return mockReadingType(name, TimeAttribute.FIXEDBLOCK15MIN, "alias", 0, ReadingTypeUnit.AMPEREHOUR, MetricMultiplier.KILO);
+    }
+
+    private ReadingType mockReadingTypeWithTou(String name, int tou) {
+        return mockReadingType(name, TimeAttribute.FIXEDBLOCK15MIN, "alias", tou, ReadingTypeUnit.AMPEREHOUR, MetricMultiplier.KILO);
+    }
+
+    private ReadingType mockReadingTypeWithTime(String name, TimeAttribute time) {
+        return mockReadingType(name, time, "alias", 0, ReadingTypeUnit.AMPEREHOUR, MetricMultiplier.KILO);
+    }
+
+    private ReadingType mockReadingTypeWithUnitOfMeasure(String name, ReadingTypeUnit unit) {
+        return mockReadingType(name, TimeAttribute.FIXEDBLOCK15MIN, "alias", 0, unit, MetricMultiplier.KILO);
+    }
+
+    private ReadingType mockReadingTypeWithUnitOfMultiplier(String name, MetricMultiplier multiplier) {
+        return mockReadingType(name, TimeAttribute.FIXEDBLOCK15MIN, "alias", 0, ReadingTypeUnit.AMPEREHOUR, multiplier);
+    }
+
+    private ReadingType mockReadingType(String name, TimeAttribute timeAttribute, String aliasName, int tou, ReadingTypeUnit unit, MetricMultiplier multiplier) {
         ReadingType readingType = mock(ReadingType.class);
+        Phase phasea = Phase.PHASEA;
         when(readingType.getName()).thenReturn(name);
+        when(readingType.getAliasName()).thenReturn(aliasName);
         when(readingType.getMRID()).thenReturn("mrid+"+name);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
         when(readingType.getAggregate()).thenReturn(Aggregate.AVERAGE);
@@ -115,12 +238,13 @@ public class ReadingTypeFieldResourceTest extends MeteringApplicationJerseyTest 
         when(readingType.getFlowDirection()).thenReturn(FlowDirection.FORWARD);
         when(readingType.getInterharmonic()).thenReturn(RationalNumber.NOTAPPLICABLE);
         when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ALARM);
-        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.FIXEDBLOCK15MIN);
-        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
-        when(readingType.getPhases()).thenReturn(Phase.PHASEA);
-        when(readingType.getTou()).thenReturn(0);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPEREHOUR);
+        when(readingType.getMeasuringPeriod()).thenReturn(timeAttribute);
+        when(readingType.getMultiplier()).thenReturn(multiplier);
+        when(readingType.getPhases()).thenReturn(phasea);
+        when(readingType.getTou()).thenReturn(tou);
+        when(readingType.getUnit()).thenReturn(unit);
         when(readingType.getVersion()).thenReturn(1L);
+        when(readingType.getFullAliasName()).thenReturn("["+timeAttribute+"]"+aliasName+" "+unit+" "+phasea+" "+tou);
         return readingType;
     }
 }

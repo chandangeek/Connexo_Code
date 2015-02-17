@@ -11,7 +11,6 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -78,36 +77,34 @@ public class ReadingTypeFieldResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getReadingTypes(@BeanParam JsonQueryFilter queryFilter, @BeanParam QueryParameters queryParameters) {
         List<ReadingType> readingTypes = meteringService.getAvailableReadingTypes();
-        Predicate<ReadingType> filter = getReadingTypeFilterPredicate(queryFilter);
-        readingTypes = readingTypes.stream().filter(filter::test).collect(Collectors.<ReadingType>toList());
+        final Predicate<ReadingType> filter = getReadingTypeFilterPredicate(queryFilter);
+        readingTypes = readingTypes.stream().filter(filter).sorted((c1,c2)->(c1.getFullAliasName().compareToIgnoreCase(c2.getFullAliasName()))).collect(Collectors.<ReadingType>toList());
         List<ReadingTypeInfo> pagedReadingTypes = ListPager.of(readingTypes).from(queryParameters).find().stream().map(ReadingTypeInfo::new).collect(toList());
         return Response.ok(PagedInfoList.asJson("readingTypes", pagedReadingTypes, queryParameters)).build();
     }
 
     private Predicate<ReadingType> getReadingTypeFilterPredicate(JsonQueryFilter queryFilter) {
+        Predicate<ReadingType> filter = rt->true; // unfiltered
         if (queryFilter.hasFilters()) {
-            Optional<String> mRID = queryFilter.hasProperty("mRID") ? Optional.of(queryFilter.getString("mRID")) : Optional.empty();
-            String name = queryFilter.hasProperty("name") ? queryFilter.getString("name") : "";
-            Integer tou = queryFilter.getInteger("tou");
-            Long unitOfMeasure = queryFilter.getLong("unitOfMeasure");
-            Integer time = queryFilter.getInteger("time");
-            Integer multiplier = queryFilter.getInteger("multiplier");
-            return rt -> (name.isEmpty() || readingTypeAssembledNameFilter(name, rt)) &&
-                    (tou == null || rt.getTou() == tou) &&
-                    (!mRID.isPresent() || rt.getMRID().contains(mRID.get())) &&
-                    (unitOfMeasure == null || rt.getUnit().getId() == unitOfMeasure) &&
-                    (time == null || rt.getMeasuringPeriod().getId() == time) &&
-                    (multiplier == null || rt.getMultiplier().getMultiplier() == multiplier);
+            if (queryFilter.hasProperty("mRID")) {
+                filter=filter.and(rt->rt.getMRID().toLowerCase().contains(queryFilter.getString("mRID").toLowerCase()));
+            }
+            if (queryFilter.hasProperty("name")) {
+                filter=filter.and(rt -> rt.getFullAliasName().toLowerCase().contains(queryFilter.getString("name").toLowerCase()));
+            }
+            if (queryFilter.hasProperty("tou")) {
+                filter=filter.and(rt->rt.getTou() == queryFilter.getInteger("tou"));
+            }
+            if (queryFilter.hasProperty("unitOfMeasure")) {
+                filter=filter.and(rt->rt.getUnit().getId() == queryFilter.getLong("unitOfMeasure"));
+            }
+            if (queryFilter.hasProperty("time")) {
+                filter=filter.and(rt->rt.getMeasuringPeriod().getId() == queryFilter.getInteger("time"));
+            }
+            if (queryFilter.hasProperty("multiplier")) {
+                filter=filter.and(rt->rt.getMultiplier().getMultiplier()==queryFilter.getInteger("multiplier"));
+            }
         }
-        return e -> true;
-    }
-
-    private boolean readingTypeAssembledNameFilter(String value, ReadingType rt) {
-        StringBuilder rtAssembledName = new StringBuilder();
-        rtAssembledName.append(rt.getName()).append(" ");
-        rtAssembledName.append(rt.getAliasName()).append(" ");
-        rtAssembledName.append(rt.getDescription()).append(" ");
-        rtAssembledName.append(rt.getMultiplier().getSymbol()).append(rt.getUnit().getSymbol());
-        return rtAssembledName.toString().toLowerCase().contains(value.toLowerCase());
+        return filter;
     }
 }
