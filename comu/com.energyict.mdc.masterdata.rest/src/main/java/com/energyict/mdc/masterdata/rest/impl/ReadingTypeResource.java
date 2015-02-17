@@ -27,14 +27,12 @@ public class ReadingTypeResource {
     private final MeteringService meteringService;
     private final MasterDataService masterDataService;
     private final Thesaurus thesaurus;
-    private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
 
     @Inject
-    public ReadingTypeResource(MeteringService meteringService, MasterDataService masterDataService, Thesaurus thesaurus, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
+    public ReadingTypeResource(MeteringService meteringService, MasterDataService masterDataService, Thesaurus thesaurus) {
         this.meteringService = meteringService;
         this.masterDataService = masterDataService;
         this.thesaurus = thesaurus;
-        this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
     }
 
     @GET
@@ -64,7 +62,7 @@ public class ReadingTypeResource {
 
     private Predicate<ReadingType> getReadingTypeFilterPredicate(String dbSearchText) {
         String regex = ".*".concat(escapeSpecialCharacters(dbSearchText).replace(" ", ".*").toLowerCase().concat(".*"));
-        return rt -> mdcReadingTypeUtilService.getFullAlias(rt).toLowerCase().matches(regex);
+        return rt -> rt.getFullAliasName().toLowerCase().matches(regex);
     }
 
     private String escapeSpecialCharacters(String text){
