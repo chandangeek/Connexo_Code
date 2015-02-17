@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.energyict.mdc.common.rest.InfiniteScrollingInfoList;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.security.Privileges;
@@ -68,14 +69,14 @@ public class RegisterGroupResource {
     @Path("/{id}/registertypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
-    public PagedInfoList getRegisterTypesOfRegisterGroup(@PathParam("id") long id, @BeanParam QueryParameters queryParameters) {
+    public Response getRegisterTypesOfRegisterGroup(@PathParam("id") long id, @BeanParam QueryParameters queryParameters) {
         RegisterGroupInfo registerGroupInfo = new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
         List<RegisterTypeInfo> registerTypeInfos = registerGroupInfo.registerTypes;
         int totalCount = registerGroupInfo.registerTypes.size();
         if (queryParameters.getStart() != null && queryParameters.getStart() < registerGroupInfo.registerTypes.size()) {
             registerTypeInfos = registerTypeInfos.subList(queryParameters.getStart(), registerTypeInfos.size());
         }
-        return PagedInfoList.asJson("registerTypes", registerTypeInfos, queryParameters, totalCount);
+        return Response.ok(InfiniteScrollingInfoList.asJson("registerTypes", registerTypeInfos, queryParameters, totalCount)).build();
     }
 
     @DELETE
