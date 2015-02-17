@@ -25,41 +25,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
             timeUnitsStore = me.getStore('TimeUnits'),
             widget,
             router = me.getController('Uni.controller.history.Router'),
-            tabWidget,
-            deffered = function () {
-                var self = this;
-                self.param = null;
-                self.callback = null;
-                self.resolve = function (arg) {
-                    arg && self.callback.apply(self, self.param)
-                };
-                self.setCallback = function (fn) {
-                    self.callback = fn;
-                    self.resolve(self.param)
-                };
-                self.setParam = function () {
-                    self.param = arguments;
-                    self.resolve(self.callback)
-                }
-            },
-            defer = new deffered(),
-            loadProfileDefer = new deffered();
+            tabWidget;
 
-        if (loadProfile) {
-            me.setLoadProfile(loadProfile);
-            loadProfileDefer.setParam(loadProfile);
-        } else {
-            loadProfileOfDeviceModel.getProxy().setUrl(mRID);
-            loadProfileOfDeviceModel.load(loadProfileId, {
-                success: function (record) {
-                    me.setLoadProfile(record);
-                    loadProfileDefer.setParam(record);
-                }
-            });
-        }
-
-        showPage = function () {
-            defer.setCallback(function (device) {
+        timeUnitsStore.load();
+        deviceModel.load(mRID, {
+            success: function (device) {
+                me.getApplication().fireEvent('loadDevice', device);
                 tabWidget = Ext.widget('tabbedDeviceLoadProfilesView', {
                     device: device,
                     loadProfileId: loadProfileId,
@@ -76,41 +47,43 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
                 tabWidget.down('#deviceLoadProfileDataSideFilter').setVisible(false);
                 tabWidget.down('#loadProfile-specifications').add(widget);
                 tabController.showTab(0);
-                widget.setLoading(true);
-                updateView = function (record) {
+
+                var updateView = function (record) {
                     if (!widget.isDestroyed) {
                         me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
                         widget.down('#deviceLoadProfilesPreviewForm').loadRecord(record);
                         tabWidget.down('#loadProfileTabPanel').setTitle(record.get('name'));
                         widget.down('deviceLoadProfilesActionMenu').record = record;
-                        widget.setLoading(false);
                         Ext.resumeLayouts(true);
                     }
                 };
-                loadProfileDefer.setCallback(updateView);
-            });
-        };
 
-        deviceModel.load(mRID, {
-            success: function (record) {
-                me.getApplication().fireEvent('loadDevice', record);
-                defer.setParam(record)
+                tabWidget.setLoading(true);
+                if (loadProfile) {
+                    me.setLoadProfile(loadProfile);
+                    updateView(loadProfile);
+                    tabWidget.setLoading(false);
+                } else {
+                    loadProfileOfDeviceModel.getProxy().setUrl(mRID);
+                    loadProfileOfDeviceModel.load(loadProfileId, {
+                        success: function (record) {
+                            me.setLoadProfile(record);
+                            updateView(record);
+                        },
+                        callback: function () {
+                            tabWidget.setLoading(false);
+                        }
+                    });
+                }
             }
         });
-
-        if (timeUnitsStore.getCount() > 0) {
-            showPage();
-        } else {
-            timeUnitsStore.on('load', showPage, me, {single: true});
-            timeUnitsStore.load();
-        }
     },
 
     getLoadProfile: function () {
-        return this.loadProfile
+        return this.loadProfile;
     },
 
     setLoadProfile: function (loadProfile) {
-        this.loadProfile = loadProfile
+        this.loadProfile = loadProfile;
     }
 });
