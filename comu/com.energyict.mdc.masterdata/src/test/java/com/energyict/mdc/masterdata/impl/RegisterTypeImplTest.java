@@ -3,6 +3,7 @@ package com.energyict.mdc.masterdata.impl;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
@@ -226,6 +227,27 @@ public class RegisterTypeImplTest {
             Assertions.assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_LOAD_PROFILE_TYPE);
             throw e;
         }
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.REGISTER_TYPE_SHOULD_NOT_HAVE_INTERVAL_READINGTYPE + "}")
+    public void registerTypeShouldNotHaveReadingTypeWithIntervalTest() {
+        String code = ReadingTypeCodeBuilder
+                .of(Commodity.ELECTRICITY_SECONDARY_METERED)
+                .period(MacroPeriod.DAILY)
+                .accumulate(Accumulation.BULKQUANTITY)
+                .flow(FlowDirection.FORWARD)
+                .measure(MeasurementKind.ENERGY)
+                .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
+        ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
+        ObisCode obisCode = ObisCode.fromString("1.0.1.8.0.255");
+
+
+        // Create the RegisterType
+        RegisterType registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType, obisCode);
+        registerType.setDescription("For testing purposes only");
+        registerType.save();
     }
 
     private void setupProductSpecsInExistingTransaction() {

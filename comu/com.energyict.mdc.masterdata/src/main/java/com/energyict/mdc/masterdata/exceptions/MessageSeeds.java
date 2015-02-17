@@ -50,6 +50,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     INTERVAL_MUST_BE_STRICTLY_POSITIVE(1508, "loadProfileType.interval.notsupported.negative", "The value of the interval of a load profile type must be a strictly positive number and not {0}", SEVERE),
     DUPLICATE_REGISTER_TYPE_IN_LOAD_PROFILE_TYPE(1509, "loadProfileType.registerType.duplicate", "The register type {0} was already added to the load profile type {1}", SEVERE),
     AT_LEAST_ONE_REGISTER_TYPE_REQUIRED(1510, Keys.AT_LEAST_ONE_REGISTER_TYPE_REQUIRED, "You should select at least one register type", SEVERE),
+    REGISTER_TYPE_SHOULD_NOT_HAVE_INTERVAL_READINGTYPE(1511, Keys.REGISTER_TYPE_SHOULD_NOT_HAVE_INTERVAL_READINGTYPE, "A register type should have a readingtype without an interval", SEVERE),
     ;
 
     private final int number;
@@ -106,6 +107,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String REGISTER_TYPES_AND_LOAD_PROFILE_TYPE_INTERVAL_NOT_SUPPORTED = "registerType.inLoadProfileType.unsupportedInterval";
         public static final String LOAD_PROFILE_TYPE_INTERVAL_IS_REQUIRED = "loadProfileType.interval.required";
         public static final String INTERVAL_IN_YEARS_MUST_BE_ONE = "loadProfileType.interval.notsupported.multipleyears";
+        public static final String REGISTER_TYPE_SHOULD_NOT_HAVE_INTERVAL_READINGTYPE = "registertype.readingtype.should.not.have.interval";
     }
 
 }

@@ -1,5 +1,6 @@
 package com.energyict.mdc.masterdata.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
@@ -8,6 +9,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@ReadingTypeInterval(groups = { Save.Create.class, Save.Update.class }, measurementType = MeasurementTypeImpl.REGISTER_DISCRIMINATOR, message = "{"+ MessageSeeds.Keys.REGISTER_TYPE_SHOULD_NOT_HAVE_INTERVAL_READINGTYPE +"}")
 public class RegisterTypeImpl extends MeasurementTypeImpl implements RegisterType {
 
     @Inject
