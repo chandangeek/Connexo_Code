@@ -249,13 +249,13 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             series.push(seriesObject);
             Ext.suspendLayouts();
             container.down('#graphContainer').show();
-            container.down('#emptyGraphMessage').hide();
+            container.down('#ctr-graph-no-data').hide();
             container.drawGraph(yAxis, series, intervalLengthInMs, channelName, unitOfMeasure, zoomLevels);
             Ext.resumeLayouts(true);
         } else {
             Ext.suspendLayouts();
             container.down('#graphContainer').hide();
-            container.down('#emptyGraphMessage').show();
+            container.down('#ctr-graph-no-data').show();
             Ext.resumeLayouts(true);
         }
         me.getPage().doLayout();

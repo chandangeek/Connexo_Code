@@ -47,7 +47,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         {ref: 'typeOfGatewayCombo', selector: '#deviceConfigurationEditForm #typeOfGatewayCombo'},
         {ref: 'typeOfGatewayComboContainer', selector: '#deviceConfigurationEditForm #typeOfGatewayComboContainer'},
         {ref: 'editLogbookConfiguration', selector: 'edit-logbook-configuration'},
-        {ref: 'activateDeviceconfigurationMenuItem', selector: '#activateDeviceconfigurationMenuItem'}
+        {ref: 'previewActionMenu', selector: 'deviceConfigurationPreview #device-configuration-action-menu'}
+
+
     ],
 
     init: function () {
@@ -221,17 +223,35 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         if (activeChange != 'notChanged') {
             viewport.setLoading(true);
 
+            var recordId = record.get('id');
+            var deviceTypeId = router.arguments['deviceTypeId'];
             Ext.Ajax.request({
-                url: '/api/dtc/devicetypes/' + router.arguments['deviceTypeId'] + '/deviceconfigurations/' + record.get('id') + '/status',
+                url: '/api/dtc/devicetypes/' + deviceTypeId + '/deviceconfigurations/' + recordId + '/status',
                 method: 'PUT',
                 jsonData: {active: activeChange},
                 success: function () {
-                    record.set('active', activeChange);
-                    record.commit();
+                    var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
+                    model.getProxy().setExtraParam('deviceType', deviceTypeId);
 
-                    me.getApplication().fireEvent('acknowledge', activeChange ? Uni.I18n.translate('deviceconfiguration.activated', 'MDC', 'Device configuration activated') :
-                        Uni.I18n.translate('deviceconfiguration.deactivated', 'MDC', 'Device configuration deactivated'));
+                    model.load(recordId, {
+                        callback: function (model) {
+                            if (grid) {
+                                record.set('active', activeChange);
+                                record.commit();
+                                gridView.refresh();
+                                me.getPreviewActionMenu().record = model;
+                            } else {
+                                menu.record = model;
+                            }
+
+                            form.loadRecord(model);
+                            me.getApplication().fireEvent('acknowledge', activeChange ? Uni.I18n.translate('deviceconfiguration.activated', 'MDC', 'Device configuration activated') :
+                                Uni.I18n.translate('deviceconfiguration.deactivated', 'MDC', 'Device configuration deactivated'));
+
+                        }
+                    });
                 },
+
                 callback: function () {
                     viewport.setLoading(false);
                 }

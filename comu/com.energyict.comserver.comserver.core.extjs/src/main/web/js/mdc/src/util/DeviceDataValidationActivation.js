@@ -21,7 +21,11 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             method: 'GET',
             timeout: 60000,
             callback: function () {
-                view.down('#dataValidationStatusPanel').setLoading(false);
+                var dataValidationStatusPanel = view.down('#dataValidationStatusPanel');
+
+                if (dataValidationStatusPanel) {
+                    dataValidationStatusPanel.setLoading(false);
+                }
             },
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
