@@ -400,11 +400,35 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                         staticDevices.getProxy().setUrl(deviceGroupId);
                         staticDevices.load(function (existingRecords) {
                             var staticGrid = me.getStaticGrid();
-
                             if (staticGrid) {
+                                var previousArrayIds = [],
+                                    modifyArray = function (arr) {
+                                        var arrayWithIds = [];
+                                        Ext.Array.each(arr, function (item) {
+                                            arrayWithIds.push(item.get('id'));
+                                        });
+                                        return arrayWithIds;
+                                    };
                                 store = staticGrid.getStore();
+                                staticGrid.un('selectionchange', staticGrid.onSelectionChange);
+                                staticGrid.getUncheckAllButton().on('click', function() {
+                                    staticDevices.loadData([], false);
+                                    staticGrid.getSelectionCounter().setText(staticGrid.counterTextFn(staticDevices.getCount()));
+                                });
+                                staticGrid.on('selectionchange', function(selModel, selectedRecords) {
+                                    var idsOfUpdatedRecords = (previousArrayIds.length < modifyArray(selectedRecords).length) ? _.difference(modifyArray(selectedRecords), previousArrayIds) :
+                                            _.difference(previousArrayIds, modifyArray(selectedRecords)),
+                                        updatedRec;
+                                    if (idsOfUpdatedRecords.length === 1) {
+                                        updatedRec = store.getById(idsOfUpdatedRecords[0]);
+                                        selModel.isSelected(updatedRec) ? staticDevices.add(updatedRec) : staticDevices.remove(updatedRec);
+                                    }
+                                    staticGrid.getSelectionCounter().setText(staticGrid.counterTextFn(staticDevices.getCount()));
+                                    staticGrid.getUncheckAllButton().setDisabled(selModel.getSelection().length === 0);
+                                    previousArrayIds = modifyArray(selectedRecords);
+                                });
                                 store.setFilterModel(router.filter);
-                                // todo: bad implementation of selecting existing devices, should be fixed in scope of corresponding Jira ticket
+
                                 store.on('prefetch', function (store, records) {
                                     if (!staticGrid.isDestroyed) {
                                         staticGrid.getSelectionModel().select(Ext.Array.filter(existingRecords, function (existingItem) {
@@ -441,7 +465,6 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             nameField = me.getNameTextField(),
             nameValue = nameField.getValue(),
             record = me.deviceGroup,
-            numberOfDevices,
             selection;
 
         if (!me.dynamic) {
@@ -471,10 +494,9 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 if (me.getStaticGrid().isAllSelected()) {
                     devicesList = null;
                 } else {
-                    numberOfDevices = selection.length;
-                    for (var i = 0; i < numberOfDevices; i++) {
-                        devicesList.push(selection[i].data.id);
-                    }
+                    Ext.Array.each(me.getStore('Mdc.store.DevicesOfDeviceGroupWithoutPaging').getRange(), function (item) {
+                        devicesList.push(item.get('id'));
+                    });
                 }
                 record.set('devices', devicesList);
             }
