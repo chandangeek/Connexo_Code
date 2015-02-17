@@ -90,13 +90,13 @@ public class DataVaultServiceImpl implements DataVaultService, InstallService {
 
     @Override
     public String encrypt(byte[] plainText) {
-        DataVault dataVault = dataModel.getInstance(DataVault.class);
+        DataVault dataVault = dataModel.getInstance(DataVaultProvider.class).get();
         return dataVault.encrypt(plainText);
     }
 
     @Override
     public byte[] decrypt(String encrypted) {
-        DataVault dataVault = dataModel.getInstance(DataVault.class);
+        DataVault dataVault = dataModel.getInstance(DataVaultProvider.class).get();
         return dataVault.decrypt(encrypted);
     }
 }
