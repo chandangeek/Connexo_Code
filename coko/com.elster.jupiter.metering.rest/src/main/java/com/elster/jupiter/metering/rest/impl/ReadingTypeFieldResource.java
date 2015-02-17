@@ -94,7 +94,7 @@ public class ReadingTypeFieldResource {
             Integer multiplier = queryFilter.getInteger("multiplier");
             return rt -> (name.isEmpty() || readingTypeAssembledNameFilter(name, rt)) &&
                     (tou == null || rt.getTou() == tou) &&
-                    (mRID.isPresent() || rt.getMRID().contains(mRID.get())) &&
+                    (!mRID.isPresent() || rt.getMRID().contains(mRID.get())) &&
                     (unitOfMeasure == null || rt.getUnit().getId() == unitOfMeasure) &&
                     (time == null || rt.getMeasuringPeriod().getId() == time) &&
                     (multiplier == null || rt.getMultiplier().getMultiplier() == multiplier);

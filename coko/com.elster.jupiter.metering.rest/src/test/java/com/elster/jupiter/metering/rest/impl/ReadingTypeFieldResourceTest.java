@@ -11,6 +11,7 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.metering.ReadingType;
 import com.jayway.jsonpath.JsonModel;
 import java.io.ByteArrayInputStream;
@@ -45,6 +46,34 @@ public class ReadingTypeFieldResourceTest extends MeteringApplicationJerseyTest 
     }
 
     @Test
+    public void testGetReadingTypesFilteredWithoutMRid() throws Exception {
+        List<ReadingType> collect = new ArrayList<>();
+        IntStream.range(0, 31).forEach(i -> collect.add(mockReadingType("power " + i)));
+
+        when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
+        Response response = target("/fields/readingtypes")
+            .queryParam("filter", ExtjsFilter.filter().property("tou", "0").create()).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(31);
+        assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(31);
+    }
+
+    @Test
+    public void testGetReadingTypesFilteredWithMRid() throws Exception {
+        List<ReadingType> collect = new ArrayList<>();
+        IntStream.range(0, 31).forEach(i -> collect.add(mockReadingType("power " + i)));
+
+        when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
+        Response response = target("/fields/readingtypes")
+            .queryParam("filter", ExtjsFilter.filter().property("mRID", "30").create()).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(1);
+    }
+
+    @Test
     public void testGetReadingTypesPageOne() throws Exception {
         List<ReadingType> collect = new ArrayList<>();
         IntStream.range(0, 30).forEach(i -> collect.add(mockReadingType("power " + i)));
@@ -73,7 +102,7 @@ public class ReadingTypeFieldResourceTest extends MeteringApplicationJerseyTest 
     private ReadingType mockReadingType(String name) {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getName()).thenReturn(name);
-        when(readingType.getMRID()).thenReturn("mrid"+name.hashCode());
+        when(readingType.getMRID()).thenReturn("mrid+"+name);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
         when(readingType.getAggregate()).thenReturn(Aggregate.AVERAGE);
         when(readingType.getAccumulation()).thenReturn(Accumulation.CUMULATIVE);
