@@ -2,7 +2,6 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.tests.rules.Expected;
@@ -48,7 +47,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     private static final String DEVICE_CONFIGURATION_NAME = RegisterSpecImplTest.class.getName() + "Config";
     private static final String REGISTER_TYPE_NAME = RegisterSpecImplTest.class.getSimpleName() + "RegisterType";
 
-    private final ObisCode registerTypeObisCode = ObisCode.fromString("1.0.1.8.0.255");
+    private final ObisCode registerTypeObisCode = ObisCode.fromString("1.0.1.6.0.255");
     private final ObisCode overruledRegisterSpecObisCode = ObisCode.fromString("1.0.1.8.2.255");
     private final int numberOfDigits = 9;
     private final int numberOfFractionDigits = 3;
@@ -67,9 +66,9 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     private void initializeDeviceTypeWithRegisterSpecAndDeviceConfiguration() {
 
-        String code2 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
+        String code2 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.DELTADELTA).code();
         this.readingType2 = inMemoryPersistence.getMeteringService().getReadingType(code2).get();
-        String code1 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
+        String code1 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.DELTADELTA).code();
         this.readingType1 = inMemoryPersistence.getMeteringService().getReadingType(code1).get();
         Optional<RegisterType> registerTypeByObisCodeAndUnitAndTimeOfUse =
                 inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType1);
@@ -400,8 +399,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void updateWithSameObisCodeTest() {
         NumericalRegisterSpec registerSpec1 = createNumericalRegisterSpecWithDefaults();
         NumericalRegisterSpec registerSpec2;
-        RegisterType otherType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType2, ObisCode.fromString("1.2.3.1.5.6"));
-        otherType.save();
+        RegisterType otherType = getRegisterType(readingType2);
         this.deviceType.addRegisterType(otherType);
         this.deviceType.save();
         NumericalRegisterSpec.Builder registerSpecBuilder = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(otherType);
@@ -413,12 +411,26 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         registerSpecUpdater.update();
     }
 
+    private RegisterType getRegisterType(ReadingType readingType) {
+        Optional<RegisterType> existingRegisterType = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType);
+        RegisterType otherType;
+        ObisCode otherObisCode = ObisCode.fromString("1.2.3.1.5.6");
+        if(existingRegisterType.isPresent()){
+            otherType = existingRegisterType.get();
+            otherType.setObisCode(otherObisCode);
+            otherType.save();
+        } else {
+            otherType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType, otherObisCode);
+        }
+        otherType.save();
+        return otherType;
+    }
+
     @Test(expected = RegisterTypeIsNotConfiguredOnDeviceTypeException.class)
     @Transactional
     public void addSpecForMappingWhichIsNotOnDeviceTypeTest() {
         RegisterSpec registerSpec;
-        RegisterType otherType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType2, ObisCode.fromString("32.12.32.5.12.32"));
-        otherType.save();
+        RegisterType otherType = getRegisterType(readingType2);
         NumericalRegisterSpec.Builder registerSpecBuilder = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(otherType);
         setRegisterSpecDefaultFields(registerSpecBuilder);
         registerSpec = registerSpecBuilder.add();
@@ -539,8 +551,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).setMultiplier(BigDecimal.ONE).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
         getReloadedDeviceConfiguration().save();
         getReloadedDeviceConfiguration().activate();
-        RegisterType registerType2 = inMemoryPersistence.getMasterDataService().newRegisterType(readingType2, registerTypeObisCode);
-        registerType2.save();
+        RegisterType registerType2 = getRegisterType(readingType2);
 
         registerSpec.setRegisterType(registerType2); // updated
         registerSpec.save();

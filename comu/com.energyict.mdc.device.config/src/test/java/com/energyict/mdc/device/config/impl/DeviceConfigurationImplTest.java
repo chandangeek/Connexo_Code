@@ -278,7 +278,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     }
 
     private RegisterType createDefaultRegisterType() {
-        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
+        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.DELTADELTA).code();
         Unit unit = Unit.get("kWh");
         ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
         ObisCode obisCode = ObisCode.fromString("1.0.1.8.0.255");
