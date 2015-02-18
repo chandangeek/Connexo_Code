@@ -43,7 +43,10 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryMain',
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('deviceconnectionhistory.empty.title', 'MDC', 'No history found')
+                            title: Uni.I18n.translate('deviceconnectionhistory.empty.title', 'MDC', 'No history found'),
+                            reasons: [
+                                Uni.I18n.translate('deviceconnectionhistory.empty.list.item2', 'MDC', 'The connection method has never been used on the device')
+                            ]
                         },
                         previewComponent: {
                             xtype: 'container',
