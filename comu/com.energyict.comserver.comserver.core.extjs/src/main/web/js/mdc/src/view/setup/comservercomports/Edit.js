@@ -34,6 +34,7 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
                 },
                 {
                     xtype: 'textfield',
+                    itemId: 'txt-comport-name',
                     fieldLabel: 'Name',
                     required: true,
                     allowBlank: false,
