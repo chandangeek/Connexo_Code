@@ -45,16 +45,10 @@ public class DataExportTaskInfo {
 
 
     public DataExportTaskInfo(ReadingTypeDataExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService) {
-        id = dataExportTask.getId();
-        name = dataExportTask.getName();
-
-        deviceGroup = new MeterGroupInfo(dataExportTask.getEndDeviceGroup());
+        doPopulate(dataExportTask, thesaurus, timeService);
         for (ReadingType readingType : dataExportTask.getReadingTypes()) {
             readingTypes.add(new ReadingTypeInfo(readingType));
         }
-
-        active = dataExportTask.isActive();
-
         if (Never.NEVER.equals(dataExportTask.getScheduleExpression())) {
             schedule = null;
         } else {
@@ -65,7 +59,21 @@ public class DataExportTaskInfo {
                 schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
             }
         }
+        properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(dataExportTask.getPropertySpecs(), dataExportTask.getProperties());
+        lastExportOccurence = dataExportTask.getLastOccurrence().map(oc -> new DataExportTaskHistoryInfo(oc, thesaurus, timeService)).orElse(null);
 
+    }
+
+    public void populate(ReadingTypeDataExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService) {
+        doPopulate(dataExportTask, thesaurus, timeService);
+    }
+
+    private void doPopulate(ReadingTypeDataExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService) {
+        id = dataExportTask.getId();
+        name = dataExportTask.getName();
+
+        deviceGroup = new MeterGroupInfo(dataExportTask.getEndDeviceGroup());
+        active = dataExportTask.isActive();
         exportperiod = new RelativePeriodInfo(dataExportTask.getExportPeriod(), thesaurus);
         exportContinuousData = dataExportTask.getStrategy().isExportContinuousData();
         exportUpdate = dataExportTask.getStrategy().isExportUpdate();
@@ -77,9 +85,6 @@ public class DataExportTaskInfo {
 
         String dataFormatter = dataExportTask.getDataFormatter();
         dataProcessor = new ProcessorInfo(dataFormatter, thesaurus.getStringBeyondComponent(dataFormatter, dataFormatter), Collections.<PropertyInfo>emptyList()) ;
-        properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(dataExportTask.getPropertySpecs(), dataExportTask.getProperties());
-
-        lastExportOccurence = dataExportTask.getLastOccurrence().map(oc -> new DataExportTaskHistoryInfo(oc, thesaurus, timeService)).orElse(null);
 
         Instant nextExecution = dataExportTask.getNextExecution();
         if (nextExecution != null) {
@@ -89,7 +94,6 @@ public class DataExportTaskInfo {
         if (lastRunOptional.isPresent()) {
             lastRun = lastRunOptional.get().toEpochMilli();
         }
-
     }
 
     public DataExportTaskInfo() {

@@ -1,7 +1,9 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.History;
 import com.elster.jupiter.time.TimeService;
 
 import java.util.ArrayList;
@@ -14,8 +16,8 @@ public class DataExportTaskHistoryInfos {
     public DataExportTaskHistoryInfos() {
     }
 
-    public DataExportTaskHistoryInfos(Iterable<? extends DataExportOccurrence> occurrences, Thesaurus thesaurus, TimeService timeService) {
-        addAll(occurrences, thesaurus, timeService);
+    public DataExportTaskHistoryInfos(ReadingTypeDataExportTask task, Iterable<? extends DataExportOccurrence> occurrences, Thesaurus thesaurus, TimeService timeService) {
+        addAll(task, occurrences, thesaurus, timeService);
     }
 
     public DataExportTaskHistoryInfo add(DataExportOccurrence occurrence, Thesaurus thesaurus, TimeService timeService) {
@@ -25,9 +27,17 @@ public class DataExportTaskHistoryInfos {
         return result;
     }
 
-    public void addAll(Iterable<? extends DataExportOccurrence> occurrences, Thesaurus thesaurus, TimeService timeService) {
+    public DataExportTaskHistoryInfo add(History<? extends ReadingTypeDataExportTask> history, DataExportOccurrence occurrence, Thesaurus thesaurus, TimeService timeService) {
+        DataExportTaskHistoryInfo result = new DataExportTaskHistoryInfo(history, occurrence, thesaurus, timeService);
+        data.add(result);
+        total++;
+        return result;
+    }
+
+    private void addAll(ReadingTypeDataExportTask task, Iterable<? extends DataExportOccurrence> occurrences, Thesaurus thesaurus, TimeService timeService) {
+        History<? extends ReadingTypeDataExportTask> history = task.getHistory();
         for (DataExportOccurrence each : occurrences) {
-            add(each, thesaurus, timeService);
+            add(history, each, thesaurus, timeService);
         }
     }
 }

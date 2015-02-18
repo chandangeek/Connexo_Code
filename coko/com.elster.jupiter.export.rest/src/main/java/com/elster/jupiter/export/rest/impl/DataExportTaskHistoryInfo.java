@@ -2,7 +2,9 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStatus;
+import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.History;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
@@ -36,6 +38,14 @@ public class DataExportTaskHistoryInfo {
     }
 
     public DataExportTaskHistoryInfo(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService) {
+        populate(dataExportOccurrence.getTask().getHistory(), dataExportOccurrence, thesaurus, timeService);
+    }
+
+    public DataExportTaskHistoryInfo(History<? extends ReadingTypeDataExportTask> history, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService) {
+        populate(history, dataExportOccurrence, thesaurus, timeService);
+    }
+
+    private void populate(History<? extends ReadingTypeDataExportTask> history, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService) {
         this.id = dataExportOccurrence.getId();
 
         this.trigger = (dataExportOccurrence.wasScheduled() ? SCHEDULED : ON_REQUEST).translate(thesaurus);
@@ -55,6 +65,9 @@ public class DataExportTaskHistoryInfo {
         this.exportPeriodFrom = interval.lowerEndpoint().toEpochMilli();
         this.exportPeriodTo = interval.upperEndpoint().toEpochMilli();
         setStatusOnDate(dataExportOccurrence, thesaurus);
+        ReadingTypeDataExportTask version = history.getVersionAt(dataExportOccurrence.getTriggerTime()).get();
+        task = new DataExportTaskInfo();
+        task.populate(version, thesaurus, timeService);
     }
 
     private void setStatusOnDate(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {

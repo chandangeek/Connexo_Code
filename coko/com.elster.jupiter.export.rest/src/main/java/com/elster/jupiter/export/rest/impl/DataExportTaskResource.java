@@ -226,7 +226,7 @@ public class DataExportTaskResource {
 
         List<? extends DataExportOccurrence> occurrences = occurrencesFinder.find();
 
-        DataExportTaskHistoryInfos infos = new DataExportTaskHistoryInfos(queryParameters.clipToLimit(occurrences), thesaurus, timeService);
+        DataExportTaskHistoryInfos infos = new DataExportTaskHistoryInfos(task, queryParameters.clipToLimit(occurrences), thesaurus, timeService);
         infos.total = queryParameters.determineTotal(occurrences.size());
         return infos;
     }
