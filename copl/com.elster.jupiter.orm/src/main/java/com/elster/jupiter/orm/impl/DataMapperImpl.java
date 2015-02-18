@@ -3,6 +3,7 @@ package com.elster.jupiter.orm.impl;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -188,10 +189,13 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 			}
 		}
 		try {
-			Optional<T> result = reader.findByPrimaryKey(keyValue);
-			if (result.isPresent()) {
-				cache.put(keyValue, result.get());
+			Optional<T> result;
+			if (getTable().isCached()) {
+				result = getEager(keyValue.getKey());
+			} else {
+				result = reader.findByPrimaryKey(keyValue);
 			}
+			result.ifPresent( t -> cache.put(keyValue, t));
 			return result;
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
@@ -298,11 +302,20 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		} 
 		List<ColumnImpl> columns = new ArrayList<>(fieldNames.length);
 		for (String fieldName : fieldNames) {
-			ColumnImpl column = getTable().getColumnForField(fieldName);
-			if (column.isPrimaryKeyColumn() || column.isVersion() || column.hasUpdateValue() || column.isDiscriminator()) {
-				throw new IllegalArgumentException("Cannot update special column");
-			} else {
-				columns.add(column);
+			FieldMapping mapping = getTable().getFieldMapping(fieldName);
+			if (mapping == null) {
+				throw new IllegalArgumentException("No mapping for field " + fieldName);
+			}
+			List<ColumnImpl> cols = mapping.getColumns();
+			if (cols.isEmpty()) {
+				throw new IllegalArgumentException("No columns found in mapping for field " + fieldName);
+			}
+			for (ColumnImpl column : cols) {
+				if (column.isPrimaryKeyColumn() || column.isVersion() || column.hasUpdateValue() || column.isDiscriminator()) {
+					throw new IllegalArgumentException("Cannot update special column");
+				} else {
+					columns.add(column);
+				}
 			}
 		}
 		return columns;

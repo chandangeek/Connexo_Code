@@ -222,7 +222,9 @@ public class OrmServiceImpl implements OrmService, InstallService {
     @Override
     public void invalidateCache(String componentName, String tableName) {
         DataModelImpl dataModel = dataModels.get(componentName);
-        dataModel.renewCache(tableName);
+        if (dataModel != null) {
+        	dataModel.renewCache(tableName);
+        }
     }
 
     ValidationProviderResolver getValidationProviderResolver() {

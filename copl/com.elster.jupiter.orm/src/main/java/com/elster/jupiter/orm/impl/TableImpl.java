@@ -673,7 +673,7 @@ public class TableImpl<T> implements Table<T> {
 				realColumns.add(column);
 			}
 		}
-		cache = isCached() ? new TableCache.TupleCache<T>(this) : new TableCache.NoCache<T>();
+		cache = isCached() ? new TableCache.TupleCache<>(this) : new TableCache.NoCache<>();
 	}
 	
 	private void checkMapped (Column column) {

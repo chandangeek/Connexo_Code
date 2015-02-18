@@ -16,16 +16,14 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
 	private final static long PARTITIONSIZE = 86400L * 30L * 1000L;
     private final TableImpl<?> table;
     private final SqlDialect dialect;
-    private List<String> ddl;
-   
-
+  
     TableDdlGenerator(TableImpl<?> table, SqlDialect dialect) {
         this.table = table;
         this.dialect = dialect;        
     }
 
     List<String> getDdl() {
-        ddl = new ArrayList<>();
+        List<String> ddl = new ArrayList<>();
         ddl.add(getTableDdl());
         if (table.hasJournal()) {
             ddl.add(getJournalTableDdl(table));

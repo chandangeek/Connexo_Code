@@ -1,10 +1,5 @@
 package com.elster.jupiter.orm;
 
-import static com.elster.jupiter.orm.ColumnConversion.CHAR2CURRENCY;
-import static com.elster.jupiter.orm.ColumnConversion.CHAR2UNIT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INTWRAPPER;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -18,9 +13,9 @@ import java.util.logging.Logger;
  */
 public interface Table<T> {
 
-    public static final int NAME_LENGTH = 80;
-    public static final int SHORT_DESCRIPTION_LENGTH = 256;
-    public static final int DESCRIPTION_LENGTH = 4000;
+    int NAME_LENGTH = 80;
+    int SHORT_DESCRIPTION_LENGTH = 256;
+    int DESCRIPTION_LENGTH = 4000;
 
     // datamodel construction api
     Column.Builder column(String name);
