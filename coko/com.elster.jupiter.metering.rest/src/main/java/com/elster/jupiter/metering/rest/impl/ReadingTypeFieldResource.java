@@ -9,7 +9,7 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
-import java.util.HashMap;
+import com.elster.jupiter.util.streams.DecoratedStream;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -39,16 +39,16 @@ public class ReadingTypeFieldResource {
     @GET
     @Path("/unitsofmeasure")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public UnitOfMeasureFieldInfos getUnitsOfMeasure() {
-        List<ReadingType> readingTypes = meteringService.getAvailableReadingTypes();
-        UnitOfMeasureFieldInfos unitOfMeasureFieldInfos = new UnitOfMeasureFieldInfos();
-        HashMap<String, ReadingType> unitNameReadingTypeHashMap = new HashMap<>();
-        for (ReadingType rt : readingTypes) {
-            String unitName = rt.getMultiplier().getSymbol() + rt.getUnit().getSymbol();
-            unitNameReadingTypeHashMap.put(unitName, rt);
-        }
-        unitOfMeasureFieldInfos.add(unitNameReadingTypeHashMap);
-        return unitOfMeasureFieldInfos;
+    public Response getUnitsOfMeasure(@BeanParam QueryParameters queryParameters) {
+        return Response.ok(PagedInfoList.asJson(
+                "unitsOfMeasure",
+                DecoratedStream.decorate(
+                meteringService.getAvailableReadingTypes().
+                        stream()).
+                        map(rt -> new UnitOfMeasureFieldInfo(rt.getMultiplier(), rt.getUnit())).
+                        distinct(i->i.name).
+                        sorted((c1, c2) -> c1.name.compareToIgnoreCase(c2.name)).collect(toList()),
+                queryParameters)).build();
     }
 
     @GET
