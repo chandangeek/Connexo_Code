@@ -5,7 +5,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
 
     requires: [
         'Uni.form.field.Obis',
-        'Uni.form.field.ReadingTypeDisplay'
+        'Uni.form.field.ReadingTypeDisplay',
+        'Uni.form.field.ReadingTypeCombo'
     ],
 
     layout: {
@@ -34,14 +35,15 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
     initComponent: function () {
         this.content = [
             {
-                xtype: 'panel',
+                xtype: 'form',
+                border: false,
+                itemId: 'registerTypeEditForm',
+                width: '100%',
                 ui: 'large',
-                itemId: 'registerTypeEditCreateTitle',
-                layout: {
-                    type: 'vbox',
-                    align: 'stretch'
+                defaults: {
+                    labelWidth: 250,
+                    width: 700
                 },
-
                 items: [
                     {
                         xtype: 'component',
@@ -51,108 +53,64 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                         hidden: true
                     },
                     {
-                        xtype: 'form',
-                        border: false,
-                        itemId: 'registerTypeEditForm',
-                        defaults: {
-                            labelWidth: 200,
-                            width: 700
+                        itemId: 'readingTypeCombo',
+                        xtype: 'reading-type-combo',
+                        name: 'readingType',
+                        fieldLabel: Uni.I18n.translate('general.readingtype', 'ISU', 'Reading type'),
+                        displayField: 'fullAliasName',
+                        valueField: 'name',
+                        forceSelection: true,
+                        store: 'AvailableReadingTypesForRegisterType',
+
+                        listConfig: {
+                            cls: 'isu-combo-color-list',
+                            emptyText: Uni.I18n.translate('general.readingtype.noreadingtypefound', 'MDC', 'No readingtype found')
+                        },
+
+                        queryMode: 'remote',
+                        queryParam: 'like',
+                        queryDelay: 100,
+                        queryCaching: false,
+                        minChars: 1,
+                        required: true,
+                        editable:true,
+                        typeAhead:true,
+                        // anchor: '100%',
+                        emptyText: Uni.I18n.translate('general.readingtype.selectreadingtype', 'MDC', 'Start typing to select a reading type...')
+                    },
+                    {
+                        xtype: 'obis-field',
+                        itemId: 'editObisCodeField',
+                        name: 'obisCode'
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        fieldLabel: '&nbsp;',
+                        layout: {
+                            type: 'hbox',
+                            align: 'stretch'
                         },
                         items: [
                             {
-                                xtype: 'textfield',
-                                name: 'name',
-                                msgTarget: 'under',
-                                required: true,
-                                fieldLabel: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
-                                itemId: 'editRegisterTypeNameField',
-                                maxLength: 80,
-                                enforceMaxLength: true
+                                text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                                xtype: 'button',
+                                ui: 'action',
+                                action: 'createAction',
+                                itemId: 'createEditButton'
                             },
                             {
-                                xtype: 'obis-field',
-                                itemId: 'editObisCodeField',
-                                name: 'obisCode'
-                            },
-                            {
-                                xtype: 'combobox',
-                                name: 'unit',
-                                fieldLabel: Uni.I18n.translate('registerType.measurementUnit', 'MDC', 'Unit of measure'),
-                                itemId: 'measurementUnitComboBox',
-                                store: this.unitOfMeasure,
-                                queryMode: 'local',
-                                displayField: 'localizedValue',
-                                valueField: 'id',
-                                emptyText: Uni.I18n.translate('registerType.selectMeasurementUnit', 'MDC', 'Select a unit of measure...'),
-                                required: true,
-                                forceSelection: true,
-                                typeAhead: true,
-                                msgTarget: 'under',
-                                cls: 'obisCode'
-                            },
-                            {
-                                xtype: 'combobox',
-                                name: 'timeOfUse',
-                                fieldLabel: Uni.I18n.translate('registerType.timeOfUse', 'MDC', 'Time of use'),
-                                itemId: 'timeOfUseComboBox',
-                                store: this.timeOfUse,
-                                queryMode: 'local',
-                                displayField: 'timeOfUse',
-                                valueField: 'timeOfUse',
-                                emptyText: Uni.I18n.translate('registerType.selectTimeOfUse', 'MDC', 'Select a time of use...'),
-                                required: true,
-                                forceSelection: true,
-                                typeAhead: true,
-                                msgTarget: 'under'
-                            },
-                            {
-                                xtype: 'reading-type-combo',
-                                name: 'readingType',
-                                itemId: 'readingTypeCombo',
-                                store: 'AvailableReadingTypesForRegisterType',
-                                disabled: true,
-                                required: true,
-                                allowBlank: false,
-                                submitValue: false
-                            },
-                            {
-                                xtype: 'displayfield',
-                                itemId: 'noReadingAvailable',
-                                hidden: true,
-                                fieldLabel: Uni.I18n.translate('registerType.mrid', 'MDC', 'Reading type'),
-                                value:  Uni.I18n.translate('registerType.noReadingAvailable', 'MDC', 'No reading types available for selected unit of measure and time of use'),
-                                required: true
-                            },
-                            {
-                                xtype: 'fieldcontainer',
-                                fieldLabel: '&nbsp;',
-                                layout: {
-                                    type: 'hbox',
-                                    align: 'stretch'
-                                },
-                                items: [
-                                    {
-                                        text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
-                                        xtype: 'button',
-                                        ui: 'action',
-                                        action: 'createAction',
-                                        itemId: 'createEditButton'
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        ui: 'link',
-                                        text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
-                                        itemId: 'cancelLink',
-                                        href: '#/administration/registertypes/'
-                                    }
-                                ]
+                                xtype: 'button',
+                                ui: 'link',
+                                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                itemId: 'cancelLink',
+                                href: '#/administration/registertypes/'
                             }
-
                         ]
                     }
                 ]
             }
-        ];
+        ]
+        ;
         this.callParent(arguments);
 
         if (this.isEdit()) {
@@ -165,4 +123,5 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
         this.down('#cancelLink').href = this.returnLink;
     }
 
-});
+})
+;

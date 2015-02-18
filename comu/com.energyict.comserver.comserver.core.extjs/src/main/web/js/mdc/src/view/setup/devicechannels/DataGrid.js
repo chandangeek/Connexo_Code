@@ -10,10 +10,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
         'Uni.grid.column.Edited',
         'Uni.view.toolbar.PagingTop'
     ],
-    height: 395,
     plugins: [
-        'bufferedrenderer',
-        'showConditionalToolTip'
+        'bufferedrenderer'
     ],
     viewConfig: {
         loadMask: false

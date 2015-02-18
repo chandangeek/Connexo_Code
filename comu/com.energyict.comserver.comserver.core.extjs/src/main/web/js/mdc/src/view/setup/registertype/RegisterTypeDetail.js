@@ -66,10 +66,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
                                 },
                                 items: [
                                     {
-                                        name: 'name',
-                                        fieldLabel: Uni.I18n.translate('registerType.name', 'MDC', 'Name')
-                                    },
-                                    {
                                         xtype: 'reading-type-displayfield',
                                         name: 'readingType'
                                     },

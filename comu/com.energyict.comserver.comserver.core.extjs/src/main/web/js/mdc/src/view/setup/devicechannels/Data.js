@@ -11,6 +11,7 @@ Ext.define('Mdc.view.setup.devicechannels.Data', {
 
     router: null,
     channel: null,
+    viewType: null,
 
     initComponent: function () {
         var me = this;
@@ -42,22 +43,24 @@ Ext.define('Mdc.view.setup.devicechannels.Data', {
                     xtype: 'filter-top-panel',
                     itemId: 'deviceloadprofileschanneldatafilterpanel',
                     emptyText: Uni.I18n.translate('general.none', 'MDC', 'None')
-                },
-                {
-                    items: [
-
-                        {
-                            xtype: 'deviceLoadProfileChannelTableView',
-                            channel: me.channel,
-                            router: me.router
-                        },
-                        {
-                            xtype: 'deviceLoadProfileChannelGraphView'
-                        }
-                    ]
                 }
             ]
         };
+
+        switch (me.viewType) {
+            case 'table':
+                me.content.items.push({
+                    xtype: 'deviceLoadProfileChannelTableView',
+                    channel: me.channel,
+                    router: me.router
+                });
+                break;
+            case 'graph':
+                me.content.items.push({
+                    xtype: 'deviceLoadProfileChannelGraphView'
+                });
+                break;
+        }
 
         me.callParent(arguments);
     }

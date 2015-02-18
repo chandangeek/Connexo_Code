@@ -1,7 +1,8 @@
 Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
     extend: 'Ext.form.Panel',
     requires: [
-        'Uni.form.field.Obis'
+        'Uni.form.field.Obis',
+        'Uni.grid.column.ReadingType'
     ],
     alias: 'widget.load-profile-type-edit-form',
     ui: 'large',
@@ -69,8 +70,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
                             padding: 0,
                             columns: [
                                 {
-                                    text: 'Name',
-                                    dataIndex: 'name',
+                                    xtype: 'reading-type-column',
+                                    dataIndex: 'readingType',
                                     flex: 1
                                 },
                                 {
@@ -226,7 +227,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
         Ext.iterate(obj, function (key, value) {
             record.set(key, value);
         });
-        if(!me.down('#timeDuration').getValue()) {
+        if (!me.down('#timeDuration').getValue()) {
             record.set('timeDuration', null);
         } else {
             record.set('timeDuration', {id: obj.timeDuration});

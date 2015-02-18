@@ -399,22 +399,31 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     setEditFormPreview: function (startDate, schedule) {
         var store = this.getCommunicationScheduleEditForm().down('#communicationSchedulePreviewGrid').getStore(),
             storeData = [],
-            startOf = schedule.every.timeUnit.slice(0, -1) === 'week' ? 'isoWeek' : schedule.every.timeUnit.slice(0, -1);
+        lastScheduledDate,
+        intervalInMillis;
 
-        startDate = moment(startDate);
+        if (schedule.every.timeUnit === 'minutes' || schedule.every.timeUnit === 'hours') {
+            startDate = moment(startDate);
+            intervalInMillis = moment.duration(schedule.every.count, schedule.every.timeUnit);
+            lastScheduledDate = moment(Math.floor(startDate/intervalInMillis)*intervalInMillis);
+        } else if (schedule.every.timeUnit === 'days') {
+            lastScheduledDate = moment(startDate).clone().startOf('day');
+        } else if (schedule.every.timeUnit === 'weeks') {
+            var startOf = schedule.every.timeUnit.slice(0, -1) === 'week' ? 'isoWeek' : schedule.every.timeUnit.slice(0, -1);
+            lastScheduledDate = moment(startDate).clone().startOf(startOf);
+        } else if (schedule.every.timeUnit === 'months'){
+            lastScheduledDate = moment(startDate).clone().startOf('month');
+        }
 
-        storeData.push({
-            date: startDate.clone().toDate()
-        });
 
-        for (var i = 1; i < 5; i++) {
+        for (var i = 1; i < 6; i++) {
             if (!schedule.lastDay) {
                 storeData.push({
-                    date: startDate.clone().startOf(startOf).add(schedule.every.timeUnit, schedule.every.count * i).add(schedule.offset.timeUnit, schedule.offset.count).toDate()
+                    date: lastScheduledDate.clone().add(schedule.every.timeUnit, schedule.every.count * i).add(schedule.offset.timeUnit, schedule.offset.count).toDate()
                 });
             } else {
                 storeData.push({
-                    date: startDate.clone().endOf('month').startOf('day').add(schedule.every.timeUnit, schedule.every.count * i).add(schedule.offset.timeUnit, schedule.offset.count).toDate()
+                    date: lastScheduledDate.clone().endOf('month').startOf('day').add(schedule.every.timeUnit, schedule.every.count * (i-1)).endOf('month').startOf('day').add(schedule.offset.timeUnit, schedule.offset.count).toDate()
                 });
             }
         }

@@ -117,7 +117,12 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                                     }
                                                 ]
                                             }
-                                        ]
+                                        ],
+                                        listeners: {
+                                            afterrender: function () {
+                                                this.view.el.dom.style.overflowX = 'hidden'
+                                            }
+                                        }
                                     },
                                     {
                                         xtype: 'button',
@@ -219,7 +224,12 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                                     : ''
                                             }
                                         }
-                                    ]
+                                    ],
+                                    listeners: {
+                                        afterrender: function () {
+                                            this.view.el.dom.style.overflowX = 'hidden'
+                                        }
+                                    }
                                 }
                             },
                             {
@@ -255,6 +265,10 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
             }
         ];
         this.callParent(arguments);
+
+//        this.down('#communicationSchedulePreviewGrid').view.el.dom.style.overflowX = 'hidden';
+//        debugger;
+
         if (this.isEdit()) {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#createEditButton').action = 'editCommunicationSchedule';

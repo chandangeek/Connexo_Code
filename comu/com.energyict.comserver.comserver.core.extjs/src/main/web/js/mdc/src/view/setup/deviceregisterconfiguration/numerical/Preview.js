@@ -30,16 +30,12 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Preview', {
                         },
                         items: [
                             {
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.name', 'MDC', 'Name'),
-                                name: 'name'
+                                xtype: 'reading-type-displayfield',
+                                name: 'readingType'
                             },
                             {
                                 xtype: 'obis-displayfield',
                                 name: 'obisCode'
-                            },
-                            {
-                                xtype: 'reading-type-displayfield',
-                                name: 'readingType'
                             },
                             {
                                 xtype: 'fieldcontainer',

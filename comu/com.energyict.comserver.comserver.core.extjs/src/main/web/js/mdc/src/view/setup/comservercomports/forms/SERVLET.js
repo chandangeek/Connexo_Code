@@ -71,7 +71,10 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERVLET', {
                         {
                             xtype: 'displayfield',
                             name: 'keyStorePassword',
-                            hidden: true
+                            hidden: true,
+                            renderer: function (value) {
+                                return value ? value : '******';
+                            }
                         },
                         {
                             xtype: 'container',
@@ -104,7 +107,10 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERVLET', {
                         {
                             xtype: 'displayfield',
                             name: 'trustStorePassword',
-                            hidden: true
+                            hidden: true,
+                            renderer: function (value) {
+                                return value ? value : '******';
+                            }
                         },
                         {
                             xtype: 'container',

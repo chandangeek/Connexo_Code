@@ -86,7 +86,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     showOverview: function (mRID, channelId, isTable, tabController) {
         var me = this,
-            viewport = Ext.ComponentQuery.query('viewport')[0],
+            viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             models = {
                 device: me.getModel('Mdc.model.Device'),
                 channel: me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice')
@@ -111,8 +111,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 }
             };
 
-        dataStore.removeAll(true);
-
         viewport.setLoading();
         dataStore.getProxy().setUrl({
             mRID: mRID,
@@ -136,7 +134,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     var dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord(record.get('interval')),
                         durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations'),
                         viewOnlySuspects;
+
                     durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
+                    dataStore.loadData([], false);
                     tabWidget = Ext.widget('tabbedDeviceChannelsView', {
                         router: router,
                         device: device,
@@ -147,7 +147,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         router: me.getController('Uni.controller.history.Router'),
                         channel: record,
                         device: device,
-                        mRID: device.get('mRID')
+                        mRID: device.get('mRID'),
+                        viewType: isTable ? 'table' : 'graph'
                     });
                     me.channelModel = record;
 
@@ -156,32 +157,31 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
                     me.getApplication().fireEvent('changecontentevent', tabWidget);
                     tabController.showTab(1);
+
+                    Ext.suspendLayouts();
                     tabWidget.down('#channelTabPanel').setTitle(record.get('name'));
-                    viewport.setLoading(false);
-                    Ext.getBody().mask('Loading...');
-                    widget.setLoading();
                     widget.down('#deviceLoadProfileChannelGraphViewBtn').setDisabled(!isTable);
                     widget.down('#deviceLoadProfileChannelTableViewBtn').setDisabled(isTable);
-                    widget.down('#deviceLoadProfileChannelTableView').setVisible(isTable);
                     dataStore.on('load', function () {
                         if (!widget.isDestroyed) {
                             if (!isTable) {
                                 me.showGraphView(record);
                             }
-                            widget.down('#deviceLoadProfileChannelGraphView').setVisible(!isTable);
-                            widget.setLoading(false);
-                            Ext.getBody().unmask();
                         }
                     }, me);
                     if (Ext.isEmpty(router.filter.data.intervalStart)) {
                         viewOnlySuspects = (router.queryParams.onlySuspect === 'true');
                         me.setDefaults(dataIntervalAndZoomLevels, viewOnlySuspects);
-                        delete router.queryParams.onlySuspect;
+                        router.queryParams.onlySuspect = undefined;
                     }
                     dataStore.setFilterModel(router.filter);
                     me.getSideFilterForm().loadRecord(router.filter);
                     me.setFilterView();
-                    dataStore.load();
+                    viewport.setLoading();
+                    dataStore.load(function () {
+                        viewport.setLoading(false);
+                    });
+                    Ext.resumeLayouts(true);
                 });
             }
         });
@@ -241,18 +241,22 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         if (dataStore.getTotalCount() > 0) {
             dataStore.each(function (record) {
                 if (record.get('value')) {
-                    seriesObject['data'].unshift([record.get('interval').end, parseFloat(record.get('value'))]);
+                    seriesObject['data'].unshift([record.get('interval').start, parseFloat(record.get('value'))]);
                 } else {
-                    seriesObject['data'].unshift([record.get('interval').end, null]);
+                    seriesObject['data'].unshift([record.get('interval').start, null]);
                 }
             });
             series.push(seriesObject);
+            Ext.suspendLayouts();
             container.down('#graphContainer').show();
-            container.down('#emptyGraphMessage').hide();
+            container.down('#ctr-graph-no-data').hide();
             container.drawGraph(yAxis, series, intervalLengthInMs, channelName, unitOfMeasure, zoomLevels);
+            Ext.resumeLayouts(true);
         } else {
+            Ext.suspendLayouts();
             container.down('#graphContainer').hide();
-            container.down('#emptyGraphMessage').show();
+            container.down('#ctr-graph-no-data').show();
+            Ext.resumeLayouts(true);
         }
         me.getPage().doLayout();
     },
@@ -277,26 +281,19 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     showPreview: function (selectionModel, record) {
-        /*var preview = this.getPage().down('#deviceLoadProfileChannelDataPreview');
-
-         preview.rendered && Ext.suspendLayouts();
-
-         preview.setTitle(record.get('interval_end'));
-         preview.down('#deviceLoadProfileChannelDataPreviewForm').loadRecord(record);
-
-         preview.rendered && Ext.resumeLayouts(true);     */
         var me = this,
             previewPanel = me.getDeviceLoadProfileChannelDataPreview(),
             bulkValueField = previewPanel.down('displayfield[name=collectedValue]'),
             form = previewPanel.down('form'),
             intervalEnd = record.get('interval_end');
 
+        Ext.suspendLayouts();
         previewPanel.setTitle(Uni.DateTime.formatDateLong(intervalEnd)
             + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
             + Uni.DateTime.formatTimeLong(intervalEnd));
         bulkValueField.setVisible(record.get('isBulk'));
         form.loadRecord(record);
-
+        Ext.resumeLayouts(true);
     },
 
     applyFilter: function () {

@@ -23,11 +23,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
-                dataIndex: 'name',
-                flex: 2
-            },
-            {
                 xtype: 'reading-type-column',
                 dataIndex: 'readingType',
                 flex: 1.5

@@ -21,7 +21,11 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             method: 'GET',
             timeout: 60000,
             callback: function () {
-                view.down('#dataValidationStatusPanel').setLoading(false);
+                var dataValidationStatusPanel = view.down('#dataValidationStatusPanel');
+
+                if (dataValidationStatusPanel) {
+                    dataValidationStatusPanel.setLoading(false);
+                }
             },
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
@@ -109,7 +113,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                 } else {
                     me.destroyConfirmationWindow();
                     me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translatePlural('device.dataValidation.activation.activated', me.mRID, 'MDC', 'Data validation on device {0} was activated successfully'));
+                        Uni.I18n.translatePlural('device.dataValidation.activation.activated', me.mRID, 'MDC', 'Data validation activated'));
                 }
             },
             failure: function (response) {
@@ -164,10 +168,10 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                 me.destroyConfirmationWindow();
                 if (me.isValidationRunImmediately) {
                     me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translatePlural('device.dataValidation.activation.validated', me.mRID, 'MDC', 'Data validation on device {0} was completed successfully'));
+                        Uni.I18n.translatePlural('device.dataValidation.activation.validated', me.mRID, 'MDC', 'Data validation completed'));
                 } else {
                     me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translatePlural('device.dataValidation.activation.activated', me.mRID, 'MDC', 'Data validation on device {0} was activated successfully'));
+                        Uni.I18n.translatePlural('device.dataValidation.activation.activated', me.mRID, 'MDC', 'Data validation activated'));
                 }
             },
             failure: function (response) {
@@ -275,7 +279,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             success: function () {
                 me.updateDataValidationStatusSection(me.mRID, view);
                 me.getApplication().fireEvent('acknowledge',
-                    Uni.I18n.translatePlural('device.dataValidation.deactivation.successMsg', me.mRID, 'MDC', 'Data validation on device {0} was deactivated successfully'));
+                    Uni.I18n.translatePlural('device.dataValidation.deactivation.successMsg', me.mRID, 'MDC', 'Data validation deactivated'));
             }
         });
     },

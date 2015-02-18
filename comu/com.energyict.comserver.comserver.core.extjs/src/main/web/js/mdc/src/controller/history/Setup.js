@@ -279,7 +279,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             action: 'showRegisterConfigurationEditView',
                                                             callback: function (route) {
                                                                 this.getApplication().on('loadRegisterConfiguration', function (record) {
-                                                                    route.setTitle('Edit' + " '" + record.get('name') + "'");
+                                                                    route.setTitle('Edit' + " '" + record.get('readingType').fullAliasName + "'");
                                                                     return true;
                                                                 }, {single: true});
 
@@ -763,10 +763,9 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showRegisterTypeEditView',
                             callback: function (route) {
                                 this.getApplication().on('loadRegisterType', function (record) {
-                                    route.setTitle('Edit \'' + record.get('name') + '\'');
+                                    route.setTitle('Edit \'' + record.get('readingType').fullAliasName + '\'');
                                     return true;
                                 }, {single: true});
-
                                 return this;
                             }
                         }
@@ -1113,7 +1112,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'initTabDeviceRegisterConfigurationDetailsView',
                                     callback: function (route) {
                                         this.getApplication().on('loadRegisterConfiguration', function (record) {
-                                            route.setTitle(record.get('name'));
+                                            route.setTitle(record.get('readingType').fullAliasName);
                                             return true;
                                         }, {single: true});
 
@@ -1128,7 +1127,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                         action: 'initTabShowDeviceRegisterDataView',
                                     callback: function (route) {
                                         this.getApplication().on('loadRegisterConfiguration', function (record) {
-                                            route.setTitle(record.get('name'));
+                                            route.setTitle(record.get('readingType').fullAliasName);
                                             return true;
                                         }, {single: true});
 

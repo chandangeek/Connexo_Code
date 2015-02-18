@@ -176,10 +176,14 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             var editView = this.getComPortEdit();
             this.setDefaultValuesForSerial(editView);
         }
-        if (newValue == 'SERIAL' || newValue == 'TCP' || newValue == 'UDP') {
+        if (!this.restorePools) {
             this.getStore('Mdc.store.AddComPortPools').removeAll();
-            this.getComPortPoolsGrid().down('#comPortPoolsCount').update(
-                Uni.I18n.translate('comServerComPorts.addPools.noPools', 'MDC', 'No communication port pools'));
+            if (this.getComPortPoolsGrid()) {
+                this.getComPortPoolsGrid().down('#comPortPoolsCount').update(
+                    Uni.I18n.translate('comServerComPorts.addPools.noPools', 'MDC', 'No communication port pools'));
+            }
+        } else {
+            this.restorePools = undefined;
         }
         this.restoreState();
         this.filterStore();
@@ -499,6 +503,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         });
 
         widget.showForm('outbound', me.defaultType);
+        this.restorePools = true;
         this.restoreState();
     },
 

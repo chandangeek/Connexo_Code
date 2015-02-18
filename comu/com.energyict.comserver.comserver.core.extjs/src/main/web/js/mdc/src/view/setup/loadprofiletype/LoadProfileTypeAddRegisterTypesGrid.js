@@ -33,11 +33,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddRegisterTypesGrid',
 
     columns: [
         {
-            header: 'Name',
-            dataIndex: 'name',
-            flex: 2
-        },
-        {
             xtype: 'obis-column',
             dataIndex: 'obisCode',
             flex: 1

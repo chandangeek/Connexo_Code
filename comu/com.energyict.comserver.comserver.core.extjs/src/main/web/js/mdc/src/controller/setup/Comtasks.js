@@ -1,7 +1,7 @@
 Ext.define('Mdc.controller.setup.Comtasks', {
     extend: 'Ext.app.Controller',
     requires: [
-      'Mdc.store.TimeUnits'
+        'Mdc.store.TimeUnits'
     ],
     stores: [
         'Mdc.store.CommunicationTasks',
@@ -97,7 +97,8 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 router.getRoute('administration/communicationtasks/edit').forward({id: record.get('id')});
                 break;
             case 'delete':
-                this.deleteTask(record.get('id'));
+                this.showConfirmationPanel();
+                //this.deleteTask(record.get('id'));
                 break;
         }
     },
@@ -138,6 +139,50 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 }
             }
         });
+    },
+
+    showConfirmationPanel: function () {
+        var me = this,
+            tasksView = me.getTasksView(),
+            grid = tasksView.down('grid'),
+            lastSelected = grid.getView().getSelectionModel().getLastSelected();
+
+        Ext.create('Uni.view.window.Confirmation').show({
+            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + " '" + lastSelected.get('name') + "'?",
+            msg: Uni.I18n.translate('comtask.remove.confirmation.msg', 'MDC', 'This communication task will no longer be available'),
+            config: {
+                me: me
+            },
+            fn: me.confirmationPanelHandler
+        });
+    },
+
+    confirmationPanelHandler: function (state, text, conf) {
+        var me = conf.config.me,
+            tasksView = me.getTasksView(),
+            grid = tasksView.down('grid'),
+            model = grid.getView().getSelectionModel().getLastSelected(),
+            widget = me.getTasksView();
+
+        if (state === 'confirm') {
+            widget.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
+            model.destroy({
+                success: function () {
+                    widget.setLoading(false);
+                    me.getApplication().fireEvent('acknowledge',Uni.I18n.translate('comtasks.removeSuccessMsg', 'MDC', 'Communciation task removed'));
+                },
+                failure: function(response){
+                    var json;
+                    json = Ext.decode(response.responseText, true);
+                    if (json && json.message) {
+                        me.getApplication().getController(
+                            'Uni.controller.Error').showError(Uni.I18n.translate('comtasks.removeErrorMsg', 'MDC', 'Error during removal of communication task'),
+                            json.message
+                        );
+                    }
+                }
+            });
+        }
     },
 
     deleteTask: function (id) {
