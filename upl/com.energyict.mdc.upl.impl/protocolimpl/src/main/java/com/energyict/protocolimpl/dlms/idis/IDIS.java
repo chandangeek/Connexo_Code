@@ -256,6 +256,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
         optional.add(DlmsProtocolProperties.TIMEOUT);
         optional.add(DlmsProtocolProperties.ADDRESSING_MODE);
         optional.add(DlmsProtocolProperties.RETRIES);
+        optional.add(DlmsProtocolProperties.MAX_REC_PDU_SIZE);
         optional.add(READCACHE_PROPERTY);
         optional.add(LOAD_PROFILE_OBIS_CODE_PROPERTY);
         optional.add(CALLING_AP_TITLE);
