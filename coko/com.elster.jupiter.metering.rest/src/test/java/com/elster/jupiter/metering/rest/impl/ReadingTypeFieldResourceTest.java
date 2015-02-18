@@ -114,13 +114,25 @@ public class ReadingTypeFieldResourceTest extends MeteringApplicationJerseyTest 
     @Test
     public void testFilteredByName() throws Exception {
         List<ReadingType> collect = new ArrayList<>();
-        IntStream.range(0, 31).forEach(i -> collect.add(mockReadingType("power " + i, TimeAttribute.values()[i], (i%2==0?"Bulk A+ ":"Bulk A-")+i, 0, ReadingTypeUnit.AMPEREHOUR, MetricMultiplier.KILO)));
+        IntStream.range(0, 31).forEach(i -> collect.add(mockReadingType("power " + i, TimeAttribute.values()[i], (i % 2 == 0 ? "Bulk A+ " : "Bulk A-") + i, 0, ReadingTypeUnit.AMPEREHOUR, MetricMultiplier.KILO)));
 
         when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
         Response response = target("/fields/readingtypes")
             .queryParam("filter", ExtjsFilter.filter().property("name", "A+").create()).request().get();
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<List>get("$.readingTypes[*].aliasName")).hasSize(16);
+    }
+
+    @Test
+    public void testFilteredByNameCaseInsensitive() throws Exception {
+        List<ReadingType> collect = new ArrayList<>();
+        IntStream.range(0, 31).forEach(i -> collect.add(mockReadingTypeWithAlias("power " + i, (i % 2 == 0 ? "Bulk A+ " : "Bulk A-") + i)));
+
+        when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
+        Response response = target("/fields/readingtypes")
+            .queryParam("filter", ExtjsFilter.filter().property("name", "bulK").create()).request().get();
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<List>get("$.readingTypes[*].aliasName")).hasSize(31);
     }
 
     @Test
@@ -260,6 +272,10 @@ public class ReadingTypeFieldResourceTest extends MeteringApplicationJerseyTest 
 
     private ReadingType mockReadingType(String name) {
         return mockReadingType(name, TimeAttribute.FIXEDBLOCK15MIN, "alias", 0, ReadingTypeUnit.AMPEREHOUR, MetricMultiplier.KILO);
+    }
+
+    private ReadingType mockReadingTypeWithAlias(String name, String alias) {
+        return mockReadingType(name, TimeAttribute.FIXEDBLOCK5MIN, alias, 0, ReadingTypeUnit.AMPEREHOUR, MetricMultiplier.KILO);
     }
 
     private ReadingType mockReadingTypeWithTou(String name, int tou) {
