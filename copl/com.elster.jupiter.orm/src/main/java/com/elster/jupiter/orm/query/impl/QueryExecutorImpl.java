@@ -120,12 +120,6 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	}
 
 	@Override
-	@Deprecated
-	public List<T> select(Condition condition, String order , String... orders) {
-		return select(condition, Order.from(order,orders));
-	}
-
-	@Override
 	public Instant getEffectiveDate() {
 		if (effectiveInstant == null) {
 			effectiveInstant = this.root.getTable().getDataModel().getClock().instant();

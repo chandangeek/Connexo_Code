@@ -1,5 +1,9 @@
 package com.elster.jupiter.orm.impl;
 
+import com.elster.jupiter.orm.OptimisticLockException;
+import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
+import com.elster.jupiter.util.Pair;
+
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,10 +12,6 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.elster.jupiter.orm.OptimisticLockException;
-import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
-import com.elster.jupiter.util.Pair;
 
 public class DataMapperWriter<T> {
 	private final DataMapperImpl<T> dataMapper;
@@ -248,7 +248,7 @@ public class DataMapperWriter<T> {
 		} 	
 	}
 	
-	public void remove(List<T> objects) throws SQLException {
+	public void remove(List<? extends T> objects) throws SQLException {
 		Instant now = getTable().getDataModel().getClock().instant();
 		if (getTable().hasJournal()) {
 			journal(objects,now);

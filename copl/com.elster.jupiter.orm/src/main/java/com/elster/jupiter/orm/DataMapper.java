@@ -40,7 +40,7 @@ public interface DataMapper<T> extends Finder<T> {
 	/**
 	 * batch delete
 	 */
-	void remove(List<T> objects);
+	void remove(List<? extends T> objects);
 
 	Optional<T> getEager(Object ... object);
 	// meta data access

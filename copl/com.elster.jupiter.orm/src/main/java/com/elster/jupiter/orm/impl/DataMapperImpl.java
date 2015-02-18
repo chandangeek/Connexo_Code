@@ -355,7 +355,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	}
 	
 	@Override
-	public void remove(List<T> objects )  {
+	public void remove(List<? extends T> objects )  {
 		preventIfChild();
 		if (objects.isEmpty()) {
 			return;
@@ -429,12 +429,6 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return getMapperType().getType(fieldName);
 	}
 	
-	@Override
-	@Deprecated
-	public List<T> select(Condition condition, String order, String ... orders) {
-		return with().select(condition, Order.from(order,orders));
-	}
-
 	@Override
 	public List<T> select(Condition condition, Order ... orders) {
 		return with().select(condition, orders);

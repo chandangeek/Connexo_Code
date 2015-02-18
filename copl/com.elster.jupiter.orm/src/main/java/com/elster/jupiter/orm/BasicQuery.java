@@ -1,10 +1,10 @@
 package com.elster.jupiter.orm;
 
-import java.util.List;
-import java.util.Optional;
-
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * 
@@ -16,6 +16,4 @@ public interface BasicQuery<T> {
 	Optional<T> getOptional(Object... values);
 	T getExisting(Object... values);
     List<T> select(Condition condition, Order ... orders);
-    @Deprecated
-    List<T> select(Condition condition, String order, String ... orders);
 }
