@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskExecutor;
@@ -13,14 +14,16 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
+
+import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.inject.Inject;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NOT_UNIQUE + "}")
 class RecurrentTaskImpl implements RecurrentTask {
@@ -42,6 +45,11 @@ class RecurrentTaskImpl implements RecurrentTask {
     private final MessageService messageService;
     private final DataModel dataModel;
     private final JsonService jsonService;
+
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
+    private String userName;
 
     @Inject
     RecurrentTaskImpl(DataModel dataModel, ScheduleExpressionParser scheduleExpressionParser, MessageService messageService, JsonService jsonService, Clock clock) {
@@ -131,7 +139,12 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     @Override
     public void delete() {
+        dataModel.mapper(TaskOccurrenceImpl.class).remove(getOccurrences());
         dataModel.mapper(RecurrentTask.class).remove(this);
+    }
+
+    private List<TaskOccurrenceImpl> getOccurrences() {
+        return dataModel.mapper(TaskOccurrenceImpl.class).find("recurrentTask", this);
     }
 
     @Override
@@ -217,6 +230,27 @@ class RecurrentTaskImpl implements RecurrentTask {
     public Optional<TaskOccurrence> getLastOccurrence() {
         return dataModel.query(TaskOccurrence.class).select(Operator.EQUAL.compare("recurrentTaskId", this.getId()), new Order[]{Order.descending("triggerTime")},
                 false, new String[]{}, 1, 1).stream().findAny();
+    }
+
+    public long getVersion() {
+        return version;
+    }
+
+    public Instant getCreateTime() {
+        return createTime;
+    }
+
+    public Instant getModTime() {
+        return modTime;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    @Override
+    public History<? extends RecurrentTask> getHistory() {
+        return new History<>(dataModel.mapper(RecurrentTaskImpl.class).getJournal(this.getId()), this);
     }
 
     void updateLastRun(Instant triggerTime) {

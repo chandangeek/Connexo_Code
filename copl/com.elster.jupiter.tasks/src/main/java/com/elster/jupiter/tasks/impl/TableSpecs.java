@@ -20,6 +20,7 @@ enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<RecurrentTask> table = dataModel.addTable(name(), RecurrentTask.class);
             table.map(RecurrentTaskImpl.class);
+            table.setJournalTableName("TSK_RECURRENT_TASKJRNL");
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("CRONSTRING").varChar(NAME_LENGTH).notNull().map("cronString").add();
@@ -27,6 +28,7 @@ enum TableSpecs {
             table.column("PAYLOAD").varChar(NAME_LENGTH).notNull().map("payload").add();
             table.column("DESTINATION").type("varchar2(30)").notNull().map("destination").add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
+            table.addAuditColumns();
             table.primaryKey("TSK_PK_RECURRENTTASK").on(idColumn).add();
             table.unique("TSK_UK_RECURRENTTASK").on(nameColumn).add();
         }
@@ -44,7 +46,7 @@ enum TableSpecs {
             table.column("ENDDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("endDate").add();
             table.column("STATUS").number().notNull().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
 
-            table.foreignKey("TSK_FKOCCURRENCE_TASK").references(TSK_RECURRENT_TASK.name()).onDelete(DeleteRule.CASCADE).map("recurrentTask").on(recurrentIdColumn).add();
+            table.foreignKey("TSK_FKOCCURRENCE_TASK").references(TSK_RECURRENT_TASK.name()).map("recurrentTask").on(recurrentIdColumn).add();
             table.primaryKey("TSK_PK_TASK_OCCURRENCE").on(idColumn).add();
             table.partitionOn(trigger);
         }

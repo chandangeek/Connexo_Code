@@ -1,6 +1,8 @@
 package com.elster.jupiter.tasks;
 
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.orm.HasAuditInfo;
+import com.elster.jupiter.orm.History;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
@@ -11,7 +13,7 @@ import java.util.Optional;
 /**
  * Models a task that should put a message on the task queue recurrently.
  */
-public interface RecurrentTask extends HasName {
+public interface RecurrentTask extends HasName, HasAuditInfo {
 
     long getId();
 
@@ -48,4 +50,6 @@ public interface RecurrentTask extends HasName {
     TaskOccurrence runNow(TaskExecutor executor);
 
     Optional<TaskOccurrence> getLastOccurrence();
+
+    History<? extends RecurrentTask> getHistory();
 }
