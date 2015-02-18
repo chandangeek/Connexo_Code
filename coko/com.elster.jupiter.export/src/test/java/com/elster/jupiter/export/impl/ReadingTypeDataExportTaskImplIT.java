@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -26,6 +27,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.BigDecimalFactory;
@@ -60,6 +62,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
@@ -70,7 +73,6 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.ValidatorFactory;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -108,6 +110,7 @@ public class ReadingTypeDataExportTaskImplIT {
     public static final String FORMATTER = "formatter";
 
     private static final ZonedDateTime NOW = ZonedDateTime.of(2012, 10, 12, 9, 46, 12, 241615214, TimeZoneNeutral.getMcMurdo());
+    private final ProgrammableClock clock = new ProgrammableClock(ZoneId.systemDefault(), NOW.toInstant());
 
     @Rule
     public TestRule veryColdHere = Using.timeZoneOfMcMurdo();
@@ -115,7 +118,7 @@ public class ReadingTypeDataExportTaskImplIT {
 
     @Mock
     private BundleContext bundleContext;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private UserService userService;
     @Mock
     private EventAdmin eventAdmin;
@@ -177,7 +180,7 @@ public class ReadingTypeDataExportTaskImplIT {
                 new EventsModule(),
                 new DomainUtilModule(),
                 new OrmModule(),
-                new UtilModule(Clock.fixed(NOW.toInstant(), ZoneId.systemDefault())),
+                new UtilModule(clock),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
                 new TransactionModule(),
@@ -244,6 +247,53 @@ public class ReadingTypeDataExportTaskImplIT {
         assertThat(readingTypeDataExportTask.getStrategy().isExportUpdate()).isTrue();
         assertThat(readingTypeDataExportTask.getReadingTypes()).containsExactly(readingType);
         assertThat(readingTypeDataExportTask.getProperties()).hasSize(1).contains(entry("propy", BigDecimal.valueOf(100, 0)));
+    }
+
+    @Test
+    public void testHistory() throws InterruptedException {
+
+        clock.setSubsequent(
+                NOW.plusSeconds(1).toInstant(),
+                NOW.plusSeconds(2).toInstant(),
+                NOW.plusSeconds(3).toInstant(),
+                NOW.plusSeconds(4).toInstant(),
+                NOW.plusSeconds(5).toInstant(),
+                NOW.plusSeconds(6).toInstant(),
+                NOW.plusSeconds(7).toInstant(),
+                NOW.plusSeconds(8).toInstant()
+        );
+
+        ReadingTypeDataExportTask exportTask = createAndSaveTask();
+
+        exportTask.setName("NEWNAME");
+        BigDecimal value1 = new BigDecimal("101");
+        exportTask.setProperty("propy", value1);
+
+        try (TransactionContext context = transactionService.getContext()) {
+            exportTask.save();
+            context.commit();
+        }
+
+        BigDecimal value2 = new BigDecimal("102");
+        exportTask.setProperty("propy", value2);
+        try (TransactionContext context = transactionService.getContext()) {
+            exportTask.save();
+            context.commit();
+        }
+
+        History<? extends ReadingTypeDataExportTask> history = exportTask.getHistory();
+
+        Optional<? extends ReadingTypeDataExportTask> version1 = history.getVersion(1);
+        assertThat(version1).isPresent();
+        assertThat(version1.get().getName()).isEqualTo(NAME);
+        Optional<? extends ReadingTypeDataExportTask> version2 = history.getVersion(2);
+        assertThat(version2).isPresent();
+        assertThat(version2.get().getName()).isEqualTo("NEWNAME");
+        assertThat(version2.get().getProperties()).containsEntry("propy", value1);
+        Optional<? extends ReadingTypeDataExportTask> version3 = history.getVersion(3);
+        assertThat(version3).isPresent();
+        assertThat(version3.get().getName()).isEqualTo("NEWNAME");
+        assertThat(version3.get().getProperties()).containsEntry("propy", value2);
     }
 
     @Test

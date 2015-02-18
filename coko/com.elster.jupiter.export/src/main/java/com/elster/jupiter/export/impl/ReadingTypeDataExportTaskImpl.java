@@ -8,6 +8,7 @@ import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -15,6 +16,8 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.History;
+import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -66,10 +69,10 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     private String dataProcessor;
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
-    private List<DataExportProperty> properties = new ArrayList<>();
     private boolean exportUpdate;
     private boolean exportContinuousData;
     private ValidatedDataOption validatedDataOption;
+    private List<DataExportProperty> properties = new ArrayList<>();
     @Valid
     private List<ReadingTypeInExportTask> readingTypes = new ArrayList<>();
     private List<ReadingTypeDataExportItemImpl> exportItems = new ArrayList<>();
@@ -81,6 +84,11 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     private transient boolean recurrentTaskDirty;
     private transient boolean propertiesDirty;
     private transient Instant nextExecution;
+
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
+    private String userName;
 
     @Inject
     ReadingTypeDataExportTaskImpl(DataModel dataModel, TaskService taskService, IDataExportService dataExportService, MeteringService meteringService, Thesaurus thesaurus) {
@@ -207,7 +215,10 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         if (!canBeDeleted()) {
             throw new CannotDeleteWhileBusy();
         }
-        dataModel.remove(this);
+        properties.clear();
+        readingTypes.clear();
+        exportItems.clear();
+        dataModel.mapper(DataExportOccurrence.class).remove(getOccurrences());
         if (recurrentTask.isPresent()) {
             recurrentTask.get().delete();
         }
@@ -448,6 +459,27 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     public void updateLastRun(Instant triggerTime) {
         lastRun = triggerTime;
         save();
+    }
+
+    public long getVersion() {
+        return version;
+    }
+
+    public Instant getCreateTime() {
+        return createTime;
+    }
+
+    public Instant getModTime() {
+        return modTime;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public History<? extends ReadingTypeDataExportTask> getHistory() {
+        List<JournalEntry<IReadingTypeDataExportTask>> journal = dataModel.mapper(IReadingTypeDataExportTask.class).getJournal(getId());
+        return new History<>(journal, this);
     }
 
     private class CannotDeleteWhileBusy extends CannotDeleteWhileBusyException {

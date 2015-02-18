@@ -22,6 +22,7 @@ enum TableSpecs {
         @Override
         void describeTable(Table table) {
             table.map(ReadingTypeDataExportTaskImpl.class);
+            table.setJournalTableName("DES_RTDATAEXPORTTASKJRNL");
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("dataProcessor").varChar(NAME_LENGTH).notNull().map("dataProcessor").add();
@@ -34,6 +35,7 @@ enum TableSpecs {
             table.column("VALIDATED_DATA_OPTION").number().conversion(ColumnConversion.NUMBER2ENUM).map("validatedDataOption").add();
 
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
+            table.addAuditColumns();
 
             table.foreignKey("DES_FK_RTET_EXPORTPERIOD")
                     .on(exportPeriod)
@@ -67,7 +69,7 @@ enum TableSpecs {
             Column readingType = table.column("READINGTYPE").varChar(Table.NAME_LENGTH).notNull().map("readingTypeMRID").add();
 
             table.primaryKey("DES_PK_RT_RTEXPORTTASK").on(exportTask, readingType).add();
-            table.foreignKey("DES_FK_RTINET_RTEXPORTTASK").on(exportTask).references(DES_RTDATAEXPORTTASK.name()).onDelete(DeleteRule.CASCADE)
+            table.foreignKey("DES_FK_RTINET_RTEXPORTTASK").on(exportTask).references(DES_RTDATAEXPORTTASK.name())
                     .map("readingTypeDataExportTask").reverseMap("readingTypes").composition().add();
             table.foreignKey("DES_FK_RTINET_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").onDelete(DeleteRule.RESTRICT)
                     .map("readingType").add();
@@ -82,7 +84,7 @@ enum TableSpecs {
             table.column("VALUE").varChar(Table.DESCRIPTION_LENGTH).map("stringValue").add();
 
             table.primaryKey("DES_PK_RTETPROPERTY").on(taskColumn, nameColumn).add();
-            table.foreignKey("DES_FK_PRPINET_RTEXPORTTASK").on(taskColumn).references(DES_RTDATAEXPORTTASK.name()).onDelete(DeleteRule.CASCADE)
+            table.foreignKey("DES_FK_PRPINET_RTEXPORTTASK").on(taskColumn).references(DES_RTDATAEXPORTTASK.name())
                     .map("task").reverseMap("properties").composition().add();
         }
     },
@@ -98,9 +100,9 @@ enum TableSpecs {
             table.column("MESSAGE").varChar(Table.SHORT_DESCRIPTION_LENGTH).map("failureReason").add();
 
             table.primaryKey("DES_PK_EXPOCC").on(taskOccurrence).add();
-            table.foreignKey("DES_FK_EXPOCC_TSKOCC").on(taskOccurrence).references(TaskService.COMPONENTNAME, "TSK_TASK_OCCURRENCE").onDelete(DeleteRule.CASCADE)
+            table.foreignKey("DES_FK_EXPOCC_TSKOCC").on(taskOccurrence).references(TaskService.COMPONENTNAME, "TSK_TASK_OCCURRENCE")
                     .map("taskOccurrence").refPartition().add();
-            table.foreignKey("DES_FK_EXPOCC_RTEXPORTTASK").on(task).references(DES_RTDATAEXPORTTASK.name()).onDelete(DeleteRule.CASCADE)
+            table.foreignKey("DES_FK_EXPOCC_RTEXPORTTASK").on(task).references(DES_RTDATAEXPORTTASK.name())
                     .map("readingTask").add();
 
         }
@@ -119,7 +121,7 @@ enum TableSpecs {
             table.column("ACTIVE").bool().notNull().map("active").add();
 
             table.primaryKey("DES_PK_RTEXPITEM").on(idColumn).add();
-            table.foreignKey("DES_FK_RTEXPITEM_TASK").on(task).references(DES_RTDATAEXPORTTASK.name()).onDelete(DeleteRule.CASCADE)
+            table.foreignKey("DES_FK_RTEXPITEM_TASK").on(task).references(DES_RTDATAEXPORTTASK.name())
                     .map("task").reverseMap("exportItems").composition().add();
         }
     },

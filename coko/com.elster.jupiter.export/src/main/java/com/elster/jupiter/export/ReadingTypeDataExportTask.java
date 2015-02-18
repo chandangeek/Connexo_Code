@@ -2,6 +2,8 @@ package com.elster.jupiter.export;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.orm.HasAuditInfo;
+import com.elster.jupiter.orm.History;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.HasName;
@@ -13,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public interface ReadingTypeDataExportTask extends HasName {
+public interface ReadingTypeDataExportTask extends HasName, HasAuditInfo {
 
     long getId();
 
@@ -84,4 +86,6 @@ public interface ReadingTypeDataExportTask extends HasName {
     void triggerNow();
 
     void updateLastRun(Instant triggerTime);
+
+    History<? extends ReadingTypeDataExportTask> getHistory();
 }

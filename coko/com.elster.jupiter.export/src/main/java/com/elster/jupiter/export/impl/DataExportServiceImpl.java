@@ -190,18 +190,23 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Activate
     public final void activate() {
-        dataModel.register(new AbstractModule() {
-            @Override
-            protected void configure() {
-                bind(IDataExportService.class).toInstance(DataExportServiceImpl.this);
-                bind(TaskService.class).toInstance(taskService);
-                bind(MeteringService.class).toInstance(meteringService);
-                bind(MessageInterpolator.class).toInstance(thesaurus);
-                bind(Thesaurus.class).toInstance(thesaurus);
-                bind(Clock.class).toInstance(clock);
-                bind(UserService.class).toInstance(userService);
-            }
-        });
+        try {
+            dataModel.register(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(IDataExportService.class).toInstance(DataExportServiceImpl.this);
+                    bind(TaskService.class).toInstance(taskService);
+                    bind(MeteringService.class).toInstance(meteringService);
+                    bind(MessageInterpolator.class).toInstance(thesaurus);
+                    bind(Thesaurus.class).toInstance(thesaurus);
+                    bind(Clock.class).toInstance(clock);
+                    bind(UserService.class).toInstance(userService);
+                }
+            });
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     @Deactivate
