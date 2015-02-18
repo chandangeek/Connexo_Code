@@ -13,10 +13,11 @@ import java.util.Set;
 public class SimpleConditionOperation extends ConditionOperation {
 
     private static final Set<Class<?>> ALLOWED_VALUE_TYPES = ImmutableSet.<Class<?>>of(Integer.class, Long.class, Byte.class, Float.class, Character.class, Double.class, Short.class, Boolean.class, String.class);
+    private static final Set<Operator> ALLOWED_OPERATIONS = ImmutableSet.of(Operator.EQUAL, Operator.LIKE, Operator.LIKEIGNORECASE);
     public static final String TYPE_IDENTIFIER = "SCD";
 
     private String fieldName;
-    private String operator = Operator.EQUAL.getSymbol();
+    private Operator operator = Operator.EQUAL;
     private Object[] values;
 
     @Inject
@@ -25,10 +26,10 @@ public class SimpleConditionOperation extends ConditionOperation {
     }
 
     public SimpleConditionOperation(Comparison comparison) {
-        operator = comparison.getOperator().getSymbol();
+        operator = comparison.getOperator();
         fieldName = comparison.getFieldName();
-        if ((Operator.EQUAL != comparison.getOperator()) && (Operator.LIKE != comparison.getOperator())) {
-            throw new UnsupportedOperationException("Only EQUAL and LIKE operator are supported.");
+        if (!ALLOWED_OPERATIONS.contains(operator)) {
+            throw new UnsupportedOperationException("Unsupported operator, use one of the following: "+Arrays.toString(ALLOWED_OPERATIONS.toArray()));
         }
         values = Arrays.copyOf(comparison.getValues(), comparison.getValues().length);
         for (Object value : values) {
@@ -45,13 +46,10 @@ public class SimpleConditionOperation extends ConditionOperation {
 
     @Override
     public Condition toCondition(Condition... conditions) {
-        if (operator.equals(Operator.EQUAL.getSymbol())) {
-            return Operator.EQUAL.compare(fieldName, values);
-        } else if (operator.equals(Operator.LIKE.getSymbol())) {
-            return Operator.LIKE.compare(fieldName, values);
-        } else {
-            throw new UnsupportedOperationException("Only EQUAL and LIKE operator are supported.");
+        if (!ALLOWED_OPERATIONS.contains(operator)) {
+            throw new UnsupportedOperationException("Unsupported operator, use one of the following: "+Arrays.toString(ALLOWED_OPERATIONS.toArray()));
         }
+        return operator.compare(fieldName, values);
     }
 
     public String getFieldName() {
@@ -59,9 +57,9 @@ public class SimpleConditionOperation extends ConditionOperation {
     }
 
     public Object[] getValues() {
-        if (operator.equals(Operator.EQUAL.getSymbol())) {
+        if (Operator.EQUAL.equals(operator)) {
             return values;
-        } if (operator.equals(Operator.LIKE.getSymbol())) {
+        } if (Operator.LIKE.equals(operator) || Operator.LIKEIGNORECASE.equals(operator)) {
             return Arrays.asList(values).stream().map(v->fromOracleSql((String)v)).collect(Collectors.toList()).toArray();
         } else {
             throw new UnsupportedOperationException("Only EQUAL and LIKE operator are supported.");

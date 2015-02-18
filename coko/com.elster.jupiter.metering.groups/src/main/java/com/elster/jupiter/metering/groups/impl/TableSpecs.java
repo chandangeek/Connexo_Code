@@ -62,7 +62,7 @@ public enum TableSpecs {
             Column groupColumn = table.column("GROUP_ID").type("number").notNull().conversion(NUMBER2LONG).map("groupId").add();
             Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
             table.addDiscriminatorColumn("OPERATORTYPE", "char(3)");
-            table.column("OPERATOR").varChar(NAME_LENGTH).map("operator").add();
+            table.column("OPERATOR").number().conversion(NUMBER2ENUM).map("operator").add();
             table.column("FIELDNAME").varChar(NAME_LENGTH).map("fieldName").add();
             table.column("BINDVALUES").varChar(SHORT_DESCRIPTION_LENGTH).conversion(CHAR2JSON).map("values").add();
 
@@ -110,7 +110,7 @@ public enum TableSpecs {
             Column groupColumn = table.column("GROUP_ID").type("number").notNull().conversion(NUMBER2LONG).map("groupId").add();
             Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
             table.addDiscriminatorColumn("OPERATORTYPE", "char(3)");
-            table.column("OPERATOR").varChar(NAME_LENGTH).map("operator").add();
+            table.column("OPERATOR").number().conversion(NUMBER2ENUM).map("operator").add();
             table.column("FIELDNAME").varChar(NAME_LENGTH).map("fieldName").add();
             table.column("BINDVALUES").varChar(SHORT_DESCRIPTION_LENGTH).conversion(CHAR2JSON).map("values").add();
 
