@@ -60,7 +60,9 @@ public class JsonQueryFilter {
                 JsonNode node = new ObjectMapper().readValue(new ByteArrayInputStream(source.getBytes()), JsonNode.class);
                 if (node != null && node.isArray()) {
                     for (JsonNode singleFilter : node) {
-                        filterProperties.put(singleFilter.get(PROPERTY).textValue(), singleFilter.get(VALUE));
+                        JsonNode property = singleFilter.get(PROPERTY);
+                        if(property!=null && property.textValue()!=null)
+                            filterProperties.put(property.textValue(), singleFilter.get(VALUE));
                     }
                 }
             }
