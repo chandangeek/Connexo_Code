@@ -176,7 +176,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             success: function (registerType) {
                 me.getApplication().fireEvent('loadRegisterType', registerType);
                 widget.down('form').loadRecord(registerType);
-                widget.down('#registerTypeEditForm').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + registerType.get('name') + '\'');
+                widget.down('#registerTypeEditForm').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + registerType.get('readingType').fullAliasName + '\'');
                 readingTypeStore = widget.down('#readingTypeCombo').getStore();
                 readingTypeStore.load({
                     callback: function () {

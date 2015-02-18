@@ -101,21 +101,14 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                             },
                                             columns: [
                                                 {
-                                                    header: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
-                                                    dataIndex: 'name',
-                                                    sortable: false,
-                                                    hideable: false,
-                                                    fixed: true,
-                                                    flex: 1
-                                                },
-                                                {
                                                     xtype: 'reading-type-column',
                                                     dataIndex: 'readingType',
-                                                    flex: 1
+                                                    flex: 2
                                                 },
                                                 {
                                                     xtype: 'obis-column',
-                                                    dataIndex: 'obisCode'
+                                                    dataIndex: 'obisCode',
+                                                    flex: 1
                                                 }
                                             ]
                                         },

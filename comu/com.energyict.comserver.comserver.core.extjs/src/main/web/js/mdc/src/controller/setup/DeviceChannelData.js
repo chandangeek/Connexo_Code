@@ -241,21 +241,21 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         if (dataStore.getTotalCount() > 0) {
             dataStore.each(function (record) {
                 if (record.get('value')) {
-                    seriesObject['data'].unshift([record.get('interval').end, parseFloat(record.get('value'))]);
+                    seriesObject['data'].unshift([record.get('interval').start, parseFloat(record.get('value'))]);
                 } else {
-                    seriesObject['data'].unshift([record.get('interval').end, null]);
+                    seriesObject['data'].unshift([record.get('interval').start, null]);
                 }
             });
             series.push(seriesObject);
             Ext.suspendLayouts();
             container.down('#graphContainer').show();
-            container.down('#emptyGraphMessage').hide();
+            container.down('#ctr-graph-no-data').hide();
             container.drawGraph(yAxis, series, intervalLengthInMs, channelName, unitOfMeasure, zoomLevels);
             Ext.resumeLayouts(true);
         } else {
             Ext.suspendLayouts();
             container.down('#graphContainer').hide();
-            container.down('#emptyGraphMessage').show();
+            container.down('#ctr-graph-no-data').show();
             Ext.resumeLayouts(true);
         }
         me.getPage().doLayout();

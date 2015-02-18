@@ -29,9 +29,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileTab', {
     initTabDeviceLoadProfileDetailsView: function (mrId, loadProfileId) {
         this.mrId = mrId;
         this.loadProfileId = loadProfileId;
-        var c = this.getController('Mdc.controller.setup.DeviceLoadProfileOverview'),
-            loadProfile = this.getController('Mdc.controller.setup.DeviceLoadProfileData').getLoadProfile();
-        c.showOverview(mrId, loadProfileId, this, loadProfile);
+        var c = this.getController('Mdc.controller.setup.DeviceLoadProfileOverview');
+        c.showOverview(mrId, loadProfileId, this, null);
         this.veto = true;
     },
 
