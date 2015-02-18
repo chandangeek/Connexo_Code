@@ -2,7 +2,7 @@ Ext.define('Idc.view.workspace.issues.bulk.IssuesSelectionGrid', {
     extend: 'Uni.view.grid.BulkSelection',
     xtype: 'issues-selection-grid',
 
-    store: 'Idc.store.Issues',
+    store: 'Idc.store.IssuesBuffered',
 
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
@@ -22,10 +22,6 @@ Ext.define('Idc.view.workspace.issues.bulk.IssuesSelectionGrid', {
     cancelHref: '#/search',
 
     columns: {
-        defaults: {
-            sortable: false,
-            menuDisabled: true
-        },
         items: [
             {
                 itemId: 'issues-grid-title',

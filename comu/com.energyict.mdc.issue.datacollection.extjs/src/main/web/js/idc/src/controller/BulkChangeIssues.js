@@ -2,7 +2,7 @@ Ext.define('Idc.controller.BulkChangeIssues', {
     extend: 'Ext.app.Controller',
 
     stores: [
-        'Idc.store.Issues',
+        'Idc.store.IssuesBuffered',
         'Idc.store.BulkChangeIssues',
         'Idc.store.UserList',
         'Isu.store.IssueStatuses'
@@ -90,7 +90,7 @@ Ext.define('Idc.controller.BulkChangeIssues', {
 
     showOverview: function () {
         var me = this,
-            issuesStore = this.getStore('Idc.store.Issues'),
+            issuesStore = this.getStore('Idc.store.IssuesBuffered'),
             issuesStoreProxy = issuesStore.getProxy(),
             widget;
 
@@ -99,7 +99,8 @@ Ext.define('Idc.controller.BulkChangeIssues', {
 
         widget = Ext.widget('bulk-browse');
         me.getApplication().fireEvent('changecontentevent', widget);
-        issuesStore.load();
+        issuesStore.data.clear();
+        issuesStore.loadPage(1);
     },
 
     setActivePage: function (index) {
