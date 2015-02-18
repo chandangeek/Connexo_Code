@@ -10,6 +10,7 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
     items: [
         {
             xtype: 'numberfield',
+            itemId: 'num-tcp-simultaneous-connections',
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.connectionCount', 'MDC', 'Simultaneous connections'),
             required: true,
             allowBlank: false,

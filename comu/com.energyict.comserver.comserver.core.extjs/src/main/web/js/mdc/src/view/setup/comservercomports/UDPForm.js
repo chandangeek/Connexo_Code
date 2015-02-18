@@ -10,6 +10,7 @@ Ext.define('Mdc.view.setup.comservercomports.UDPForm', {
     items: [
         {
             xtype: 'numberfield',
+            itemId: 'num-udp-simultaneous-connections',
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.connectionCount', 'MDC', 'Simultaneous connections'),
             required: true,
             minValue: 1,

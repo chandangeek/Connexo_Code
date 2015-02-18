@@ -7,6 +7,7 @@ Ext.define('Mdc.store.AvailableRegisterTypes', {
     model: 'Mdc.model.RegisterType',
     storeId: 'AvailableRegisterTypes',
 
+    pageSize: 200,
     buffered: true,
 
     proxy: {

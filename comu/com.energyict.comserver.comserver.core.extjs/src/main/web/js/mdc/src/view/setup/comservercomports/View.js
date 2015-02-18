@@ -25,6 +25,7 @@ Ext.define('Mdc.view.setup.comservercomports.View', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
+                        itemId: 'ctr-no-communication-ports',
                         title: Uni.I18n.translate('comServerComPorts.empty.title', 'MDC', 'No communication ports found'),
                         reasons: [
                             Uni.I18n.translate('comServerComPorts.empty.list.item1', 'MDC', 'No communication ports are associated to this communication server.')

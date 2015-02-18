@@ -6,7 +6,7 @@ Ext.define('Mdc.store.AvailableLogbookTypes', {
     ],
     model: 'Mdc.model.LogbookTypeOfDeviceType',
     storeId: 'AvailableLogbookTypes',
-    pageSize: 10,
+    pageSize: 200,
     buffered: true,
     proxy: {
         type: 'rest',
