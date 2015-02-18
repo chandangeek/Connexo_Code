@@ -1,16 +1,19 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.History;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-
 import java.time.Instant;
 
-public class ServiceCategoryImpl implements ServiceCategory  {
+public class ServiceCategoryImpl implements ServiceCategory {
 	//persistent fields
 	private ServiceKind kind;
 	private String aliasName;
@@ -72,8 +75,12 @@ public class ServiceCategoryImpl implements ServiceCategory  {
     public void persist() {
 		dataModel.persist(this);
 	}
-	
-	public UsagePoint newUsagePoint(String mRid) {
+
+    public void update() {
+        dataModel.update(this);
+    }
+
+    public UsagePoint newUsagePoint(String mRid) {
 		return usagePointFactory.get().init(mRid,this);
 	}
 
@@ -96,4 +103,27 @@ public class ServiceCategoryImpl implements ServiceCategory  {
         }
     }
 
+    @Override
+    public long getVersion() {
+        return version;
+    }
+
+    @Override
+    public Instant getCreateTime() {
+        return createTime;
+    }
+
+    @Override
+    public Instant getModTime() {
+        return modTime;
+    }
+
+    @Override
+    public String getUserName() {
+        return userName;
+    }
+
+    History<? extends ServiceCategory> getHistory() {
+        return new History<>(dataModel.mapper(ServiceCategory.class).getJournal(this.getKind()), this);
+    }
 }
