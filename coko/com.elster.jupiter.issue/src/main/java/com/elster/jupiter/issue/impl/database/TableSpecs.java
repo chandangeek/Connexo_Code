@@ -217,7 +217,7 @@ public enum TableSpecs {
             table.setJournalTableName(CREATION_RULE_JOURNAL_TABLE_NAME);
 
             Column idColumn = table.addAutoIdColumn();
-            Column nameColumn = table.column(CREATION_RULE_NAME).map("name").varChar(SHORT_DESCRIPTION_LENGTH).notNull().add();
+            Column nameColumn = table.column(CREATION_RULE_NAME).map("name").varChar(NAME_LENGTH).notNull().add();
             table.column(CREATION_RULE_COMMENT).map("comment").type("clob").conversion(CLOB2STRING).add();
             table.column(CREATION_RULE_CONTENT).map("content").type("clob").conversion(CLOB2STRING).notNull().add();
             Column reasonRefIdColumn = table.column(CREATION_RULE_REASON_ID).varChar(NAME_LENGTH).notNull().add();

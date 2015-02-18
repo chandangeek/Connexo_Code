@@ -91,10 +91,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     @Override
     public String getKey() {
-        if (key.startsWith(getModule() + ".")){
-            // +1 to skip the dot symbol
-            return key.substring(getModule().length() + 1);
-        }
         return this.key;
     }
 
@@ -136,18 +132,17 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     public static class Keys {
         private Keys() {}
-        private static final String KEY_PREFIX = IssueService.COMPONENT_NAME + ".";
+        
+        public static final String FIELD_CAN_NOT_BE_EMPTY       = "FieldCanNotBeEmpty";
+        public static final String FIELD_SIZE_BETWEEN_1_AND_80  = "FieldSizeBetween1and80";
+        public static final String FIELD_SIZE_BETWEEN_1_AND_128 = "FieldSizeBetween1and128";
+        public static final String FIELD_SIZE_BETWEEN_1_AND_200 = "FieldSizeBetween1and200";
+        public static final String FIELD_SIZE_BETWEEN_1_AND_256 = "FieldSizeBetween1and256";
+        public static final String FIELD_SIZE_BETWEEN_1_AND_400 = "FieldSizeBetween1and400";
+        public static final String FIELD_SIZE_BETWEEN_1_AND_1024= "FieldSizeBetween1and1024";
 
-        public static final String FIELD_CAN_NOT_BE_EMPTY       = KEY_PREFIX + "FieldCanNotBeEmpty";
-        public static final String FIELD_SIZE_BETWEEN_1_AND_80  = KEY_PREFIX + "FieldSizeBetween1and80";
-        public static final String FIELD_SIZE_BETWEEN_1_AND_128 = KEY_PREFIX + "FieldSizeBetween1and128";
-        public static final String FIELD_SIZE_BETWEEN_1_AND_200 = KEY_PREFIX + "FieldSizeBetween1and200";
-        public static final String FIELD_SIZE_BETWEEN_1_AND_256 = KEY_PREFIX + "FieldSizeBetween1and256";
-        public static final String FIELD_SIZE_BETWEEN_1_AND_400 = KEY_PREFIX + "FieldSizeBetween1and400";
-        public static final String FIELD_SIZE_BETWEEN_1_AND_1024= KEY_PREFIX + "FieldSizeBetween1and1024";
-
-        public static final String ISSUE_COMMENT_COMMENT_SIZE   = KEY_PREFIX + "IssueCommentCommentSize";
-        public static final String ACTION_TYPE_DESCRIPTION_SIZE   = KEY_PREFIX + "ActionTypeDescriptionSize";
-        public static final String CREATION_RULE_UNIQUE_NAME   = KEY_PREFIX + "CreationRuleUniqueName";
+        public static final String ISSUE_COMMENT_COMMENT_SIZE   = "IssueCommentCommentSize";
+        public static final String ACTION_TYPE_DESCRIPTION_SIZE = "ActionTypeDescriptionSize";
+        public static final String CREATION_RULE_UNIQUE_NAME    = "CreationRuleUniqueName";
     }
 }
