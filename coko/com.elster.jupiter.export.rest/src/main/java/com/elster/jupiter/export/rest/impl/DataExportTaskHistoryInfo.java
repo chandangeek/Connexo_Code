@@ -30,6 +30,7 @@ public class DataExportTaskHistoryInfo {
     public Long exportPeriodTo;
     public Long statusDate;
     public String statusPrefix;
+    public DataExportTaskInfo task;
 
     public DataExportTaskHistoryInfo() {
     }
