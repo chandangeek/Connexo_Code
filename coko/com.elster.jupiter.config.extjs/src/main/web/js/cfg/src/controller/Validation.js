@@ -488,11 +488,14 @@ Ext.define('Cfg.controller.Validation', {
         if (me.validationRuleRecord) {
             var readingTypes = me.validationRuleRecord.get('readingTypes');
             if (Ext.isArray(readingTypes) && !Ext.isEmpty(readingTypes)) {
+                var mRIDs = [];
                 readingTypes.forEach(function (readingType) {
-                    properties.push({
-                        property: 'mRID',
-                        value: readingType.mRID
-                    });
+                    mRIDs.push(readingType.mRID.toLowerCase());
+
+                });
+                properties.push({
+                    property: 'selectedReadings',
+                    value:mRIDs
                 });
             }
         }
@@ -529,8 +532,8 @@ Ext.define('Cfg.controller.Validation', {
         Ext.override(Ext.data.proxy.Ajax, {timeout: 120000});
         //</debug>
 
-        readingTypeStore.on('load', function (records) {
-            if (!records.length) {
+        readingTypeStore.on('load', function (store, records) {
+            if (!records || !records.length) {
                 widget.down('#buttonsContainer button[name=add]').setDisabled(true);
             }
         }, me, {
