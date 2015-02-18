@@ -10,6 +10,10 @@ import com.energyict.mdc.masterdata.MeasurementType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 @XmlRootElement
 public class RegisterTypeInfo {
 
