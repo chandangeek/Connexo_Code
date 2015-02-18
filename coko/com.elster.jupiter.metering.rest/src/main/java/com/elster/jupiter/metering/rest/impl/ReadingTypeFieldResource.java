@@ -5,10 +5,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.ListPager;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import java.util.List;
 import java.util.Set;
@@ -80,7 +77,7 @@ public class ReadingTypeFieldResource {
         final Predicate<ReadingType> filter = getReadingTypeFilterPredicate(queryFilter);
         readingTypes = readingTypes.stream().filter(filter).sorted((c1,c2)->(c1.getFullAliasName().compareToIgnoreCase(c2.getFullAliasName()))).collect(Collectors.<ReadingType>toList());
         List<ReadingTypeInfo> pagedReadingTypes = ListPager.of(readingTypes).from(queryParameters).find().stream().map(ReadingTypeInfo::new).collect(toList());
-        return Response.ok(PagedInfoList.asJson("readingTypes", pagedReadingTypes, queryParameters)).build();
+        return Response.ok(InfiniteScrollingInfoList.asJson("readingTypes", pagedReadingTypes, queryParameters, readingTypes.size())).build();
     }
 
     private Predicate<ReadingType> getReadingTypeFilterPredicate(JsonQueryFilter queryFilter) {
@@ -103,6 +100,9 @@ public class ReadingTypeFieldResource {
             }
             if (queryFilter.hasProperty("multiplier")) {
                 filter=filter.and(rt->rt.getMultiplier().getMultiplier()==queryFilter.getInteger("multiplier"));
+            }
+            if (queryFilter.hasProperty("selectedReadings")) {
+                filter=filter.and(rt->!queryFilter.getStringList("selectedReadings").contains(rt.getMRID().toLowerCase()));
             }
         }
         return filter;
