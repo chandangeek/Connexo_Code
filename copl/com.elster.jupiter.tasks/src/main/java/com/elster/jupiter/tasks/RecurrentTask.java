@@ -51,5 +51,8 @@ public interface RecurrentTask extends HasName, HasAuditInfo {
 
     Optional<TaskOccurrence> getLastOccurrence();
 
+    /**
+     * @since v1.1
+     */
     History<? extends RecurrentTask> getHistory();
 }
