@@ -1057,8 +1057,9 @@ Ext.define('Cfg.controller.Validation', {
             url: '/api/val/validation/' + ruleSet.get('id') + '/usage',
             method: 'GET',
             success: function (operation) {
-                var jsonIsInUse = operation.responseText;
-                me.showDeleteRuleSetConfirmation(ruleSet, jsonIsInUse);
+                var response = Ext.JSON.decode(operation.responseText);
+
+                me.showDeleteRuleSetConfirmation(ruleSet, response.isInUse);
             }
         })
     },
