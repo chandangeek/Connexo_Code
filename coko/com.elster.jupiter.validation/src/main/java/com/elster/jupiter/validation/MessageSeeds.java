@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
 
-    CAN_NOT_BE_EMPTY(2, Constants.NAME_REQUIRED_KEY, "This field is required", Level.SEVERE),
+    CAN_NOT_BE_EMPTY(2, Constants.NAME_REQUIRED_KEY, "Field is required", Level.SEVERE),
     INVALID_CHARS(5, Constants.INVALID_CHARS, "This field contains invalid chars, should obey {regex}", Level.SEVERE),
 
     FIELD_SIZE_BETWEEN_1_AND_80(6, Constants.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE),
