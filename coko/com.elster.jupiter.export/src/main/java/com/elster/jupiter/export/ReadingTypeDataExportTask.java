@@ -87,5 +87,8 @@ public interface ReadingTypeDataExportTask extends HasName, HasAuditInfo {
 
     void updateLastRun(Instant triggerTime);
 
+    /**
+     * @since v1.1
+     */
     History<? extends ReadingTypeDataExportTask> getHistory();
 }
