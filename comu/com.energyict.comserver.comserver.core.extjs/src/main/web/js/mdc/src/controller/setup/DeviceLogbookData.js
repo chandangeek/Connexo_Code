@@ -19,7 +19,8 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
         'Mdc.store.LogbookOfDeviceData',
         'Mdc.store.Domains',
         'Mdc.store.Subdomains',
-        'Mdc.store.EventsOrActions'
+        'Mdc.store.EventsOrActions',
+        'Mdc.store.LogbooksOfDevice'
     ],
 
     refs: [
@@ -85,6 +86,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
             dataStoreProxy = dataStore.getProxy(),
             widget,
             data,
+            logbooksOfDeviceStore = me.getStore('Mdc.store.LogbooksOfDevice'),
             sideFilter;
 
         dataStoreProxy.setUrl({
@@ -108,28 +110,38 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
                     side: false,
                     eventsView: false
                 });
-                me.getApplication().fireEvent('changecontentevent', widget);
-                widget.down('#logBook-data').add(data);
-                tabController.showTab(1);
-                sideFilter = me.getSideFilter();
-                sideFilter.show();
-                sideFilter.disable();
-                Uni.util.Common.loadNecessaryStores([
-                    'Mdc.store.Domains',
-                    'Mdc.store.Subdomains',
-                    'Mdc.store.EventsOrActions'
-                ], function () {
-                    me.getFilterForm().loadRecord(router.filter);
-                    sideFilter.enable();
-                    me.setFilterView();
-                });
-                logbookModel.getProxy().setUrl(mRID);
-                logbookModel.load(logbookId, {
-                    success: function (record) {
-                        me.getApplication().fireEvent('logbookOfDeviceLoad', record);
-                        widget.down('#logBookTabPanel').setTitle(record.get('name'));
-                    }
-                });
+                var func = function () {
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                    widget.down('#logBook-data').add(data);
+                    tabController.showTab(1);
+                    sideFilter = me.getSideFilter();
+                    sideFilter.show();
+                    sideFilter.disable();
+                    Uni.util.Common.loadNecessaryStores([
+                        'Mdc.store.Domains',
+                        'Mdc.store.Subdomains',
+                        'Mdc.store.EventsOrActions'
+                    ], function () {
+                        me.getFilterForm().loadRecord(router.filter);
+                        sideFilter.enable();
+                        me.setFilterView();
+                    });
+                    logbookModel.getProxy().setUrl(mRID);
+                    logbookModel.load(logbookId, {
+                        success: function (record) {
+                            me.getApplication().fireEvent('logbookOfDeviceLoad', record);
+                            widget.down('#logBookTabPanel').setTitle(record.get('name'));
+                        }
+                    });
+                };
+                if (logbooksOfDeviceStore.getTotalCount() === 0) {
+                    logbooksOfDeviceStore.getProxy().setUrl(mRID);
+                    logbooksOfDeviceStore.load(function () {
+                        func();
+                    });
+                } else {
+                    func();
+                }
             }
         });
 

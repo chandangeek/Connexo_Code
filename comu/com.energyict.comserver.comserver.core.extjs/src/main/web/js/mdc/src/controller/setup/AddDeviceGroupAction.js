@@ -391,6 +391,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                         me.getDynamicGridContainer().setVisible(true);
                         me.getApplication().getController('Mdc.controller.setup.DevicesAddGroupController').applyFilter();
                     } else {
+                        view.setLoading();
                         Ext.suspendLayouts();
                         me.getDynamicGridContainer().setVisible(false);
                         me.getStaticGridContainer().setVisible(true);
@@ -441,6 +442,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                                     }
                                 });
                                 store.data.clear();
+                                view.setLoading(false);
                                 store.loadPage(1);
                             }
                         });
