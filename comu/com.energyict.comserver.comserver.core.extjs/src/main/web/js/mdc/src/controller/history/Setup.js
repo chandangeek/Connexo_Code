@@ -1099,7 +1099,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             }
                         },
                         registers: {
-                            title: Uni.I18n.translate('registerConfig.registerConfigs', 'MDC', 'Registers'),
+                            title: Uni.I18n.translate('deviceregisterconfiguration.registers', 'MDC', 'Registers'),
                             route: 'registers',
                             controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
                             privileges: ['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
