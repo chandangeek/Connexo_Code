@@ -6,7 +6,8 @@ Ext.define('Mdc.controller.setup.DeviceLogbookOverview', {
     ],
 
     stores: [
-      'TimeUnits'
+        'TimeUnits',
+        'Mdc.store.LogbooksOfDevice'
     ],
 
     views: [
@@ -30,6 +31,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbookOverview', {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
             logbookModel = me.getModel('Mdc.model.LogbookOfDevice'),
+            logbooksOfDeviceStore = me.getStore('Mdc.store.LogbooksOfDevice'),
             widget;
 
         deviceModel.load(mRID, {
@@ -42,19 +44,29 @@ Ext.define('Mdc.controller.setup.DeviceLogbookOverview', {
                     device: record,
                     router: me.getController('Uni.controller.history.Router')
                 });
-                widget.setLoading(true);
-                me.getApplication().fireEvent('changecontentevent', widget);
-                widget.down('#logBook-specifications').add(overview);
-                tabController.showTab(0);
-                logbookModel.getProxy().setUrl(mRID);
-                logbookModel.load(logbookId, {
-                    success: function (record) {
-                        me.getApplication().fireEvent('logbookOfDeviceLoad', record);
-                        widget.down('#logBookTabPanel').setTitle(record.get('name'));
-                        widget.down('#deviceLogbooksPreviewForm').loadRecord(record);
-                        widget.setLoading(false);
-                    }
-                });
+                var func = function () {
+                    widget.setLoading(true);
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                    widget.down('#logBook-specifications').add(overview);
+                    tabController.showTab(0);
+                    logbookModel.getProxy().setUrl(mRID);
+                    logbookModel.load(logbookId, {
+                        success: function (record) {
+                            me.getApplication().fireEvent('logbookOfDeviceLoad', record);
+                            widget.down('#logBookTabPanel').setTitle(record.get('name'));
+                            widget.down('#deviceLogbooksPreviewForm').loadRecord(record);
+                            widget.setLoading(false);
+                        }
+                    });
+                };
+                if (logbooksOfDeviceStore.getTotalCount() === 0) {
+                    logbooksOfDeviceStore.getProxy().setUrl(mRID);
+                    logbooksOfDeviceStore.load(function () {
+                        func();
+                    });
+                } else {
+                    func();
+                }
             }
         });
 

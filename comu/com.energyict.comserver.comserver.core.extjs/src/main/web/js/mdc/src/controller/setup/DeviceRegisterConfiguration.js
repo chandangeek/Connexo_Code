@@ -110,7 +110,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
 
     showDeviceRegisterConfigurationDetailsView: function (mRID, registerId, tabController) {
         var me = this,
-            contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+            contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            registersOfDeviceStore = me.getStore('RegisterConfigsOfDevice');
         contentPanel.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
@@ -121,20 +122,27 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                     success: function (register) {
                         var type = register.get('type');
                         var widget = Ext.widget('tabbedDeviceRegisterView',{device: device, router: me.getController('Uni.controller.history.Router')});
-                        me.getApplication().fireEvent('changecontentevent', widget);
-                        widget.down('#registerTabPanel').setTitle(register.get('name'));
-                        var config = Ext.widget('deviceRegisterConfigurationDetail-' + type, {mRID: mRID, registerId: registerId, router: me.getController('Uni.controller.history.Router')});
-                        var form = config.down('#deviceRegisterConfigurationDetailForm');
-                        me.getApplication().fireEvent('loadRegisterConfiguration', register);
-                        form.loadRecord(register);
-                        if (!register.data.detailedValidationInfo.validationActive) {
-                            config.down('#validateNowRegister').hide();
+                        var func = function () {
+                            me.getApplication().fireEvent('changecontentevent', widget);
+                            widget.down('#registerTabPanel').setTitle(register.get('name'));
+                            var config = Ext.widget('deviceRegisterConfigurationDetail-' + type, {mRID: mRID, registerId: registerId, router: me.getController('Uni.controller.history.Router')});
+                            var form = config.down('#deviceRegisterConfigurationDetailForm');
+                            me.getApplication().fireEvent('loadRegisterConfiguration', register);
+                            form.loadRecord(register);
+                            if (!register.data.detailedValidationInfo.validationActive) {
+                                config.down('#validateNowRegister').hide();
+                            }
+                            config.down('#deviceRegisterConfigurationActionMenu').record = register;
+                            widget.down('#register-specifications').add(config);
+                        };
+                        if (registersOfDeviceStore.getTotalCount() === 0) {
+                            registersOfDeviceStore.getProxy().url = registersOfDeviceStore.getProxy().url.replace('{mRID}', mRID);
+                            registersOfDeviceStore.load(function () {
+                                func();
+                            });
+                        } else {
+                            func();
                         }
-                        config.down('#deviceRegisterConfigurationActionMenu').record = register;
-
-                        widget.down('#register-specifications').add(config);
-
-
                     },
                     callback: function () {
                         contentPanel.setLoading(false);

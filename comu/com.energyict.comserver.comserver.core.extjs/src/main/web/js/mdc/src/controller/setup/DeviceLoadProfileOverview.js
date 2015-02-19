@@ -15,7 +15,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
     ],
 
     stores: [
-        'TimeUnits'
+        'TimeUnits',
+        'Mdc.store.LoadProfilesOfDevice'
     ],
 
     showOverview: function (mRID, loadProfileId, tabController, loadProfile) {
@@ -25,6 +26,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
             timeUnitsStore = me.getStore('TimeUnits'),
             widget,
             router = me.getController('Uni.controller.history.Router'),
+            loadProfilesStore = me.getStore('Mdc.store.LoadProfilesOfDevice'),
             tabWidget;
 
         timeUnitsStore.load();
@@ -42,38 +44,48 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
                     router: router,
                     device: device
                 });
-                me.getApplication().fireEvent('changecontentevent', tabWidget);
-                Ext.suspendLayouts();
-                tabWidget.down('#deviceLoadProfileDataSideFilter').setVisible(false);
-                tabWidget.down('#loadProfile-specifications').add(widget);
-                tabController.showTab(0);
+                var func = function () {
+                    me.getApplication().fireEvent('changecontentevent', tabWidget);
+                    Ext.suspendLayouts();
+                    tabWidget.down('#deviceLoadProfileDataSideFilter').setVisible(false);
+                    tabWidget.down('#loadProfile-specifications').add(widget);
+                    tabController.showTab(0);
 
-                var updateView = function (record) {
-                    if (!widget.isDestroyed) {
-                        me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
-                        widget.down('#deviceLoadProfilesPreviewForm').loadRecord(record);
-                        tabWidget.down('#loadProfileTabPanel').setTitle(record.get('name'));
-                        widget.down('deviceLoadProfilesActionMenu').record = record;
-                        Ext.resumeLayouts(true);
+                    var updateView = function (record) {
+                        if (!widget.isDestroyed) {
+                            me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
+                            widget.down('#deviceLoadProfilesPreviewForm').loadRecord(record);
+                            tabWidget.down('#loadProfileTabPanel').setTitle(record.get('name'));
+                            widget.down('deviceLoadProfilesActionMenu').record = record;
+                            Ext.resumeLayouts(true);
+                        }
+                    };
+
+                    tabWidget.setLoading(true);
+                    if (loadProfile) {
+                        me.setLoadProfile(loadProfile);
+                        updateView(loadProfile);
+                        tabWidget.setLoading(false);
+                    } else {
+                        loadProfileOfDeviceModel.getProxy().setUrl(mRID);
+                        loadProfileOfDeviceModel.load(loadProfileId, {
+                            success: function (record) {
+                                me.setLoadProfile(record);
+                                updateView(record);
+                            },
+                            callback: function () {
+                                tabWidget.setLoading(false);
+                            }
+                        });
                     }
                 };
-
-                tabWidget.setLoading(true);
-                if (loadProfile) {
-                    me.setLoadProfile(loadProfile);
-                    updateView(loadProfile);
-                    tabWidget.setLoading(false);
-                } else {
-                    loadProfileOfDeviceModel.getProxy().setUrl(mRID);
-                    loadProfileOfDeviceModel.load(loadProfileId, {
-                        success: function (record) {
-                            me.setLoadProfile(record);
-                            updateView(record);
-                        },
-                        callback: function () {
-                            tabWidget.setLoading(false);
-                        }
+                if (loadProfilesStore.getTotalCount() === 0) {
+                    loadProfilesStore.getProxy().setUrl(mRID);
+                    loadProfilesStore.load(function () {
+                        func();
                     });
+                } else {
+                    func();
                 }
             }
         });
