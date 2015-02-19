@@ -197,9 +197,7 @@ Ext.define('Apr.controller.AppServers', {
                                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.remove.success.msg', 'APR', 'Application server removed'));
                                         }
                                     });
-                                } else if (state === 'cancel') {
-                                    this.close();
-                                }
+                                } 
                             }
                         });
                     }
