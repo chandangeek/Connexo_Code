@@ -29,7 +29,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
         'NumericalRegisterData',
         'BillingRegisterData',
         'TextRegisterData',
-        'FlagsRegisterData'
+        'FlagsRegisterData',
+        'RegisterConfigsOfDevice'
     ],
 
     refs: [
@@ -90,7 +91,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
 
     showDeviceRegisterDataView: function (mRID, registerId, tabController) {
         var me = this,
-            contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+            contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            registersOfDeviceStore = me.getStore('RegisterConfigsOfDevice');
 
         contentPanel.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
@@ -108,29 +110,39 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                         var widget = Ext.widget('tabbedDeviceRegisterView', {device: device, router: me.getController('Uni.controller.history.Router')});
                         widget.down('#registerTabPanel').setTitle(register.get('name'));
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
-                        me.getApplication().fireEvent('changecontentevent', widget);
-                        var dataReport = Ext.widget('deviceregisterreportsetup-' + type, {mRID: mRID, registerId: registerId});
-                        me.getRegisterFilter().setTitle(register.get('name'));
-                        widget.down('#register-data').add(dataReport);
-                        var valueColumn = widget.down('grid').down('[dataIndex=value]');
-                        valueColumn.setText(Uni.I18n.translate('device.registerData.value', 'MDC', 'Value') + ' (' + register.get('lastReading')['unitOfMeasure'] + ')');
-                        if (type === 'billing' || type === 'numerical') {
-                            me.getRegisterFilter().show();
-                            if (Ext.isEmpty(router.filter.data.onlyNonSuspect)) {
-                                viewOnlySuspects = (router.queryParams.onlySuspect === 'true');
-                                router.filter.set('onlySuspect', viewOnlySuspects);
-                                router.filter.set('onlyNonSuspect', false);
-                                me.getRegisterFilter().down('#suspect').setValue(viewOnlySuspects);
-                                delete router.queryParams.onlySuspect;
+                        var func = function () {
+                            me.getApplication().fireEvent('changecontentevent', widget);
+                            var dataReport = Ext.widget('deviceregisterreportsetup-' + type, {mRID: mRID, registerId: registerId});
+                            me.getRegisterFilter().setTitle(register.get('name'));
+                            widget.down('#register-data').add(dataReport);
+                            var valueColumn = widget.down('grid').down('[dataIndex=value]');
+                            valueColumn.setText(Uni.I18n.translate('device.registerData.value', 'MDC', 'Value') + ' (' + register.get('lastReading')['unitOfMeasure'] + ')');
+                            if (type === 'billing' || type === 'numerical') {
+                                me.getRegisterFilter().show();
+                                if (Ext.isEmpty(router.filter.data.onlyNonSuspect)) {
+                                    viewOnlySuspects = (router.queryParams.onlySuspect === 'true');
+                                    router.filter.set('onlySuspect', viewOnlySuspects);
+                                    router.filter.set('onlyNonSuspect', false);
+                                    me.getRegisterFilter().down('#suspect').setValue(viewOnlySuspects);
+                                    delete router.queryParams.onlySuspect;
+                                }
+                                dataStore.setFilterModel(router.filter);
+                                me.getSideFilterForm().loadRecord(router.filter);
+                                me.setFilterView();
+                                var deltaValueColumn = widget.down('grid').down('[dataIndex=deltaValue]');
+                                deltaValueColumn.setText(Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value') + ' (' + register.get('lastReading')['unitOfMeasure'] + ')');
+                                deltaValueColumn.setVisible(register.get('isCumulative'));
                             }
-                            dataStore.setFilterModel(router.filter);
-                            me.getSideFilterForm().loadRecord(router.filter);
-                            me.setFilterView();
-                            var deltaValueColumn = widget.down('grid').down('[dataIndex=deltaValue]');
-                            deltaValueColumn.setText(Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value') + ' (' + register.get('lastReading')['unitOfMeasure'] + ')');
-                            deltaValueColumn.setVisible(register.get('isCumulative'));
+                            dataStore.load();
+                        };
+                        if (registersOfDeviceStore.getTotalCount() === 0) {
+                            registersOfDeviceStore.getProxy().url = registersOfDeviceStore.getProxy().url.replace('{mRID}', mRID);
+                            registersOfDeviceStore.load(function () {
+                                func();
+                            });
+                        } else {
+                            func();
                         }
-                        dataStore.load();
                     },
                     callback: function () {
                         contentPanel.setLoading(false);
