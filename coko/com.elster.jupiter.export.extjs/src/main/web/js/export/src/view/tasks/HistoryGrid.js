@@ -8,7 +8,8 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
         'Uni.grid.column.Action',
         'Uni.grid.column.Duration',
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Dxp.view.tasks.HistoryActionMenu'
     ],
 
     initComponent: function () {
@@ -46,8 +47,8 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
                 xtype: 'uni-actioncolumn',
                 width: 100,
                 menu: {
-                    xtype: 'tasks-action-menu',
-                    itemId: 'tasks-action-menu'
+                    xtype: 'tasks-history-action-menu'//,
+                    //itemId: 'tasks-action-menu'
                 }
             }
         ];

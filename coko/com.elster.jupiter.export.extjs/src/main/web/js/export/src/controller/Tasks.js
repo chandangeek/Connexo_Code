@@ -5,6 +5,8 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.view.tasks.Setup',
         'Dxp.view.tasks.Details',
         'Dxp.view.tasks.History',
+        'Dxp.view.tasks.HistoryPreview',
+        'Dxp.view.tasks.HistoryPreviewForm',
         'Dxp.view.datasources.Setup',
         'Dxp.view.tasks.AddReadingTypesToTaskSetup',
         'Dxp.view.tasks.AddReadingTypesToTaskBulk',
@@ -132,6 +134,9 @@ Ext.define('Dxp.controller.Tasks', {
                 select: this.showHistoryPreview
             },
             'tasks-action-menu': {
+                click: this.chooseAction
+            },
+            'tasks-history-action-menu': {
                 click: this.chooseAction
             },
             '#AddReadingTypesToTaskSetup rt-side-filter button[action=applyfilter]': {
@@ -283,9 +288,9 @@ Ext.define('Dxp.controller.Tasks', {
         });
         me.getApplication().fireEvent('changecontentevent', view);
         me.initFilter();
-        var grid = me.getHistory().down('tasks-history-grid');
+        //var grid = me.getHistory().down('tasks-history-grid');
 
-        Ext.Array.each(Ext.ComponentQuery.query('tasks-action-menu'), function (item) {
+        /*Ext.Array.each(Ext.ComponentQuery.query('tasks-action-menu'), function (item) {
             Ext.each(item.query(), function (menuitem) {
                 if (menuitem.action !== 'viewLog') {
                     menuitem.setVisible(false);
@@ -293,12 +298,12 @@ Ext.define('Dxp.controller.Tasks', {
                     menuitem.setVisible(true);
                 }
             });
-        });
+        });*/
 
 
         taskModel.load(currentTaskId, {
             success: function (record) {
-                var previewForm = view.down('tasks-preview-form');
+                var previewForm = view.down('tasks-history-preview-form');
 
                 previewForm.taskModel = record;
 
@@ -318,20 +323,20 @@ Ext.define('Dxp.controller.Tasks', {
     showHistoryPreview: function (selectionModel, record) {
         var me = this,
             page = me.getHistory(),
-            preview = page.down('tasks-preview'),
-            previewForm = page.down('tasks-preview-form');
+            preview = page.down('tasks-history-preview'),
+            previewForm = page.down('tasks-history-preview-form');
 
         if (record) {
             Ext.suspendLayouts();
             preview.setTitle(record.get('startedOn_formatted'));
-            previewForm.down('displayfield[name=lastRun]').setVisible(false);
+            /*previewForm.down('displayfield[name=lastRun]').setVisible(false);
             previewForm.down('displayfield[name=nextRun_formatted]').setVisible(false);
             previewForm.down('displayfield[name=startedOn]').setVisible(false);
-            previewForm.down('displayfield[name=finishedOn]').setVisible(false);
+            previewForm.down('displayfield[name=finishedOn]').setVisible(false);*/
             previewForm.down('displayfield[name=startedOn_formatted]').setVisible(true);
             previewForm.down('displayfield[name=finishedOn_formatted]').setVisible(true);
             previewForm.loadRecord(record);
-            preview.down('tasks-action-menu').record = record;
+            preview.down('tasks-history-action-menu').record = record;
             if (record.get('status') === 'Failed') {
                 previewForm.down('#reason-field').show();
             } else {
