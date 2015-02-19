@@ -16,13 +16,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.REASON;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.PHASE;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -48,6 +47,8 @@ public class ActionResource extends BaseResource {
         String phaseKey = params.getFirst(PHASE);
         Optional<CreationRuleActionPhase> phase = Optional.ofNullable(CreationRuleActionPhase.fromString(phaseKey));
 
+        List<Long> createdActionTypeIds = params.get(CREATED_ACTIONS).stream().map(Long::valueOf).collect(Collectors.toList());
+
         Query<IssueActionType> query = getIssueActionService().getActionTypeQuery();
 
         Condition typeCondition = buildCondition("issueType", issueType);
@@ -55,7 +56,9 @@ public class ActionResource extends BaseResource {
         Condition phaseCondition = buildCondition("phase", phase);
         Condition condition = (typeCondition).and(reasonCondition).and(phaseCondition);
         
-        List<IssueActionType> ruleActionTypes = query.select(condition).stream().filter(at -> at.createIssueAction().isPresent()).collect(Collectors.toList());
+        List<IssueActionType> ruleActionTypes = query.select(condition).stream()
+                .filter(at -> at.createIssueAction().isPresent() && !createdActionTypeIds.contains(at.getId()))
+                .collect(Collectors.toList());
         return entity(ruleActionTypes, CreationRuleActionTypeInfo.class).build();
     }
     

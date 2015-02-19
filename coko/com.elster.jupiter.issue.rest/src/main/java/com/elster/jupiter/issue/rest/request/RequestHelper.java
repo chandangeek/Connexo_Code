@@ -18,4 +18,5 @@ public final class RequestHelper {
     public static final String FIELD = "field";
     public static final String ME = "me";
     public static final String PHASE = "phase";
+    public static final String CREATED_ACTIONS = "createdActions";
 }
