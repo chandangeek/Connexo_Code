@@ -73,10 +73,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
-                        var widget = Ext.widget('deviceRegisterConfigurationSetup', {device: device, router: me.getController('Uni.controller.history.Router')});
-                        me.getApplication().fireEvent('loadDevice', device);
-                        me.getApplication().fireEvent('changecontentevent', widget);
-                        viewport.setLoading(false);
+                var widget = Ext.widget('deviceRegisterConfigurationSetup', {device: device, router: me.getController('Uni.controller.history.Router')});
+                me.getApplication().fireEvent('loadDevice', device);
+                me.getApplication().fireEvent('changecontentevent', widget);
+                viewport.setLoading(false);
             }
         });
     },
@@ -121,10 +121,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                 model.load(registerId, {
                     success: function (register) {
                         var type = register.get('type');
-                        var widget = Ext.widget('tabbedDeviceRegisterView',{device: device, router: me.getController('Uni.controller.history.Router')});
+                        var widget = Ext.widget('tabbedDeviceRegisterView', {device: device, router: me.getController('Uni.controller.history.Router')});
                         var func = function () {
                             me.getApplication().fireEvent('changecontentevent', widget);
-                            widget.down('#registerTabPanel').setTitle(register.get('name'));
+                            widget.down('#registerTabPanel').setTitle(register.get('readingType').fullAliasName);
                             var config = Ext.widget('deviceRegisterConfigurationDetail-' + type, {mRID: mRID, registerId: registerId, router: me.getController('Uni.controller.history.Router')});
                             var form = config.down('#deviceRegisterConfigurationDetailForm');
                             me.getApplication().fireEvent('loadRegisterConfiguration', register);
@@ -173,7 +173,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                     } else {
                         me.dataValidationLastChecked = new Date();
                     }
-                    confirmationWindow.insert(1,me.getValidationContent());
+                    confirmationWindow.insert(1, me.getValidationContent());
                     confirmationWindow.show({
                         title: Uni.I18n.translatePlural('registerconfiguration.validation.validateNow', record.get('name'), 'MDC', 'Validate data of register configuration {0}?'),
                         msg: ''
@@ -265,11 +265,11 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         });
     }
 
-   // showValidationActivationErrors: function (errors) {
-   //     if (Ext.ComponentQuery.query('#validateNowRegisterConfirmationWindow')[0]) {
-   //         Ext.ComponentQuery.query('#validateNowRegisterConfirmationWindow')[0].down('#validateRegisterDateErrors').update(errors);
-   //         Ext.ComponentQuery.query('#validateNowRegisterConfirmationWindow')[0].down('#validateRegisterDateErrors').setVisible(true);
-   //     }
-   //}
+    // showValidationActivationErrors: function (errors) {
+    //     if (Ext.ComponentQuery.query('#validateNowRegisterConfirmationWindow')[0]) {
+    //         Ext.ComponentQuery.query('#validateNowRegisterConfirmationWindow')[0].down('#validateRegisterDateErrors').update(errors);
+    //         Ext.ComponentQuery.query('#validateNowRegisterConfirmationWindow')[0].down('#validateRegisterDateErrors').setVisible(true);
+    //     }
+    //}
 });
 

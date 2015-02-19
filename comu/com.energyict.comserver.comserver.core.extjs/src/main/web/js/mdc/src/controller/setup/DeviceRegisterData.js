@@ -108,7 +108,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                             router = me.getController('Uni.controller.history.Router');
 
                         var widget = Ext.widget('tabbedDeviceRegisterView', {device: device, router: me.getController('Uni.controller.history.Router')});
-                        widget.down('#registerTabPanel').setTitle(register.get('name'));
+                        widget.down('#registerTabPanel').setTitle(register.get('readingType').fullAliasName);
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
                         var func = function () {
                             me.getApplication().fireEvent('changecontentevent', widget);

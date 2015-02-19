@@ -8,10 +8,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.TabbedDeviceRegisterView'
     initComponent: function () {
         var me = this;
         me.content = [
-//        {
-//            xtype: 'component',
-//            itemId: 'deviceRegisterDetailTitle'
-//        },
             {
                 xtype: 'tabpanel',
                 ui: 'large',
@@ -24,11 +20,12 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.TabbedDeviceRegisterView'
                     {
                         title: Uni.I18n.translate('deviceregisterconfiguration.readings', 'MDC', 'Readings'),
                         itemId: 'register-data'
-                    }],
+                    }
+                ],
                 listeners: {
-                    afterrender: function(panel){
+                    afterrender: function (panel) {
                         var bar = panel.tabBar;
-                        bar.insert(2,[
+                        bar.insert(2, [
                             {
                                 xtype: 'tbfill'
                             },
