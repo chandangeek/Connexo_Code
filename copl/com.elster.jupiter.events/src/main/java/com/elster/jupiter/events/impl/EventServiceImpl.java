@@ -62,6 +62,7 @@ public class EventServiceImpl implements EventService, InstallService {
         if (!dataModel.isInstalled()) {
             install();
         }
+        publisher.addSubscriber(this.localEventDispatcher);
     }
 
     @Override
