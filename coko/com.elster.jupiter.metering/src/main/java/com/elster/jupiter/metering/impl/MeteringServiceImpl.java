@@ -38,6 +38,7 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.streams.DecoratedStream;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -389,17 +390,12 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
         List<ReadingType> availableReadingTypes = getAvailableReadingTypes();
         List<String> availableReadingTypeCodes = availableReadingTypes.parallelStream().map(ReadingType::getMRID).collect(Collectors.toList());
         List<Pair<String, String>> filteredReadingTypes = readingTypes.parallelStream().filter(readingTypePair -> !availableReadingTypeCodes.contains(readingTypePair.getFirst())).collect(Collectors.toList());
-        List<ReadingType> preStoredReadingTypes = filteredReadingTypes.parallelStream().map(filteredReadingType -> dataModel.getInstance(ReadingTypeImpl.class).init(filteredReadingType.getFirst(), filteredReadingType.getLast())).collect(Collectors.toList());
-        List<List<ReadingType>> chunks = createChunksOf(preStoredReadingTypes, 1000);
-        chunks.stream().forEach(chunk -> dataModel.mapper(ReadingType.class).persist(chunk));
-    }
 
-    List<List<ReadingType>> createChunksOf(List<ReadingType> readingTypes, int chunkSize) {
-        List<List<ReadingType>> partitions = new LinkedList<>();
-        for (int i = 0; i < readingTypes.size(); i += chunkSize) {
-            partitions.add(readingTypes.subList(i, i + Math.min(chunkSize, readingTypes.size() - i)));
-        }
-        return partitions;
+        DecoratedStream.decorate(filteredReadingTypes.stream())
+                .map(filteredReadingType -> dataModel.getInstance(ReadingTypeImpl.class).init(filteredReadingType.getFirst(), filteredReadingType.getLast()))
+                .map(readingType -> ((ReadingType) readingType))
+                .partitionPer(1000)
+                .forEach(listPer1000 -> dataModel.mapper(ReadingType.class).persist(listPer1000));
     }
 
     ServiceCategoryImpl createServiceCategory(ServiceKind serviceKind) {
