@@ -22,7 +22,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     TOO_LONG(14, Keys.TOO_LONG, "Must be less then {max} characters", Level.SEVERE),
     CANNOT_ADD_COM_TASK_TO_COMSCHEDULE_THAT_IS_IN_USE(15, Keys.CANNOT_ADD_COM_TASK_TO_COMSCHEDULE_THAT_IS_IN_USE, "ComTasks cannot be added to communication schedules that are already linked to devices", Level.SEVERE),
     COM_TASK_USAGES_NOT_FOUND(16, Keys.COM_TASK_USAGES_NOT_FOUND, "Communication schedule should have at least one communication task", Level.SEVERE),
-    VETO_COMTASK_DELETION(17, "communicationTaskXstillInUse", "Communication task ''{0}'' is still in use by the following communication schedule(s): ''{1}''", Level.SEVERE);
+    VETO_COMTASK_DELETION(17, "communicationTaskXstillInUse", "Communication task ''{0}'' is still in use by the following communication schedule(s): ''{1}''", Level.SEVERE),
+    TEMPORAL_EXPRESSION_NOT_REGULAR(18, Keys.TEMPORAL_EXPRESSION_IS_NOT_REGULAR, "The temporal expression is not regular", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -80,6 +81,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
         public static final String TOO_LONG = "tooLong";
         public static final String CANNOT_ADD_COM_TASK_TO_COMSCHEDULE_THAT_IS_IN_USE = "cannotAddComTaskToComScheduleInUse";
+        public static final String TEMPORAL_EXPRESSION_IS_NOT_REGULAR = "temporalExpression.not.regular";
     }
 
 }
