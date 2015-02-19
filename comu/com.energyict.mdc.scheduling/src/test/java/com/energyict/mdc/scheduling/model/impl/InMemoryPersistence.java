@@ -164,7 +164,7 @@ public class InMemoryPersistence {
     }
 
     public SchedulingService getSchedulingService() {
-        return injector.getInstance(SchedulingService.class);
+        return this.schedulingService;
     }
 
     public TaskService getTaskService() {

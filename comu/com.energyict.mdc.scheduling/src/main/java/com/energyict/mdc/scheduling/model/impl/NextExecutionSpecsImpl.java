@@ -21,6 +21,7 @@ import javax.inject.Inject;
  */
 @HasValidTemporalExpression(groups = { Save.Create.class, Save.Update.class })
 @OffsetNotGreaterThanFrequency(groups = { Save.Create.class, Save.Update.class })
+@OnlyRegularFrequencies(groups = { Save.Create.class, Save.Update.class })
 public class NextExecutionSpecsImpl extends PersistentIdObject<NextExecutionSpecs> implements NextExecutionSpecs {
 
     enum Fields {

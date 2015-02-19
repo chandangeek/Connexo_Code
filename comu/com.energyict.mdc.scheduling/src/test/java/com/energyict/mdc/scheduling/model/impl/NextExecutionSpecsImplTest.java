@@ -3,8 +3,10 @@ package com.energyict.mdc.scheduling.model.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.tests.assertions.JupiterAssertions;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -13,6 +15,9 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import java.sql.SQLException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -183,4 +188,131 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
         return PersistenceTest.inMemoryPersistence.getSchedulingService().newNextExecutionSpecs(new TemporalExpression(this.frequency, this.offset));
     }
 
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_IS_NOT_REGULAR + "}")
+    public void everySevenHoursTest() {
+        TemporalExpression temporalExpression = new TemporalExpression(new TimeDuration(7, TimeDuration.TimeUnit.HOURS));
+        SchedulingService service = PersistenceTest.inMemoryPersistence.getSchedulingService();
+        NextExecutionSpecs specs = service.newNextExecutionSpecs(temporalExpression);
+
+        // Business method
+        specs.save();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_IS_NOT_REGULAR + "}")
+    public void everyThirteenMinutesTest() {
+        TemporalExpression temporalExpression = new TemporalExpression(new TimeDuration(13, TimeDuration.TimeUnit.MINUTES));
+        SchedulingService service = PersistenceTest.inMemoryPersistence.getSchedulingService();
+        NextExecutionSpecs specs = service.newNextExecutionSpecs(temporalExpression);
+
+        // Business method
+        specs.save();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_IS_NOT_REGULAR + "}")
+    public void everyNineSecondsTest() {
+        TemporalExpression temporalExpression = new TemporalExpression(new TimeDuration(9, TimeDuration.TimeUnit.SECONDS));
+        SchedulingService service = PersistenceTest.inMemoryPersistence.getSchedulingService();
+        NextExecutionSpecs specs = service.newNextExecutionSpecs(temporalExpression);
+
+        // Business method
+        specs.save();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_IS_NOT_REGULAR + "}")
+    public void everyElevenMonthsTest() {
+        TemporalExpression temporalExpression = new TemporalExpression(new TimeDuration(11, TimeDuration.TimeUnit.MONTHS));
+        SchedulingService service = PersistenceTest.inMemoryPersistence.getSchedulingService();
+        NextExecutionSpecs specs = service.newNextExecutionSpecs(temporalExpression);
+
+        // Business method
+        specs.save();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_IS_NOT_REGULAR + "}")
+    public void everyFiftyDaysTest() {
+        TemporalExpression temporalExpression = new TemporalExpression(new TimeDuration(50, TimeDuration.TimeUnit.DAYS));
+        SchedulingService service = PersistenceTest.inMemoryPersistence.getSchedulingService();
+        NextExecutionSpecs specs = service.newNextExecutionSpecs(temporalExpression);
+
+        // Business method
+        specs.save();
+    }
+
+    @Test
+    @Transactional
+    public void everOneDayTest() {
+        TimeDuration frequency = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
+        TemporalExpression temporalExpression = new TemporalExpression(frequency);
+        SchedulingService service = PersistenceTest.inMemoryPersistence.getSchedulingService();
+        NextExecutionSpecs specs = service.newNextExecutionSpecs(temporalExpression);
+
+        // Business method
+        specs.save();
+        NextExecutionSpecs reloadedSpec = service.findNextExecutionSpecs(specs.getId());
+        assertThat(reloadedSpec.getTemporalExpression().getEvery()).isEqualTo(frequency);
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_IS_NOT_REGULAR + "}")
+    public void everyTwoWeeksTest() {
+        TemporalExpression temporalExpression = new TemporalExpression(new TimeDuration(2, TimeDuration.TimeUnit.WEEKS));
+        SchedulingService service = PersistenceTest.inMemoryPersistence.getSchedulingService();
+        NextExecutionSpecs specs = service.newNextExecutionSpecs(temporalExpression);
+
+        // Business method
+        specs.save();
+    }
+
+    @Test
+    @Transactional
+    public void everyOneWeeksTest() {
+        TimeDuration frequency = new TimeDuration(1, TimeDuration.TimeUnit.WEEKS);
+        TemporalExpression temporalExpression = new TemporalExpression(frequency);
+        SchedulingService service = PersistenceTest.inMemoryPersistence.getSchedulingService();
+        NextExecutionSpecs specs = service.newNextExecutionSpecs(temporalExpression);
+
+        // Business method
+        specs.save();
+        NextExecutionSpecs reloadedSpec = service.findNextExecutionSpecs(specs.getId());
+        assertThat(reloadedSpec.getTemporalExpression().getEvery()).isEqualTo(frequency);
+    }
+
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_IS_NOT_REGULAR + "}")
+    public void everyTwentyYearsTest() {
+        TemporalExpression temporalExpression = new TemporalExpression(new TimeDuration(20, TimeDuration.TimeUnit.YEARS));
+        SchedulingService service = PersistenceTest.inMemoryPersistence.getSchedulingService();
+        NextExecutionSpecs specs = service.newNextExecutionSpecs(temporalExpression);
+
+        // Business method
+        specs.save();
+    }
+
+    @Test
+    @Transactional
+    public void everyOneYearsTest() {
+        TimeDuration frequency = new TimeDuration(1, TimeDuration.TimeUnit.YEARS);
+        TemporalExpression temporalExpression = new TemporalExpression(frequency);
+        SchedulingService service = PersistenceTest.inMemoryPersistence.getSchedulingService();
+        NextExecutionSpecs specs = service.newNextExecutionSpecs(temporalExpression);
+
+        // Business method
+        specs.save();
+        NextExecutionSpecs reloadedSpec = service.findNextExecutionSpecs(specs.getId());
+        assertThat(reloadedSpec.getTemporalExpression().getEvery()).isEqualTo(frequency);
+    }
 }
