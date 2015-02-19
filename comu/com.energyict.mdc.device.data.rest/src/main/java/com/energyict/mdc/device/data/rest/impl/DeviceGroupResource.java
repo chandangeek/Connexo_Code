@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
@@ -23,7 +25,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
-
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -33,7 +34,6 @@ import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -199,7 +199,8 @@ public class DeviceGroupResource {
             deviceIds = deviceService.findAllDevices(getCondition(deviceGroupInfo)).find().stream()
                     .map(HasId::getId);
         }
-        List<EndDevice> endDevices = deviceIds.map(number -> meteringService.findEndDevice(number.longValue()))
+        AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        List<EndDevice> endDevices = deviceIds.map(number -> amrSystem.findMeter(number.toString()))
                 .flatMap(asStream())
                 .collect(Collectors.toList());
 
@@ -228,12 +229,12 @@ public class DeviceGroupResource {
             Map<String, Object> filter = deviceGroupInfo.filter;
             String mRID = (String) filter.get("mRID");
             if (!Checks.is(mRID).emptyOrOnlyWhiteSpace()) {
-                condition = condition.and(where("mRID").like(mRID));
+                condition = condition.and(where("mRID").likeIgnoreCase(mRID));
             }
 
             String serialNumber = (String) filter.get("serialNumber");
             if (!Checks.is(serialNumber).emptyOrOnlyWhiteSpace()) {
-                condition = condition.and(where("serialNumber").like(serialNumber));
+                condition = condition.and(where("serialNumber").likeIgnoreCase(serialNumber));
             }
 
             Object deviceTypesObject = filter.get("deviceTypes");
@@ -271,5 +272,4 @@ public class DeviceGroupResource {
         }
         return condition;
     }
-
 }
