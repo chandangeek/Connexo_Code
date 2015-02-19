@@ -50,7 +50,9 @@ Ext.define('Uni.property.view.property.BaseCombo', {
             value: me.getProperty().get('value'),
             width: me.width,
             forceSelection: me.getProperty().getExhaustive(),
-            readOnly: me.isReadOnly
+            readOnly: me.isReadOnly,
+            editable: !me.getProperty().getExhaustive(),
+            allowBlank: !me.getProperty().data.required
         }
     },
 
