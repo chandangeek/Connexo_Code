@@ -143,7 +143,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Valid
     private List<PartialConnectionTask> partialConnectionTasks = new ArrayList<>();
     @Valid
-    private List<ProtocolDialectConfigurationProperties> configurationPropertiesList = new ArrayList<>();
+    private List<ProtocolDialectConfigurationPropertiesImpl> configurationPropertiesList = new ArrayList<>();
     private Set<DeviceCommunicationFunction> deviceCommunicationFunctions;
     private int communicationFunctionMask;
     private String userName;
@@ -940,9 +940,20 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                 return candidate;
             }
         }
-        ProtocolDialectConfigurationProperties properties = ProtocolDialectConfigurationPropertiesImpl.from(dataModel, this, protocolDialect);
+        ProtocolDialectConfigurationPropertiesImpl properties = ProtocolDialectConfigurationPropertiesImpl.from(dataModel, this, protocolDialect);
         configurationPropertiesList.add(properties);
         return properties;
+    }
+
+    public void removeProtocolDialectConfigurationProperties(DeviceProtocolDialect protocolDialect) {
+        Iterator<ProtocolDialectConfigurationPropertiesImpl> propertiesIterator = this.configurationPropertiesList.iterator();
+        while (propertiesIterator.hasNext()) {
+            ProtocolDialectConfigurationPropertiesImpl candidate = propertiesIterator.next();
+            if (candidate.getDeviceProtocolDialect().getDeviceProtocolDialectName().equals(protocolDialect.getDeviceProtocolDialectName())) {
+                candidate.validateDelete();
+                propertiesIterator.remove();
+            }
+        }
     }
 
     @Override

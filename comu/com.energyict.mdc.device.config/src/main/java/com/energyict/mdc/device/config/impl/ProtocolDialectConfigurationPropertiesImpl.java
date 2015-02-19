@@ -5,6 +5,7 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperty;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteProtocolDialectConfigurationPropertiesWhileInUseException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.NoSuchPropertyOnDialectException;
@@ -23,8 +24,6 @@ import com.elster.jupiter.properties.ValueFactory;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
@@ -48,7 +47,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PROTOCOLDIALECT_REQUIRED + "}")
     @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String protocolDialectName;
-    private List<ProtocolDialectConfigurationProperty> propertyList = new ArrayList<>();
+    private List<ProtocolDialectConfigurationPropertyImpl> propertyList = new ArrayList<>();
 
     private String userName;
     private long version;
@@ -116,10 +115,6 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
         return this.protocolDialectName;
     }
 
-    private void setProtocolDialectName(String protocolDialectName) {
-        this.protocolDialectName = protocolDialectName;
-    }
-
     @Override
     public TypedProperties getTypedProperties() {
         if (typedProperties == null) {
@@ -130,7 +125,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
 
     private TypedProperties initializeTypedProperties() {
         TypedProperties properties = TypedProperties.empty();
-        for (ProtocolDialectConfigurationProperty property : propertyList) {
+        for (ProtocolDialectConfigurationPropertyImpl property : propertyList) {
             ValueFactory<?> valueFactory = getPropertySpec(property.getName()).getValueFactory();
             properties.setProperty(property.getName(), valueFactory.fromStringValue(property.getValue()));
         }
@@ -175,7 +170,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
         dataModel.mapper(ProtocolDialectConfigurationProperties.class).remove(this);
     }
 
-    static ProtocolDialectConfigurationProperties from(DataModel dataModel, DeviceConfiguration configuration, DeviceProtocolDialect protocolDialect) {
+    static ProtocolDialectConfigurationPropertiesImpl from(DataModel dataModel, DeviceConfiguration configuration, DeviceProtocolDialect protocolDialect) {
         return dataModel.getInstance(ProtocolDialectConfigurationPropertiesImpl.class).init(configuration, protocolDialect);
     }
 
@@ -201,20 +196,21 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
 
     @Override
     public void removeProperty(String name) {
-        ProtocolDialectConfigurationProperty found = findProperty(name);
+        ProtocolDialectConfigurationPropertyImpl found = findProperty(name);
+        found.validateDelete();
         propertyList.remove(found);
         getLocalAdjustableTypedProperties().removeProperty(name);
     }
 
     private TypedProperties getLocalAdjustableTypedProperties(){
-        if(this.typedProperties == null){
+        if (this.typedProperties == null) {
             this.typedProperties = initializeTypedProperties();
         }
         return this.typedProperties;
     }
 
-    private ProtocolDialectConfigurationProperty findProperty(String name) {
-        for (ProtocolDialectConfigurationProperty candidate : propertyList) {
+    private ProtocolDialectConfigurationPropertyImpl findProperty(String name) {
+        for (ProtocolDialectConfigurationPropertyImpl candidate : propertyList) {
             if (candidate.getName().equals(name)) {
                 return candidate;
             }
@@ -223,7 +219,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     }
 
     private void setNewProperty(String name, Object value) {
-        ProtocolDialectConfigurationProperty property = ProtocolDialectConfigurationProperty.forKey(this, name).setValue(asStringValue(name, value));
+        ProtocolDialectConfigurationPropertyImpl property = ProtocolDialectConfigurationPropertyImpl.forKey(this, name).setValue(asStringValue(name, value));
         propertyList.add(property);
         getLocalAdjustableTypedProperties().setProperty(name, value);
     }

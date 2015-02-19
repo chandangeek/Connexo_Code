@@ -42,8 +42,6 @@ public interface ProtocolDialectConfigurationProperties extends HasName, HasId, 
 
     void save();
 
-    void delete();
-
     Object getProperty(String name);
 
 }

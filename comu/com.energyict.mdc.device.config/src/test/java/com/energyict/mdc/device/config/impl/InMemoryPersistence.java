@@ -224,13 +224,6 @@ public class InMemoryPersistence {
     private void initializeMocks(String testName, boolean mockedProtocolPluggableService) {
         this.mockProtocolPluggableService = mockedProtocolPluggableService;
         this.bundleContext = mock(BundleContext.class);
-        when(this.bundleContext.registerService(eq(Subscriber.class), any(Subscriber.class), isNull(Dictionary.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                ((PublisherImpl) publisher).addHandler((Subscriber) invocationOnMock.getArguments()[1]);
-                return null;
-            }
-        });
         this.eventAdmin = mock(EventAdmin.class);
         this.principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
         when(this.principal.getName()).thenReturn(testName);

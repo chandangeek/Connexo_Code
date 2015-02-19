@@ -16,6 +16,7 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperty;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -313,7 +314,7 @@ public enum TableSpecs {
         @Override
         public void addTo(DataModel dataModel) {
             Table<ProtocolDialectConfigurationProperty> table = dataModel.addTable(name(), ProtocolDialectConfigurationProperty.class);
-            table.map(ProtocolDialectConfigurationProperty.class);
+            table.map(ProtocolDialectConfigurationPropertyImpl.class);
             Column id = table.column("ID").number().notNull().add();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
             table.addAuditColumns();
