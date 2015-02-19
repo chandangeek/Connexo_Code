@@ -2,6 +2,9 @@ Ext.define('Dsh.controller.OperatorDashboard', {
     extend: 'Ext.app.Controller',
     models: [
         'Dsh.model.connection.Overview',
+        'Dsh.model.connection.OverviewDashboard',
+        'Dsh.model.communication.Overview',
+        'Dsh.model.communication.OverviewDashboard',
         'Dsh.model.opendatacollectionissues.Overview'
     ],
     stores: [
@@ -134,16 +137,18 @@ Ext.define('Dsh.controller.OperatorDashboard', {
 
         if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device',
             'privilege.view.issue', 'privilege.comment.issue', 'privilege.close.issue', 'privilege.assign.issue', 'privilege.action.issue'])) {
-            var connectionModel = me.getModel('Dsh.model.connection.Overview'),
-                communicationModel = me.getModel('Dsh.model.communication.Overview'),
+            var connectionModel = me.getModel('Dsh.model.connection.OverviewDashboard'),
+                communicationModel = me.getModel('Dsh.model.communication.OverviewDashboard'),
                 myOpenIssuesModel = me.getModel('Dsh.model.opendatacollectionissues.Overview'),
                 issuesWidget = me.getIssuesWidget(),
                 router = this.getController('Uni.controller.history.Router');
             if (Uni.Auth.hasAnyPrivilege(['privilege.view.device'])) {
                 me.getFlaggedDevices().reload();
             }
+
             communicationModel.getProxy().url = '/api/dsr/communicationoverview/widget';
             connectionModel.getProxy().url = '/api/dsr/connectionoverview/widget';
+
             if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication'])) {
                 connectionModel.setFilter(router.filter);
                 communicationModel.setFilter(router.filter);
