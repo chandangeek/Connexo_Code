@@ -60,6 +60,7 @@ Ext.define('Mdc.view.setup.comservercomports.Grid', {
                 '->',
                 {
                     xtype: 'button',
+                    itemId: 'mnu-add-comport',
                     action: 'addComPort',
                     text: Uni.I18n.translate('comServerComPorts.add', 'MDC', 'Add communication port'),
                     hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.communicationAdministration'),
