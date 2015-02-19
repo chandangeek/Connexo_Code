@@ -108,17 +108,6 @@ public class KpiServiceImplIT {
                 new KpiModule()
         );
 
-        final PublisherImpl pub = (PublisherImpl) injector.getInstance(Publisher.class);
-        doAnswer(new Answer<ServiceRegistration<Subscriber>>() {
-
-            @Override
-            public ServiceRegistration<Subscriber> answer(InvocationOnMock invocation) throws Throwable {
-                pub.addHandler((Subscriber) invocation.getArguments()[1]);
-                return null;
-            }
-        }).
-                when(bundleContext).registerService(eq(Subscriber.class), any(Subscriber.class), any(Dictionary.class));
-
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(new Transaction<Void>() {
             @Override
