@@ -25,6 +25,11 @@ Ext.define('Ldr.Loader', {
     onReady: function () {
         var scope = this;
 
+        Ext.Loader.setConfig({
+            enabled: true,
+            disableCaching: false
+        });
+
         scope.loadPrivileges(scope.onPrivilegesLoad, scope);
     },
 
