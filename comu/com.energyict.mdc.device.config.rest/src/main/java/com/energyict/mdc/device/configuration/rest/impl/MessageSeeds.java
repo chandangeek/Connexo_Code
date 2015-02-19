@@ -7,7 +7,7 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed, TranslationKey {
 
-    FIELD_IS_REQUIRED(1, "RequiredField", "Field is required"),
+    FIELD_IS_REQUIRED(1, "RequiredField", "This field is required"),
     PROTOCOL_INVALID_NAME(2,"deviceType.no.such.protocol", "A protocol with name ''{0}'' does not exist"),
     NO_LOGBOOK_TYPE_ID_FOR_ADDING(3,"NoLogBookTypeIdForAdding", "User should specify ids of LogBook Type for adding"),
     NO_LOGBOOK_TYPE_FOUND(4, "NoLogBookTypeFound", "No LogBook type with id {0}"),
