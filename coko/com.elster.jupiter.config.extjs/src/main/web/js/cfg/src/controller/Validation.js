@@ -286,11 +286,15 @@ Ext.define('Cfg.controller.Validation', {
 
         if (record && record.properties() && record.properties().count()) {
             propertyForm.loadRecord(record);
+
+            propertyForm.on('afterlayout', function(){
+                if (propertyForm.down('#minimumnumberfield')) {
+                    propertyForm.down('#minimumnumberfield').hasNotValueSameAsDefaultMessage = true;
+                    propertyForm.down('#maximumnumberfield').hasNotValueSameAsDefaultMessage = true;
+                }
+                propertyForm.un('afterlayout');
+            })
             propertyForm.show();
-            if (propertyForm.down('#minimumnumberfield')) {
-                propertyForm.down('#minimumnumberfield').hasNotValueSameAsDefaultMessage = true;
-                propertyForm.down('#maximumnumberfield').hasNotValueSameAsDefaultMessage = true;
-            }
         } else {
             propertyForm.hide();
         }
@@ -488,11 +492,14 @@ Ext.define('Cfg.controller.Validation', {
         if (me.validationRuleRecord) {
             var readingTypes = me.validationRuleRecord.get('readingTypes');
             if (Ext.isArray(readingTypes) && !Ext.isEmpty(readingTypes)) {
+                var mRIDs = [];
                 readingTypes.forEach(function (readingType) {
-                    properties.push({
-                        property: 'mRID',
-                        value: readingType.mRID
-                    });
+                    mRIDs.push(readingType.mRID.toLowerCase());
+
+                });
+                properties.push({
+                    property: 'selectedReadings',
+                    value:mRIDs
                 });
             }
         }
@@ -529,8 +536,8 @@ Ext.define('Cfg.controller.Validation', {
         Ext.override(Ext.data.proxy.Ajax, {timeout: 120000});
         //</debug>
 
-        readingTypeStore.on('load', function (records) {
-            if (!records.length) {
+        readingTypeStore.on('load', function (store, records) {
+            if (!records || !records.length) {
                 widget.down('#buttonsContainer button[name=add]').setDisabled(true);
             }
         }, me, {
@@ -1059,8 +1066,9 @@ Ext.define('Cfg.controller.Validation', {
             url: '/api/val/validation/' + ruleSet.get('id') + '/usage',
             method: 'GET',
             success: function (operation) {
-                var jsonIsInUse = operation.responseText;
-                me.showDeleteRuleSetConfirmation(ruleSet, jsonIsInUse);
+                var response = Ext.JSON.decode(operation.responseText);
+
+                me.showDeleteRuleSetConfirmation(ruleSet, response.isInUse);
             }
         })
     },
