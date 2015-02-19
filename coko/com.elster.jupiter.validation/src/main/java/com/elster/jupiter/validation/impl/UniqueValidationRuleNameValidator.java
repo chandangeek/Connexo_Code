@@ -27,7 +27,7 @@ public class UniqueValidationRuleNameValidator implements ConstraintValidator<Un
 
     private boolean hasEquallyNamedRule(ValidationRuleSet ruleSet, ValidationRule rule, ConstraintValidatorContext context) {
         for (ValidationRule existingRule : ruleSet.getRules()) {
-            if (areDifferentWithSameName(rule, existingRule)) {
+            if (!rule.isObsolete() && areDifferentWithSameName(rule, existingRule)) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(message).addPropertyNode("name").addConstraintViolation();
                 return true;
