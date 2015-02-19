@@ -123,10 +123,6 @@ public class InMemoryPersistence {
 
     private void initializeMocks(String testName) {
         this.bundleContext = mock(BundleContext.class);
-        when(this.bundleContext.registerService(eq(Subscriber.class), any(Subscriber.class), isNull(Dictionary.class))).thenAnswer(invocationOnMock -> {
-            ((PublisherImpl) publisher).addHandler((Subscriber) invocationOnMock.getArguments()[1]);
-            return null;
-        });
         this.eventAdmin = mock(EventAdmin.class);
         this.principal = mock(Principal.class);
         when(this.principal.getName()).thenReturn(testName);
