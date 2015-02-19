@@ -286,11 +286,15 @@ Ext.define('Cfg.controller.Validation', {
 
         if (record && record.properties() && record.properties().count()) {
             propertyForm.loadRecord(record);
+
+            propertyForm.on('afterlayout', function(){
+                if (propertyForm.down('#minimumnumberfield')) {
+                    propertyForm.down('#minimumnumberfield').hasNotValueSameAsDefaultMessage = true;
+                    propertyForm.down('#maximumnumberfield').hasNotValueSameAsDefaultMessage = true;
+                }
+                propertyForm.un('afterlayout');
+            })
             propertyForm.show();
-            //if (propertyForm.down('#minimumnumberfield')) {
-            //    propertyForm.down('#minimumnumberfield').hasNotValueSameAsDefaultMessage = true;
-            //    propertyForm.down('#maximumnumberfield').hasNotValueSameAsDefaultMessage = true;
-            //}
         } else {
             propertyForm.hide();
         }
