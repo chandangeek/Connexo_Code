@@ -209,6 +209,27 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
     }
 
     @Test
+    public void testCreateOutboundComPortPoolWithoutNextExecutionSpecApliesDefaultOf6Hours() throws Exception {
+
+        OutboundComPortPoolInfo outboundComPortPoolInfo = new OutboundComPortPoolInfo();
+        outboundComPortPoolInfo.active=true;
+        outboundComPortPoolInfo.name="Updated";
+        outboundComPortPoolInfo.description="description";
+        outboundComPortPoolInfo.taskExecutionTimeout=new TimeDurationInfo();
+
+        OutboundComPortPool outboundComPortPool = mock(OutboundComPortPool.class);
+        when(engineConfigurationService.newOutboundComPortPool(anyString(), any(ComPortType.class), any(TimeDuration.class))).thenReturn(outboundComPortPool);
+
+        Entity<OutboundComPortPoolInfo> json = Entity.json(outboundComPortPoolInfo);
+
+        final Response response = target("/comportpools/").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        ArgumentCaptor<TimeDuration> timeDurationCaptor = ArgumentCaptor.forClass(TimeDuration.class);
+        verify(engineConfigurationService).newOutboundComPortPool(anyString(), any(ComPortType.class), timeDurationCaptor.capture());
+        assertThat(timeDurationCaptor.getValue().getSeconds()).isEqualTo(3600*6);
+    }
+
+    @Test
     public void testCreateInboundComPortPoolWithoutProtocol() throws Exception {
 
         InboundComPortPoolInfo inboundComPortPoolInfo = new InboundComPortPoolInfo();
