@@ -216,10 +216,6 @@ public class DeviceGroupTest {
                 new DeviceDataModule(),
                 new MockModule()
         );
-        when(bundleContext.registerService(eq(Subscriber.class), any(), any())).thenAnswer(invocation -> {
-            injector.getInstance(PublisherImpl.class).addHandler((Subscriber) invocation.getArguments()[1]);
-            return null;
-        });
         injector.getInstance(TransactionService.class).execute(() -> {
             injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(ThreadPrincipalService.class);

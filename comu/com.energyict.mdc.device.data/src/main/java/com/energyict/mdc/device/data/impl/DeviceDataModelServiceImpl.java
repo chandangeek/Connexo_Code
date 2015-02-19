@@ -364,7 +364,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private void createRealServices() {
         this.connectionTaskService = new ConnectionTaskServiceImpl(this, eventService, meteringService);
         this.communicationTaskService = new CommunicationTaskServiceImpl(this, meteringService);
-        this.deviceService = new DeviceServiceImpl(this);
+        this.deviceService = new DeviceServiceImpl(this, protocolPluggableService);
         this.loadProfileService = new LoadProfileServiceImpl(this);
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);

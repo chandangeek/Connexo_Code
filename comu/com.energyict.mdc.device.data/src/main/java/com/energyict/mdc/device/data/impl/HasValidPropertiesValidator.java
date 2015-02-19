@@ -55,7 +55,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         for (String propertyName : properties.propertyNames()) {
             if (deviceProtocolDialect.getPropertySpec(propertyName) == null) {
                 context
-                    .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC_KEY + "}")
+                    .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC + "}")
                     .addPropertyNode("properties").addConstraintViolation()
                     .disableDefaultConstraintViolation();
                 this.valid = false;
@@ -78,7 +78,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         }
         catch (InvalidValueException e) {
             context
-                .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY + "}")
+                .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE + "}")
                 .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation()
                 .disableDefaultConstraintViolation();
             this.valid = false;
@@ -90,7 +90,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         for (PropertySpec propertySpec : this.getRequiredProperties(deviceProtocolDialect)) {
             if (!propertyNames.contains(propertySpec.getName())) {
                 context
-                    .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY + "}")
+                    .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING + "}")
                     .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation()
                     .disableDefaultConstraintViolation();
                 this.valid = false;

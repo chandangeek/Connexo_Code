@@ -103,7 +103,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_TASK_REQUIRED_PROPERTY_MISSING_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_TASK_REQUIRED_PROPERTY_MISSING + "}")
     public void testCreateWithMissingRequiredProperty() {
         partialConnectionInitiationTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialConnectionInitiationTask.save();
@@ -131,7 +131,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_TASK_PROPERTY_NOT_IN_SPEC_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_TASK_PROPERTY_NOT_IN_SPEC + "}")
     public void testCreateWithNonExistingProperty() {
         partialConnectionInitiationTask.setConnectionTypePluggableClass(outboundNoParamsConnectionTypePluggableClass);
         partialConnectionInitiationTask.save();
@@ -148,7 +148,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.COMPORT_TYPE_NOT_SUPPORTED_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.COMPORT_TYPE_NOT_SUPPORTED + "}")
     public void testCreateWithIpWithModemComPortPool() {
         partialConnectionInitiationTask.setConnectionTypePluggableClass(modemNoParamsConnectionTypePluggableClass);
         partialConnectionInitiationTask.save();

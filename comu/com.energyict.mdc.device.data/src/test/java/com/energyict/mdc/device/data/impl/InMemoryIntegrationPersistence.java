@@ -5,6 +5,7 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.impl.events.TestProtocolWithRequiredStringAndOptionalNumericDialectProperties;
 import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
 import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
 import com.energyict.mdc.device.data.impl.tasks.InboundIpConnectionTypeImpl;
@@ -172,6 +173,8 @@ public class InMemoryIntegrationPersistence {
         deviceProtocolService = mock(DeviceProtocolService.class);
         when(deviceProtocolService.createProtocol(DeviceMessageImplTest.MessageTestDeviceProtocol.class.getName())).thenReturn(new DeviceMessageImplTest.MessageTestDeviceProtocol());
         when(deviceProtocolService.createProtocol(ProtocolDialectPropertiesImplIT.TestProtocol.class.getName())).thenReturn(new ProtocolDialectPropertiesImplIT.TestProtocol());
+        TestProtocolWithRequiredStringAndOptionalNumericDialectProperties testProtocolThatUseMocking = new TestProtocolWithRequiredStringAndOptionalNumericDialectProperties();
+        when(deviceProtocolService.createProtocol(TestProtocolWithRequiredStringAndOptionalNumericDialectProperties.class.getName())).thenReturn(testProtocolThatUseMocking);
         Properties properties = new Properties();
         properties.put("protocols", "all");
         when(license.getLicensedValues()).thenReturn(properties);
@@ -329,6 +332,10 @@ public class InMemoryIntegrationPersistence {
 
     public ServerCommunicationTaskService getCommunicationTaskService() {
         return this.deviceDataModelService.communicationTaskService();
+    }
+
+    public DeviceDataModelService getDeviceDataModelService() {
+        return deviceDataModelService;
     }
 
     public ServerDeviceService getDeviceService() {

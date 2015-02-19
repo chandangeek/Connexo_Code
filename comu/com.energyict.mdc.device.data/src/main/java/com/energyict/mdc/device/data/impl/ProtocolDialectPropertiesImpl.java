@@ -52,12 +52,12 @@ public class ProtocolDialectPropertiesImpl
             ProtocolDialectProperties,
             PersistenceAware {
 
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED_KEY + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED + "}")
     private Reference<Device> device = ValueReference.absent();
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED_KEY + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED + "}")
     private Reference<ProtocolDialectConfigurationProperties> configurationProperties = ValueReference.absent();
     private DeviceProtocolDialectUsagePluggableClass deviceProtocolDialectUsagePluggableClass;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED_KEY + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED + "}")
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private Map<String,String> relationAttributeNamePropertyMap;
     private String userName;
@@ -240,10 +240,17 @@ public class ProtocolDialectPropertiesImpl
 
     private DeviceProtocolDialectUsagePluggableClass getDeviceProtocolDialectUsagePluggableClass() {
         if (this.deviceProtocolDialectUsagePluggableClass == null) {
-            DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.findDeviceProtocolPluggableClass(getPluggableClassId()).get();
+            DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.getDeviceProtocolPluggableClass();
             this.deviceProtocolDialectUsagePluggableClass = this.protocolPluggableService.getDeviceProtocolDialectUsagePluggableClass(deviceProtocolPluggableClass, this.getDeviceProtocolDialectName());
         }
         return this.deviceProtocolDialectUsagePluggableClass;
+    }
+
+    private DeviceProtocolPluggableClass getDeviceProtocolPluggableClass() {
+        if (this.deviceProtocolPluggableClass == null) {
+            this.deviceProtocolPluggableClass = this.findDeviceProtocolPluggableClass(this.getPluggableClassId()).get();
+        }
+        return this.deviceProtocolPluggableClass;
     }
 
     @Override

@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = { UniqueInboundComPortPoolPerDeviceValidator.class })
 public @interface UniqueInboundComPortPoolPerDevice {
 
-    String message() default "{" + MessageSeeds.Keys.CONNECTION_TASK_UNIQUE_INBOUND_COMPORT_POOL_PER_DEVICE_KEY + "}";
+    String message() default "{" + MessageSeeds.Keys.CONNECTION_TASK_UNIQUE_INBOUND_COMPORT_POOL_PER_DEVICE + "}";
 
     Class<?>[] groups() default { };
 
