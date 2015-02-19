@@ -27,6 +27,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 /**
@@ -206,7 +207,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     }
 
     private PropertySpec deviceTimeZonePropertySpec(boolean required) {
-        return this.propertySpecService.basicPropertySpec(DeviceProtocolProperty.deviceTimeZone.name(), required, new StringFactory());
+        return this.propertySpecService.timeZonePropertySpec(DeviceProtocolProperty.deviceTimeZone.name(), required, TimeZone.getDefault());
     }
 
     private PropertySpec nodeAddressPropertySpec(boolean required) {

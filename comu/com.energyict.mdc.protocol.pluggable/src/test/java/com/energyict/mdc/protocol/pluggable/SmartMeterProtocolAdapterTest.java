@@ -1,12 +1,15 @@
 package com.energyict.mdc.protocol.pluggable;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.properties.TimeZoneFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.BasicPropertySpec;
+import com.energyict.mdc.dynamic.impl.PropertySpecBuilderImpl;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
@@ -59,9 +62,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -113,7 +114,23 @@ public class SmartMeterProtocolAdapterTest {
                 .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecuritySupport.SECOND_PROPERTY_NAME, false, new StringFactory()));
         when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME, false, StringFactory.class))
                 .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME, false, new StringFactory()));
-        SimpleTestDeviceSecuritySupport securitySupport = new SimpleTestDeviceSecuritySupport(propertySpecService);
+        when(propertySpecService.timeZonePropertySpec(anyString(), anyBoolean(), any()))
+                .thenAnswer(invocationOnMock -> {
+                    String name = (String) invocationOnMock.getArguments()[0];
+                    boolean required = ((Boolean) invocationOnMock.getArguments()[1]);
+                    TimeZone defaultValue = (TimeZone) invocationOnMock.getArguments()[2];
+                    TimeZone[] possibleValues = {
+                            TimeZone.getTimeZone("GMT"),
+                            TimeZone.getTimeZone("Europe/Brussels"),
+                            TimeZone.getTimeZone("EST"),
+                            TimeZone.getTimeZone("Europe/Moscow")};
+                    PropertySpecBuilder timeZonePropertySpecBuilder = PropertySpecBuilderImpl
+                            .forClass(new TimeZoneFactory()).name(name).setDefaultValue(defaultValue).markExhaustive().addValues(possibleValues);
+                    if (required) {
+                        timeZonePropertySpecBuilder.markRequired();
+                    }
+                    return timeZonePropertySpecBuilder.finish();
+                });   SimpleTestDeviceSecuritySupport securitySupport = new SimpleTestDeviceSecuritySupport(propertySpecService);
         when(deviceProtocolSecurityService.createDeviceProtocolSecurityFor(SimpleTestDeviceSecuritySupport.class.getName()))
             .thenReturn(securitySupport);
 

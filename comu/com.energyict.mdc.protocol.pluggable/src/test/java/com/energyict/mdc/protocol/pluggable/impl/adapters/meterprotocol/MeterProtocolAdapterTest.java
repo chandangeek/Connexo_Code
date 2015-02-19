@@ -1,14 +1,18 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
+import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.properties.TimeZoneFactory;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.BasicPropertySpec;
+import com.energyict.mdc.dynamic.impl.PropertySpecBuilderImpl;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
@@ -61,13 +65,13 @@ import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -124,6 +128,23 @@ public class MeterProtocolAdapterTest {
                 .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecuritySupport.SECOND_PROPERTY_NAME, false, new StringFactory()));
         when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME, false, StringFactory.class))
                 .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME, false, new StringFactory()));
+        when(propertySpecService.timeZonePropertySpec(anyString(), anyBoolean(), any()))
+                .thenAnswer(invocationOnMock -> {
+                    String name = (String) invocationOnMock.getArguments()[0];
+                    boolean required = ((Boolean) invocationOnMock.getArguments()[1]);
+                    TimeZone defaultValue = (TimeZone) invocationOnMock.getArguments()[2];
+                    TimeZone[] possibleValues = {
+                            TimeZone.getTimeZone("GMT"),
+                            TimeZone.getTimeZone("Europe/Brussels"),
+                            TimeZone.getTimeZone("EST"),
+                            TimeZone.getTimeZone("Europe/Moscow")};
+                    PropertySpecBuilder timeZonePropertySpecBuilder = PropertySpecBuilderImpl
+                            .forClass(new TimeZoneFactory()).name(name).setDefaultValue(defaultValue).markExhaustive().addValues(possibleValues);
+                    if (required) {
+                        timeZonePropertySpecBuilder.markRequired();
+                    }
+                    return timeZonePropertySpecBuilder.finish();
+                });
 
         SimpleTestDeviceSecuritySupport securitySupport = new SimpleTestDeviceSecuritySupport(propertySpecService);
         DeviceProtocolSecurityService deviceProtocolSecurityService = this.inMemoryPersistence.getDeviceProtocolSecurityService();
