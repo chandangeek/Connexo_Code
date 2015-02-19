@@ -132,11 +132,11 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
         if (!value) return this.emptyText;
 
         var me = this,
-            assembledName = '',
-            alias = value.aliasName ? (' ' + value.aliasName) : '',
+            assembledName = value.fullAliasName,
+            //alias = value.aliasName ? (' ' + value.aliasName) : '',
             icon = '<span class="uni-icon-info-small" style="cursor: pointer; display: inline-block; width: 16px; height: 16px; float: left;" data-qtip="' + Uni.I18n.translate('readingType.tooltip', 'UNI', 'Reading type info') + '"></span>';
 
-        if (value.names && Ext.isObject(value.names)) {
+        /*if (value.names && Ext.isObject(value.names)) {
             assembledName +=
                     ((value.names.timeAttribute && me.showTimeAttribute) ? ('[' + value.names.timeAttribute + ']') : '')
                     + alias
@@ -145,7 +145,7 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
                     + (value.names.timeOfUse ? (' ' + value.names.timeOfUse) : '');
         } else {
             assembledName += alias;
-        }
+        }*/
 
         setTimeout(function () {
             var parent,
