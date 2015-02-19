@@ -27,6 +27,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.validation.MessageSeeds.Constants;
@@ -80,7 +81,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     ValidationRuleSetImpl init(String name, String description) {
-        this.name = name != null ? name.trim() : name;
+        this.name = Checks.is(name).emptyOrOnlyWhiteSpace() ? null : name.trim();
         this.description = description;
         return this;
     }
