@@ -24,6 +24,22 @@ public class MdcAppInstaller implements InstallService {
 
     public static final String PRIVILEGE_VIEW_REPORTS = "privilege.view.reports";
 
+    public static final String PRIVILEGE_VIEW_BPM = "privilege.view.bpm";
+    public static final String PRIVILEGE_RUN_EXPORT = "privilege.run.dataExportTask";
+    public static final String PRIVILEGE_VIEW_EXPORT = "privilege.view.dataExportTask";
+
+    public static final String PRIVILEGE_VIEW_COMMUNICATION = "privilege.view.communicationAdministration";
+    public static final String PRIVILEGE_VIEW_DEVICE = "privilege.view.device";
+    public static final String PRIVILEGE_VIEW_DEVICETYPE = "privilege.view.deviceType";
+    public static final String PRIVILEGE_ACCTION_ISSUE_ACTION = "privilege.action.issue";
+    public static final String PRIVILEGE_ASSIGN_ISSUE = "privilege.assign.issue";
+    public static final String PRIVILEGE_CLOSE_ISSUE = "privilege.close.issue";
+    public static final String PRIVILEGE_COMMENT_ISSUE = "privilege.comment.issue";
+    public static final String PRIVILEGE_VIEW_ISSUE = "privilege.view.issue";
+    public static final String PRIVILEGE_VIEW_MASTER_DATA = "privilege.view.masterData";
+    public static final String PRIVILEGE_VIEW_VALIDATION = "privilege.view.validationConfiguration";
+
+
     private final Logger logger = Logger.getLogger(MdcAppInstaller.class.getName());
     private volatile UserService userService;
 
@@ -56,6 +72,9 @@ public class MdcAppInstaller implements InstallService {
     private void assignPrivilegesToDefaultRoles() {
         List<Privilege> availablePrivileges =  getApplicationPrivileges();
         String[] privilegesWithoutReports = availablePrivileges.stream().map(HasName::getName).filter(p -> !p.equals(PRIVILEGE_VIEW_REPORTS)).toArray(String[]::new);
+        String[] privilegesMeterOperator = getPrivilegesMeterOperator();
+
+        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_OPERATOR.value(), privilegesMeterOperator);
         userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), privilegesWithoutReports);
         userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, privilegesWithoutReports);
         userService.grantGroupWithPrivilege(MdcAppService.Roles.REPORT_VIEWER.value(), availablePrivileges.stream().map(HasName::getName).filter(p -> p.equals(PRIVILEGE_VIEW_REPORTS)).toArray(String[]::new));
@@ -68,5 +87,14 @@ public class MdcAppInstaller implements InstallService {
     private List<Privilege> getApplicationPrivileges() {
         return userService.getResources(MdcAppService.APPLICATION_KEY).stream().flatMap(resource -> resource.getPrivileges().stream()).collect(Collectors.toList());
     }
+
+    private String[] getPrivilegesMeterOperator(){
+        return new String[] {PRIVILEGE_VIEW_BPM, PRIVILEGE_RUN_EXPORT, PRIVILEGE_VIEW_EXPORT,
+                               PRIVILEGE_VIEW_COMMUNICATION, PRIVILEGE_VIEW_DEVICE, PRIVILEGE_VIEW_DEVICETYPE,
+                               PRIVILEGE_ACCTION_ISSUE_ACTION, PRIVILEGE_ASSIGN_ISSUE, PRIVILEGE_CLOSE_ISSUE, PRIVILEGE_COMMENT_ISSUE, PRIVILEGE_VIEW_ISSUE,
+                               PRIVILEGE_VIEW_MASTER_DATA, PRIVILEGE_VIEW_VALIDATION
+        };
+    }
+
 
 }
