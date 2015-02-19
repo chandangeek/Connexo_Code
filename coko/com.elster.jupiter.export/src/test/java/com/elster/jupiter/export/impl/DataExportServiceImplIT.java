@@ -51,6 +51,7 @@ import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import javax.validation.ConstraintViolationException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -76,6 +77,7 @@ import java.util.Optional;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static com.elster.jupiter.time.RelativeField.*;
+import static org.assertj.core.api.Fail.fail;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -218,6 +220,31 @@ public class DataExportServiceImplIT {
         inMemoryBootstrapModule.deactivate();
     }
 
+    @Test
+    public void testCreateExportTaskWithoutReadingTypes() throws Exception {
+        ReadingTypeDataExportTask exportTask1 = null;
+        try (TransactionContext context = transactionService.getContext()) {
+            exportTask1 = dataExportService.newBuilder()
+                    .setExportPeriod(lastYear)
+                    .scheduleImmediately()
+                    .setDataProcessorName(FORMATTER)
+                    .setName(NAME)
+                    .setEndDeviceGroup(endDeviceGroup)
+                    .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
+                    .setUpdatePeriod(oneYearBeforeLastYear)
+                    .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
+                    .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
+                    .exportUpdate(true)
+                    .exportContinuousData(true)
+                    .build();
+
+            exportTask1.save();
+            context.commit();
+            fail("expected constraint violation");
+        } catch (ConstraintViolationException e) {
+            assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo(MessageSeeds.MUST_SELECT_READING_TYPE.getDefaultFormat());
+        }
+    }
 
     @Test
     public void testCreation() {
