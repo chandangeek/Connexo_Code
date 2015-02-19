@@ -117,7 +117,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     private static final TimeDuration NINETY_MINUTES = TimeDuration.minutes(90);
     private static final TimeDuration TWELVE_HOURS = new TimeDuration(12, TimeDuration.TimeUnit.HOURS);
     private static final TimeDuration TWO_HOURS = new TimeDuration(2, TimeDuration.TimeUnit.HOURS);
-    private static final TimeDuration TWO_HOURS_IN_MINUTES = TimeDuration.minutes(120);
     private static final TimeDuration ONE_HOUR_IN_MINUTES = TimeDuration.minutes(60);
 
     @Rule
@@ -400,7 +399,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
-                .nextExecutionSpec().temporalExpression(new TimeDuration(10, TimeDuration.TimeUnit.HOURS),new TimeDuration(1, TimeDuration.TimeUnit.HOURS)).set()
+                .nextExecutionSpec().temporalExpression(new TimeDuration(6, TimeDuration.TimeUnit.HOURS),new TimeDuration(1, TimeDuration.TimeUnit.HOURS)).set()
                 .asDefault(true).build();
         deviceConfiguration.save();
 
@@ -533,8 +532,7 @@ public class PartialOutboundConnectionTaskCrudIT {
 
         outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
                 .comPortPool(outboundComPortPool)
-                .comWindow(COM_WINDOW)
-                .nextExecutionSpec().temporalExpression(TWO_HOURS_IN_MINUTES, ONE_HOUR_IN_MINUTES).set()
+                .nextExecutionSpec().temporalExpression(TimeDuration.minutes(30)).set()
                 .asDefault(true).build();
         deviceConfiguration.save();
 
@@ -595,8 +593,7 @@ public class PartialOutboundConnectionTaskCrudIT {
 
         deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .comPortPool(outboundComPortPool)
-                .comWindow(COM_WINDOW)
-                .nextExecutionSpec().temporalExpression(TWO_HOURS_IN_MINUTES, ONE_HOUR_IN_MINUTES).set()
+                .nextExecutionSpec().temporalExpression(TimeDuration.hours(3)).set()
                 .asDefault(true).build();
         deviceConfiguration.save();
     }
@@ -776,7 +773,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS)
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
-                .nextExecutionSpec().temporalExpression(TimeDuration.hours(15), TimeDuration.hours(4)).set()
+                .nextExecutionSpec().temporalExpression(TimeDuration.hours(12), TimeDuration.hours(4)).set()
                 .asDefault(true).build();
         deviceConfiguration.save();
     }
