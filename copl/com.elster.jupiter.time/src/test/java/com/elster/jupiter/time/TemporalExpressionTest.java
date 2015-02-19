@@ -676,6 +676,17 @@ public final class TemporalExpressionTest extends EqualsContractTest {
         assertThat(temporalExpression.nextOccurrence(date)).contains(expectedNextOccurrence);
     }
 
+    @Test
+    public void everyThreeHoursTest() {
+        TemporalExpression temporalExpression = new TemporalExpression(new TimeDuration(3, TimeDuration.TimeUnit.HOURS));
+        ZoneId zone = ZoneId.of("Europe/Brussels");
+        TimeZone.setDefault(TimeZone.getTimeZone(zone));
+        ZonedDateTime date = ZonedDateTime.of(2015, 1, 13, 14, 6, 11, 987, zone);
+        ZonedDateTime expectedNextOccurrence = ZonedDateTime.of(2015, 1, 13, 15, 0, 0, 0, zone);
+
+        assertThat(temporalExpression.nextOccurrence(date)).contains(expectedNextOccurrence);
+    }
+
     /**
      * Tests the scheduling on a particular date using a DST aware time zone or not (as specified).
      *
