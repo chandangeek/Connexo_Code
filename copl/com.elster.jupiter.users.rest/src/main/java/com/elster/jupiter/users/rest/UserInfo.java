@@ -51,7 +51,7 @@ public class UserInfo {
     }
 
     public boolean update(User user) {
-        return updateDescription(user) ||  updateLocale(user);
+        return updateDescription(user) | updateLocale(user);
     }
 
     private boolean updateLocale(User user) {
