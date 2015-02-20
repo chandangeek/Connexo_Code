@@ -13,7 +13,6 @@ import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
@@ -26,18 +25,15 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
-
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.logging.Logger;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -233,12 +229,12 @@ public class DeviceGroupResource {
             Map<String, Object> filter = deviceGroupInfo.filter;
             String mRID = (String) filter.get("mRID");
             if (!Checks.is(mRID).emptyOrOnlyWhiteSpace()) {
-                condition = condition.and(where("mRID").like(mRID));
+                condition = condition.and(where("mRID").likeIgnoreCase(mRID));
             }
 
             String serialNumber = (String) filter.get("serialNumber");
             if (!Checks.is(serialNumber).emptyOrOnlyWhiteSpace()) {
-                condition = condition.and(where("serialNumber").like(serialNumber));
+                condition = condition.and(where("serialNumber").likeIgnoreCase(serialNumber));
             }
 
             Object deviceTypesObject = filter.get("deviceTypes");

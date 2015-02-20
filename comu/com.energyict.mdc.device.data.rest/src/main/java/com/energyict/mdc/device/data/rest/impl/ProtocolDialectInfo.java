@@ -30,7 +30,7 @@ public class ProtocolDialectInfo {
         protocolDialectInfo.availableForUse = true;
 
         List<PropertySpec> propertySpecs = protocolDialectConfigurationProperties.getPropertySpecs();
-        protocolDialectInfo.properties = new ArrayList();
+        protocolDialectInfo.properties = new ArrayList<>();
         if (protocolDialectProperties != null) {
             mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, protocolDialectProperties.getTypedProperties(), protocolDialectInfo.properties);
         } else {
