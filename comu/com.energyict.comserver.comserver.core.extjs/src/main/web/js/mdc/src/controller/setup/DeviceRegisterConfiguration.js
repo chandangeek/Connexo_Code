@@ -95,7 +95,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         me.registerId = record.get('id');
         me.registerName = record.get('name');
         form.loadRecord(record);
-        widget.setTitle(record.get('name'));
+        widget.setTitle(record.get('readingType').fullAliasName);
         previewContainer.removeAll();
         previewContainer.add(widget);
         if (!record.data.detailedValidationInfo.validationActive) {
