@@ -318,7 +318,7 @@ public enum TableSpecs {
             Column id = table.column("ID").number().notNull().add();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
             table.addAuditColumns();
-            table.column("VALUE").varChar().notNull().map("value").add();
+            table.column("VALUE").varChar(4000).notNull().map("value").add();
             table.foreignKey("FK_DTC_CONFPROPSATTR_PROPS").
                     on(id).
                     references(DTC_DIALECTCONFIGPROPERTIES.name()).

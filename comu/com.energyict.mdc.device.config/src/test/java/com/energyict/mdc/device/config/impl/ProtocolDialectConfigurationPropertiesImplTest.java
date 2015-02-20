@@ -1,11 +1,11 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
@@ -53,6 +53,7 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -76,6 +77,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.google.common.base.Strings;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -105,8 +107,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the peristence aspects of the {@link com.energyict.mdc.masterdata.impl.RegisterTypeImpl} component
- * as provided by the {@link com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl}.
+ * Tests the peristence aspects of the {@link ProtocolDialectConfigurationPropertiesImpl} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-02-17 (16:35)
@@ -114,9 +115,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ProtocolDialectConfigurationPropertiesImplTest {
 
-
     private static final String MY_PROPERTY = "myProperty";
     public static final String PROTOCOL_DIALECT = "protocolDialect";
+    public static final String VERY_LARGE_STRING = Strings.repeat("0123456789", 10000); // String containing 100_000 characters which >> 4K
     private SharedData sharedData;
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
@@ -128,13 +129,11 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
     private EventAdmin eventAdmin;
     @Mock
     private BundleContext bundleContext;
-    private Injector injector;
     private InMemoryBootstrapModule bootstrapModule;
     private TransactionService transactionService;
     @Mock
     private Principal principal;
     private ProtocolPluggableServiceImpl protocolPluggableService;
-    private EngineConfigurationService engineConfigurationService;
     private DeviceConfigurationServiceImpl deviceConfigurationService;
     @Mock
     private LicenseService licenseService;
@@ -157,7 +156,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
 
     public void initializeDatabase(boolean showSqlLogging) {
         bootstrapModule = new InMemoryBootstrapModule();
-        injector = Guice.createInjector(
+        Injector injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
                 new ThreadSecurityModule(principal),
@@ -191,7 +190,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new PluggableModule());
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
-            engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
+            injector.getInstance(EngineConfigurationService.class);
             protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
             protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
             when(this.deviceProtocolService.createProtocol(MyDeviceProtocolPluggableClass.class.getName())).thenReturn(new MyDeviceProtocolPluggableClass());
@@ -243,16 +242,14 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
 
         try (TransactionContext context = transactionService.getContext()) {
             ProtocolDialectConfigurationProperties properties = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(sharedData.getProtocolDialect());
-
             properties.setProperty(MY_PROPERTY, 15);
-
             properties.save();
 
             id = properties.getId();
-
             context.commit();
         }
 
+        // Asserts
         DeviceConfiguration reloadedConfiguration = deviceConfigurationService.findDeviceConfiguration(this.deviceConfiguration.getId()).get();
         List<ProtocolDialectConfigurationProperties> list = reloadedConfiguration.getProtocolDialectConfigurationPropertiesList();
         assertThat(list).isNotEmpty();
@@ -260,11 +257,22 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         ProtocolDialectConfigurationProperties found = list.get(0);
 
         assertThat(found).isNotNull();
-
         assertThat(found.getId()).isEqualTo(id);
-
         assertThat(found.getProperty("myProperty")).isEqualTo(15);
+    }
 
+    @Test
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "properties." + MY_PROPERTY)
+    public void testCreateWithTooLargePropertyValue() {
+        try (TransactionContext context = transactionService.getContext()) {
+            ProtocolDialectConfigurationProperties properties = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(sharedData.getProtocolDialect());
+            properties.setProperty(MY_PROPERTY, VERY_LARGE_STRING);
+            properties.save();
+
+            context.commit();
+        }
+
+        // Asserts: see expected constraint violation rule
     }
 
     public static class SharedData {
@@ -274,11 +282,8 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
 
         private static interface State {
             PropertySpec getPropertySpec();
-
             DeviceProtocolDialect getProtocolDialect();
-
             ValueFactory getValueFactory();
-
         }
 
         private static State actual;
@@ -310,6 +315,8 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 when(getProtocolDialect().getDeviceProtocolDialectName()).thenReturn(PROTOCOL_DIALECT);
                 when(getValueFactory().fromStringValue("15")).thenReturn(15);
                 when(getValueFactory().toStringValue(15)).thenReturn("15");
+                when(getValueFactory().fromStringValue(VERY_LARGE_STRING)).thenReturn(VERY_LARGE_STRING);
+                when(getValueFactory().toStringValue(VERY_LARGE_STRING)).thenReturn(VERY_LARGE_STRING);
             }
         }
 

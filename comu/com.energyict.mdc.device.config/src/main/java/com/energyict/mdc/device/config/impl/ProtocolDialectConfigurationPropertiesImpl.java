@@ -24,11 +24,13 @@ import com.elster.jupiter.properties.ValueFactory;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author sva
@@ -47,6 +49,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PROTOCOLDIALECT_REQUIRED + "}")
     @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String protocolDialectName;
+    @Valid
     private List<ProtocolDialectConfigurationPropertyImpl> propertyList = new ArrayList<>();
 
     private String userName;
@@ -196,10 +199,13 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
 
     @Override
     public void removeProperty(String name) {
-        ProtocolDialectConfigurationPropertyImpl found = findProperty(name);
-        found.validateDelete();
-        propertyList.remove(found);
-        getLocalAdjustableTypedProperties().removeProperty(name);
+        findProperty(name).ifPresent(this::doRemoveProperty);
+    }
+
+    private void doRemoveProperty(ProtocolDialectConfigurationPropertyImpl obsolete) {
+        obsolete.validateDelete();
+        this.propertyList.remove(obsolete);
+        this.getLocalAdjustableTypedProperties().removeProperty(obsolete.getName());
     }
 
     private TypedProperties getLocalAdjustableTypedProperties(){
@@ -209,19 +215,20 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
         return this.typedProperties;
     }
 
-    private ProtocolDialectConfigurationPropertyImpl findProperty(String name) {
+    private Optional<ProtocolDialectConfigurationPropertyImpl> findProperty(String name) {
         for (ProtocolDialectConfigurationPropertyImpl candidate : propertyList) {
             if (candidate.getName().equals(name)) {
-                return candidate;
+                return Optional.of(candidate);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     private void setNewProperty(String name, Object value) {
         ProtocolDialectConfigurationPropertyImpl property = ProtocolDialectConfigurationPropertyImpl.forKey(this, name).setValue(asStringValue(name, value));
-        propertyList.add(property);
-        getLocalAdjustableTypedProperties().setProperty(name, value);
+        Save.CREATE.validate(this.dataModel, property);
+        this.propertyList.add(property);
+        this.getLocalAdjustableTypedProperties().setProperty(name, value);
     }
 
     @Override

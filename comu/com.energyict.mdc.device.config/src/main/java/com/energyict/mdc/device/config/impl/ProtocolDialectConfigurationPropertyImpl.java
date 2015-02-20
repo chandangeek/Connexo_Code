@@ -18,12 +18,12 @@ import java.time.Instant;
  * Date: 6/03/14
  * Time: 16:43
  */
+@SizeForDynamicAttributeName(max = 4000, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
 public class ProtocolDialectConfigurationPropertyImpl implements ProtocolDialectConfigurationProperty {
 
     private Reference<ProtocolDialectConfigurationPropertiesImpl> properties = ValueReference.absent();
     @Size(max = 255, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
-    @Size(max = 4000, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String value;
     private String userName;
     private long version;
