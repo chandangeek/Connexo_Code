@@ -14,6 +14,16 @@ Ext.define('Sam.model.Licensing', {
             type: 'text'
         },
         {
+            convert: function(v, rec) {
+                if (v === 'BPM'){
+                    return Uni.I18n.translate('BPM', 'USR', 'Flow');
+                }else if (v === 'YFN'){
+                    return Uni.I18n.translate('YFN', 'USR', 'Facts');
+                }else if (v === 'MDC'){
+                    return Uni.I18n.translate('MDC', 'USR', 'MultiSense');
+                }
+                return v;
+            },
             name: 'applicationname',
             type: 'text'
         },
