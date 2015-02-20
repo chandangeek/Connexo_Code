@@ -924,7 +924,7 @@ Ext.define('Cfg.controller.Validation', {
             isActive = record.get('active');
 
         if (record) {
-            record.getProxy().setUrl(router.arguments.ruleSetId);
+            record.getProxy().setUrl(router.arguments.ruleSetId || record.get('ruleSetId'));
             record.readingTypes().removeAll();
             Ext.Array.each(record.get('readingTypes'), function (item) {
                 var readingTypeRecord = Ext.create(Cfg.model.ReadingType);
