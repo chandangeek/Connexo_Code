@@ -917,6 +917,7 @@ Ext.define('Cfg.controller.Validation', {
 
     deactivateRule: function (record, active) {
         var me = this,
+            router = this.getController('Uni.controller.history.Router'),
             view = me.getRulePreviewContainer() || me.getRuleOverview() || me.getRulePreviewContainerPanel(),
             ruleSetWithRulesView = me.getRuleSetBrowsePanel(),
             grid = view.down('grid'),
@@ -924,6 +925,7 @@ Ext.define('Cfg.controller.Validation', {
             isActive = record.get('active');
 
         if (record) {
+            record.getProxy().setUrl(router.arguments.ruleSetId);
             record.readingTypes().removeAll();
             Ext.Array.each(record.get('readingTypes'), function (item) {
                 var readingTypeRecord = Ext.create(Cfg.model.ReadingType);
