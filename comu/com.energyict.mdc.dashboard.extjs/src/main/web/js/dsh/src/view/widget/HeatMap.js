@@ -120,7 +120,8 @@ Ext.define('Dsh.view.widget.HeatMap', {
                     queryMode: 'local',
                     valueField: 'breakdown',
                     store: combineStore,
-                    autoSelect: true
+                    autoSelect: true,
+                    editable: false
                 }
             ]
         } else if (me.parent == 'communications') {
