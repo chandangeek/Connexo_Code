@@ -47,6 +47,9 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
         'Isu.util.CreatingControl'
     ],
 
+    savedCreateActionTypeIds: [],
+    savedOverdueActionTypeIds: [],
+
     init: function () {
         this.control({
             'issues-creation-rules-edit-action form [name=actionType]': {
@@ -65,10 +68,19 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
     },
 
     showCreate: function (id) {
-        var widget;
+        var me = this,
+            widget;
 
         if (!this.getStore('Isu.store.Clipboard').get('issuesCreationRuleState')) {
             this.getStore('Isu.store.Clipboard').set('issuesCreationRuleState', Ext.create('Isu.model.CreationRule'));
+        } else {
+            this.getStore('Isu.store.Clipboard').get('issuesCreationRuleState').actionsStore.each(function(record) {
+                if (record.get('phase').uuid === 'CREATE') {
+                    me.savedCreateActionTypeIds.push(record.get('type').id);
+                } else if (record.get('phase').uuid === 'OVERDUE') {
+                    me.savedOverdueActionTypeIds.push(record.get('type').id);
+                }
+            });
         }
 
         widget = Ext.widget('issues-creation-rules-edit-action');
@@ -131,6 +143,7 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
                 });
             });
             actionTypesStore.getProxy().setExtraParam('issueType', me.getStore('Isu.store.Clipboard').get('issuesCreationRuleState').get('issueType').uid);
+            actionTypesStore.getProxy().setExtraParam('createdActions', me.savedCreateActionTypeIds);
             actionTypesStore.getProxy().setExtraParam('reason', me.getStore('Isu.store.Clipboard').get('issuesCreationRuleState').get('reason').id);
             actionTypesStore.getProxy().setExtraParam('phase', records[0].get('uuid'));
             actionTypesStore.load(checkLoadedStores);
@@ -205,6 +218,8 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
         var router = this.getController('Uni.controller.history.Router'),
             rule = this.getStore('Isu.store.Clipboard').get('issuesCreationRuleState');
 
+        this.savedCreateActionTypeIds.length = 0;
+        this.savedOverdueActionTypeIds.length = 0;
         if (rule) {
             if (rule.getId()) {
                 router.getRoute('administration/creationrules/edit').forward({id: rule.getId()});
@@ -220,7 +235,11 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
     	var me = this,
     	    actionField = me.getActionForm().down('[name=actionType]'),
     	    actionTypesStore = me.getStore('Isu.store.CreationRuleActions');
-    	
+        if (newValue.phase === 'CREATE') {
+            actionTypesStore.getProxy().setExtraParam('createdActions', me.savedCreateActionTypeIds);
+        } else if (newValue.phase === 'OVERDUE') {
+            actionTypesStore.getProxy().setExtraParam('createdActions', me.savedOverdueActionTypeIds);
+        }
     	actionTypesStore.getProxy().setExtraParam('phase', newValue);
         actionTypesStore.load(function(records, operation, success) {
             var action = actionTypesStore.getById(actionField.getValue());
