@@ -28,15 +28,27 @@ Ext.define('Dsh.view.MyFavoriteDeviceGroups', {
                 },
                 tbar: [
                     {
-                        xtype: 'displayfield',
-                        itemId: 'selected-groups-summary',
-                        margin: '0 20 0 0'
-                    },
-                    {
-                        xtype: 'button',
-                        text: 'Uncheck all',
-                        action: 'uncheckall'
+                        xtype: 'panel',
+                        layout: 'hbox',
+                        defaults: {
+                            style: {
+                                marginRight: '20px'
+                            }
+                        },
+                        items: [
+                            {
+                                xtype: 'displayfield',
+                                itemId: 'selected-groups-summary',
+                                margin: '0 20 0 0'
+                            },
+                            {
+                                xtype: 'button',
+                                text: 'Uncheck all',
+                                action: 'uncheckall'
+                            }
+                        ]
                     }
+
                 ],
                 columns: [
                     {
@@ -82,10 +94,12 @@ Ext.define('Dsh.view.MyFavoriteDeviceGroups', {
                 reasons: [
                     Uni.I18n.translate('workspace.myFavoriteDeviceGroups.empty.list.reason1', 'DSH', 'No device groups have been defined yet.')
                 ],
-                stepItems: [{
-                    text: Uni.I18n.translate('workspace.myFavoriteDeviceGroups.empty.list.action1', 'DSH', 'Add device group'),
-                    action: 'addItem'
-                }]
+                stepItems: [
+                    {
+                        text: Uni.I18n.translate('workspace.myFavoriteDeviceGroups.empty.list.action1', 'DSH', 'Add device group'),
+                        action: 'addItem'
+                    }
+                ]
             }
         });
     }
