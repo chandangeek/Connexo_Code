@@ -102,9 +102,7 @@ public class ComServerStatusSummaryResource {
              * The underlying exception in this case is: java.net.UnknownHostException */
             /* The ComServerStatusResource of this ComServer is not accessible,
              * most likely because the ComServer is not running. */
-            String message = "ComServer " + comServerName + " is most likely not running";
-            LOGGER.info(message);
-            LOGGER.log(Level.SEVERE, message, e);
+            LOGGER.info(() -> "ComServer " + comServerName + " is most likely not running");
             ComServerStatusInfo statusInfo = comServerStatusInfoFactory.from(comServerId, comServerName, statusUri, comServerType);
             statusSummaryInfo.comServerStatusInfos.add(statusInfo);
         }
