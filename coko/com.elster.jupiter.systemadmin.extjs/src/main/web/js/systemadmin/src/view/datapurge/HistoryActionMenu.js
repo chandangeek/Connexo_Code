@@ -21,7 +21,7 @@ Ext.define('Sam.view.datapurge.HistoryActionMenu', {
                         }
                     );
                 }
-                Ext.resumeLayouts();
+                Ext.resumeLayouts(true);
             }
         }
     }
