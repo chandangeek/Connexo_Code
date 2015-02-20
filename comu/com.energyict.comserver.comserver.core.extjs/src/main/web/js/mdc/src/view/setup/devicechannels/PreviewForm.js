@@ -11,6 +11,7 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
     router: null,
     initComponent: function () {
         var me = this;
+        console.log(1);
 
         me.items = {
             xtype: 'form',
@@ -42,10 +43,6 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                         {
                             fieldLabel: Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'),
                             name: 'interval_formatted'
-                        },
-                        {
-                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.unitOfMeasure', 'MDC', 'Unit of measure'),
-                            name: 'unitOfMeasure_formatted'
                         },
                         {
                             fieldLabel: Uni.I18n.translate('deviceloadprofiles.lastReading', 'MDC', 'Last reading'),
