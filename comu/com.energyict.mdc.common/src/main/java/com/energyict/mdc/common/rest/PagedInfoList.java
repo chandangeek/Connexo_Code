@@ -17,18 +17,10 @@ import java.util.List;
 public class PagedInfoList {
 
     private final String jsonListName;
-    private boolean couldHaveNextPage;
     private List<?> infos = new ArrayList<>();
-    private QueryParameters queryParameters;
+    private final int total;
 
     public int getTotal() {
-        int total = infos.size();
-        if (queryParameters.getStart()!=null) {
-            total+=queryParameters.getStart();
-        }
-        if (couldHaveNextPage) {
-            total++;
-        }
         return total;
     }
 
@@ -36,14 +28,10 @@ public class PagedInfoList {
         return ImmutableList.copyOf(infos);
     }
 
-    private PagedInfoList(String jsonListName, List<?> infos, QueryParameters queryParameters) {
-        this.queryParameters = queryParameters;
+    private PagedInfoList(String jsonListName, List<?> infos, int total) {
         this.jsonListName = jsonListName;
         this.infos = infos;
-        couldHaveNextPage=queryParameters.getLimit()!=null && infos.size()>queryParameters.getLimit();
-        if (couldHaveNextPage) {
-            this.infos=infos.subList(0,queryParameters.getLimit());
-        }
+        this.total = total;
     }
 
     /**
@@ -65,8 +53,33 @@ public class PagedInfoList {
      *                        if the returned 'page' was full, if so, total is incremented by 1 to indicate to ExtJS there could be a next page.
      * @return A map that will be correctly serialized as JSON paging object, understood by ExtJS
      */
+    @Deprecated
     public static PagedInfoList asJson(String jsonListName, List<?> infos, QueryParameters queryParameters) {
-        return new PagedInfoList(jsonListName, infos, queryParameters);
+        return fromPagedList(jsonListName,  infos, queryParameters);
+    }
+
+    public static PagedInfoList fromPagedList(String jsonListName, List<?> infos, QueryParameters queryParameters) {
+        boolean couldHaveNextPage=queryParameters.getLimit()!=null && infos.size()>queryParameters.getLimit();
+        if (couldHaveNextPage) {
+            infos=infos.subList(0,queryParameters.getLimit());
+        }
+        int total = infos.size();
+        if (queryParameters.getStart()!=null) {
+            total+=queryParameters.getStart();
+        }
+        if (couldHaveNextPage) {
+            total++;
+        }
+
+        return new PagedInfoList(jsonListName, infos, total);
+    }
+
+    public static PagedInfoList fromCompleteList(String jsonListName, List<?> infos, QueryParameters queryParameters) {
+        int totalCount = infos.size();
+        if (queryParameters.getStart() != null && queryParameters.getStart() < infos.size()) {
+            infos = infos.subList(queryParameters.getStart(), infos.size());
+        }
+        return new PagedInfoList(jsonListName, infos, totalCount);
     }
 
     public static class Serializer extends JsonSerializer<PagedInfoList> {
