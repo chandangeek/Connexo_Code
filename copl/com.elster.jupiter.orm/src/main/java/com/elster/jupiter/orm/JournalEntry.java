@@ -39,7 +39,7 @@ public final class JournalEntry<T> implements Comparable<JournalEntry<T>> {
 		return journalTime.compareTo(o.journalTime);
 	}
 	
-	/*
+	/**
 	 * @since 1.1
 	 */
 	public boolean isCurrent() {
