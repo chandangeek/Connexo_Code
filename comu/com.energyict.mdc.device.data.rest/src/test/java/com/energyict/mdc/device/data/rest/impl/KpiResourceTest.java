@@ -59,8 +59,8 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(model.<Integer>get("id")).isEqualTo(71);
         assertThat(model.<Integer>get("deviceGroup.id")).isEqualTo(2);
         assertThat(model.<String>get("deviceGroup.name")).isEqualTo("end device group bis");
-        assertThat(model.<Integer>get("frequency.every.count")).isEqualTo(6);
-        assertThat(model.<String>get("frequency.every.timeUnit")).isEqualTo("hours");
+        assertThat(model.<Integer>get("frequency.every.count")).isEqualTo(15);
+        assertThat(model.<String>get("frequency.every.timeUnit")).isEqualTo("minutes");
         assertThat(model.<Double>get("communicationTarget")).isEqualTo(15.8);
         assertThat(model.<Double>get("connectionTarget")).isNull();
         assertThat(model.<Instant>get("latestCalculationDate")).isEqualTo(10000000);
