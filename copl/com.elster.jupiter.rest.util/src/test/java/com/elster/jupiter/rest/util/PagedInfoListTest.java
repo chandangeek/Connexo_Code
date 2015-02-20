@@ -77,6 +77,32 @@ public class PagedInfoListTest {
 
     }
 
+    @Test
+    public void testNextPageWithTotalCount() throws Exception {
+        QueryParameters queryParameters = createQueryParameters(10,10);
+
+        List<Object> infos = Arrays.asList(new Object(), new Object(), new Object(), new Object(), new Object()
+                , new Object(), new Object(), new Object(), new Object(), new Object(), new Object()); // 11 objects
+
+        int totalCount = infos.size();
+        PagedInfoList list = PagedInfoList.asJson("list", infos, queryParameters, totalCount);
+        assertThat(list.getTotal()).isEqualTo(totalCount);
+        assertThat(list.getInfos()).hasSize(10);
+
+    }
+
+    @Test
+    public void testTotalCount() throws Exception {
+        QueryParameters queryParameters = createQueryParameters(0,2);
+
+        List<Object> infos = Arrays.asList(new Object(), new Object(), new Object(), new Object(), new Object()
+                , new Object(), new Object(), new Object(), new Object(), new Object(), new Object()); // 11 objects
+        PagedInfoList list = PagedInfoList.asJson("list", infos, queryParameters, infos.size());
+        assertThat(list.getTotal()).isEqualTo(infos.size());
+        assertThat(list.getInfos()).hasSize(2);
+
+    }
+
     private QueryParameters createQueryParameters(int start, int limit) {
         MultivaluedHashMap<String, String> multivaluedHashMap = new MultivaluedHashMap<>();
         multivaluedHashMap.put("start", Arrays.asList(""+start));
