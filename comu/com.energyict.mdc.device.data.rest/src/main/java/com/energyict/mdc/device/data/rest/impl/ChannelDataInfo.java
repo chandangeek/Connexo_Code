@@ -90,6 +90,12 @@ public class ChannelDataInfo {
                     channelIntervalInfo.suspectReason = validationInfo.validationRules;
                     channelIntervalInfo.dataValidated = validationInfo.dataValidated;
             }
+            if (loadProfileReading.getChannelValues().isEmpty() && loadProfileReading.getChannelValidationStates().isEmpty()) {
+                // we have a reading with no data and no validation result => it's a placeholder (missing value) which hasn't validated ( = detected ) yet
+                channelIntervalInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+                channelIntervalInfo.suspectReason = Collections.EMPTY_SET;
+                channelIntervalInfo.dataValidated = false;
+            }
             channelData.add(channelIntervalInfo);
         }
         return channelData;

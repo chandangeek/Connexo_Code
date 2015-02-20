@@ -13,10 +13,7 @@ import com.energyict.mdc.device.data.LoadProfileReading;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -69,6 +66,18 @@ public class LoadProfileDataInfo {
 
         for (Map.Entry<Channel, DataValidationStatus> entry : loadProfileReading.getChannelValidationStates().entrySet()) {
             channelIntervalInfo.channelValidationData.put(entry.getKey().getId(), new ValidationInfo(entry.getValue(), deviceValidation));
+        }
+
+        for (Channel channel : channels) {
+            if (channelIntervalInfo.channelData.containsKey(channel.getId()) && channelIntervalInfo.channelData.get(channel.getId()) == null
+                    && !channelIntervalInfo.channelValidationData.containsKey(channel.getId())) {
+                // This means it is a missing value what hasn't been validated( = detected ) yet
+                ValidationInfo notValidatedMissing = new ValidationInfo();
+                notValidatedMissing.dataValidated = false;
+                notValidatedMissing.validationResult = ValidationStatus.NOT_VALIDATED;
+                notValidatedMissing.validationRules = Collections.EMPTY_SET;
+                channelIntervalInfo.channelValidationData.put(channel.getId(), notValidatedMissing);
+            }
         }
 
         for (Channel channel : loadProfileReading.getChannelValues().keySet()) {
