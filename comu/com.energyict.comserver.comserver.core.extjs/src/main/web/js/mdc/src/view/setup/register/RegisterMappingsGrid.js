@@ -10,20 +10,26 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
         mode: 'SINGLE'
     },
 
+    plugins: {
+        ptype: 'bufferedrenderer'
+    },
+
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.RegisterTypesOfDevicetype',
         'Mdc.view.setup.register.RegisterMappingActionMenu',
         'Uni.grid.column.Obis',
-        'Uni.grid.column.ReadingType'
+        'Uni.grid.column.ReadingType',
+        'Ext.grid.plugin.BufferedRenderer'
     ],
 
     store: 'RegisterTypesOfDevicetype',
 
     initComponent: function () {
         var me = this;
-        this.columns = [
+
+        me.columns = [
             {
                 xtype: 'reading-type-column',
                 dataIndex: 'readingType',
@@ -41,11 +47,11 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
             }
         ];
 
-        this.dockedItems = [
+        me.dockedItems = [
             {
 
                 xtype: 'pagingtoolbartop',
-                store: this.store,
+                store: me.store,
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('registerMappings.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} register types'),
                 displayMoreMsg: Uni.I18n.translate('registerMappings.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} register types'),
@@ -61,7 +67,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
                         itemId: 'addRegisterMappingBtn',
                         xtype: 'button',
-                        href: '#/administration/devicetypes/' + this.deviceTypeId + '/registertypes/add',
+                        href: '#/administration/devicetypes/' + me.deviceTypeId + '/registertypes/add',
                         hrefTarget: '_self',
                         action: 'addRegisterMapping'
                     }
@@ -69,15 +75,15 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
             },
             {
                 xtype: 'pagingtoolbarbottom',
-                store: this.store,
+                store: me.store,
                 params: [
-                    {deviceType: this.deviceTypeId}
+                    {deviceType: me.deviceTypeId}
                 ],
                 dock: 'bottom',
                 itemsPerPageMsg: Uni.I18n.translate('registerTypes.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Register types per page')
             }
         ];
 
-        this.callParent();
+        me.callParent();
     }
 });
