@@ -80,23 +80,23 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
             return true; // All non required properties support null values
         } else {
             if (!this.getValueFactory().getValueType().isAssignableFrom(value.getClass())) {
-                throw new InvalidValueException("XisNotCompatibleWithAttributeY", "The value \"{0}\" is not compatible with the attribute specification {1}.", this.getName(), value);
+                throw new InvalidValueException("XisNotCompatibleWithAttributeY", "The value \"{1}\" is not compatible with the attribute specification {0}.", this.getName(), value);
             }
             else if (StringFactory.class.equals(this.getValueFactory().getClass())) {
                 String stringValue = (String) value;
                 if (stringValue.length() > StringFactory.MAX_SIZE) {
-                    throw new InvalidValueException("XisToBig", "The value \"{0}\" is too large for this property (max length=" + StringFactory.MAX_SIZE + ")", this.getName());
+                    throw new InvalidValueException("XisToBig", "The value is too large for this property (max length=" + StringFactory.MAX_SIZE + ")", this.getName());
                 }
             }
             else if (ListValueFactory.class.equals(this.getValueFactory().getClass())) {
                 String stringValue = this.getValueFactory().toStringValue(value);
                 if (stringValue.length() > ListValueFactory.MAX_SIZE) {
-                    throw new InvalidValueException("XisToBig", "The value \"{0}\" is too large for this property (max length=" + ListValueFactory.MAX_SIZE + ")", this.getName());
+                    throw new InvalidValueException("XisToBig", "The value is too large for this property (max length=" + ListValueFactory.MAX_SIZE + ")", this.getName());
                 }
             }
             if (possibleValues != null && possibleValues.isExhaustive()) {
                 if (!isValuePossible(value)) {
-                    throw new InvalidValueException("XisNotAPossibleValue", "The value \"{0}\" is not list a possible value for this property", this.getName());
+                    throw new InvalidValueException("XisNotAPossibleValue", "The value is not listed as a possible value for this property", this.getName());
                 }
             }
         }
