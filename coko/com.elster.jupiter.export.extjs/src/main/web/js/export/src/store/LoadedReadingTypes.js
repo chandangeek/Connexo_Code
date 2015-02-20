@@ -5,7 +5,11 @@ Ext.define('Dxp.store.LoadedReadingTypes', {
     requires: [
         'Dxp.model.ReadingTypeFullData'
     ],
+
     autoLoad: false,
+
+    buffered: true,
+    pageSize: 200,
 
     proxy: {
         type: 'rest',
@@ -13,10 +17,6 @@ Ext.define('Dxp.store.LoadedReadingTypes', {
         reader: {
             type: 'json',
             root: 'readingTypes'
-        },
-
-        pageParam: false,
-        startParam: false,
-        limitParam: false
+        }
     }
 });
