@@ -5,8 +5,13 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddRegisterTypesGrid',
 
     requires: [
         'Uni.grid.column.Obis',
-        'Uni.grid.column.ReadingType'
+        'Uni.grid.column.ReadingType',
+        'Ext.grid.plugin.BufferedRenderer'
     ],
+
+    plugins: {
+        ptype: 'bufferedrenderer'
+    },
 
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
