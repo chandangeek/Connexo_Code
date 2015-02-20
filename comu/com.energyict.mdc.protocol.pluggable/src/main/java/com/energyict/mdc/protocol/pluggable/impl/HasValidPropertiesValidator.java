@@ -6,6 +6,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import javax.validation.ConstraintValidator;
@@ -65,15 +66,16 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
 
     @SuppressWarnings("unchecked")
     private void validatePropertyValue(String propertyName, Object propertyValue, List<PropertySpec> propertySpecs, ConstraintValidatorContext context) {
-        PropertySpec propertySpec=null;
+        PropertySpec propertySpec = null;
         try {
             propertySpec = getPropertySpec(propertySpecs, propertyName);
             propertySpec.validateValue(propertyValue);
         }
         catch (InvalidValueException e) {
             context
-                .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY + "}")
-                .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation().disableDefaultConstraintViolation();
+                .buildConstraintViolationWithTemplate(MessageFormat.format(e.getDefaultPattern(), e.getArguments()))
+                .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation()
+                .disableDefaultConstraintViolation();
             this.valid = false;
         }
     }

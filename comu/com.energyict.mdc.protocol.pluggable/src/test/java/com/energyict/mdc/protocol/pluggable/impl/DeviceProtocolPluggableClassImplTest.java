@@ -361,7 +361,7 @@ public class DeviceProtocolPluggableClassImplTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY+"}")
+    @ExpectedConstraintViolation(messageId = "The value is not listed as a possible value for this property", property = "properties.SDKObisCodeProperty")
     public void newInstanceSmartMeterProtocolIllegalPropertyTest() throws BusinessException, SQLException {
         transactionService.execute(() -> {
             DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass("SDKDeviceProtocolTestWithMandatoryProperty", SDK_DEVICE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY);
