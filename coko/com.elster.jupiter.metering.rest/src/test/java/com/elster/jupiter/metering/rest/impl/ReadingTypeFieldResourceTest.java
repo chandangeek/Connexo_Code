@@ -94,7 +94,7 @@ public class ReadingTypeFieldResourceTest extends MeteringApplicationJerseyTest 
         Response response = target("/fields/readingtypes").queryParam("start", 0).queryParam("limit", 10).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(11);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(30);
         assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(10);
     }
 
@@ -107,7 +107,7 @@ public class ReadingTypeFieldResourceTest extends MeteringApplicationJerseyTest 
         Response response = target("/fields/readingtypes").queryParam("start", 10).queryParam("limit", 10).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(21);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(30);
         assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(10);
     }
 
