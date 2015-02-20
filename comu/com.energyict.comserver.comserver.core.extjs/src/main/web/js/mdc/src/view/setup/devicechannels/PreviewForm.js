@@ -11,8 +11,6 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
     router: null,
     initComponent: function () {
         var me = this;
-        console.log(1);
-
         me.items = {
             xtype: 'form',
             items: [
