@@ -14,6 +14,7 @@ import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
@@ -43,7 +44,7 @@ import java.util.List;
  */
 public abstract class AbstractDlmsMbusProtocol implements DeviceProtocol {
 
-    abstract protected AbstractDlmsProtocol getMasterProtocol();
+    abstract protected DeviceProtocolSecurityCapabilities getSecurityCapabilities();
 
     abstract protected DeviceMessageSupport getDeviceMessageSupport();
 
@@ -74,12 +75,12 @@ public abstract class AbstractDlmsMbusProtocol implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
-        return getMasterProtocol().getSecurityProperties();
+        return getSecurityCapabilities().getSecurityProperties();
     }
 
     @Override
     public String getSecurityRelationTypeName() {
-        return getMasterProtocol().getSecurityRelationTypeName();
+        return getSecurityCapabilities().getSecurityRelationTypeName();
     }
 
     /**
@@ -89,7 +90,7 @@ public abstract class AbstractDlmsMbusProtocol implements DeviceProtocol {
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         List<AuthenticationDeviceAccessLevel> authenticationAccessLevels = new ArrayList<>();
-        authenticationAccessLevels.addAll(getMasterProtocol().getAuthenticationAccessLevels());
+        authenticationAccessLevels.addAll(getSecurityCapabilities().getAuthenticationAccessLevels());
         authenticationAccessLevels.add(new InheritedAuthenticationDeviceAccessLevel());
         return authenticationAccessLevels;
     }
@@ -101,14 +102,14 @@ public abstract class AbstractDlmsMbusProtocol implements DeviceProtocol {
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         List<EncryptionDeviceAccessLevel> encryptionAccessLevels = new ArrayList<>();
-        encryptionAccessLevels.addAll(getMasterProtocol().getEncryptionAccessLevels());
+        encryptionAccessLevels.addAll(getSecurityCapabilities().getEncryptionAccessLevels());
         encryptionAccessLevels.add(new InheritedEncryptionDeviceAccessLevel());
         return encryptionAccessLevels;
     }
 
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
-        return getMasterProtocol().getSecurityPropertySpec(name);
+        return getSecurityCapabilities().getSecurityPropertySpec(name);
     }
 
     @Override

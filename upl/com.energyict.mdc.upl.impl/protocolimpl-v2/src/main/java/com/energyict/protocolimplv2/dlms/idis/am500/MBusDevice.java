@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dlms.idis.am500;
 
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsMbusProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -29,7 +30,7 @@ public class MBusDevice extends AbstractDlmsMbusProtocol {
         return "$Date$";
     }
 
-    protected AbstractDlmsProtocol getMasterProtocol() {
+    protected DeviceProtocolSecurityCapabilities getSecurityCapabilities() {
         return masterProtocol;
     }
 

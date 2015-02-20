@@ -65,6 +65,7 @@
 -keepnames class com.energyict.protocolimplv2.dlms.idis.am500.AM500
 -keepnames class com.energyict.protocolimplv2.dlms.idis.am500.MBusDevice
 -keepnames class com.energyict.protocolimplv2.dlms.idis.am130.AM130
+-keepnames class com.energyict.protocolimplv2.dlms.idis.am130.MBusDevice
 
 -keepnames class com.energyict.mdc.protocol.inbound.DlmsSerialNumberDiscover
 -keepnames class com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol
