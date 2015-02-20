@@ -24,12 +24,13 @@ public class MdcAppInstaller implements InstallService {
 
     public static final String PRIVILEGE_VIEW_REPORTS = "privilege.view.reports";
 
-    public static final String PRIVILEGE_VIEW_BPM = "privilege.view.bpm";
     public static final String PRIVILEGE_RUN_EXPORT = "privilege.run.dataExportTask";
     public static final String PRIVILEGE_VIEW_EXPORT = "privilege.view.dataExportTask";
 
     public static final String PRIVILEGE_VIEW_COMMUNICATION = "privilege.view.communicationAdministration";
     public static final String PRIVILEGE_VIEW_DEVICE = "privilege.view.device";
+    public static final String PRIVILEGE_OPERATE_DEVICECOMMUNICATION = "privilege.operate.deviceCommunication";
+    public static final String PRIVILEGE_ADMINISTRATE_DEVICEDATA = "privilege.administrate.deviceData";
     public static final String PRIVILEGE_VIEW_DEVICETYPE = "privilege.view.deviceType";
     public static final String PRIVILEGE_ACCTION_ISSUE_ACTION = "privilege.action.issue";
     public static final String PRIVILEGE_ASSIGN_ISSUE = "privilege.assign.issue";
@@ -89,8 +90,9 @@ public class MdcAppInstaller implements InstallService {
     }
 
     private String[] getPrivilegesMeterOperator(){
-        return new String[] {PRIVILEGE_VIEW_BPM, PRIVILEGE_RUN_EXPORT, PRIVILEGE_VIEW_EXPORT,
-                               PRIVILEGE_VIEW_COMMUNICATION, PRIVILEGE_VIEW_DEVICE, PRIVILEGE_VIEW_DEVICETYPE,
+        return new String[] {PRIVILEGE_RUN_EXPORT, PRIVILEGE_VIEW_EXPORT,
+                               PRIVILEGE_VIEW_COMMUNICATION, PRIVILEGE_VIEW_DEVICE,
+                               PRIVILEGE_OPERATE_DEVICECOMMUNICATION, PRIVILEGE_ADMINISTRATE_DEVICEDATA, PRIVILEGE_VIEW_DEVICETYPE,
                                PRIVILEGE_ACCTION_ISSUE_ACTION, PRIVILEGE_ASSIGN_ISSUE, PRIVILEGE_CLOSE_ISSUE, PRIVILEGE_COMMENT_ISSUE, PRIVILEGE_VIEW_ISSUE,
                                PRIVILEGE_VIEW_MASTER_DATA, PRIVILEGE_VIEW_VALIDATION
         };
