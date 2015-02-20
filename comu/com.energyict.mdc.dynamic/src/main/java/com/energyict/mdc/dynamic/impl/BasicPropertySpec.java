@@ -46,7 +46,7 @@ public class BasicPropertySpec extends com.elster.jupiter.properties.BasicProper
         }
         else {
             if (!this.getValueFactory().getValueType().isAssignableFrom(value.getClass())) {
-                throw new InvalidValueException("XisNotCompatibleWithAttributeY", "The value \"{0}\" is not compatible with the attribute specification {1}.", this.getName(), value);
+                throw new InvalidValueException("XisNotCompatibleWithAttributeY", "The value \"{1}\" is not compatible with the attribute specification {0}.", this.getName(), value);
             }
             if (this.isReference()) {
                 return this.validateReference(value);
@@ -96,7 +96,7 @@ public class BasicPropertySpec extends com.elster.jupiter.properties.BasicProper
         if (StringFactory.class.equals(this.getValueFactory())) {
             String stringValue = (String) value;
             if (stringValue.length() > StringFactory.MAX_SIZE) {
-                throw new InvalidValueException("XisToBig", "The value \"{0}\" is too large for this property (max length=" + StringFactory.MAX_SIZE + ")", this.getName());
+                throw new InvalidValueException("XisToBig", "The value is too large for this property (max length=" + StringFactory.MAX_SIZE + ")", this.getName());
             }
         }
         else if (EncryptedStringFactory.class.equals(this.getValueFactory())) {
@@ -116,7 +116,7 @@ public class BasicPropertySpec extends com.elster.jupiter.properties.BasicProper
         }
         if (this.possibleValues != null && this.possibleValues.isExhaustive()) {
             if (!this.possibleValues.getAllValues().contains(value)) {
-                throw new InvalidValueException("XisNotAPossibleValue", "The value \"{0}\" is not list a possible value for this property", this.getName());
+                throw new InvalidValueException("XisNotAPossibleValue", "The value is not listed as a possible value for this property", this.getName());
             }
         }
         return true;
