@@ -6,8 +6,11 @@ import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.AM130ConfigurationSupport;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS;
 
 /**
  * Same like the AM130 properties, adds 'CallingAPTitle' and 'SwapServerAndClientAddress'
@@ -25,6 +28,7 @@ public class IDISConfigurationSupport extends AM130ConfigurationSupport {
     public List<PropertySpec> getOptionalProperties() {
         List<PropertySpec> result = new ArrayList<>();
         result.addAll(super.getOptionalProperties());
+        result.add(this.serverUpperMacAddressPropertySpec());
         result.add(this.callingAPTitlePropertySpec());
         result.add(this.callHomeIdProperty());
         result.add(this.swapServerAndClientAddress());
@@ -33,6 +37,10 @@ public class IDISConfigurationSupport extends AM130ConfigurationSupport {
 
     public PropertySpec callingAPTitlePropertySpec() {
         return PropertySpecFactory.stringPropertySpec(IDIS.CALLING_AP_TITLE, IDIS.CALLING_AP_TITLE_DEFAULT);
+    }
+
+    public PropertySpec serverUpperMacAddressPropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
     }
 
     protected PropertySpec swapServerAndClientAddress() {

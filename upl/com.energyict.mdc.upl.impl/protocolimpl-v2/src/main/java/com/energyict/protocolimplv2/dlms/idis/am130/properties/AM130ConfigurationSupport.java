@@ -33,7 +33,6 @@ public class AM130ConfigurationSupport implements ConfigurationSupport {
     @Override
     public List<PropertySpec> getOptionalProperties() {
         return Arrays.asList(
-                this.serverUpperMacAddressPropertySpec(),
                 this.retriesPropertySpec(),
                 this.timeoutPropertySpec(),
                 this.forcedDelayPropertySpec(),
@@ -47,10 +46,6 @@ public class AM130ConfigurationSupport implements ConfigurationSupport {
 
     protected PropertySpec limitMaxNrOfDaysPropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(LIMIT_MAX_NR_OF_DAYS_PROPERTY, BigDecimal.ZERO);
-    }
-
-    public PropertySpec serverUpperMacAddressPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
     }
 
     protected PropertySpec retriesPropertySpec() {
