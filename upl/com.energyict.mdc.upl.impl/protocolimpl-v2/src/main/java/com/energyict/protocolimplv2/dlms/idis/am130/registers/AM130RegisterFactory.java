@@ -1,18 +1,12 @@
-package com.energyict.protocolimplv2.dlms.idis.am500.registers;
+package com.energyict.protocolimplv2.dlms.idis.am130.registers;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DemandRegister;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.HistoricalValue;
-import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.*;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
@@ -23,20 +17,12 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.base.DLMSAttributeMapper;
 import com.energyict.protocolimpl.dlms.idis.registers.AlarmBitsRegister;
-import com.energyict.protocolimpl.dlms.idis.registers.SFSKActiveInitiatorMapper;
-import com.energyict.protocolimpl.dlms.idis.registers.SFSKIec61334LLCSetupMapper;
-import com.energyict.protocolimpl.dlms.idis.registers.SFSKMacCountersMapper;
-import com.energyict.protocolimpl.dlms.idis.registers.SFSKPhyMacSetupMapper;
-import com.energyict.protocolimpl.dlms.idis.registers.SFSKReportingSystemListMapper;
-import com.energyict.protocolimpl.dlms.idis.registers.SFSKSyncTimeoutsMapper;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
+import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,28 +32,15 @@ import java.util.List;
  * @author khe
  * @since 5/01/2015 - 11:13
  */
-public class IDISRegisterFactory implements DeviceRegisterSupport {
+public class AM130RegisterFactory implements DeviceRegisterSupport {
 
-    private final AM500 AM500;
-    private static final String ALARM_REGISTER = "0.0.97.98.0.255";
-    private final DLMSAttributeMapper[] attributeMappers;
-    public static final ObisCode SFSK_PHY_MAC_SETUP = ObisCode.fromString("0.0.26.0.0.255");
-    public static final ObisCode SFSK_ACTIVE_INITIATOR = ObisCode.fromString("0.0.26.1.0.255");
-    public static final ObisCode SFSK_SYNC_TIMEOUTS = ObisCode.fromString("0.0.26.2.0.255");
-    public static final ObisCode SFSK_MAC_COUNTERS = ObisCode.fromString("0.0.26.3.0.255");
-    public static final ObisCode SFSK_IEC_LLC_SETIP = ObisCode.fromString("0.0.26.5.0.255");
-    public static final ObisCode SFSK_REPORTING_SYSTEM_LIST = ObisCode.fromString("0.0.26.6.0.255");
+    private final AM130 am130;
+    private static final String ALARM_REGISTER1 = "0.0.97.98.0.255";
+    private static final String ALARM_REGISTER2 = "0.0.97.98.1.255";
+    private static final String ERROR_REGISTER = "0.0.97.97.0.255";
 
-    public IDISRegisterFactory(AM500 AM500) {
-        this.AM500 = AM500;
-        this.attributeMappers = new DLMSAttributeMapper[]{
-                new SFSKPhyMacSetupMapper(SFSK_PHY_MAC_SETUP, AM500.getDlmsSession().getCosemObjectFactory()),
-                new SFSKActiveInitiatorMapper(SFSK_ACTIVE_INITIATOR, AM500.getDlmsSession().getCosemObjectFactory()),
-                new SFSKSyncTimeoutsMapper(SFSK_SYNC_TIMEOUTS, AM500.getDlmsSession().getCosemObjectFactory()),
-                new SFSKMacCountersMapper(SFSK_MAC_COUNTERS, AM500.getDlmsSession().getCosemObjectFactory()),
-                new SFSKIec61334LLCSetupMapper(SFSK_IEC_LLC_SETIP, AM500.getDlmsSession().getCosemObjectFactory()),
-                new SFSKReportingSystemListMapper(SFSK_REPORTING_SYSTEM_LIST, AM500.getDlmsSession().getCosemObjectFactory()),
-        };
+    public AM130RegisterFactory(AM130 am130) {
+        this.am130 = am130;
     }
 
     public List<CollectedRegister> readRegisters(List<OfflineRegister> offlineRegisters) {
@@ -83,25 +56,10 @@ public class IDISRegisterFactory implements DeviceRegisterSupport {
         ObisCode obisCode = offlineRegister.getObisCode();
 
         try {
-            //Read out plc object attributes, where the obiscode F-field is the attribute number
-            for (DLMSAttributeMapper attributeMapper : attributeMappers) {
-                if (attributeMapper.isObisCodeMapped(obisCode)) {
-                    RegisterValue registerValue = attributeMapper.getRegisterValue(obisCode);
-                    try {
-                        String textValue = registerValue.getText();
-                        BigDecimal value = new BigDecimal(textValue);
-                        registerValue.setQuantity(new Quantity(value, Unit.get("")));
-                    } catch (NumberFormatException e) {
-                        //Text register, quantity is not used
-                    }
-                    return createCollectedRegister(registerValue, offlineRegister);
-                }
-            }
-
             //Read billing registers
             if (obisCode.getF() != 255) {
                 try {
-                    HistoricalValue historicalValue = AM500.getStoredValues().getHistoricalValue(obisCode);
+                    HistoricalValue historicalValue = am130.getStoredValues().getHistoricalValue(obisCode);
                     RegisterValue registerValue = new RegisterValue(obisCode, historicalValue.getQuantityValue(), historicalValue.getEventTime());
                     return createCollectedRegister(registerValue, offlineRegister);
                 } catch (NoSuchRegisterException e) {
@@ -110,27 +68,27 @@ public class IDISRegisterFactory implements DeviceRegisterSupport {
             }
 
             if (isMBusValueChannel(obisCode)) {
-                obisCode = AM500.getPhysicalAddressCorrectedObisCode(obisCode, offlineRegister.getSerialNumber());
+                obisCode = am130.getPhysicalAddressCorrectedObisCode(obisCode, offlineRegister.getSerialNumber());
             }
 
             final UniversalObject uo;
             try {
-                uo = AM500.getDlmsSession().getMeterConfig().findObject(obisCode);
+                uo = am130.getDlmsSession().getMeterConfig().findObject(obisCode);
             } catch (ProtocolException e) {
                 return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
             }
 
-            RegisterValue registerValue = null;
+            RegisterValue registerValue;
             if (uo.getClassID() == DLMSClassId.REGISTER.getClassId()) {
-                final Register register = AM500.getDlmsSession().getCosemObjectFactory().getRegister(obisCode);
+                final Register register = am130.getDlmsSession().getCosemObjectFactory().getRegister(obisCode);
                 Quantity quantity = new Quantity(register.getValueAttr().toBigDecimal(), register.getScalerUnit().getEisUnit());
                 registerValue = new RegisterValue(obisCode, quantity);
             } else if (uo.getClassID() == DLMSClassId.DEMAND_REGISTER.getClassId()) {
-                final DemandRegister register = AM500.getDlmsSession().getCosemObjectFactory().getDemandRegister(obisCode);
+                final DemandRegister register = am130.getDlmsSession().getCosemObjectFactory().getDemandRegister(obisCode);
                 Quantity quantity = new Quantity(register.getAttrbAbstractDataType(2).toBigDecimal(), register.getScalerUnit().getEisUnit());
                 registerValue = new RegisterValue(obisCode, quantity, register.getCaptureTime());
             } else if (uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
-                final ExtendedRegister register = AM500.getDlmsSession().getCosemObjectFactory().getExtendedRegister(obisCode);
+                final ExtendedRegister register = am130.getDlmsSession().getCosemObjectFactory().getExtendedRegister(obisCode);
                 AbstractDataType valueAttr = register.getValueAttr();
                 if (valueAttr.getOctetString() != null) {
                     registerValue = new RegisterValue(obisCode, (valueAttr.getOctetString()).stringValue());
@@ -139,22 +97,25 @@ public class IDISRegisterFactory implements DeviceRegisterSupport {
                     registerValue = new RegisterValue(obisCode, quantity, register.getCaptureTime());
                 }
             } else if (uo.getClassID() == DLMSClassId.DISCONNECT_CONTROL.getClassId()) {
-                final Disconnector register = AM500.getDlmsSession().getCosemObjectFactory().getDisconnector(obisCode);
+                final Disconnector register = am130.getDlmsSession().getCosemObjectFactory().getDisconnector(obisCode);
                 registerValue = new RegisterValue(obisCode, "" + register.getState());
             } else if (uo.getClassID() == DLMSClassId.DATA.getClassId()) {
-                final Data register = AM500.getDlmsSession().getCosemObjectFactory().getData(obisCode);
+                final Data register = am130.getDlmsSession().getCosemObjectFactory().getData(obisCode);
                 OctetString octetString = register.getValueAttr().getOctetString();
-                if (octetString != null && octetString.stringValue() != null) {
+                BooleanObject booleanObject = register.getValueAttr().getBooleanObject();
+                if (octetString != null) {
                     registerValue = new RegisterValue(obisCode, octetString.stringValue());
+                } else if (booleanObject != null) {
+                    registerValue = new RegisterValue(obisCode, String.valueOf(booleanObject.getState()));
                 } else {
-                    Unsigned32 value = register.getValueAttr().getUnsigned32();
-                    if (value != null) {
-                        if (obisCode.equals(ObisCode.fromString(ALARM_REGISTER))) {
-                            AlarmBitsRegister alarmBitsRegister = new AlarmBitsRegister(obisCode, value.longValue());
-                            registerValue = alarmBitsRegister.getRegisterValue();
-                        } else {
-                            registerValue = new RegisterValue(obisCode, new Quantity(value.getValue(), Unit.get("")));
-                        }
+                    if (obisCode.equals(ObisCode.fromString(ALARM_REGISTER1)) || obisCode.equals(ObisCode.fromString(ERROR_REGISTER))) {
+                        AlarmBitsRegister alarmBitsRegister = new AlarmBitsRegister(obisCode, register.getValueAttr().longValue());
+                        registerValue = alarmBitsRegister.getRegisterValue();
+                    } else if (obisCode.equals(ObisCode.fromString(ALARM_REGISTER2))) {
+                        AlarmBitsRegister2 alarmBitsRegister2 = new AlarmBitsRegister2(obisCode, register.getValueAttr().longValue());
+                        registerValue = alarmBitsRegister2.getRegisterValue();
+                    } else {
+                        registerValue = new RegisterValue(obisCode, new Quantity(register.getValueAttr().toBigDecimal(), Unit.get("")));
                     }
                 }
             } else {
@@ -162,14 +123,14 @@ public class IDISRegisterFactory implements DeviceRegisterSupport {
             }
             return createCollectedRegister(registerValue, offlineRegister);
         } catch (IOException e) {
-            if (IOExceptionHandler.isUnexpectedResponse(e, AM500.getDlmsSession())) {
+            if (IOExceptionHandler.isUnexpectedResponse(e, am130.getDlmsSession())) {
                 if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                     return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
                 } else {
                     return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
                 }
             } else {
-                throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, AM500.getDlmsSession().getProperties().getRetries() + 1);
+                throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, am130.getDlmsSession().getProperties().getRetries() + 1);
             }
         }
     }

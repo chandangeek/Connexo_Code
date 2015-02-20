@@ -90,7 +90,7 @@ public class ObisCodeMapper {
             Unsigned32 value = register.getValueAttr().getUnsigned32();
             if (value != null) {
                 if (obisCode.equals(ObisCode.fromString(ALARM_REGISTER))) {
-                    AlarmBitsRegister alarmBitsRegister = new AlarmBitsRegister(obisCode, value);
+                    AlarmBitsRegister alarmBitsRegister = new AlarmBitsRegister(obisCode, value.longValue());
                     return alarmBitsRegister.getRegisterValue();
                 }
                 return new RegisterValue(obisCode, new Quantity(value.getValue(), Unit.get("")));

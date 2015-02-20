@@ -8,11 +8,7 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
@@ -52,11 +48,11 @@ import java.util.logging.Level;
  */
 public class AM500 extends AbstractDlmsProtocol {
 
-    private IDISConfigurationSupport idisConfigurationSupport;
+    protected ConfigurationSupport idisConfigurationSupport;
     private IDISRegisterFactory registerFactory = null;
-    private IDISLogBookFactory idisLogBookFactory = null;
+    protected IDISLogBookFactory idisLogBookFactory = null;
     private IDISProfileDataReader idisProfileDataReader = null;
-    private IDISMessaging idisMessaging = null;
+    protected IDISMessaging idisMessaging = null;
     private IDISStoredValues storedValues = null;
     private IDISMeterTopology idisMeterTopology = null;
     private String serialNumber = null;
@@ -142,7 +138,7 @@ public class AM500 extends AbstractDlmsProtocol {
         boolean readCache = getDlmsSessionProperties().isReadCache();
         if ((((DLMSCache) getDeviceCache()).getObjectList() == null) || (readCache)) {
             if (readCache) {
-                getLogger().info("ForcedToReadCache property is true, reading cache!");
+                getLogger().info("ReadCache property is true, reading cache!");
                 readObjectList();
                 ((DLMSCache) getDeviceCache()).saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
             } else {
@@ -211,7 +207,7 @@ public class AM500 extends AbstractDlmsProtocol {
         return getIDISLogBookFactory().getLogBookData(logBooks);
     }
 
-    private IDISLogBookFactory getIDISLogBookFactory() {
+    protected IDISLogBookFactory getIDISLogBookFactory() {
         if (idisLogBookFactory == null) {
             idisLogBookFactory = new IDISLogBookFactory(this);
         }
@@ -238,7 +234,7 @@ public class AM500 extends AbstractDlmsProtocol {
         return getIdisMessaging().format(propertySpec, messageAttribute);
     }
 
-    private IDISMessaging getIdisMessaging() {
+    protected IDISMessaging getIdisMessaging() {
         if (idisMessaging == null) {
             idisMessaging = new IDISMessaging(this);
         }

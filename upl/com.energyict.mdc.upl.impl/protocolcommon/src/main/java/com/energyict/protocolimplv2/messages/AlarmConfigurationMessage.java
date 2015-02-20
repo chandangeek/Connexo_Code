@@ -7,6 +7,7 @@ import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,11 +23,112 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpec {
     RESET_ALL_ALARM_BITS(0),
     WRITE_ALARM_FILTER(1, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.alarmFilterAttributeName)),
     CONFIGURE_PUSH_EVENT_NOTIFICATION(2,
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.transportTypeAttributeName),
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.transportTypeAttributeName, TransportType.getTypes()),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.destinationAddressAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.messageTypeAttributeName)
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.messageTypeAttributeName, MessageType.getTypes())
     ),
-    RESET_ALL_ERROR_BITS(3);
+    RESET_ALL_ERROR_BITS(3),
+    RESET_DESCRIPTOR_FOR_ALARM_REGISTER_1_OR_2(4,
+            alarmRegisterAttribute(),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.alarmBitMaskAttributeName)),
+    RESET_BITS_IN_ALARM_REGISTER_1_OR_2(5, alarmRegisterAttribute()),
+    WRITE_FILTER_FOR_ALARM_REGISTER_1_OR_2(6,
+            alarmRegisterAttribute(),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.alarmFilterAttributeName)),
+
+    FULLY_CONFIGURE_PUSH_EVENT_NOTIFICATION(7,
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.typeAttributeName, PushType.getTypes()),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.objectDefinitionsAttributeName),
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.transportTypeAttributeName, TransportType.getTypes()),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.destinationAddressAttributeName),
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.messageTypeAttributeName, MessageType.getTypes())
+    ),;
+
+
+    public enum PushType {
+        Interval_1(1),
+        Interval_2(2),
+        Interval_3(3),
+        On_Alarm(4),
+        On_Connectivity(0),
+        On_Installation(7),
+        On_Power_Down(5),
+        Consumer_Information(6);
+
+        private final int id;
+
+        private PushType(int id) {
+            this.id = id;
+        }
+
+        public static String[] getTypes() {
+            PushType[] allTypes = values();
+            String[] result = new String[allTypes.length];
+            for (int index = 0; index < allTypes.length; index++) {
+                result[index] = allTypes[index].name();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+    }
+
+    public enum MessageType {
+        AXDR(0),
+        XML(1);
+
+        private final int id;
+
+        private MessageType(int id) {
+            this.id = id;
+        }
+
+        public static String[] getTypes() {
+            MessageType[] allTypes = values();
+            String[] result = new String[allTypes.length];
+            for (int index = 0; index < allTypes.length; index++) {
+                result[index] = allTypes[index].name();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+    }
+
+    public enum TransportType {
+        TCP(0),
+        UDP(1);
+
+        private final int id;
+
+        private TransportType(int id) {
+            this.id = id;
+        }
+
+        public static String[] getTypes() {
+            TransportType[] allTypes = values();
+            String[] result = new String[allTypes.length];
+            for (int index = 0; index < allTypes.length; index++) {
+                result[index] = allTypes[index].name();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+    }
+
+    private static PropertySpec<BigDecimal> alarmRegisterAttribute() {
+        return PropertySpecFactory.bigDecimalPropertySpecWithValues(
+                DeviceMessageConstants.alarmRegisterAttributeName,
+                BigDecimal.valueOf(1),
+                BigDecimal.valueOf(2));
+    }
 
     private static final DeviceMessageCategory displayCategory = DeviceMessageCategories.ALARM_CONFIGURATION;
 

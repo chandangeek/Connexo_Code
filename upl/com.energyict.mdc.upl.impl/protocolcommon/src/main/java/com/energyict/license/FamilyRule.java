@@ -23,6 +23,7 @@ public enum FamilyRule implements ProtocolFamily {
     ELSTER_IDIS(3),         // Elster IDIS DLMS
     ELSTER_IDIS_P1(4),      // ELSTER IDIS DLMS (P1)
     ELSTER_MULTI_FREQ(5),   // Elster SFSK PLC (MF) DLMS
+    ELSTER_IDIS_P2(6),      // ELSTER IDIS DLMS (P2)
     ELSTER_IEC(7),          // Elster AS220/AS1440 IEC1107
     ELSTER_AM100(8),        // Elster AM100 (PRE-NTA) DLMS
     ELSTER_SSWG_EC(9),      // Elster SSWG (EC) DLMS

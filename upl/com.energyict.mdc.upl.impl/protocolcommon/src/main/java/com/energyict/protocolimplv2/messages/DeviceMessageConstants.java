@@ -168,6 +168,9 @@ public class DeviceMessageConstants {
     public static final String SetProxyUsernameAttributeName = "NetworkConnectivityMessage.setproxyusername";
     public static final String SetProxyPasswordAttributeName = "NetworkConnectivityMessage.setproxypassword";
     public static final String SetDHCPAttributeName = "NetworkConnectivityMessage.setdhcp";
+    public static final String primaryDNSAddressAttributeName = "NetworkConnectivityMessage.primaryDNSAddress";
+    public static final String secondaryDNSAddressAttributeName = "NetworkConnectivityMessage.secondaryDNSAddress";
+    public static final String gprsModeAttributeName = "NetworkConnectivityMessage.gprsMode";
     public static final String SetDHCPTimeoutAttributeName = "NetworkConnectivityMessage.setdhcptimeout";
     public static final String SetIPAddressAttributeName = "NetworkConnectivityMessage.setipaddress";
     public static final String SetSubnetMaskAttributeName = "NetworkConnectivityMessage.setsubnetmask";
@@ -472,9 +475,13 @@ public class DeviceMessageConstants {
     public static final String PricingInformationUserFileAttributeName = "PricingInformation.userfile";
     public static final String PricingInformationActivationDateAttributeName = "PricingInformation.activationdate";
 
+    public static final String alarmRegisterAttributeName = "AlarmConfigurationMessage.alarmRegister";
+    public static final String alarmBitMaskAttributeName = "AlarmConfigurationMessage.alarmBitMask";
     public static final String alarmFilterAttributeName = "AlarmConfigurationMessage.alarmfilter";
     public static final String configUserFileAttributeName = "GeneralDeviceMessage.configuserfile";
     public static final String transportTypeAttributeName = "AlarmConfigurationMessage.transportType";
+    public static final String objectDefinitionsAttributeName = "AlarmConfigurationMessage.objectDefinitions";
+    public static final String typeAttributeName = "type";
     public static final String destinationAddressAttributeName = "AlarmConfigurationMessage.destinationAddress";
     public static final String messageTypeAttributeName = "AlarmConfigurationMessage.messageType";
 

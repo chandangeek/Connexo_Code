@@ -197,6 +197,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new EventPushNotificationConfig(protocolLink, getObjectReference(EventPushNotificationConfig.getDefaultObisCode()));
     }
 
+    public EventPushNotificationConfig getEventPushNotificationConfig(ObisCode obisCode) throws ProtocolException {
+        return new EventPushNotificationConfig(protocolLink, getObjectReference(obisCode));
+    }
+
     public WebPortalPasswordConfig getWebPortalPasswordConfig() throws ProtocolException {
         return new WebPortalPasswordConfig(protocolLink, getObjectReference(WebPortalPasswordConfig.getDefaultObisCode()));
     }
@@ -386,6 +390,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 
 	public AutoConnect getAutoConnect() throws ProtocolException {
 		return new AutoConnect(protocolLink);
+	}
+
+	public AutoAnswer getAutoAnswer() throws ProtocolException {
+		return new AutoAnswer(protocolLink);
 	}
 
     public SmsWakeupConfiguration getSMSWakeupConfiguration(){

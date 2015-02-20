@@ -1,19 +1,11 @@
 package com.energyict.protocolimplv2.dlms.idis.am500.profiledata;
 
+import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.ComposedCosemObject;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
@@ -23,11 +15,7 @@ import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.IntervalValue;
-import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
@@ -35,12 +23,7 @@ import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -92,14 +75,30 @@ public class IDISProfileDataReader {
 
                 try {
                     ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(getCorrectedLoadProfileObisCode(loadProfileReader));
+                    profileGeneric.setDsmr4SelectiveAccessFormat(true);
                     DataContainer buffer = profileGeneric.getBuffer(fromCal, toCal);
                     Object[] loadProfileEntries = buffer.getRoot().getElements();
                     List<IntervalData> intervalDatas = new ArrayList<>();
                     IntervalValue value;
 
+                    Date previousTimeStamp = null;
                     for (int index = 0; index < loadProfileEntries.length; index++) {
                         DataStructure structure = buffer.getRoot().getStructure(index);
-                        Date timeStamp = structure.getOctetString(0).toDate(protocol.getTimeZone());
+                        Date timeStamp;
+                        if (structure.isOctetString(0)) {
+                            OctetString octetString = structure.getOctetString(0);
+                            timeStamp = octetString.toDate(AXDRDateTimeDeviationType.Negative);
+                        } else if (previousTimeStamp != null) {
+                            Calendar cal = Calendar.getInstance();
+                            cal.setTime(previousTimeStamp);
+                            cal.add(Calendar.SECOND, profileGeneric.getCapturePeriod());
+                            timeStamp = cal.getTime();
+                        } else {
+                            Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(loadProfileReader, "loadProfileXBlockingIssue", getCorrectedLoadProfileObisCode(loadProfileReader), "Invalid interval data, timestamp should be of type OctetString or NullData");
+                            collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
+                            break;  //Stop parsing, move on
+                        }
+                        previousTimeStamp = timeStamp;
                         int status = structure.getInteger(1);
                         List<IntervalValue> values = new ArrayList<>();
                         for (int channel = 0; channel < channelInfos.size(); channel++) {
@@ -240,6 +239,8 @@ public class IDISProfileDataReader {
                     if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
                         result.put(channelObisCode, Unit.get(BaseUnit.UNITLESS));
                     }
+                } catch (ApplicationException e) {
+                    result.put(channelObisCode, Unit.get(BaseUnit.UNITLESS));
                 }
             } else {
                 result.put(channelObisCode, Unit.get(BaseUnit.UNITLESS));

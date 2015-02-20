@@ -21,9 +21,6 @@ import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.dsmr23.ComposedMeterInfo;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
-import com.energyict.protocolimplv2.nta.dsmr23.logbooks.Dsmr23LogBookFactory;
-import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
-import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23Messaging;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
@@ -54,8 +51,6 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     protected LoadProfileBuilder loadProfileBuilder;
     private DLMSCache dlmsCache;
     private MeterTopology meterTopology;
-    private Dsmr23LogBookFactory logBookFactory;
-    private Dsmr23Messaging dsmr23Messaging;
     protected OfflineDevice offlineDevice;
     private DlmsSecuritySupport dlmsSecuritySupport;
 
@@ -122,8 +117,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     /**
      * Security related properties, add them to the DLMS session properties
      *
-     * @param deviceProtocolSecurityPropertySet
-     *         the {@link DeviceProtocolSecurityPropertySet}to set
+     * @param deviceProtocolSecurityPropertySet the {@link DeviceProtocolSecurityPropertySet}to set
      */
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
@@ -161,20 +155,6 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
         return getSecuritySupport().getSecurityPropertySpec(name);
-    }
-
-    public Dsmr23LogBookFactory getDeviceLogBookFactory() {
-        if (logBookFactory == null) {
-            logBookFactory = new Dsmr23LogBookFactory(this);
-        }
-        return logBookFactory;
-    }
-
-    protected Dsmr23Messaging getDsmr23Messaging() {
-        if (dsmr23Messaging == null) {
-            dsmr23Messaging = new Dsmr23Messaging(new Dsmr23MessageExecutor(this));
-        }
-        return dsmr23Messaging;
     }
 
     @Override

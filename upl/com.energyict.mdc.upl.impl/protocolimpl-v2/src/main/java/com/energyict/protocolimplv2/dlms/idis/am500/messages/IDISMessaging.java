@@ -9,7 +9,7 @@ import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.enums.LoadControlActions;
 import com.energyict.protocolimplv2.messages.enums.MonitoredValue;
@@ -57,14 +57,16 @@ public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessag
         supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION);
     }
 
-    private final IDISMessageExecutor messageExecutor;
+    protected IDISMessageExecutor messageExecutor;
 
-    public IDISMessaging(AM500 protocol) {
+    public IDISMessaging(AbstractDlmsProtocol protocol) {
         super(protocol);
-        this.messageExecutor = new IDISMessageExecutor(protocol);
     }
 
-    private IDISMessageExecutor getMessageExecutor() {
+    protected IDISMessageExecutor getMessageExecutor() {
+        if (messageExecutor == null) {
+            this.messageExecutor = new IDISMessageExecutor(getProtocol());
+        }
         return messageExecutor;
     }
 

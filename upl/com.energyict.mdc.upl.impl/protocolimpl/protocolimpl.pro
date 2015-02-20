@@ -371,6 +371,7 @@
 }
 -keepnames class com.energyict.protocolimpl.dlms.idis.events.* {
     public *;
+    protected *;
 }
 -keepnames class com.energyict.protocolimpl.dlms.idis.IDISObjectList {
     public *;

@@ -90,11 +90,13 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
                 } else {   //Unsupported message
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
+                    collectedMessage.setDeviceProtocolInformation("Message is currently not supported by the protocol");
                 }
             } catch (IOException e) {
                 if (IOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession())) {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
+                    collectedMessage.setDeviceProtocolInformation(e.getMessage());
                 }
             }
             result.addCollectedMessage(collectedMessage);

@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.dlms.idis.registers;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 
@@ -16,15 +15,15 @@ import java.util.Date;
 public class AlarmBitsRegister {
 
     private ObisCode obisCode;
-    private Unsigned32 value;
+    private long value;
 
-    public AlarmBitsRegister(ObisCode obisCode, Unsigned32 value) {
+    public AlarmBitsRegister(ObisCode obisCode, long value) {
         this.obisCode = obisCode;
         this.value = value;
     }
 
     private String getSeparator(StringBuilder sb) {
-        if (sb.toString() == null || sb.toString().equals("")) {
+        if (sb.toString().equals("")) {
             return "";
         }
         return ", ";
@@ -42,7 +41,7 @@ public class AlarmBitsRegister {
     }
 
     public RegisterValue getRegisterValue() {
-        return new RegisterValue(obisCode, new Quantity(value.getValue(), Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, getAlarmDescription(value.getValue()));
+        return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, getAlarmDescription(value));
     }
 
     private String getAlarmDescription(long value) {
@@ -52,18 +51,6 @@ public class AlarmBitsRegister {
         }
         if (isBitSet(value, 1)) {
             sb.append(getSeparator(sb)).append("Battery replace");
-        }
-        if (isBitSet(value, 2)) {
-            sb.append(getSeparator(sb)).append("A2");
-        }
-        if (isBitSet(value, 3)) {
-            sb.append(getSeparator(sb)).append("A3");
-        }
-        if (isBitSet(value, 4)) {
-            sb.append(getSeparator(sb)).append("A4");
-        }
-        if (isBitSet(value, 5)) {
-            sb.append(getSeparator(sb)).append("A5");
         }
         if (isBitSet(value, 8)) {
             sb.append(getSeparator(sb)).append("Program memory error");
@@ -106,6 +93,30 @@ public class AlarmBitsRegister {
         }
         if (isBitSet(value, 23)) {
             sb.append(getSeparator(sb)).append("M-Bus fraud attempt ch4");
+        }
+        if (isBitSet(value, 24)) {
+            sb.append(getSeparator(sb)).append("Permanent error M-Bus ch1");
+        }
+        if (isBitSet(value, 25)) {
+            sb.append(getSeparator(sb)).append("Permanent error M-Bus ch2");
+        }
+        if (isBitSet(value, 26)) {
+            sb.append(getSeparator(sb)).append("Permanent error M-Bus ch3");
+        }
+        if (isBitSet(value, 27)) {
+            sb.append(getSeparator(sb)).append("Permanent error M-Bus ch4");
+        }
+        if (isBitSet(value, 28)) {
+            sb.append(getSeparator(sb)).append("Battery low on M-Bus ch1");
+        }
+        if (isBitSet(value, 29)) {
+            sb.append(getSeparator(sb)).append("Battery low on M-Bus ch2");
+        }
+        if (isBitSet(value, 30)) {
+            sb.append(getSeparator(sb)).append("Battery low on M-Bus ch3");
+        }
+        if (isBitSet(value, 31)) {
+            sb.append(getSeparator(sb)).append("Battery low on M-Bus ch4");
         }
         return sb.toString();
     }

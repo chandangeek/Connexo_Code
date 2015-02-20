@@ -168,15 +168,18 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
                 } else {   //Unsupported message
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.NotSupported, messageUnsupported(pendingMessage));
+                    collectedMessage.setDeviceProtocolInformation("Message is currently not supported by the protocol");
                 }
             } catch (IOException e) {
                 if (IOExceptionHandler.isUnexpectedResponse(e, session)) {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.InCompatible, messageFailed(pendingMessage, e));
+                    collectedMessage.setDeviceProtocolInformation(e.getMessage());
                 }   //Else: throw communication exception
             } catch (IndexOutOfBoundsException | NumberFormatException e) {
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 collectedMessage.setFailureInformation(ResultType.InCompatible, messageFailed(pendingMessage, e));
+                collectedMessage.setDeviceProtocolInformation(e.getMessage());
             }
             result.addCollectedMessage(collectedMessage);
         }

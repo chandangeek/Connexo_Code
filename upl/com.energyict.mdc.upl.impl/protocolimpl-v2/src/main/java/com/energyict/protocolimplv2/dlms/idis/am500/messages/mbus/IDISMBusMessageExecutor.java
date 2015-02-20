@@ -49,11 +49,6 @@ public class IDISMBusMessageExecutor extends AbstractMessageExecutor {
         super(protocol);
     }
 
-    @Override
-    public AM500 getProtocol() {
-        return (AM500) super.getProtocol();
-    }
-
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
         OfflineDeviceMessage pendingMessage = pendingMessages.get(0);
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
@@ -79,15 +74,18 @@ public class IDISMBusMessageExecutor extends AbstractMessageExecutor {
             } else {   //Unsupported message
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
+                collectedMessage.setDeviceProtocolInformation("Message is currently not supported by the protocol");
             }
         } catch (IOException e) {
             if (IOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession())) {
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
+                collectedMessage.setDeviceProtocolInformation(e.getMessage());
             }   //Else: throw communication exception
         } catch (IndexOutOfBoundsException | NumberFormatException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
+            collectedMessage.setDeviceProtocolInformation(e.getMessage());
         }
 
         CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);

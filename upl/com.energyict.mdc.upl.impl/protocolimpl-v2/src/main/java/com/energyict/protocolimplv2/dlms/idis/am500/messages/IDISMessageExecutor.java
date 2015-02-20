@@ -1,25 +1,8 @@
 package com.energyict.protocolimplv2.dlms.idis.am500.messages;
 
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.GenericWrite;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.Limiter;
-import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.RegisterMonitor;
-import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
@@ -35,17 +18,9 @@ import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.dlms.idis.xml.XMLParser;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessageExecutor;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.GeneralDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
-import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagWriter;
 import com.energyict.protocolimplv2.messages.enums.LoadControlActions;
@@ -55,11 +30,7 @@ import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExec
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
@@ -82,13 +53,8 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
 
     private IDISMBusMessageExecutor idisMBusMessageExecutor = null;
 
-    public IDISMessageExecutor(AM500 protocol) {
+    public IDISMessageExecutor(AbstractDlmsProtocol protocol) {
         super(protocol);
-    }
-
-    @Override
-    public AM500 getProtocol() {
-        return (AM500) super.getProtocol();
     }
 
     @Override
@@ -106,64 +72,72 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
                 collectedMessage = createCollectedMessage(pendingMessage);
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
                 try {
-
-                    if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME)) {
-                        writeActivityCalendar(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND)) {
-                        writeSpecialDays(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.RESET_ALL_ALARM_BITS)) {
-                        resetAllAlarmBits(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.RESET_ALL_ERROR_BITS)) {
-                        resetAllErrorBits(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.WRITE_ALARM_FILTER)) {
-                        writeAlarmFilter(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(GeneralDeviceMessage.WRITE_FULL_CONFIGURATION)) {
-                        configurationDownload(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CLOSE_RELAY)) {
-                        closeRelay(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.OPEN_RELAY)) {
-                        openRelay(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN)) {
-                        remoteDisconnect();
-                    } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_CLOSE)) {
-                        remoteConnect();
-                    } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE)) {
-                        timedAction(pendingMessage, 1);
-                    } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE)) {
-                        timedAction(pendingMessage, 2);
-                    } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE)) {
-                        setControlMode(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.CONFIGURE_ALL_LOAD_LIMIT_PARAMETERS)) {
-                        loadControlledConnect(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.CONFIGURE_SUPERVISION_MONITOR)) {
-                        collectedMessage = superVision(collectedMessage, pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP1)) {
-                        writeCapturePeriod(pendingMessage, 1);
-                    } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP2)) {
-                        writeCapturePeriod(pendingMessage, 2);
-                    } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.Commission)) {
-                        collectedMessage = commission(pendingMessage, collectedMessage);
-                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetTimeoutNotAddressed)) {
-                        setTimeoutNotAddressed(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION)) {
-                        firmwareUpgrade(pendingMessage);
-                    } else {   //Unsupported message
-                        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                        collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
-                    }
+                    collectedMessage = executeMessage(pendingMessage, collectedMessage);
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession())) {
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                        collectedMessage.setDeviceProtocolInformation(e.getMessage());
                         collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                     }   //Else: throw communication exception
                 } catch (IndexOutOfBoundsException | NumberFormatException e) {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                    collectedMessage.setDeviceProtocolInformation(e.getMessage());
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                 }
             }
             result.addCollectedMessage(collectedMessage);
         }
         return result;
+    }
+
+    protected CollectedMessage executeMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME)) {
+            writeActivityCalendar(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND)) {
+            writeSpecialDays(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.RESET_ALL_ALARM_BITS)) {
+            resetAllAlarmBits(ALARM_BITS_OBISCODE);
+        } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.RESET_ALL_ERROR_BITS)) {
+            resetAllErrorBits(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.WRITE_ALARM_FILTER)) {
+            long filter = new BigDecimal(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue()).longValue();
+            writeAlarmFilter(ALARM_FILTER_OBISCODE, filter);
+        } else if (pendingMessage.getSpecification().equals(GeneralDeviceMessage.WRITE_FULL_CONFIGURATION)) {
+            configurationDownload(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CLOSE_RELAY)) {
+            closeRelay(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.OPEN_RELAY)) {
+            openRelay(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN)) {
+            remoteDisconnect();
+        } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_CLOSE)) {
+            remoteConnect();
+        } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE)) {
+            timedAction(pendingMessage, 1);
+        } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE)) {
+            timedAction(pendingMessage, 2);
+        } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE)) {
+            setControlMode(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.CONFIGURE_ALL_LOAD_LIMIT_PARAMETERS)) {
+            loadControlledConnect(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.CONFIGURE_SUPERVISION_MONITOR)) {
+            collectedMessage = superVision(collectedMessage, pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP1)) {
+            writeCapturePeriod(pendingMessage, 1);
+        } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP2)) {
+            writeCapturePeriod(pendingMessage, 2);
+        } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.Commission)) {
+            collectedMessage = commission(pendingMessage, collectedMessage);
+        } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetTimeoutNotAddressed)) {
+            setTimeoutNotAddressed(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION)) {
+            firmwareUpgrade(pendingMessage);
+        } else {   //Unsupported message
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
+            collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
+        }
+        return collectedMessage;
     }
 
     private IDISMBusMessageExecutor getIdisMBusMessageExecutor() {
@@ -211,7 +185,9 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         }
 
         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-        collectedMessage.setFailureInformation(ResultType.ConfigurationError, createMessageFailedIssue(offlineDeviceMessage, "Couldn't commission the new MBus meter, no free channels available."));
+        String msg = "Couldn't commission the new MBus meter, no free channels available.";
+        collectedMessage.setFailureInformation(ResultType.ConfigurationError, createMessageFailedIssue(offlineDeviceMessage, msg));
+        collectedMessage.setDeviceProtocolInformation(msg);
         return collectedMessage;
     }
 
@@ -228,7 +204,9 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
 
         if (threshold > 0xFFFFFFFF) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(offlineDeviceMessage, "Invalid threshold value, should be smaller than 4294967296"));
+            String msg = "Invalid threshold value, should be smaller than 4294967296";
+            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(offlineDeviceMessage, msg));
+            collectedMessage.setDeviceProtocolInformation(msg);
             return collectedMessage;
         } else {
             ObisCode obisCode = null;
@@ -378,21 +356,20 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
     }
 
 
-    protected void resetAllAlarmBits(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        long alarmBits = getCosemObjectFactory().getData(ALARM_BITS_OBISCODE).getValue();
-        Data data = getCosemObjectFactory().getData(ALARM_BITS_OBISCODE);
+    protected void resetAllAlarmBits(ObisCode obisCode) throws IOException {
+        long alarmBits = getCosemObjectFactory().getData(obisCode).getValue();
+        Data data = getCosemObjectFactory().getData(obisCode);
         data.setValueAttr(new Unsigned32(alarmBits));
     }
 
-    protected void resetAllErrorBits(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+    private void resetAllErrorBits(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
         Data data = getCosemObjectFactory().getData(ERROR_BITS_OBISCODE);
         long errorBits = data.getValueAttr().longValue();
         data.setValueAttr(new Unsigned32(errorBits));
     }
 
-    protected void writeAlarmFilter(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        long filter = new BigDecimal(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue()).longValue();
-        Data data = getProtocol().getDlmsSession().getCosemObjectFactory().getData(ALARM_FILTER_OBISCODE);
+    protected void writeAlarmFilter(ObisCode obisCode, long filter) throws IOException {
+        Data data = getProtocol().getDlmsSession().getCosemObjectFactory().getData(obisCode);
         data.setValueAttr(new Unsigned32(filter));
     }
 

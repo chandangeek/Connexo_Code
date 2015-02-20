@@ -107,10 +107,12 @@ public class AM540MessageExecutor extends AbstractMessageExecutor {
                 if (IOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession())) {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
+                    collectedMessage.setDeviceProtocolInformation(e.getMessage());
                 }   //Else: throw communication exception
             } catch (IndexOutOfBoundsException | NumberFormatException e) {
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
+                collectedMessage.setDeviceProtocolInformation(e.getMessage());
             }
             result.addCollectedMessage(collectedMessage);
         }

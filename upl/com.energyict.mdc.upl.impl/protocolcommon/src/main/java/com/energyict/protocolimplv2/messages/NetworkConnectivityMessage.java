@@ -79,7 +79,11 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.repeaterCallInterval),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.repeaterCallThreshold),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.repeaterCallTimeslots)
-    ),;
+    ),
+    SetUseDHCPFlag(36, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.SetDHCPAttributeName)),
+    SetPrimaryDNSAddress(37, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.primaryDNSAddressAttributeName)),
+    SetSecondaryDNSAddress(38, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.secondaryDNSAddressAttributeName)),
+    SetAutoConnectMode(39, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.gprsModeAttributeName));
 
     private static final DeviceMessageCategory networkAndConnectivityCategory = DeviceMessageCategories.NETWORK_AND_CONNECTIVITY;
 

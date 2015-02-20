@@ -1,12 +1,12 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.attributes.EventPushNotificationAttributes;
 import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -38,6 +38,49 @@ public class EventPushNotificationConfig extends AbstractCosemObject {
         config.addDataType(new TypeEnum(transportType));
         config.addDataType(new OctetString(destinationAddress.getBytes()));
         config.addDataType(new TypeEnum(messageType));
-        write(3, config.getBEREncodedByteArray());
+        write(EventPushNotificationAttributes.SEND_DESTINATION_AND_METHOD, config.getBEREncodedByteArray());
+    }
+
+    public void writePushObjectList(List<ObjectDefinition> objectDefinitionList) throws IOException {
+        Array objectDefinitions = new Array();
+        for (ObjectDefinition objectDefinition : objectDefinitionList) {
+            Structure structure = new Structure();
+            structure.addDataType(new Unsigned16(objectDefinition.getClassId()));
+            structure.addDataType(OctetString.fromObisCode(objectDefinition.getObisCode()));
+            structure.addDataType(new Integer8(objectDefinition.getAttributeIndex()));
+            structure.addDataType(new Unsigned16(objectDefinition.getDataIndex()));
+            objectDefinitions.addDataType(structure);
+        }
+        write(EventPushNotificationAttributes.PUSH_OBJECT_LIST, objectDefinitions.getBEREncodedByteArray());
+    }
+
+    public class ObjectDefinition {
+        private int classId;
+        private ObisCode obisCode;
+        int attributeIndex;
+        int dataIndex;
+
+        public ObjectDefinition(int classId, ObisCode obisCode, int attributeIndex, int dataIndex) {
+            this.classId = classId;
+            this.obisCode = obisCode;
+            this.attributeIndex = attributeIndex;
+            this.dataIndex = dataIndex;
+        }
+
+        public int getClassId() {
+            return classId;
+        }
+
+        public ObisCode getObisCode() {
+            return obisCode;
+        }
+
+        public int getAttributeIndex() {
+            return attributeIndex;
+        }
+
+        public int getDataIndex() {
+            return dataIndex;
+        }
     }
 }

@@ -28,6 +28,9 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
+import com.energyict.protocolimplv2.nta.dsmr23.logbooks.Dsmr23LogBookFactory;
+import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
+import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23Messaging;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,6 +49,9 @@ import java.util.List;
  * Author: khe
  */
 public class WebRTUKP extends AbstractDlmsProtocol {
+
+    private Dsmr23Messaging dsmr23Messaging;
+    private Dsmr23LogBookFactory logBookFactory;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -105,6 +111,13 @@ public class WebRTUKP extends AbstractDlmsProtocol {
         return getDeviceLogBookFactory().getLogBookData(logBooks);
     }
 
+    private Dsmr23LogBookFactory getDeviceLogBookFactory() {
+        if (logBookFactory == null) {
+            logBookFactory = new Dsmr23LogBookFactory(this);
+        }
+        return logBookFactory;
+    }
+
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         return getDsmr23Messaging().getSupportedMessages();
@@ -113,6 +126,13 @@ public class WebRTUKP extends AbstractDlmsProtocol {
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
         return getDsmr23Messaging().executePendingMessages(pendingMessages);
+    }
+
+    private Dsmr23Messaging getDsmr23Messaging() {
+        if (dsmr23Messaging == null) {
+            dsmr23Messaging = new Dsmr23Messaging(new Dsmr23MessageExecutor(this));
+        }
+        return dsmr23Messaging;
     }
 
     @Override

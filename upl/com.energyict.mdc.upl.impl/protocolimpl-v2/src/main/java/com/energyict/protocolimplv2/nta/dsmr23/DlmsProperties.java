@@ -31,7 +31,7 @@ public class DlmsProperties implements DlmsSessionProperties {
     private TypedProperties properties;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
     private String serialNumber = "";
-    private SecurityProvider securityProvider;
+    protected SecurityProvider securityProvider;
 
     public DlmsProperties() {
         this.properties = TypedProperties.empty();
