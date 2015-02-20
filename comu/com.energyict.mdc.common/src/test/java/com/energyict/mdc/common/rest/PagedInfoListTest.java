@@ -86,4 +86,33 @@ public class PagedInfoListTest {
         assertThat(list.getInfos()).hasSize(10);
 
     }
+
+    @Test
+    public void testNextPageWithTotalCount() throws Exception {
+        QueryParameters queryParameters = mock(QueryParameters.class);
+        when(queryParameters.getLimit()).thenReturn(10);
+        when(queryParameters.getStart()).thenReturn(10);
+
+        List<Object> infos = Arrays.asList(new Object(), new Object(), new Object(), new Object(), new Object()
+                , new Object(), new Object(), new Object(), new Object(), new Object(), new Object()); // 11 objects
+
+        int totalCount = infos.size();
+        PagedInfoList list = PagedInfoList.asJson("list", infos, queryParameters, totalCount);
+        assertThat(list.getTotal()).isEqualTo(totalCount);
+        assertThat(list.getInfos()).hasSize(10);
+
+    }
+
+    @Test
+    public void testTotalCount() throws Exception {
+        QueryParameters queryParameters = mock(QueryParameters.class);
+        when(queryParameters.getLimit()).thenReturn(2);
+        when(queryParameters.getStart()).thenReturn(0);
+        List<Object> infos = Arrays.asList(new Object(), new Object(), new Object(), new Object(), new Object()
+                , new Object(), new Object(), new Object(), new Object(), new Object(), new Object()); // 11 objects
+        PagedInfoList list = PagedInfoList.asJson("list", infos, queryParameters, infos.size());
+        assertThat(list.getTotal()).isEqualTo(infos.size());
+        assertThat(list.getInfos()).hasSize(2);
+
+    }
 }

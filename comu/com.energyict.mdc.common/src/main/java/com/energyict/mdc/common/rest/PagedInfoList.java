@@ -9,34 +9,38 @@ import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalInt;
 
 /**
  * generic helper class to json-serialize a list of info-objects into a json format that is understood by our ExtJS paging component.
  */
 @JsonSerialize(using = PagedInfoList.Serializer.class)
 public class PagedInfoList {
-
     private final String jsonListName;
     private boolean couldHaveNextPage;
     private List<?> infos = new ArrayList<>();
     private QueryParameters queryParameters;
+    OptionalInt totalCount;
 
     public int getTotal() {
-        int total = infos.size();
-        if (queryParameters.getStart()!=null) {
-            total+=queryParameters.getStart();
-        }
-        if (couldHaveNextPage) {
-            total++;
-        }
-        return total;
+        return totalCount.orElseGet(() -> {
+            int total = infos.size();
+            if (queryParameters.getStart() != null) {
+                total += queryParameters.getStart();
+            }
+            if (couldHaveNextPage) {
+                total++;
+            }
+            return total;
+        });
     }
 
     public List<?> getInfos() {
         return ImmutableList.copyOf(infos);
     }
 
-    private PagedInfoList(String jsonListName, List<?> infos, QueryParameters queryParameters) {
+    private PagedInfoList(String jsonListName, List<?> infos, QueryParameters queryParameters, OptionalInt totalCount) {
+        this.totalCount = totalCount;
         this.queryParameters = queryParameters;
         this.jsonListName = jsonListName;
         this.infos = infos;
@@ -66,7 +70,29 @@ public class PagedInfoList {
      * @return A map that will be correctly serialized as JSON paging object, understood by ExtJS
      */
     public static PagedInfoList asJson(String jsonListName, List<?> infos, QueryParameters queryParameters) {
-        return new PagedInfoList(jsonListName, infos, queryParameters);
+        return new PagedInfoList(jsonListName, infos, queryParameters, OptionalInt.empty());
+    }
+    /**
+     * Create a Json serialized object for paged search results.
+     * E.g.
+     *    ("deviceTypes", {deviceTypeInfo1, deviceTypeInfo2}, queryParameters}
+     *    with queryParameters,limit=2 (TWO)
+     *    returning 2 results when 2 were asked implicates a full page and the the field 'total' is increased by 1 to indicate there could be a next page.
+     *
+     * will end up serialized into the following JSON
+     *
+     *   {
+     *       "total":3,
+     *       "deviceTypes":[{"name":"...",...},{"name":"...",...}]
+     *   }
+     * @param jsonListName The name of the list property in JSON
+     * @param infos The search results to assign to the list property
+     * @param queryParameters The original query parameters used for building the list that is being returned.
+     * @param totalCount If provided the 'total' value will be populated with this value indicate to ExtJS there is the totalCount
+     * @return A map that will be correctly serialized as JSON paging object, understood by ExtJS
+     */
+    public static PagedInfoList asJson(String jsonListName, List<?> infos, QueryParameters queryParameters, int totalCount) {
+        return new PagedInfoList(jsonListName, infos, queryParameters, OptionalInt.of(totalCount));
     }
 
     public static class Serializer extends JsonSerializer<PagedInfoList> {
