@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.elster.jupiter.orm.Column;
@@ -75,6 +76,30 @@ public class DataMapperReader<T> implements TupleParser<T> {
     List<JournalEntry<T>> findJournals(KeyValue keyValue) throws SQLException {
         return findJournal(getPrimaryKeyFragments(keyValue), new Order[] { Order.descending(TableImpl.JOURNALTIMECOLUMNNAME) }, LockMode.NONE);
     }
+    
+    List<JournalEntry<T>> findJournals(Instant instant, Map<String, Object> valueMap) throws SQLException {
+    	List<SqlFragment> fragments = new ArrayList<>();
+    	getMapperType().addSqlFragment(fragments, dataMapper.getApi(), getAlias());
+    	if (valueMap != null) {
+    		for (Map.Entry<String, Object> entry : valueMap.entrySet()) {
+    			addFragments(fragments, entry.getKey(), entry.getValue());
+    		}
+    	}
+    	fragments.add(new SqlFragment() {
+			@Override
+			public int bind(PreparedStatement statement, int index) throws SQLException {
+				statement.setLong(index++, instant.toEpochMilli());
+				statement.setLong(index++, instant.toEpochMilli());
+				return index;
+			}
+
+			@Override
+			public String getText() {
+				return TableImpl.MODTIMECOLUMNAME + " <= ? and " + TableImpl.JOURNALTIMECOLUMNNAME + " > ? ";
+			}    		
+    	});
+    	return findJournal(fragments, null, LockMode.NONE);
+    }
 	
 	T lock(KeyValue keyValue)  throws SQLException {
 		List<T> candidates = find(getPrimaryKeyFragments(keyValue) , null , LockMode.WAIT);
@@ -120,7 +145,31 @@ public class DataMapperReader<T> implements TupleParser<T> {
 		}
 		return find(fragments, orders, LockMode.NONE);		
 	}
+	
+	List<T> find(Instant instant, Map<String, Object> valueMap) throws SQLException {
+		List<SqlFragment> fragments = new ArrayList<>();
+		getMapperType().addSqlFragment(fragments, dataMapper.getApi(), getAlias());
+		if (valueMap != null) {
+			for (Map.Entry<String, Object> entry : valueMap.entrySet()) {
+				addFragments(fragments, entry.getKey() , entry.getValue());
+			}
+		}
+		fragments.add(new SqlFragment() {
 			
+			@Override
+			public String getText() {
+				return TableImpl.MODTIMECOLUMNAME + " <= ? ";
+			}
+			
+			@Override
+			public int bind(PreparedStatement statement, int index) throws SQLException {
+				statement.setLong(index++, instant.toEpochMilli());
+				return index;
+			}
+		});
+		return find(fragments, null , LockMode.NONE);
+	}
+	
 	private List<T> find(List<SqlFragment> fragments, Order[] orders, LockMode lockMode) throws SQLException {
         SqlBuilder builder = selectSql(fragments, orders, lockMode);
         return doFind(fragments, builder);
@@ -149,6 +198,9 @@ public class DataMapperReader<T> implements TupleParser<T> {
         List<T> result = new ArrayList<>();        
         try (Connection connection = getConnection(false)) {
             try(PreparedStatement statement = builder.prepare(connection)) {
+            	if (fragments.isEmpty()) {
+            		statement.setFetchSize(100);
+            	}
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while(resultSet.next()) {
                         result.add(construct(resultSet,setters));

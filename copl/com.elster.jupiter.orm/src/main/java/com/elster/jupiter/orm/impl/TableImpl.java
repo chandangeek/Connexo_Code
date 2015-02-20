@@ -43,6 +43,7 @@ import com.google.common.collect.ImmutableList;
 public class TableImpl<T> implements Table<T> {
 	
 	static final String JOURNALTIMECOLUMNNAME = "JOURNALTIME";
+	static final String MODTIMECOLUMNAME = "MODTIME";
 	
 	// persistent fields
 	private String schema;
@@ -315,7 +316,7 @@ public class TableImpl<T> implements Table<T> {
         ImmutableList.Builder<Column> builder = ImmutableList.builder();
         builder.add(addVersionCountColumn("VERSIONCOUNT", "number", "version"));
         builder.add(addCreateTimeColumn("CREATETIME", "createTime"));
-        builder.add(addModTimeColumn("MODTIME", "modTime"));
+        builder.add(addModTimeColumn(MODTIMECOLUMNAME, "modTime"));
         builder.add(addUserNameColumn("USERNAME", "userName"));
         return builder.build();
     }

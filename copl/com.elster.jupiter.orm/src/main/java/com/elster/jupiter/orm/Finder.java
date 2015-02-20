@@ -67,7 +67,7 @@ public interface Finder<T> extends BasicQuery<T> {
      */
     List<JournalEntry<T>> getJournal(Object... values);
 	Optional<JournalEntry<T>> getJournalEntry(Instant instant, Object... values);
-
+	
     /**
      * Find object where fieldName equals value
      *
@@ -79,4 +79,16 @@ public interface Finder<T> extends BasicQuery<T> {
 
     Optional<T> getUnique(String[] fieldNames, Object[] values);
 
+    /**
+	 * @since 1.1
+	 * 
+	 */
+	JournalFinder<T> at(Instant instant);
+    /**
+	 * @since 1.1
+	 * 
+	 */
+    interface JournalFinder<S> {
+    	List<JournalEntry<S>> find(Map<String, Object> valueMap);
+    }
 }

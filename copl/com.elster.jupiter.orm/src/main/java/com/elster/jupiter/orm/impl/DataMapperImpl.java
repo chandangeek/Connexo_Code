@@ -1,6 +1,7 @@
 package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.Finder;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
@@ -18,7 +19,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T> {
 	
@@ -243,6 +247,14 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
         }
     }
 
+    @Override
+    public JournalFinderImpl at(Instant instant) {
+    	if (!table.hasJournal() || !table.getColumn(TableImpl.MODTIMECOLUMNAME).isPresent()) {
+    		throw new IllegalStateException();
+    	}
+    	return new JournalFinderImpl(Objects.requireNonNull(instant));        
+    }
+    
     public T construct(ResultSet rs, int startIndex) throws SQLException {
 		return reader.construct(rs,startIndex);
 	}
@@ -526,5 +538,26 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return getJournal(values).stream()
 			.filter(journalEntry -> instant.isBefore(journalEntry.getJournalTime()))
 			.reduce( (previous, current) -> current);					
+	}
+	
+	class JournalFinderImpl implements Finder.JournalFinder<T> {
+		
+		private final Instant instant;
+		
+		JournalFinderImpl(Instant instant) {
+			this.instant = instant;
+		}
+
+		@Override
+		public List<JournalEntry<T>> find(Map<String, Object> valueMap) {
+	        try {
+	        	Stream<JournalEntry<T>> current = reader.find(instant, valueMap).stream().map(tuple -> new JournalEntry<>(tuple));
+	        	Stream<JournalEntry<T>> old = reader.findJournals(instant, valueMap).stream();
+	        	return Stream.concat(current, old).collect(Collectors.toList());
+	        } catch (SQLException e) {
+	            throw new UnderlyingSQLFailedException(e);
+	        }
+		}
+		
 	}
 }
