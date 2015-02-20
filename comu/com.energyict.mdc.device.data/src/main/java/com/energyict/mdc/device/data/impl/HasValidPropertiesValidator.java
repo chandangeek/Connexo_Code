@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -78,7 +79,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         }
         catch (InvalidValueException e) {
             context
-                .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE + "}")
+                .buildConstraintViolationWithTemplate(MessageFormat.format(e.getDefaultPattern(), e.getArguments()))
                 .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation()
                 .disableDefaultConstraintViolation();
             this.valid = false;

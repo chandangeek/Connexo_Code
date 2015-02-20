@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,10 +96,10 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
             }
         }
         catch (InvalidValueException e) {
-            context.disableDefaultConstraintViolation();
             context
-                .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CONNECTION_TASK_INVALID_PROPERTY + "}")
-                .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation();
+                .buildConstraintViolationWithTemplate(MessageFormat.format(e.getDefaultPattern(), e.getArguments()))
+                .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation()
+                .disableDefaultConstraintViolation();
             this.valid = false;
         }
     }
