@@ -509,6 +509,7 @@ Ext.define('Cfg.controller.Validation', {
 
         previewContainer = {
             xtype: 'preview-container',
+            selectByDefault: false,
             grid: {
                 itemId: 'addReadingTypesGrid',
                 xtype: 'addReadingTypesBulk',
