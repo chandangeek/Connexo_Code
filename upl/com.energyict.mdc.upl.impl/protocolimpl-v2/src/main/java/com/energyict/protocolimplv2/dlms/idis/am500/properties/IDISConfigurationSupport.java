@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.dlms.idis.am500.properties;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.AM130ConfigurationSupport;
 
@@ -25,6 +26,7 @@ public class IDISConfigurationSupport extends AM130ConfigurationSupport {
         List<PropertySpec> result = new ArrayList<>();
         result.addAll(super.getOptionalProperties());
         result.add(this.callingAPTitlePropertySpec());
+        result.add(this.callHomeIdProperty());
         result.add(this.swapServerAndClientAddress());
         return result;
     }
@@ -35,5 +37,9 @@ public class IDISConfigurationSupport extends AM130ConfigurationSupport {
 
     protected PropertySpec swapServerAndClientAddress() {
         return PropertySpecFactory.notNullableBooleanPropertySpec(SWAP_SERVER_AND_CLIENT_ADDRESS_PROPERTY, true);
+    }
+
+    protected PropertySpec callHomeIdProperty() { //Contains the MAC address of the meter
+        return PropertySpecFactory.stringPropertySpec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
     }
 }

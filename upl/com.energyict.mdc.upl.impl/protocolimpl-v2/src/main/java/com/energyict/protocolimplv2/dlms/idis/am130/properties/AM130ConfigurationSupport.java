@@ -4,7 +4,6 @@ import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.DSMR50Properties;
 
 import java.math.BigDecimal;
@@ -42,13 +41,8 @@ public class AM130ConfigurationSupport implements ConfigurationSupport {
                 this.timeZonePropertySpec(),
                 this.validateInvokeIdPropertySpec(),
                 this.roundTripCorrectionPropertySpec(),
-                this.callHomeIdProperty(),
                 this.limitMaxNrOfDaysPropertySpec(),
                 this.readCachePropertySpec());
-    }
-
-    protected PropertySpec callHomeIdProperty() { //Contains the MAC address of the meter
-        return PropertySpecFactory.stringPropertySpec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
     }
 
     protected PropertySpec limitMaxNrOfDaysPropertySpec() {
