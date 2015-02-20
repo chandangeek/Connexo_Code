@@ -170,6 +170,10 @@
 	public *;
 	protected *;
 }
+-keep public class com.energyict.protocolimpl.dlms.idis.events.* {
+    public *;
+    protected *;
+}
 
 -keepnames class com.energyict.protocolimpl.iec1107.iskraemeco.IskraEmeco
 
@@ -369,10 +373,6 @@
 -keepnames class com.energyict.protocolimpl.dlms.idis.registers.* {
     public *;
 }
--keepnames class com.energyict.protocolimpl.dlms.idis.events.* {
-    public *;
-    protected *;
-}
 -keepnames class com.energyict.protocolimpl.dlms.idis.IDISObjectList {
     public *;
 }
@@ -456,6 +456,7 @@
 # Keep annotations, 
 -keepattributes *Annotation*
 -keepattributes Exceptions
+-keepattributes Signature
 
 -keepnames class com.vodafone.gdsp.ws.package-info
 -keep public class com.vodafone.gdsp.ws.*{
