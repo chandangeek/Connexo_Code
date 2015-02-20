@@ -1,17 +1,21 @@
 Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeGrid', {
     extend: 'Uni.view.grid.SelectionGrid',
-   // xtype: 'loadProfileTypesAddToDeviceTypeGrid',
     alias: 'widget.loadProfileTypesAddToDeviceTypeGrid',
     store: 'LoadProfileTypesOnDeviceTypeAvailable',
     overflowY: 'auto',
-    height: 300,
+    height: 600,
 
     intervalStore: null,
     deviceTypeId: undefined,
 
     requires: [
-        'Uni.grid.column.Obis'
+        'Uni.grid.column.Obis',
+        'Ext.grid.plugin.BufferedRenderer'
     ],
+
+    plugins: {
+        ptype: 'bufferedrenderer'
+    },
 
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
