@@ -57,7 +57,9 @@ public class ProtocolDialectResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
     public ProtocolDialectInfo getProtocolDialects(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("protocolDialectId") long protocolDialectId, @Context UriInfo uriInfo) {
-        return ProtocolDialectInfo.from(findProtocolDialectOrThrowException(deviceTypeId, deviceConfigurationId, protocolDialectId), uriInfo, mdcPropertyUtils);
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        return ProtocolDialectInfo.from(findProtocolDialectOrThrowException(deviceConfiguration, protocolDialectId), uriInfo, mdcPropertyUtils);
     }
 
     @PUT
@@ -72,16 +74,14 @@ public class ProtocolDialectResource {
                                                           ProtocolDialectInfo protocolDialectInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        ProtocolDialectConfigurationProperties protocolDialect = findProtocolDialectOrThrowException(deviceTypeId, deviceConfigurationId, protocolDialectId);
+        ProtocolDialectConfigurationProperties protocolDialect = findProtocolDialectOrThrowException(deviceConfiguration, protocolDialectId);
         updateProperties(protocolDialectInfo, protocolDialect);
         protocolDialect.save();
         return protocolDialectInfo.from(protocolDialect, uriInfo, mdcPropertyUtils);
     }
 
 
-    private ProtocolDialectConfigurationProperties findProtocolDialectOrThrowException(long deviceTypeId, long deviceConfigId, long protocolDialectId) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigId);
+    private ProtocolDialectConfigurationProperties findProtocolDialectOrThrowException(DeviceConfiguration deviceConfiguration, long protocolDialectId) {
         for (ProtocolDialectConfigurationProperties protocolDialectConfigurationProperty : deviceConfiguration.getProtocolDialectConfigurationPropertiesList()) {
             if (protocolDialectConfigurationProperty.getId() == protocolDialectId) {
                 return protocolDialectConfigurationProperty;
