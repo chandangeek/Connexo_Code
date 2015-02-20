@@ -1,10 +1,15 @@
 package com.elster.jupiter.validation.rest;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.validation.ValidationService;
 import javax.ws.rs.core.Application;
-
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -21,15 +26,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.validation.ValidationService;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Ignore("Base functionality for rest tests")
 @RunWith(MockitoJUnitRunner.class)
@@ -60,8 +58,6 @@ public class BaseValidationRestTest extends JerseyTest {
         serviceLocator.setTransactionService(transactionService);
         serviceLocator.setNlsService(nlsService);
         
-        serviceLocator.activate();
-        
         when(transactionService.execute(Matchers.any())).thenAnswer(new Answer() {
             
             @Override
@@ -73,7 +69,6 @@ public class BaseValidationRestTest extends JerseyTest {
     
     @After
     public void tearDown() throws Exception {
-        serviceLocator.deactivate();
         super.tearDown();
     }
     
@@ -99,6 +94,8 @@ public class BaseValidationRestTest extends JerseyTest {
             protected void configure() {
                 bind(restQueryService).to(RestQueryService.class);
                 bind(propertyUtils).to(PropertyUtils.class);
+                bind(validationService).to(ValidationService.class);
+                bind(transactionService).to(TransactionService.class);
 //              bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             }
         });
