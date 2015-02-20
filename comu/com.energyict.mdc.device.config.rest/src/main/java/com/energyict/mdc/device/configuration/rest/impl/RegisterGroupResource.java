@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.common.rest.InfiniteScrollingInfoList;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -74,7 +73,7 @@ public class RegisterGroupResource {
         RegisterGroupInfo registerGroupInfo = new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
         int totalCount = registerGroupInfo.registerTypes.size();
         List<RegisterTypeInfo> pagedRegisterTypes = ListPager.of(registerGroupInfo.registerTypes).from(queryParameters).find();
-        return Response.ok(InfiniteScrollingInfoList.asJson("registerTypes", pagedRegisterTypes, queryParameters, totalCount)).build();
+        return Response.ok(PagedInfoList.asJson("registerTypes", pagedRegisterTypes, queryParameters, totalCount)).build();
     }
 
     @DELETE
