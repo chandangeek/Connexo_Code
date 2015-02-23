@@ -158,11 +158,11 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter == -1 ? 1 : initialFrameCounter);    //Set the frameCounter from last session (which has been loaded from cache)
     }
 
-    public DSMR50Properties getDlmsSessionProperties() {
+    public Dsmr50Properties getDlmsSessionProperties() {
         if (dlmsProperties == null) {
-            dlmsProperties = new DSMR50Properties();
+            dlmsProperties = new Dsmr50Properties();
         }
-        return (DSMR50Properties) dlmsProperties;
+        return (Dsmr50Properties) dlmsProperties;
     }
 
     /**
@@ -363,7 +363,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         // Map 'ForcedToReadCache' to 'ReadCache'
         Object readCache = legacyProperties.getProperty(Dsmr40Properties.PROPERTY_FORCED_TO_READ_CACHE);
         if (readCache != null) {
-            result.setProperty(DSMR50Properties.READCACHE_PROPERTY, ProtocolTools.getBooleanFromString((String) readCache));
+            result.setProperty(Dsmr50Properties.READCACHE_PROPERTY, ProtocolTools.getBooleanFromString((String) readCache));
         }
 
         return result;

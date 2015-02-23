@@ -4,7 +4,7 @@ import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.DSMR50Properties;
+import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -69,7 +69,7 @@ public class AM130ConfigurationSupport implements ConfigurationSupport {
     }
 
     protected PropertySpec readCachePropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(DSMR50Properties.READCACHE_PROPERTY, false);
+        return PropertySpecFactory.notNullableBooleanPropertySpec(Dsmr50Properties.READCACHE_PROPERTY, false);
     }
 
     protected PropertySpec forcedDelayPropertySpec() {

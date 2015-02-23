@@ -6,7 +6,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.DSMR50Properties;
+import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -59,7 +59,7 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
     }
 
     protected PropertySpec nodeAddressPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(MeterProtocol.NODEID);
+        return PropertySpecFactory.stringPropertySpec(MeterProtocol.NODEID);    //TODO: temporary fix: should be a StringPropertySpec for compatibility with AM540 V1 protocol - should be reworked later on
     }
 
     protected PropertySpec callHomeIdPropertySpec() {
@@ -79,23 +79,23 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
     }
 
     protected PropertySpec cumulativeCaptureTimeChannelPropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(DSMR50Properties.CumulativeCaptureTimeChannel, false);
+        return PropertySpecFactory.notNullableBooleanPropertySpec(Dsmr50Properties.CumulativeCaptureTimeChannel, false);
     }
 
     protected PropertySpec readCachePropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(DSMR50Properties.READCACHE_PROPERTY, false);
+        return PropertySpecFactory.notNullableBooleanPropertySpec(Dsmr50Properties.READCACHE_PROPERTY, false);
     }
 
     protected PropertySpec pskPropertySpec() {
-        return PropertySpecFactory.hexStringPropertySpec(DSMR50Properties.PSK_PROPERTY);
+        return PropertySpecFactory.hexStringPropertySpec(Dsmr50Properties.PSK_PROPERTY);
     }
 
     protected PropertySpec aarqTimeoutPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(DSMR50Properties.AARQ_TIMEOUT_PROPERTY, BigDecimal.ZERO);
+        return PropertySpecFactory.bigDecimalPropertySpec(Dsmr50Properties.AARQ_TIMEOUT_PROPERTY, BigDecimal.ZERO);
     }
 
     protected PropertySpec aarqRetriesPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(DSMR50Properties.AARQ_RETRIES_PROPERTY, BigDecimal.valueOf(2));
+        return PropertySpecFactory.bigDecimalPropertySpec(Dsmr50Properties.AARQ_RETRIES_PROPERTY, BigDecimal.valueOf(2));
     }
 
     protected PropertySpec requestTimeZonePropertySpec() {

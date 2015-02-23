@@ -15,7 +15,7 @@ import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessag
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40MessageExecutor;
-import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.DSMR50Properties;
+import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -75,7 +75,7 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
         it.setPollingDelay(10000);
         it.setPollingRetries(30);
         it.setDelayBeforeSendingBlocks(5000);
-        it.setCheckNumberOfBlocksInPreviousSession(((DSMR50Properties) getProtocol().getDlmsSessionProperties()).getCheckNumberOfBlocksDuringFirmwareResume());
+        it.setCheckNumberOfBlocksInPreviousSession(((Dsmr50Properties) getProtocol().getDlmsSessionProperties()).getCheckNumberOfBlocksDuringFirmwareResume());
         if (imageIdentifier.isEmpty()) {
             it.upgrade(image, false);
         } else {
