@@ -240,7 +240,7 @@ public class ValidationResource {
     @Path("/{ruleSetId}/rules/{ruleId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
-    public Response getRule(@PathParam("ruleSetId") final long ruleSetId, @PathParam("ruleId") final long ruleId, final ValidationRuleInfo info, @Context SecurityContext securityContext) {
+    public Response getRule(@PathParam("ruleSetId") final long ruleSetId, @PathParam("ruleId") final long ruleId) {
         ValidationRule rule = transactionService.execute((Transaction<ValidationRule>) () -> {
             ValidationRuleSet ruleSet = validationService.getValidationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
 
