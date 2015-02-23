@@ -1,14 +1,11 @@
 package com.energyict.mdc.scheduling;
 
 import com.elster.jupiter.time.TemporalExpression;
-import java.util.Optional;
-import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
-
 import java.time.Instant;
-import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 
 public interface SchedulingService {
     public static final String COMPONENT_NAME="SCH";
@@ -16,7 +13,6 @@ public interface SchedulingService {
     public NextExecutionSpecs findNextExecutionSpecs(long id);
     public NextExecutionSpecs newNextExecutionSpecs(TemporalExpression temporalExpression);
 
-    public ListPager<ComSchedule> findAllSchedules(Calendar calendar);
     public List<ComSchedule> findAllSchedules();
     public Optional<ComSchedule> findSchedule(long id);
 

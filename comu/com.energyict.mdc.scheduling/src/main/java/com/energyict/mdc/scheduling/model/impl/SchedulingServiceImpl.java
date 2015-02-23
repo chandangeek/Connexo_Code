@@ -1,15 +1,5 @@
 package com.energyict.mdc.scheduling.model.impl;
 
-import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
-import com.energyict.mdc.scheduling.model.SchedulingStatus;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.TaskService;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -23,21 +13,26 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
+import com.energyict.mdc.scheduling.model.SchedulingStatus;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
@@ -165,12 +160,6 @@ public class SchedulingServiceImpl implements ServerSchedulingService, InstallSe
     }
 
     @Override
-    public ListPager<ComSchedule> findAllSchedules(final Calendar calendar) {
-        List<ComSchedule> comSchedules = this.dataModel.query(ComSchedule.class, NextExecutionSpecs.class).select(where(ComScheduleImpl.Fields.OBSOLETE_DATE.fieldName()).isNull());
-        return ListPager.of(comSchedules, new CompareBySchedulingStatus());
-    }
-
-    @Override
     public Optional<ComSchedule> findSchedule(long id) {
         return this.findUniqueSchedule("id", id);
     }
@@ -200,23 +189,6 @@ public class SchedulingServiceImpl implements ServerSchedulingService, InstallSe
     @Override
     public ComScheduleBuilder newComSchedule(String name, TemporalExpression temporalExpression, Instant startDate) {
         return new ComScheduleBuilderImpl(name, temporalExpression, startDate);
-    }
-
-    private static class CompareBySchedulingStatus implements Comparator<ComSchedule> {
-        @Override
-        public int compare(ComSchedule o1, ComSchedule o2) {
-            if (SchedulingStatus.PAUSED.equals(o1.getSchedulingStatus()) && SchedulingStatus.PAUSED.equals(o2.getSchedulingStatus())) {
-                return 0;
-            }
-            if (SchedulingStatus.PAUSED.equals(o1.getSchedulingStatus()) && !SchedulingStatus.PAUSED.equals(o2.getSchedulingStatus())) {
-                return 1;
-            }
-            if (!SchedulingStatus.PAUSED.equals(o1.getSchedulingStatus()) && SchedulingStatus.PAUSED.equals(o2.getSchedulingStatus())) {
-                return -1;
-            }
-            // Neither are paused so planned date is always there
-            return o1.getPlannedDate().get().compareTo(o2.getPlannedDate().get());
-        }
     }
 
     class ComScheduleBuilderImpl implements ComScheduleBuilder {
