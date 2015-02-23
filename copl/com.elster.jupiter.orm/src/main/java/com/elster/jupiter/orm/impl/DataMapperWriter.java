@@ -146,7 +146,7 @@ public class DataMapperWriter<T> {
 		}
 	}
 	
-	private void journal(List<T> objects, Instant now) throws SQLException {
+	private void journal(List<? extends T> objects, Instant now) throws SQLException {
 		String sql = getSqlGenerator().journalSql();
 		try (Connection connection = getConnection(true)) {						
 			try (PreparedStatement statement = connection.prepareStatement(sql)) {						
@@ -251,7 +251,7 @@ public class DataMapperWriter<T> {
 	public void remove(List<? extends T> objects) throws SQLException {
 		Instant now = getTable().getDataModel().getClock().instant();
 		if (getTable().hasJournal()) {
-			journal(objects,now);
+			journal(objects ,now);
 		}
 		try (Connection connection = getConnection(true)) {
 			try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().deleteSql())) {
