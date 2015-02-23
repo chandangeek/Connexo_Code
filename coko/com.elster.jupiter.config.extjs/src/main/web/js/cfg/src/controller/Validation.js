@@ -580,7 +580,7 @@ Ext.define('Cfg.controller.Validation', {
                 readingTypesStore.removeAll();
 
                 if (me.validationRuleRecord) {
-                    me.modelToForm(editRulePanel, null, me.validationRuleRecord, false);
+                    me.modelToForm(null, me.validationRuleRecord, false);
                 } else {
                     form = editRulePanel.down('#addRuleForm').getForm();
                     propertyForm = widget.down('property-form');
@@ -793,8 +793,7 @@ Ext.define('Cfg.controller.Validation', {
             ruleSetsStore = me.getStore('Cfg.store.ValidationRuleSets'),
             widget,
             ruleSet,
-            cancelLink,
-            editRulePanel;
+            cancelLink;
 
         me.getValidatorsStore().load({
             callback: function () {
@@ -814,13 +813,13 @@ Ext.define('Cfg.controller.Validation', {
                     returnLink: cancelLink
                 });
 
-                editRulePanel = me.getAddRule();
+               ;
                 me.getApplication().fireEvent('changecontentevent', widget);
 
                 if (me.validationRuleRecord) {
-                    me.modelToForm(editRulePanel, null, me.validationRuleRecord, true);
+                    me.modelToForm(null, me.validationRuleRecord, true);
                 } else {
-                    me.modelToForm(editRulePanel, id, null, true);
+                    me.modelToForm(id, null, true);
                 }
 
                 ruleSetsStore.load({
@@ -833,9 +832,10 @@ Ext.define('Cfg.controller.Validation', {
         });
     },
 
-    modelToForm: function (editRulePanel, id, record, isEdit) {
+    modelToForm: function (id, record, isEdit) {
         var me = this,
             rulesStore = me.getStore('Cfg.store.ValidationRules'),
+            editRulePanel = me.getAddRule(),
             form = editRulePanel.down('#addRuleForm').getForm(),
             grid = editRulePanel.down('#readingTypesGridPanel'),
             validatorField = editRulePanel.down('#validatorCombo'),
@@ -877,6 +877,10 @@ Ext.define('Cfg.controller.Validation', {
                 callback: function () {
                     editRulePanel.setLoading(false);
                     rule = this.getById(me.ruleId);
+                    if(!rule){
+                        crossroads.parse("/error/notfound");
+                        return;
+                    }
                     me.ruleModel = rule;
                     me.ruleTitle = "Edit '" + rule.get('name') + "'"
 
