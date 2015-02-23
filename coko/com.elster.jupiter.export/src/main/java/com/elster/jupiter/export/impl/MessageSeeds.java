@@ -21,7 +21,9 @@ public enum MessageSeeds implements MessageSeed {
     ITEM_EXPORTED_SUCCESFULLY(1008, "dataexport.item.success", "Item {0}:{1} exported succesfully for period {2} - {3}", Level.INFO),
     CANNOT_DELETE_WHILE_RUNNING(1009, "dataexport.cannot.delete", "Cannot delete a data export task (id = {0}) while it is running.", Level.SEVERE),
     RELATIVE_PERIOD_USED(1010, "dataexport.using.relativeperiod", "Relative period is still in use by the following data export tasks: {0}", Level.SEVERE),
-    VETO_DEVICEGROUP_DELETION(1013, "deviceGroupXstillInUseByTask", "Device group {0} is still in use by an export task", Level.SEVERE);
+    VETO_DEVICEGROUP_DELETION(1013, "deviceGroupXstillInUseByTask", "Device group {0} is still in use by an export task", Level.SEVERE),
+    MUST_SELECT_READING_TYPE(1012, Keys.MUST_SELECT_AT_LEAST_ONE_READING_TYPE, "At least one reading type has to be selected", Level.SEVERE),
+    ;
 
     private final int number;
     private final String key;
@@ -74,6 +76,7 @@ public enum MessageSeeds implements MessageSeed {
         ;
         public static final String NO_SUCH_READINGTYPE = "NoSuchReadingType";
         public static final String FIELD_CAN_NOT_BE_EMPTY = "FieldCanNotBeEmpty";
+        public static final String MUST_SELECT_AT_LEAST_ONE_READING_TYPE = "MustHaveReadingTypes";
         public static final String FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH = "FieldSizeBetween1and80";
         public static final String NO_SUCH_PROCESSOR = "NoSuchProcessor";
         public static final String NAME_MUST_BE_UNIQUE = "NameMustBeUnique";

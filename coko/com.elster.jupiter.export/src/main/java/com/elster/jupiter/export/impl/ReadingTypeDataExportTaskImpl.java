@@ -46,6 +46,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -75,6 +79,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     private ValidatedDataOption validatedDataOption;
     private List<DataExportProperty> properties = new ArrayList<>();
     @Valid
+    @Size(min=1, message = "{" + MessageSeeds.Keys.MUST_SELECT_AT_LEAST_ONE_READING_TYPE + "}")
     private List<ReadingTypeInExportTask> readingTypes = new ArrayList<>();
     private List<ReadingTypeDataExportItemImpl> exportItems = new ArrayList<>();
 
