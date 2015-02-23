@@ -46,15 +46,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import org.glassfish.jersey.client.ClientResponse;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
-
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
+import com.jayway.jsonpath.JsonModel;
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -64,13 +56,27 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.LongStream;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import org.glassfish.jersey.client.ClientResponse;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJerseyTest {
     public static final ReadingType READING_TYPE_1 = mockReadingType("0.1.2.3.5.6.7.8.9.1.2.3.4.5.6.7.8");
@@ -100,6 +106,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
         when(readingType.getCalculatedReadingType()).thenReturn(Optional.<ReadingType>empty());
         when(readingType.isCumulative()).thenReturn(true);
+        when(readingType.getAliasName()).thenReturn("abcde");
         return readingType;
     }
 
@@ -794,36 +801,128 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
     }
 
     @Test
-    public void testGetAllAvailableRegistersForDeviceType_FilteredByConfig() throws Exception {
+    public void testGetAllAvailableRegistersForDeviceType_Filtered_unpaged() throws Exception {
+        // Backend has RM 101 for device type 31, while 101->130 exist in the server.
         long deviceType_id = 31;
-        long deviceConfiguration_id = 41;
         long RM_ID_1 = 101L;
-        long RM_ID_2 = 102L;
-        long RM_ID_3 = 103L;
+
+        DeviceType deviceType = mockDeviceType("getUnfiltered", (int) deviceType_id);
+        RegisterType registerType101 = mock(RegisterType.class);
+        when(registerType101.getId()).thenReturn(RM_ID_1);
+        ReadingType readingType = READING_TYPE_1;
+
+        List<RegisterType> registerTypeList = new ArrayList<>();
+        LongStream.range(101, 131).forEach(i -> {
+            RegisterType registerType = mock(RegisterType.class);
+            when(registerType.getReadingType()).thenReturn(readingType);
+            when(registerType.getId()).thenReturn(i);
+            registerTypeList.add(registerType);
+        });
+        registerTypeList.add(registerType101);
+        when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(registerType101));
+        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
+        Finder<RegisterType> registerTypeFinder = mockFinder(registerTypeList);
+        when(masterDataService.findAllRegisterTypes()).thenReturn(registerTypeFinder);
+
+        Response response = target("/devicetypes/31/registertypes").queryParam("filter", ExtjsFilter.filter().property("available", "true").create()).request().get();
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(29);
+        assertThat(jsonModel.<List<RegisterType>>get("$.registerTypes")).hasSize(29);
+    }
+
+    @Test
+    public void testGetAllAvailableRegistersForDeviceType_Filtered_2ndPage() throws Exception {
+        // Backend has RM 101 for device type 31, while 101->130 exist in the server.
+        long deviceType_id = 31;
+        long RM_ID_1 = 101L;
+
+        DeviceType deviceType = mockDeviceType("getUnfiltered", (int) deviceType_id);
+        RegisterType registerType101 = mock(RegisterType.class);
+        when(registerType101.getId()).thenReturn(RM_ID_1);
+        ReadingType readingType = READING_TYPE_1;
+
+        List<RegisterType> registerTypeList = new ArrayList<>();
+        LongStream.range(101, 131).forEach(i -> {
+            RegisterType registerType = mock(RegisterType.class);
+            when(registerType.getReadingType()).thenReturn(readingType);
+            when(registerType.getId()).thenReturn(i);
+            registerTypeList.add(registerType);
+        });
+        registerTypeList.add(registerType101);
+        when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(registerType101));
+        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
+        Finder<RegisterType> registerTypeFinder = mockFinder(registerTypeList);
+        when(masterDataService.findAllRegisterTypes()).thenReturn(registerTypeFinder);
+
+        Response response = target("/devicetypes/31/registertypes").queryParam("start",10).queryParam("limit", 10).queryParam("filter", ExtjsFilter.filter().property("available", "true").create()).request().get();
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(21);
+        assertThat(jsonModel.<List<RegisterType>>get("$.registerTypes")).hasSize(10);
+        assertThat(jsonModel.<List<Integer>>get("$.registerTypes[*].id")).containsOnly(112, 113, 114, 115, 116, 117, 118, 119, 120, 121);
+    }
+
+    @Test
+    public void testGetAllAvailableRegistersForDeviceType_FilteredByConfig_unpaged() throws Exception {
+        // Backend has RM 101 for device type 31, while 101->130 exist in the server.
+        long deviceType_id = 31;
+        long RM_ID_1 = 101L;
+
+        DeviceType deviceType = mockDeviceType("getUnfiltered", (int) deviceType_id);
+        RegisterType registerType101 = mock(RegisterType.class);
+        when(registerType101.getId()).thenReturn(RM_ID_1);
+        ReadingType readingType = READING_TYPE_1;
+
+        List<RegisterType> registerTypeList = new ArrayList<>();
+        LongStream.range(101, 131).forEach(i -> {
+            RegisterType registerType = mock(RegisterType.class);
+            when(registerType.getReadingType()).thenReturn(readingType);
+            when(registerType.getId()).thenReturn(i);
+            registerTypeList.add(registerType);
+        });
+        registerTypeList.add(registerType101);
+        when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(registerType101));
+        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
+        Finder<RegisterType> registerTypeFinder = mockFinder(registerTypeList);
+        when(masterDataService.findAllRegisterTypes()).thenReturn(registerTypeFinder);
+
+        Response response = target("/devicetypes/31/registertypes").queryParam("filter", ExtjsFilter.filter().property("available", "true").create()).request().get();
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(29);
+        assertThat(jsonModel.<List<RegisterType>>get("$.registerTypes")).hasSize(29);
+    }
+
+    @Test
+    public void testGetAllAvailableRegistersForDeviceType_FilteredByDeviceConfig_2ndPage() throws Exception {
+        // Backend has RM 101 for device type 31, while 101->130 exist in the server, all without register spec
+        long deviceType_id = 31;
+        long RM_ID_1 = 101L;
+        long deviceConfiguration_id = 41;
 
         DeviceType deviceType = mockDeviceType("getUnfiltered", (int) deviceType_id);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration("config", (int) deviceConfiguration_id);
+
         RegisterType registerType101 = mock(RegisterType.class);
         when(registerType101.getId()).thenReturn(RM_ID_1);
         ReadingType readingType = READING_TYPE_1;
         when(registerType101.getReadingType()).thenReturn(readingType);
-        RegisterType registerType102 = mock(RegisterType.class);
-        when(registerType102.getId()).thenReturn(RM_ID_2);
-        when(registerType102.getReadingType()).thenReturn(readingType);
-        RegisterType registerType103 = mock(RegisterType.class);
-        when(registerType103.getId()).thenReturn(RM_ID_3);
-        when(registerType103.getReadingType()).thenReturn(readingType);
-        when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(registerType101, registerType102, registerType103));
+
+        List<RegisterType> registerTypeList = new ArrayList<>();
+        LongStream.range(101, 131).forEach(i -> {
+            RegisterType registerType = mock(RegisterType.class);
+            when(registerType.getReadingType()).thenReturn(readingType);
+            when(registerType.getId()).thenReturn(i);
+            registerTypeList.add(registerType);
+        });
+        registerTypeList.add(registerType101);
+        when(deviceType.getRegisterTypes()).thenReturn(registerTypeList);
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
 
-        Finder<RegisterType> registerTypeFinder = mockFinder(Arrays.asList(registerType101, registerType102, registerType103));
-        when(masterDataService.findAllRegisterTypes()).thenReturn(registerTypeFinder);
-
-        Map response = target("/devicetypes/31/registertypes").queryParam("filter", ExtjsFilter.filter().property("available", "true").property("deviceconfigurationid", 41l).create()).request().get(Map.class);
-        assertThat(response).hasSize(2);
-        List registerTypes = (List) response.get("registerTypes");
-        assertThat(registerTypes).hasSize(2);
+        Response response = target("/devicetypes/31/registertypes").queryParam("start",10).queryParam("limit",10).queryParam("filter",  ExtjsFilter.filter().property("available", "true").property("deviceconfigurationid", 41l).create()).request().get();
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(21);
+        assertThat(jsonModel.<List<RegisterType>>get("$.registerTypes")).hasSize(10);
+        assertThat(jsonModel.<List<Integer>>get("$.registerTypes[*].id")).containsOnly(112, 113, 114, 115, 116, 117, 118, 119, 120, 121);
     }
 
 

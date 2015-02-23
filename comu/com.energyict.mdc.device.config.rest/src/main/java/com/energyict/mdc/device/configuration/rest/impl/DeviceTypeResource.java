@@ -15,16 +15,19 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -41,13 +44,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 @Path("/devicetypes")
 public class DeviceTypeResource {
@@ -265,44 +264,37 @@ public class DeviceTypeResource {
     public PagedInfoList getRegisterTypesForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter availableFilter) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         Boolean available = availableFilter.getBoolean("available");
-        final List<RegisterType> registerTypes = new ArrayList<>();
+        List<RegisterType> matchingRegisterTypes = new ArrayList<>();
         if (available == null || !available) {
-            registerTypes.addAll(ListPager.of(deviceType.getRegisterTypes(), new RegisterTypeComparator()).from(queryParameters).find());
+            matchingRegisterTypes.addAll(deviceType.getRegisterTypes());
         } else {
-            Long deviceConfiguationId = availableFilter.getLong("deviceconfigurationid");
-            if (deviceConfiguationId != null) {
-                findAllAvailableRegisterTypesForDeviceConfiguration(deviceType, registerTypes, deviceConfiguationId);
+            Long deviceConfigurationId = availableFilter.getLong("deviceconfigurationid");
+            if (deviceConfigurationId != null) {
+                matchingRegisterTypes.addAll(findAllAvailableRegisterTypesForDeviceConfiguration(deviceType, deviceConfigurationId));
             } else {
-                findAllAvailableRegisterTypesForDeviceType(queryParameters, deviceType, registerTypes);
+                matchingRegisterTypes.addAll(findAllAvailableRegisterTypesForDeviceType(deviceType));
             }
-
         }
+        List<RegisterType> registerTypes = ListPager.of(matchingRegisterTypes, new RegisterTypeComparator()).from(queryParameters).find();
         List<RegisterTypeInfo> registerTypeInfos = asInfoList(deviceType, registerTypes);
         return PagedInfoList.asJson("registerTypes", registerTypeInfos, queryParameters);
     }
 
-    private void findAllAvailableRegisterTypesForDeviceType(QueryParameters queryParameters, DeviceType deviceType, List<RegisterType> registerTypes) {
+    private List<RegisterType> findAllAvailableRegisterTypesForDeviceType(DeviceType deviceType) {
+        List<RegisterType> registerTypes = new ArrayList<>();
         Set<Long> deviceTypeRegisterTypeIds = asIds(deviceType.getRegisterTypes());
-        for (RegisterType registerType : this.masterDataService.findAllRegisterTypes().from(queryParameters).find()) {
+        for (RegisterType registerType : this.masterDataService.findAllRegisterTypes().find()) {
             if (!deviceTypeRegisterTypeIds.contains(registerType.getId())) {
                 registerTypes.add(registerType);
             }
         }
+        return registerTypes;
     }
 
-    private void findAllAvailableRegisterTypesForDeviceConfiguration(DeviceType deviceType, List<RegisterType> registerTypes, Long deviceConfigurationId) {
+    private List<RegisterType> findAllAvailableRegisterTypesForDeviceConfiguration(DeviceType deviceType, long deviceConfigurationId) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        registerTypes.addAll(deviceType.getRegisterTypes());
-        Set<Long> unavailableRegisterTypeIds = new HashSet<>();
-        for (RegisterSpec registerSpec : deviceConfiguration.getRegisterSpecs()) {
-            unavailableRegisterTypeIds.add(registerSpec.getRegisterType().getId());
-        }
-        for (Iterator<RegisterType> iterator = registerTypes.iterator(); iterator.hasNext(); ) {
-            MeasurementType next = iterator.next();
-            if (unavailableRegisterTypeIds.contains(next.getId())) {
-                iterator.remove();
-            }
-        }
+        Set<Long> unavailableRegisterTypeIds = deviceConfiguration.getRegisterSpecs().stream().map(rs -> rs.getRegisterType().getId()).collect(toSet());
+        return deviceType.getRegisterTypes().stream().filter(rt->!unavailableRegisterTypeIds.contains(rt.getId())).collect(toList());
     }
 
     @POST
