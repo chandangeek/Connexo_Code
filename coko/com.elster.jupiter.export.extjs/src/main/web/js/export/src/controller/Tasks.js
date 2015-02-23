@@ -5,6 +5,8 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.view.tasks.Setup',
         'Dxp.view.tasks.Details',
         'Dxp.view.tasks.History',
+        'Dxp.view.tasks.HistoryPreview',
+        'Dxp.view.tasks.HistoryPreviewForm',
         'Dxp.view.datasources.Setup',
         'Dxp.view.tasks.AddReadingTypesToTaskSetup',
         'Dxp.view.tasks.AddReadingTypesToTaskBulk',
@@ -134,6 +136,9 @@ Ext.define('Dxp.controller.Tasks', {
             'tasks-action-menu': {
                 click: this.chooseAction
             },
+            'tasks-history-action-menu': {
+                click: this.chooseAction
+            },
             '#AddReadingTypesToTaskSetup rt-side-filter button[action=applyfilter]': {
                 click: this.loadReadingTypes
             },
@@ -242,8 +247,8 @@ Ext.define('Dxp.controller.Tasks', {
                 me.getFilterTopPanel().setFilter(f, name, exportPeriod
                     ? Uni.DateTime.formatDateLong(date)
                     : Uni.DateTime.formatDateLong(date)
-                    + ' ' + Uni.I18n.translate('general.at', 'DES', 'At').toLowerCase() + ' '
-                    + Uni.DateTime.formatTimeShort(date));
+                + ' ' + Uni.I18n.translate('general.at', 'DES', 'At').toLowerCase() + ' '
+                + Uni.DateTime.formatTimeShort(date));
             }
         }
         me.getFilterTopPanel().setVisible(true);
@@ -283,22 +288,22 @@ Ext.define('Dxp.controller.Tasks', {
         });
         me.getApplication().fireEvent('changecontentevent', view);
         me.initFilter();
-        var grid = me.getHistory().down('tasks-history-grid');
+        //var grid = me.getHistory().down('tasks-history-grid');
 
-        Ext.Array.each(Ext.ComponentQuery.query('tasks-action-menu'), function (item) {
-            Ext.each(item.query(), function (menuitem) {
-                if (menuitem.action !== 'viewLog') {
-                    menuitem.setVisible(false);
-                } else {
-                    menuitem.setVisible(true);
-                }
-            });
-        });
+        /*Ext.Array.each(Ext.ComponentQuery.query('tasks-action-menu'), function (item) {
+         Ext.each(item.query(), function (menuitem) {
+         if (menuitem.action !== 'viewLog') {
+         menuitem.setVisible(false);
+         } else {
+         menuitem.setVisible(true);
+         }
+         });
+         });*/
 
 
         taskModel.load(currentTaskId, {
             success: function (record) {
-                var previewForm = view.down('tasks-preview-form');
+                var previewForm = view.down('tasks-history-preview-form');
 
                 previewForm.taskModel = record;
 
@@ -318,20 +323,20 @@ Ext.define('Dxp.controller.Tasks', {
     showHistoryPreview: function (selectionModel, record) {
         var me = this,
             page = me.getHistory(),
-            preview = page.down('tasks-preview'),
-            previewForm = page.down('tasks-preview-form');
+            preview = page.down('tasks-history-preview'),
+            previewForm = page.down('tasks-history-preview-form');
 
         if (record) {
             Ext.suspendLayouts();
             preview.setTitle(record.get('startedOn_formatted'));
-            previewForm.down('displayfield[name=lastRun]').setVisible(false);
-            previewForm.down('displayfield[name=nextRun_formatted]').setVisible(false);
-            previewForm.down('displayfield[name=startedOn]').setVisible(false);
-            previewForm.down('displayfield[name=finishedOn]').setVisible(false);
+            /*previewForm.down('displayfield[name=lastRun]').setVisible(false);
+             previewForm.down('displayfield[name=nextRun_formatted]').setVisible(false);
+             previewForm.down('displayfield[name=startedOn]').setVisible(false);
+             previewForm.down('displayfield[name=finishedOn]').setVisible(false);*/
             previewForm.down('displayfield[name=startedOn_formatted]').setVisible(true);
             previewForm.down('displayfield[name=finishedOn_formatted]').setVisible(true);
             previewForm.loadRecord(record);
-            preview.down('tasks-action-menu').record = record;
+            preview.down('tasks-history-action-menu').record = record;
             if (record.get('status') === 'Failed') {
                 previewForm.down('#reason-field').show();
             } else {
@@ -638,8 +643,7 @@ Ext.define('Dxp.controller.Tasks', {
         confirmationWindow.show({
             msg: Uni.I18n.translate('general.remove.msg', 'DXP', 'This data export task will no longer be available.'),
             title: Uni.I18n.translate('general.remove', 'DXP', 'Remove') + '&nbsp' + record.data.name + '?',
-            config: {
-            },
+            config: {},
             fn: function (state) {
                 if (state === 'confirm') {
                     me.removeOperation(record);
@@ -693,12 +697,12 @@ Ext.define('Dxp.controller.Tasks', {
                             }
                         ]
                     }).show({
-                            ui: 'notification-error',
-                            title: Uni.I18n.translate('general.remove.error.msg', 'DXP', 'Remove operation failed'),
-                            msg: errorText,
-                            modal: false,
-                            icon: Ext.MessageBox.ERROR
-                        })
+                        ui: 'notification-error',
+                        title: Uni.I18n.translate('general.remove.error.msg', 'DXP', 'Remove operation failed'),
+                        msg: errorText,
+                        modal: false,
+                        icon: Ext.MessageBox.ERROR
+                    })
                 }
             }
         });
@@ -923,7 +927,6 @@ Ext.define('Dxp.controller.Tasks', {
         me.forwardToPreviousPage();
     },
 
-
     loadReadingTypes: function () {
         var me = this,
             widget = this.getAddReadingTypesSetup(),
@@ -941,27 +944,7 @@ Ext.define('Dxp.controller.Tasks', {
             intervalsRecord,
             previewContainer;
 
-        previewContainer = {
-            xtype: 'preview-container',
-            grid: {
-                itemId: 'addReadingTypesGrid',
-                xtype: 'AddReadingTypesToTaskBulk',
-                store: 'Dxp.store.LoadedReadingTypes'
-            },
-            emptyComponent: {
-                xtype: 'no-items-found-panel',
-                margin: '0 0 20 0',
-                title: Uni.I18n.translate('validation.readingType.empty.title', 'CFG', 'No reading types found.'),
-                reasons: [
-                    Uni.I18n.translate('validation.readingType.empty.list.item1', 'CFG', 'No reading types have been added yet.'),
-                    Uni.I18n.translate('validation.readingType.empty.list.item2', 'CFG', 'No reading types comply to the filter.'),
-                    Uni.I18n.translate('validation.readingType.empty.list.item3', 'CFG', 'All reading types have been already added to rule.')
-                ]
-            }
-        };
-
         bulkGridContainer.removeAll();
-
 
         Ext.each(filterBtns, function (btn) {
             btn.destroy();
@@ -979,6 +962,7 @@ Ext.define('Dxp.controller.Tasks', {
             });
             filter.setFilter('unitOfMeasure', 'Unit of measure', unitOfMeasureRecord.get('name'), false);
         }
+
         if (!Ext.isEmpty(intervalsCombo.getValue())) {
             intervalsRecord = intervalsCombo.findRecord(intervalsCombo.valueField, intervalsCombo.getValue());
             properties.push({
@@ -987,6 +971,7 @@ Ext.define('Dxp.controller.Tasks', {
             });
             filter.setFilter('time', 'Interval', intervalsRecord.get('name'), false);
         }
+
         if (readingTypeNameText.getValue()) {
             properties.push({
                 property: 'name',
@@ -994,6 +979,7 @@ Ext.define('Dxp.controller.Tasks', {
             });
             filter.setFilter('name', 'Name', readingTypeNameText.getValue(), false);
         }
+
         if (!Ext.isEmpty(timeOfUseCombo.getValue())) {
             properties.push({
                 property: 'tou',
@@ -1002,29 +988,59 @@ Ext.define('Dxp.controller.Tasks', {
             filter.setFilter('tou', 'Time of use', timeOfUseCombo.getValue(), false);
         }
 
+        if (Ext.isArray(me.readingTypesArray) && !Ext.isEmpty(me.readingTypesArray)) {
+            var mRIDs = [];
+            me.readingTypesArray.forEach(function (readingType) {
+                mRIDs.push(readingType.readingType.mRID.toLowerCase());
+
+            });
+            properties.push({
+                property: 'selectedReadings',
+                value: mRIDs
+            });
+        }
+
         readingTypeStore.getProxy().setExtraParam('filter', Ext.encode(properties));
-        readingTypeStore.loadData([],false);
-        bulkGridContainer.add(previewContainer);
-        readingTypeStore.load(function (records) {
-            var selectionModel;
+        readingTypeStore.loadData([], false);
 
-            if (me.readingTypesArray) {
-                readingTypeStore.filterBy(function (record) {
-                    var recordMrid = record.get('mRID');
-                    return !Ext.Array.findBy(me.readingTypesArray, function (item) {
-                        return item.readingType.mRID === recordMrid;
-                    });
-                });
-
-                selectionModel = widget.down('#addReadingTypesGrid').getSelectionModel();
-                if (!selectionModel.getSelection().length && records.length) {
-                    selectionModel.select(0);
+        previewContainer = {
+            xtype: 'preview-container',
+            grid: {
+                itemId: 'addReadingTypesGrid',
+                xtype: 'AddReadingTypesToTaskBulk',
+                store: readingTypeStore,
+                height: 600,
+                plugins: {
+                    ptype: 'bufferedrenderer'
                 }
-                if (!records.length) {
-                    widget.down('#buttonsContainer button[name=add]').setDisabled(true);
-                }
+            },
+            emptyComponent: {
+                xtype: 'no-items-found-panel',
+                margin: '0 0 20 0',
+                title: Uni.I18n.translate('validation.readingType.empty.title', 'CFG', 'No reading types found.'),
+                reasons: [
+                    Uni.I18n.translate('validation.readingType.empty.list.item1', 'CFG', 'No reading types have been added yet.'),
+                    Uni.I18n.translate('validation.readingType.empty.list.item2', 'CFG', 'No reading types comply to the filter.'),
+                    Uni.I18n.translate('validation.readingType.empty.list.item3', 'CFG', 'All reading types have been already added to rule.')
+                ]
             }
+        };
+
+        bulkGridContainer.add(previewContainer);
+
+        //<debug>
+        Ext.override(Ext.data.proxy.Ajax, {timeout: 120000});
+        //</debug>
+
+        readingTypeStore.on('load', function (store, records) {
+            if (!records || !records.length) {
+                widget.down('#buttonsContainer button[name=add]').setDisabled(true);
+            }
+        }, me, {
+            single: true
         });
+
+        readingTypeStore.load();
     },
 
     checkMridAlreadyAdded: function (array, record) {

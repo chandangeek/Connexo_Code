@@ -3,6 +3,7 @@ Ext.define('Dxp.store.ReadingTypesForTask', {
     autoLoad: false,
     model: 'Dxp.model.ReadingTypeForAddTaskGrid',
     storeId: 'ReadingTypesForTask',
+
     requires: [
         'Dxp.model.ReadingTypeForAddTaskGrid'
     ]

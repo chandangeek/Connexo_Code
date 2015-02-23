@@ -3,6 +3,8 @@ Ext.define('Dxp.view.tasks.History', {
     alias: 'widget.data-export-tasks-history',
     requires: [
         'Dxp.view.tasks.Menu',
+        'Dxp.view.tasks.HistoryPreview',
+        'Dxp.view.tasks.HistoryPreviewForm',
         'Dxp.view.tasks.PreviewForm',
         'Dxp.view.tasks.HistoryGrid',
         'Dxp.view.tasks.HistoryFilterForm',
@@ -58,7 +60,7 @@ Ext.define('Dxp.view.tasks.History', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'tasks-preview'
+                        xtype: 'tasks-history-preview'
                     }
                 }
             ]
