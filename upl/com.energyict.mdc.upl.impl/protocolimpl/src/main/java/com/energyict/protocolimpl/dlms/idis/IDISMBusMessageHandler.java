@@ -12,7 +12,10 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 
 /**
@@ -53,9 +56,12 @@ public class IDISMBusMessageHandler extends IDISMessageHandler {
             } else if (messageEntry.getContent().contains("<WriteCapturePeriod")) {
                 return writeCapturePeriod(messageEntry);
             }
+        } catch (DataAccessResultException e) {
+            idis.getLogger().log(Level.SEVERE, "Error executing message: " + e.getMessage());
+            return MessageResult.createFailed(messageEntry, e.getMessage());
         } catch (NumberFormatException e) {
             idis.getLogger().log(Level.SEVERE, "Error executing message: " + e.getMessage());
-            return MessageResult.createFailed(messageEntry);
+            return MessageResult.createFailed(messageEntry, e.getMessage());
         }
         return MessageResult.createFailed(messageEntry);
     }

@@ -115,9 +115,12 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
                 idis.getLogger().log(Level.SEVERE, "Error executing message - the message content is empty, probably wrong user file id specified.");
                 return MessageResult.createFailed(messageEntry);
             }
+        } catch (DataAccessResultException e) {
+            idis.getLogger().log(Level.SEVERE, "Error executing message: " + e.getMessage());
+            return MessageResult.createFailed(messageEntry, e.getMessage());
         } catch (NumberFormatException e) {
             idis.getLogger().log(Level.SEVERE, "Error executing message: " + e.getMessage());
-            return MessageResult.createFailed(messageEntry);
+            return MessageResult.createFailed(messageEntry, e.getMessage());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
