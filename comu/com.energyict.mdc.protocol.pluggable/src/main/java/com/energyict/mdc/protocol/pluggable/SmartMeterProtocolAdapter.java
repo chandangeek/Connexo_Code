@@ -227,18 +227,12 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
     }
 
     private TimeZone getDeviceTimeZoneFromProperties() {
-        String typedProperty = this.propertiesAdapter.getProperties().getTypedProperty(DeviceProtocolProperty.deviceTimeZone.name());
-        if (is(typedProperty).emptyOrOnlyWhiteSpace()) {
+        TimeZone timeZone = this.propertiesAdapter.getProperties().getTypedProperty(DeviceProtocolProperty.deviceTimeZone.name());
+        if (timeZone == null) {
             return TimeZone.getDefault();
         }
         else {
-            TimeZone timeZone = TimeZone.getTimeZone(typedProperty);
-            if (timeZone == null) {
-                return TimeZone.getDefault();
-            }
-            else {
-                return timeZone;
-            }
+            return timeZone;
         }
     }
 
