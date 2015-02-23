@@ -65,8 +65,10 @@ enum TableSpecs {
         @Override
         void describeTable(Table table) {
             table.map(ReadingTypeInExportTask.class);
+            table.setJournalTableName("DES_READINGTYPE_IN_TASKJRNL");
             Column exportTask = table.column("RTEXPORTTASK").number().notNull().add();
             Column readingType = table.column("READINGTYPE").varChar(Table.NAME_LENGTH).notNull().map("readingTypeMRID").add();
+            table.addAuditColumns();
 
             table.primaryKey("DES_PK_RT_RTEXPORTTASK").on(exportTask, readingType).add();
             table.foreignKey("DES_FK_RTINET_RTEXPORTTASK").on(exportTask).references(DES_RTDATAEXPORTTASK.name())
@@ -79,9 +81,11 @@ enum TableSpecs {
         @Override
         void describeTable(Table table) {
             table.map(DataExportPropertyImpl.class);
+            table.setJournalTableName("DES_PROPERTY_IN_TASKJRNL");
             Column taskColumn = table.column("TASK").number().notNull().add();
             Column nameColumn = table.column("NAME").varChar(Table.NAME_LENGTH).notNull().map("name").add();
             table.column("VALUE").varChar(Table.DESCRIPTION_LENGTH).map("stringValue").add();
+            table.addAuditColumns();
 
             table.primaryKey("DES_PK_RTETPROPERTY").on(taskColumn, nameColumn).add();
             table.foreignKey("DES_FK_PRPINET_RTEXPORTTASK").on(taskColumn).references(DES_RTDATAEXPORTTASK.name())

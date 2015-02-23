@@ -9,6 +9,7 @@ import com.elster.jupiter.properties.PropertySpec;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Objects;
 
 final class DataExportPropertyImpl implements DataExportProperty, PersistenceAware {
@@ -20,6 +21,11 @@ final class DataExportPropertyImpl implements DataExportProperty, PersistenceAwa
     private transient PropertySpec propertySpec;
 
     private Reference<IReadingTypeDataExportTask> task = ValueReference.absent();
+
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
+    private String userName;
 
     @Inject
     DataExportPropertyImpl(DataModel dataModel) {
@@ -60,12 +66,19 @@ final class DataExportPropertyImpl implements DataExportProperty, PersistenceAwa
 
     @Override
     public Object getValue() {
-        return propertySpec.getValueFactory().fromStringValue(stringValue);
+        return getPropertySpec().getValueFactory().fromStringValue(stringValue);
+    }
+
+    private PropertySpec getPropertySpec() {
+        if (propertySpec == null) {
+            postLoad();
+        }
+        return propertySpec;
     }
 
     @Override
     public void setValue(Object value) {
-        if (BigDecimal.class.equals(propertySpec.getValueFactory().getValueType())) {
+        if (BigDecimal.class.equals(getPropertySpec().getValueFactory().getValueType())) {
             this.stringValue = toStringValue(new BigDecimal(value.toString()));
             return;
         }
@@ -79,7 +92,7 @@ final class DataExportPropertyImpl implements DataExportProperty, PersistenceAwa
 
     @SuppressWarnings("unchecked")
     private String toStringValue(Object object) {
-        return propertySpec.getValueFactory().toStringValue(object);
+        return getPropertySpec().getValueFactory().toStringValue(object);
     }
 
     @Override

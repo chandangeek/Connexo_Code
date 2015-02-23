@@ -91,4 +91,8 @@ public interface ReadingTypeDataExportTask extends HasName, HasAuditInfo {
      * @since v1.1
      */
     History<? extends ReadingTypeDataExportTask> getHistory();
+
+    Map<String, Object> getProperties(Instant at);
+
+    Set<ReadingType> getReadingTypes(Instant at);
 }

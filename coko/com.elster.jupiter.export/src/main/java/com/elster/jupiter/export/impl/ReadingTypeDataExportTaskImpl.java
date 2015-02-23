@@ -32,6 +32,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -391,6 +392,23 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public Map<String, Object> getProperties(Instant at) {
+        List<JournalEntry<DataExportProperty>> props = dataModel.mapper(DataExportProperty.class).at(at).find(ImmutableMap.of("task", this));
+        return props.stream()
+                .map(JournalEntry::get)
+                .collect(Collectors.toMap(DataExportProperty::getName, DataExportProperty::getValue));
+    }
+
+    @Override
+    public Set<ReadingType> getReadingTypes(Instant at) {
+        List<JournalEntry<ReadingTypeInExportTask>> readingTypes = dataModel.mapper(ReadingTypeInExportTask.class).at(at).find(ImmutableMap.of("task", this));
+        return readingTypes.stream()
+                .map(JournalEntry::get)
+                .map(ReadingTypeInExportTask::getReadingType)
+                .collect(Collectors.toSet());
     }
 
     private void update() {

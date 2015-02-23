@@ -289,11 +289,11 @@ public class ReadingTypeDataExportTaskImplIT {
         Optional<? extends ReadingTypeDataExportTask> version2 = history.getVersion(2);
         assertThat(version2).isPresent();
         assertThat(version2.get().getName()).isEqualTo("NEWNAME");
-        assertThat(version2.get().getProperties()).containsEntry("propy", value1);
+        assertThat(version2.get().getProperties(NOW.toInstant().plusSeconds(7))).containsEntry("propy", value1);
         Optional<? extends ReadingTypeDataExportTask> version3 = history.getVersion(3);
         assertThat(version3).isPresent();
         assertThat(version3.get().getName()).isEqualTo("NEWNAME");
-        assertThat(version3.get().getProperties()).containsEntry("propy", value2);
+        assertThat(version3.get().getProperties(NOW.toInstant().plusSeconds(8))).containsEntry("propy", value2);
     }
 
     @Test

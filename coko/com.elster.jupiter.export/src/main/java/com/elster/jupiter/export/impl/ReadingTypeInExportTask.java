@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -21,6 +22,11 @@ class ReadingTypeInExportTask {
 
     private transient ReadingType readingType;
     private Reference<IReadingTypeDataExportTask> readingTypeDataExportTask = ValueReference.absent();
+
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
+    private String userName;
 
     @Inject
     ReadingTypeInExportTask(MeteringService meteringService) {
