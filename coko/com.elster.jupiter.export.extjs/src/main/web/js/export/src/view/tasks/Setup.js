@@ -46,7 +46,8 @@ Ext.define('Dxp.view.tasks.Setup', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'tasks-preview'
+                        xtype: 'tasks-preview',
+                        itemId: 'pnl-data-export-task-preview'
                     }
                 }
             ]
