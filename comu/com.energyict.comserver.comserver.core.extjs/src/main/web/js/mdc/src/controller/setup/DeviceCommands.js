@@ -84,6 +84,9 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             '#deviceCommandsGrid': {
                 selectionchange: this.selectCommand
             },
+            'device-command-action-menu': {
+                beforeshow: this.configureMenu
+            },
             '#device-command-add-form combobox[name=commandCategory]': {
                 select: this.msgCategoryChange
             },
@@ -316,6 +319,13 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         }
     },
 
+    configureMenu: function(menu){
+        menu.down('#triggerNow').show();
+        if(!menu.record.get('willBePickedUpByComTask')){
+            menu.down('#triggerNow').hide();
+        }
+    },
+
     msgCategoryChange: function (combo, records) {
         var me = this,
             cat = records[0];
@@ -340,7 +350,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             if (!command.get('willBePickedUpByComTask')) {
                 combo.markInvalid(Uni.I18n.translate('deviceCommand.add.willBePickedUpByComTask', 'MDC', 'This command is not part of a communication task on this device.'))
             }
-            if (!command.get('willBePickedUpByPlannedComTask')) {
+            else if (!command.get('willBePickedUpByPlannedComTask')) {
                 combo.markInvalid(Uni.I18n.translate('deviceCommand.add.willBePickedUpByPlannedComTask', 'MDC', 'This command is part of a communication task that is not planned to execute.'))
             }
         }

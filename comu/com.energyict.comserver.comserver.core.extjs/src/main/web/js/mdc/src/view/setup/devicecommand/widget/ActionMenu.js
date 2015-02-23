@@ -11,6 +11,7 @@ Ext.define('Mdc.view.setup.devicecommand.widget.ActionMenu', {
     items: [
         {
             text: Uni.I18n.translate('deviceCommand.actionMenu.trigger', 'MDC', 'Trigger now'),
+            itemId: 'triggerNow',
             action: 'trigger'
         },
         {
