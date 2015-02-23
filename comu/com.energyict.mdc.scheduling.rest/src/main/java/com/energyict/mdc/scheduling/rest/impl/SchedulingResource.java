@@ -3,10 +3,10 @@ package com.energyict.mdc.scheduling.rest.impl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.time.TemporalExpression;
-import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.IdListBuilder;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
@@ -14,11 +14,25 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.security.Privileges;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-
+import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -33,18 +47,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
 
 @Path("/schedules")
 public class SchedulingResource {
@@ -70,27 +72,12 @@ public class SchedulingResource {
     public PagedInfoList getSchedules(@BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
         String mrid = queryFilter.hasProperty("mrid") ? queryFilter.getString("mrid") : null;
         boolean available = queryFilter.hasProperty("available") ? queryFilter.getBoolean("available") : false;
-        List<ComSchedule> comSchedules = new ArrayList<>();
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(clock.getZone()));
+        List<ComSchedule> comSchedules = schedulingService.findAllSchedules();
+        Collections.sort(comSchedules, new CompareBySchedulingStatus());
         if (mrid != null && available) {
-            Device device = deviceService.findByUniqueMrid(mrid);
-            List<ComSchedule> possibleComSchedules = schedulingService.findAllSchedules(calendar).from(queryParameters).find();
-            if (possibleComSchedules.size() == 0) {
-//                throw new WebApplicationException(MessageSeeds.NO_SHARED_SCHEDULES_DEFINED, Response.Status.NOT_FOUND);
-            }
-            List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
-            List<ComTaskEnablement> comTaskEnablements = device.getDeviceConfiguration().getComTaskEnablements();
-            if (comTaskEnablements.size() == 0) {
-//                throw new WebApplicationException(MessageSeeds.NO_COMTASKS_DEFINED_ON_CONFIGURATION, Response.Status.NOT_FOUND);
-            }
-            for (ComSchedule comSchedule : possibleComSchedules) {
-                if (isValidComSchedule(comSchedule, comTaskExecutions, comTaskEnablements)) {
-                    comSchedules.add(comSchedule);
-                }
-            }
-        } else {
-            comSchedules = schedulingService.findAllSchedules(calendar).from(queryParameters).find();
+            filterAvailableSchedulesOnly(mrid, comSchedules);
         }
+        comSchedules = ListPager.of(comSchedules).from(queryParameters).find();
 
         List<ComScheduleInfo> comScheduleInfos = new ArrayList<>();
         for (ComSchedule comSchedule : comSchedules) {
@@ -98,6 +85,38 @@ public class SchedulingResource {
         }
         return PagedInfoList.asJson("schedules", comScheduleInfos, queryParameters);
     }
+
+    private void filterAvailableSchedulesOnly(String mrid, List<ComSchedule> comSchedules) {
+        Device device = deviceService.findByUniqueMrid(mrid);
+        List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
+        List<ComTaskEnablement> comTaskEnablements = device.getDeviceConfiguration().getComTaskEnablements();
+        Iterator<ComSchedule> iterator = comSchedules.iterator();
+        while(iterator.hasNext()) {
+            ComSchedule comSchedule = iterator.next();
+            if (!isValidComSchedule(comSchedule, comTaskExecutions, comTaskEnablements)) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private static class CompareBySchedulingStatus implements Comparator<ComSchedule> {
+        @Override
+        public int compare(ComSchedule o1, ComSchedule o2) {
+            if (SchedulingStatus.PAUSED.equals(o1.getSchedulingStatus()) && SchedulingStatus.PAUSED.equals(o2.getSchedulingStatus())) {
+                return 0;
+            }
+            if (SchedulingStatus.PAUSED.equals(o1.getSchedulingStatus()) && !SchedulingStatus.PAUSED.equals(o2.getSchedulingStatus())) {
+                return 1;
+            }
+            if (!SchedulingStatus.PAUSED.equals(o1.getSchedulingStatus()) && SchedulingStatus.PAUSED.equals(o2.getSchedulingStatus())) {
+                return -1;
+            }
+            // Neither are paused so planned date is always there
+            return o1.getPlannedDate().get().compareTo(o2.getPlannedDate().get());
+        }
+    }
+
+
 
     private boolean isValidComSchedule(ComSchedule comSchedule, List<ComTaskExecution> comTaskExecutions, List<ComTaskEnablement> comTaskEnablements) {
         Set<Long> allowedComTaskIds = getAllowedComTaskIds(comTaskEnablements);
@@ -123,27 +142,29 @@ public class SchedulingResource {
             return true;
         } else {
             long protocolDialectConfigurationPropertiesId = 0;
-            if (comTaskEnablementsToCheck.get(0).getProtocolDialectConfigurationProperties().isPresent()) {
-                protocolDialectConfigurationPropertiesId = comTaskEnablementsToCheck.get(0).getProtocolDialectConfigurationProperties().get().getId();
+            ComTaskEnablement firstComTaskEnablement = comTaskEnablementsToCheck.get(0);
+            if (firstComTaskEnablement.getProtocolDialectConfigurationProperties().isPresent()) {
+                protocolDialectConfigurationPropertiesId = firstComTaskEnablement.getProtocolDialectConfigurationProperties().get().getId();
             }
-            long securityPropertySetId = comTaskEnablementsToCheck.get(0).getSecurityPropertySet().getId();
+            long securityPropertySetId = firstComTaskEnablement.getSecurityPropertySet().getId();
             long partialConnectionTaskId = 0;
-            if (comTaskEnablementsToCheck.get(0).getPartialConnectionTask().isPresent()) {
-                partialConnectionTaskId = comTaskEnablementsToCheck.get(0).getPartialConnectionTask().get().getId();
+            if (firstComTaskEnablement.getPartialConnectionTask().isPresent()) {
+                partialConnectionTaskId = firstComTaskEnablement.getPartialConnectionTask().get().getId();
             }
-            int priority = comTaskEnablementsToCheck.get(0).getPriority();
+            int priority = firstComTaskEnablement.getPriority();
             for (int i = 1; i < comTaskEnablementsToCheck.size(); i++) {
 
                 long compareProtocolDialectConfigurationPropertiesId = 0;
-                if (comTaskEnablementsToCheck.get(i).getProtocolDialectConfigurationProperties().isPresent()) {
-                    compareProtocolDialectConfigurationPropertiesId = comTaskEnablementsToCheck.get(i).getProtocolDialectConfigurationProperties().get().getId();
+                ComTaskEnablement otherComTaskEnablement = comTaskEnablementsToCheck.get(i);
+                if (otherComTaskEnablement.getProtocolDialectConfigurationProperties().isPresent()) {
+                    compareProtocolDialectConfigurationPropertiesId = otherComTaskEnablement.getProtocolDialectConfigurationProperties().get().getId();
                 }
-                long compareSecurityPropertySetId = comTaskEnablementsToCheck.get(i).getSecurityPropertySet().getId();
+                long compareSecurityPropertySetId = otherComTaskEnablement.getSecurityPropertySet().getId();
                 long comparePartialConnectionTaskId = 0;
-                if (comTaskEnablementsToCheck.get(i).getPartialConnectionTask().isPresent()) {
-                    comparePartialConnectionTaskId = comTaskEnablementsToCheck.get(i).getPartialConnectionTask().get().getId();
+                if (otherComTaskEnablement.getPartialConnectionTask().isPresent()) {
+                    comparePartialConnectionTaskId = otherComTaskEnablement.getPartialConnectionTask().get().getId();
                 }
-                int comparePriority = comTaskEnablementsToCheck.get(i).getPriority();
+                int comparePriority = otherComTaskEnablement.getPriority();
                 if (protocolDialectConfigurationPropertiesId != compareProtocolDialectConfigurationPropertiesId ||
                         securityPropertySetId != compareSecurityPropertySetId ||
                         partialConnectionTaskId != comparePartialConnectionTaskId ||
@@ -166,14 +187,6 @@ public class SchedulingResource {
             }
         }
         return comTaskEnablementsToCheck;
-    }
-
-    private Set<Long> asIds(List<Optional<? extends HasId>> hasIdList) {
-        Set<Long> idList = new HashSet<>();
-        for (Optional<? extends HasId> hasId : hasIdList) {
-            idList.add(hasId.get().getId());
-        }
-        return idList;
     }
 
     private Set<Long> getAllowedComTaskIds(List<ComTaskEnablement> comTaskEnablements) {

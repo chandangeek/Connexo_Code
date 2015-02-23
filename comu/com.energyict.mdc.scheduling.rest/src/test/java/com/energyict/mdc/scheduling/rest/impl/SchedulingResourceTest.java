@@ -4,17 +4,14 @@ import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
-import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
-import org.joda.time.DateTimeConstants;
-import org.junit.Test;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
+import com.jayway.jsonpath.JsonModel;
+import java.io.ByteArrayInputStream;
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -24,18 +21,26 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.IntStream;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import org.joda.time.DateTimeConstants;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
 
     @Test
     public void testGetEmptyScheduleList() throws Exception {
         List<ComSchedule> comSchedules = new ArrayList<>();
-        ListPager<ComSchedule> comSchedulePage = ListPager.of(comSchedules);
-        when(schedulingService.findAllSchedules(any(Calendar.class))).thenReturn(comSchedulePage);
+        when(schedulingService.findAllSchedules()).thenReturn(comSchedules);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
         Map<String, Object> map = target("/schedules/").request().get(Map.class);
@@ -55,8 +60,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         ComTask comTask1 = mockComTask(11L, "Com task 1");
         ComTask comTask2 = mockComTask(12L, "Com task 2");
         when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
-        ListPager<ComSchedule> comSchedulePage = ListPager.of(Arrays.asList(mockedSchedule));
-        when(schedulingService.findAllSchedules(any(Calendar.class))).thenReturn(comSchedulePage);
+        when(schedulingService.findAllSchedules()).thenReturn(Arrays.asList(mockedSchedule));
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
         Map<String, Object> map = target("/schedules/").request().get(Map.class);
@@ -73,6 +77,33 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
                 .containsKey("comTaskUsages")
                 .containsKey("mRID")
                 .containsKey("startDate");
+    }
+
+    @Test
+    public void testGetScheduleListSecondPage() throws Exception {
+        List<ComSchedule> schedules = new ArrayList<>();
+        IntStream.range(1, 100).forEach(i -> schedules.add(mockComSchedule(i, MessageFormat.format("cs {0}",i))));
+        when(schedulingService.findAllSchedules()).thenReturn(schedules);
+        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
+
+        Response response = target("/schedules/").queryParam("start",10).queryParam("limit",10).request().get();
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(21);
+        List<String> list = jsonModel.<List<String>>get("$.schedules[*].name");
+        assertThat(list).hasSize(10).containsOnly("cs 11", "cs 12", "cs 13", "cs 14", "cs 15", "cs 16", "cs 17", "cs 18", "cs 19", "cs 20");
+
+    }
+
+    private ComSchedule mockComSchedule(long id, String name) {
+        ComSchedule mockedSchedule = mock(ComSchedule.class);
+        when(mockedSchedule.getId()).thenReturn(id);
+        when(mockedSchedule.getName()).thenReturn(name);
+        when(mockedSchedule.getPlannedDate()).thenReturn(Optional.of(Instant.now()));
+        when(mockedSchedule.getSchedulingStatus()).thenReturn(SchedulingStatus.ACTIVE);
+        when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
+        when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
+
+        return mockedSchedule;
     }
 
     @Test
