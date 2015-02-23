@@ -162,7 +162,7 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
             if (this.protocol.getPhysicalAddressFromSerialNumber(register.getSerialNumber()) != -1) {
                 validRegisters.add(register);
             } else {
-                this.protocol.getLogger().severe("Register " + register.getObisCode() + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device.");
+                this.protocol.getLogger().severe("Register " + register.getObisCode() + " is not supported because MbusDevice '" + register.getSerialNumber() + "' is not installed on the physical device.");
             }
         }
         return validRegisters;
