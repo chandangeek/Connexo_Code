@@ -3,12 +3,13 @@ Ext.define('Uni.property.view.property.Combobox', {
 
     getEditCmp: function () {
         var me = this;
+        var sortedStore = me.getProperty().getPossibleValues().sort();
 
         return {
             xtype: 'combobox',
             itemId: me.key + 'combobox',
             name: this.getName(),
-            store: me.getProperty().getPossibleValues(),
+            store: sortedStore,
             queryMode: 'local',
             displayField: 'value',
             valueField: 'key',
