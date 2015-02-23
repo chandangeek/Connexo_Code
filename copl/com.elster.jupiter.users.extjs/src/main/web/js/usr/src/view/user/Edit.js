@@ -48,7 +48,9 @@ Ext.define('Usr.view.user.Edit', {
                             },
                             {
                                 name: 'description',
-                                fieldLabel: Uni.I18n.translate('user.description', 'USR', 'Description')
+                                fieldLabel: Uni.I18n.translate('user.description', 'USR', 'Description'),
+                                maxLength: 256,
+                                enforceMaxLength: true
                             },
                             {
                                 name: 'domain',
