@@ -65,7 +65,7 @@ Ext.define('Uni.property.view.property.Period', {
             count = null,
             timeDuration = null;
 
-        if (value != null) {
+        if (Ext.isObject(value)) {
             unit = value.timeUnit;
             count = value.count;
             timeDuration = count + ' ' + unit;
