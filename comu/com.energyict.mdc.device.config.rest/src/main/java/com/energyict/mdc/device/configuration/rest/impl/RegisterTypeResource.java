@@ -60,7 +60,7 @@ public class RegisterTypeResource {
         for (RegisterType registerType : registerTypes) {
             registerTypeInfos.add(new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false));
         }
-        return PagedInfoList.asJson("registerTypes", registerTypeInfos, queryParameters);
+        return PagedInfoList.fromPagedList("registerTypes", registerTypeInfos, queryParameters);
     }
 
     @GET

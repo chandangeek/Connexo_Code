@@ -54,7 +54,7 @@ public class ComTaskEnablementResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         List<ComTaskEnablementInfo> comTaskEnablements = ComTaskEnablementInfo.from(ListPager.of(deviceConfiguration.getComTaskEnablements(), new ComTaskEnablementComparator()).find(), thesaurus);
 
-        return PagedInfoList.asJson("data", comTaskEnablements, queryParameters);
+        return PagedInfoList.fromPagedList("data", comTaskEnablements, queryParameters);
     }
 
     @GET
@@ -179,7 +179,7 @@ public class ComTaskEnablementResource {
         }
         List<ComTaskEnablementInfo.ComTaskInfo> deviceConfigurationComTaskInfos = ComTaskEnablementInfo.ComTaskInfo.from(ListPager.of(deviceConfigurationComTasks, new ComTaskComparator()).find());
 
-        return PagedInfoList.asJson("data", deviceConfigurationComTaskInfos, queryParameters);
+        return PagedInfoList.fromPagedList("data", deviceConfigurationComTaskInfos, queryParameters);
     }
 
     private void setComTaskEnablementActive(long deviceTypeId, long deviceConfigurationId, long comTaskEnablementId, boolean setActive) {

@@ -49,7 +49,7 @@ public class DeviceMessagePrivilegesResource {
         for (DeviceMessageUserAction action : DeviceMessageUserAction.values()) {
             infos.add(DeviceMessagePrivilegeInfo.from(action, privilegesMap.get(action), thesaurus));
         }
-        return PagedInfoList.asJson("privileges", infos, queryParameters);
+        return PagedInfoList.fromPagedList("privileges", infos, queryParameters);
     }
 
 }

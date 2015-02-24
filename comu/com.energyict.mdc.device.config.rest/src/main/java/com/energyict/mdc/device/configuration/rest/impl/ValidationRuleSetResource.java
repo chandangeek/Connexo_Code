@@ -65,7 +65,7 @@ public class ValidationRuleSetResource {
             result.add(new ValidationRuleSetInfo(ruleSet));
         }
         result = ListPager.of(result, ValidationRuleSetInfo.VALIDATION_RULESET_NAME_COMPARATOR).from(queryParameters).find();
-        return Response.ok(PagedInfoList.asJson("validationRuleSets", result, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("validationRuleSets", result, queryParameters)).build();
     }
 
     @DELETE

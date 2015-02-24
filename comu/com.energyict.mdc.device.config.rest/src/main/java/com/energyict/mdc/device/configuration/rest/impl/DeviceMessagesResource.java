@@ -64,7 +64,7 @@ public class DeviceMessagesResource {
 
         Set<DeviceMessageId> supportedMessages = deviceType.getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages();
         if (supportedMessages.isEmpty()) {
-            return PagedInfoList.asJson("categories", Collections.emptyList(), queryParameters);
+            return PagedInfoList.fromPagedList("categories", Collections.emptyList(), queryParameters);
         }
 
         List<DeviceMessageEnablement> deviceMessageEnablements = deviceConfiguration.getDeviceMessageEnablements();
@@ -81,7 +81,7 @@ public class DeviceMessagesResource {
         }
 
         Collections.sort(infos, (c1, c2) -> c1.name.compareTo(c2.name));
-        return PagedInfoList.asJson("categories", infos, queryParameters);
+        return PagedInfoList.fromPagedList("categories", infos, queryParameters);
     }
 
     @POST

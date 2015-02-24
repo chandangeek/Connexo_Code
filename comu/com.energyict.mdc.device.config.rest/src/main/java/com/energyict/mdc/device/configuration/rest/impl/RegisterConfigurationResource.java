@@ -50,7 +50,7 @@ public class RegisterConfigurationResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         List<RegisterSpec> pagedRegisterSpecs = ListPager.of(deviceConfiguration.getRegisterSpecs(), new RegisterConfigurationComparator()).from(queryParameters).find();
         List<RegisterConfigInfo> registerConfigInfos = RegisterConfigInfo.from(pagedRegisterSpecs);
-        return PagedInfoList.asJson("registerConfigurations", registerConfigInfos, queryParameters);
+        return PagedInfoList.fromPagedList("registerConfigurations", registerConfigInfos, queryParameters);
     }
 
     @GET

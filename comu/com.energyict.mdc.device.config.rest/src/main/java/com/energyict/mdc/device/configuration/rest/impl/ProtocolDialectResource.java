@@ -49,7 +49,7 @@ public class ProtocolDialectResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         List<ProtocolDialectConfigurationProperties> pagedDialectProtocols = ListPager.of(deviceConfiguration.getProtocolDialectConfigurationPropertiesList(), new ProtocolDialectComparator()).from(queryParameters).find();
         List<ProtocolDialectInfo> protocolDialectInfos = ProtocolDialectInfo.from(pagedDialectProtocols, uriInfo, mdcPropertyUtils);
-        return PagedInfoList.asJson("protocolDialects", protocolDialectInfos, queryParameters);
+        return PagedInfoList.fromPagedList("protocolDialects", protocolDialectInfos, queryParameters);
     }
 
     @GET
