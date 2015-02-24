@@ -6,13 +6,17 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
@@ -37,7 +41,6 @@ import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * This V2 protocol is a port from the old V1 IDIS protocol.
@@ -98,19 +101,21 @@ public class AM500 extends AbstractDlmsProtocol {
      */
     private void connectWithRetries() {
         int tries = 0;
-
         while (true) {
             ComServerRuntimeException exception;
             try {
                 if (getDlmsSession().getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
+                    getDlmsSession().getDLMSConnection().setRetries(0);   //AARQ retries are handled here
                     getDlmsSession().createAssociation();
                 }
                 return;
             } catch (ComServerRuntimeException e) {
-                if (e instanceof CommunicationException) {
-                    throw e;        //Meter cannot be reached, stop
+                if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
+                    throw e;        //Throw real errors, e.g. unsupported security mechanism, wrong password...
                 }
                 exception = e;
+            } finally {
+                getDlmsSession().getDLMSConnection().setRetries(getDlmsSessionProperties().getRetries());
             }
 
             //Release and retry the AARQ in case of ACSE exception
@@ -118,9 +123,7 @@ public class AM500 extends AbstractDlmsProtocol {
                 getLogger().severe("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getRetries() + 1) + "] tries.");
                 throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(exception);
             } else {
-                if (getLogger().isLoggable(Level.INFO)) {
-                    getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getRetries() + 1) + "] tries. Sending RLRQ and retry ...");
-                }
+                getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                 try {
                     getDlmsSession().getAso().releaseAssociation();
                 } catch (ComServerRuntimeException e) {

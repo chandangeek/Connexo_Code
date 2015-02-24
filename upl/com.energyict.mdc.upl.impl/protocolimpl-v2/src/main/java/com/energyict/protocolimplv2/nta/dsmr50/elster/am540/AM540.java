@@ -26,7 +26,6 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.v2migration.MigrateFromV1Protocol;
 import com.energyict.mdc.tasks.ConnectionType;
@@ -59,7 +58,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * Copyrights EnergyICT
@@ -174,14 +172,15 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         while (true) {
             ComServerRuntimeException exception;
             try {
-                getDlmsSession().getDLMSConnection().setRetries(0);   //AARQ retries are handled here
-                getDlmsSession().createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
+                if (getDlmsSession().getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
+                    getDlmsSession().getDLMSConnection().setRetries(0);   //AARQ retries are handled here
+                    getDlmsSession().createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
+                }
                 return;
             } catch (ComServerRuntimeException e) {
                 if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
                     throw e;        //Throw real errors, e.g. unsupported security mechanism, wrong password...
                 }
-
                 exception = e;
             } finally {
                 getDlmsSession().getDLMSConnection().setRetries(getDlmsSessionProperties().getRetries());
@@ -192,19 +191,11 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
                 getLogger().severe("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries.");
                 throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(exception);
             } else {
-                if (exception instanceof CommunicationException) {
-                    if (getLogger().isLoggable(Level.INFO)) {
-                        getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries, due to timeout. Retrying.");
-                    }
-                } else {
-                    if (getLogger().isLoggable(Level.INFO)) {
-                        getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries. Sending RLRQ and retry ...");
-                    }
-                    try {
-                        getDlmsSession().getAso().releaseAssociation();
-                    } catch (ComServerRuntimeException e) {
-                        // Absorb exception: in 99% of the cases we expect an exception here ...
-                    }
+                getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries. Sending RLRQ and retry ...");
+                try {
+                    getDlmsSession().getAso().releaseAssociation();
+                } catch (ComServerRuntimeException e) {
+                    // Absorb exception: in 99% of the cases we expect an exception here ...
                 }
                 getDlmsSession().getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
             }
