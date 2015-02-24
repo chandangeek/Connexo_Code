@@ -30,7 +30,11 @@
             <outputDirectory>licenses</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>target/generated-sources/license</directory>
+            <directory>assembly/partners</directory>
+            <outputDirectory>partners</outputDirectory>
+        </fileSet>
+        <fileSet>
+        <directory>target/generated-sources/license</directory>
             <outputDirectory>licenses</outputDirectory>
             <includes>
                 <include>*.txt</include>
@@ -40,13 +44,52 @@
 
     <dependencySets>
         <dependencySet>
-        <includes>
-                <!-- External dependencies. -->
+            <includes>
+            <!-- External dependencies. -->
                 <include>com.elster.jupiter.subsystem:third-party:zip</include>
             </includes>
             <scope>provided</scope>
 
             <unpack>true</unpack>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>org.apache.tomcat:tomcat:zip</include>
+                <include>org.wso2:wso2is:zip</include>
+                <include>org.rzo:yajsw:zip</include>
+            </includes>
+            <scope>provided</scope>
+            <outputDirectory>partners</outputDirectory>
+            <outputFileNameMapping>
+                ${artifact.artifactId}-${artifact.version}.${artifact.extension}
+            </outputFileNameMapping>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>com.elster.jupiter.thirdparty.apps.facts:*</include>
+                <include>com.elster.jupiter:yellowfin.installer</include>
+            </includes>
+            <scope>provided</scope>
+            <outputDirectory>partners/facts</outputDirectory>
+            <outputFileNameMapping>
+                ${artifact.artifactId}.${artifact.extension}
+            </outputFileNameMapping>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>com.elster.jupiter.thirdparty.apps.flow:*</include>
+            </includes>
+            <scope>provided</scope>
+            <outputFileNameMapping>
+                ${artifact.artifactId}.${artifact.extension}
+            </outputFileNameMapping>
+            <outputDirectory>partners/flow</outputDirectory>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
