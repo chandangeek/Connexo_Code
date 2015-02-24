@@ -63,12 +63,10 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<List>get("$.comTaskExecutionSessions")).hasSize(1);
         assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].id")).isEqualTo(222);
-        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].name")).isEqualTo("Read all + Basic check + Set clock");
-        assertThat(jsonModel.<List>get("$.comTaskExecutionSessions[0].comTasks")).hasSize(2);
-        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comTasks[0].name")).isEqualTo("Read all + Basic check");
-        assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].comTasks[0].id")).isEqualTo(1001);
-        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comTasks[1].name")).isEqualTo("Set clock");
-        assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].comTasks[1].id")).isEqualTo(1002);
+        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].name")).isEqualTo("Set clock");
+        assertThat(jsonModel.<List>get("$.comTaskExecutionSessions[0].comTasks")).hasSize(1);
+        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comTasks[0].name")).isEqualTo("Set clock");
+        assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].comTasks[0].id")).isEqualTo(1002);
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].device.id")).isEqualTo("0c53c750-4d5a-11e4-916c-0800200c9a66");
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].device.name")).isEqualTo("AX1");
         assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].deviceConfiguration.id")).isEqualTo(123);
@@ -130,6 +128,7 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         when(comTask2.getId()).thenReturn(1002L);
         when(comTask2.getName()).thenReturn("Set clock");
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask2, comTask1));
+        when(comTaskExecutionSession.getComTask()).thenReturn(comTask2);
         when(comTaskExecutionSession.getComTaskExecution()).thenReturn(comTaskExecution);
         when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.IOError);
         when(comTaskExecutionSession.getStartDate()).thenReturn(start);
