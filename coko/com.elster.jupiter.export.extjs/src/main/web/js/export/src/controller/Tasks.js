@@ -1005,6 +1005,7 @@ Ext.define('Dxp.controller.Tasks', {
 
         previewContainer = {
             xtype: 'preview-container',
+            selectByDefault: false,
             grid: {
                 itemId: 'addReadingTypesGrid',
                 xtype: 'AddReadingTypesToTaskBulk',
