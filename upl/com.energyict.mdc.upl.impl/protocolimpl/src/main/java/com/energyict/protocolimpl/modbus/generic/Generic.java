@@ -140,6 +140,9 @@ public class Generic extends Modbus {
         return startRegistersZeroBased;
     }
 
+    /**
+     * The version date
+     */
     @Override
     public String getProtocolVersion() {
         return "$Date$";
