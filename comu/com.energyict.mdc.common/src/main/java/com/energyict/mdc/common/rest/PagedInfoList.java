@@ -59,7 +59,7 @@ public class PagedInfoList {
     }
 
     /**
-     * Create a Json serialized object for paged search results. Paging has to be done with ListPager beforehand.
+     * Create a Json serialized object for paged search results. Paging has to be done with a Finder beforehand.
      * E.g.
      *    ("deviceTypes", {deviceTypeInfo1, deviceTypeInfo2}, queryParameters}
      *    with queryParameters,limit=2 (TWO)
