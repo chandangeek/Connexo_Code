@@ -85,6 +85,6 @@ public class DeviceFieldResource extends FieldResource {
         condition = condition.and(Where.where("deviceConfiguration.gatewayType").isNotEqual(GatewayType.NONE));
         List<Device> devices = deviceService.findAllDevices(condition).from(queryParameters).sorted("mRID", true).find();
         List<IdWithNameInfo> infos = devices.stream().map(d -> new IdWithNameInfo(d.getId(), d.getmRID())).collect(Collectors.toList());
-        return PagedInfoList.asJson("gateways", infos, queryParameters);
+        return PagedInfoList.fromPagedList("gateways", infos, queryParameters);
     }
 }

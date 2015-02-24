@@ -65,7 +65,7 @@ public class KpiResource {
                 groupIterator.remove();
             }
         }
-        return Response.ok(PagedInfoList.asJson("deviceGroups", allGroups.stream()
+        return Response.ok(PagedInfoList.fromPagedList("deviceGroups", allGroups.stream()
                 .map(gr -> new LongIdWithNameInfo(gr.getId(), gr.getName())).collect(Collectors.toList()), queryParameters)).build();
     }
 
@@ -79,7 +79,7 @@ public class KpiResource {
                 map(dataCollectionKpiInfoFactory::from).
                 collect(toList());
 
-        return PagedInfoList.asJson("kpis", collection, queryParameters);
+        return PagedInfoList.fromPagedList("kpis", collection, queryParameters);
     }
 
     @GET

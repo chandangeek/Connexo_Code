@@ -47,7 +47,7 @@ public class ChannelResourceHelper {
             addValidationInfo(channel, channelInfo);
             channelInfos.add(channelInfo);
         }
-        return Response.ok(PagedInfoList.asJson("channels", channelInfos, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("channels", channelInfos, queryParameters)).build();
     }
 
     public Response getChannel(Supplier<Channel> channelSupplier) {

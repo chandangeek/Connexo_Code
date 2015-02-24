@@ -28,7 +28,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class ConnectionResource {
@@ -54,7 +53,7 @@ public class ConnectionResource {
                 .map((ct) -> connectionTaskInfoFactory.from(ct, ct.getLastComSession()))
                 .sorted((i1, i2) -> i1.connectionMethod.name.compareTo(i2.connectionMethod.name))
                 .collect(Collectors.toList());
-        return Response.ok(PagedInfoList.asJson("connections", infos, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("connections", infos, queryParameters)).build();
     }
 
     @PUT

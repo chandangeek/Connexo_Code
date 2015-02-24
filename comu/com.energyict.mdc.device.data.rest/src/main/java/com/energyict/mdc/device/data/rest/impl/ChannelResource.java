@@ -114,7 +114,7 @@ public class ChannelResource {
             List<ChannelDataInfo> infos = ChannelDataInfo.from(channelData, isValidationActive, thesaurus, deviceValidation);
             infos = filter(infos, uriInfo.getQueryParameters());
             List<ChannelDataInfo> paginatedChannelData = ListPager.of(infos).from(queryParameters).find();
-            PagedInfoList pagedInfoList = PagedInfoList.asJson("data", paginatedChannelData, queryParameters);
+            PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("data", paginatedChannelData, queryParameters);
             return Response.ok(pagedInfoList).build();
         }
         return Response.status(Response.Status.BAD_REQUEST).build();

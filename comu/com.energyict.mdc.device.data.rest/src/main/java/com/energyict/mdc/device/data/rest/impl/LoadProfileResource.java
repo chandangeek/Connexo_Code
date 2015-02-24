@@ -73,7 +73,7 @@ public class LoadProfileResource {
         List<LoadProfile> allLoadProfiles = device.getLoadProfiles();
         List<LoadProfile> loadProfilesOnPage = ListPager.of(allLoadProfiles, LOAD_PROFILE_COMPARATOR_BY_NAME).from(queryParameters).find();
         List<LoadProfileInfo> loadProfileInfos = LoadProfileInfo.from(loadProfilesOnPage);
-        return Response.ok(PagedInfoList.asJson("loadProfiles", loadProfileInfos, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("loadProfiles", loadProfileInfos, queryParameters)).build();
     }
 
     @GET
@@ -152,7 +152,7 @@ public class LoadProfileResource {
             List<LoadProfileDataInfo> infos = LoadProfileDataInfo.from(device, loadProfileData, thesaurus, clock, loadProfile.getChannels());
             infos = filter(infos, uriInfo.getQueryParameters());
             List<LoadProfileDataInfo> paginatedLoadProfileData = ListPager.of(infos).from(queryParameters).find();
-            PagedInfoList pagedInfoList = PagedInfoList.asJson("data", paginatedLoadProfileData, queryParameters);
+            PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("data", paginatedLoadProfileData, queryParameters);
             return Response.ok(pagedInfoList).build();
         }
         return Response.status(Response.Status.BAD_REQUEST).build();

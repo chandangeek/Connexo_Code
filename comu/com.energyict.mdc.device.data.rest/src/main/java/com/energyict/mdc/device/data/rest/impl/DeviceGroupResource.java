@@ -105,7 +105,7 @@ public class DeviceGroupResource {
             Condition mdcMembers = where("id").in(endDevices.stream().map(EndDevice::getAmrId).collect(Collectors.toList()));
             devices = deviceService.findAllDevices(mdcMembers).sorted("mRID", true).find();
         }
-        return PagedInfoList.asJson("devices", DeviceGroupMemberInfo.from(devices), queryParameters);
+        return PagedInfoList.fromPagedList("devices", DeviceGroupMemberInfo.from(devices), queryParameters);
     }
 
     @GET
@@ -125,7 +125,7 @@ public class DeviceGroupResource {
         RestQuery<EndDeviceGroup> restQuery = restQueryService.wrap(query);
         List<EndDeviceGroup> allDeviceGroups = restQuery.select(koreQueryParameters, Order.ascending("upper(name)"));
         List<DeviceGroupInfo> deviceGroupInfos = deviceGroupInfoFactory.from(allDeviceGroups);
-        return PagedInfoList.asJson("devicegroups", deviceGroupInfos, queryParameters);
+        return PagedInfoList.fromPagedList("devicegroups", deviceGroupInfos, queryParameters);
     }
 
     @PUT

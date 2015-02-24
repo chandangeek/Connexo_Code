@@ -48,7 +48,7 @@ public class DeviceScheduleResource {
         List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
         List<ComTaskEnablement> comTaskEnablements = deviceConfiguration.getComTaskEnablements();
         List<DeviceSchedulesInfo> deviceSchedulesInfos = DeviceSchedulesInfo.from(comTaskExecutions, comTaskEnablements);
-        return Response.ok(PagedInfoList.asJson("schedules", deviceSchedulesInfos, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("schedules", deviceSchedulesInfos, queryParameters)).build();
     }
 
     @POST

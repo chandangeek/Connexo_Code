@@ -65,7 +65,7 @@ public class SecurityPropertySetResource {
 
         List<SecurityPropertySetInfo> pagedInfos = ListPager.of(securityPropertySetInfos).from(queryParameters).find();
 
-        return PagedInfoList.asJson("securityPropertySets", pagedInfos, queryParameters);
+        return PagedInfoList.fromPagedList("securityPropertySets", pagedInfos, queryParameters);
     }
 
     @GET
