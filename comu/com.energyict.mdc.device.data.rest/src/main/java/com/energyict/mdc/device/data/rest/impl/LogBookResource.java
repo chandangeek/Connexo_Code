@@ -58,7 +58,7 @@ public class LogBookResource {
         List<LogBook> allLogBooks = device.getLogBooks();
         List<LogBook> logBooksOnPage = ListPager.of(allLogBooks, LOG_BOOK_COMPARATOR_BY_NAME).from(queryParameters).find();
         List<LogBookInfo> logBookInfos = LogBookInfo.from(logBooksOnPage, thesaurus);
-        return Response.ok(PagedInfoList.asJson("data", logBookInfos, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("data", logBookInfos, queryParameters)).build();
     }
 
     @GET
@@ -96,7 +96,7 @@ public class LogBookResource {
             EndDeviceEventRecordFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
             List<EndDeviceEventRecord> endDeviceEvents = eventProvider.apply(device, filter);
             List<EndDeviceEventRecord> pagedEndDeviceEvents = ListPager.of(endDeviceEvents).from(queryParameters).find();
-            return Response.ok(PagedInfoList.asJson("data", LogBookDataInfo.from(pagedEndDeviceEvents, thesaurus), queryParameters)).build();
+            return Response.ok(PagedInfoList.fromPagedList("data", LogBookDataInfo.from(pagedEndDeviceEvents, thesaurus), queryParameters)).build();
         } catch (IllegalArgumentException | IllegalEnumValueException e) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }

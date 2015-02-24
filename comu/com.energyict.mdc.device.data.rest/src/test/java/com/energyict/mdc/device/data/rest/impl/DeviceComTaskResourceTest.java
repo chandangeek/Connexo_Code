@@ -583,6 +583,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comSession.getConnectionTask()).thenReturn(connectionTask);
 
         ComTaskExecutionSession comTaskExecutionSession1 = mock(ComTaskExecutionSession.class);
+        when(comTaskExecutionSession1.getComTask()).thenReturn(comTask);
         when(comTaskExecutionSession1.getComTaskExecution()).thenReturn(comTaskExecution1);
         when(comTaskExecutionSession1.getDevice()).thenReturn(device);
         when(comTaskExecutionSession1.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.ConnectionError);
@@ -592,7 +593,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         Instant execSessionStopTime = LocalDateTime.of(2014, 10, 20, 14, 6, 30).toInstant(ZoneOffset.UTC);
         when(comTaskExecutionSession1.getStopDate()).thenReturn(execSessionStopTime);
         Finder<ComTaskExecutionSession> finder = mockFinder(Arrays.asList(comTaskExecutionSession1));
-        when(communicationTaskService.findByComTaskExecution(comTaskExecution1)).thenReturn(finder);
+        when(communicationTaskService.findSessionsByComTaskExecutionAndComTask(comTaskExecution1, comTask)).thenReturn(finder);
 
         String response = target("/devices/X9/comtasks/19/comtaskexecutionsessions").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
         JsonModel jsonModel = JsonModel.create(response);

@@ -44,7 +44,7 @@ public class CommunicationResource {
         List<DeviceComTaskExecutionInfo> infos = device.getComTaskExecutions().stream()
                 .map((cte) -> deviceComTaskExecutionInfoFactory.from(cte, cte.getLastSession()))
                 .collect(Collectors.toList());
-        return PagedInfoList.asJson("communications", infos, queryParameters);
+        return PagedInfoList.fromPagedList("communications", infos, queryParameters);
     }
 
     @PUT

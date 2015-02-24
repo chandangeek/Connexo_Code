@@ -53,7 +53,7 @@ public class DeviceLabelResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
         User user = (User) securityContext.getUserPrincipal();
         List<DeviceLabel> deviceLabels = favoritesService.getDeviceLabels(device, user);
-        return PagedInfoList.asJson("deviceLabels", deviceLabels.stream().map(dl -> new DeviceLabelInfo(dl, thesaurus)).collect(Collectors.toList()), queryParameters);
+        return PagedInfoList.fromPagedList("deviceLabels", deviceLabels.stream().map(dl -> new DeviceLabelInfo(dl, thesaurus)).collect(Collectors.toList()), queryParameters);
     }
 
     @POST

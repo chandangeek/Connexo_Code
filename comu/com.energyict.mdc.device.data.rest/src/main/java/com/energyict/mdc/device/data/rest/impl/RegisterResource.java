@@ -51,7 +51,7 @@ public class RegisterResource {
                 .from(queryParameters).find();
 
         List<RegisterInfo> registerInfos = RegisterInfoFactory.asInfoList(registers, validationInfoHelper);
-        return PagedInfoList.asJson("data", registerInfos, queryParameters);
+        return PagedInfoList.fromPagedList("data", registerInfos, queryParameters);
     }
 
     @GET
