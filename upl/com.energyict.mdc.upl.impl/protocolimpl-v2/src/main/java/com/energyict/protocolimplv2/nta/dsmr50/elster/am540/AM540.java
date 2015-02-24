@@ -127,7 +127,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         if ((deviceProtocolCache != null) && (deviceProtocolCache instanceof AM540Cache)) {
             AM540Cache am540Cache = (AM540Cache) deviceProtocolCache;
             super.setDeviceCache(am540Cache);
-            initialFrameCounter = (am540Cache).getFrameCounter();
+            initialFrameCounter = am540Cache.getFrameCounter();
         }
     }
 
