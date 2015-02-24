@@ -40,11 +40,11 @@ Ext.define('Uni.controller.history.EventBus', {
 
         if (token === null || token === '') {
             token = me.getDefaultToken();
-            Ext.util.History.add(token);
-            Ext.util.History.currentToken = token;
+            // checking hash after set produces execution of "onHistoryChange" twice. @see JP-8559
+            Ext.util.History.setHash(token);
+        } else {
+            me.onHistoryChange(token);
         }
-
-        me.onHistoryChange(token);
     },
 
     onHistoryChange: function (token) {
