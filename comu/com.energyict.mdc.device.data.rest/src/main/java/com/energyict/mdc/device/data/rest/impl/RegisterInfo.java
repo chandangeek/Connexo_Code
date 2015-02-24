@@ -6,10 +6,8 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.configuration.rest.MultiplierModeAdapter;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -47,9 +45,6 @@ public abstract class RegisterInfo<R extends Register, RE extends Reading> {
     public Unit unitOfMeasure;
     @JsonProperty("timeOfUse")
     public Integer timeOfUse;
-    @JsonProperty("multiplierMode")
-    @XmlJavaTypeAdapter(MultiplierModeAdapter.class)
-    public MultiplierMode multiplierMode;
     @JsonProperty("lastReading")
     public ReadingInfo lastReading;
     public boolean isCumulative;

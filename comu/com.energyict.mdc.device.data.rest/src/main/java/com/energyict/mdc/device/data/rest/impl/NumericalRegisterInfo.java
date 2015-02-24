@@ -12,8 +12,6 @@ public class NumericalRegisterInfo extends RegisterInfo<NumericalRegister, Numer
     public Integer numberOfDigits;
     @JsonProperty("numberOfFractionDigits")
     public Integer numberOfFractionDigits;
-    @JsonProperty("multiplier")
-    public BigDecimal multiplier;
     @JsonProperty("overflow")
     public BigDecimal overflow;
     public DetailedValidationInfo detailedValidationInfo;
@@ -25,9 +23,7 @@ public class NumericalRegisterInfo extends RegisterInfo<NumericalRegister, Numer
         NumericalRegisterSpec registerSpec = (NumericalRegisterSpec)register.getRegisterSpec();
         this.numberOfDigits = registerSpec.getNumberOfDigits();
         this.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
-        this.multiplier = registerSpec.getMultiplier();
         this.overflow = registerSpec.getOverflowValue();
-        this.multiplierMode = registerSpec.getMultiplierMode();
         this.detailedValidationInfo = registerValidationInfo;
     }
 }

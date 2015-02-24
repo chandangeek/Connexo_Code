@@ -30,8 +30,6 @@ public class NumericalReadingInfo extends ReadingInfo {
     @JsonProperty("unitOfMeasure")
     @XmlJavaTypeAdapter(UnitAdapter.class)
     public Unit unitOfMeasure;
-    @JsonProperty("multiplier")
-    public BigDecimal multiplier;
     @JsonProperty("validationStatus")
     public Boolean validationStatus;
     @JsonProperty("dataValidated")
@@ -56,7 +54,6 @@ public class NumericalReadingInfo extends ReadingInfo {
             this.rawValue = this.value;
         }
         this.unitOfMeasure = registerSpec.getUnit();
-        this.multiplier = registerSpec.getMultiplier();
 
         this.validationStatus = isValidationStatusActive;
         if(dataValidationStatus != null) {

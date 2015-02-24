@@ -29,8 +29,6 @@ public class BillingReadingInfo extends ReadingInfo {
     public Unit unitOfMeasure;
     @JsonProperty("interval")
     public IntervalInfo interval;
-    @JsonProperty("multiplier")
-    public BigDecimal multiplier;
     @JsonProperty("validationStatus")
     public Boolean validationStatus;
     @JsonProperty("dataValidated")
