@@ -1,20 +1,19 @@
 package com.elster.jupiter.tasks.impl;
 
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.util.time.ScheduleExpression;
-import com.elster.jupiter.util.time.ScheduleExpressionParser;
-
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
 class DueTaskFetcher {
 
@@ -47,36 +46,21 @@ class DueTaskFetcher {
 
     private Iterable<RecurrentTaskImpl> dueTasks(Connection connection) throws SQLException {
         Instant now = clock.instant();
-        try (PreparedStatement statement = connection.prepareStatement("select id, name, cronstring, nextexecution, payload, destination from TSK_RECURRENT_TASK where nextExecution < ? for update skip locked")) {
-            statement.setLong(1, now.toEpochMilli());
-            try (ResultSet resultSet = statement.executeQuery()) {
-                return getRecurrentTasks(resultSet);
-            }
+        DataMapper<RecurrentTaskImpl> mapper = dataModel.mapper(RecurrentTaskImpl.class);
+        SqlBuilder builder = mapper.builder("a");
+        builder.append(" where nextExecution < ? for update skip locked");
+        builder.addLong(now.toEpochMilli());
+        try(Fetcher<RecurrentTaskImpl> fetcher = mapper.fetcher(builder)) {
+        	return getRecurrentTasks(fetcher);
         }
     }
 
-    private List<RecurrentTaskImpl> getRecurrentTasks(ResultSet resultSet) throws SQLException {
+    private List<RecurrentTaskImpl> getRecurrentTasks(Fetcher<RecurrentTaskImpl> fetcher) throws SQLException {
         List<RecurrentTaskImpl> result = new ArrayList<>();
-        while (resultSet.next()) {
-            result.add(getRecurrentTask(resultSet));
+        for (RecurrentTaskImpl task : fetcher) {
+            result.add(task);
         }
         return result;
-    }
-
-    private RecurrentTaskImpl getRecurrentTask(ResultSet resultSet) throws SQLException {
-        long id = resultSet.getLong(ID_INDEX);
-        String name = resultSet.getString(NAME_INDEX);
-        String cronString = resultSet.getString(CRON_INDEX);
-        long nextExecutionLong = resultSet.getLong(NEXT_EXECUTION_INDEX);
-        Instant nextExecution = resultSet.wasNull() ? null : Instant.ofEpochMilli(nextExecutionLong);
-        String payload = resultSet.getString(PAYLOAD_INDEX);
-        String destination = resultSet.getString(DESTINATION_INDEX);
-        DestinationSpec destinationSpec = messageService.getDestinationSpec(destination).get();
-        ScheduleExpression scheduleExpression = scheduleExpressionParser.parse(cronString).orElseThrow(IllegalArgumentException::new);
-        RecurrentTaskImpl recurrentTask = RecurrentTaskImpl.from(dataModel, name, scheduleExpression, destinationSpec, payload);
-        recurrentTask.setNextExecution(nextExecution);
-        recurrentTask.setId(id);
-        return recurrentTask;
     }
 
 }
