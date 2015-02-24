@@ -45,12 +45,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     REGISTER_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIG(6010, "registerSpec.add.active.config","You can not add a register configuration to an active device configuration", SEVERE),
     REGISTER_SPEC_REGISTER_TYPE_IS_NOT_ON_DEVICE_TYPE(6011, "registerSpec.not.deviceType","The register configuration contains a register type {0} which is not configured on the device type", SEVERE),
     REGISTER_SPEC_REGISTER_TYPE_CAN_NOT_CHANGE_FOR_ACTIVE_CONFIG(6012, Keys.REGISTER_SPEC_REGISTER_TYPE_ACTIVE_DEVICE_CONFIG,"The register type can not be modified if the device configuration is active", SEVERE),
-    REGISTER_SPEC_MULTIPLIER_CAN_NOT_CHANGE_FOR_ACTIVE_CONFIG(6013, Keys.REGISTER_SPEC_MULTIPLIER_ACTIVE_DEVICE_CONFIG,"The register type can not be modified if the device configuration is active", SEVERE),
     REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_ONE(6014, Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS, "Invalid number of fraction digits.", Level.SEVERE),
     REGISTER_SPEC_OVERFLOW_LARGER_THAN_ONE(6015, Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE, "Invalid overflow value, must be above 0", Level.SEVERE),
-    REGISTER_SPEC_MULTIPLIER_LARGER_THAN_ONE(6016, Keys.REGISTER_SPEC_INVALID_MULTIPLIER_VALUE, "Invalid multiplier value, must be above 0", Level.SEVERE),
     REGISTER_SPEC_OVERFLOW_REQUIRED(6017, Keys.REGISTER_SPEC_OVERFLOW_IS_REQUIRED, "Overflow value is required", Level.SEVERE),
-    REGISTER_SPEC_MULTIPLIER_MODE_IS_REQUIRED(6018, Keys.REGISTER_SPEC_MULTIPLIER_MODE_IS_REQUIRED, "Multiplier mode is required", Level.SEVERE),
     DEVICE_TYPE_NAME_IS_REQUIRED(7001, "deviceType.name.required", "The name of a device type is required", SEVERE),
     DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS(7003, Keys.DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS, "The device type {0} cannot be removed because it still has active configurations", SEVERE),
     DEVICE_PROTOCOL_IS_REQUIRED(7004, Keys.DEVICE_PROTOCOL_IS_REQUIRED, "The protocol of a device type is required", SEVERE),
@@ -80,9 +77,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     CHANNEL_SPEC_CHANNEL_TYPE_IS_NOT_IN_LOAD_PROFILE_SPEC(11007, "channelSpec.measurementType.not.configured.loadProfileSpec","The channel configuration \"{0}\" is linked to a register \"{1}\" which is not configured for the linked load profile configuration \"{2}\"", SEVERE),
     CHANNEL_SPEC_CHANNEL_TYPE_IS_NOT_ON_DEVICE_TYPE(11008, "channelSpec.measurementType.not.configured.deviceType","The channel configuration \"{0}\" is linked to a register \"{1}\" which is not configured for the device type \"{2}\"", SEVERE),
     CHANNEL_SPEC_READING_METHOD_IS_REQUIRED(11011, Keys.CHANNEL_SPEC_READING_METHOD_IS_REQUIRED, "The reading method of a channel configuration is required", SEVERE),
-    CHANNEL_SPEC_MULTIPLIER_MODE_IS_REQUIRED(11012, Keys.CHANNEL_SPEC_MULTIPLIER_MODE_IS_REQUIRED, "The multiplier mode of a channel configuration is required", SEVERE),
     CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED(11013, Keys.CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED, "The value calculation method of a channel configuration is required", SEVERE),
-    CHANNEL_SPEC_MULTIPLIER_IS_REQUIRED_WHEN(11014, Keys.CHANNEL_SPEC_MULTIPLIER_IS_REQUIRED_WHEN, "The multiplier of a channel configuration \"{0}\" is required when the multiplier mode is set to \"{1}\"", SEVERE),
     CHANNEL_SPEC_DUPLICATE_CHANNEL_TYPE_IN_LOAD_PROFILE_SPEC(11015, "channelSpec.duplicate.measurementType.loadProfileSpec","The load profile configuration \"{0}\" already contains a channel configuration \"{1}\" with the given register type \"{2}\"", SEVERE),
     CHANNEL_SPEC_WITHOUT_LOAD_PROFILE_SPEC_INTERVAL_IS_REQUIRED(11016, "channelSpec.interval.required.loadProfileSpec","The interval of a channel configuration is required when no load profile configuration is defined", SEVERE),
     CHANNEL_SPEC_INVALID_INTERVAL_COUNT(11017, "channelSpec.interval.invalid.count","The amount in the interval of a channel configuration should be larger than zero, but was \"{0}\"", SEVERE),
@@ -196,9 +191,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_REQUIRED = "loadProfileSpec.loadProfileType.required";
         public static final String CHANNEL_SPEC_CHANNEL_TYPE_IS_REQUIRED = "channelSpec.channelType.required";
         public static final String CHANNEL_SPEC_READING_METHOD_IS_REQUIRED = "channelSpec.readingMethod.required";
-        public static final String CHANNEL_SPEC_MULTIPLIER_IS_REQUIRED_WHEN = "channelSpec.multiplier.required.when";
         public static final String CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED = "channelSpec.valueCalculationMethod.required";
-        public static final String CHANNEL_SPEC_MULTIPLIER_MODE_IS_REQUIRED = "channelSpec.multiplierMode.required";
         public static final String REGISTER_SPEC_REGISTER_TYPE_IS_REQUIRED = "registerSpec.registerType.required";
         public static final String READING_TYPE_ALREADY_EXISTS = "productSpec.duplicateReadingTypeX";
         public static final String NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED = "nextExecutionSpecs.temporalExpression.required";
@@ -213,7 +206,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED = "registerSpec.numberOfDigits.decreased";
         public static final String REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED = "registerSpec.numberOfFractionDigits.decreased";
         public static final String REGISTER_SPEC_REGISTER_TYPE_ACTIVE_DEVICE_CONFIG = "registerSpec.measurementType.activeDeviceConfig";
-        public static final String REGISTER_SPEC_MULTIPLIER_ACTIVE_DEVICE_CONFIG = "registerSpec.multiplier.activeDeviceConfig";
         public static final String PROTOCOLDIALECT_REQUIRED = "protocolDialectConfigurationProperties.dialectName.required";
         public static final String PROTOCOLDIALECT_CONF_PROPS_DUPLICATE = "protocolDialectConfigurationProperties.duplicate";
         public static final String PROTOCOLDIALECT_CONF_PROPS_MISSING_REQUIRED = "protocolDialectConfigurationProperties.missing.required.properties";
@@ -228,8 +220,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS = "registerSpec.invalidNumberOfFractionDigits";
         public static final String REGISTER_SPEC_INVALID_OVERFLOW_VALUE = "registerSpec.invalidOverflow";
         public static final String REGISTER_SPEC_OVERFLOW_IS_REQUIRED = "registerSpec.required";
-        public static final String REGISTER_SPEC_INVALID_MULTIPLIER_VALUE = "registerSpec.invalidMultiplier";
-        public static final String REGISTER_SPEC_MULTIPLIER_MODE_IS_REQUIRED = "registerSpec.multiplierMode.required";
         public static final String UNSUPPORTED_SECURITY_LEVEL = "securityPropertySet.unsupportedSecurityLevel";
         public static final String SECURITY_PROPERTY_SET_IN_USE = "securityPropertySet.inUse";
         public static final String COM_TASK_ENABLEMENT_COM_TASK_REQUIRED = "comTaskEnablement.comTask.required";

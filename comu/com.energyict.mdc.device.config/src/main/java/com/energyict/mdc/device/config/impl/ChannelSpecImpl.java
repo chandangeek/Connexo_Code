@@ -24,7 +24,6 @@ import com.energyict.mdc.device.config.exceptions.RegisterTypeIsNotConfiguredExc
 import com.energyict.mdc.device.config.exceptions.UnsupportedIntervalException;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
 
@@ -57,10 +56,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     private ReadingMethod readingMethod = ReadingMethod.ENGINEERING_UNIT;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED + "}")
     private ValueCalculationMethod valueCalculationMethod = ValueCalculationMethod.AUTOMATIC;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_MULTIPLIER_MODE_IS_REQUIRED + "}")
-    private MultiplierMode multiplierMode = MultiplierMode.CONFIGURED_ON_OBJECT;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_MULTIPLIER_IS_REQUIRED_WHEN + "}")
-    private BigDecimal multiplier = BigDecimal.ONE;
     private int nbrOfFractionDigits = 0;
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
@@ -124,16 +119,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     }
 
     @Override
-    public MultiplierMode getMultiplierMode() {
-        return multiplierMode;
-    }
-
-    @Override
-    public BigDecimal getMultiplier() {
-        return multiplier;
-    }
-
-    @Override
     public ValueCalculationMethod getValueCalculationMethod() {
         return valueCalculationMethod;
     }
@@ -155,7 +140,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
 
     @Override
     public void save() {
-        this.applyDefaultMultiplierForConfiguredOnObjectMode();
         validate();
         super.save();
     }
@@ -178,11 +162,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         return getChannelType().getReadingType();
     }
 
-    private void applyDefaultMultiplierForConfiguredOnObjectMode() {
-        if (!this.multiplierMode.equals(MultiplierMode.CONFIGURED_ON_OBJECT)) {
-            this.multiplier = BigDecimal.ONE;
-        }
-    }
 
     private void created() {
         LoadProfileSpecImpl loadProfileSpec = (LoadProfileSpecImpl) this.getLoadProfileSpec();
@@ -326,20 +305,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     }
 
     @Override
-    public void setMultiplierMode(MultiplierMode multiplierMode) {
-        this.multiplierMode = multiplierMode;
-        if (!is(MultiplierMode.CONFIGURED_ON_OBJECT).equalTo(multiplierMode)) {
-            this.multiplier = BigDecimal.ONE;
-        }
-    }
-
-    @Override
-    public void setMultiplier(BigDecimal multiplier) {
-        this.multiplier = multiplier;
-        this.multiplierMode = MultiplierMode.CONFIGURED_ON_OBJECT;
-    }
-
-    @Override
     public void setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod) {
         this.valueCalculationMethod = valueCalculationMethod;
     }
@@ -405,18 +370,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         }
 
         @Override
-        public ChannelSpec.ChannelSpecBuilder setMultiplierMode(MultiplierMode multiplierMode) {
-            this.channelSpec.setMultiplierMode(multiplierMode);
-            return this;
-        }
-
-        @Override
-        public ChannelSpec.ChannelSpecBuilder setMultiplier(BigDecimal multiplier) {
-            this.channelSpec.setMultiplier(multiplier);
-            return this;
-        }
-
-        @Override
         public ChannelSpec.ChannelSpecBuilder setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod) {
             this.channelSpec.setValueCalculationMethod(valueCalculationMethod);
             return this;
@@ -465,18 +418,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         @Override
         public ChannelSpec.ChannelSpecUpdater setReadingMethod(ReadingMethod readingMethod) {
             this.channelSpec.setReadingMethod(readingMethod);
-            return this;
-        }
-
-        @Override
-        public ChannelSpec.ChannelSpecUpdater setMultiplierMode(MultiplierMode multiplierMode) {
-            this.channelSpec.setMultiplierMode(multiplierMode);
-            return this;
-        }
-
-        @Override
-        public ChannelSpec.ChannelSpecUpdater setMultiplier(BigDecimal multiplier) {
-            this.channelSpec.setMultiplier(multiplier);
             return this;
         }
 

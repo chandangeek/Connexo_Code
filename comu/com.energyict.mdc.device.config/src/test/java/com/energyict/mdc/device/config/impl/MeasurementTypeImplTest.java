@@ -23,7 +23,6 @@ import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
 import org.junit.After;
@@ -99,7 +98,6 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         NumericalRegisterSpec.Builder registerSpecBuilder = configurationBuilder.newNumericalRegisterSpec(registerType);
         registerSpecBuilder.setNumberOfDigits(5);
         registerSpecBuilder.setNumberOfFractionDigits(2);
-        registerSpecBuilder.setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
         configurationBuilder.add();
 
         // Business method
@@ -140,7 +138,7 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         deviceType.save();
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(this.loadProfileType);
-        configurationBuilder.newChannelSpec(channelTypeForRegisterType, loadProfileSpecBuilder).setReadingMethod(ReadingMethod.BASIC_DATA).setMultiplierMode(MultiplierMode.NONE).setValueCalculationMethod(ValueCalculationMethod.AUTOMATIC);
+        configurationBuilder.newChannelSpec(channelTypeForRegisterType, loadProfileSpecBuilder).setReadingMethod(ReadingMethod.BASIC_DATA).setValueCalculationMethod(ValueCalculationMethod.AUTOMATIC);
         configurationBuilder.add();
 
         // Business method
@@ -177,7 +175,6 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         NumericalRegisterSpec.Builder registerSpecBuilder = configurationBuilder.newNumericalRegisterSpec(registerType);
         registerSpecBuilder.setNumberOfDigits(5);
         registerSpecBuilder.setNumberOfFractionDigits(2);
-        registerSpecBuilder.setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
         configurationBuilder.add();
 
         try {

@@ -21,7 +21,6 @@ import com.energyict.mdc.device.config.exceptions.RegisterTypeIsNotConfiguredExc
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
 import org.junit.Before;
@@ -136,69 +135,6 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
         channelSpec = channelSpecBuilder.add();
         return channelSpec;
-    }
-
-    @Test
-    @Transactional
-    public void multiplierModeIsSetToCONFIGUREDONOBJECTByDefaultTest() {
-        ChannelSpec channelSpec;
-        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
-
-        channelSpec = createDefaultChannelSpec(loadProfileSpec);
-
-        assertThat(channelSpec.getMultiplierMode()).isEqualTo(MultiplierMode.CONFIGURED_ON_OBJECT);
-    }
-
-    @Test
-    @Transactional
-    public void multiplierIsSetToONEByDefaultTest() {
-        ChannelSpec channelSpec;
-        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
-
-        channelSpec = createDefaultChannelSpec(loadProfileSpec);
-
-        assertThat(channelSpec.getMultiplier()).isEqualTo(BigDecimal.ONE);
-    }
-
-    @Test
-    @Transactional
-    public void validateMultiplierIsChangeableWhenModeIsCONFIGUREDONOBJECTTest() {
-        ChannelSpec channelSpec;
-        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
-
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
-        channelSpecBuilder.setMultiplier(BigDecimal.TEN);
-        channelSpec = channelSpecBuilder.add();
-
-        assertThat(channelSpec.getMultiplier()).isEqualTo(BigDecimal.TEN);
-    }
-
-    @Test
-    @Transactional
-    public void validateMultiplierIsSetBackToOneWhenModeIsNoneTest() {
-        ChannelSpec channelSpec;
-        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
-
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
-        channelSpecBuilder.setMultiplier(BigDecimal.TEN);
-        channelSpecBuilder.setMultiplierMode(MultiplierMode.NONE);
-        channelSpec = channelSpecBuilder.add();
-
-        assertThat(channelSpec.getMultiplier()).isEqualTo(BigDecimal.ONE);
-    }
-
-    @Test
-    @Transactional
-    public void validateMultiplierIsSetBackToOneWhenModeIsVERSIONEDTest() {
-        ChannelSpec channelSpec;
-        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
-
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
-        channelSpecBuilder.setMultiplier(BigDecimal.TEN);
-        channelSpecBuilder.setMultiplierMode(MultiplierMode.VERSIONED);
-        channelSpec = channelSpecBuilder.add();
-
-        assertThat(channelSpec.getMultiplier()).isEqualTo(BigDecimal.ONE);
     }
 
     @Test
@@ -467,26 +403,6 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
         channelSpecBuilder.setValueCalculationMethod(null);
-        channelSpecBuilder.add();
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CHANNEL_SPEC_MULTIPLIER_MODE_IS_REQUIRED + "}")
-    public void createWithoutMultiplierModeTest() {
-        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
-        channelSpecBuilder.setMultiplierMode(null);
-        channelSpecBuilder.add();
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CHANNEL_SPEC_MULTIPLIER_IS_REQUIRED_WHEN + "}")
-    public void createWithoutMultiplierTest() {
-        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
-        channelSpecBuilder.setMultiplier(null);
         channelSpecBuilder.add();
     }
 

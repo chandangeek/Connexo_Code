@@ -197,8 +197,6 @@ public enum TableSpecs {
             table.column("FRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map("nbrOfFractionDigits").add();
             table.column("OVERFLOWVALUE").number().map("overflow").add();
             table.column("READINGMETHOD").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("readingMethod").add();
-            table.column("MULTIPLIERMODE").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("multiplierMode").add();
-            table.column("MULTIPLIER").number().notNull().map("multiplier").add();
             table.column("VALUECALCULATIONMETHOD").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("valueCalculationMethod").add();
             Column loadProfileSpec = table.column("LOADPROFILESPECID").number().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("INTERVAL").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("interval.count").add();
@@ -239,8 +237,6 @@ public enum TableSpecs {
             table.column("NUMBEROFFRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map(RegisterSpecFields.NUMBER_OF_FRACTION_DIGITS.fieldName()).add();
             table.column("OVERFLOWVALUE").number().map(RegisterSpecFields.OVERFLOW_VALUE.fieldName()).add();
             Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).add();
-            table.column("MULTIPLIER").number().map(RegisterSpecFields.MULTIPLIER.fieldName()).add();
-            table.column("MULTIPLIERMODE").number().conversion(ColumnConversion.NUMBER2ENUM).map("multiplierMode").add();
             table.primaryKey("PK_DTC_REGISTERSPEC").on(id).add();
             table.foreignKey("FK_DTC_REGISTERSPEC_REGMAP").
                     on(registerType).

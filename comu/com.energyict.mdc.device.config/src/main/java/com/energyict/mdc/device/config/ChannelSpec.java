@@ -6,7 +6,6 @@ import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
 
@@ -39,10 +38,6 @@ public interface ChannelSpec extends HasId {
 
     ReadingMethod getReadingMethod();
 
-    MultiplierMode getMultiplierMode();
-
-    BigDecimal getMultiplier();
-
     ValueCalculationMethod getValueCalculationMethod();
 
     LoadProfileSpec getLoadProfileSpec();
@@ -60,10 +55,6 @@ public interface ChannelSpec extends HasId {
     void setOverflow(BigDecimal overflow);
 
     void setReadingMethod(ReadingMethod readingMethod);
-
-    void setMultiplierMode(MultiplierMode multiplierMode);
-
-    void setMultiplier(BigDecimal multiplier);
 
     void setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod);
 
@@ -92,10 +83,6 @@ public interface ChannelSpec extends HasId {
 
         ChannelSpecBuilder setReadingMethod(ReadingMethod readingMethod);
 
-        ChannelSpecBuilder setMultiplierMode(MultiplierMode multiplierMode);
-
-        ChannelSpecBuilder setMultiplier(BigDecimal multiplier);
-
         ChannelSpecBuilder setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod);
 
         ChannelSpecBuilder setInterval(TimeDuration interval);
@@ -116,10 +103,6 @@ public interface ChannelSpec extends HasId {
         ChannelSpecUpdater setOverflow(BigDecimal overflow);
 
         ChannelSpecUpdater setReadingMethod(ReadingMethod readingMethod);
-
-        ChannelSpecUpdater setMultiplierMode(MultiplierMode multiplierMode);
-
-        ChannelSpecUpdater setMultiplier(BigDecimal multiplier);
 
         ChannelSpecUpdater setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod);
 

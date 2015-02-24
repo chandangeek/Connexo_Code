@@ -26,7 +26,6 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -657,7 +656,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         NumericalRegisterSpec.Builder registerSpecBuilder = deviceConfigurationBuilder.newNumericalRegisterSpec(this.registerType1);
         registerSpecBuilder.setNumberOfDigits(5);
         registerSpecBuilder.setNumberOfFractionDigits(2);
-        registerSpecBuilder.setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
         deviceConfigurationBuilder.add();
 
         try {

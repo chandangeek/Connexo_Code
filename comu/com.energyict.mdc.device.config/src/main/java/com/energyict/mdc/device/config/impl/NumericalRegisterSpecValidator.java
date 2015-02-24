@@ -48,13 +48,6 @@ public class NumericalRegisterSpecValidator implements ConstraintValidator<Valid
                         addPropertyNode(RegisterSpecFields.REGISTER_TYPE.fieldName()).
                         addConstraintViolation();
             }
-            if (!freshRegisterSpec.getMultiplier().equals(registerSpec.getMultiplier())) {
-                valid=false;
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.REGISTER_SPEC_MULTIPLIER_ACTIVE_DEVICE_CONFIG+"}").
-                        addPropertyNode(RegisterSpecFields.MULTIPLIER.fieldName()).
-                        addConstraintViolation();
-            }
         }
         return valid;
     }

@@ -7,7 +7,6 @@ import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumberOfDigitsException;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFractionDigitsException;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.device.MultiplierMode;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -32,10 +31,6 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
     @Min(value=1, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE + "}")
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.REGISTER_SPEC_OVERFLOW_IS_REQUIRED + "}")
     private BigDecimal overflowValue;
-    @Min(value=1, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.REGISTER_SPEC_INVALID_MULTIPLIER_VALUE + "}")
-    private BigDecimal multiplier = BigDecimal.ONE;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.REGISTER_SPEC_MULTIPLIER_MODE_IS_REQUIRED + "}")
-    private MultiplierMode multiplierMode = MultiplierMode.CONFIGURED_ON_OBJECT;
 
     @Inject
     public NumericalRegisterSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
@@ -79,14 +74,6 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
         this.overflowValue = overflowValue;
     }
 
-    public MultiplierMode getMultiplierMode() {
-        return multiplierMode;
-    }
-
-    public BigDecimal getMultiplier() {
-        return multiplier;
-    }
-
     protected void validate() {
         this.validateOverFlowAndNumberOfDigits();
         this.validateNumberOfFractionDigitsOfOverFlowValue();
@@ -117,29 +104,13 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
         }
     }
 
-    @Override
-    public void setMultiplier(BigDecimal multiplier) {
-        this.multiplier = multiplier;
-        this.multiplierMode = MultiplierMode.CONFIGURED_ON_OBJECT;
-    }
-
-    @Override
-    public void setMultiplierMode(MultiplierMode multiplierMode) {
-        this.multiplierMode = multiplierMode;
-        if(!this.multiplierMode.equals(MultiplierMode.CONFIGURED_ON_OBJECT)){
-            this.multiplier = BigDecimal.ONE;
-        }
-    }
-
     abstract static class AbstractBuilder implements Builder {
 
-        private static final BigDecimal DEFAULT_MULTIPLIER = BigDecimal.ONE;
         private final NumericalRegisterSpecImpl registerSpec;
 
         AbstractBuilder(Provider<NumericalRegisterSpecImpl> registerSpecProvider, DeviceConfiguration deviceConfiguration, RegisterType registerType) {
             super();
             this.registerSpec = registerSpecProvider.get().initialize(deviceConfiguration, registerType);
-            this.registerSpec.setMultiplier(DEFAULT_MULTIPLIER);
         }
 
         @Override
@@ -173,18 +144,6 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
         }
 
         @Override
-        public Builder setMultiplier(BigDecimal multiplier) {
-            this.registerSpec.setMultiplier(multiplier);
-            return this;
-        }
-
-        @Override
-        public Builder setMultiplierMode(MultiplierMode multiplierMode) {
-            this.registerSpec.setMultiplierMode(multiplierMode);
-            return this;
-        }
-
-        @Override
         public NumericalRegisterSpec add() {
             this.applyDefaultsIfApplicable();
             this.registerSpec.validateBeforeAddToConfiguration();
@@ -192,9 +151,6 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
         }
 
         private void applyDefaultsIfApplicable() {
-            if (this.registerSpec.getMultiplier()==null) {
-                registerSpec.setMultiplier(DEFAULT_MULTIPLIER);
-            }
             if (this.registerSpec.getOverflowValue()==null && registerSpec.getNumberOfDigits()>0) {
                 registerSpec.setOverflowValue(BigDecimal.TEN.pow(registerSpec.getNumberOfDigits()));
             }
@@ -234,18 +190,6 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
         @Override
         public Updater setOverflowValue(BigDecimal overflowValue) {
             this.registerSpec.setOverflowValue(overflowValue);
-            return this;
-        }
-
-        @Override
-        public Updater setMultiplier(BigDecimal multiplier) {
-            this.registerSpec.setMultiplier(multiplier);
-            return this;
-        }
-
-        @Override
-        public Updater setMultiplierMode(MultiplierMode multiplierMode) {
-            this.registerSpec.setMultiplierMode(multiplierMode);
             return this;
         }
 

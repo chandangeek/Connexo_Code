@@ -2,7 +2,6 @@ package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.device.MultiplierMode;
 
 import java.math.BigDecimal;
 
@@ -39,39 +38,6 @@ public interface NumericalRegisterSpec extends RegisterSpec {
     void setNumberOfFractionDigits(int numberOfFractionDigits);
 
     /**
-     * Returns the configured multiplier.
-     *
-     * @return the receiver's multiplier.
-     */
-    BigDecimal getMultiplier();
-
-    /**
-     * Set the Multiplier of the RegisterSpec to the given <i>multiplier</i>.
-     * <p/>
-     * <b>Note:</b> By setting the Multiplier, you automatically set the MultiplierMode to {@link MultiplierMode#CONFIGURED_ON_OBJECT}
-     *
-     * @param multiplier the multiplier to set
-     */
-    void setMultiplier(BigDecimal multiplier);
-
-    /**
-     * Returns the configured multiplier mode.
-     *
-     * @return the receiver's multiplier mode.
-     */
-    MultiplierMode getMultiplierMode();
-
-    /**
-     * Set the MultiplierMode to the given mode.
-     * <p/>
-     * <b>Note:</b> By setting the mode to either {@link MultiplierMode#VERSIONED} or {@link MultiplierMode#NONE},
-     * you automatically set a previously given Multiplier back to {@link BigDecimal#ONE}
-     *
-     * @param multiplierMode the given MultiplierMode
-     */
-    void setMultiplierMode(MultiplierMode multiplierMode);
-
-    /**
      * Returns the overflow value
      *
      * @return the overflow value
@@ -94,25 +60,6 @@ public interface NumericalRegisterSpec extends RegisterSpec {
         Builder setNumberOfFractionDigits(int numberOfFractionDigits);
 
         Builder setOverflowValue(BigDecimal overflowValue);
-
-        /**
-         * Set the Multiplier of the RegisterSpec to the given <i>multiplier</i>.
-         * <p/>
-         * <b>Note:</b> By setting the Multiplier, you automatically set the MultiplierMode to {@link MultiplierMode#CONFIGURED_ON_OBJECT}
-         *
-         * @param multiplier the multiplier to set
-         */
-        Builder setMultiplier(BigDecimal multiplier);
-
-        /**
-         * Set the MultiplierMode to the given mode.
-         * <p/>
-         * <b>Note:</b> By setting the mode to either {@link MultiplierMode#VERSIONED} or {@link MultiplierMode#NONE},
-         * you automatically set a previously given Multiplier back to {@link BigDecimal#ONE}
-         *
-         * @param multiplierMode the given MultiplierMode
-         */
-        Builder setMultiplierMode(MultiplierMode multiplierMode);
 
         /**
          * Does final validation and <i>creates</i> the {@link NumericalRegisterSpec}
@@ -138,25 +85,6 @@ public interface NumericalRegisterSpec extends RegisterSpec {
         Updater setNumberOfFractionDigits(int numberOfFractionDigits);
 
         Updater setOverflowValue(BigDecimal overflowValue);
-
-        /**
-         * Set the Multiplier of the RegisterSpec to the given <i>multiplier</i>.
-         * <p/>
-         * <b>Note:</b> By setting the Multiplier, you automatically set the MultiplierMode to {@link MultiplierMode#CONFIGURED_ON_OBJECT}
-         *
-         * @param multiplier the multiplier to set
-         */
-        Updater setMultiplier(BigDecimal multiplier);
-
-        /**
-         * Set the MultiplierMode to the given mode.
-         * <p/>
-         * <b>Note:</b> By setting the mode to either {@link MultiplierMode#VERSIONED} or {@link MultiplierMode#NONE},
-         * you automatically set a previously given Multiplier back to {@link BigDecimal#ONE}
-         *
-         * @param multiplierMode the given MultiplierMode
-         */
-        Updater setMultiplierMode(MultiplierMode multiplierMode);
 
         /**
          * Completes the update procoess for the RegisterSpec.
