@@ -16,7 +16,7 @@ public class CreationRuleOrActionValidationException extends LocalizedException 
     }
 
     public void addError(String fieldId, String messageSeed, Object... args) {
-        String resultMessage = getThesaurus().getString(messageSeed, messageSeed);
+        String resultMessage = getThesaurus().getStringBeyondComponent(messageSeed, messageSeed);
         if (args != null) {
             resultMessage = String.format(resultMessage, args);
         }
