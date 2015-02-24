@@ -83,8 +83,7 @@ Ext.define('Uni.view.container.PreviewContainer', {
         {
             xtype: 'container',
             itemId: 'wrapper-container',
-            items: [
-            ]
+            items: []
         }
     ],
 
@@ -199,7 +198,7 @@ Ext.define('Uni.view.container.PreviewContainer', {
 
         me.resetChildPagingTop();
         me.resetChildPagingBottom();
-        me.grid.getView().focusRow(selection[0]);
+
         if (me.rendered) {
             Ext.resumeLayouts(true);
         }

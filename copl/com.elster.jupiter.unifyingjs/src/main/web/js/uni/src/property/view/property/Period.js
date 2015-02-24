@@ -23,11 +23,12 @@ Ext.define('Uni.property.view.property.Period', {
                 itemId: me.key + 'combobox',
                 name: me.getName() + '.combobox',
                 store: 'Uni.property.store.TimeUnits',
-                //  queryMode: 'local',
+                queryMode: 'local',
                 displayField: 'timeUnit',
                 valueField: 'timeUnit',
                 width: me.width,
                 forceSelection: false,
+                editable:false,
                 required: me.required,
                 readOnly: me.isReadOnly,
                 allowBlank: me.allowBlank
@@ -65,7 +66,7 @@ Ext.define('Uni.property.view.property.Period', {
             count = null,
             timeDuration = null;
 
-        if (value != null) {
+        if (Ext.isObject(value)) {
             unit = value.timeUnit;
             count = value.count;
             timeDuration = count + ' ' + unit;
