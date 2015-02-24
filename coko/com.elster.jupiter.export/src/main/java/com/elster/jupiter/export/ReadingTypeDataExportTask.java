@@ -95,4 +95,6 @@ public interface ReadingTypeDataExportTask extends HasName, HasAuditInfo {
     Map<String, Object> getProperties(Instant at);
 
     Set<ReadingType> getReadingTypes(Instant at);
+
+    Optional<ScheduleExpression> getScheduleExpression(Instant at);
 }

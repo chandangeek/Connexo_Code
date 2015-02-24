@@ -97,10 +97,7 @@ class DataExportTaskExecutor implements TaskExecutor {
 
         DataProcessor dataFormatter = getDataProcessor(task);
 
-        DefaultItemExporter defaultItemExporter = new DefaultItemExporter(dataFormatter);
-        FatalExceptionGuardItemExporter exceptionGuardItemExporter = new FatalExceptionGuardItemExporter(defaultItemExporter);
-        ItemExporter itemExporter = new TransactionItemExporter(transactionService, exceptionGuardItemExporter);
-        LoggingItemExporter loggingItemExporter = new LoggingItemExporter(thesaurus, transactionService, logger, itemExporter);
+        LoggingItemExporter loggingItemExporter = getItemExporter(dataFormatter, logger);
 
         catchingUnexpected(loggingExceptions(logger, () -> dataFormatter.startExport(occurrence, logger))).run();
 
@@ -112,6 +109,13 @@ class DataExportTaskExecutor implements TaskExecutor {
             activeItems.forEach(IReadingTypeDataExportItem::update);
             transactionContext.commit();
         }
+    }
+
+    private LoggingItemExporter getItemExporter(DataProcessor dataFormatter, Logger logger) {
+        DefaultItemExporter defaultItemExporter = new DefaultItemExporter(dataFormatter);
+        FatalExceptionGuardItemExporter exceptionGuardItemExporter = new FatalExceptionGuardItemExporter(defaultItemExporter);
+        ItemExporter itemExporter = new TransactionItemExporter(transactionService, exceptionGuardItemExporter);
+        return new LoggingItemExporter(thesaurus, transactionService, logger, itemExporter);
     }
 
     private LoggingExceptions loggingExceptions(Logger logger, Runnable runnable) {

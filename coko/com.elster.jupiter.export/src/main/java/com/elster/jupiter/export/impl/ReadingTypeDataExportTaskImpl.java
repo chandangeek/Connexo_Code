@@ -274,6 +274,11 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     @Override
+    public Optional<ScheduleExpression> getScheduleExpression(Instant at) {
+        return recurrentTask.get().getHistory().getVersionAt(at).map(RecurrentTask::getScheduleExpression);
+    }
+
+    @Override
     public List<IReadingTypeDataExportItem> getExportItems() {
         return Collections.unmodifiableList(exportItems);
     }
