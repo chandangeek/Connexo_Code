@@ -5,9 +5,7 @@ import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.ComSessionSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.rest.ConnectionTaskSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
@@ -104,7 +102,7 @@ public class ConnectionResource {
             Optional<ComSession> lastComSession = connectionTask.getLastComSession();
             connectionTaskInfos.add(connectionTaskInfoFactory.from(connectionTask, lastComSession));
         }
-        return Response.ok(PagedInfoList.asJson("connectionTasks", connectionTaskInfos, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("connectionTasks", connectionTaskInfos, queryParameters)).build();
     }
 
     private ConnectionTaskFilterSpecification buildFilterFromJsonQuery(JsonQueryFilter jsonQueryFilter) throws Exception {
@@ -206,7 +204,7 @@ public class ConnectionResource {
             comTaskExecutionSessions.addAll(lastComSessionOptional.get().getComTaskExecutionSessions());
         }
 
-        return PagedInfoList.asJson("communications", comTaskExecutionSessionInfoFactory.from(comTaskExecutionSessions), queryParameters);
+        return PagedInfoList.fromPagedList("communications", comTaskExecutionSessionInfoFactory.from(comTaskExecutionSessions), queryParameters);
     }
 
     @PUT

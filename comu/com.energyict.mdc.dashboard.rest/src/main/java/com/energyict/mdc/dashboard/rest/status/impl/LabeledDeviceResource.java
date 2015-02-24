@@ -58,6 +58,6 @@ public class LabeledDeviceResource {
                 .map(DeviceWithLabelInfo::new)
                 .sorted((d1, d2) -> d2.deviceLabelInfo.creationDate.compareTo(d1.deviceLabelInfo.creationDate))//descending order
                 .collect(Collectors.toList());
-        return Response.ok(PagedInfoList.asJson("myLabeledDevices", infos, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("myLabeledDevices", infos, queryParameters)).build();
     }
 }

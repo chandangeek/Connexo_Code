@@ -9,7 +9,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -28,7 +27,6 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.favorites.FavoriteDeviceGroup;
 import com.energyict.mdc.favorites.FavoritesService;
 
@@ -56,7 +54,7 @@ public class FavoriteDeviceGroupResource {
         } else {
             infos = favoriteDeviceGroups.stream().map(edg -> FavoriteDeviceGroupInfo.asInfo(edg)).sorted(byNameComparator).collect(Collectors.toList());
         }
-        return PagedInfoList.asJson("favoriteDeviceGroups", infos, queryParameters);
+        return PagedInfoList.fromPagedList("favoriteDeviceGroups", infos, queryParameters);
     }
     
     @PUT

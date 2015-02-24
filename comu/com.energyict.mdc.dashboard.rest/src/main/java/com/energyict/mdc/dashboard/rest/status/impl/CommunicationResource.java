@@ -69,7 +69,7 @@ public class CommunicationResource {
             comTaskExecutionInfos.add(comTaskExecutionInfoFactory.from(comTaskExecution, lastComTaskExecutionSession));
         }
 
-        return Response.ok(PagedInfoList.asJson("communicationTasks", comTaskExecutionInfos, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("communicationTasks", comTaskExecutionInfos, queryParameters)).build();
     }
 
     @PUT
