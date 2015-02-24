@@ -84,7 +84,8 @@ public class ScheduledComTaskExecutionJob extends ScheduledJobImpl {
                 this.performPreparedComTaskExecution(preparedComTaskExecution);
             }
         } catch (ConnectionSetupException e){
-            this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks();
+            int totalNumberOfComTasks = this.comTaskExecution.getComTasks().size();
+            this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks(totalNumberOfComTasks);
             connectionOk = false;
             throw e;
         } catch (CommunicationException e) {

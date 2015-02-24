@@ -121,7 +121,12 @@ public class ScheduledComTaskExecutionGroup extends ScheduledJobImpl {
         try {
             return this.establishConnection();
         } catch (ConnectionSetupException e) {
-            this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks(preparedComTaskExecutions.size());
+            int numberOfPlannedButNotExecutedTasks = (int)
+                    preparedComTaskExecutions
+                            .stream()
+                            .flatMap(each -> each.getComTaskExecution().getComTasks().stream())
+                            .count();
+            this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks(numberOfPlannedButNotExecutedTasks);
             throw e;
         }
     }
