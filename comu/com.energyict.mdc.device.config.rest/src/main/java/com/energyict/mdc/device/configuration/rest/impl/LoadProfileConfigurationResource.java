@@ -68,7 +68,7 @@ public class LoadProfileConfigurationResource {
         for (LoadProfileSpec spec : loadProfileSpecs) {
             loadProfileSpecInfos.add(LoadProfileSpecInfo.from(spec, spec.getChannelSpecs(), mdcReadingTypeUtilService));
         }
-        return Response.ok(PagedInfoList.asJson("data", loadProfileSpecInfos, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("data", loadProfileSpecInfos, queryParameters)).build();
     }
 
     @GET
@@ -82,7 +82,7 @@ public class LoadProfileConfigurationResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         Collection<LoadProfileType> loadProfileTypes = findAvailableLoadProfileTypesForDeviceConfiguration(deviceType, deviceConfiguration);
-        return Response.ok(PagedInfoList.asJson("data", LoadProfileTypeInfo.from(loadProfileTypes), queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("data", LoadProfileTypeInfo.from(loadProfileTypes), queryParameters)).build();
     }
 
     @GET
@@ -95,7 +95,7 @@ public class LoadProfileConfigurationResource {
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @BeanParam QueryParameters queryParameters) {
         LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
-        return Response.ok(PagedInfoList.asJson("data", LoadProfileSpecInfo.from(Collections.singletonList(loadProfileSpec), mdcReadingTypeUtilService), queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("data", LoadProfileSpecInfo.from(Collections.singletonList(loadProfileSpec), mdcReadingTypeUtilService), queryParameters)).build();
     }
 
     @POST
@@ -168,7 +168,7 @@ public class LoadProfileConfigurationResource {
         LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
         List<ChannelSpec> channelSpecs = loadProfileSpec.getChannelSpecs();
         Collections.sort(channelSpecs, new LoadProfileChannelComparator());
-        return Response.ok(PagedInfoList.asJson("data", ChannelSpecFullInfo.from(channelSpecs), queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("data", ChannelSpecFullInfo.from(channelSpecs), queryParameters)).build();
     }
 
     @GET
@@ -185,7 +185,7 @@ public class LoadProfileConfigurationResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         ChannelSpec channelSpec = findChannelSpecByIdOrThrowException(channelId);
 
-        return Response.ok(PagedInfoList.asJson("data", Collections.singletonList(ChannelSpecFullInfo.from(channelSpec, deviceConfiguration.isActive())), queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("data", Collections.singletonList(ChannelSpecFullInfo.from(channelSpec, deviceConfiguration.isActive())), queryParameters)).build();
     }
 
     @POST
@@ -276,7 +276,7 @@ public class LoadProfileConfigurationResource {
         for (ChannelSpec channelSpec : channelSpecs) {
             channelTypes.remove(channelSpec.getChannelType().getId());
         }
-        return Response.ok(PagedInfoList.asJson("data", MeasurementTypeShortInfo.from(channelTypes.values()), queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("data", MeasurementTypeShortInfo.from(channelTypes.values()), queryParameters)).build();
     }
 
     public Collection<LoadProfileType> findAvailableLoadProfileTypesForDeviceConfiguration(DeviceType deviceType, DeviceConfiguration deviceConfiguration){

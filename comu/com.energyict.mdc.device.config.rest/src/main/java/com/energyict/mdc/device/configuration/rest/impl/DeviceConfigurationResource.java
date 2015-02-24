@@ -102,7 +102,7 @@ public class DeviceConfigurationResource {
                     from(queryParameters).
                     find();
         }
-        return PagedInfoList.asJson("deviceConfigurations", DeviceConfigurationInfo.from(deviceConfigurations), queryParameters);
+        return PagedInfoList.fromPagedList("deviceConfigurations", DeviceConfigurationInfo.from(deviceConfigurations), queryParameters);
     }
 
     @GET
@@ -139,7 +139,7 @@ public class DeviceConfigurationResource {
                 logBookTypes.add(LogBookSpecInfo.from(logBookSpec));
             }
         }
-        return Response.ok(PagedInfoList.asJson("data", logBookTypes, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("data", logBookTypes, queryParameters)).build();
     }
 
     private List<LogBookType> findAllAvailableLogBookTypesForDeviceConfiguration(DeviceType deviceType, DeviceConfiguration deviceConfiguration) {
@@ -333,7 +333,7 @@ public class DeviceConfigurationResource {
         List<ValidationRule> rules = resourceHelper.findRegisterSpec(registerId).getValidationRules();
         List<ValidationRule> rulesPage = ListPager.of(rules).from(queryParameters).find();
         List<ValidationRuleInfo> infos = ValidationRuleInfo.from(rulesPage);
-        return Response.ok(PagedInfoList.asJson("validationRules", infos, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("validationRules", infos, queryParameters)).build();
     }
 
     @GET
@@ -349,7 +349,7 @@ public class DeviceConfigurationResource {
         List<ValidationRule> rules = resourceHelper.findChannelSpec(channelId).getValidationRules();
         List<ValidationRule> rulesPage = ListPager.of(rules).from(queryParameters).find();
         List<ValidationRuleInfo> infos = ValidationRuleInfo.from(rulesPage);
-        return Response.ok(PagedInfoList.asJson("validationRules", infos, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("validationRules", infos, queryParameters)).build();
     }
 
     @GET
@@ -365,7 +365,7 @@ public class DeviceConfigurationResource {
         List<ValidationRule> rules = resourceHelper.findLoadProfileSpec(loadProfileId).getValidationRules();
         List<ValidationRule> rulesPage = ListPager.of(rules).from(queryParameters).find();
         List<ValidationRuleInfo> infos = ValidationRuleInfo.from(rulesPage);
-        return Response.ok(PagedInfoList.asJson("validationRules", infos, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("validationRules", infos, queryParameters)).build();
     }
 
     @Path("/{deviceConfigurationId}/protocols")
@@ -407,7 +407,7 @@ public class DeviceConfigurationResource {
         }
         List<ValidationRuleSetInfo> infolist = validationRuleSetInfos.ruleSets;
         infolist = ListPager.of(infolist).from(queryParameters).find();
-        return Response.ok(PagedInfoList.asJson("validationRuleSets", infolist, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("validationRuleSets", infolist, queryParameters)).build();
     }
 
 

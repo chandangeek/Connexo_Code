@@ -83,7 +83,7 @@ public class DeviceTypeResource {
         Finder<DeviceType> deviceTypeFinder = deviceConfigurationService.findAllDeviceTypes();
         List<DeviceType> allDeviceTypes = deviceTypeFinder.from(queryParameters).find();
         List<DeviceTypeInfo> deviceTypeInfos = DeviceTypeInfo.from(allDeviceTypes);
-        return PagedInfoList.asJson("deviceTypes", deviceTypeInfos, queryParameters);
+        return PagedInfoList.fromPagedList("deviceTypes", deviceTypeInfos, queryParameters);
     }
 
     @DELETE
@@ -158,7 +158,7 @@ public class DeviceTypeResource {
             findAllAvailableLogBookTypesForDeviceType(queryParameters, deviceType, logbookTypes);
         }
         List<LogBookTypeInfo> logBookTypeInfos = LogBookTypeInfo.from(ListPager.of(logbookTypes, new LogBookTypeComparator()).find());
-        return PagedInfoList.asJson("logbookTypes", logBookTypeInfos, queryParameters);
+        return PagedInfoList.fromPagedList("logbookTypes", logBookTypeInfos, queryParameters);
     }
 
     private void findAllAvailableLogBookTypesForDeviceType(QueryParameters queryParameters, DeviceType deviceType, List<LogBookType> logBookTypes) {
@@ -277,7 +277,7 @@ public class DeviceTypeResource {
         }
         List<RegisterType> registerTypes = ListPager.of(matchingRegisterTypes, new RegisterTypeComparator()).from(queryParameters).find();
         List<RegisterTypeInfo> registerTypeInfos = asInfoList(deviceType, registerTypes);
-        return PagedInfoList.asJson("registerTypes", registerTypeInfos, queryParameters);
+        return PagedInfoList.fromPagedList("registerTypes", registerTypeInfos, queryParameters);
     }
 
     private List<RegisterType> findAllAvailableRegisterTypesForDeviceType(DeviceType deviceType) {

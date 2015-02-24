@@ -65,7 +65,7 @@ public class ReadingTypeResource {
                 readingTypeInfos.add(new ReadingTypeInfo(readingType));
             }
         }
-        return PagedInfoList.asJson("readingTypes", readingTypeInfos, queryParameters);
+        return PagedInfoList.fromPagedList("readingTypes", readingTypeInfos, queryParameters);
     }
 
 }

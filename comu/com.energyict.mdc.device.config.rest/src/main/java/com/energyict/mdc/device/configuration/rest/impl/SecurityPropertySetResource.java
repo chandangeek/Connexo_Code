@@ -67,7 +67,7 @@ public class SecurityPropertySetResource {
 
 
 
-        return PagedInfoList.asJson("data", securityPropertySetInfos, queryParameters);
+        return PagedInfoList.fromPagedList("data", securityPropertySetInfos, queryParameters);
     }
 
     @GET
@@ -155,7 +155,7 @@ public class SecurityPropertySetResource {
         List<AuthenticationDeviceAccessLevel> authenticationDeviceAccessLevels = deviceProtocol.getAuthenticationAccessLevels();
         List<SecurityLevelInfo> securityLevelInfos = SecurityLevelInfo.from(authenticationDeviceAccessLevels, thesaurus);
 
-        return PagedInfoList.asJson("data", securityLevelInfos, queryParameters);
+        return PagedInfoList.fromPagedList("data", securityLevelInfos, queryParameters);
     }
 
     @GET
@@ -170,7 +170,7 @@ public class SecurityPropertySetResource {
         List<EncryptionDeviceAccessLevel> encryptionDeviceAccessLevels = deviceProtocol.getEncryptionAccessLevels();
         List<SecurityLevelInfo> securityLevelInfos = SecurityLevelInfo.from(encryptionDeviceAccessLevels, thesaurus);
 
-        return PagedInfoList.asJson("data", securityLevelInfos, queryParameters);
+        return PagedInfoList.fromPagedList("data", securityLevelInfos, queryParameters);
     }
 
     @Path("/{securityPropertySetId}/executionlevels/")

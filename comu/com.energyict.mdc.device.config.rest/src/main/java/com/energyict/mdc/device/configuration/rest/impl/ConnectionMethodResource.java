@@ -102,7 +102,7 @@ public class ConnectionMethodResource {
             connectionMethodInfos.add(connectionMethodInfoFactory.asInfo(partialConnectionTask, uriInfo));
         }
         List<ConnectionMethodInfo<?>> pagedConnectionMethodInfos = ListPager.of(connectionMethodInfos).from(queryParameters).find();
-        return PagedInfoList.asJson("data", pagedConnectionMethodInfos, queryParameters);
+        return PagedInfoList.fromPagedList("data", pagedConnectionMethodInfos, queryParameters);
     }
 
     @GET

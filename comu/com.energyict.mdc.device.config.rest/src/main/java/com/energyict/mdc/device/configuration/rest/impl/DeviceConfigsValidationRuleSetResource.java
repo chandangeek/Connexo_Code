@@ -66,7 +66,7 @@ public class DeviceConfigsValidationRuleSetResource {
             }
         }
         List<DeviceConfigurationInfos.DeviceConfigAndTypeInfo> result = ListPager.of(Arrays.asList(infos)).from(queryParameters).find();
-        return Response.ok(PagedInfoList.asJson("deviceConfigurations",
+        return Response.ok(PagedInfoList.fromPagedList("deviceConfigurations",
                 result, queryParameters)).build();
     }
 
@@ -128,7 +128,7 @@ public class DeviceConfigsValidationRuleSetResource {
             }
         }
         result.deviceConfigurations = ListPager.of(Arrays.asList(infos)).from(queryParameters).find();
-        return Response.ok(PagedInfoList.asJson("deviceConfigurations", result.deviceConfigurations, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("deviceConfigurations", result.deviceConfigurations, queryParameters)).build();
     }
 
     private List<DeviceConfiguration> allLinkableDeviceConfigurations(ValidationRuleSet validationRuleSet) {
