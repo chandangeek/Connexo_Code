@@ -22,6 +22,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
     ],
     items: {
         xtype: 'form',
+        itemId: 'load-profile-type-preview-form',
         layout: 'column',
         defaults: {
             xtype: 'container',
